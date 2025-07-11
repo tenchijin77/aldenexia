@@ -1,0 +1,38 @@
+[gd_scene load_steps=2 format=3 uid="uid://lqph7b6vxvyc"]
+
+[ext_resource type="Script" uid="uid://5kcuk36rp4bg" path="res://chat_window.gd" id="1_ix4qs"]
+
+[node name="Node2D" type="Node2D"]
+
+[node name="ChatWindow" type="Control" parent="."]
+custom_minimum_size = Vector2(300, 200)
+layout_mode = 3
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = -210.0
+offset_right = 310.0
+offset_bottom = -10.0
+grow_vertical = 0
+script = ExtResource("1_ix4qs")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ChatWindow"]
+custom_minimum_size = Vector2(290, 190)
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="ChatOutput" type="RichTextLabel" parent="ChatWindow/VBoxContainer"]
+custom_minimum_size = Vector2(290, 160)
+layout_mode = 2
+bbcode_enabled = true
+fit_content = true
+
+[node name="ChatInput" type="LineEdit" parent="ChatWindow/VBoxContainer"]
+custom_minimum_size = Vector2(290, 30)
+layout_mode = 2
+placeholder_text = "\"Say something, or ask a question...\""
+max_length = 160
+
+[node name="HTTPRequest" type="HTTPRequest" parent="ChatWindow"]

@@ -1,0 +1,28 @@
+{
+  "factions": [
+	{
+	  "name": "Wardens of the Flame",
+	  "description": "Noble knights protecting Aldenexia, tied to the Sword of Light.",
+	  "base_standing": 50,
+	  "dialogue_tone": "noble",
+	  "hostile_threshold": -20,
+	  "friendly_threshold": 100
+	},
+	{
+	  "name": "Twilight Accord",
+	  "description": "Secretive rogues seeking the Void’s power.",
+	  "base_standing": 0,
+	  "dialogue_tone": "sly",
+	  "hostile_threshold": -30,
+	  "friendly_threshold": 80
+	},
+	{
+	  "name": "Villagers of Lumora",
+	  "description": "Neutral townsfolk wary of conflict.",
+	  "base_standing": 25,
+	  "dialogue_tone": "simple",
+	  "hostile_threshold": -10,
+	  "friendly_threshold": 60
+	}
+  ]
+}

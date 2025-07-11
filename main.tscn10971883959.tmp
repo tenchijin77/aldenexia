@@ -1,0 +1,60 @@
+[gd_scene load_steps=8 format=3 uid="uid://wrtx56ntx6l3"]
+
+[ext_resource type="Script" uid="uid://dwbatsot6n8qy" path="res://player.gd" id="1_ig7tw"]
+[ext_resource type="SpriteFrames" uid="uid://b6euppeis8v26" path="res://player_animation.tres" id="2_1bvp3"]
+[ext_resource type="Script" uid="uid://bstlvhmby6a0e" path="res://npc.gd" id="2_h2yge"]
+[ext_resource type="PackedScene" uid="uid://lqph7b6vxvyc" path="res://chat_window.tscn" id="3_1bvp3"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_seu75"]
+size = Vector2(10.3333, 16.6667)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_lquwl"]
+size = Vector2(10.6667, 15.3333)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_1bvp3"]
+radius = 26.6854
+
+[node name="Main" type="Node2D"]
+
+[node name="Player" type="CharacterBody2D" parent="." groups=["player"]]
+scale = Vector2(3, 3)
+collision_mask = 2
+script = ExtResource("1_ig7tw")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="Player"]
+sprite_frames = ExtResource("2_1bvp3")
+animation = &"Idle"
+frame_progress = 0.265087
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Player"]
+position = Vector2(0.166667, -0.333334)
+shape = SubResource("RectangleShape2D_seu75")
+
+[node name="NPC" type="Area2D" parent="." groups=["npc"]]
+position = Vector2(250, 0)
+scale = Vector2(3, 3)
+script = ExtResource("2_h2yge")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="NPC"]
+position = Vector2(0.333336, 0)
+shape = SubResource("RectangleShape2D_lquwl")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="NPC"]
+sprite_frames = ExtResource("2_1bvp3")
+animation = &"Idle"
+flip_h = true
+
+[node name="DetectionZone" type="Area2D" parent="NPC"]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="NPC/DetectionZone"]
+shape = SubResource("CircleShape2D_1bvp3")
+
+[node name="RayCast2D" type="RayCast2D" parent="NPC"]
+top_level = true
+target_position = Vector2(0, 0)
+hit_from_inside = true
+
+[node name="ChatWindow" parent="." instance=ExtResource("3_1bvp3")]
+position = Vector2(-542, 280)
+
+[node name="Camera2D" type="Camera2D" parent="."]
