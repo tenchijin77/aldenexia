@@ -1,0 +1,48 @@
+[gd_scene load_steps=6 format=3 uid="uid://duekyy5wbajyu"]
+
+[ext_resource type="Script" uid="uid://bpkk3mcokdvhl" path="res://Scripts/bandit.gd" id="1_avrwa"]
+[ext_resource type="Texture2D" uid="uid://bttxffdtuo3os" path="res://Assets/kenney_tiny-dungeon/Tiles/tile_0112.png" id="2_avrwa"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_u8nqw"]
+size = Vector2(16, 16)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_avrwa"]
+size = Vector2(112, 96)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_avrwa"]
+bg_color = Color(0.698039, 0, 0, 1)
+
+[node name="bandit" type="CharacterBody2D"]
+script = ExtResource("1_avrwa")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_avrwa")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+visible = false
+shape = SubResource("RectangleShape2D_u8nqw")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+
+[node name="Timer" type="Timer" parent="."]
+
+[node name="detection_area" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="detection_area"]
+visible = false
+shape = SubResource("RectangleShape2D_avrwa")
+
+[node name="health_bar" type="ProgressBar" parent="."]
+offset_left = -12.0
+offset_top = -16.0
+offset_right = 12.0
+offset_bottom = -12.0
+theme_override_styles/fill = SubResource("StyleBoxFlat_avrwa")
+rounded = true
+show_percentage = false
+
+[node name="name_label" type="Label" parent="."]
+offset_left = -20.0
+offset_top = -33.0
+offset_right = 20.0
+offset_bottom = -10.0

@@ -1,0 +1,147 @@
+{
+  "factions": [
+	{
+			"_comment": "dialogue.json: This file is used for chat keywords.",
+
+	  "name": "Villagers of Lumora",
+	  "dialogue": {
+		"friendly": [
+		  {
+			"keywords": ["hello", "hi", "greetings"],
+			"response": "Well met, friend! The village is peaceful thanks to kind souls like thee."
+		  },
+		  {
+			"keywords": ["help", "quest", "task"],
+			"response": "Thou art generous! We need aid with bandits near the mill. Speak to Elder Mara."
+		  },
+		  {
+			"keywords": ["sword", "light"],
+			"response": "The Sword of Light? A legend! Some say it rests in the Ruins of Eryndor."
+		  }
+		],
+		"neutral": [
+		  {
+			"keywords": ["hello", "hi", "greetings"],
+			"response": "Hail, traveler. What brings thee to Lumora?"
+		  },
+		  {
+			"keywords": ["help", "quest", "task"],
+			"response": "We’ve troubles, but I know thee not. Prove thy worth to the village first."
+		  },
+		  {
+			"keywords": ["sword", "light"],
+			"response": "The Sword of Light? I’ve heard tales, but know little. Ask the elders."
+		  }
+		],
+		"hostile": [
+		  {
+			"keywords": ["hello", "hi", "greetings"],
+			"response": "Begone, troublemaker! We’ve no time for thy kind."
+		  },
+		  {
+			"keywords": ["help", "quest", "task"],
+			"response": "Help? From thee? Hmph, thou art more likely to cause trouble!"
+		  },
+		  {
+			"keywords": ["sword", "light"],
+			"response": "Speak not of sacred things, outsider! Leave Lumora at once."
+		  }
+		]
+	  }
+	},
+	{
+	  "name": "Wardens of the Flame",
+	  "dialogue": {
+		"friendly": [
+		  {
+			"keywords": ["hello", "hi", "greetings"],
+			"response": "Hail, noble ally! The Flame guides us both."
+		  },
+		  {
+			"keywords": ["help", "quest", "task"],
+			"response": "Join us in guarding the sacred flame. Seek Sir Aldric for a quest."
+		  },
+		  {
+			"keywords": ["sword", "light"],
+			"response": "The Sword of Light is our charge. Prove thy worth to wield it."
+		  }
+		],
+		"neutral": [
+		  {
+			"keywords": ["hello", "hi", "greetings"],
+			"response": "Greetings, stranger. State thy purpose with the Wardens."
+		  },
+		  {
+			"keywords": ["help", "quest", "task"],
+			"response": "We accept aid only from those proven loyal. Earn our trust."
+		  },
+		  {
+			"keywords": ["sword", "light"],
+			"response": "The Sword of Light is sacred. Why dost thou ask of it?"
+		  }
+		],
+		"hostile": [
+		  {
+			"keywords": ["hello", "hi", "greetings"],
+			"response": "Thou art no friend to the Flame! Begone!"
+		  },
+		  {
+			"keywords": ["help", "quest", "task"],
+			"response": "Aid from thee? The Wardens trust thee not!"
+		  },
+		  {
+			"keywords": ["sword", "light"],
+			"response": "The Sword is beyond thy grasp, villain!"
+		  }
+		]
+	  }
+	},
+	{
+	  "name": "Twilight Accord",
+	  "dialogue": {
+		"friendly": [
+		  {
+			"keywords": ["hello", "hi", "greetings"],
+			"response": "Well met, shadow-walker. What secrets dost thou seek?"
+		  },
+		  {
+			"keywords": ["help", "quest", "task"],
+			"response": "A task, eh? Meet us at dusk by the old oak for a... discreet job."
+		  },
+		  {
+			"keywords": ["sword", "light"],
+			"response": "The Sword of Light? We care more for the Void’s power, friend."
+		  }
+		],
+		"neutral": [
+		  {
+			"keywords": ["hello", "hi", "greetings"],
+			"response": "Hail. Speak quickly—what dost thou want?"
+		  },
+		  {
+			"keywords": ["help", "quest", "task"],
+			"response": "Work with us? Prove thou art no spy first."
+		  },
+		  {
+			"keywords": ["sword", "light"],
+			"response": "The Sword? Bah, it’s a trinket. The Void holds true power."
+		  }
+		],
+		"hostile": [
+		  {
+			"keywords": ["hello", "hi", "greetings"],
+			"response": "Keep thy distance, fool. We’ve no patience for thee."
+		  },
+		  {
+			"keywords": ["help", "quest", "task"],
+			"response": "Thou, help us? Don’t make me laugh!"
+		  },
+		  {
+			"keywords": ["sword", "light"],
+			"response": "The Sword? Keep dreaming, outsider."
+		  }
+		]
+	  }
+	}
+  ]
+}

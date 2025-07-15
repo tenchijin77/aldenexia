@@ -1,0 +1,37 @@
+[gd_scene load_steps=5 format=3 uid="uid://c3kslabkc6x62"]
+
+[ext_resource type="Script" uid="uid://b2kiyt30e8peg" path="res://Scripts/rat.gd" id="1_p0vde"]
+[ext_resource type="Texture2D" uid="uid://b4vwp21simva1" path="res://Assets/kenney_tiny-dungeon/Tiles/tile_0123.png" id="2_p0vde"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_qaslg"]
+radius = 8.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_p0vde"]
+bg_color = Color(0.698039, 0, 0, 1)
+
+[node name="rat" type="CharacterBody2D"]
+script = ExtResource("1_p0vde")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+visible = false
+shape = SubResource("CircleShape2D_qaslg")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_p0vde")
+
+[node name="health_bar" type="ProgressBar" parent="."]
+offset_left = -20.0
+offset_top = -18.0
+offset_right = 21.0
+offset_bottom = -13.0
+theme_override_styles/fill = SubResource("StyleBoxFlat_p0vde")
+rounded = true
+show_percentage = false
+
+[node name="name_label" type="Label" parent="."]
+offset_left = -20.0
+offset_top = -36.0
+offset_right = 20.0
+offset_bottom = -13.0

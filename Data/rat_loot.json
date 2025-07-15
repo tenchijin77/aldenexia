@@ -1,0 +1,13 @@
+{
+	"_comment": "This loot table is used for the rat mob.",
+  "loot": [
+	{
+	  "item": "rat_tail",
+	  "chance": 0.5
+	},
+	{
+	  "item": "chewed_cloth",
+	  "chance": 0.3
+	}
+  ]
+}

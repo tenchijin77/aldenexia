@@ -1,0 +1,55 @@
+{
+		"_comment": "dialogue_lumora.json: This table is used for the npc chat in Lumora.",
+
+  "town": "Lumora",
+  "npcs": [
+    {
+      "name": "Alric Thornhart",
+      "role": "Town Leader",
+      "race": "Human",
+      "faction": "Wardens of the Sacred Flame",
+      "dialogue": {
+        "greeting": "Welcome to Lumora, traveler. May the light guide your path.",
+        "help": "If you're seeking purpose, speak to the guildmasters or aid the villagers.",
+        "lore": "Lumora was founded after the First Cataclysm, a beacon of peace in troubled times.",
+        "farewell": "Go with honor, and return safely."
+      }
+    },
+	{
+  "name": "Annadeus Beidsdottir",
+  "role": "High Songweaver & Diplomat",
+  "race": "Human",
+  "faction": "Echoes of the Deep",
+  "dialogue": {
+    "greeting": "May harmony guide your steps. Sylvaren listens, even from afar.",
+    "help": "The Deep Echo speaks again. Seek the Resonant Vault beneath the flowering arches, but only if your heart is tuned to truth.",
+    "lore": "Before the First Cataclysm, the Chalice of Resonance was lost in song. Only unity can restore its voice.",
+    "farewell": "Let Lirael’s melody carry you safely through the discord yet to come."
+  }
+},
+    {
+      "name": "Serah Valebrook",
+      "role": "Innkeeper",
+      "race": "Human",
+      "faction": "Villagers of Lumora",
+      "dialogue": {
+        "greeting": "Need a place to rest? The hearth is warm and the beds are clean.",
+        "help": "I hear the Twilight Accord has been seen near the woods. Be careful.",
+        "lore": "They say the Sword of Light once passed through this very town.",
+        "farewell": "Rest well, friend."
+      }
+    },
+    {
+      "name": "Jorin Redwick",
+      "role": "Guildmaster - Warrior",
+      "race": "Human",
+      "faction": "Ironclad Brotherhood",
+      "dialogue": {
+        "greeting": "Strength is earned, not given. Show me what you've got.",
+        "help": "Train hard, and you'll be ready for the trials ahead.",
+        "lore": "The Ironclad Brotherhood has defended Lumora for generations.",
+        "farewell": "Keep your blade sharp."
+      }
+    }
+  ]
+}

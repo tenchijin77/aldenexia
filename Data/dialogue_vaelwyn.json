@@ -1,0 +1,43 @@
+{
+	"_comment": "dialogue_vaelwyn.json: This table is used for the npc chat in Vaelwyn.",
+	
+  "town": "Vaelwyn",
+  "npcs": [
+    {
+      "name": "Thalanil Soryn",
+      "role": "Town Leader",
+      "race": "Elf",
+      "faction": "Circle of Thorns",
+      "dialogue": {
+        "greeting": "Welcome to Vaelwyn, sanctuary of the ancient woods.",
+        "help": "The forest spirits whisper of imbalance. Aid us, if you can.",
+        "lore": "Vaelwyn was grown, not built, from the roots of the Worldtree's kin.",
+        "farewell": "May the leaves shelter your journey."
+      }
+    },
+    {
+      "name": "Aenara Moonwhisper",
+      "role": "Guildmaster - Druid",
+      "race": "Elf",
+      "faction": "Circle of Thorns",
+      "dialogue": {
+        "greeting": "Nature speaks to those who listen. Do you hear it?",
+        "help": "The Verdant Maw corrupts the glades. We must act swiftly.",
+        "lore": "The Circle of Thorns was born from the Second Bloom, when wild magic surged.",
+        "farewell": "Tread lightly, and with purpose."
+      }
+    },
+    {
+      "name": "Caerith Elenviel",
+      "role": "Guildmaster - Wizard",
+      "race": "Elf",
+      "faction": "Arcane Synod",
+      "dialogue": {
+        "greeting": "Knowledge is the root of all power. What do you seek?",
+        "help": "The ley lines near Vaelwyn are unstable. We need arcane assistance.",
+        "lore": "The Arcane Synod studies the flow of magic through the forest’s heart.",
+        "farewell": "May your mind remain sharp and your spells true."
+      }
+    }
+  ]
+}

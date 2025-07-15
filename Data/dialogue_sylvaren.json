@@ -1,0 +1,42 @@
+{
+	"_comment": "dialogue_sylvaren.json: This table is used for the npc chat in Sylvaren.",
+  "town": "Sylvaren",
+  "npcs": [
+    {
+      "name": "Elenion Frostfire",
+      "role": "Town Leader",
+      "race": "Half-Elf",
+      "faction": "Arcane Synod",
+      "dialogue": {
+        "greeting": "Welcome to Sylvaren, where twilight and truth walk hand in hand.",
+        "help": "We walk a delicate path here. Aid us in keeping the balance.",
+        "lore": "Sylvaren was founded by those who could not choose between two worlds—and so made their own.",
+        "farewell": "May your steps be sure, and your heart steady."
+      }
+    },
+    {
+      "name": "Nymeria Sunblossom",
+      "role": "Guildmaster - Ranger",
+      "race": "Half-Elf",
+      "faction": "The Verdant Kin",
+      "dialogue": {
+        "greeting": "The forest watches, even when you do not.",
+        "help": "A spirit beast has been sighted near the glade. We need a tracker.",
+        "lore": "The Verdant Kin believe every ranger is born with a bond to the land.",
+        "farewell": "Stay swift, and silent."
+      }
+    },
+    {
+      "name": "Caladwen Brightbloom",
+      "role": "Trainer - Bard",
+      "race": "Half-Elf",
+      "faction": "Echoes of the Deep",
+      "dialogue": {
+        "greeting": "A song can open doors no key ever could.",
+        "help": "We’re composing a harmony to calm the forest’s unrest. Will you lend your voice?",
+        "lore": "The Echoes of the Deep say Sylvaren’s twilight hums with forgotten melodies.",
+        "farewell": "Sing your truth, and the world will listen."
+      }
+    }
+  ]
+}

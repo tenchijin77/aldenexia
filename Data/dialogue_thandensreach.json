@@ -1,0 +1,44 @@
+[
+  {
+	  "_comment": "dialogue_thandensreach.json: This table is used for the npc chat in Thanden's reach.",
+	  
+    "name": "Kaelith Nightshade",
+    "race": "Mixed",
+    "role": "Town Leader",
+    "description": "Mixed town leader affiliated with local guilds in Thanden’s Reach.",
+    "dialogue": {
+      "greeting": "Greetings, traveler. I am Kaelith Nightshade, the town leader here.",
+      "role": "My duties as a town leader keep me quite busy.",
+      "background": "I've been in Thanden's Reach for many years, serving as a town leader.",
+      "rumors": "There are whispers of strange happenings beyond the town borders.",
+      "farewell": "Safe travels, and may fortune favor you."
+    }
+  },
+  {
+    "name": "Thorne Moonfire",
+    "race": "Mixed",
+    "role": "Innkeeper",
+    "description": "Mixed innkeeper affiliated with local guilds in Thanden’s Reach.",
+    "dialogue": {
+      "greeting": "Greetings, traveler. I am Thorne Moonfire, the innkeeper here.",
+      "role": "My duties as an innkeeper keep me quite busy.",
+      "background": "I've been in Thanden's Reach for many years, serving as an innkeeper.",
+      "rumors": "There are whispers of strange happenings beyond the town borders.",
+      "farewell": "Safe travels, and may fortune favor you."
+    }
+  },
+  {
+    "name": "Aeliana Stormrider",
+    "race": "Mixed",
+    "role": "General Vendor",
+    "description": "Mixed general vendor affiliated with local guilds in Thanden’s Reach.",
+    "dialogue": {
+      "greeting": "Greetings, traveler. I am Aeliana Stormrider, the general vendor here.",
+      "role": "My duties as a general vendor keep me quite busy.",
+      "background": "I've been in Thanden's Reach for many years, serving as a general vendor.",
+      "rumors": "There are whispers of strange happenings beyond the town borders.",
+      "farewell": "Safe travels, and may fortune favor you."
+    }
+  }
+  // ... (more NPCs follow in the same format)
+]

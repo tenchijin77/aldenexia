@@ -1,0 +1,42 @@
+{
+	"_comment": "dialogue_ironfisthold.json: This table is used for the npc chat in Ironfist Hold.",
+  "town": "Ironfist Hold",
+  "npcs": [
+    {
+      "name": "Roderick Ironheart",
+      "role": "Town Leader",
+      "race": "Human",
+      "faction": "Order of the Silent Fist",
+      "dialogue": {
+        "greeting": "Discipline and strength are the pillars of Ironfist Hold.",
+        "help": "If you seek to prove yourself, speak with the masters of the fist or the forge.",
+        "lore": "This hold was once a war camp, now a sanctuary for those seeking redemption through discipline.",
+        "farewell": "Walk the path with purpose, and return stronger."
+      }
+    },
+    {
+      "name": "Kaelith Shadowglen",
+      "role": "Guildmaster - Monk",
+      "race": "Mixed",
+      "faction": "Order of the Silent Fist",
+      "dialogue": {
+        "greeting": "Stillness is strength. Chaos is weakness.",
+        "help": "Balance your breath, your stance, your mind. Then you may begin.",
+        "lore": "The Order of the Silent Fist teaches that silence is the loudest truth.",
+        "farewell": "Return when your spirit is ready."
+      }
+    },
+    {
+      "name": "Elara Windwhisper",
+      "role": "Trainer - Warrior",
+      "race": "Human",
+      "faction": "Ironclad Brotherhood",
+      "dialogue": {
+        "greeting": "Steel sharpens steel. Let’s see what you’re made of.",
+        "help": "We train daily in the lower barracks. Join us if you’ve got grit.",
+        "lore": "The Ironclad Brotherhood respects strength—but honors restraint.",
+        "farewell": "Keep your guard up."
+      }
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "_comment": "This loot table is used for the skeleton mob.",
+  "loot": [
+	{"item": "rusty_sword", "chance": 0.25},
+	{"item": "bone_shield", "chance": 0.1}
+  ],
+  "currency": {
+	"copper_coin": {"min": 8, "max": 25}
+  }
+}

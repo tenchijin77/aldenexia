@@ -1,0 +1,22 @@
+{
+		"_comment": "player_faction.json: This table is used for tracking player faction.",
+
+  "factions": [
+	{ "name": "Wardens of the Sacred Flame", "standing": 50 },
+	{ "name": "Twilight Accord", "standing": 0 },
+	{ "name": "Villagers of Lumora", "standing": 25 },
+	{ "name": "Luminar Covenant", "standing": 40 },
+	{ "name": "Circle of Thorns", "standing": 20 },
+	{ "name": "Verdant Kin", "standing": 30 },
+	{ "name": "Hands of the Eternal Forge", "standing": 35 },
+	{ "name": "Ironclad Brotherhood", "standing": 20 },
+	{ "name": "Arcane Synod", "standing": 15 },
+	{ "name": "Arcane Dominion", "standing": 10 },
+	{ "name": "Echoes of the Deep", "standing": 30 },
+	{ "name": "Umbral Talon", "standing": 0 },
+	{ "name": "Shattered Horn Tribe", "standing": 5 },
+	{ "name": "Stoneblood Clan", "standing": 0 },
+	{ "name": "Veilstriders", "standing": -10 },
+	{ "name": "Brood of Fennarach", "standing": 5 }
+  ]
+}

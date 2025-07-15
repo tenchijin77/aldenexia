@@ -1,0 +1,42 @@
+{
+	"_comment": "dialogue_cinderglen.json: This table is used for the npc chat in Cinderglen.",
+  "town": "Cinderglen",
+  "npcs": [
+    {
+      "name": "Tilly Quickstep",
+      "role": "Town Leader",
+      "race": "Halfling",
+      "faction": "Villagers of Lumora",
+      "dialogue": {
+        "greeting": "Welcome to Cinderglen, where the tea is hot and the gossip hotter!",
+        "help": "We could use a hand with the spring festival setup—or chasing off those pesky bog rats.",
+        "lore": "Cinderglen was built around the Ember Springs, said to soothe even the weariest soul.",
+        "farewell": "Come back soon, and bring stories!"
+      }
+    },
+    {
+      "name": "Fenwick Applejack",
+      "role": "Innkeeper",
+      "race": "Halfling",
+      "faction": "Villagers of Lumora",
+      "dialogue": {
+        "greeting": "Rooms are cozy, pies are fresh, and the cider’s on tap!",
+        "help": "If you’re looking for work, check the notice board by the hearth.",
+        "lore": "They say a bard once wrote a song here that made the stars weep.",
+        "farewell": "Sleep tight, and don’t let the fire sprites bite!"
+      }
+    },
+    {
+      "name": "Marla Berrytwist",
+      "role": "Guildmaster - Bard",
+      "race": "Halfling",
+      "faction": "Echoes of the Deep",
+      "dialogue": {
+        "greeting": "Ah, a fellow lover of song and story! What brings you to my stage?",
+        "help": "We’re composing a ballad of the Lightfall—care to lend your voice?",
+        "lore": "The Echoes of the Deep believe every melody carries a memory of the world.",
+        "farewell": "Sing loud, sing proud!"
+      }
+    }
+  ]
+}

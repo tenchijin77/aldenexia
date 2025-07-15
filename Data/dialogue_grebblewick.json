@@ -1,0 +1,42 @@
+{
+	"_comment": "dialogue_grebblewick.json: This table is used for the npc chat in Grebblewick.",
+  "town": "Grebblewick",
+  "npcs": [
+    {
+      "name": "Fenwick Brightspark",
+      "role": "Town Leader",
+      "race": "Gnome",
+      "faction": "Echoes of the Deep",
+      "dialogue": {
+        "greeting": "Welcome to Grebblewick! Mind the gears, and don’t trip over the singing mushrooms.",
+        "help": "We’re testing a new steam-powered glider. Volunteers welcome—helmets optional.",
+        "lore": "They say Grebblewick was founded when a gnome fell off a skyship and decided to stay.",
+        "farewell": "Tinker well, and may your gadgets never explode—too badly."
+      }
+    },
+    {
+      "name": "Nibbles Tinkertop",
+      "role": "Guildmaster - Sorcerer",
+      "race": "Gnome",
+      "faction": "Guild of the Eclipsed Mind",
+      "dialogue": {
+        "greeting": "Magic is just science with flair. And maybe a few hallucinations.",
+        "help": "I need someone to test a spell that may or may not reverse gravity.",
+        "lore": "The Guild of the Eclipsed Mind believes reality is a suggestion. I suggest you duck.",
+        "farewell": "If you see a floating chicken, don’t panic. Probably."
+      }
+    },
+    {
+      "name": "Rosie Teaberry",
+      "role": "Innkeeper",
+      "race": "Gnome",
+      "faction": "Villagers of Lumora",
+      "dialogue": {
+        "greeting": "Come in, come in! Tea’s hot, beds are bouncy, and the gossip’s fresh.",
+        "help": "We’re short on honeycakes for the festival. Know any good foragers?",
+        "lore": "The inn’s been rebuilt six times. Last time, it was due to a teleportation mishap.",
+        "farewell": "Sleep tight, and don’t let the clockwork mice nibble your toes!"
+      }
+    }
+  ]
+}

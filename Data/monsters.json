@@ -1,0 +1,93 @@
+{
+  "_comment": "This table is used for monsters' stats.",
+  "slime": {
+	"description": "a oozing slime",
+	"speed": 30,
+	"health": 50,
+	"damage": 5,
+	"type": "animal",
+	"faction": "None",
+	"coin_modifier": 0.0,
+	"zone": "Lumora",
+	"animations": {
+	  "idle": "slime_idle",
+	  "walk": "slime_walk",
+	  "attack": "slime_attack"
+	}
+  },
+  "rat": {
+	"description": "a filthy rat",
+	"speed": 30,
+	"health": 20,
+	"damage": 2,
+	"type": "animal",
+	"faction": "None",
+	"coin_modifier": 0.0,
+	"zone": "Lumora",
+	"animations": {
+	  "idle": "rat_idle",
+	  "walk": "rat_walk",
+	  "attack": "rat_attack"
+	}
+  },
+  "bat": {
+	"description": "a rabid bat",
+	"speed": 25,
+	"health": 25,
+	"damage": 3,
+	"type": "animal",
+	"faction": "None",
+	"coin_modifier": 0.0,
+	"zone": "Lumora",
+	"animations": {
+	  "idle": "bat_idle",
+	  "walk": "bat_walk",
+	  "attack": "bat_attack"
+	}
+  },
+  "goblin": {
+	"description": "an angry goblin",
+	"speed": 60,
+	"health": 80,
+	"damage": 12,
+	"type": "humanoid",
+	"faction": "Twilight Accord",
+	"coin_modifier": 1.2,
+	"zone": "Lumora",
+	"animations": {
+	  "idle": "goblin_idle",
+	  "walk": "goblin_walk",
+	  "attack": "goblin_attack"
+	}
+  },
+  "skeleton": {
+	"description": "a decaying skeleton",
+	"speed": 40,
+	"health": 80,
+	"damage": 15,
+	"type": "undead",
+	"faction": "None",
+	"coin_modifier": 1.0,
+	"zone": "Lumora",
+	"animations": {
+	  "idle": "skeleton_idle",
+	  "walk": "skeleton_walk",
+	  "attack": "skeleton_attack"
+	}
+  },
+  "bandit": {
+	"description": "a sneaky bandit",
+	"speed": 50,
+	"health": 65,
+	"damage": 12,
+	"type": "humanoid",
+	"faction": "None",
+	"coin_modifier": 2.0,
+	"zone": "Lumora",
+	"animations": {
+	  "idle": "bandit_idle",
+	  "walk": "bandit_walk",
+	  "attack": "bandit_attack"
+	}
+  }
+}

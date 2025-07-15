@@ -1,0 +1,17 @@
+{
+	"_comment": "This loot table is used for the goblin mob.",
+  "loot": [
+	{
+	  "item": "goblin_ear",
+	  "chance": 0.4
+	},
+	{
+	  "item": "rusty_dagger",
+	  "chance": 0.3
+	},
+	{
+	  "item": "copper_coin",
+	  "chance": 0.6
+	}
+  ]
+}

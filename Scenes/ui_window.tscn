@@ -1,0 +1,98 @@
+[gd_scene format=3 uid="uid://br1iaqn13bd6f"]
+
+[node name="ui_window" type="Control"]
+layout_mode = 3
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -117.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="player_stats_window" type="PanelContainer" parent="."]
+custom_minimum_size = Vector2(162, 80)
+layout_mode = 0
+offset_left = 344.0
+offset_top = -525.0
+offset_right = 506.0
+offset_bottom = -445.0
+
+[node name="player_stats" type="HBoxContainer" parent="player_stats_window"]
+layout_mode = 2
+
+[node name="health_bar" type="ProgressBar" parent="player_stats_window/player_stats"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.972549, 0, 0, 1)
+rounded = true
+fill_mode = 2
+show_percentage = false
+
+[node name="mana_bar" type="ProgressBar" parent="player_stats_window/player_stats"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0.968627, 1)
+rounded = true
+fill_mode = 2
+show_percentage = false
+
+[node name="Label" type="Label" parent="player_stats_window/player_stats"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "Player"
+
+[node name="chat_container" type="HBoxContainer" parent="."]
+layout_mode = 0
+offset_left = 1.0
+offset_top = 11.0
+offset_right = 201.0
+offset_bottom = 111.0
+
+[node name="PanelContainer" type="PanelContainer" parent="chat_container"]
+custom_minimum_size = Vector2(400, 100)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="world_chat" type="RichTextLabel" parent="chat_container/PanelContainer"]
+layout_mode = 2
+bbcode_enabled = true
+text = "World Chat"
+
+[node name="chat_container2" type="HBoxContainer" parent="."]
+layout_mode = 0
+offset_left = 749.0
+offset_top = 11.0
+offset_right = 1149.0
+offset_bottom = 111.0
+
+[node name="PanelContainer" type="PanelContainer" parent="chat_container2"]
+custom_minimum_size = Vector2(400, 100)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="combat_text" type="RichTextLabel" parent="chat_container2/PanelContainer"]
+layout_mode = 2
+bbcode_enabled = true
+text = "Combat text"
+
+[node name="target_stats_window" type="PanelContainer" parent="."]
+custom_minimum_size = Vector2(162, 80)
+layout_mode = 0
+offset_left = 603.0
+offset_top = -527.0
+offset_right = 765.0
+offset_bottom = -447.0
+
+[node name="target_stats" type="HBoxContainer" parent="target_stats_window"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="target_stats_window/target_stats"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "Target"
+
+[node name="target_health" type="ProgressBar" parent="target_stats_window/target_stats"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.972549, 0, 0, 1)
+rounded = true
+fill_mode = 2
+show_percentage = false

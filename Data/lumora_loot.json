@@ -1,0 +1,45 @@
+{
+	"_comment": "This loot table is used for the Lumora zone.",
+  "undead": [
+	{
+	  "item": "bone_fragment",
+	  "chance": 0.5
+	},
+	 {
+	  "item": "copper_coin",
+	  "chance": 0.6
+	},
+	{
+	  "item": "rotting_cloth",
+	  "chance": 0.3
+	},
+	{
+	  "item": "rusty_sword",
+	  "chance": 0.25
+	},
+	{
+	  "item": "wooden_buckler",
+	  "chance": 0.3
+	}
+  ],
+  "animal": [
+	{
+	  "item": "raw_meat",
+	  "chance": 0.6
+	},
+	{
+	  "item": "fur_pelt",
+	  "chance": 0.4
+	}
+  ],
+  "humanoid": [
+	{
+	  "item": "copper_coin",
+	  "chance": 0.8
+	},
+	{
+	  "item": "dagger",
+	  "chance": 0.2
+	}
+  ]
+}

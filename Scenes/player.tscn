@@ -1,0 +1,43 @@
+[gd_scene load_steps=5 format=3 uid="uid://o2xfrm0mcx0v"]
+
+[ext_resource type="Script" uid="uid://dwbatsot6n8qy" path="res://Scripts/player.gd" id="1_cvnsp"]
+[ext_resource type="Texture2D" uid="uid://wfb2hyhejlg6" path="res://Assets/kenney_tiny-dungeon/Tiles/tile_0096.png" id="1_v0iea"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_cvnsp"]
+size = Vector2(16, 16)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_cvnsp"]
+bg_color = Color(0.698039, 0, 0, 1)
+
+[node name="player" type="CharacterBody2D"]
+script = ExtResource("1_cvnsp")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." groups=["player"]]
+visible = false
+shape = SubResource("RectangleShape2D_cvnsp")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("1_v0iea")
+
+[node name="health_bar" type="ProgressBar" parent="."]
+custom_minimum_size = Vector2(0, -30)
+offset_left = -14.0
+offset_top = -18.0
+offset_right = 14.0
+offset_bottom = -14.0
+theme_override_styles/fill = SubResource("StyleBoxFlat_cvnsp")
+rounded = true
+show_percentage = false
+
+[node name="name_label" type="Label" parent="."]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -20.0
+offset_top = -31.0
+offset_right = 20.0
+offset_bottom = -8.0
+grow_horizontal = 2
+theme_override_font_sizes/font_size = 10
+text = "The Hero"
+horizontal_alignment = 1

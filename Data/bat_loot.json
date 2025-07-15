@@ -1,0 +1,13 @@
+{
+	"_comment": "This loot table is used for the bat mob.",
+  "loot": [
+	{
+	  "item": "bat_wing",
+	  "chance": 0.6
+	},
+	{
+	  "item": "echolocation_gland",
+	  "chance": 0.1
+	}
+  ]
+}

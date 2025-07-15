@@ -1,0 +1,43 @@
+{
+	"_comment": "dialogue_veyrashollow.json: This table is used for the npc chat in Veyra's Hollow.",
+	
+  "town": "Veyra’s Hollow",
+  "npcs": [
+    {
+      "name": "Soren Nightshade",
+      "role": "Town Leader",
+      "race": "Mixed",
+      "faction": "Twilight Accord",
+      "dialogue": {
+        "greeting": "Welcome to the Hollow. Speak softly—shadows have ears.",
+        "help": "There are whispers of movement in the marsh. We need someone discreet.",
+        "lore": "Veyra’s Hollow was once a druidic grove, now twisted by secrets and fog.",
+        "farewell": "Tread carefully. The mists remember."
+      }
+    },
+    {
+      "name": "Vespera Moonfire",
+      "role": "Guildmaster - Rogue",
+      "race": "Mixed",
+      "faction": "Twilight Accord",
+      "dialogue": {
+        "greeting": "You’ve got the look of someone who knows how to vanish.",
+        "help": "We’ve a job—quiet, quick, and no questions asked.",
+        "lore": "The Accord doesn’t seek power. We seek control of the unseen.",
+        "farewell": "If you’re caught, you never met me."
+      }
+    },
+    {
+      "name": "Thorne Blackbriar",
+      "role": "Trainer - Sorcerer",
+      "race": "Mixed",
+      "faction": "Guild of the Eclipsed Mind",
+      "dialogue": {
+        "greeting": "The mind is a maze. I can show you the shortcuts.",
+        "help": "There’s a rift forming in the dreamveil. We need a mindwalker.",
+        "lore": "The Guild of the Eclipsed Mind believes reality is merely suggestion.",
+        "farewell": "Sleep with one eye open—and the other dreaming."
+      }
+    }
+  ]
+}
