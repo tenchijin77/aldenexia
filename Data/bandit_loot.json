@@ -1,0 +1,7 @@
+{
+  "_comment": "bandit_loot.json - Defines unique loot for bandit monsters.",
+  "unique_loot": [
+    {"item": "bandit_dagger", "chance": 0.1, "min": 1, "max": 1},
+    {"item": "leather_scrap", "chance": 0.2, "min": 1, "max": 3}
+  ]
+}

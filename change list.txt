@@ -27,3 +27,12 @@ implement nests for spiders, rats, and bandit camps as spawn locations
 
 
 
+enviromental variables for this program:
+
+snakecase is used for all file names, with all words in lowercase
+pascalcase is used for folders, (i.e. first letter capital like /Data)
+all tables are stored in json files in res://Data/
+all scripts are stored in res://Scripts/
+all scenes are stored in res://Scenes
+all scripts should stert with a comment designating the script name, i.e. (# snake.gd)
+all json files should start with a comment designating the file name and purpose, i.e. ("_comment": "monsters.json - this table is used for monster's stats ")

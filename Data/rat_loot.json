@@ -1,13 +1,6 @@
 {
-	"_comment": "This loot table is used for the rat mob.",
-  "loot": [
-	{
-	  "item": "rat_tail",
-	  "chance": 0.5
-	},
-	{
-	  "item": "chewed_cloth",
-	  "chance": 0.3
-	}
+  "_comment": "rat_loot.json - Defines unique loot for rat monsters.",
+  "unique_loot": [
+    {"item": "rat_tail", "chance": 0.3, "min": 1, "max": 1}
   ]
 }

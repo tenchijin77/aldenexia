@@ -1,0 +1,34 @@
+{
+  "_comment": "lumora_outskirts.json - Defines common loot for monsters in the Lumora zone by category.",
+  "undead": [
+    {"item": "bone_fragment", "chance": 0.5, "min": 1, "max": 3},
+    {"item": "copper_coin", "chance": 0.6, "min": 1, "max": 5},
+    {"item": "rotting_cloth", "chance": 0.3, "min": 1, "max": 2},
+    {"item": "rusty_sword", "chance": 0.25, "min": 1, "max": 1},
+    {"item": "wooden_buckler", "chance": 0.3, "min": 1, "max": 1}
+    {"item": "rusty_axe", "chance": 0.25, "min": 1, "max": 1},
+    {"item": "rusty_spear", "chance": 0.3, "min": 1, "max": 1}
+    {"item": "rusty_maul", "chance": 0.25, "min": 1, "max": 1},
+    {"item": "rusty_spear", "chance": 0.3, "min": 1, "max": 1}
+  ],
+  "animal": [
+    {"item": "raw_meat", "chance": 0.6, "min": 1, "max": 2},
+    {"item": "fur_pelt", "chance": 0.4, "min": 1, "max": 2}
+  ],
+  "humanoid": [
+    {"item": "copper_coin", "chance": 0.8, "min": 1, "max": 5},
+    {"item": "dagger", "chance": 0.2, "min": 1, "max": 1}
+	{"item": "rusty_sword", "chance": 0.25, "min": 1, "max": 1},
+    {"item": "wooden_buckler", "chance": 0.3, "min": 1, "max": 1}
+       {"item": "rusty_axe", "chance": 0.25, "min": 1, "max": 1},
+    {"item": "rusty_spear", "chance": 0.3, "min": 1, "max": 1}
+    {"item": "rusty_maul", "chance": 0.25, "min": 1, "max": 1},
+    {"item": "rusty_spear", "chance": 0.3, "min": 1, "max": 1}
+  ],
+  "insect": [
+    {"item": "chitin_fragment", "chance": 0.5, "min": 1, "max": 2}
+  ],
+  "reptile": [
+    {"item": "snake_scale", "chance": 0.4, "min": 1, "max": 2}
+  ]
+}

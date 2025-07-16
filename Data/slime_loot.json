@@ -1,13 +1,7 @@
 {
-	"_comment": "This loot table is used for the slime mob.",
-  "loot": [
-	{
-	  "item": "slime_gel",
-	  "chance": 0.4
-	},
-	{
-	  "item": "sticky_residue",
-	  "chance": 0.2
-	}
+  "_comment": "slime_loot.json - Defines unique loot for slime monsters.",
+  "unique_loot": [
+    {"item": "slime_gel", "chance": 0.3, "min": 1, "max": 2},
+    {"item": "sticky_residue", "chance": 0.2, "min": 1, "max": 2}
   ]
 }
