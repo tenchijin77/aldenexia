@@ -36,3 +36,4 @@ all scripts are stored in res://Scripts/
 all scenes are stored in res://Scenes
 all scripts should stert with a comment designating the script name, i.e. (# snake.gd)
 all json files should start with a comment designating the file name and purpose, i.e. ("_comment": "monsters.json - this table is used for monster's stats ")
+all script files should use tab indentation, not space indentation
