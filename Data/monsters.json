@@ -8,6 +8,7 @@
 	"type": "animal",
 	"faction": "None",
 	"coin_modifier": 0.0,
+	"xp_gaim": 7,
 	"zone": "Lumora",
 	"animations": {
 	  "idle": "slime_idle",
@@ -23,6 +24,7 @@
 	"type": "animal",
 	"faction": "None",
 	"coin_modifier": 0.0,
+	"xp_gaim": 5,
 	"zone": "Lumora",
 	"animations": {
 	  "idle": "rat_idle",
@@ -38,6 +40,7 @@
 	"type": "animal",
 	"faction": "None",
 	"coin_modifier": 0.0,
+	"xp_gaim": 7,
 	"zone": "Lumora",
 	"animations": {
 	  "idle": "bat_idle",
@@ -53,6 +56,7 @@
 	"type": "humanoid",
 	"faction": "Twilight Accord",
 	"coin_modifier": 1.2,
+	"xp_gaim": 10,
 	"zone": "Lumora",
 	"animations": {
 	  "idle": "goblin_idle",
@@ -68,6 +72,7 @@
 	"type": "undead",
 	"faction": "None",
 	"coin_modifier": 1.0,
+	"xp_gaim": 12,
 	"zone": "Lumora",
 	"animations": {
 	  "idle": "skeleton_idle",
@@ -83,6 +88,7 @@
 	"type": "humanoid",
 	"faction": "None",
 	"coin_modifier": 2.0,
+	"xp_gaim": 15,
 	"zone": "Lumora",
 	"animations": {
 	  "idle": "bandit_idle",
