@@ -1,3 +1,4 @@
+# player.gd
 extends CharacterBody2D
 
 @export var speed = 200.0
@@ -90,8 +91,8 @@ func apply_racial_modifiers(race_name: String):
 	var race = race_name.to_lower()
 	if race == "troll" or race == "lizardkin":
 		health_regen_rate *= 1.15
-	if race == "lizardkin":
-		armor_class += 2
+		if race == "lizardkin":
+			armor_class += 2
 
 func apply_mana_regen_bonus():
 	var meditation_skill := 5
@@ -113,9 +114,9 @@ func _physics_process(delta):
 	if input_direction.length() > 0:
 		velocity = input_direction.normalized() * speed
 		last_direction = input_direction.normalized()
-
 	else:
 		velocity = Vector2.ZERO
+
 	move_and_slide()
 
 func _process(delta):
