@@ -1,0 +1,16 @@
+{
+  "Voidknight": ["Human", "Dwarf", "Half-Elf", "Ogre", "Troll", "Dark Elf", "Half-Orc", "Lizardkin"],
+  "Lightsworn": ["Human", "Elf", "Dwarf", "Half-Elf", "Half-Orc"],
+  "Blademaster": ["Human", "Dwarf", "Halfling", "Half-Elf", "Ogre", "Troll", "Dark Elf", "Half-Orc", "Lizardkin"],
+  "Lightcaller": ["Human", "Elf", "Dwarf", "Gnome", "Halfling", "Half-Elf"],
+  "Spiritcaller": ["Human", "Elf", "Dwarf", "Half-Elf", "Ogre", "Troll", "Half-Orc"],
+  "Wildspeaker": ["Human", "Elf", "Halfling", "Half-Elf", "Half-Orc"],
+  "Zenblade": ["Human", "Elf", "Dwarf", "Gnome", "Halfling", "Half-Elf", "Ogre", "Troll", "Dark Elf", "Half-Orc", "Lizardkin"],
+  "Woodstalker": ["Human", "Elf", "Dwarf", "Gnome", "Halfling", "Half-Elf", "Dark Elf", "Half-Orc", "Lizardkin"],
+  "Shadowblade": ["Human", "Elf", "Dwarf", "Gnome", "Halfling", "Half-Elf", "Dark Elf", "Half-Orc", "Lizardkin"],
+  "Troubadour": ["Human", "Elf", "Dwarf", "Gnome", "Halfling", "Half-Elf", "Half-Orc"],
+  "Gravecaller": ["Human", "Elf", "Dwarf", "Gnome", "Halfling", "Half-Elf", "Dark Elf", "Lizardkin"],
+  "Runecaster": ["Human", "Elf", "Gnome", "Halfling", "Half-Elf", "Dark Elf", "Lizardkin"],
+  "Arcanist": ["Human", "Elf", "Gnome", "Halfling", "Half-Elf", "Dark Elf", "Lizardkin"],
+  "Wildmage": ["Human", "Elf", "Gnome", "Halfling", "Half-Elf", "Dark Elf", "Lizardkin"]
+}

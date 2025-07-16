@@ -1,0 +1,155 @@
+[gd_scene load_steps=2 format=3 uid="uid://d1pa1lna4onl5"]
+
+[ext_resource type="Script" uid="uid://tm51emttknbl" path="res://Scripts/character_creation.gd" id="1_r633d"]
+
+[node name="Control" type="Control"]
+top_level = true
+z_index = 10
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("1_r633d")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Create Your Character"
+
+[node name="confirm_button" type="Button" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Confirm"
+
+[node name="begin_button" type="Button" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Begin Your Adventure"
+
+[node name="top_section" type="VBoxContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="name_section" type="HBoxContainer" parent="MarginContainer/VBoxContainer/top_section"]
+layout_mode = 2
+
+[node name="name" type="Label" parent="MarginContainer/VBoxContainer/top_section/name_section"]
+layout_mode = 2
+text = "Name:"
+
+[node name="name_input" type="LineEdit" parent="MarginContainer/VBoxContainer/top_section/name_section"]
+layout_mode = 2
+
+[node name="class_selection" type="HBoxContainer" parent="MarginContainer/VBoxContainer/top_section"]
+layout_mode = 2
+
+[node name="class" type="Label" parent="MarginContainer/VBoxContainer/top_section/class_selection"]
+layout_mode = 2
+text = "Class:"
+
+[node name="class_select" type="OptionButton" parent="MarginContainer/VBoxContainer/top_section/class_selection"]
+layout_mode = 2
+
+[node name="race_selection" type="HBoxContainer" parent="MarginContainer/VBoxContainer/top_section"]
+layout_mode = 2
+
+[node name="race" type="Label" parent="MarginContainer/VBoxContainer/top_section/race_selection"]
+layout_mode = 2
+text = "Race:"
+
+[node name="race_select" type="OptionButton" parent="MarginContainer/VBoxContainer/top_section/race_selection"]
+layout_mode = 2
+
+[node name="GridContainer" type="GridContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/GridContainer"]
+layout_mode = 2
+text = "Distribute Stat Points:"
+
+[node name="strength_section" type="HBoxContainer" parent="MarginContainer/VBoxContainer/GridContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/GridContainer/strength_section"]
+layout_mode = 2
+text = "Strength:
+"
+
+[node name="strength_spinbox" type="SpinBox" parent="MarginContainer/VBoxContainer/GridContainer/strength_section"]
+layout_mode = 2
+
+[node name="constitution_section" type="HBoxContainer" parent="MarginContainer/VBoxContainer/GridContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/GridContainer/constitution_section"]
+layout_mode = 2
+text = "Constitution:
+"
+
+[node name="constitution_spinbox" type="SpinBox" parent="MarginContainer/VBoxContainer/GridContainer/constitution_section"]
+layout_mode = 2
+
+[node name="dexterity_section" type="HBoxContainer" parent="MarginContainer/VBoxContainer/GridContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/GridContainer/dexterity_section"]
+layout_mode = 2
+text = "Dexterity:
+"
+
+[node name="dexterity_spinbox" type="SpinBox" parent="MarginContainer/VBoxContainer/GridContainer/dexterity_section"]
+layout_mode = 2
+
+[node name="intelligence_section" type="HBoxContainer" parent="MarginContainer/VBoxContainer/GridContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/GridContainer/intelligence_section"]
+layout_mode = 2
+text = "Intelligence:
+"
+
+[node name="intelligence_spinbox" type="SpinBox" parent="MarginContainer/VBoxContainer/GridContainer/intelligence_section"]
+layout_mode = 2
+
+[node name="wisdom_section" type="HBoxContainer" parent="MarginContainer/VBoxContainer/GridContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/GridContainer/wisdom_section"]
+layout_mode = 2
+text = "Wisdom:
+"
+
+[node name="wisdom_spinbox" type="SpinBox" parent="MarginContainer/VBoxContainer/GridContainer/wisdom_section"]
+layout_mode = 2
+
+[node name="charisma_section" type="HBoxContainer" parent="MarginContainer/VBoxContainer/GridContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/GridContainer/charisma_section"]
+layout_mode = 2
+text = "Charisma:
+"
+
+[node name="charisma_spinbox" type="SpinBox" parent="MarginContainer/VBoxContainer/GridContainer/charisma_section"]
+layout_mode = 2
+
+[node name="luck_section" type="HBoxContainer" parent="MarginContainer/VBoxContainer/GridContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/GridContainer/luck_section"]
+layout_mode = 2
+text = "Luck:
+"
+
+[node name="luck_spinbox" type="SpinBox" parent="MarginContainer/VBoxContainer/GridContainer/luck_section"]
+layout_mode = 2
+
+[node name="points_remaining" type="Label" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[connection signal="pressed" from="MarginContainer/VBoxContainer/begin_button" to="." method="_on_begin_button_pressed"]

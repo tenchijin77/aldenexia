@@ -1,8 +1,7 @@
-[gd_scene load_steps=15 format=3 uid="uid://b8guo66cf6r1f"]
+[gd_scene load_steps=14 format=3 uid="uid://b8guo66cf6r1f"]
 
 [ext_resource type="Script" uid="uid://ky1o8ti26whn" path="res://Scripts/main_menu.gd" id="1_28flt"]
 [ext_resource type="Texture2D" uid="uid://ciglchqxkgu7h" path="res://Assets/torch/frame_0_delay-0.1s.png" id="2_16hvj"]
-[ext_resource type="AudioStream" uid="uid://c6weks5o8uyvg" path="res://Assets/Loading Screen Loop.wav" id="2_48xlc"]
 [ext_resource type="Texture2D" uid="uid://k42hq72o1ffy" path="res://Assets/torch/frame_1_delay-0.1s.png" id="3_vr1f0"]
 [ext_resource type="Texture2D" uid="uid://dn552bdecyh38" path="res://Assets/torch/frame_2_delay-0.1s.png" id="4_t1dhk"]
 [ext_resource type="Texture2D" uid="uid://c8fj6oat8x0em" path="res://Assets/torch/frame_3_delay-0.1s.png" id="5_5egv6"]
@@ -89,43 +88,7 @@ energy = 8.0
 shadow_enabled = true
 texture = SubResource("GradientTexture2D_vr1f0")
 
-[node name="new_game" type="Button" parent="."]
-offset_left = 194.0
-offset_top = 512.0
-offset_right = 301.0
-offset_bottom = 550.0
-text = "New Game"
-
-[node name="load_game" type="Button" parent="."]
-offset_left = 362.0
-offset_top = 515.0
-offset_right = 469.0
-offset_bottom = 553.0
-text = "Load"
-
-[node name="credits" type="Button" parent="."]
-offset_left = 556.0
-offset_top = 517.0
-offset_right = 663.0
-offset_bottom = 555.0
-text = "Credits
-"
-
-[node name="options" type="Button" parent="."]
-offset_left = 718.0
-offset_top = 519.0
-offset_right = 825.0
-offset_bottom = 557.0
-text = "Options"
-
-[node name="quit" type="Button" parent="."]
-offset_left = 876.0
-offset_top = 520.0
-offset_right = 983.0
-offset_bottom = 558.0
-text = "Quit"
-
-[node name="Label" type="Label" parent="."]
+[node name="title" type="Label" parent="."]
 offset_left = 3.0
 offset_top = 115.0
 offset_right = 1150.0
@@ -133,11 +96,6 @@ offset_bottom = 300.0
 theme_override_font_sizes/font_size = 40
 text = "Aldenexia:Lightfall"
 horizontal_alignment = 1
-
-[node name="background_music" type="AudioStreamPlayer2D" parent="."]
-position = Vector2(569, 337)
-stream = ExtResource("2_48xlc")
-autoplay = true
 
 [node name="DirectionalLight2D" type="DirectionalLight2D" parent="."]
 position = Vector2(570, -272)
@@ -150,9 +108,39 @@ stream = ExtResource("11_vr1f0")
 volume_db = -4.282
 autoplay = true
 
-[connection signal="pressed" from="new_game" to="." method="_on_new_game_pressed"]
-[connection signal="pressed" from="load_game" to="." method="_on_load_game_pressed"]
-[connection signal="pressed" from="credits" to="." method="_on_credits_pressed"]
-[connection signal="pressed" from="options" to="." method="_on_options_pressed"]
-[connection signal="pressed" from="quit" to="." method="_on_quit_pressed"]
-[connection signal="finished" from="background_music" to="." method="_on_background_music_finished"]
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+offset_left = 207.0
+offset_top = 433.0
+offset_right = 961.0
+offset_bottom = 473.0
+alignment = 1
+
+[node name="create_character" type="Button" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Create Character"
+
+[node name="load_game" type="Button" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Load"
+
+[node name="credits" type="Button" parent="HBoxContainer"]
+layout_mode = 2
+text = "Credits
+"
+
+[node name="options" type="Button" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Options"
+
+[node name="quit" type="Button" parent="HBoxContainer"]
+layout_mode = 2
+text = "Quit"
+
+[connection signal="pressed" from="HBoxContainer/create_character" to="." method="_on_create_character_pressed"]
+[connection signal="pressed" from="HBoxContainer/load_game" to="." method="_on_load_game_pressed"]
+[connection signal="pressed" from="HBoxContainer/credits" to="." method="_on_credits_pressed"]
+[connection signal="pressed" from="HBoxContainer/options" to="." method="_on_options_pressed"]
+[connection signal="pressed" from="HBoxContainer/quit" to="." method="_on_quit_pressed"]

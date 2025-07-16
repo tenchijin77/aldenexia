@@ -3,7 +3,7 @@ extends CharacterBody2D
 
 @export var speed = 200.0
 @export var max_health := 100
-@export var player_name := "Ross of Lumora"
+@export var player_name := "Ross of Lumora" # Default, to be overwritten
 
 @onready var animated_sprite = $AnimatedSprite2D # Assuming your AnimatedSprite2D is named PlayerSprite, update this to match
 @onready var health_bar := $health_bar
@@ -12,6 +12,7 @@ extends CharacterBody2D
 var last_direction: Vector2 = Vector2.RIGHT # Initialize to a default direction (e.g., facing right)
 var faction_standing: Dictionary = {"Villagers of Lumora": 50} # Example faction standing
 var current_health := max_health
+var stats: Dictionary = {}
 
 
 func _ready():
@@ -19,6 +20,36 @@ func _ready():
 	health_bar.value = current_health
 	name_label.text = player_name
 	load_faction_standing() 
+	load_character_data()
+	update_player_label()
+	
+
+func load_character_data():
+	print("DEBUG: Attempting to load character_stats.json")
+	var file = FileAccess.open("res://Data/character_stats.json", FileAccess.READ)
+	if file: 
+		var content = file.get_as_text()
+		print("DEBUG: File content:", content)
+		var data = JSON.parse_string(content)
+		if typeof(data) == TYPE_DICTIONARY:
+			stats = data
+			player_name = stats.get("player_name", player_name)
+			print("DEBUG: Loaded player_name from JSON:", player_name)
+		else:
+			print("DEBUG: JSON parsing failed or returned non-dictionary")
+		file.close()
+	else:
+		print("DEBUG: Failed to open character_stats.json")
+
+
+
+
+func update_player_label():
+	var label = $name_label
+	if label:
+		label.text = player_name
+	else:
+		print("Label is playing hide and seek! Check the path!")
 
 func _physics_process(delta):
 	var input_direction = Vector2.ZERO

@@ -1,0 +1,178 @@
+[gd_scene load_steps=3 format=3 uid="uid://cdphqks0tthh"]
+
+[ext_resource type="Script" uid="uid://cwwdyjv2qx4i8" path="res://Scripts/character_sheet.gd" id="1_qwutc"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qwutc"]
+bg_color = Color(0, 0, 0.917647, 1)
+
+[node name="character_sheet" type="CanvasLayer"]
+layer = 2
+script = ExtResource("1_qwutc")
+
+[node name="main_panel" type="Panel" parent="."]
+top_level = true
+custom_minimum_size = Vector2(300, 400)
+offset_left = 328.0
+offset_top = 80.0
+offset_right = 864.0
+offset_bottom = 584.0
+
+[node name="scroll_container" type="ScrollContainer" parent="main_panel"]
+layout_mode = 0
+offset_right = 544.0
+offset_bottom = 504.0
+
+[node name="scroll_wrapper" type="VBoxContainer" parent="main_panel/scroll_container"]
+layout_mode = 2
+
+[node name="stat_block" type="VBoxContainer" parent="main_panel/scroll_container/scroll_wrapper"]
+layout_mode = 2
+
+[node name="name_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/stat_block"]
+layout_mode = 2
+
+[node name="class_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/stat_block"]
+layout_mode = 2
+
+[node name="level_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/stat_block"]
+layout_mode = 2
+
+[node name="strength_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/stat_block"]
+layout_mode = 2
+
+[node name="constitution_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/stat_block"]
+layout_mode = 2
+
+[node name="dexterity_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/stat_block"]
+layout_mode = 2
+
+[node name="intelligence_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/stat_block"]
+layout_mode = 2
+
+[node name="wisdom_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/stat_block"]
+layout_mode = 2
+
+[node name="charisma_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/stat_block"]
+layout_mode = 2
+
+[node name="luck_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/stat_block"]
+layout_mode = 2
+
+[node name="health_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/stat_block"]
+layout_mode = 2
+
+[node name="mana_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/stat_block"]
+layout_mode = 2
+
+[node name="stamina_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/stat_block"]
+layout_mode = 2
+
+[node name="spell_power_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/stat_block"]
+layout_mode = 2
+
+[node name="crit_chance_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/stat_block"]
+layout_mode = 2
+
+[node name="armor_class_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/stat_block"]
+layout_mode = 2
+
+[node name="attack_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/stat_block"]
+layout_mode = 2
+
+[node name="weight_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/stat_block"]
+layout_mode = 2
+
+[node name="experience_bar" type="ProgressBar" parent="main_panel/scroll_container/scroll_wrapper/stat_block"]
+layout_mode = 2
+theme_override_styles/fill = SubResource("StyleBoxFlat_qwutc")
+rounded = true
+
+[node name="resist_block" type="VBoxContainer" parent="main_panel/scroll_container/scroll_wrapper"]
+layout_mode = 2
+
+[node name="acid_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/resist_block"]
+layout_mode = 2
+
+[node name="cold_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/resist_block"]
+layout_mode = 2
+
+[node name="fire_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/resist_block"]
+layout_mode = 2
+
+[node name="magic_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/resist_block"]
+layout_mode = 2
+
+[node name="psychic_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/resist_block"]
+layout_mode = 2
+
+[node name="equipment_block" type="GridContainer" parent="main_panel/scroll_container/scroll_wrapper"]
+layout_mode = 2
+
+[node name="ear1_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block"]
+layout_mode = 2
+
+[node name="neck_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block"]
+layout_mode = 2
+
+[node name="face_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block"]
+layout_mode = 2
+
+[node name="head_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block"]
+layout_mode = 2
+
+[node name="ear2_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block"]
+layout_mode = 2
+
+[node name="finger1_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block"]
+layout_mode = 2
+
+[node name="wrist1_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block"]
+layout_mode = 2
+
+[node name="arms_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block"]
+layout_mode = 2
+
+[node name="hands_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block"]
+layout_mode = 2
+
+[node name="wrist2_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block"]
+layout_mode = 2
+
+[node name="finger2_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block"]
+layout_mode = 2
+
+[node name="shoulders_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block"]
+layout_mode = 2
+
+[node name="chest_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block"]
+layout_mode = 2
+
+[node name="back_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block"]
+layout_mode = 2
+
+[node name="waist_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block"]
+layout_mode = 2
+
+[node name="legs_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block"]
+layout_mode = 2
+
+[node name="feet_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block"]
+layout_mode = 2
+
+[node name="trinket1_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block"]
+layout_mode = 2
+
+[node name="trinket2_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block"]
+layout_mode = 2
+
+[node name="primary_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block"]
+layout_mode = 2
+
+[node name="secondary_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block"]
+layout_mode = 2
+
+[node name="ranged_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block"]
+layout_mode = 2
+
+[node name="ammo_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block"]
+layout_mode = 2

@@ -1,0 +1,73 @@
+# character_sheet.gd
+extends CanvasLayer
+
+var stats: Dictionary = {}
+var derived: Dictionary = {}
+var resistances: Dictionary = {}
+var weight: Dictionary = {}
+var level: int = 1
+var experience: int = 0
+var player_name: String = ""
+var player_class: String = ""
+
+
+func _ready():
+	load_character_data()
+	update_labels()
+
+func load_character_data():
+	var file := FileAccess.open("res://Data/character_stats.json", FileAccess.READ)
+	if file:
+		var data = JSON.parse_string(file.get_as_text())
+		if typeof(data) == TYPE_DICTIONARY:
+			stats = data.get("stats", {})
+			derived = data.get("derived", {})
+			resistances = data.get("resistances", {})
+			weight = data.get("weight", {})
+			level = data.get("level", 1)
+			experience = data.get("experience", 0)
+			player_name = data.get("name", "Unnamed")
+			player_class = data.get("class", "Adventurer")
+		else:
+			push_warning("Invalid JSON structure in character_stats.json")
+	else:
+		push_error("Failed to open character_stats.json")
+
+func update_labels():
+	var stat_block := $main_panel/stat_block
+
+	$main_panel/stat_block/strength_label.text = "Strength: " + str(stats.get("strength", 0))
+	$main_panel/stat_block/constitution_label.text = "Constitution: " + str(stats.get("constitution", 0))
+	$main_panel/stat_block/dexterity_label.text = "Dexterity: " + str(stats.get("dexterity", 0))
+	$main_panel/stat_block/intelligence_label.text = "Intelligence: " + str(stats.get("intelligence", 0))
+	$main_panel/stat_block/wisdom_label.text = "Wisdom: " + str(stats.get("wisdom", 0))
+	$main_panel/stat_block/charisma_label.text = "Charisma: " + str(stats.get("charisma", 0))
+	$main_panel/stat_block/luck_label.text = "Luck: " + str(stats.get("luck", 0))
+
+
+	$main_panel/health_label.text = "Health: " + str(derived.get("health", 0))
+	$main_panel/mana_label.text = "Mana: " + str(derived.get("mana", 0))
+	$main_panel/stamina_points_label.text = "Stamina: " + str(derived.get("stamina_points", 0))
+	$main_panel/crit_chance_label.text = "Crit Chance: " + str(derived.get("crit_chance", 0)) + "%"
+	$main_panel/spell_power_label.text = "Spell Power: " + str(derived.get("spell_power", 0))
+	$main_panel/armor_class_label.text = "Armor Class: " + str(derived.get("armor_class", 0))
+	$main_panel/attack_label.text = "Attack: " + str(derived.get("attack", 0))
+	$main_panel/weight_label.text = "Weight: " + str(weight.get("current", 0)) + " / " + str(weight.get("max", 0)) + " lbs"
+
+	var resist_block := $main_panel/resist_block
+	resist_block.get_node("acid_label").text = "Acid: " + str(resistances.get("acid", 0))
+	resist_block.get_node("cold_label").text = "Cold: " + str(resistances.get("cold", 0))
+	resist_block.get_node("fire_label").text = "Fire: " + str(resistances.get("fire", 0))
+	resist_block.get_node("magic_label").text = "Magic: " + str(resistances.get("magic", 0))
+	resist_block.get_node("psychic_label").text = "Psychic: " + str(resistances.get("psychic", 0))
+
+
+	$main_panel/level_label.text = "Level: " + str(level)
+	$main_panel/class_label.text = "Class: " + player_class
+	$main_panel/name_label.text = "Name: " + name
+	$main_panel/experience_bar.value = experience
+	
+	
+func _input(event):
+	if event.is_action_pressed("toggle_character_sheet"):
+		visible = !visible

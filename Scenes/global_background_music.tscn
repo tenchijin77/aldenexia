@@ -1,0 +1,11 @@
+[gd_scene load_steps=3 format=3 uid="uid://d1ev05d84hpcr"]
+
+[ext_resource type="AudioStream" uid="uid://c6weks5o8uyvg" path="res://Assets/Loading Screen Loop.wav" id="1_u048c"]
+[ext_resource type="Script" uid="uid://btarhyxcd3p6t" path="res://Scripts/global_background_music.gd" id="2_7ckel"]
+
+[node name="background_music" type="AudioStreamPlayer"]
+stream = ExtResource("1_u048c")
+autoplay = true
+script = ExtResource("2_7ckel")
+
+[connection signal="finished" from="." to="." method="_on_finished"]

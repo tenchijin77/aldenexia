@@ -1,0 +1,14 @@
+{
+	"player_class": "Voidknight",
+	"player_name": "Zozuur",
+	"player_race": "Troll",
+	"stats": {
+		"charisma": 10.0,
+		"constitution": 11.0,
+		"dexterity": 10.0,
+		"intelligence": 10.0,
+		"luck": 10.0,
+		"strength": 16.0,
+		"wisdom": 10.0
+	}
+}

@@ -1,0 +1,134 @@
+{
+  "human": {
+    "base_stats": {
+      "strength": 11,
+      "constitution": 11,
+      "dexterity": 11,
+      "intelligence": 11,
+      "wisdom": 11,
+      "charisma": 11,
+      "luck": 11
+    },
+    "traits": ["versatile", "balanced"]
+  },
+  "elf": {
+    "base_stats": {
+      "strength": 10,
+      "constitution": 10,
+      "dexterity": 12,
+      "intelligence": 11,
+      "wisdom": 10,
+      "charisma": 10,
+      "luck": 10
+    },
+    "traits": ["darkvision", "keen senses", "fey ancestry"]
+  },
+  "dwarf": {
+    "base_stats": {
+      "strength": 11,
+      "constitution": 12,
+      "dexterity": 10,
+      "intelligence": 10,
+      "wisdom": 10,
+      "charisma": 10,
+      "luck": 10
+    },
+    "traits": ["darkvision", "dwarven resilience", "stonecunning"]
+  },
+  "gnome": {
+    "base_stats": {
+      "strength": 10,
+      "constitution": 10,
+      "dexterity": 11,
+      "intelligence": 12,
+      "wisdom": 10,
+      "charisma": 10,
+      "luck": 10
+    },
+    "traits": ["darkvision", "gnome cunning", "tinker"]
+  },
+  "halfling": {
+    "base_stats": {
+      "strength": 10,
+      "constitution": 10,
+      "dexterity": 12,
+      "intelligence": 10,
+      "wisdom": 10,
+      "charisma": 10,
+      "luck": 11
+    },
+    "traits": ["lucky", "brave", "halfling nimbleness"]
+  },
+  "half-elf": {
+    "base_stats": {
+      "strength": 10,
+      "constitution": 10,
+      "dexterity": 11,
+      "intelligence": 10,
+      "wisdom": 10,
+      "charisma": 12,
+      "luck": 11
+    },
+    "traits": ["darkvision", "fey ancestry", "versatility"]
+  },
+  "ogre": {
+    "base_stats": {
+      "strength": 12,
+      "constitution": 11,
+      "dexterity": 11,
+      "intelligence": 10,
+      "wisdom": 10,
+      "charisma": 10,
+      "luck": 10
+    },
+    "traits": ["large size", "powerful build", "low intelligence"]
+  },
+  "troll": {
+    "base_stats": {
+      "strength": 12,
+      "constitution": 11,
+      "dexterity": 10,
+      "intelligence": 10,
+      "wisdom": 10,
+      "charisma": 10,
+      "luck": 10
+    },
+    "traits": ["regeneration", "darkvision", "aggressive"]
+  },
+  "dark elf": {
+    "base_stats": {
+      "strength": 12,
+      "constitution": 10,
+      "dexterity": 12,
+      "intelligence": 10,
+      "wisdom": 10,
+      "charisma": 11,
+      "luck": 10
+    },
+    "traits": ["darkvision", "drow magic", "sunlight sensitivity"]
+  },
+  "half-orc": {
+    "base_stats": {
+      "strength": 12,
+      "constitution": 11,
+      "dexterity": 10,
+      "intelligence": 10,
+      "wisdom": 10,
+      "charisma": 10,
+      "luck": 10
+    },
+    "traits": ["darkvision", "relentless endurance", "savage attacks"]
+  },
+  "lizardkin": {
+    "base_stats": {
+      "strength": 12,
+      "constitution": 12,
+      "dexterity": 10,
+      "intelligence": 10,
+      "wisdom": 10,
+      "charisma": 8,
+      "luck": 10
+    },
+    "traits": ["natural armor", "amphibious", "bite attack", "cold-blooded"]
+  }
+}

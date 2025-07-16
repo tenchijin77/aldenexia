@@ -1,0 +1,11 @@
+{
+	"races": [
+		"Human", "Elf", "Dwarf", "Gnome", "Halfling", "Half-Elf",
+		"Ogre", "Troll", "Dark Elf", "Half-Orc", "Lizardkin"
+	],
+	"classes": [
+		"Voidknight", "Lightsworn", "Blademaster", "Lightcaller", "Spiritcaller",
+		"Wildspeaker", "Zenblade", "Woodstalker", "Shadowblade", "Troubadour",
+		"Gravecaller", "Runecaster", "Arcanist", "Wildmage"
+	]
+}
