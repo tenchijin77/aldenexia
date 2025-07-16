@@ -1,14 +1,21 @@
 {
-	"player_class": "Voidknight",
-	"player_name": "Zozuur",
-	"player_race": "Troll",
+	"derived": {
+		"crit_chance": 11.0,
+		"health": 100.0,
+		"mana": 65.0,
+		"max_weight": 150.0,
+		"spell_power": 30.0
+	},
+	"player_class": "Arcanist",
+	"player_name": "Tenchijin",
+	"player_race": "Elf",
 	"stats": {
 		"charisma": 10.0,
-		"constitution": 11.0,
-		"dexterity": 10.0,
-		"intelligence": 10.0,
+		"constitution": 10.0,
+		"dexterity": 12.0,
+		"intelligence": 15.0,
 		"luck": 10.0,
-		"strength": 16.0,
+		"strength": 10.0,
 		"wisdom": 10.0
 	}
 }

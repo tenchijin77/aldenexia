@@ -44,16 +44,6 @@ text = "Name:"
 [node name="name_input" type="LineEdit" parent="MarginContainer/VBoxContainer/top_section/name_section"]
 layout_mode = 2
 
-[node name="class_selection" type="HBoxContainer" parent="MarginContainer/VBoxContainer/top_section"]
-layout_mode = 2
-
-[node name="class" type="Label" parent="MarginContainer/VBoxContainer/top_section/class_selection"]
-layout_mode = 2
-text = "Class:"
-
-[node name="class_select" type="OptionButton" parent="MarginContainer/VBoxContainer/top_section/class_selection"]
-layout_mode = 2
-
 [node name="race_selection" type="HBoxContainer" parent="MarginContainer/VBoxContainer/top_section"]
 layout_mode = 2
 
@@ -62,6 +52,16 @@ layout_mode = 2
 text = "Race:"
 
 [node name="race_select" type="OptionButton" parent="MarginContainer/VBoxContainer/top_section/race_selection"]
+layout_mode = 2
+
+[node name="class_selection" type="HBoxContainer" parent="MarginContainer/VBoxContainer/top_section"]
+layout_mode = 2
+
+[node name="class" type="Label" parent="MarginContainer/VBoxContainer/top_section/class_selection"]
+layout_mode = 2
+text = "Class:"
+
+[node name="class_select" type="OptionButton" parent="MarginContainer/VBoxContainer/top_section/class_selection"]
 layout_mode = 2
 
 [node name="GridContainer" type="GridContainer" parent="MarginContainer/VBoxContainer"]

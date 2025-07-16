@@ -4,7 +4,7 @@
 		"Ogre", "Troll", "Dark Elf", "Half-Orc", "Lizardkin"
 	],
 	"classes": [
-		"Voidknight", "Lightsworn", "Blademaster", "Lightcaller", "Spiritcaller",
+		"Voidknight", "Lightsworn", "Blademaster", "Lightmender", "Spiritcaller",
 		"Wildspeaker", "Zenblade", "Woodstalker", "Shadowblade", "Troubadour",
 		"Gravecaller", "Runecaster", "Arcanist", "Wildmage"
 	]

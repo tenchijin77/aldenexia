@@ -7,6 +7,20 @@ var final_stats := {}
 var stat_pool := 4
 var selected_race := ""
 
+# Class → Casting Stat Map
+var casting_stats := {
+	"voidknight": "intelligence",
+	"gravecaller": "intelligence",
+	"runecaster": "intelligence",
+	"arcanist": "intelligence",
+	"wildmage": "intelligence",
+	"lightsworn": "wisdom",
+	"lightmender": "wisdom",
+	"spiritcaller": "wisdom",
+	"wildspeaker": "wisdom",
+	"woodstalker": "wisdom"
+}
+
 # UI References
 @onready var name_input = $MarginContainer/VBoxContainer/top_section/name_section/name_input
 @onready var race_select = $MarginContainer/VBoxContainer/top_section/race_selection/race_select
@@ -21,6 +35,9 @@ var selected_race := ""
 @onready var luck_spin = $MarginContainer/VBoxContainer/GridContainer/luck_section/luck_spinbox
 
 @onready var points_remaining_label = $MarginContainer/VBoxContainer/points_remaining
+@onready var health_label = $MarginContainer/VBoxContainer/derived_stats_section/health_label
+@onready var weight_label = $MarginContainer/VBoxContainer/derived_stats_section/weight_label
+
 @onready var confirm_button = $MarginContainer/VBoxContainer/confirm_button
 @onready var begin_button = $MarginContainer/VBoxContainer/begin_button
 
@@ -34,7 +51,6 @@ func _ready():
 	confirm_button.pressed.connect(_on_confirm_pressed)
 	begin_button.pressed.connect(_on_begin_button_pressed)
 
-	# Connect SpinBox signals to shared handler
 	for spinbox in [
 		strength_spin, constitution_spin, dexterity_spin,
 		intelligence_spin, wisdom_spin, charisma_spin, luck_spin
@@ -42,8 +58,6 @@ func _ready():
 		spinbox.value_changed.connect(_on_spinbox_value_changed)
 
 func load_character_options():
-	print("📂 Loading character_options.json...")
-
 	if not FileAccess.file_exists("res://Data/character_options.json"):
 		push_error("❌ character_options.json does not exist.")
 		return
@@ -62,10 +76,6 @@ func load_character_options():
 			for player_class in classes:
 				class_select.add_item(player_class)
 
-			print("✅ Dropdowns populated.")
-		else:
-			push_error("❌ character_options.json is not a dictionary.")
-
 func load_racial_stats(race: String):
 	var file = FileAccess.open("res://Data/racial_stats.json", FileAccess.READ)
 	if file:
@@ -79,53 +89,41 @@ func load_racial_stats(race: String):
 			stat_pool = 4
 			setup_spinboxes()
 			update_point_display()
-		else:
-			print("❌ Race not found in JSON:", race)
 
 func setup_spinboxes():
-	strength_spin.min_value = base_stats["strength"]
-	strength_spin.max_value = base_stats["strength"] + 4
-	strength_spin.value = base_stats["strength"]
-
-	constitution_spin.min_value = base_stats["constitution"]
-	constitution_spin.max_value = base_stats["constitution"] + 4
-	constitution_spin.value = base_stats["constitution"]
-
-	dexterity_spin.min_value = base_stats["dexterity"]
-	dexterity_spin.max_value = base_stats["dexterity"] + 4
-	dexterity_spin.value = base_stats["dexterity"]
-
-	intelligence_spin.min_value = base_stats["intelligence"]
-	intelligence_spin.max_value = base_stats["intelligence"] + 4
-	intelligence_spin.value = base_stats["intelligence"]
-
-	wisdom_spin.min_value = base_stats["wisdom"]
-	wisdom_spin.max_value = base_stats["wisdom"] + 4
-	wisdom_spin.value = base_stats["wisdom"]
-
-	charisma_spin.min_value = base_stats["charisma"]
-	charisma_spin.max_value = base_stats["charisma"] + 4
-	charisma_spin.value = base_stats["charisma"]
-
-	luck_spin.min_value = base_stats["luck"]
-	luck_spin.max_value = base_stats["luck"] + 4
-	luck_spin.value = base_stats["luck"]
+	for key in base_stats.keys():
+		var spin = get_node("MarginContainer/VBoxContainer/GridContainer/%s_section/%s_spinbox" % [key, key])
+		spin.min_value = base_stats[key]
+		spin.max_value = base_stats[key] + 4
+		spin.value = base_stats[key]
 
 func _on_spinbox_value_changed(value):
-	stat_pool = 4  # Reset pool
+	if base_stats.has("strength"):
+		stat_pool = 4  # Reset pool
 
-	stat_pool -= (strength_spin.value - base_stats["strength"])
-	stat_pool -= (constitution_spin.value - base_stats["constitution"])
-	stat_pool -= (dexterity_spin.value - base_stats["dexterity"])
-	stat_pool -= (intelligence_spin.value - base_stats["intelligence"])
-	stat_pool -= (wisdom_spin.value - base_stats["wisdom"])
-	stat_pool -= (charisma_spin.value - base_stats["charisma"])
-	stat_pool -= (luck_spin.value - base_stats["luck"])
+		stat_pool -= (strength_spin.value - base_stats["strength"])
+		stat_pool -= (constitution_spin.value - base_stats["constitution"])
+		stat_pool -= (dexterity_spin.value - base_stats["dexterity"])
+		stat_pool -= (intelligence_spin.value - base_stats["intelligence"])
+		stat_pool -= (wisdom_spin.value - base_stats["wisdom"])
+		stat_pool -= (charisma_spin.value - base_stats["charisma"])
+		stat_pool -= (luck_spin.value - base_stats["luck"])
 
-	update_point_display()
+		update_point_display()
 
-	if stat_pool < 0:
-		print("⚠️ Overallocated! Consider clamping or disabling further changes.")
+		var preview_stats := {
+			"strength": strength_spin.value,
+			"constitution": constitution_spin.value,
+			"dexterity": dexterity_spin.value,
+			"intelligence": intelligence_spin.value,
+			"wisdom": wisdom_spin.value,
+			"charisma": charisma_spin.value,
+			"luck": luck_spin.value
+		}
+		var current_class = class_select.get_item_text(class_select.selected)
+		var derived := calculate_derived_stats(preview_stats, current_class)
+	else:
+		print("⛔ Skipping preview — base_stats not ready yet.")
 
 func update_point_display():
 	points_remaining_label.text = "Points Left: " + str(stat_pool)
@@ -143,11 +141,6 @@ func load_class_restrictions():
 
 		if typeof(parsed) == TYPE_DICTIONARY:
 			class_restrictions = parsed
-			print("✅ Loaded class restrictions.")
-		else:
-			push_error("❌ class_restrictions.json format error.")
-	else:
-		push_error("❌ Unable to open class_restrictions.json")
 
 func update_class_options_for_race(race: String):
 	class_select.clear()
@@ -157,12 +150,14 @@ func update_class_options_for_race(race: String):
 
 func _on_confirm_pressed():
 	collect_final_stats()
+	var selected_class = class_select.get_item_text(class_select.selected)
 
 	var character_data = {
 		"player_name": name_input.text,
-		"player_class": class_select.get_item_text(class_select.selected),
+		"player_class": selected_class,
 		"player_race": selected_race,
-		"stats": final_stats
+		"stats": final_stats,
+		"derived": calculate_derived_stats(final_stats, selected_class)
 	}
 
 	var json_string = JSON.stringify(character_data, "\t")
@@ -170,9 +165,28 @@ func _on_confirm_pressed():
 	if file:
 		file.store_string(json_string)
 		file.close()
-		print("✅ Character saved successfully.")
+		print("✅ Character saved with derived stats!")
 	else:
-		push_error("❌ Failed to open character_stats.json for writing.")
+		push_error("❌ Failed to write character_stats.json")
+
+func calculate_derived_stats(base_stats: Dictionary, selected_class: String) -> Dictionary:
+	var derived := {}
+	var required_keys := ["strength", "constitution", "dexterity", "intelligence", "wisdom", "luck"]
+	for key in required_keys:
+		if not base_stats.has(key):
+			print("❌ Missing key:", key, "in base_stats:", base_stats)
+			return derived
+
+	derived["max_weight"] = base_stats["strength"] * 15
+	derived["health"] = base_stats["constitution"] * 10
+	derived["crit_chance"] = (base_stats["dexterity"] + base_stats["luck"]) / 2.0
+	derived["mana"] = base_stats["intelligence"] + (base_stats["wisdom"] * 5)
+
+	var class_key = selected_class.to_lower()
+	var casting_stat: String = casting_stats.get(class_key, "intelligence")
+	derived["spell_power"] = base_stats.get(casting_stat, 0) * 2
+
+	return derived
 
 func collect_final_stats():
 	final_stats["strength"] = strength_spin.value
