@@ -29,6 +29,7 @@ implement nests for spiders, rats, and bandit camps as spawn locations
 
 enviromental variables for this program:
 
+I am using Godot 4.4.1
 snakecase is used for all file names, with all words in lowercase
 pascalcase is used for folders, (i.e. first letter capital like /Data)
 all tables are stored in json files in res://Data/
