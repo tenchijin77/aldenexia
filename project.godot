@@ -21,6 +21,11 @@ Global="*res://Scripts/global.gd"
 Inventory="*res://Scripts/inventory.gd"
 GlobalBackgroundMusic="*res://Scenes/global_background_music.tscn"
 
+[display]
+
+window/size/borderless=true
+window/stretch/mode="viewport"
+
 [global_group]
 
 monsters=""

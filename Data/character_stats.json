@@ -1,21 +1,21 @@
 {
 	"derived": {
-		"crit_chance": 11.0,
-		"health": 100.0,
-		"mana": 60.0,
-		"max_weight": 210.0,
-		"spell_power": 20.0
+		"crit_chance": 10.0,
+		"health": 110.0,
+		"mana": 80.0,
+		"max_weight": 180.0,
+		"spell_power": 28.0
 	},
 	"player_class": "Spiritcaller",
-	"player_name": "Tealu",
-	"player_race": "Half-Elf",
+	"player_name": "ZugZug",
+	"player_race": "Troll",
 	"stats": {
-		"charisma": 12.0,
-		"constitution": 10.0,
-		"dexterity": 11.0,
+		"charisma": 10.0,
+		"constitution": 11.0,
+		"dexterity": 10.0,
 		"intelligence": 10.0,
-		"luck": 11.0,
-		"strength": 14.0,
-		"wisdom": 10.0
+		"luck": 10.0,
+		"strength": 12.0,
+		"wisdom": 14.0
 	}
 }
