@@ -1,0 +1,41 @@
+[gd_scene load_steps=6 format=3 uid="uid://bqq4b3ryeh3pi"]
+
+[ext_resource type="Script" uid="uid://pjff8fw8atu2" path="res://Scripts/magic_missile.gd" id="1_2i5qk"]
+[ext_resource type="Texture2D" uid="uid://7r13ltawf2fd" path="res://Assets/kenney_tiny-dungeon/Tiles/tile_0062.png" id="2_srauf"]
+[ext_resource type="AudioStream" uid="uid://byiakeyx4ivym" path="res://Assets/Fireball 1.wav" id="3_srauf"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_hrnti"]
+radius = 8.0
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_2i5qk"]
+particle_flag_disable_z = true
+emission_shape = 2
+emission_sphere_radius = 5.0
+gravity = Vector3(0, 98, 0)
+color = Color(1, 0.803922, 0, 1)
+hue_variation_min = -2.23517e-08
+hue_variation_max = -2.23517e-08
+turbulence_enabled = true
+sub_emitter_mode = 4
+sub_emitter_amount_at_start = 1
+
+[node name="Area2D" type="Area2D"]
+script = ExtResource("1_2i5qk")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_srauf")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+visible = false
+shape = SubResource("CircleShape2D_hrnti")
+
+[node name="trail_particles" type="GPUParticles2D" parent="."]
+amount = 9
+lifetime = 5.35
+speed_scale = 2.17
+process_material = SubResource("ParticleProcessMaterial_2i5qk")
+
+[node name="cast_sound" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("3_srauf")
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]

@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=3 uid="uid://q0csr48vg6bf"]
+
+[ext_resource type="Texture2D" uid="uid://b7utqd7oi88d5" path="res://Assets/nuvemspark00.png" id="1_edtsp"]
+[ext_resource type="Script" uid="uid://btakbogpm1uyo" path="res://Scripts/impact_flash.gd" id="2_h8j64"]
+
+[node name="Node2D" type="Node2D"]
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("1_edtsp")
+script = ExtResource("2_h8j64")
+
+[node name="Timer" type="Timer" parent="Sprite2D"]
+wait_time = 0.2
+one_shot = true
+autostart = true

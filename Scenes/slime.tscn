@@ -1,0 +1,36 @@
+[gd_scene load_steps=5 format=3 uid="uid://dyd5visy2k84n"]
+
+[ext_resource type="Script" uid="uid://bg48vkntytupt" path="res://Scripts/slime.gd" id="1_swwnm"]
+[ext_resource type="Texture2D" uid="uid://hj0xt6qeyt31" path="res://Assets/kenney_tiny-dungeon/Tiles/tile_0108.png" id="2_swwnm"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_u8nqw"]
+size = Vector2(13, 13)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_sfdtf"]
+bg_color = Color(0.698039, 0, 0, 1)
+
+[node name="mob" type="CharacterBody2D" groups=["monsters"]]
+script = ExtResource("1_swwnm")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_swwnm")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+visible = false
+position = Vector2(0.5, 0.5)
+shape = SubResource("RectangleShape2D_u8nqw")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+
+[node name="Timer" type="Timer" parent="."]
+
+[node name="health_bar" type="ProgressBar" parent="." groups=["monsters"]]
+offset_right = 4.0
+offset_bottom = 27.0
+theme_override_styles/fill = SubResource("StyleBoxFlat_sfdtf")
+rounded = true
+show_percentage = false
+
+[node name="name_label" type="Label" parent="."]
+offset_right = 40.0
+offset_bottom = 23.0
