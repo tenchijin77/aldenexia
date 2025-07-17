@@ -1,11 +1,9 @@
-[gd_scene load_steps=13 format=4 uid="uid://bpo1yqvufpta"]
+[gd_scene load_steps=11 format=4 uid="uid://bpo1yqvufpta"]
 
 [ext_resource type="Script" uid="uid://box0lal74sg05" path="res://Scripts/lumora_outskirts.gd" id="1_5t0cy"]
 [ext_resource type="Texture2D" uid="uid://cifdbv0idbre1" path="res://Assets/kenney_tiny-town/Tilemap/tilemap_packed.png" id="1_eq4gy"]
 [ext_resource type="PackedScene" uid="uid://o2xfrm0mcx0v" path="res://Scenes/player.tscn" id="2_vwjjy"]
-[ext_resource type="PackedScene" uid="uid://c3kslabkc6x62" path="res://Scenes/rat.tscn" id="3_p3iwo"]
-[ext_resource type="PackedScene" uid="uid://duekyy5wbajyu" path="res://Scenes/bandit.tscn" id="4_ajx7y"]
-[ext_resource type="PackedScene" uid="uid://67d4n5xk0x8d" path="res://Scenes/bat.tscn" id="5_p3iwo"]
+[ext_resource type="PackedScene" uid="uid://dlyrp37bc0od2" path="res://Scenes/mob_spawner.tscn" id="6_5t0cy"]
 [ext_resource type="PackedScene" uid="uid://bvsgc02xjy7s3" path="res://Scenes/backpack.tscn" id="6_ajx7y"]
 [ext_resource type="AudioStream" uid="uid://ctaaiipmwqcae" path="res://Assets/forest.ogg" id="8_3dsyu"]
 
@@ -305,48 +303,11 @@ limit_left = 0
 limit_top = 0
 position_smoothing_enabled = true
 
-[node name="bandit" parent="." instance=ExtResource("4_ajx7y")]
-position = Vector2(528, 584)
-
-[node name="bandit2" parent="." instance=ExtResource("4_ajx7y")]
-position = Vector2(512, 600)
-
-[node name="bandit3" parent="." instance=ExtResource("4_ajx7y")]
-position = Vector2(552, 600)
-
-[node name="bandit4" parent="." instance=ExtResource("4_ajx7y")]
-position = Vector2(336, 584)
-
-[node name="bandit5" parent="." instance=ExtResource("4_ajx7y")]
-position = Vector2(600, 232)
-
-[node name="bat" parent="." instance=ExtResource("5_p3iwo")]
-position = Vector2(456, 96)
-
-[node name="bat2" parent="." instance=ExtResource("5_p3iwo")]
-position = Vector2(496, 104)
-
-[node name="bat3" parent="." instance=ExtResource("5_p3iwo")]
-position = Vector2(528, 168)
-
-[node name="bat4" parent="." instance=ExtResource("5_p3iwo")]
-position = Vector2(392, 32)
-
-[node name="rat" parent="." instance=ExtResource("3_p3iwo")]
-position = Vector2(96, 272)
-
-[node name="rat2" parent="." instance=ExtResource("3_p3iwo")]
-position = Vector2(24, 368)
-
-[node name="rat3" parent="." instance=ExtResource("3_p3iwo")]
-position = Vector2(128, 408)
-
-[node name="rat4" parent="." instance=ExtResource("3_p3iwo")]
-position = Vector2(352, 208)
-
 [node name="backpack" parent="." instance=ExtResource("6_ajx7y")]
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("8_3dsyu")
 volume_db = -5.0
 autoplay = true
+
+[node name="mob_spawner" parent="." instance=ExtResource("6_5t0cy")]

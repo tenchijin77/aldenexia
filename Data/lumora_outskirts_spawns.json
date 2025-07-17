@@ -1,6 +1,5 @@
 {
   "_comment": "lumora_outskirts_spawns.json - spawn points for Lumora Outskirts zone",
-
   "spawns": [
     {
       "mob_type": "bat",
@@ -78,6 +77,28 @@
       "respawn_time": 22,
       "min_level": 3,
       "max_level": 6
+    },
+    {
+      "mob_type": "ghost",
+      "x": 650,
+      "y": 120,
+      "spawn_radius": 50,
+      "spawn_chance": 0.35,
+      "max_active": 2,
+      "respawn_time": 28,
+      "min_level": 4,
+      "max_level": 7
+    },
+    {
+      "mob_type": "goblin",
+      "x": 550,
+      "y": 350,
+      "spawn_radius": 44,
+      "spawn_chance": 0.45,
+      "max_active": 3,
+      "respawn_time": 20,
+      "min_level": 2,
+      "max_level": 5
     }
   ]
 }

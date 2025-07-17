@@ -1,8 +1,8 @@
 # inventory.gd
 extends Control
 
-var inventory: Dictionary = {}
-var item_data: Dictionary = {}
+var inventory: Dictionary = {}        # Tracks item quantities
+var item_data: Dictionary = {}        # Definitions loaded from items.json
 
 var equipped := {
 	"weapon": null,
@@ -14,11 +14,15 @@ func _ready():
 	load_item_data()
 	load_backpack()
 
-
 func load_item_data():
 	var file = FileAccess.open("res://Data/items.json", FileAccess.READ)
 	if file:
-		item_data = JSON.parse_string(file.get_as_text())
+		var text = file.get_as_text()
+		var parsed = JSON.parse_string(text)
+		if typeof(parsed) == TYPE_DICTIONARY:
+			item_data = parsed
+		else:
+			push_error("items.json parsing failed or returned non-dictionary")
 
 func add_item(item_id: String, amount: int = 1):
 	if inventory.has(item_id):
@@ -44,17 +48,20 @@ func unequip_item(slot: String):
 func update_ui():
 	# Loop through inventory and update item slots
 	for item_id in inventory.keys():
-		if item_data.has(item_id):
-			var icon_path = item_data[item_id].get("icon", "")
-			var quantity = inventory[item_id]
-			# TODO: Update the UI slot visuals with icon_path and quantity
+		if not item_data.has(item_id):
+			print("⚠️ Missing item definition for:", item_id)
+			continue  # Skip updating UI for undefined items
 
-	# Loop through equipped slots (optional visual update)
+		var icon_path = item_data[item_id].get("icon", "")
+		var quantity = inventory[item_id]
+		# TODO: Update inventory slot UI with icon_path and quantity
+
+	# Loop through equipped slots
 	for slot in equipped.keys():
 		var item_id = equipped[slot]
 		if item_id and item_data.has(item_id):
 			var equip_icon = item_data[item_id].get("icon", "")
-			# TODO: Update the equipment UI panel with icon for slot
+			# TODO: Update equipment UI panel with equip_icon for slot
 
 func load_backpack():
 	var file = FileAccess.open("res://Data/backpack.json", FileAccess.READ)
