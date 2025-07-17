@@ -1,0 +1,35 @@
+Game: Aldenexia: Lightfall
+
+Environmental Variables:
+
+I am using Godot 4.4.1
+snakecase is used for all file names, with all words in lowercase
+pascalcase is used for folders, (i.e. first letter capital like /Data)
+all tables are stored in json files in res://Data/
+all scripts are stored in res://Scripts/
+all scenes are stored in res://Scenes
+all scripts should stert with a comment designating the script name, i.e. (# snake.gd)
+all json files should start with a comment designating the file name and purpose, i.e. ("_comment": "monsters.json - this table is used for monster's stats ")
+all script files should use tab indentation, not space indentation
+
+
+
+
+
+Controls:
+
+
+Move: Arrow keys or WASD
+
+Melee Attack: Left mouse click (deals 20 damage to nearby enemies)
+
+Ranged Attack (Warrior): Right mouse click (fires a projectile dealing 15 damage toward mouse position, 2s cooldown)
+
+Spell Attack (Caster): Right mouse click (casts Magic Missile, fires 3 bolts dealing 6 arcane damage each, costs 25 mana, 10s cooldown) Objective: Explore Lumora, battle monsters, and harness arcane powers to uncover the secrets of the Void.
+
+(this is currently defaulted to the one spell, magic_missile from player_spells.json. at a later date i will update this to call the spell that the player has equipped.)
+
+
+Character Sheet: By hitting C, the player can bring up the character sheet, which calls character_sheet.tscn and character_sheet.gd, which graphically loads and shows the player's statistics, which are stored in character_stats.json
+
+Monsters will be spawned by mob_spawner.tscn, which calls mob_spawner.gd; this has the basic monster (called mobs) logic, and pulls zone specific locations and mob amounts from the zone files. currently there is only one zone, lumore_outskirts_spawns.json. All new zones will be named in the same way, zonename_spawns.json
