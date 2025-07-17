@@ -1,47 +1,37 @@
-#magic_missile.gd
+# magic_missile.gd
 extends Area2D
 
-@export var speed := 300.0
-var direction := Vector2.RIGHT
+@export var speed: float = 200.0
+@export var damage: int = 10
+var direction: Vector2 = Vector2.ZERO
+var target: Node2D = null # The enemy to track
 
 func _ready():
-	if $cast_sound.stream:
-		$cast_sound.play()
-
-	var monsters := get_tree().get_nodes_in_group("monsters")
-	var closest: CharacterBody2D = null
-	var closest_dist := INF
-
-	for monster in monsters:
-		if monster is CharacterBody2D:
-			var dist: float = monster.global_position.distance_to(global_position)
-			if dist < closest_dist:
-				closest = monster
-				closest_dist = dist
-
-	if closest:
-		direction = (closest.global_position - global_position).normalized()
-	else:
-		direction = Vector2.RIGHT
-
-func _process(delta):
-	if direction != null:
-		position += direction * speed * delta
-		rotation = direction.angle()
-	else:
-		print("⚠️ Spell direction is null — check instantiation!")
-
-
-func _on_body_entered(body):
-	if body.is_in_group("monsters"):
-		body.apply_damage(15)
-
-		var flash := preload("res://Scenes/impact_flash.tscn").instantiate()
-		flash.position = position
-		get_parent().add_child(flash)
-
-		queue_free()
+	collision_layer = 1 << 2 # Projectile layer (layer 3)
+	collision_mask = 1 << 3 # Enemy layer (layer 4)
 	
+	# Connect to body_entered signal for detecting CharacterBody2D
+	body_entered.connect(_on_body_entered)
+	print("DEBUG: Magic Missile initialized with target: ", target.name if target else "No target")
 
-		
-		
+func _physics_process(delta):
+	if target and is_instance_valid(target):
+		direction = (target.global_position - global_position).normalized()
+		rotation = direction.angle() # Rotate sprite to face direction
+		print("DEBUG: Magic Missile at ", global_position, " tracking target at ", target.global_position)
+	else:
+		print("DEBUG: Magic Missile at ", global_position, " with no valid target")
+
+	global_position += direction * speed * delta
+
+func _on_body_entered(body: Node2D):
+	if body.is_in_group("monsters"):
+		if body.has_method("apply_damage"):
+			body.apply_damage(damage)
+			print("DEBUG: Magic Missile hit ", body.name, " for ", damage, " damage")
+		else:
+			print("DEBUG: Magic Missile hit monster without apply_damage method: ", body.name)
+		queue_free()
+	else:
+		print("DEBUG: Magic Missile hit non-monster body: ", body.name if body else "null")
+		# Optionally queue_free() here if you want it to destroy on any non-monster hit

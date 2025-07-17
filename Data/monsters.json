@@ -68,7 +68,7 @@
     "speed": 60.0,
     "health": 80,
     "damage": 12,
-    "behavior_type": "skitter",
+    "behavior_type": "ambush",
     "category": "humanoid",
     "faction": "Twilight Accord",
     "coin_modifier": 1.2,
@@ -166,6 +166,27 @@
       "idle": "snake_idle",
       "walk": "snake_walk",
       "attack": "snake_attack"
+    }
+  },
+  "ghost": {
+    "description": "an irate ghost",
+    "speed": 45.0,
+    "health": 30,
+    "damage": 11,
+    "behavior_type": "ambush",
+    "category": "undead",
+    "faction": "None",
+    "coin_modifier": 2.0,
+    "xp_gain": 15,
+    "zone": "Lumora",
+    "armor_class": 11,
+    "is_social": false,
+    "level": 2,
+    "aggro_range": 100.0,
+    "animations": {
+      "idle": "ghost_idle",
+      "walk": "ghost_walk",
+      "attack": "ghost_attack"
     }
   }
 }

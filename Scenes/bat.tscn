@@ -9,7 +9,7 @@ size = Vector2(14, 10)
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_jckqh"]
 bg_color = Color(0.698039, 0, 0, 1)
 
-[node name="bat" type="CharacterBody2D"]
+[node name="bat" type="CharacterBody2D" groups=["monsters"]]
 script = ExtResource("2_wt6c1")
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]

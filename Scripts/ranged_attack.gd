@@ -6,8 +6,8 @@ extends Area2D
 var direction := Vector2.RIGHT
 
 func _ready():
-	if $cast_sound.stream:
-		$cast_sound.play()
+	if $attack_sound.stream:
+		$attack_sound.play()
 
 func _process(delta):
 	if direction != null:

@@ -1,0 +1,24 @@
+[gd_scene load_steps=5 format=3 uid="uid://du445t4ygqswd"]
+
+[ext_resource type="Script" uid="uid://clrvld6p0ykgh" path="res://Scripts/ranged_attack.gd" id="1_75kti"]
+[ext_resource type="Texture2D" uid="uid://lct3om5l3i2k" path="res://Assets/kenney_tiny-town/Tiles/tile_0119.png" id="2_omxub"]
+[ext_resource type="AudioStream" uid="uid://bjeo4ojuijyy4" path="res://Assets/arrow shoot.ogg" id="3_omxub"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_mufii"]
+size = Vector2(19, 6)
+
+[node name="Area2D" type="Area2D"]
+script = ExtResource("1_75kti")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+rotation = 0.785398
+texture = ExtResource("2_omxub")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(1.5, -1)
+shape = SubResource("RectangleShape2D_mufii")
+
+[node name="attack_sound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("3_omxub")
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]

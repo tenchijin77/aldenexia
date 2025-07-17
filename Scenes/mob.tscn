@@ -4,7 +4,7 @@
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_u8nqw"]
 
-[node name="mob" type="CharacterBody2D"]
+[node name="mob" type="CharacterBody2D" groups=["monsters"]]
 script = ExtResource("1_h5js2")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]

@@ -1,19 +1,20 @@
-#bat.gd 
+# bat.gd
 extends Mob
 
-@export var bat_health: int = 15
-@export var bat_speed: float = 80
-
+@onready var animation_player: AnimationPlayer = $AnimationPlayer
 
 func get_monster_name() -> String:
 	return "bat"
 	
 func _ready():
 	super._ready()
-	behavior_type = "flutter" # <- bats
+	behavior_type = "flutter"
 	
+func apply_damage(amount: int):
+	super.apply_damage(amount)
+
 func die():
-	$AnimationPlayer.play("death") #play rat specific death animation
-	await $AnimationPlayer.animation_finished
+	if animation_player:
+		animation_player.play("death")
+		await animation_player.animation_finished
 	queue_free()
-	

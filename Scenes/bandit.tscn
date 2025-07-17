@@ -12,7 +12,7 @@ size = Vector2(112, 96)
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_avrwa"]
 bg_color = Color(0.698039, 0, 0, 1)
 
-[node name="bandit" type="CharacterBody2D"]
+[node name="bandit" type="CharacterBody2D" groups=["monsters"]]
 script = ExtResource("1_avrwa")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
