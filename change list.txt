@@ -5,18 +5,18 @@ completed:
 
 -updated class restrictions and character options, changing lightcaller to lightmender.
 -added "xp_gaim" field to monsters.json for experience point tracking
-
-
-
+-configure a global spawner for mobs and remove mobs from lumora outskirts scene
+-reconfigure mob.gd to be the global template for all mobs, and move all non unique fields into it
+-create spell scene and logic for magic missile
 
 
 to do:
 
-configure a global spawner for mobs and remove mobs from lumora outskirts scene
-reconfigure mob.gd to be the global template for all mobs, and move all non unique fields into it
+
+
 change xp bar from progress bar into a label on character sheet, and make character sheet update even when closed
 finish basic mobs for lumora outskirts: bat, rat, slime, bandit, skeleton, spider, snake, incuding scripts, scenes and loot tables
-create spell scene and logic for magic missile
+
 create melee attack
 update character sprites, to include animated sprites for 2 character classes, (one caster, one melee)
 implement inventory panel and working inventory/backpack
