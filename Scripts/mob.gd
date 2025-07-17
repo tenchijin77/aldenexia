@@ -82,4 +82,14 @@ func apply_damage(amount: int):
 		die()
 
 func die():
-	queue_free() # Can trigger animations or effects in child scripts
+	if has_node("AnimationPlayer"):
+		var ap := get_node("AnimationPlayer") as AnimationPlayer
+		if ap and ap.has_animation("death"):
+			ap.play("death")
+			await ap.animation_finished
+		else:
+			print("DEBUG: AnimationPlayer missing 'death' animation — freeing immediately")
+	else:
+		print("DEBUG: AnimationPlayer not found — freeing immediately")
+
+	queue_free()
