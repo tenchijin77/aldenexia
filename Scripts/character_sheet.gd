@@ -47,6 +47,10 @@ extends CanvasLayer
 @onready var ranged_label = $main_panel/scroll_container/scroll_wrapper/equipment_block/ranged_label
 @onready var ammo_label = $main_panel/scroll_container/scroll_wrapper/equipment_block/ammo_label
 
+# Experience Display Label - Adjusted to your confirmed node name
+@onready var xp_label = $main_panel/scroll_container/scroll_wrapper/stat_block/xp_label 
+@onready var level_label = $main_panel/scroll_container/scroll_wrapper/stat_block/level_label 
+
 
 func _ready():
 	print("DEBUG: Character sheet _ready().")
@@ -65,12 +69,12 @@ func set_character_data(data: Dictionary):
 	name_label.text = data.get("player_name", "N/A")
 	class_label.text = data.get("player_class", "N/A")
 
-	# Health and Mana (from derived or top-level)
+	# Health and Mana
 	var derived = data.get("derived", {})
 	health_label.text = "Health: %d/%d" % [data.get("current_health", derived.get("health", 0)), derived.get("health", 0)]
 	mana_label.text = "Mana: %d/%d" % [data.get("current_mana", derived.get("mana", 0)), derived.get("mana", 0)]
 
-	# Populate stats - NOW INCLUDING LABELS
+	# Populate stats
 	var stats = data.get("stats", {})
 	strength_value.text = "Strength: %s" % str(stats.get("strength", 0))
 	dexterity_value.text = "Dexterity: %s" % str(stats.get("dexterity", 0))
@@ -112,6 +116,18 @@ func set_character_data(data: Dictionary):
 	secondary_label.text = "Secondary: %s" % equipment.get("secondary", "Empty")
 	ranged_label.text = "Ranged: %s" % equipment.get("ranged", "Empty")
 	ammo_label.text = "Ammo: %s" % equipment.get("ammo", "Empty")
+
+	# NEW: Populate Level and XP
+	var player_level = data.get("player_level", 1)
+	var current_xp = data.get("xp", 0)
+	var xp_next_level = data.get("xp_next_level", 0) # This should now be set by player.gd
+
+	level_label.text = "Level: %d" % player_level
+	
+	if player_level >= Global.max_player_level:
+		xp_label.text = "XP: %d / MAX" % current_xp
+	else:
+		xp_label.text = "XP: %d / %d" % [current_xp, xp_next_level]
 
 	print("✅ Character sheet UI updated for:", name_label.text)
 

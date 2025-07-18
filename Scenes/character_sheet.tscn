@@ -1,9 +1,6 @@
-[gd_scene load_steps=3 format=3 uid="uid://cdphqks0tthh"]
+[gd_scene load_steps=2 format=3 uid="uid://cdphqks0tthh"]
 
 [ext_resource type="Script" uid="uid://cwwdyjv2qx4i8" path="res://Scripts/character_sheet.gd" id="1_qwutc"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qwutc"]
-bg_color = Color(0, 0, 0.917647, 1)
 
 [node name="character_sheet" type="CanvasLayer"]
 process_mode = 3
@@ -83,10 +80,8 @@ layout_mode = 2
 [node name="weight_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/stat_block"]
 layout_mode = 2
 
-[node name="experience_bar" type="ProgressBar" parent="main_panel/scroll_container/scroll_wrapper/stat_block"]
+[node name="xp_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/stat_block"]
 layout_mode = 2
-theme_override_styles/fill = SubResource("StyleBoxFlat_qwutc")
-rounded = true
 
 [node name="resist_block" type="VBoxContainer" parent="main_panel/scroll_container/scroll_wrapper"]
 layout_mode = 2

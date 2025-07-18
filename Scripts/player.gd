@@ -40,12 +40,9 @@ var spells: Array = []
 
 
 func _ready():
-	# Initial UI setup using @export defaults. These will be overwritten by load_character_data()
-	# if data is passed from character creation/load game. This is good for testing the scene directly.
 	health_bar.max_value = max_health
 	health_bar.value = current_health
-	# The initial name_label.text will be the default here. It will be updated by load_character_data if called.
-	name_label.text = player_name # Display initial default name
+	name_label.text = player_name
 
 	mana_bar.visible = false
 	player_warrior.visible = true
@@ -60,10 +57,26 @@ func _ready():
 	if not ResourceLoader.exists("res://Scenes/magic_missile.tscn"):
 		print("ERROR: magic_missile.tscn not found!")
 
-	# If you want to load test data immediately when player scene starts (e.g., for direct scene testing)
-	# You can uncomment this, but normally game management loads the character.
-	# This would be for development convenience only.
-	# load_character_data_from_file() # This loads from res://Data/character_stats.json
+	# --- NEW / MODIFIED LOAD LOGIC FOR INITIAL GAME STARTUP ---
+	if Global.current_character_data.is_empty():
+		# If Global.current_character_data isn't set yet (e.g., first game launch, no save loaded from main menu)
+		# Load a default character file. If "Annadaeus" is in a specific JSON file,
+		# replace "jethro_character_stats.json" with "annadaeus_character_stats.json" here.
+		var default_character_file_path = "res://Data/jethro_character_stats.json" # <--- ADJUST THIS PATH IF ANNADAEUS IS IN A DIFFERENT FILE!
+		print("DEBUG: Global character data is empty. Attempting to load default character from: ", default_character_file_path)
+		var file_data = load_json_file(default_character_file_path)
+		if file_data:
+			load_character_data(file_data)
+		else:
+			push_error("❌ Failed to load default character data from " + default_character_file_path + ". Character sheet might be blank.")
+	else:
+		# If Global.current_character_data already contains data (e.g., loaded from a main menu save)
+		print("DEBUG: Global character data already set. Initializing player with existing data.")
+		load_character_data(Global.current_character_data)
+	# --- END NEW / MODIFIED LOAD LOGIC ---
+
+	update_player_label()
+	print("✅ Player _ready() finished. Player name:", player_name)
 
 
 # load_character_data - Initializes player stats from provided dictionary
@@ -74,22 +87,16 @@ func load_character_data(data: Dictionary):
 		push_error("❌ Invalid character data type passed to player. Expected Dictionary, got %s." % typeof(data))
 		return
 
-	# CRITICAL: Update player_name first from the loaded data
-	player_name = data.get("player_name", "Unnamed Player") # Ensure this updates the player_name variable
-
+	player_name = data.get("player_name", "Unnamed Player")
 	stats = data.get("stats", {})
-	var derived_data = data.get("derived", {}) # Renamed to avoid conflict with 'derived' member variable if any
+	var derived_data = data.get("derived", {})
 
-	# NEW: Initialize resistances if they don't exist in the loaded data (for backward compatibility)
+	# Initialize resistances if they don't exist in the loaded data (for backward compatibility)
 	data["resistances"] = data.get("resistances", {
-		"acid": 0,
-		"cold": 0,
-		"fire": 0,
-		"magic": 0,
-		"psychic": 0
+		"acid": 0, "cold": 0, "fire": 0, "magic": 0, "psychic": 0
 	})
 	
-	# NEW: Initialize equipment if it doesn't exist in the loaded data (for backward compatibility)
+	# Initialize equipment if it doesn't exist in the loaded data (for backward compatibility)
 	data["equipment"] = data.get("equipment", {
 		"ear1": "", "neck": "", "face": "", "head": "", "ear2": "",
 		"finger1": "", "wrist1": "", "arms": "", "hands": "", "wrist2": "",
@@ -98,9 +105,13 @@ func load_character_data(data: Dictionary):
 		"primary": "", "secondary": "", "ranged": "", "ammo": ""
 	})
 
+	# NEW: Initialize player_level and xp
+	data["player_level"] = data.get("player_level", 1)
+	data["xp"] = data.get("xp", 0)
+
 	if derived_data.has("health"):
 		max_health = derived_data["health"]
-		current_health = data.get("current_health", max_health) # Get current_health from save if exists, else use max
+		current_health = data.get("current_health", max_health)
 		health_bar.max_value = max_health
 		health_bar.value = current_health
 	else:
@@ -108,7 +119,7 @@ func load_character_data(data: Dictionary):
 
 	if derived_data.has("mana"):
 		max_mana = derived_data["mana"]
-		current_mana = data.get("current_mana", max_mana) # Get current_mana from save if exists, else use max
+		current_mana = data.get("current_mana", max_mana)
 	else:
 		push_warning("Derived mana not found in character data. Using default: %d" % max_mana)
 
@@ -135,47 +146,104 @@ func load_character_data(data: Dictionary):
 		player_warrior.visible = true
 		print("⚔️ Warrior sprite enabled for class:", selected_class)
 
-	# CRITICAL FIX: Call update_player_label() *after* player_name has been updated from data
+	# After loading, recalculate xp_next_level for current level
+	_calculate_xp_next_level(data)
+
+	# Update Global.current_character_data with any initialized/calculated values
+	Global.current_character_data = data.duplicate() # Make a copy to avoid direct modification issues
+
 	update_player_label()
 	print("✅ Loaded stats for", player_name)
 
+# NEW: Internal function to calculate XP needed for next level
+func _calculate_xp_next_level(data_dict: Dictionary):
+	var current_level: int = data_dict.get("player_level", 1)
+	var max_level: int = Global.max_player_level # Get max level from Global
 
-# load_character_data_from_file - Loads character stats from a hardcoded JSON file (Legacy/Debug Only)
-# This function is here for debugging convenience, but typically you'd load via a Save/Load Manager.
-func load_character_data_from_file():
-	print("DEBUG: (Legacy) Attempting to load character_stats.json from res://Data/")
-	var file: FileAccess = FileAccess.open("res://Data/character_stats.json", FileAccess.READ)
+	if current_level >= max_level:
+		data_dict["xp_next_level"] = data_dict.get("xp", 0) # Or -1, or 0, or specific "MAX"
+		print("DEBUG: Player is at max level. XP next level set to current XP.")
+	elif Global.xp_table.has(str(current_level + 1)): # XP table keys are strings
+		data_dict["xp_next_level"] = Global.xp_table[str(current_level + 1)]
+		print("DEBUG: XP needed for Level %d: %d" % [current_level + 1, data_dict["xp_next_level"]])
+	else:
+		data_dict["xp_next_level"] = 99999999 # Fallback to a very high number if level not found
+		push_warning("⚠️ XP table does not have data for level %d. Setting xp_next_level to a large number." % (current_level + 1))
+
+
+# NEW: Function to add experience to the player
+func add_xp(amount: int):
+	if Global.current_character_data.get("player_level", 1) >= Global.max_player_level:
+		print("Player is already max level. Cannot gain more XP.")
+		return
+
+	var current_xp = Global.current_character_data.get("xp", 0)
+	var xp_to_next_level = Global.current_character_data.get("xp_next_level", 0) # This should be correctly set by _calculate_xp_next_level
+
+	current_xp += amount
+	print("Gained %d XP. Current XP: %d" % [amount, current_xp])
+
+	while current_xp >= xp_to_next_level and Global.current_character_data.get("player_level", 1) < Global.max_player_level:
+		var current_level = Global.current_character_data.get("player_level", 1)
+		
+		# Spend the XP needed for this level
+		current_xp -= xp_to_next_level
+		
+		# Level up!
+		current_level += 1
+		Global.current_character_data["player_level"] = current_level
+		Global.current_character_data["xp"] = current_xp # Carry over remaining XP
+
+		print("🎉 Level Up! Player is now Level %d!" % current_level)
+		# You might want to trigger other effects here:
+		# - Play a sound
+		# - Show a particle effect
+		# - Grant skill points or stat bonuses (requires further logic)
+
+		# Recalculate XP needed for the new next level
+		if current_level < Global.max_player_level:
+			xp_to_next_level = Global.xp_table.get(str(current_level + 1), 99999999) # Get next level's XP
+			Global.current_character_data["xp_next_level"] = xp_to_next_level
+			print("New XP needed for next level (%d): %d" % [current_level + 1, xp_to_next_level])
+		else:
+			Global.current_character_data["xp_next_level"] = Global.current_character_data["xp"] # Max level, XP needed is current XP
+			print("Player reached MAX LEVEL (%d)!" % Global.max_player_level)
+
+	Global.current_character_data["xp"] = current_xp # Save final current XP after loop
+	# You'd typically save Global.current_character_data to a file here as well, or at regular save points.
+	# For testing, you could call save_character_data_to_file() here:
+	# save_character_data_to_file("res://Data/jethro_character_stats.json") # Or your Annadaeus file
+
+
+# NEW HELPER: load_json_file - Loads JSON data from a specified file path
+func load_json_file(file_path: String) -> Dictionary:
+	var file: FileAccess = FileAccess.open(file_path, FileAccess.READ)
 	if file:
 		var content: String = file.get_as_text()
-		var data: Variant = JSON.parse_string(content) # JSON.parse_string can return Variant
-
+		var data: Variant = JSON.parse_string(content)
 		file.close()
-
 		if typeof(data) == TYPE_DICTIONARY:
-			# Call the main loading function for consistency
-			load_character_data(data)
-			print("✅ (Legacy) Loaded stats for", player_name, " from res://Data/character_stats.json")
+			return data
 		else:
-			push_error("❌ (Legacy) JSON parsing failed or returned non-dictionary for character_stats.json")
+			push_error("❌ Failed to parse JSON or content is not a Dictionary from " + file_path)
+			return {}
 	else:
-		push_error("❌ (Legacy) Failed to open character_stats.json at res://Data/. This should ideally not be called in production.")
+		push_error("❌ Failed to open JSON file: " + file_path)
+		return {}
 
 
 # load_spells - Loads player spells from JSON
 func load_spells():
 	print("DEBUG: Attempting to load player_spells.json")
-	var file: FileAccess = FileAccess.open("res://Data/player_spells.json", FileAccess.READ)
-	if file:
-		var content: String = file.get_as_text()
-		var data: Variant = JSON.parse_string(content)
-		file.close()
-		if typeof(data) == TYPE_ARRAY:
-			spells = data
+	var file_data = load_json_file("res://Data/player_spells.json")
+	if file_data: # If load_json_file returns a dictionary, it's not an array, so check if it's not empty
+		if typeof(file_data) == TYPE_ARRAY: # Ensure spells data is an array
+			spells = file_data
 			print("✅ Loaded spells from player_spells.json")
 		else:
 			push_error("❌ Failed to parse player_spells.json: content is not an Array.")
 	else:
-		push_error("❌ Failed to open player_spells.json.")
+		push_error("❌ Failed to open player_spells.json or file is empty.")
 
 
 # apply_racial_modifiers - Applies stat modifiers based on race
@@ -215,7 +283,7 @@ func _physics_process(delta: float):
 		
 	if input_direction.length() > 0:
 		velocity = input_direction.normalized() * speed
-		last_direction = input_direction.normalized() # Update last_direction for aiming
+		last_direction = input_direction.normalized()
 	else:
 		velocity = Vector2.ZERO
 
@@ -230,12 +298,11 @@ func _physics_process(delta: float):
 
 # _input - Handles player actions (attacks, character sheet toggle)
 func _input(event: InputEvent):
-	# Handle specific mouse button events for attacks
 	if event is InputEventMouseButton:
-		if event.is_action_pressed("ui_accept"): # Left click for melee
+		if event.is_action_pressed("ui_accept"):
 			print("DEBUG: Left click detected - triggering melee attack")
 			melee_attack()
-		elif event.is_action_pressed("ranged_attack"): # Right click for ranged/spell
+		elif event.is_action_pressed("ranged_attack"):
 			print("DEBUG: Right click detected - Action: ranged_attack, Warrior visible: ", player_warrior.visible, ", Caster visible: ", player_caster.visible)
 			if player_warrior.visible:
 				var mouse_pos: Vector2 = get_global_mouse_position()
@@ -245,8 +312,6 @@ func _input(event: InputEvent):
 			else:
 				print("ERROR: Neither warrior nor caster sprite is visible for right-click action!")
 	
-	# Handle character sheet toggle using the global Input singleton
-	# This ensures it works regardless of the specific InputEvent type (e.g., mouse motion won't crash it)
 	if Input.is_action_just_pressed("toggle_character_sheet"):
 		print("DEBUG: Input.is_action_just_pressed('toggle_character_sheet') triggered. Calling toggle_character_sheet().")
 		toggle_character_sheet()
@@ -255,12 +320,11 @@ func _input(event: InputEvent):
 # melee_attack - Performs a melee attack
 func melee_attack():
 	var melee_range := 50.0
-	var melee_damage: int = stats.get("strength", 10) # Base damage on strength or default. Explicit type int.
+	var melee_damage: int = stats.get("strength", 10)
 	var attack_position: Vector2 = global_position + last_direction * (melee_range / 2)
 	var monsters: Array[Node] = get_tree().get_nodes_in_group("monsters")
 	for monster in monsters:
 		if monster is CharacterBody2D and is_instance_valid(monster) and monster.global_position.distance_to(attack_position) < melee_range:
-			# Consider checking if monster has apply_damage method
 			if monster.has_method("apply_damage"):
 				monster.apply_damage(melee_damage)
 				print("⚔️ Melee hit on", monster.name, "for", melee_damage, "damage")
@@ -279,7 +343,6 @@ func ranged_attack(mouse_pos: Vector2):
 	if projectile:
 		projectile.global_position = global_position
 		var direction: Vector2 = (mouse_pos - global_position).normalized()
-		# Assuming Area2D has a 'direction' property, or you'll need a script on it
 		projectile.direction = direction
 		get_tree().current_scene.add_child(projectile)
 		print("🏹 Fired ranged attack toward mouse position: ", mouse_pos)
@@ -308,8 +371,7 @@ func cast_magic_missile():
 	mana_bar.value = current_mana
 	magic_missile_cooldown = spell.get("recast_time", magic_missile_cooldown_duration)
 
-	# Determine base direction: target closest monster, else mouse position
-	var base_direction: Vector2 = last_direction # Default to player's last movement direction
+	var base_direction: Vector2 = last_direction
 	var closest_monster: CharacterBody2D = null
 
 	var monsters: Array[Node] = get_tree().get_nodes_in_group("monsters")
@@ -323,17 +385,14 @@ func cast_magic_missile():
 	if closest_monster:
 		base_direction = (closest_monster.global_position - global_position).normalized()
 	else:
-		# If no target, use mouse direction for better player control
 		base_direction = (get_global_mouse_position() - global_position).normalized()
 
-	# Fire 3 projectiles with slight spread
 	var angles: Array[float] = [-15, 0, 15]
 	for angle in angles:
 		var missile: Area2D = magic_missile_scene.instantiate()
 		if missile:
 			missile.global_position = global_position
-			# Assuming Area2D has a 'target' and 'direction' property, or you'll need a script on it
-			missile.target = closest_monster # Assign target for homing (if found)
+			missile.target = closest_monster
 			var rad: float = deg_to_rad(angle)
 			missile.direction = base_direction.rotated(rad)
 			get_tree().current_scene.add_child(missile)
@@ -343,11 +402,9 @@ func cast_magic_missile():
 
 
 # toggle_character_sheet - Opens or closes the character sheet UI
-# This function is responsible for opening and closing the character sheet UI.
 func toggle_character_sheet():
 	print("DEBUG: toggle_character_sheet() called from player.gd.") 
 
-	# Ensure the scene exists before attempting to preload
 	if not ResourceLoader.exists("res://Scenes/character_sheet.tscn"):
 		push_error("❌ Error: character_sheet.tscn does not exist at 'res://Scenes/character_sheet.tscn'. Check path.")
 		return
@@ -357,20 +414,15 @@ func toggle_character_sheet():
 	var existing_character_sheet: CanvasLayer = get_tree().current_scene.find_child("character_sheet")
 	print("DEBUG: Existing character sheet found (or not):", existing_character_sheet)
 	
-	if not is_instance_valid(existing_character_sheet): # If the sheet is NOT currently open
-		# --- Open the character sheet ---
+	if not is_instance_valid(existing_character_sheet):
 		var instance_sheet: CanvasLayer = character_sheet_scene.instantiate() 
-		
-		instance_sheet.name = "character_sheet" # Assign a unique name so we can find this specific instance later
+		instance_sheet.name = "character_sheet"
 
-		# Set the process mode so it continues to receive input/process even if the game is paused
-		instance_sheet.process_mode = Node.PROCESS_MODE_ALWAYS # Crucial for pause menu behavior
+		instance_sheet.process_mode = Node.PROCESS_MODE_ALWAYS
 		print("DEBUG: Character sheet instance process_mode set to ALWAYS.") 
 
 		get_tree().current_scene.add_child(instance_sheet) 
 
-		# --- Pass the loaded character data to the newly opened sheet ---
-		# This is the critical part to get data from Global to the sheet
 		if Global.current_character_data and is_instance_valid(instance_sheet):
 			instance_sheet.set_character_data(Global.current_character_data)
 			print("DEBUG: Passed character data to character sheet.")
@@ -379,10 +431,6 @@ func toggle_character_sheet():
 
 		print("📋 Character sheet opened.")
 	else:
-		# --- Close the existing character sheet ---
-		# We'll rely on the character_sheet.gd's own _input to queue_free itself
-		# when the 'C' key is pressed while it's open.
-		# This 'else' block serves as a robust fallback to ensure it closes.
 		print("DEBUG: Attempting to close character sheet from player.gd fallback.") 
 		if is_instance_valid(existing_character_sheet):
 			existing_character_sheet.queue_free()
@@ -412,7 +460,6 @@ func apply_damage(amount: int):
 	print("Player took %d damage. Current health: %d" % [amount, current_health])
 	if current_health <= 0:
 		print("Player defeated!")
-		# Handle player death (e.g., game over screen)
 
 
 # get_last_direction - Returns the player's last movement direction
@@ -427,21 +474,16 @@ func get_faction_standing(faction_name: String) -> int:
 
 # load_faction_standing - Loads faction data from JSON
 func load_faction_standing():
-	var file: FileAccess = FileAccess.open("res://Data/player_faction.json", FileAccess.READ)
-	if file:
-		var json_data: Variant = JSON.parse_string(file.get_as_text())
-		file.close()
-		if typeof(json_data) == TYPE_DICTIONARY and json_data.has("factions"):
-			for faction in json_data["factions"]:
-				if faction.has("name") and faction.has("standing"):
-					faction_standing[faction["name"]] = faction["standing"]
-				else:
-					push_warning("Faction entry missing 'name' or 'standing' in player_faction.json: %s" % faction)
-			print("✅ Loaded faction standing from player_faction.json")
-		else:
-			push_error("❌ Failed to parse player_faction.json or 'factions' key not found. Content: %s" % json_data)
+	var file_data = load_json_file("res://Data/player_faction.json")
+	if file_data and file_data.has("factions"):
+		for faction in file_data["factions"]:
+			if faction.has("name") and faction.has("standing"):
+				faction_standing[faction["name"]] = faction["standing"]
+			else:
+				push_warning("Faction entry missing 'name' or 'standing' in player_faction.json: %s" % faction)
+		print("✅ Loaded faction standing from player_faction.json")
 	else:
-		push_error("❌ Failed to open player_faction.json.")
+		push_error("❌ Failed to parse player_faction.json or 'factions' key not found.")
 
 
 # save_faction_standing - Saves current faction data to JSON
