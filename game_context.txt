@@ -8,6 +8,7 @@ Environmental Variables:
 -all tables are stored in json files in res://Data/
 -all scripts are stored in res://Scripts/
 -all scenes are stored in res://Scenes
+-user data is saved in user://saves/
 -all scripts should start with a comment designating the script name, i.e. (# snake.gd)
 -all json files should start with a comment designating the file name and purpose, i.e. ("_comment": "monsters.json - this table is used for monster's stats ")
 -all functions in scripts should start with a comment, documenting what the function does, i.e. #Apply stats to characte file

@@ -46,7 +46,10 @@ func _on_create_character_pressed() -> void:
 
 
 func _on_load_game_pressed() -> void:
-	get_tree().change_scene_to_file("res://Scenes/lumora_outskirts.tscn")
+	var load_game_scene = preload("res://Scenes/load_game.tscn").instantiate()
+	add_child(load_game_scene)
+	print("DEBUG: Load game menu opened")
+	#get_tree().change_scene_to_file("res://Scenes/lumora_outskirts.tscn")
 	
 	
 func _on_credits_pressed() -> void:

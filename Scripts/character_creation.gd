@@ -1,3 +1,4 @@
+# character_creation.gd
 extends Control
 
 # Stat Logic
@@ -57,6 +58,7 @@ func _ready():
 	]:
 		spinbox.value_changed.connect(_on_spinbox_value_changed)
 
+# load_character_options - Loads races and classes from JSON
 func load_character_options():
 	if not FileAccess.file_exists("res://Data/character_options.json"):
 		push_error("❌ character_options.json does not exist.")
@@ -76,6 +78,7 @@ func load_character_options():
 			for player_class in classes:
 				class_select.add_item(player_class)
 
+# load_racial_stats - Loads stats for the selected race
 func load_racial_stats(race: String):
 	var file = FileAccess.open("res://Data/racial_stats.json", FileAccess.READ)
 	if file:
@@ -83,13 +86,14 @@ func load_racial_stats(race: String):
 		file.close()
 
 		if typeof(data) == TYPE_DICTIONARY and data.has(race.to_lower()):
-			base_stats = data[race.to_lower()]["base_stats"]
+			base_stats = data[race.to_lower()]['base_stats']
 			final_stats = base_stats.duplicate()
 			selected_race = race
 			stat_pool = 4
 			setup_spinboxes()
 			update_point_display()
 
+# setup_spinboxes - Initializes stat spinboxes
 func setup_spinboxes():
 	for key in base_stats.keys():
 		var spin = get_node("MarginContainer/VBoxContainer/GridContainer/%s_section/%s_spinbox" % [key, key])
@@ -97,9 +101,10 @@ func setup_spinboxes():
 		spin.max_value = base_stats[key] + 4
 		spin.value = base_stats[key]
 
+# _on_spinbox_value_changed - Recalculates points and derived stats
 func _on_spinbox_value_changed(value):
 	if base_stats.has("strength"):
-		stat_pool = 4  # Reset pool
+		stat_pool = 4
 
 		stat_pool -= (strength_spin.value - base_stats["strength"])
 		stat_pool -= (constitution_spin.value - base_stats["constitution"])
@@ -125,14 +130,17 @@ func _on_spinbox_value_changed(value):
 	else:
 		print("⛔ Skipping preview — base_stats not ready yet.")
 
+# update_point_display - Updates label showing remaining points
 func update_point_display():
 	points_remaining_label.text = "Points Left: " + str(stat_pool)
 
+# _on_race_selected - Called when a race is selected
 func _on_race_selected(index: int):
 	var race_name = race_select.get_item_text(index)
 	update_class_options_for_race(race_name)
 	load_racial_stats(race_name)
 
+# load_class_restrictions - Loads class restrictions from JSON
 func load_class_restrictions():
 	var file = FileAccess.open("res://Data/class_restrictions.json", FileAccess.READ)
 	if file:
@@ -142,33 +150,48 @@ func load_class_restrictions():
 		if typeof(parsed) == TYPE_DICTIONARY:
 			class_restrictions = parsed
 
+# update_class_options_for_race - Filters class list by race
 func update_class_options_for_race(race: String):
 	class_select.clear()
 	for player_class in class_restrictions.keys():
 		if race in class_restrictions[player_class]:
 			class_select.add_item(player_class)
 
+# _on_confirm_pressed - Saves character stats to user save path
 func _on_confirm_pressed():
 	collect_final_stats()
 	var selected_class = class_select.get_item_text(class_select.selected)
 
-	var character_data = {
+	var character_data: Dictionary = {
 		"player_name": name_input.text,
 		"player_class": selected_class,
 		"player_race": selected_race,
 		"stats": final_stats,
-		"derived": calculate_derived_stats(final_stats, selected_class)
+		"derived": calculate_derived_stats(final_stats, selected_class),
+		"xp": 0,
+		"xp_next_level": 100,
+		"copper": 0,
+		"silver": 0,
+		"gold": 0,
+		"platinum": 0
 	}
 
-	var json_string = JSON.stringify(character_data, "\t")
-	var file = FileAccess.open("res://Data/character_stats.json", FileAccess.WRITE)
-	if file:
-		file.store_string(json_string)
-		file.close()
-		print("✅ Character saved with derived stats!")
-	else:
-		push_error("❌ Failed to write character_stats.json")
+	character_data["_comment"] = name_input.text.to_lower() + "_character_stats.json - this file stores the character's saved stats"
 
+	var save_dir: String = "user://saves"
+	DirAccess.make_dir_recursive_absolute(save_dir)
+
+	var file_name: String = name_input.text.to_lower() + "_character_stats.json"
+	var file_path: String = save_dir + "/" + file_name
+	var file: FileAccess = FileAccess.open(file_path, FileAccess.WRITE)
+	if file:
+		file.store_string(JSON.stringify(character_data, "\t"))
+		file.close()
+		print("✅ Character saved to " + file_path)
+	else:
+		push_error("❌ Failed to write character save file: " + file_path)
+
+# calculate_derived_stats - Computes stats based on base values
 func calculate_derived_stats(base_stats: Dictionary, selected_class: String) -> Dictionary:
 	var derived := {}
 	var required_keys := ["strength", "constitution", "dexterity", "intelligence", "wisdom", "luck"]
@@ -188,6 +211,7 @@ func calculate_derived_stats(base_stats: Dictionary, selected_class: String) -> 
 
 	return derived
 
+# collect_final_stats - Pulls values from spinboxes into final_stats
 func collect_final_stats():
 	final_stats["strength"] = strength_spin.value
 	final_stats["constitution"] = constitution_spin.value
@@ -197,5 +221,6 @@ func collect_final_stats():
 	final_stats["charisma"] = charisma_spin.value
 	final_stats["luck"] = luck_spin.value
 
+# _on_begin_button_pressed - Starts game in Lumora
 func _on_begin_button_pressed():
 	get_tree().change_scene_to_file("res://Scenes/lumora_outskirts.tscn")

@@ -6,6 +6,7 @@
 bg_color = Color(0, 0, 0.917647, 1)
 
 [node name="character_sheet" type="CanvasLayer"]
+process_mode = 3
 layer = 2
 script = ExtResource("1_qwutc")
 
