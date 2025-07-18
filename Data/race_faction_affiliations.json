@@ -1,0 +1,88 @@
+{
+	"_comment": "race_faction_affiliations.json: Maps races to their primary faction affiliations and initial standing adjustments.",
+	"races": {
+		"human": {
+			"affiliations": [
+				{"name": "Luminar Covenant", "initial_standing_modifier": 0},
+				{"name": "Wardens of the Sacred Flame", "initial_standing_modifier": 0},
+				{"name": "Villagers of Lumora", "initial_standing_modifier": 10}
+			],
+			"default_active_faction_index": 0
+		},
+		"elf": {
+			"affiliations": [
+				{"name": "Luminar Covenant", "initial_standing_modifier": 0},
+				{"name": "Circle of Thorns", "initial_standing_modifier": 0},
+				{"name": "Verdant Kin", "initial_standing_modifier": 0}
+			],
+			"default_active_faction_index": 0
+		},
+		"dwarf": {
+			"affiliations": [
+				{"name": "Luminar Covenant", "initial_standing_modifier": 0},
+				{"name": "Hands of the Eternal Forge", "initial_standing_modifier": 0},
+				{"name": "Ironclad Brotherhood", "initial_standing_modifier": 0}
+			],
+			"default_active_faction_index": 0
+		},
+		"gnome": {
+			"affiliations": [
+				{"name": "Arcane Synod", "initial_standing_modifier": 0},
+				{"name": "Arcane Dominion", "initial_standing_modifier": -10}
+			],
+			"default_active_faction_index": 0
+		},
+		"halfling": {
+			"affiliations": [
+				{"name": "Villagers of Lumora", "initial_standing_modifier": 0},
+				{"name": "Circle of Thorns", "initial_standing_modifier": 0},
+				{"name": "Verdant Kin", "initial_standing_modifier": 0}
+			],
+			"default_active_faction_index": 0
+		},
+		"half-elf": {
+			"affiliations": [
+				{"name": "Luminar Covenant", "initial_standing_modifier": 0},
+				{"name": "Echoes of the Deep", "initial_standing_modifier": 0},
+				{"name": "Villagers of Lumora", "initial_standing_modifier": 5}
+			],
+			"default_active_faction_index": 0
+		},
+		"ogre": {
+			"affiliations": [
+				{"name": "Umbral Talon", "initial_standing_modifier": 0},
+				{"name": "Shattered Horn Tribe", "initial_standing_modifier": 0}
+			],
+			"default_active_faction_index": 0
+		},
+		"troll": {
+			"affiliations": [
+				{"name": "Umbral Talon", "initial_standing_modifier": 0},
+				{"name": "Stoneblood Clan", "initial_standing_modifier": 0}
+			],
+			"default_active_faction_index": 0
+		},
+		"dark elf": {
+			"affiliations": [
+				{"name": "Umbral Talon", "initial_standing_modifier": 0},
+				{"name": "Twilight Accord", "initial_standing_modifier": 0},
+				{"name": "Veilstriders", "initial_standing_modifier": 0}
+			],
+			"default_active_faction_index": 0
+		},
+		"half-orc": {
+			"affiliations": [
+				{"name": "Ironclad Brotherhood", "initial_standing_modifier": 0},
+				{"name": "Umbral Talon", "initial_standing_modifier": -10}
+			],
+			"default_active_faction_index": 0
+		},
+		"lizardkin": {
+			"affiliations": [
+				{"name": "Umbral Talon", "initial_standing_modifier": 0},
+				{"name": "Brood of Fennarach", "initial_standing_modifier": 0}
+			],
+			"default_active_faction_index": 0
+		}
+	}
+}

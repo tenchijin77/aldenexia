@@ -5,6 +5,7 @@ Environmental Variables:
 -I am using Godot 4.4.1
 -snakecase is used for all file names, with all words in lowercase
 -pascalcase is used for folders, (i.e. first letter capital like /Data)
+-all variables should have their type explicitly called to avoid error messages
 -all tables are stored in json files in res://Data/
 -all scripts are stored in res://Scripts/
 -all scenes are stored in res://Scenes
@@ -24,6 +25,7 @@ Files:
 -my character's statistic information is stored in character_stats.json (originally created by the character creation scene, and updated in game; this has been moved to user://saves/charactername_character_stats.json
 -my character's faction should be stored in user://saves/charactername_player_faction.json
 -my player spells are stored in player_spells.json and are given a unique spell_id. (once implemented i would like to create a spellbook for the player, and it will copy these spells based on the ones that the player has learned into user://saves/charactername_spellbook.json)
+-my character's religion will be stored in user://saves/charactername_player_religion.json)
 -the opening scene is called main_menu.tscn, and allows the user to create a new character via character_creation.tscn, load an existing character via lumora_outskirts.tscn, or quit the game. 
 -mobs are randomly generated via mob_spawner.tscn with mob_spawner.gd
 -all mobs pull global variables from mob.tscn and mob.gd, and then pull unique settings from their specific file, i.e. skeleton.tscn and skeleton.gd

@@ -1,0 +1,240 @@
+{
+	"_comment": "deities.json: This table is used for all the deities in the game, including their influence on faction standings and inter-deity relationships.",
+	"deities": [
+		{
+			"name": "Aurethiel",
+			"domain": "Light, Justice",
+			"description": "Goddess of light and justice, revered by paladins and good-aligned individuals.",
+			"base_standing": 50,
+			"faction_standing_modifiers": {
+				"luminar covenant": 20,
+				"wardens of the sacred flame": 15,
+				"villagers of lumora": 5,
+				"umbral talon": -20,
+				"twilight accord": -15,
+				"veilstriders": -15,
+				"stoneblood clan": -10
+			},
+			"deity_standing_modifiers": {
+				"thalorun": 5,
+				"durnhal": 5,
+				"sylaen": 5,
+				"elyndra": 5,
+				"lirael": 5,
+				"kaerun": -20,
+				"morthan": -15,
+				"virexus": -15,
+				"kael'thir": -5
+			}
+		},
+		{
+			"name": "Thalorun",
+			"domain": "Nature, Balance",
+			"description": "Ancient nature spirit, guiding elves and druids in maintaining natural harmony.",
+			"base_standing": 45,
+			"faction_standing_modifiers": {
+				"circle of thorns": 20,
+				"verdant kin": 15,
+				"villagers of lumora": 5,
+				"umbral talon": -15,
+				"arcane dominion": -10,
+				"brood of fennarach": -5
+			},
+			"deity_standing_modifiers": {
+				"aurethiel": 5,
+				"elyndra": 10,
+				"lirael": 10,
+				"kaerun": -15,
+				"morthan": -10,
+				"virexus": -5,
+				"kael'thir": -5
+			}
+		},
+		{
+			"name": "Durnhal",
+			"domain": "Craft, Endurance",
+			"description": "Dwarven patron of creation and resilience, inspiring smiths and builders.",
+			"base_standing": 40,
+			"faction_standing_modifiers": {
+				"hands of the eternal forge": 20,
+				"ironclad brotherhood": 15,
+				"luminar covenant": 5,
+				"umbral talon": -10,
+				"stoneblood clan": -5
+			},
+			"deity_standing_modifiers": {
+				"aurethiel": 5,
+				"thalorun": 0,
+				"sylaen": 5,
+				"kaerun": -5,
+				"morthan": -5,
+				"virexus": -5
+			}
+		},
+		{
+			"name": "Sylaen",
+			"domain": "Knowledge, Magic",
+			"description": "Gnomish deity of intellect and arcane secrets, favored by scholars and mages.",
+			"base_standing": 35,
+			"faction_standing_modifiers": {
+				"arcane synod": 20,
+				"luminar covenant": 5,
+				"arcane dominion": -10,
+				"umbral talon": -5
+			},
+			"deity_standing_modifiers": {
+				"aurethiel": 5,
+				"thalorun": 0,
+				"durnhal": 5,
+				"virexus": -10,
+				"kaerun": -5
+			}
+		},
+		{
+			"name": "Elyndra",
+			"domain": "Life, Renewal",
+			"description": "Halfling goddess of life's gentle cycle, overseeing growth and healing.",
+			"base_standing": 45,
+			"faction_standing_modifiers": {
+				"villagers of lumora": 15,
+				"circle of thorns": 10,
+				"verdant kin": 10,
+				"luminar covenant": 5,
+				"umbral talon": -10,
+				"stoneblood clan": -5
+			},
+			"deity_standing_modifiers": {
+				"aurethiel": 5,
+				"thalorun": 10,
+				"lirael": 10,
+				"morthan": -15,
+				"virexus": -10,
+				"kaerun": -5
+			}
+		},
+		{
+			"name": "Lirael",
+			"domain": "Music, Peace",
+			"description": "Half-elven muse of harmony and artistic expression, calming strife.",
+			"base_standing": 40,
+			"faction_standing_modifiers": {
+				"echoes of the deep": 20,
+				"villagers of lumora": 10,
+				"luminar covenant": 5,
+				"umbral talon": -10
+			},
+			"deity_standing_modifiers": {
+				"aurethiel": 5,
+				"thalorun": 10,
+				"elyndra": 10,
+				"kaerun": -10,
+				"morthan": -5,
+				"virexus": -5
+			}
+		},
+		{
+			"name": "Kaerun",
+			"domain": "War, Conquest",
+			"description": "Ogre/Lizardkin war god, inspiring might and territorial expansion.",
+			"base_standing": 10,
+			"faction_standing_modifiers": {
+				"umbral talon": 20,
+				"shattered horn tribe": 15,
+				"brood of fennarach": 15,
+				"ironclad brotherhood": 10,
+				"luminar covenant": -20,
+				"wardens of the sacred flame": -15,
+				"villagers of lumora": -10,
+				"circle of thorns": -10,
+				"verdant kin": -10,
+				"echoes of the deep": -10
+			},
+			"deity_standing_modifiers": {
+				"aurethiel": -20,
+				"thalorun": -15,
+				"durnhal": -5,
+				"sylaen": -5,
+				"elyndra": -5,
+				"lirael": -10,
+				"morthan": 5,
+				"virexus": 10,
+				"kael'thir": 10
+			}
+		},
+		{
+			"name": "Morthan",
+			"domain": "Death, Decay",
+			"description": "Troll deity of the cycle of life and death, revered in grim rituals.",
+			"base_standing": 10,
+			"faction_standing_modifiers": {
+				"stoneblood clan": 20,
+				"umbral talon": 10,
+				"luminar covenant": -15,
+				"wardens of the sacred flame": -10,
+				"villagers of lumora": -5,
+				"circle of thorns": -5,
+				"verdant kin": -5,
+				"echoes of the deep": -5
+			},
+			"deity_standing_modifiers": {
+				"aurethiel": -15,
+				"thalorun": -10,
+				"elyndra": -15,
+				"lirael": -5,
+				"kaerun": 5,
+				"virexus": 10,
+				"kael'thir": 5
+			}
+		},
+		{
+			"name": "Virexus",
+			"domain": "Shadows, Secrets",
+			"description": "Dark elf patron of stealth and hidden knowledge, dwelling in the dark places.",
+			"base_standing": 15,
+			"faction_standing_modifiers": {
+				"umbral talon": 10,
+				"twilight accord": 15,
+				"veilstriders": 20,
+				"luminar covenant": -15,
+				"wardens of the sacred flame": -10,
+				"villagers of lumora": -5,
+				"circle of thorns": -5,
+				"verdant kin": -5,
+				"echoes of the deep": -5
+			},
+			"deity_standing_modifiers": {
+				"aurethiel": -15,
+				"thalorun": -5,
+				"durnhal": -5,
+				"sylaen": -10,
+				"elyndra": -10,
+				"lirael": -5,
+				"kaerun": 10,
+				"morthan": 10,
+				"kael'thir": 5
+			}
+		},
+		{
+			"name": "Kael'Thir",
+			"domain": "War, Thunder",
+			"description": "Half-orc deity of martial prowess and storm's fury.",
+			"base_standing": 20,
+			"faction_standing_modifiers": {
+				"ironclad brotherhood": 15,
+				"umbral talon": 10,
+				"villagers of lumora": -10,
+				"luminar covenant": -5
+			},
+			"deity_standing_modifiers": {
+				"aurethiel": -5,
+				"thalorun": -5,
+				"durnhal": 5,
+				"elyndra": -5,
+				"lirael": -5,
+				"kaerun": 10,
+				"morthan": 5,
+				"virexus": 5
+			}
+		}
+	]
+}
