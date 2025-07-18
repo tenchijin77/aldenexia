@@ -10,6 +10,7 @@ Environmental Variables:
 -all scenes are stored in res://Scenes
 -all scripts should start with a comment designating the script name, i.e. (# snake.gd)
 -all json files should start with a comment designating the file name and purpose, i.e. ("_comment": "monsters.json - this table is used for monster's stats ")
+-all functions in scripts should start with a comment, documenting what the function does, i.e. #Apply stats to characte file
 -all script files should use tab indentation, not space indentation
 -all monsters are in the monsters node group for collisions
 -the player is in the player node group for collisions

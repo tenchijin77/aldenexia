@@ -1,10 +1,11 @@
-[gd_scene load_steps=11 format=4 uid="uid://bpo1yqvufpta"]
+[gd_scene load_steps=12 format=4 uid="uid://bpo1yqvufpta"]
 
 [ext_resource type="Script" uid="uid://box0lal74sg05" path="res://Scripts/lumora_outskirts.gd" id="1_5t0cy"]
 [ext_resource type="Texture2D" uid="uid://cifdbv0idbre1" path="res://Assets/kenney_tiny-town/Tilemap/tilemap_packed.png" id="1_eq4gy"]
 [ext_resource type="PackedScene" uid="uid://o2xfrm0mcx0v" path="res://Scenes/player.tscn" id="2_vwjjy"]
 [ext_resource type="PackedScene" uid="uid://dlyrp37bc0od2" path="res://Scenes/mob_spawner.tscn" id="6_5t0cy"]
 [ext_resource type="PackedScene" uid="uid://bvsgc02xjy7s3" path="res://Scenes/backpack.tscn" id="6_ajx7y"]
+[ext_resource type="PackedScene" uid="uid://cwyvfsbm0jl57" path="res://Scenes/ui_bar.tscn" id="7_5t0cy"]
 [ext_resource type="AudioStream" uid="uid://ctaaiipmwqcae" path="res://Assets/forest.ogg" id="8_3dsyu"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_rtkgr"]
@@ -311,3 +312,5 @@ volume_db = -5.0
 autoplay = true
 
 [node name="mob_spawner" parent="." instance=ExtResource("6_5t0cy")]
+
+[node name="ui_bar" parent="." instance=ExtResource("7_5t0cy")]
