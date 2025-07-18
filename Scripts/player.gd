@@ -31,13 +31,16 @@ var magic_missile_cooldown_duration := 10.0 # From spell data or a default
 var ranged_attack_cooldown := 0.0
 var ranged_attack_cooldown_duration := 2.0
 var spells: Array = []
+var dying: bool = false
+var attacking_melee: bool = false
+var attacking_ranged: bool = false
 
 @onready var player_warrior := $player_warrior # Make sure this is your AnimatedSprite2D or similar
 @onready var player_caster := $player_caster # Make sure this is your AnimatedSprite2D or similar
 @onready var health_bar := $health_bar
 @onready var mana_bar := $mana_bar
 @onready var name_label := $name_label
-
+@onready var weapon_marker = get_node("weapon_marker") # Ensure this path is correct within your scene
 
 func _ready():
 	# Initial UI setup using @export defaults. These will be overwritten by load_character_data()
@@ -218,8 +221,12 @@ func _physics_process(delta: float):
 		last_direction = input_direction.normalized() # Update last_direction for aiming
 	else:
 		velocity = Vector2.ZERO
-
-	move_and_slide()
+	
+	if not dying:
+		# Always point weapon_marker towards mouse for visual aiming
+		weapon_marker.look_at(get_global_mouse_position())
+		
+		move_and_slide()
 
 	# Update cooldowns
 	if magic_missile_cooldown > 0:
@@ -232,9 +239,10 @@ func _physics_process(delta: float):
 func _input(event: InputEvent):
 	# Handle specific mouse button events for attacks
 	if event is InputEventMouseButton:
-		if event.is_action_pressed("ui_accept"): # Left click for melee
+		if event.is_action_pressed("melee_attack"): # Left click for melee
 			print("DEBUG: Left click detected - triggering melee attack")
-			melee_attack()
+			var target_position: Vector2 = get_global_mouse_position() # Get mouse position for melee
+			melee_attack(target_position) # Pass target_position to melee_attack
 		elif event.is_action_pressed("ranged_attack"): # Right click for ranged/spell
 			print("DEBUG: Right click detected - Action: ranged_attack, Warrior visible: ", player_warrior.visible, ", Caster visible: ", player_caster.visible)
 			if player_warrior.visible:
@@ -246,26 +254,86 @@ func _input(event: InputEvent):
 				print("ERROR: Neither warrior nor caster sprite is visible for right-click action!")
 	
 	# Handle character sheet toggle using the global Input singleton
-	# This ensures it works regardless of the specific InputEvent type (e.g., mouse motion won't crash it)
 	if Input.is_action_just_pressed("toggle_character_sheet"):
 		print("DEBUG: Input.is_action_just_pressed('toggle_character_sheet') triggered. Calling toggle_character_sheet().")
 		toggle_character_sheet()
 
 
-# melee_attack - Performs a melee attack
-func melee_attack():
+# melee_attack - Performs a melee attack and animates the weapon_marker
+# This function is now responsible for the melee animation and damage application.
+func melee_attack(target_position: Vector2): # NOW ACCEPTS target_position
+	if attacking_melee: # Prevent spamming before animation finishes
+		return
+
+	attacking_melee = true
 	var melee_range := 50.0
 	var melee_damage: int = stats.get("strength", 10) # Base damage on strength or default. Explicit type int.
-	var attack_position: Vector2 = global_position + last_direction * (melee_range / 2)
-	var monsters: Array[Node] = get_tree().get_nodes_in_group("monsters")
-	for monster in monsters:
-		if monster is CharacterBody2D and is_instance_valid(monster) and monster.global_position.distance_to(attack_position) < melee_range:
-			# Consider checking if monster has apply_damage method
-			if monster.has_method("apply_damage"):
-				monster.apply_damage(melee_damage)
-				print("⚔️ Melee hit on", monster.name, "for", melee_damage, "damage")
-			else:
-				print("WARNING: Monster", monster.name, "does not have 'apply_damage' method.")
+
+	# Store the weapon_marker's current local position relative to the player
+	# This is where it will return to after the attack
+	var initial_offset: Vector2 = weapon_marker.position
+
+	# Calculate the direction from player's global position to the mouse's target_position
+	var attack_direction: Vector2 = (target_position - global_position).normalized()
+
+	# Define how far out the weapon marker should visually extend for the swing
+	var melee_range_visual_offset = 30.0 # Adjust this value as needed for visual effect
+
+	# Calculate the end position for the weapon_marker tween (outward swing)
+	var end_position: Vector2 = initial_offset + attack_direction * melee_range_visual_offset
+
+	# Create a tween for the weapon_marker animation
+	var tween = create_tween()
+	tween.set_trans(Tween.TRANS_SINE) # Smooth transition
+	tween.set_ease(Tween.EASE_OUT)
+
+	# 1. Move weapon_marker **outward** towards the target
+	tween.tween_property(weapon_marker, "position", end_position, 0.1) # Quick outward swing
+	
+	# 2. Add a callback to trigger damage **after** the weapon reaches its extended point
+	tween.tween_callback(func():
+		# Perform collision check and damage application here
+		# Use a slightly adjusted attack_position for damage calculation if desired
+		var actual_attack_center = global_position + attack_direction * (melee_range / 2) # Example center for damage calculation
+		var monsters: Array[Node] = get_tree().get_nodes_in_group("monsters")
+		for monster in monsters:
+			if monster is CharacterBody2D and is_instance_valid(monster) and monster.global_position.distance_to(actual_attack_center) < melee_range:
+				if monster.has_method("apply_damage"):
+					monster.apply_damage(melee_damage)
+					print("⚔️ Melee hit on", monster.name, "for", melee_damage, "damage")
+				else:
+					print("WARNING: Monster", monster.name, "does not have 'apply_damage' method.")
+	)
+	
+	# 3. Return weapon_marker to its default/initial local position
+	# This uses the 'initial_offset' captured at the start of the function
+	tween.tween_property(weapon_marker, "position", initial_offset, 0.2).set_delay(0.1) # Slight delay before returning
+
+	# 4. Once the entire tween finishes, reset the attacking_melee flag
+	tween.tween_callback(func():
+		attacking_melee = false
+	)
+		
+# The original attack_check function is removed as its logic is now integrated into _input and melee_attack.
+# The return_default function is also integrated into the melee_attack tween.
+# If you have other specific uses for return_default, consider its context.
+# Example if it was called elsewhere for a general reset:
+func return_default():
+	# This function can be used if you need a general reset of the weapon_marker
+	# outside of the attack sequence. If not, it can be removed.
+	var tween = create_tween()
+	tween.tween_property(weapon_marker, "position", Vector2.ZERO, 0.2) # Assuming default is Vector2.ZERO
+	await tween.finished # Wait for the tween to complete
+	attacking_melee = false # Reset flag if this function is meant to signal non-attacking state
+
+
+func _on_melee_body_entered(body: Node2D) -> void:
+	# This function is connected via a signal, typically from an Area2D for melee hit detection.
+	# Currently, the damage calculation is handled by the tween callback in melee_attack.
+	# If you want to use a signal-based approach for hit detection, you would
+	# move the `monster.apply_damage` logic here and make sure `melee_attack`
+	# enables/disables the `melee_area` (assuming you have one) at the right time.
+	pass # Replace with function body.
 
 
 # ranged_attack - Fires a physical projectile
@@ -345,7 +413,7 @@ func cast_magic_missile():
 # toggle_character_sheet - Opens or closes the character sheet UI
 # This function is responsible for opening and closing the character sheet UI.
 func toggle_character_sheet():
-	print("DEBUG: toggle_character_sheet() called from player.gd.") 
+	print("DEBUG: toggle_character_sheet() called from player.gd.")	
 
 	# Ensure the scene exists before attempting to preload
 	if not ResourceLoader.exists("res://Scenes/character_sheet.tscn"):
@@ -359,15 +427,15 @@ func toggle_character_sheet():
 	
 	if not is_instance_valid(existing_character_sheet): # If the sheet is NOT currently open
 		# --- Open the character sheet ---
-		var instance_sheet: CanvasLayer = character_sheet_scene.instantiate() 
+		var instance_sheet: CanvasLayer = character_sheet_scene.instantiate()	
 		
 		instance_sheet.name = "character_sheet" # Assign a unique name so we can find this specific instance later
 
 		# Set the process mode so it continues to receive input/process even if the game is paused
 		instance_sheet.process_mode = Node.PROCESS_MODE_ALWAYS # Crucial for pause menu behavior
-		print("DEBUG: Character sheet instance process_mode set to ALWAYS.") 
+		print("DEBUG: Character sheet instance process_mode set to ALWAYS.")	
 
-		get_tree().current_scene.add_child(instance_sheet) 
+		get_tree().current_scene.add_child(instance_sheet)	
 
 		# --- Pass the loaded character data to the newly opened sheet ---
 		# This is the critical part to get data from Global to the sheet
@@ -383,7 +451,7 @@ func toggle_character_sheet():
 		# We'll rely on the character_sheet.gd's own _input to queue_free itself
 		# when the 'C' key is pressed while it's open.
 		# This 'else' block serves as a robust fallback to ensure it closes.
-		print("DEBUG: Attempting to close character sheet from player.gd fallback.") 
+		print("DEBUG: Attempting to close character sheet from player.gd fallback.")	
 		if is_instance_valid(existing_character_sheet):
 			existing_character_sheet.queue_free()
 

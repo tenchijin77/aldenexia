@@ -2,41 +2,41 @@
 	"_comment": "dialogue_brondrakhold.json: This table is used for the npc chat in Brondrak Hold.",
   "town": "Brondrak Hold",
   "npcs": [
-    {
-      "name": "Grumbar Forgehelm",
-      "role": "Town Leader",
-      "race": "Dwarf",
-      "faction": "Hands of the Eternal Forge",
-      "dialogue": {
-        "greeting": "Welcome to Brondrak Hold. Mind the embers and speak with purpose.",
-        "help": "If you’ve the strength and skill, lend your hammer to the forges or your blade to the watch.",
-        "lore": "This hold was carved during the Age of Flame, and its forges have never gone cold.",
-        "farewell": "May your steel stay true and your fire never fade."
-      }
-    },
-    {
-      "name": "Thora Ironbraid",
-      "role": "Guildmaster - Cleric",
-      "race": "Dwarf",
-      "faction": "Hands of the Eternal Forge",
-      "dialogue": {
-        "greeting": "The Flame blesses those who serve with faith and fire.",
-        "help": "We need more hands to sanctify the lower halls. Dark things stir beneath.",
-        "lore": "The Eternal Forge is not just fire—it is divine will made manifest.",
-        "farewell": "Go with the Flame, and return with purpose."
-      }
-    },
-    {
-      "name": "Balric Deepdelve",
-      "role": "Guildmaster - Warrior",
-      "race": "Dwarf",
-      "faction": "Ironclad Brotherhood",
-      "dialogue": {
-        "greeting": "Steel and stone, that’s what we’re made of here.",
-        "help": "There’s a tunnel breach in the east shaft. We need fighters, not talkers.",
-        "lore": "The Ironclad Brotherhood was born in these halls, forged in war and oath.",
-        "farewell": "Strike hard, strike true."
-      }
-    }
+	{
+	  "name": "Grumbar Forgehelm",
+	  "role": "Town Leader",
+	  "race": "Dwarf",
+	  "faction": "Hands of the Eternal Forge",
+	  "dialogue": {
+		"greeting": "Welcome to Brondrak Hold. Mind the embers and speak with purpose.",
+		"help": "If you’ve the strength and skill, lend your hammer to the forges or your blade to the watch.",
+		"lore": "This hold was carved during the Age of Flame, and its forges have never gone cold.",
+		"farewell": "May your steel stay true and your fire never fade."
+	  }
+	},
+	{
+	  "name": "Thora Ironbraid",
+	  "role": "Guildmaster - Cleric",
+	  "race": "Dwarf",
+	  "faction": "Hands of the Eternal Forge",
+	  "dialogue": {
+		"greeting": "The Flame blesses those who serve with faith and fire.",
+		"help": "We need more hands to sanctify the lower halls. Dark things stir beneath.",
+		"lore": "The Eternal Forge is not just fire—it is divine will made manifest.",
+		"farewell": "Go with the Flame, and return with purpose."
+	  }
+	},
+	{
+	  "name": "Balric Deepdelve",
+	  "role": "Guildmaster - Warrior",
+	  "race": "Dwarf",
+	  "faction": "Ironclad Brotherhood",
+	  "dialogue": {
+		"greeting": "Steel and stone, that’s what we’re made of here.",
+		"help": "There’s a tunnel breach in the east shaft. We need fighters, not talkers.",
+		"lore": "The Ironclad Brotherhood was born in these halls, forged in war and oath.",
+		"farewell": "Strike hard, strike true."
+	  }
+	}
   ]
 }

@@ -1,4 +1,4 @@
-Game: Aldenexia: Lightfall
+Game: Aldenexia: Lightfall: a 2D rpg
 
 Environmental Variables:
 
