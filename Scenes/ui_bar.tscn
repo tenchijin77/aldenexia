@@ -1,0 +1,62 @@
+[gd_scene load_steps=5 format=3 uid="uid://cwyvfsbm0jl57"]
+
+[ext_resource type="Texture2D" uid="uid://dns0dkvd2ia1r" path="res://Assets/kenney_tiny-dungeon/Tiles/tile_0115.png" id="1_71spk"]
+[ext_resource type="Texture2D" uid="uid://w0b2mkexdkto" path="res://Assets/kenney_tiny-dungeon/Tiles/tile_0116.png" id="2_5cx66"]
+[ext_resource type="Texture2D" uid="uid://bquomebgj30ox" path="res://Assets/kenney_tiny-dungeon/Tiles/tile_0089.png" id="3_t2iyj"]
+[ext_resource type="Texture2D" uid="uid://cvmf64mnvg451" path="res://Assets/kenney_tiny-town/Tiles/tile_0093.png" id="4_0gtyj"]
+
+[node name="ui_bar" type="CanvasLayer"]
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -20.0
+offset_top = -77.0
+offset_right = 20.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="GridContainer" type="GridContainer" parent="MarginContainer"]
+layout_mode = 2
+columns = 2
+
+[node name="icon_health" type="TextureRect" parent="MarginContainer/GridContainer"]
+layout_mode = 2
+texture = ExtResource("1_71spk")
+expand_mode = 5
+stretch_mode = 4
+
+[node name="health_label" type="Label" parent="MarginContainer/GridContainer"]
+layout_mode = 2
+
+[node name="icon_mana" type="TextureRect" parent="MarginContainer/GridContainer"]
+layout_mode = 2
+texture = ExtResource("2_5cx66")
+expand_mode = 5
+stretch_mode = 4
+
+[node name="mana_label" type="Label" parent="MarginContainer/GridContainer"]
+layout_mode = 2
+
+[node name="icon_xp" type="TextureRect" parent="MarginContainer/GridContainer"]
+layout_mode = 2
+texture = ExtResource("3_t2iyj")
+expand_mode = 5
+stretch_mode = 4
+
+[node name="xp_label" type="Label" parent="MarginContainer/GridContainer"]
+layout_mode = 2
+
+[node name="icon_money" type="TextureRect" parent="MarginContainer/GridContainer"]
+layout_mode = 2
+texture = ExtResource("4_0gtyj")
+stretch_mode = 4
+
+[node name="money_label" type="Label" parent="MarginContainer/GridContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "125c / 48s / 6g / 1p"
+vertical_alignment = 1

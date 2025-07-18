@@ -51,3 +51,7 @@ All monsters will be stored in monsters.json
 
 All loot drops use a two tiered system. The global loot for items common to the current area (zone) will be stored in a global table for each zone, for example, lumore_outskirts.json for the starting zone. All monsters in the zone will be able to drop these items randomly. Then unique drops will be stored under the monster's individual table, i.e. skeleton_loot.json When a monster dies, the RNG function should randomly generate loot first based on the zone loot table, then the individual loot table, and drop the combined results.
 
+
+Game information:
+
+Money is a four type system, copper, silver, gold, and platinum. It takes 100 of a type to make 1 of the next type. i.e. 100 copper = 1 silver. 
