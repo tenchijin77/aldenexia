@@ -1,161 +1,133 @@
 {
-	"_comment": "factions.json: This table is used for all of the factions in the game.",
+  "_comment": "factions.json: This table is used for all of the factions in the game.",
   "factions": [
-	{{
-	"_comment": "factions.json: This table is used for all of the factions in the game.",
-	"factions": [
-		{
-			"name": "Wardens of the Sacred Flame",
-			"description": "Noble knights protecting Aldenexia, tied to the Sword of Light.",
-			"base_standing": 50,
-			"dialogue_tone": "noble",
-			"hostile_threshold": -20,
-			"friendly_threshold": 100
-		},
-		{
-			"name": "Twilight Accord",
-			"description": "Secretive rogues seeking the Void’s power.",
-			"base_standing": 0,
-			"dialogue_tone": "sly",
-			"hostile_threshold": -30,
-			"friendly_threshold": 80
-		},
-		{
-			"name": "Villagers of Lumora",
-			"description": "Neutral townsfolk wary of conflict.",
-			"base_standing": 25,
-			"dialogue_tone": "simple",
-			"hostile_threshold": -10,
-			"friendly_threshold": 60
-		},
-		{
-			"name": "Luminar Covenant",
-			"description": "Devout followers of Aurethiel, upholding justice and light.",
-			"base_standing": 40,
-			"dialogue_tone": "righteous",
-			"hostile_threshold": -25,
-			"friendly_threshold": 90
-		},
-		{
-			"name": "Circle of Thorns",
-			"description": "Elven mystics attuned to nature and balance, guided by Thalorun.",
-			"base_standing": 20,
-			"dialogue_tone": "mystical",
-			"hostile_threshold": -15,
-			"friendly_threshold": 70
-		},
-		{
-			"name": "Verdant Kin",
-			"description": "Nature-bound protectors of Aldenexia’s forests, allied with elves and halflings.",
-			"base_standing": 30,
-			"dialogue_tone": "earthy",
-			"hostile_threshold": -20,
-			"friendly_threshold": 75
-		},
-		{
-			"name": "Hands of the Eternal Forge",
-			"description": "Dwarven craftsmen devoted to Durnhal, masters of creation and endurance.",
-			"base_standing": 35,
-			"dialogue_tone": "stoic",
-			"hostile_threshold": -20,
-			"friendly_threshold": 85
-		},
-		{
-			"name": "Ironclad Brotherhood",
-			"description": "Dwarven and half-orc warriors valuing strength and loyalty.",
-			"base_standing": 20,
-			"dialogue_tone": "gruff",
-			"hostile_threshold": -25,
-			"friendly_threshold": 80
-		},
-		{
-			"name": "Arcane Synod",
-			"description": "Gnomish scholars of magic, dedicated to knowledge and Sylaen.",
-			"base_standing": 15,
-			"dialogue_tone": "scholarly",
-			"hostile_threshold": -15,
-			"friendly_threshold": 70
-		},
-		{
-			"name": "Arcane Dominion",
-			"description": "Ambitious gnomes wielding arcane power, wary of Lumora’s simplicity.",
-			"base_standing": 10,
-			"dialogue_tone": "haughty",
-			"hostile_threshold": -20,
-			"friendly_threshold": 75
-		},
-		{
-			"name": "Echoes of the Deep",
-			"description": "Half-elven wanderers inspired by Lirael, seeking peace and harmony.",
-			"base_standing": 30,
-			"dialogue_tone": "poetic",
-			"hostile_threshold": -15,
-			"friendly_threshold": 70
-		},
-		{
-			"name": "Umbral Talon",
-			"description": "Fierce warriors of ogres, trolls, and others, sworn to Kaerun’s conquest.",
-			"base_standing": 0,
-			"dialogue_tone": "brutal",
-			"hostile_threshold": -30,
-			"friendly_threshold": 90
-		},
-		{
-			"name": "Shattered Horn Tribe",
-			"description": "Ogre clans united by strength, honoring Kaerun’s warlike spirit.",
-			"base_standing": 5,
-			"dialogue_tone": "aggressive",
-			"hostile_threshold": -25,
-			"friendly_threshold": 85
-		},
-		{
-			"name": "Stoneblood Clan",
-			"description": "Troll warriors bound by Morthan, embracing death and decay.",
-			"base_standing": 0,
-			"dialogue_tone": "grim",
-			"hostile_threshold": -30,
-			"friendly_threshold": 80
-		},
-		{
-			"name": "Veilstriders",
-			"description": "Dark elf agents of Virexus, masters of shadows and secrets.",
-			"base_standing": -10,
-			"dialogue_tone": "cryptic",
-			"hostile_threshold": -35,
-			"friendly_threshold": 85
-		},
-		{
-			"name": "Brood of Fennarach",
-			"description": "LizardKin devotees of Kaerun, thriving in the swamps of Shadowfen.",
-			"base_standing": 5,
-			"dialogue_tone": "hiss",
-			"hostile_threshold": -25,
-			"friendly_threshold": 80
-		}
-	]
-}
-	  "name": "Wardens of the Flame",
-	  "description": "Noble knights protecting Aldenexia, tied to the Sword of Light.",
-	  "base_standing": 50,
-	  "dialogue_tone": "noble",
-	  "hostile_threshold": -20,
-	  "friendly_threshold": 100
-	},
-	{
-	  "name": "Twilight Accord",
-	  "description": "Secretive rogues seeking the Void’s power.",
-	  "base_standing": 0,
-	  "dialogue_tone": "sly",
-	  "hostile_threshold": -30,
-	  "friendly_threshold": 80
-	},
-	{
-	  "name": "Villagers of Lumora",
-	  "description": "Neutral townsfolk wary of conflict.",
-	  "base_standing": 25,
-	  "dialogue_tone": "simple",
-	  "hostile_threshold": -10,
-	  "friendly_threshold": 60
-	}
+    {
+      "name": "Wardens of the Sacred Flame",
+      "description": "Noble knights protecting Aldenexia, tied to the Sword of Light.",
+      "base_standing": 50,
+      "dialogue_tone": "noble",
+      "hostile_threshold": -20,
+      "friendly_threshold": 100
+    },
+    {
+      "name": "Twilight Accord",
+      "description": "Secretive rogues seeking the Void’s power.",
+      "base_standing": 0,
+      "dialogue_tone": "sly",
+      "hostile_threshold": -30,
+      "friendly_threshold": 80
+    },
+    {
+      "name": "Villagers of Lumora",
+      "description": "Neutral townsfolk wary of conflict.",
+      "base_standing": 25,
+      "dialogue_tone": "simple",
+      "hostile_threshold": -10,
+      "friendly_threshold": 60
+    },
+    {
+      "name": "Luminar Covenant",
+      "description": "Devout followers of Aurethiel, upholding justice and light.",
+      "base_standing": 40,
+      "dialogue_tone": "righteous",
+      "hostile_threshold": -25,
+      "friendly_threshold": 90
+    },
+    {
+      "name": "Circle of Thorns",
+      "description": "Elven mystics attuned to nature and balance, guided by Thalorun.",
+      "base_standing": 20,
+      "dialogue_tone": "mystical",
+      "hostile_threshold": -15,
+      "friendly_threshold": 70
+    },
+    {
+      "name": "Verdant Kin",
+      "description": "Nature-bound protectors of Aldenexia’s forests, allied with elves and halflings.",
+      "base_standing": 30,
+      "dialogue_tone": "earthy",
+      "hostile_threshold": -20,
+      "friendly_threshold": 75
+    },
+    {
+      "name": "Hands of the Eternal Forge",
+      "description": "Dwarven craftsmen devoted to Durnhal, masters of creation and endurance.",
+      "base_standing": 35,
+      "dialogue_tone": "stoic",
+      "hostile_threshold": -20,
+      "friendly_threshold": 85
+    },
+    {
+      "name": "Ironclad Brotherhood",
+      "description": "Dwarven and half-orc warriors valuing strength and loyalty.",
+      "base_standing": 20,
+      "dialogue_tone": "gruff",
+      "hostile_threshold": -25,
+      "friendly_threshold": 80
+    },
+    {
+      "name": "Arcane Synod",
+      "description": "Gnomish scholars of magic, dedicated to knowledge and Sylaen.",
+      "base_standing": 15,
+      "dialogue_tone": "scholarly",
+      "hostile_threshold": -15,
+      "friendly_threshold": 70
+    },
+    {
+      "name": "Arcane Dominion",
+      "description": "Ambitious gnomes wielding arcane power, wary of Lumora’s simplicity.",
+      "base_standing": 10,
+      "dialogue_tone": "haughty",
+      "hostile_threshold": -20,
+      "friendly_threshold": 75
+    },
+    {
+      "name": "Echoes of the Deep",
+      "description": "Half-elven wanderers inspired by Lirael, seeking peace and harmony.",
+      "base_standing": 30,
+      "dialogue_tone": "poetic",
+      "hostile_threshold": -15,
+      "friendly_threshold": 70
+    },
+    {
+      "name": "Umbral Talon",
+      "description": "Fierce warriors of ogres, trolls, and others, sworn to Kaerun’s conquest.",
+      "base_standing": 0,
+      "dialogue_tone": "brutal",
+      "hostile_threshold": -30,
+      "friendly_threshold": 90
+    },
+    {
+      "name": "Shattered Horn Tribe",
+      "description": "Ogre clans united by strength, honoring Kaerun’s warlike spirit.",
+      "base_standing": 5,
+      "dialogue_tone": "aggressive",
+      "hostile_threshold": -25,
+      "friendly_threshold": 85
+    },
+    {
+      "name": "Stoneblood Clan",
+      "description": "Troll warriors bound by Morthan, embracing death and decay.",
+      "base_standing": 0,
+      "dialogue_tone": "grim",
+      "hostile_threshold": -30,
+      "friendly_threshold": 80
+    },
+    {
+      "name": "Veilstriders",
+      "description": "Dark elf agents of Virexus, masters of shadows and secrets.",
+      "base_standing": -10,
+      "dialogue_tone": "cryptic",
+      "hostile_threshold": -35,
+      "friendly_threshold": 85
+    },
+    {
+      "name": "Brood of Fennarach",
+      "description": "LizardKin devotees of Kaerun, thriving in the swamps of Shadowfen.",
+      "base_standing": 5,
+      "dialogue_tone": "hiss",
+      "hostile_threshold": -25,
+      "friendly_threshold": 80
+    }
   ]
 }
