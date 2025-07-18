@@ -9,7 +9,8 @@ var target: Node2D = null # The enemy to track
 func _ready():
 	collision_layer = 1 << 2 # Projectile layer (layer 3)
 	collision_mask = 1 << 3 # Enemy layer (layer 4)
-	
+	$cast_sound.play()
+
 	# Connect to body_entered signal for detecting CharacterBody2D
 	body_entered.connect(_on_body_entered)
 	print("DEBUG: Magic Missile initialized with target: ", target.name if target else "No target")

@@ -5,16 +5,18 @@
 [node name="load_game" type="Control"]
 layout_mode = 3
 anchors_preset = 0
-offset_right = 40.0
-offset_bottom = 40.0
+offset_left = -4.0
+offset_top = -24.0
+offset_right = 36.0
+offset_bottom = 16.0
 script = ExtResource("1_kkuuu")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
 layout_mode = 0
-offset_left = 522.0
-offset_top = 556.0
-offset_right = 718.0
-offset_bottom = 599.0
+offset_left = 531.0
+offset_top = 515.0
+offset_right = 727.0
+offset_bottom = 558.0
 alignment = 1
 
 [node name="character_list" type="ItemList" parent="VBoxContainer"]
