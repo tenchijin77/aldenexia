@@ -6,3 +6,4 @@ export/
 *.exe
 *.apk
 *.pck
+*.kate-swp
