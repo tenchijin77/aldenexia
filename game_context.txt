@@ -1,4 +1,4 @@
-Game: Aldenexia: Lightfall
+Game: Aldenexia: Lightfall: a 2D rpg
 
 
 Gitfront read only repository: https://gitfront.io/r/tenchijin77/xB9FibqDNiCt/aldenexia/

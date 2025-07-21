@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://cav7jna1gal6"]
 
-[ext_resource type="Script" uid="uid://b76pxitbs7vfg" path="res://Scripts/load_game.gd" id="1_kkuuu"]
+[ext_resource type="Script" path="res://Scripts/load_game.gd" id="1_kkuuu"]
 
 [node name="load_game" type="Control"]
 layout_mode = 3
@@ -13,10 +13,10 @@ script = ExtResource("1_kkuuu")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
 layout_mode = 0
-offset_left = 531.0
-offset_top = 515.0
-offset_right = 727.0
-offset_bottom = 558.0
+offset_left = 521.0
+offset_top = 682.0
+offset_right = 717.0
+offset_bottom = 725.0
 alignment = 1
 
 [node name="character_list" type="ItemList" parent="VBoxContainer"]
