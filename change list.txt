@@ -5,7 +5,7 @@ completed:
 
 -updated class restrictions and character options, changing lightcaller to lightmender.
 
--added "xp_gaim" field to monsters.json for experience point tracking
+-added "xp_gain" field to monsters.json for experience point tracking
 
 -configure a global spawner for mobs and remove mobs from lumora outskirts scene
 
@@ -17,7 +17,16 @@ completed:
 
 
 
-to do:
+to do: (in order of importance)
+
+
+-correct resolution to 1920x1080  or 1080p and fix zooming to full screen windowed with no border, correct camera zoom size in scene
+
+-correct camera move speed to be faster
+
+-create melee attack
+
+-implement nests for spiders, rats, and bandit camps as spawn locations
 
 -create xp system for leveling and implement it. (xp_table.json)
 
@@ -25,18 +34,14 @@ to do:
 
 -create ui for the player that shows player name, health, mana, xp, and coin pulled from the character_stats.json file (ui_bar.tscn and ui_bar.gd)
 
--create melee attack
-
 -update character sprites, to include animated sprites for 2 character classes, (one caster, one melee)
 
 -implement inventory panel and working inventory/backpack
 
 -implement first working npc with dialog
 
--implement chat system and combat log
+-implement chat system and combat log (change to using dialogic)
 
--correct camera move speed to be faster
 
--implement nests for spiders, rats, and bandit camps as spawn locations
 
--correct resolution to 1920x1080 and fix zooming to full screen windowed with no border
+

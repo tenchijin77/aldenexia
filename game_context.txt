@@ -1,6 +1,16 @@
 Game: Aldenexia: Lightfall
 
+
+Gitfront read only repository: https://gitfront.io/r/tenchijin77/xB9FibqDNiCt/aldenexia/
+
+
+Trello board for Aldenexia:
+
+https://trello.com/invite/b/687e0b5b29198602cf14307c/ATTIac68a33ef159da9c7802a9c92d9ece82EC3A04DE/aldenexialightfall
+
+
 Environmental Variables:
+
 
 -I am using Godot 4.4.1
 -snakecase is used for all file names, with all words in lowercase
