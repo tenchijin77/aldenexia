@@ -15,7 +15,9 @@ completed:
 
 -finish basic mobs for lumora outskirts: bat, rat, slime, bandit, skeleton, spider, snake, ghost, goblin incuding scripts, scenes and loot tables
 
+-started work on 3d implementation; created player 3d model, and lumora outskirts basic level design.
 
+-configured input mapping
 
 to do: (in order of importance)
 

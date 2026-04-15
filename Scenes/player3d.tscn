@@ -1,0 +1,35 @@
+[gd_scene format=3 uid="uid://cvn5f0j0b3bwg"]
+
+[ext_resource type="Script" uid="uid://71xb76r0f7ul" path="res://Scripts/player3d.gd" id="1_w11xc"]
+[ext_resource type="Script" uid="uid://b6dvssiku66dn" path="res://Scripts/camera_controller.gd" id="2_yogew"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_yogew"]
+radius = 1.0822754
+height = 2.1645508
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_jstp3"]
+
+[sub_resource type="Skin" id="Skin_yogew"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_jstp3"]
+albedo_color = Color(0.60837895, 0.51094186, 0.17938256, 1)
+
+[node name="CharacterBody3D" type="CharacterBody3D" unique_id=992623004]
+script = ExtResource("1_w11xc")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=947101205]
+shape = SubResource("CapsuleShape3D_yogew")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=398354528]
+mesh = SubResource("CapsuleMesh_jstp3")
+skin = SubResource("Skin_yogew")
+surface_material_override/0 = SubResource("StandardMaterial3D_jstp3")
+
+[node name="CameraRig" type="Node3D" parent="." unique_id=122413799]
+transform = Transform3D(1, 0, 0, 0, 0.9848077, 0.17364818, 0, -0.17364818, 0.9848077, 0, 0, 0)
+script = ExtResource("2_yogew")
+
+[node name="Camera3D" type="Camera3D" parent="CameraRig" unique_id=572376702]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 6)
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=2106662325]
