@@ -1,0 +1,10 @@
+{
+  "_comment": "dustwalker_ravager_loot.json - Defines unique loot for dustwalker_ravager.",
+  "unique_loot": [
+    {"item": "sharp_dagger", "chance": 0.08, "min": 1, "max": 1},
+    {"item": "heavy_leather", "chance": 0.25, "min": 1, "max": 3},
+    {"item": "ravager_earring", "chance": 0.15, "min": 1, "max": 1},
+    {"item": "notched_blade", "chance": 0.2, "min": 1, "max": 1},
+    {"item": "combat_wraps", "chance": 0.12, "min": 1, "max": 2}
+  ]
+}

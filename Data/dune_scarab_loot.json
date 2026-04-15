@@ -1,0 +1,10 @@
+{
+  "_comment": "dune_scarab_loot.json - Defines unique loot for dune_scarab.",
+  "unique_loot": [
+    {"item": "scarab_eye", "chance": 0.12, "min": 1, "max": 2},
+    {"item": "scarab_shell", "chance": 0.4, "min": 1, "max": 3},
+    {"item": "beetle_wing", "chance": 0.2, "min": 1, "max": 2},
+    {"item": "sand_shimmer", "chance": 0.08, "min": 1, "max": 1},
+    {"item": "shiny_pebble", "chance": 0.35, "min": 1, "max": 1}
+  ]
+}

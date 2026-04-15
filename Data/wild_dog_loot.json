@@ -1,0 +1,10 @@
+{
+  "_comment": "wild_dog_loot.json - Defines unique loot for wild_dog.",
+  "unique_loot": [
+    {"item": "mangled_ear", "chance": 0.3, "min": 1, "max": 1},
+    {"item": "dog_pelt", "chance": 0.25, "min": 1, "max": 2},
+    {"item": "animal_sinew", "chance": 0.1, "min": 1, "max": 3},
+    {"item": "sharp_canine", "chance": 0.4, "min": 1, "max": 2},
+    {"item": "chewed_bone", "chance": 0.35, "min": 1, "max": 1}
+  ]
+}

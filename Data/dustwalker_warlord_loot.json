@@ -1,0 +1,10 @@
+{
+  "_comment": "dustwalker_warlord_loot.json - Defines unique loot for dustwalker_warlord.",
+  "unique_loot": [
+    {"item": "warlord_scimitar", "chance": 0.05, "min": 1, "max": 1},
+    {"item": "jeweled_hilt", "chance": 0.1, "min": 1, "max": 1},
+    {"item": "conqueror_map", "chance": 0.15, "min": 1, "max": 1},
+    {"item": "command_sigil", "chance": 0.2, "min": 1, "max": 1},
+    {"item": "royal_sandals", "chance": 0.1, "min": 1, "max": 1}
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "_comment": "dustwalker_scout_loot.json - Defines unique loot for dustwalker_scout.",
+  "unique_loot": [
+    {"item": "small_map", "chance": 0.15, "min": 1, "max": 1},
+    {"item": "light_leather", "chance": 0.1, "min": 1, "max": 2},
+    {"item": "worn_sandals", "chance": 0.3, "min": 1, "max": 1},
+    {"item": "leather_canteen", "chance": 0.1, "min": 1, "max": 1},
+    {"item": "scout_whistle", "chance": 0.05, "min": 1, "max": 1}
+  ]
+}
