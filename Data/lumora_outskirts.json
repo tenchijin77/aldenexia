@@ -1,9 +1,10 @@
 {
-  "_comment": "lumora_outskirts.json - levels 1-3 safe starting area outside Lumora. Low-level wildlife, tutorial quests, oasis springs, and first dynamic Djhanid scout camp. Loot tables preserved from previous version.",
+  "_comment": "lumora_outskirts.json - levels 1-3 safe starting area outside Lumora. Low-level wildlife, tutorial quests, oasis springs, and first dynamic Djhanid scout camp. Djhanid are NPC-only neutral faction.",
   "zone_name": "Lumora Outskirts",
   "level_range": [1, 3],
   "biome": "oasis springs, palm groves, coastal edge",
-  "environment_hazards": ["none"],
+  "environment_hazards": ["deep_sand_patches"],
+  "deep_sand_penalty": -30,
   "water_consumption_multiplier": 0.8,
   "spawns": {
     "rat": { "weight": 40, "min_group": 1, "max_group": 4, "social": false, "category": "animal" },
@@ -15,7 +16,8 @@
     "Oasis Springs (real glowing pools)",
     "Palm Grove Camps (safe rest spots)",
     "Sandcrest Landing (coastal tutorial area)",
-    "Small Djhanid Scout Camp (dynamic, neutral, 3-5 Djhanid that can wander in/out)"
+    "Small Djhanid Scout Camp (dynamic, neutral NPC-only, 3-5 Djhanid that can wander in/out)",
+    "Dustwalker patrol routes (visible paths in sand)"
   ],
   "oasis_pools": [
     {
@@ -28,6 +30,7 @@
   ],
   "djhanid_camp": {
     "neutral_by_default": true,
+    "npc_only": true,
     "aggro_conditions": ["player_attacks_first", "player_wears_dustwalker_gear"],
     "spawn_count": [3, 5],
     "wander_behavior": "random_patrol_in_and_out_of_camp"
