@@ -1,0 +1,65 @@
+{
+  "_comment": "Cinderglen — Halfling starting town in the Ebonbloom Wastes region. Safe zone, fortified burrows, druidic gardens, and steamwork sheds.",
+  "town_name": "Cinderglen",
+  "zone": "Ebonbloom Wastes",
+  "biome": "fortified halfling burrows, geothermal vents, fungal gardens",
+  "level_range": [1, 10],
+
+  "description": "A resilient halfling settlement built into reinforced burrows and geothermal caverns. Cinderglen stands as a bastion against creeping Void corruption, maintained by Garden Wardens and Steamweavers.",
+
+  "factions": {
+    "garden_wardens": {
+      "alignment": "protective",
+      "description": "Halfling defenders who maintain the fungal gardens and protect the burrows from corruption."
+    },
+    "steamweavers": {
+      "alignment": "neutral",
+      "description": "Tinkerers and engineers who maintain the geothermal vents and steamworks. Some harbor questionable sympathies toward the Moribund Order."
+    }
+  },
+
+  "landmarks": [
+    "Springheart Bastion",
+    "The Burrow Inn",
+    "Garden Warden Post",
+    "Steamworks Shed",
+    "Fungal Orchard",
+    "Cinderglen Market Tunnel"
+  ],
+
+  "services": {
+    "inn": "The Burrow Inn",
+    "bank": "Cinderglen Vault Nook",
+    "crafting": [
+      "Steamworks Shed",
+      "Garden Warden Herbarium"
+    ],
+    "vendors": [
+      "Pip Willowtrade (General Goods)",
+      "Talla Brightrust (Herbalist)",
+      "Gremble Ironwhistle (Tinkerer)"
+    ]
+  },
+
+  "trainers": {
+    "blademaster": "Blade Adept Ryn Thornweave",
+    "lightmender": "Lightmender Serah Dawnpetal",
+    "wildspeaker": "Warden Faelar Mosswhisper",
+    "aetherfist": "Aether Sage Brimble Sparksleeve",
+    "woodstalker": "Ranger Thalen Quickwind",
+    "shadowblade": "Shade Operative Kessira",
+    "troubadour": "Minstrel Jorren Brightsong",
+    "gravecaller": "Gravecaller Marn Hollowroot",
+    "runecaster": "Runecaster Velwin Stoneglyph",
+    "arcanist": "Arcanist Lira Emberwick",
+    "chaosborn": "Chaos Savant Brindle Sparkscour"
+  },
+
+  "story_seeds": [
+    "Garden Wardens seek help clearing corrupted fungal blooms.",
+    "Steamweavers request rare minerals from nearby geothermal vents.",
+    "A missing halfling child was last seen near the Void‑scarred orchard.",
+    "Rumors of a Moribund sympathizer hiding within the burrows.",
+    "A strange artifact washed up from the Ebonbloom Wastes."
+  ]
+}

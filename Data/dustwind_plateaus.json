@@ -1,0 +1,113 @@
+{
+  "_comment": "Dustwind Plateaus - Levels 4–7. Mid-tier desert zone with Dustwalker faction, Djhanid tension, sandstorms, and tactical open terrain.",
+  "zone_name": "Dustwind Plateaus",
+  "level_range": [4, 7],
+  "biome": "vast golden dunes, caravan wrecks, rocky outcrops, nomadic trade routes",
+
+  "environment_hazards": [
+    "deep_sand_patches",
+    "increased_water_consumption",
+    "sandstorms"
+  ],
+
+  "deep_sand_penalty": -30,
+  "water_consumption_multiplier": 1.5,
+
+  "sandstorm_settings": {
+    "chance": 0.15,
+    "duration_minutes": 15,
+    "effects": {
+      "visibility_reduction": "5m",
+      "movement_penalty": -20,
+      "dustwalker_frenzy": "+25% damage, aggressive to all"
+    }
+  },
+
+  "signature_features": {
+    "caravan_wrecks": "Lootable wrecks scattered across dunes, often ambushed.",
+    "djhanid_trading_posts": "Neutral safe spots with limited merchants.",
+    "wind_anchor_camps": "Djhanid semi-buried shelters offering temporary refuge.",
+    "dustwalker_patrol_routes": "Visible paths in sand; patrols follow predictable loops.",
+    "spider_nests": "Rocky outcrops with web traps and ambush spiders."
+  },
+
+  "landmarks": [
+    "Wrecked Caravans",
+    "Nomad Trading Posts",
+    "Djhanid Wind-Anchor Camps",
+    "Dustwalker Patrol Routes",
+    "Spider Nest Outcrops"
+  ],
+
+  "factions": {
+    "dustwalkers": {
+      "alignment": "hostile",
+      "description": "Fallen Djhanid marauders who raid caravans and ambush travelers.",
+      "aggro_behavior": "high",
+      "special_rules": [
+        "frenzy during sandstorms",
+        "use whistles to alert nearby patrols"
+      ]
+    },
+    "djhanid_nomads": {
+      "alignment": "neutral",
+      "description": "Nomadic desert travelers who oppose the Dustwalkers.",
+      "aggro_behavior": "defensive",
+      "notes": "Killing Djhanid decreases good faction and increases evil faction."
+    },
+    "sunmaddened_wanderers": {
+      "alignment": "chaotic",
+      "description": "Exiles driven mad by the desert heat.",
+      "aggro_behavior": "unpredictable"
+    }
+  },
+
+  "enemies": {
+    "dustwalkers": [
+      "dustwalker_scout",
+      "dustwalker_ravager",
+      "dustwalker_ambusher"
+    ],
+    "wildlife": [
+      "sand_stinger",
+      "wild_dog",
+      "spider"
+    ],
+    "humanoids": [
+      "djhanid_nomad (neutral unless attacked)",
+      "sunmaddened_wanderer"
+    ]
+  },
+
+  "loot_tables": {
+    "dustwalker": [
+      { "item": "sun_forged_blade_fragment", "chance": 0.15, "min": 1, "max": 1 },
+      { "item": "ceramic_token", "chance": 0.25, "min": 1, "max": 3 },
+      { "item": "djhanid_stinger_glass_weapon", "chance": 0.05, "min": 1, "max": 1 },
+      { "item": "sand_treader_boots", "chance": 0.02, "min": 1, "max": 1 }
+    ],
+    "wildlife": [
+      { "item": "raw_meat", "chance": 0.6, "min": 1, "max": 2 },
+      { "item": "fur_pelt", "chance": 0.4, "min": 1, "max": 2 },
+      { "item": "venom_gland", "chance": 0.15, "min": 1, "max": 1 }
+    ],
+    "spider": [
+      { "item": "chitin_scrap", "chance": 0.5, "min": 1, "max": 2 },
+      { "item": "web_fiber", "chance": 0.3, "min": 1, "max": 2 },
+      { "item": "vial_of_venom", "chance": 0.1, "min": 1, "max": 1 }
+    ],
+    "humanoid": [
+      { "item": "copper_coin", "chance": 0.7, "min": 3, "max": 10 },
+      { "item": "linen_scrap", "chance": 0.4, "min": 1, "max": 3 },
+      { "item": "water_skin", "chance": 0.2, "min": 1, "max": 1 }
+    ]
+  },
+
+  "story_seeds": [
+    "Caravan’s Plight – protect merchants from Dustwalker ambushes.",
+    "Madness of the Dunes – moral choice involving Sunmaddened exiles.",
+    "Investigate Dustwalker raids and Sandveil Order corruption.",
+    "Djhanid diplomacy and faction choices.",
+    "Spider nest clearing for safe passage."
+  ]
+}

@@ -1,0 +1,180 @@
+{
+  "_comment": "Ashland Grove – Full spawn definitions. Coordinates TBD until zone layout is finalized.",
+  "spawns": [
+
+    /* ============================
+       CORRUPTED TREANTS (Forest Heavies)
+       ============================ */
+
+    {
+      "mob_type": "charred_sapling",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.55,
+      "max_active": 5,
+      "respawn_time": 32,
+      "min_level": 12,
+      "max_level": 14,
+      "spawn_zone": "charred_treeline"
+    },
+    {
+      "mob_type": "emberbark_treant",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.40,
+      "max_active": 3,
+      "respawn_time": 45,
+      "min_level": 13,
+      "max_level": 16,
+      "spawn_zone": "charred_treeline"
+    },
+    {
+      "mob_type": "ashen_colossus",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.20,
+      "max_active": 1,
+      "respawn_time": 75,
+      "min_level": 15,
+      "max_level": 17,
+      "spawn_zone": "charred_treeline"
+    },
+
+    /* ============================
+       FIRE ELEMENTALS (Rift Spawns)
+       ============================ */
+
+    {
+      "mob_type": "emberling",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.50,
+      "max_active": 5,
+      "respawn_time": 30,
+      "min_level": 12,
+      "max_level": 14,
+      "spawn_zone": "rifted_hollow"
+    },
+    {
+      "mob_type": "flame_wisp",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.35,
+      "max_active": 3,
+      "respawn_time": 40,
+      "min_level": 13,
+      "max_level": 15,
+      "spawn_zone": "rifted_hollow"
+    },
+    {
+      "mob_type": "volatile_infernal",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.20,
+      "max_active": 2,
+      "respawn_time": 60,
+      "min_level": 14,
+      "max_level": 17,
+      "spawn_zone": "rifted_hollow"
+    },
+
+    /* ============================
+       WILDLIFE (Ash‑Scarred)
+       ============================ */
+
+    {
+      "mob_type": "scorchfang_wolf",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.50,
+      "max_active": 4,
+      "respawn_time": 28,
+      "min_level": 12,
+      "max_level": 14,
+      "spawn_zone": "ashlands"
+    },
+    {
+      "mob_type": "ashplume_owl",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.35,
+      "max_active": 3,
+      "respawn_time": 35,
+      "min_level": 12,
+      "max_level": 15,
+      "spawn_zone": "ashlands"
+    },
+    {
+      "mob_type": "emberback_stag",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.25,
+      "max_active": 2,
+      "respawn_time": 45,
+      "min_level": 13,
+      "max_level": 16,
+      "spawn_zone": "ashlands"
+    },
+
+    /* ============================
+       MORIBUND ORDER (Pyromancers)
+       ============================ */
+
+    {
+      "mob_type": "moribund_flamebinder",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.45,
+      "max_active": 4,
+      "respawn_time": 32,
+      "min_level": 13,
+      "max_level": 15,
+      "spawn_zone": "ashen_spiral"
+    },
+    {
+      "mob_type": "moribund_pyromancer",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.30,
+      "max_active": 3,
+      "respawn_time": 45,
+      "min_level": 14,
+      "max_level": 16,
+      "spawn_zone": "ashen_spiral"
+    },
+    {
+      "mob_type": "moribund_ritualist",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.20,
+      "max_active": 2,
+      "respawn_time": 60,
+      "min_level": 15,
+      "max_level": 17,
+      "spawn_zone": "ashen_spiral"
+    },
+
+    /* ============================
+       RARE / EVENT SPAWNS
+       ============================ */
+
+    {
+      "mob_type": "the_ashen_titan",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.04,
+      "max_active": 1,
+      "respawn_time": 7200,
+      "min_level": 17,
+      "max_level": 17,
+      "spawn_zone": "charred_treeline_rare"
+    },
+    {
+      "mob_type": "embermaw_alpha",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.06,
+      "max_active": 1,
+      "respawn_time": 5400,
+      "min_level": 16,
+      "max_level": 17,
+      "spawn_zone": "ashlands_rare"
+    },
+    {
+      "mob_type": "the_last_druidshade",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.03,
+      "max_active": 1,
+      "respawn_time": 7200,
+      "min_level": 17,
+      "max_level": 17,
+      "spawn_zone": "grove_of_last_bloom"
+    }
+  ]
+}

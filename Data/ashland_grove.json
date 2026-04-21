@@ -1,0 +1,137 @@
+{
+  "_comment": "Ashland Grove – Zone 2 (Levels 12–17). Burned druidic forest scarred by elemental surges and corrupted treants.",
+  "zone_name": "Ashland Grove",
+  "level_range": [12, 17],
+  "biome": "burned forest, ember groves, ash plains, druidic ruins",
+
+  "environment_hazards": [
+    "emberfall_showers",
+    "smoldering_ground",
+    "volatile_root_flares",
+    "ash_choke_clouds",
+    "wildfire_surge_events"
+  ],
+
+  "hazard_settings": {
+    "emberfall_showers": {
+      "effect": "periodic_fire_damage",
+      "notes": "Triggered randomly; intensity increases near elemental rifts."
+    },
+    "smoldering_ground": {
+      "effect": "persistent_damage_zone",
+      "notes": "Appears in burned clearings and near treant battle sites."
+    },
+    "volatile_root_flares": {
+      "effect": "knockback_and_damage",
+      "notes": "Corrupted treant roots erupt from the ground."
+    },
+    "ash_choke_clouds": {
+      "effect": "reduced_accuracy",
+      "notes": "Caused by wind sweeping through burned groves."
+    },
+    "wildfire_surge_events": {
+      "effect": "zonewide_hazard",
+      "notes": "Short-duration wildfire waves that force repositioning."
+    }
+  },
+
+  "signature_features": {
+    "emberheart_clearing": "Central burned grove where fire elementals manifest.",
+    "ashen_spiral": "Druidic ritual circle half-buried in ash and cracked stone.",
+    "charred_treeline": "Forest edge where corrupted treants patrol.",
+    "grove_of_last_bloom": "One surviving druidic sanctuary protected by ancient wards.",
+    "rifted_hollow": "Fire rift crater spawning volatile elementals."
+  },
+
+  "landmarks": [
+    "Emberheart Clearing",
+    "Ashen Spiral",
+    "Charred Treeline",
+    "Grove of Last Bloom",
+    "Rifted Hollow",
+    "Druidwatch Perch",
+    "The Burned Path"
+  ],
+
+  "factions": {
+    "groveward_druids": {
+      "alignment": "protective",
+      "description": "Surviving druids attempting to contain the elemental surges.",
+      "notes": "Offer cleansing rituals and nature-based quests."
+    },
+    "corrupted_treants": {
+      "alignment": "hostile",
+      "description": "Once-protectors of the grove, now twisted by void ash.",
+      "notes": "High health, slow movement, devastating root attacks."
+    },
+    "fire_elementals": {
+      "alignment": "hostile",
+      "description": "Manifestations of wildfire energy leaking from rifts.",
+      "notes": "Explode on death; resistant to fire."
+    },
+    "moribund_order": {
+      "alignment": "hostile",
+      "description": "Cultists attempting to bind elemental spirits for void rituals.",
+      "notes": "Operate near Ashen Spiral and Rifted Hollow."
+    }
+  },
+
+  "enemies": {
+    "corrupted_treants": [
+      "charred_sapling",
+      "emberbark_treant",
+      "ashen_colossus"
+    ],
+    "fire_elementals": [
+      "emberling",
+      "flame_wisp",
+      "volatile_infernal"
+    ],
+    "wildlife": [
+      "scorchfang_wolf",
+      "ashplume_owl",
+      "emberback_stag"
+    ],
+    "moribund": [
+      "moribund_flamebinder",
+      "moribund_pyromancer",
+      "moribund_ritualist"
+    ],
+    "rare": [
+      "the_ashen_titan",
+      "embermaw_alpha",
+      "the_last_druidshade"
+    ]
+  },
+
+  "loot_tables": {
+    "corrupted_treants": [
+      { "item": "charred_heartwood", "chance": 0.45, "min": 1, "max": 2 },
+      { "item": "emberbark_fragment", "chance": 0.30, "min": 1, "max": 1 }
+    ],
+    "fire_elementals": [
+      { "item": "ember_core", "chance": 0.40, "min": 1, "max": 1 },
+      { "item": "volatile_ash", "chance": 0.25, "min": 1, "max": 2 }
+    ],
+    "wildlife": [
+      { "item": "scorched_hide", "chance": 0.35, "min": 1, "max": 2 },
+      { "item": "ember_tainted_meat", "chance": 0.20, "min": 1, "max": 1 }
+    ],
+    "moribund": [
+      { "item": "void_insignia", "chance": 0.20, "min": 1, "max": 1 },
+      { "item": "ritual_scroll_fragment", "chance": 0.10, "min": 1, "max": 1 }
+    ],
+    "rare": [
+      { "item": "emberheart_core", "chance": 0.05, "min": 1, "max": 1 },
+      { "item": "ashen_idol_fragment", "chance": 0.03, "min": 1, "max": 1 }
+    ]
+  },
+
+  "story_seeds": [
+    "Groveward Druids report a corrupted treant colossus roaming the Charred Treeline.",
+    "Fire rifts in Rifted Hollow are growing unstable, threatening a wildfire surge.",
+    "A Moribund pyromancer seeks to bind an elemental spirit beneath Ashen Spiral.",
+    "The Grove of Last Bloom is losing its protective wards.",
+    "A druidshade apparition warns of a coming elemental catastrophe."
+  ]
+}

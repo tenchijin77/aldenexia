@@ -1,104 +1,108 @@
 {
-  "_comment": "lumora_outskirts_spawns.json - spawn points for Lumora Outskirts zone",
+  "_comment": "Lumora Outskirts spawn definitions. Coordinates TBD until zone layout is finalized.",
   "spawns": [
     {
+      "mob_type": "rat",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.7,
+      "max_active": 4,
+      "respawn_time": 12,
+      "min_level": 1,
+      "max_level": 3,
+      "spawn_zone": "core"
+    },
+    {
+      "mob_type": "snake",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.4,
+      "max_active": 2,
+      "respawn_time": 18,
+      "min_level": 1,
+      "max_level": 3,
+      "spawn_zone": "core"
+    },
+    {
+      "mob_type": "dune_scarab",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.5,
+      "max_active": 3,
+      "respawn_time": 20,
+      "min_level": 1,
+      "max_level": 3,
+      "spawn_zone": "core"
+    },
+    {
+      "mob_type": "slime",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.8,
+      "max_active": 5,
+      "respawn_time": 20,
+      "min_level": 1,
+      "max_level": 3,
+      "spawn_zone": "core"
+    },
+    {
       "mob_type": "bat",
-      "x": 200,
-      "y": 150,
-      "spawn_radius": 32,
+      "spawn_radius": "TBD",
       "spawn_chance": 0.6,
       "max_active": 3,
       "respawn_time": 15,
       "min_level": 1,
-      "max_level": 2
+      "max_level": 2,
+      "spawn_zone": "core"
     },
-    {
-      "mob_type": "rat",
-      "x": 300,
-      "y": 220,
-      "spawn_radius": 24,
-      "spawn_chance": 0.7,
-      "max_active": 2,
-      "respawn_time": 12,
-      "min_level": 1,
-      "max_level": 3
-    },
-    {
-      "mob_type": "slime",
-      "x": 400,
-      "y": 180,
-      "spawn_radius": 40,
-      "spawn_chance": 0.8,
-      "max_active": 4,
-      "respawn_time": 20,
-      "min_level": 2,
-      "max_level": 4
-    },
+
+    /* EDGE SPAWNS — appear only near Dustwind Plateaus border */
+
     {
       "mob_type": "spider",
-      "x": 500,
-      "y": 300,
-      "spawn_radius": 48,
-      "spawn_chance": 0.5,
-      "max_active": 2,
-      "respawn_time": 25,
-      "min_level": 3,
-      "max_level": 5
-    },
-    {
-      "mob_type": "snake",
-      "x": 600,
-      "y": 200,
-      "spawn_radius": 28,
+      "spawn_radius": "TBD",
       "spawn_chance": 0.4,
       "max_active": 2,
-      "respawn_time": 18,
+      "respawn_time": 25,
       "min_level": 2,
-      "max_level": 4
-    },
-    {
-      "mob_type": "skeleton",
-      "x": 700,
-      "y": 250,
-      "spawn_radius": 36,
-      "spawn_chance": 0.3,
-      "max_active": 2,
-      "respawn_time": 30,
-      "min_level": 4,
-      "max_level": 6
+      "max_level": 3,
+      "spawn_zone": "edge"
     },
     {
       "mob_type": "bandit",
-      "x": 800,
-      "y": 280,
-      "spawn_radius": 48,
+      "spawn_radius": "TBD",
       "spawn_chance": 0.5,
       "max_active": 3,
       "respawn_time": 22,
-      "min_level": 3,
-      "max_level": 6
-    },
-    {
-      "mob_type": "ghost",
-      "x": 650,
-      "y": 120,
-      "spawn_radius": 50,
-      "spawn_chance": 0.35,
-      "max_active": 2,
-      "respawn_time": 28,
-      "min_level": 4,
-      "max_level": 7
+      "min_level": 2,
+      "max_level": 3,
+      "spawn_zone": "edge"
     },
     {
       "mob_type": "goblin",
-      "x": 550,
-      "y": 350,
-      "spawn_radius": 44,
+      "spawn_radius": "TBD",
       "spawn_chance": 0.45,
       "max_active": 3,
       "respawn_time": 20,
       "min_level": 2,
-      "max_level": 5
+      "max_level": 3,
+      "spawn_zone": "edge"
+    },
+    {
+      "mob_type": "skeleton",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.3,
+      "max_active": 2,
+      "respawn_time": 30,
+      "min_level": 3,
+      "max_level": 3,
+      "spawn_zone": "edge"
+    },
+    {
+      "mob_type": "ghost",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.35,
+      "max_active": 1,
+      "respawn_time": 28,
+      "min_level": 3,
+      "max_level": 3,
+      "spawn_zone": "edge"
     }
   ]
 }

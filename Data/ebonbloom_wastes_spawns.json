@@ -1,0 +1,190 @@
+{
+  "_comment": "Ebonbloom Wastes – Full spawn definitions. Coordinates TBD until zone layout is finalized.",
+  "spawns": [
+
+    /* ============================
+       FUNGAL UNDEAD (Core Corruption)
+       ============================ */
+
+    {
+      "mob_type": "spore_thrall",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.60,
+      "max_active": 6,
+      "respawn_time": 28,
+      "min_level": 10,
+      "max_level": 12,
+      "spawn_zone": "fungal_core"
+    },
+    {
+      "mob_type": "fungal_stalker",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.45,
+      "max_active": 4,
+      "respawn_time": 32,
+      "min_level": 11,
+      "max_level": 13,
+      "spawn_zone": "fungal_core"
+    },
+    {
+      "mob_type": "blooming_corpse",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.35,
+      "max_active": 3,
+      "respawn_time": 40,
+      "min_level": 12,
+      "max_level": 14,
+      "spawn_zone": "fungal_core"
+    },
+    {
+      "mob_type": "mycelial_wight",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.20,
+      "max_active": 2,
+      "respawn_time": 55,
+      "min_level": 13,
+      "max_level": 15,
+      "spawn_zone": "fungal_core"
+    },
+
+    /* ============================
+       CORRUPTED BEASTS (Wildlife)
+       ============================ */
+
+    {
+      "mob_type": "ashen_wolf",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.55,
+      "max_active": 5,
+      "respawn_time": 30,
+      "min_level": 10,
+      "max_level": 12,
+      "spawn_zone": "wastes"
+    },
+    {
+      "mob_type": "voidtouched_stag",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.40,
+      "max_active": 3,
+      "respawn_time": 35,
+      "min_level": 11,
+      "max_level": 13,
+      "spawn_zone": "wastes"
+    },
+    {
+      "mob_type": "sporebear_bear",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.25,
+      "max_active": 2,
+      "respawn_time": 50,
+      "min_level": 12,
+      "max_level": 14,
+      "spawn_zone": "wastes"
+    },
+    {
+      "mob_type": "rootmaw_serpent",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.30,
+      "max_active": 3,
+      "respawn_time": 45,
+      "min_level": 12,
+      "max_level": 15,
+      "spawn_zone": "wastes"
+    },
+
+    /* ============================
+       ELEMENTALS (Voidbloom / Shadow)
+       ============================ */
+
+    {
+      "mob_type": "shadow_sproutling",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.40,
+      "max_active": 4,
+      "respawn_time": 38,
+      "min_level": 11,
+      "max_level": 13,
+      "spawn_zone": "voidscar"
+    },
+    {
+      "mob_type": "voidbloom_elemental",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.20,
+      "max_active": 2,
+      "respawn_time": 60,
+      "min_level": 13,
+      "max_level": 15,
+      "spawn_zone": "voidscar"
+    },
+
+    /* ============================
+       MORIBUND ORDER (Cultists)
+       ============================ */
+
+    {
+      "mob_type": "moribund_scout",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.45,
+      "max_active": 4,
+      "respawn_time": 30,
+      "min_level": 11,
+      "max_level": 13,
+      "spawn_zone": "ritual_sites"
+    },
+    {
+      "mob_type": "moribund_voidbinder",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.30,
+      "max_active": 3,
+      "respawn_time": 40,
+      "min_level": 12,
+      "max_level": 14,
+      "spawn_zone": "ritual_sites"
+    },
+    {
+      "mob_type": "moribund_ritualist",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.20,
+      "max_active": 2,
+      "respawn_time": 55,
+      "min_level": 13,
+      "max_level": 15,
+      "spawn_zone": "ritual_sites"
+    },
+
+    /* ============================
+       RARE / EVENT SPAWNS
+       ============================ */
+
+    {
+      "mob_type": "the_blooming_horror",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.05,
+      "max_active": 1,
+      "respawn_time": 5400,
+      "min_level": 15,
+      "max_level": 15,
+      "spawn_zone": "ebonbloom_grove"
+    },
+    {
+      "mob_type": "ashen_alpha",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.08,
+      "max_active": 1,
+      "respawn_time": 3600,
+      "min_level": 14,
+      "max_level": 15,
+      "spawn_zone": "wastes_rare"
+    },
+    {
+      "mob_type": "rootbound_titan",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.03,
+      "max_active": 1,
+      "respawn_time": 7200,
+      "min_level": 15,
+      "max_level": 15,
+      "spawn_zone": "shatterroot_canyon"
+    }
+  ]
+}

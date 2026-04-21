@@ -1,0 +1,128 @@
+{
+  "_comment": "Broken Barrow – Zone 2 Dungeon (Levels 14–18). Goblin/Moribund hybrid stronghold built into a collapsed halfling burial complex.",
+  "zone_name": "Broken Barrow",
+  "level_range": [14, 18],
+  "biome": "collapsed halfling barrow, fungal crypts, goblin tunnels, void‑scarred chambers",
+
+  "dungeon_type": "non_instanced",
+  "respawn_time_seconds": 420,
+  "boss_respawn_time_seconds": 7200,
+
+  "atmosphere": "A shattered halfling burial complex overtaken by goblins, fungal undead, and Moribund cultists. The Void idol buried deep within the barrow warps the dead, the living, and the stone itself.",
+
+  "signature_hazards": [
+    "unstable_floor_sections",
+    "fungal_spore_bursts",
+    "void_echo_traps",
+    "bone_shrapnel_pits",
+    "goblin_tripwires",
+    "idol_whispers_debuff"
+  ],
+
+  "factions": {
+    "goblin_clan_ashsnout": {
+      "alignment": "hostile",
+      "description": "A brutal goblin clan that discovered the barrow and now mines its relics.",
+      "notes": "Use explosives, traps, and swarm tactics."
+    },
+    "fungal_undead": {
+      "alignment": "hostile",
+      "description": "Halfling dead overtaken by parasitic fungal growths.",
+      "notes": "Explode into spores on death."
+    },
+    "moribund_order": {
+      "alignment": "hostile",
+      "description": "Void cultists attempting to awaken the idol buried beneath the barrow.",
+      "notes": "Work alongside goblins but plan to betray them."
+    }
+  },
+
+  "wings": [
+    {
+      "wing_name": "Collapsed Approach",
+      "description": "The shattered entrance of the barrow. Goblin miners and fungal undead clash over exposed relics.",
+      "hazards": ["unstable_floor_sections", "goblin_tripwires"],
+      "enemies": ["ashsnout_miner", "ashsnout_sapper", "spore_thrall", "fungal_stalker"]
+    },
+    {
+      "wing_name": "Fungal Crypts",
+      "description": "Ancient halfling burial chambers overtaken by fungal growths and Void seepage.",
+      "hazards": ["fungal_spore_bursts", "void_echo_traps"],
+      "boss": "shadecaller_morveth",
+      "boss_mechanics": [
+        "shadow_clone_summon",
+        "void_bolt",
+        "fungal_explosion_phase"
+      ],
+      "enemies": ["blooming_corpse", "mycelial_wight", "voidbloom_elemental"]
+    },
+    {
+      "wing_name": "Idol Chamber",
+      "description": "The deepest chamber where the Void idol pulses with corruptive energy.",
+      "hazards": ["idol_whispers_debuff", "bone_shrapnel_pits"],
+      "boss": "the_barrow_idol",
+      "boss_mechanics": [
+        "void_pulse_waves",
+        "bone_construct_summon",
+        "damage_reflection_phase"
+      ],
+      "enemies": ["moribund_voidbinder", "moribund_ritualist", "bone_construct"]
+    }
+  ],
+
+  "bosses": {
+    "grimble_the_ashsnout": {
+      "level": 15,
+      "type": "goblin_warlord",
+      "abilities": ["explosive_barrage", "frenzied_swarm_call", "minefield_drop"],
+      "drops": ["goblin_warlord_medallion", "reinforced_goblin_armor", "volatile_powder_keg"]
+    },
+    "shadecaller_morveth": {
+      "level": 16,
+      "type": "void_shaman",
+      "abilities": ["shadow_clone_summon", "void_bolt", "fungal_explosion_phase"],
+      "drops": ["void_touched_staff", "fungal_resin", "shadowwoven_cloak"]
+    },
+    "the_barrow_idol": {
+      "level": 18,
+      "type": "void_construct",
+      "abilities": [
+        "void_pulse_waves",
+        "bone_construct_summon",
+        "damage_reflection_phase",
+        "idol_whisper_fear"
+      ],
+      "drops": [
+        "idol_fragment",
+        "void_scarred_shard",
+        "ancient_halfling_relic",
+        "random_mid_level_armor"
+      ]
+    }
+  },
+
+  "loot_tables": {
+    "goblins": [
+      { "item": "goblin_scrap_metal", "chance": 0.5, "min": 1, "max": 3 },
+      { "item": "volatile_powder", "chance": 0.3, "min": 1, "max": 1 }
+    ],
+    "fungal_undead": [
+      { "item": "fungal_resin", "chance": 0.45, "min": 1, "max": 2 },
+      { "item": "spore_cluster", "chance": 0.25, "min": 1, "max": 1 }
+    ],
+    "moribund": [
+      { "item": "void_insignia", "chance": 0.2, "min": 1, "max": 1 },
+      { "item": "ritual_scroll_fragment", "chance": 0.1, "min": 1, "max": 1 }
+    ],
+    "constructs": [
+      { "item": "bone_shard", "chance": 0.4, "min": 1, "max": 2 },
+      { "item": "idol_dust", "chance": 0.15, "min": 1, "max": 1 }
+    ],
+    "rare": [
+      { "item": "idol_fragment", "chance": 0.05, "min": 1, "max": 1 },
+      { "item": "ancient_halfling_relic", "chance": 0.03, "min": 1, "max": 1 }
+    ]
+  },
+
+  "story_summary": "Broken Barrow is a collapsed halfling burial complex overtaken by the Ashsnout goblins and the Moribund Order. A Void idol buried deep within the barrow warps the dead and empowers the cultists. Goblins mine relics for profit, fungal undead roam the crypts, and the Moribund Order prepares a ritual to awaken the idol. Adventurers must navigate unstable tunnels, corrupted crypts, and the idol chamber to stop the awakening."
+}

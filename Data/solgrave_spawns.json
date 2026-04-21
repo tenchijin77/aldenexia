@@ -1,0 +1,145 @@
+{
+  "_comment": "Centralized master spawn table for all Zone 1 regions (Solgrave Expanse). Includes Outskirts, Dustwind Plateaus, Ashfall Dunes, and The Kragthar.",
+  "spawn_tables": {
+
+    /* ============================
+       LUMORA OUTSKIRTS (Levels 1–3)
+       ============================ */
+    "lumora_outskirts": {
+      "core": [
+        "rat",
+        "snake",
+        "dune_scarab",
+        "slime",
+        "bat"
+      ],
+      "edge": [
+        "spider",
+        "bandit",
+        "goblin",
+        "skeleton",
+        "ghost"
+      ]
+    },
+
+    /* ============================
+       DUSTWIND PLATEAUS (Levels 4–7)
+       ============================ */
+    "dustwind_plateaus": {
+      "core": [
+        "sand_stinger",
+        "wild_dog",
+        "spider",
+        "dustwalker_scout",
+        "dustwalker_ravager",
+        "dustwalker_ambusher"
+      ],
+      "edge": [
+        "djhanid_nomad",
+        "sunmaddened_wanderer"
+      ],
+      "nest": [
+        "spider",
+        "spider_broodmother"
+      ],
+      "rare": [
+        "sand_stinger_elite",
+        "sunmaddened_berserker"
+      ],
+      "boss": [
+        "dustwalker_warlord"
+      ]
+    },
+
+    /* ============================
+       ASHFALL DUNES (Levels 8–10)
+       ============================ */
+    "ashfall_dunes": {
+      "gnoll": [
+        "bonegnawer",
+        "bonegnawer_hunter",
+        "bonegnawer_shaman"
+      ],
+      "rift": [
+        "khepri_beetle",
+        "sandshifter",
+        "sandshifter_elite"
+      ],
+      "burial": [
+        "mirage_phantom",
+        "wight",
+        "tomb_skeleton"
+      ],
+      "ruins": [
+        "dustwalker_ravager"
+      ],
+      "rare": [
+        "phantom_lord",
+        "sandshifter_alpha"
+      ],
+      "boss": [
+        "dustwalker_warlord"
+      ]
+    },
+
+    /* ============================
+       THE KRAGTHAR (Dungeon 8–12)
+       ============================ */
+    "the_kragthar": {
+      "entrance": [
+        "bonegnawer_scout",
+        "bonegnawer_fighter",
+        "bonegnawer_tracker"
+      ],
+      "prisoner": [
+        "bonegnawer_jailor",
+        "bonegnawer_rogue",
+        "bonegnawer_shaman"
+      ],
+      "barracks": [
+        "bonegnawer_warrior",
+        "bonegnawer_ascendant",
+        "bonegnawer_witch_doctor"
+      ],
+      "barracks_boss": [
+        "bonegnawer_guard_captain"
+      ],
+      "livestock": [
+        "wild_dog",
+        "bonegnawer_butcher",
+        "bonegnawer_handler"
+      ],
+      "livestock_rare": [
+        "gnoll_beastmaster"
+      ],
+      "contested": [
+        "bonegnawer_ascendant",
+        "tomb_skeleton",
+        "restless_spirit",
+        "moribund_acolyte"
+      ],
+      "vault": [
+        "bonegnawer_ascendant",
+        "chieftain_guard"
+      ],
+      "vault_boss": [
+        "bonegnawer_chieftain"
+      ],
+      "tomb": [
+        "tomb_skeleton",
+        "wight",
+        "mirage_phantom"
+      ],
+      "crypts": [
+        "tomb_guardian",
+        "mummy",
+        "mummy_lord",
+        "moribund_cultist",
+        "moribund_void_initiate"
+      ],
+      "crypts_boss": [
+        "kaelvros_the_awakener"
+      ]
+    }
+  }
+}

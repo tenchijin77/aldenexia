@@ -1,0 +1,165 @@
+{
+  "_comment": "Ashfall Dunes / Deep Sands spawn definitions. Coordinates TBD until zone layout is finalized.",
+  "spawns": [
+
+    /* ============================
+       GNOLL WARRENS (Bonegnawers)
+       ============================ */
+
+    {
+      "mob_type": "bonegnawer",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.65,
+      "max_active": 6,
+      "respawn_time": 20,
+      "min_level": 8,
+      "max_level": 9,
+      "spawn_zone": "gnoll"
+    },
+    {
+      "mob_type": "bonegnawer_hunter",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.45,
+      "max_active": 4,
+      "respawn_time": 22,
+      "min_level": 8,
+      "max_level": 10,
+      "spawn_zone": "gnoll"
+    },
+    {
+      "mob_type": "bonegnawer_shaman",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.30,
+      "max_active": 2,
+      "respawn_time": 30,
+      "min_level": 9,
+      "max_level": 10,
+      "spawn_zone": "gnoll"
+    },
+
+    /* ============================
+       ELEMENTAL RIFTS (Sandshifters)
+       ============================ */
+
+    {
+      "mob_type": "khepri_beetle",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.55,
+      "max_active": 5,
+      "respawn_time": 18,
+      "min_level": 8,
+      "max_level": 9,
+      "spawn_zone": "rift"
+    },
+    {
+      "mob_type": "sandshifter",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.50,
+      "max_active": 4,
+      "respawn_time": 22,
+      "min_level": 9,
+      "max_level": 10,
+      "spawn_zone": "rift"
+    },
+    {
+      "mob_type": "sandshifter_elite",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.15,
+      "max_active": 1,
+      "respawn_time": 45,
+      "min_level": 10,
+      "max_level": 10,
+      "spawn_zone": "rift"
+    },
+
+    /* ============================
+       BURIAL GROUNDS (Undead)
+       ============================ */
+
+    {
+      "mob_type": "mirage_phantom",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.50,
+      "max_active": 4,
+      "respawn_time": 20,
+      "min_level": 8,
+      "max_level": 10,
+      "spawn_zone": "burial"
+    },
+    {
+      "mob_type": "wight",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.35,
+      "max_active": 3,
+      "respawn_time": 28,
+      "min_level": 9,
+      "max_level": 10,
+      "spawn_zone": "burial"
+    },
+    {
+      "mob_type": "tomb_skeleton",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.40,
+      "max_active": 4,
+      "respawn_time": 25,
+      "min_level": 8,
+      "max_level": 9,
+      "spawn_zone": "burial"
+    },
+
+    /* ============================
+       DUSTWALKER FORCES
+       ============================ */
+
+    {
+      "mob_type": "dustwalker_ravager",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.40,
+      "max_active": 3,
+      "respawn_time": 22,
+      "min_level": 9,
+      "max_level": 10,
+      "spawn_zone": "ruins"
+    },
+
+    /* ============================
+       BOSS SPAWN — DUSTWALKER WARLORD
+       ============================ */
+
+    {
+      "mob_type": "dustwalker_warlord",
+      "spawn_radius": "TBD",
+      "spawn_chance": 1.0,
+      "max_active": 1,
+      "respawn_time": 7200,
+      "min_level": 10,
+      "max_level": 10,
+      "spawn_zone": "boss"
+    },
+
+    /* ============================
+       RARE / NIGHT / EVENT SPAWNS
+       ============================ */
+
+    {
+      "mob_type": "phantom_lord",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.08,
+      "max_active": 1,
+      "respawn_time": 3600,
+      "min_level": 10,
+      "max_level": 10,
+      "spawn_zone": "rare"
+    },
+    {
+      "mob_type": "sandshifter_alpha",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.05,
+      "max_active": 1,
+      "respawn_time": 5400,
+      "min_level": 10,
+      "max_level": 10,
+      "spawn_zone": "rare"
+    }
+  ]
+}

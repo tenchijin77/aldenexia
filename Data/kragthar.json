@@ -1,0 +1,193 @@
+{
+  "_comment": "The Kragthar (“Bone Den”) – Levels 8–12. Final merged version with all loot from all prior drafts.",
+  "zone_name": "The Kragthar",
+  "level_range": [8, 12],
+  "biome": "underground gnoll warrens, halfling tombs, corrupted crypts",
+
+  "dungeon_type": "non_instanced",
+  "respawn_time_seconds": 360,
+  "boss_respawn_time_seconds": 7200,
+
+  "atmosphere": "A sprawling, chaotic, multi-wing dungeon where Bonegnawer gnolls, awakened undead, and Moribund agents battle for control. Fast respawns, contested camps, and dangerous traps define the experience.",
+
+  "signature_hazards": [
+    "cave_in_traps",
+    "poison_dart_traps",
+    "acid_spout_traps",
+    "cursed_sarcophagi",
+    "patrol_timing_challenges",
+    "line_of_sight_pulling"
+  ],
+
+  "factions": {
+    "bonegnawer_gnolls": {
+      "alignment": "hostile",
+      "description": "Gnolls who claimed the ancient halfling barrow as their den.",
+      "notes": "Social aggro; will assist nearby gnolls."
+    },
+    "undead": {
+      "alignment": "hostile",
+      "description": "Ancient halfling nobles and guardians awakened by Void rituals.",
+      "notes": "Spawn from sarcophagi and crypt chambers."
+    },
+    "moribund_order": {
+      "alignment": "hostile",
+      "description": "Void cultists attempting to harness the tomb’s necromantic secrets.",
+      "notes": "Kael’vros the Awakener leads their efforts."
+    }
+  },
+
+  "wings": [
+    {
+      "wing_name": "Entrance Chamber",
+      "description": "Central hub of the dungeon. Gnoll forward camp with torches, bone totems, and patrols.",
+      "hazards": ["patrols", "tight_corridors"],
+      "enemies": ["bonegnawer_scout", "bonegnawer_fighter", "bonegnawer_tracker"]
+    },
+    {
+      "wing_name": "Prisoner Wing",
+      "description": "Djhanid captives held in cages. Rescue quests originate here.",
+      "hazards": ["locked_cages", "chain_pull_patrols"],
+      "enemies": ["bonegnawer_jailor", "bonegnawer_rogue", "bonegnawer_shaman"]
+    },
+    {
+      "wing_name": "Guard Barracks",
+      "description": "Gnoll military wing with training pits and weapon racks.",
+      "hazards": ["poison_dart_traps", "tight_hallways"],
+      "boss": "bonegnawer_guard_captain",
+      "boss_drop": "vault_key",
+      "enemies": ["bonegnawer_warrior", "bonegnawer_ascendant", "bonegnawer_witch_doctor"]
+    },
+    {
+      "wing_name": "Livestock Wing",
+      "description": "Food storage and animal pens. Chaotic, noisy, and dangerous in packs.",
+      "hazards": ["slippery_floor", "animal_pack_aggro"],
+      "rare_spawn": "gnoll_beastmaster",
+      "enemies": ["wild_dog", "bonegnawer_butcher", "bonegnawer_handler"]
+    },
+    {
+      "wing_name": "Contested Halls",
+      "description": "Three-way war zone where gnolls, undead, and Moribund agents fight openly.",
+      "hazards": ["cave_in_trap", "los_pulling", "mixed_patrols"],
+      "enemies": ["bonegnawer_ascendant", "tomb_skeleton", "restless_spirit", "moribund_acolyte"]
+    },
+    {
+      "wing_name": "Treasure Vault",
+      "description": "Deepest and hardest wing. Filled with stolen relics and ancient artifacts.",
+      "access": ["vault_key", "cave_in_drop"],
+      "boss": "bonegnawer_chieftain",
+      "enemies": ["bonegnawer_ascendant", "chieftain_guard"]
+    },
+    {
+      "wing_name": "Tomb Entrance",
+      "description": "Where the undead first awaken. Broken sarcophagi and Void cracks.",
+      "hazards": ["cursed_sarcophagi", "acid_spouts"],
+      "enemies": ["tomb_skeleton", "wight", "mirage_phantom"]
+    },
+    {
+      "wing_name": "Noble Crypts",
+      "description": "Final wing. Ancient halfling nobles corrupted by Void magic.",
+      "boss": "kaelvros_the_awakener",
+      "boss_level": 10,
+      "boss_hp": 350,
+      "boss_damage": 20,
+      "boss_mechanics": [
+        "ritual_channeling",
+        "wraith_summon",
+        "corpse_heal",
+        "damage_reduction_phases"
+      ],
+      "enemies": ["tomb_guardian", "mummy", "mummy_lord", "moribund_cultist", "moribund_void_initiate"]
+    }
+  ],
+
+  "bosses": {
+    "bonegnawer_guard_captain": {
+      "level": 9,
+      "abilities": ["shield_bash", "whistle_call"],
+      "drops": ["vault_key", "tribal_armor_piece"]
+    },
+    "bonegnawer_chieftain": {
+      "level": 11,
+      "abilities": ["whirlwind", "enrage", "pack_summon"],
+      "drops": ["tribal_bone_weapon", "rare_caster_book", "bronze_weapon"]
+    },
+    "kaelvros_the_awakener": {
+      "level": 10,
+      "type": "voidknight",
+      "hp": 350,
+      "damage": 20,
+      "abilities": [
+        "void_channel",
+        "wraith_summon",
+        "corpse_heal",
+        "shadow_barrier"
+      ],
+      "drops": [
+        "orders_from_the_moribund_order",
+        "melee_ring",
+        "caster_offhand",
+        "void_scarred_shard",
+        "random_low_level_armor"
+      ]
+    }
+  },
+
+  "loot_tables": {
+
+    "common": [
+      { "item": "bone_fragment", "chance": 0.7, "min": 1, "max": 3 },
+      { "item": "rotting_cloth", "chance": 0.4, "min": 1, "max": 2 }
+    ],
+
+    "uncommon": [
+      { "item": "gnoll_war_token", "chance": 0.3, "min": 1, "max": 1 },
+      { "item": "ancient_coin", "chance": 0.25, "min": 1, "max": 3 },
+      { "item": "tribal_charm", "chance": 0.2, "min": 1, "max": 1 },
+      { "item": "alchemy_reagent", "chance": 0.3, "min": 1, "max": 2 }
+    ],
+
+    "rare": [
+      { "item": "warlord_relic", "chance": 0.1, "min": 1, "max": 1 },
+      { "item": "enchanted_wrappings", "chance": 0.05, "min": 1, "max": 1 },
+      { "item": "void_scarred_shard", "chance": 0.05, "min": 1, "max": 1 },
+      { "item": "idol_touched_trinket", "chance": 0.03, "min": 1, "max": 1 }
+    ],
+
+    "gnoll": [
+      { "item": "leather_armor_piece", "chance": 0.4, "min": 1, "max": 1 },
+      { "item": "bone_weapon", "chance": 0.3, "min": 1, "max": 1 }
+    ],
+
+    "undead": [
+      { "item": "bronze_weapon", "chance": 0.25, "min": 1, "max": 1 },
+      { "item": "ancient_jewelry", "chance": 0.15, "min": 1, "max": 1 }
+    ],
+
+    "moribund": [
+      { "item": "void_insignia", "chance": 0.2, "min": 1, "max": 1 },
+      { "item": "ritual_scroll", "chance": 0.1, "min": 1, "max": 1 }
+    ],
+
+    "boss_drops": {
+      "bonegnawer_guard_captain": [
+        { "item": "vault_key", "chance": 1.0, "min": 1, "max": 1 },
+        { "item": "tribal_armor_piece", "chance": 0.25, "min": 1, "max": 1 }
+      ],
+      "bonegnawer_chieftain": [
+        { "item": "tribal_bone_weapon", "chance": 0.35, "min": 1, "max": 1 },
+        { "item": "rare_caster_book", "chance": 0.20, "min": 1, "max": 1 },
+        { "item": "bronze_weapon", "chance": 0.25, "min": 1, "max": 1 }
+      ],
+      "kaelvros_the_awakener": [
+        { "item": "orders_from_the_moribund_order", "chance": 1.0, "min": 1, "max": 1 },
+        { "item": "melee_ring", "chance": 0.40, "min": 1, "max": 1 },
+        { "item": "caster_offhand", "chance": 0.40, "min": 1, "max": 1 },
+        { "item": "void_scarred_shard", "chance": 0.10, "min": 1, "max": 1 },
+        { "item": "random_low_level_armor", "chance": 0.50, "min": 1, "max": 1 }
+      ]
+    }
+  },
+
+  "story_summary": "The Bonegnawer gnolls claimed an ancient halfling barrow as their den, unaware of a dormant Void idol buried deep within. When Kael’vros the Awakener arrived to study the tomb’s necromantic secrets, his rituals shattered the runes that kept the dead at rest. Now the undead rise, the gnolls panic, and the Moribund Order seeks control. Adventurers can exploit the chaos to claim rare loot and uncover the Moribund conspiracy."
+}

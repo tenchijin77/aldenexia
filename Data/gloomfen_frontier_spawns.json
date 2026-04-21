@@ -1,0 +1,180 @@
+{
+  "_comment": "Gloomfen Frontier – Full spawn definitions. Coordinates TBD until zone layout is finalized.",
+  "spawns": [
+
+    /* ============================
+       TROLLS (Marrowmaw Clan)
+       ============================ */
+
+    {
+      "mob_type": "marrowmaw_brute",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.55,
+      "max_active": 5,
+      "respawn_time": 35,
+      "min_level": 16,
+      "max_level": 18,
+      "spawn_zone": "blackfen_crossing"
+    },
+    {
+      "mob_type": "marrowmaw_hunter",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.45,
+      "max_active": 4,
+      "respawn_time": 40,
+      "min_level": 17,
+      "max_level": 19,
+      "spawn_zone": "blackfen_crossing"
+    },
+    {
+      "mob_type": "marrowmaw_shaman",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.25,
+      "max_active": 2,
+      "respawn_time": 55,
+      "min_level": 18,
+      "max_level": 20,
+      "spawn_zone": "blackfen_crossing"
+    },
+
+    /* ============================
+       WITCHES (Witchlight Covens)
+       ============================ */
+
+    {
+      "mob_type": "witchlight_acolyte",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.50,
+      "max_active": 5,
+      "respawn_time": 32,
+      "min_level": 16,
+      "max_level": 18,
+      "spawn_zone": "witchlight_hollow"
+    },
+    {
+      "mob_type": "bog_hexcaller",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.35,
+      "max_active": 3,
+      "respawn_time": 45,
+      "min_level": 17,
+      "max_level": 19,
+      "spawn_zone": "witchlight_hollow"
+    },
+    {
+      "mob_type": "swamp_coven_matron",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.20,
+      "max_active": 2,
+      "respawn_time": 60,
+      "min_level": 18,
+      "max_level": 20,
+      "spawn_zone": "witchlight_hollow"
+    },
+
+    /* ============================
+       BOG BEASTS (Swamp Wildlife)
+       ============================ */
+
+    {
+      "mob_type": "fenlurker_serpent",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.50,
+      "max_active": 4,
+      "respawn_time": 30,
+      "min_level": 16,
+      "max_level": 18,
+      "spawn_zone": "bogheart_sink"
+    },
+    {
+      "mob_type": "bogmaw_snapper",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.40,
+      "max_active": 3,
+      "respawn_time": 38,
+      "min_level": 17,
+      "max_level": 19,
+      "spawn_zone": "bogheart_sink"
+    },
+    {
+      "mob_type": "marrow_pod_crab",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.30,
+      "max_active": 3,
+      "respawn_time": 45,
+      "min_level": 17,
+      "max_level": 20,
+      "spawn_zone": "bogheart_sink"
+    },
+
+    /* ============================
+       FUNGAL HORRORS (Void‑Tainted)
+       ============================ */
+
+    {
+      "mob_type": "sporebound_husk",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.45,
+      "max_active": 5,
+      "respawn_time": 35,
+      "min_level": 17,
+      "max_level": 19,
+      "spawn_zone": "marrow_pools"
+    },
+    {
+      "mob_type": "mycelial_abomination",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.25,
+      "max_active": 3,
+      "respawn_time": 50,
+      "min_level": 18,
+      "max_level": 20,
+      "spawn_zone": "marrow_pools"
+    },
+    {
+      "mob_type": "fungal_titan",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.10,
+      "max_active": 1,
+      "respawn_time": 75,
+      "min_level": 19,
+      "max_level": 20,
+      "spawn_zone": "marrow_pools"
+    },
+
+    /* ============================
+       RARE / EVENT SPAWNS
+       ============================ */
+
+    {
+      "mob_type": "the_bog_witch",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.04,
+      "max_active": 1,
+      "respawn_time": 7200,
+      "min_level": 20,
+      "max_level": 20,
+      "spawn_zone": "witchlight_hollow_rare"
+    },
+    {
+      "mob_type": "marrowmaw_warlord",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.06,
+      "max_active": 1,
+      "respawn_time": 5400,
+      "min_level": 19,
+      "max_level": 20,
+      "spawn_zone": "blackfen_crossing_rare"
+    },
+    {
+      "mob_type": "the_fen_colossus",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.03,
+      "max_active": 1,
+      "respawn_time": 7200,
+      "min_level": 20,
+      "max_level": 20,
+      "spawn_zone": "bogheart_sink_rare"
+    }
+  ]
+}

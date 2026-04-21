@@ -1,0 +1,357 @@
+{
+  "_comment": "The Kragthar – Full dungeon spawn definitions. Coordinates TBD until layout is finalized.",
+  "spawns": [
+
+    /* ============================
+       1. ENTRANCE CHAMBER (Gnoll Hub)
+       ============================ */
+
+    {
+      "mob_type": "bonegnawer_scout",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.65,
+      "max_active": 6,
+      "respawn_time": 360,
+      "min_level": 8,
+      "max_level": 9,
+      "spawn_zone": "entrance"
+    },
+    {
+      "mob_type": "bonegnawer_fighter",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.55,
+      "max_active": 5,
+      "respawn_time": 360,
+      "min_level": 8,
+      "max_level": 9,
+      "spawn_zone": "entrance"
+    },
+    {
+      "mob_type": "bonegnawer_tracker",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.45,
+      "max_active": 4,
+      "respawn_time": 360,
+      "min_level": 8,
+      "max_level": 9,
+      "spawn_zone": "entrance"
+    },
+
+    /* ============================
+       2. PRISONER WING (Djhanid Captives)
+       ============================ */
+
+    {
+      "mob_type": "bonegnawer_jailor",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.50,
+      "max_active": 4,
+      "respawn_time": 360,
+      "min_level": 8,
+      "max_level": 10,
+      "spawn_zone": "prisoner"
+    },
+    {
+      "mob_type": "bonegnawer_rogue",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.40,
+      "max_active": 3,
+      "respawn_time": 360,
+      "min_level": 8,
+      "max_level": 10,
+      "spawn_zone": "prisoner"
+    },
+    {
+      "mob_type": "bonegnawer_shaman",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.35,
+      "max_active": 2,
+      "respawn_time": 420,
+      "min_level": 9,
+      "max_level": 10,
+      "spawn_zone": "prisoner"
+    },
+
+    /* ============================
+       3. GUARD BARRACKS (Military Wing)
+       ============================ */
+
+    {
+      "mob_type": "bonegnawer_warrior",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.55,
+      "max_active": 5,
+      "respawn_time": 360,
+      "min_level": 9,
+      "max_level": 10,
+      "spawn_zone": "barracks"
+    },
+    {
+      "mob_type": "bonegnawer_ascendant",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.30,
+      "max_active": 3,
+      "respawn_time": 420,
+      "min_level": 10,
+      "max_level": 11,
+      "spawn_zone": "barracks"
+    },
+    {
+      "mob_type": "bonegnawer_witch_doctor",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.25,
+      "max_active": 2,
+      "respawn_time": 420,
+      "min_level": 10,
+      "max_level": 11,
+      "spawn_zone": "barracks"
+    },
+
+    /* BARRACKS BOSS — GUARD CAPTAIN */
+
+    {
+      "mob_type": "bonegnawer_guard_captain",
+      "spawn_radius": "TBD",
+      "spawn_chance": 1.0,
+      "max_active": 1,
+      "respawn_time": 7200,
+      "min_level": 9,
+      "max_level": 9,
+      "spawn_zone": "barracks_boss"
+    },
+
+    /* ============================
+       4. LIVESTOCK WING (Food Storage)
+       ============================ */
+
+    {
+      "mob_type": "wild_dog",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.60,
+      "max_active": 6,
+      "respawn_time": 360,
+      "min_level": 8,
+      "max_level": 9,
+      "spawn_zone": "livestock"
+    },
+    {
+      "mob_type": "bonegnawer_butcher",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.45,
+      "max_active": 3,
+      "respawn_time": 360,
+      "min_level": 9,
+      "max_level": 10,
+      "spawn_zone": "livestock"
+    },
+    {
+      "mob_type": "bonegnawer_handler",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.40,
+      "max_active": 3,
+      "respawn_time": 360,
+      "min_level": 9,
+      "max_level": 10,
+      "spawn_zone": "livestock"
+    },
+
+    /* LIVESTOCK RARE SPAWN */
+
+    {
+      "mob_type": "gnoll_beastmaster",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.10,
+      "max_active": 1,
+      "respawn_time": 3600,
+      "min_level": 10,
+      "max_level": 10,
+      "spawn_zone": "livestock_rare"
+    },
+
+    /* ============================
+       5. CONTESTED HALLS (Three-Way War)
+       ============================ */
+
+    {
+      "mob_type": "bonegnawer_ascendant",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.35,
+      "max_active": 3,
+      "respawn_time": 360,
+      "min_level": 10,
+      "max_level": 11,
+      "spawn_zone": "contested"
+    },
+    {
+      "mob_type": "tomb_skeleton",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.45,
+      "max_active": 4,
+      "respawn_time": 360,
+      "min_level": 9,
+      "max_level": 10,
+      "spawn_zone": "contested"
+    },
+    {
+      "mob_type": "restless_spirit",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.30,
+      "max_active": 3,
+      "respawn_time": 360,
+      "min_level": 10,
+      "max_level": 11,
+      "spawn_zone": "contested"
+    },
+    {
+      "mob_type": "moribund_acolyte",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.25,
+      "max_active": 2,
+      "respawn_time": 360,
+      "min_level": 10,
+      "max_level": 11,
+      "spawn_zone": "contested"
+    },
+
+    /* ============================
+       6. TREASURE VAULT (Deepest Wing)
+       ============================ */
+
+    {
+      "mob_type": "bonegnawer_ascendant",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.40,
+      "max_active": 4,
+      "respawn_time": 360,
+      "min_level": 10,
+      "max_level": 12,
+      "spawn_zone": "vault"
+    },
+    {
+      "mob_type": "chieftain_guard",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.30,
+      "max_active": 3,
+      "respawn_time": 360,
+      "min_level": 11,
+      "max_level": 12,
+      "spawn_zone": "vault"
+    },
+
+    /* VAULT BOSS — BONEGNAWER CHIEFTAIN */
+
+    {
+      "mob_type": "bonegnawer_chieftain",
+      "spawn_radius": "TBD",
+      "spawn_chance": 1.0,
+      "max_active": 1,
+      "respawn_time": 7200,
+      "min_level": 11,
+      "max_level": 11,
+      "spawn_zone": "vault_boss"
+    },
+
+    /* ============================
+       7. TOMB ENTRANCE (Undead Awakening)
+       ============================ */
+
+    {
+      "mob_type": "tomb_skeleton",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.55,
+      "max_active": 5,
+      "respawn_time": 360,
+      "min_level": 9,
+      "max_level": 10,
+      "spawn_zone": "tomb"
+    },
+    {
+      "mob_type": "wight",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.35,
+      "max_active": 3,
+      "respawn_time": 420,
+      "min_level": 10,
+      "max_level": 11,
+      "spawn_zone": "tomb"
+    },
+    {
+      "mob_type": "mirage_phantom",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.40,
+      "max_active": 3,
+      "respawn_time": 360,
+      "min_level": 9,
+      "max_level": 11,
+      "spawn_zone": "tomb"
+    },
+
+    /* ============================
+       8. NOBLE CRYPTS (Final Wing)
+       ============================ */
+
+    {
+      "mob_type": "tomb_guardian",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.45,
+      "max_active": 4,
+      "respawn_time": 360,
+      "min_level": 10,
+      "max_level": 12,
+      "spawn_zone": "crypts"
+    },
+    {
+      "mob_type": "mummy",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.40,
+      "max_active": 3,
+      "respawn_time": 420,
+      "min_level": 10,
+      "max_level": 12,
+      "spawn_zone": "crypts"
+    },
+    {
+      "mob_type": "mummy_lord",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.15,
+      "max_active": 1,
+      "respawn_time": 5400,
+      "min_level": 12,
+      "max_level": 12,
+      "spawn_zone": "crypts"
+    },
+    {
+      "mob_type": "moribund_cultist",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.35,
+      "max_active": 3,
+      "respawn_time": 360,
+      "min_level": 10,
+      "max_level": 11,
+      "spawn_zone": "crypts"
+    },
+    {
+      "mob_type": "moribund_void_initiate",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.25,
+      "max_active": 2,
+      "respawn_time": 420,
+      "min_level": 11,
+      "max_level": 12,
+      "spawn_zone": "crypts"
+    },
+
+    /* CRYPTS BOSS — KAEL’VROS THE AWAKENER */
+
+    {
+      "mob_type": "kaelvros_the_awakener",
+      "spawn_radius": "TBD",
+      "spawn_chance": 1.0,
+      "max_active": 1,
+      "respawn_time": 7200,
+      "min_level": 10,
+      "max_level": 10,
+      "spawn_zone": "crypts_boss"
+    }
+  ]
+}

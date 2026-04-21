@@ -1,0 +1,151 @@
+{
+  "_comment": "Master loot tables for all Zone 1 regions (Solgrave Expanse). Fully updated with merged Kragthar loot.",
+  "loot_tables": {
+
+    /* ============================
+       CORE WILDLIFE
+       ============================ */
+    "animal": [
+      { "item": "raw_meat", "chance": 0.6, "min": 1, "max": 2 },
+      { "item": "fur_pelt", "chance": 0.4, "min": 1, "max": 2 },
+      { "item": "tough_sinew", "chance": 0.2, "min": 1, "max": 1 }
+    ],
+
+    "reptile": [
+      { "item": "reptile_scale", "chance": 0.5, "min": 1, "max": 3 },
+      { "item": "dried_tongue", "chance": 0.2, "min": 1, "max": 1 }
+    ],
+
+    "insect": [
+      { "item": "chitin_scrap", "chance": 0.5, "min": 1, "max": 2 },
+      { "item": "insect_wing", "chance": 0.3, "min": 1, "max": 2 },
+      { "item": "vial_of_venom", "chance": 0.1, "min": 1, "max": 1 }
+    ],
+
+    /* ============================
+       HUMANOIDS
+       ============================ */
+    "humanoid": [
+      { "item": "copper_coin", "chance": 0.7, "min": 2, "max": 10 },
+      { "item": "bread_crust", "chance": 0.3, "min": 1, "max": 1 },
+      { "item": "linen_scrap", "chance": 0.4, "min": 1, "max": 3 },
+      { "item": "water_skin", "chance": 0.2, "min": 1, "max": 1 }
+    ],
+
+    "djhanid": [
+      { "item": "ceramic_token", "chance": 0.4, "min": 1, "max": 3 },
+      { "item": "djhanid_cloth", "chance": 0.3, "min": 1, "max": 2 },
+      { "item": "water_skin", "chance": 0.25, "min": 1, "max": 1 }
+    ],
+
+    "sunmaddened": [
+      { "item": "sun_cracked_bone", "chance": 0.4, "min": 1, "max": 2 },
+      { "item": "torn_wrappings", "chance": 0.3, "min": 1, "max": 2 },
+      { "item": "desert_salt_chunk", "chance": 0.2, "min": 1, "max": 1 }
+    ],
+
+    /* ============================
+       UNDEAD (Zone-wide)
+       ============================ */
+    "undead": [
+      { "item": "bone_fragment", "chance": 0.7, "min": 1, "max": 3 },
+      { "item": "rotting_cloth", "chance": 0.4, "min": 1, "max": 2 },
+      { "item": "tomb_dust", "chance": 0.25, "min": 1, "max": 2 },
+      { "item": "ancient_coin", "chance": 0.25, "min": 1, "max": 3 }
+    ],
+
+    "undead_elite": [
+      { "item": "bronze_weapon", "chance": 0.25, "min": 1, "max": 1 },
+      { "item": "ancient_jewelry", "chance": 0.15, "min": 1, "max": 1 },
+      { "item": "alchemy_reagent", "chance": 0.3, "min": 1, "max": 2 }
+    ],
+
+    /* ============================
+       ELEMENTALS
+       ============================ */
+    "elemental": [
+      { "item": "shimmering_elemental_dust", "chance": 0.4, "min": 1, "max": 2 },
+      { "item": "glass_shard", "chance": 0.3, "min": 1, "max": 2 },
+      { "item": "elemental_particle", "chance": 0.1, "min": 1, "max": 1 }
+    ],
+
+    /* ============================
+       GNOLLS (Ashfall + Kragthar)
+       ============================ */
+    "gnoll": [
+      { "item": "leather_armor_piece", "chance": 0.4, "min": 1, "max": 1 },
+      { "item": "bone_weapon", "chance": 0.3, "min": 1, "max": 1 },
+      { "item": "tribal_charm", "chance": 0.2, "min": 1, "max": 1 }
+    ],
+
+    "gnoll_elite": [
+      { "item": "tribal_bone_weapon", "chance": 0.35, "min": 1, "max": 1 },
+      { "item": "rare_caster_book", "chance": 0.20, "min": 1, "max": 1 },
+      { "item": "bronze_weapon", "chance": 0.25, "min": 1, "max": 1 }
+    ],
+
+    /* ============================
+       DUSTWALKERS
+       ============================ */
+    "dustwalker": [
+      { "item": "sun_forged_blade_fragment", "chance": 0.15, "min": 1, "max": 1 },
+      { "item": "ceramic_token", "chance": 0.25, "min": 1, "max": 3 },
+      { "item": "djhanid_stinger_glass_weapon", "chance": 0.05, "min": 1, "max": 1 }
+    ],
+
+    "dustwalker_elite": [
+      { "item": "elite_humanoid_gear", "chance": 0.15, "min": 1, "max": 1 },
+      { "item": "shimmering_elemental_dust", "chance": 0.2, "min": 1, "max": 2 },
+      { "item": "sun_forged_blade_fragment", "chance": 0.1, "min": 1, "max": 1 }
+    ],
+
+    /* ============================
+       MORIBUND ORDER (Kragthar)
+       ============================ */
+    "moribund": [
+      { "item": "void_insignia", "chance": 0.2, "min": 1, "max": 1 },
+      { "item": "ritual_scroll", "chance": 0.1, "min": 1, "max": 1 }
+    ],
+
+    /* ============================
+       RARE DROPS (Zone-wide)
+       ============================ */
+    "rare": [
+      { "item": "warlord_relic", "chance": 0.1, "min": 1, "max": 1 },
+      { "item": "enchanted_wrappings", "chance": 0.05, "min": 1, "max": 1 },
+      { "item": "void_scarred_shard", "chance": 0.05, "min": 1, "max": 1 },
+      { "item": "idol_touched_trinket", "chance": 0.03, "min": 1, "max": 1 }
+    ],
+
+    /* ============================
+       BOSS DROPS (Zone 1)
+       ============================ */
+    "boss_drops": {
+
+      "dustwalker_warlord": [
+        { "item": "sun_forged_blade_fragment", "chance": 0.40, "min": 1, "max": 1 },
+        { "item": "elite_humanoid_gear", "chance": 0.25, "min": 1, "max": 1 },
+        { "item": "desert_warlord_medallion", "chance": 0.10, "min": 1, "max": 1 }
+      ],
+
+      "bonegnawer_guard_captain": [
+        { "item": "vault_key", "chance": 1.0, "min": 1, "max": 1 },
+        { "item": "tribal_armor_piece", "chance": 0.25, "min": 1, "max": 1 }
+      ],
+
+      "bonegnawer_chieftain": [
+        { "item": "tribal_bone_weapon", "chance": 0.35, "min": 1, "max": 1 },
+        { "item": "rare_caster_book", "chance": 0.20, "min": 1, "max": 1 },
+        { "item": "bronze_weapon", "chance": 0.25, "min": 1, "max": 1 }
+      ],
+
+      "kaelvros_the_awakener": [
+        { "item": "orders_from_the_moribund_order", "chance": 1.0, "min": 1, "max": 1 },
+        { "item": "melee_ring", "chance": 0.40, "min": 1, "max": 1 },
+        { "item": "caster_offhand", "chance": 0.40, "min": 1, "max": 1 },
+        { "item": "void_scarred_shard", "chance": 0.10, "min": 1, "max": 1 },
+        { "item": "random_low_level_armor", "chance": 0.50, "min": 1, "max": 1 }
+      ]
+    }
+  }
+}

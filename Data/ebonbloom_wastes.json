@@ -1,0 +1,133 @@
+{
+  "_comment": "Ebonbloom Wastes – Zone 2 (Levels 10–15). Corrupted desert-forest hybrid with void-tainted flora, fungal undead, and halfling frontier settlements.",
+  "zone_name": "Ebonbloom Wastes",
+  "level_range": [10, 15],
+  "biome": "void-scarred desert-forest hybrid, fungal groves, corrupted dunes",
+
+  "environment_hazards": [
+    "void_bloom_spores",
+    "fungal_infection_stacks",
+    "corrupted_root_snares",
+    "shadow_mist_pockets",
+    "toxic_pollen_bursts"
+  ],
+
+  "hazard_settings": {
+    "void_bloom_spores": {
+      "effect": "damage_over_time",
+      "stack_limit": 10,
+      "notes": "Stacks applied by proximity to corrupted flora."
+    },
+    "fungal_infection_stacks": {
+      "effect": "healing_reduction",
+      "stack_limit": 5,
+      "notes": "Removed by herbal poultices or Warden cleansing pools."
+    },
+    "shadow_mist_pockets": {
+      "effect": "vision_reduction",
+      "notes": "Shadow creatures gain stealth advantage."
+    }
+  },
+
+  "signature_features": {
+    "ebonbloom_grove": "Heart of the corruption; massive void-tainted tree with fungal undead.",
+    "ashen_hollows": "Burned-out caverns where fungal spores gather.",
+    "shatterroot_canyon": "Jagged canyon filled with corrupted treants and root beasts.",
+    "cinderglen_outskirts": "Halfling frontier burrows and geothermal vents.",
+    "voidscar_ridge": "Rift-scarred ridge where shadow elementals manifest."
+  },
+
+  "landmarks": [
+    "Ebonbloom Grove",
+    "Ashen Hollows",
+    "Shatterroot Canyon",
+    "Cinderglen Outskirts",
+    "Voidscar Ridge",
+    "The Fungal Orchard",
+    "Warden’s Watch"
+  ],
+
+  "factions": {
+    "garden_wardens": {
+      "alignment": "protective",
+      "description": "Halfling defenders fighting the spread of fungal corruption.",
+      "notes": "Operate cleansing pools and herbal stations."
+    },
+    "moribund_order": {
+      "alignment": "hostile",
+      "description": "Void cultists accelerating the corruption to awaken buried relics.",
+      "notes": "Often disguised as Steamweavers."
+    },
+    "fungal_undead": {
+      "alignment": "hostile",
+      "description": "Reanimated corpses overtaken by parasitic fungal blooms.",
+      "notes": "Explode into spore clouds on death."
+    },
+    "corrupted_beasts": {
+      "alignment": "hostile",
+      "description": "Wildlife twisted by void‑tainted pollen and fungal infection.",
+      "notes": "High aggression radius."
+    }
+  },
+
+  "enemies": {
+    "fungal_undead": [
+      "spore_thrall",
+      "fungal_stalker",
+      "blooming_corpse",
+      "mycelial_wight"
+    ],
+    "corrupted_beasts": [
+      "ashen_wolf",
+      "voidtouched_stag",
+      "sporebear_bear",
+      "rootmaw_serpent"
+    ],
+    "elementals": [
+      "shadow_sproutling",
+      "voidbloom_elemental"
+    ],
+    "moribund": [
+      "moribund_scout",
+      "moribund_voidbinder",
+      "moribund_ritualist"
+    ],
+    "rare": [
+      "the_blooming_horror",
+      "ashen_alpha",
+      "rootbound_titan"
+    ]
+  },
+
+  "loot_tables": {
+    "fungal_undead": [
+      { "item": "fungal_resin", "chance": 0.5, "min": 1, "max": 2 },
+      { "item": "spore_cluster", "chance": 0.3, "min": 1, "max": 1 },
+      { "item": "rotting_cloth", "chance": 0.25, "min": 1, "max": 2 }
+    ],
+    "corrupted_beasts": [
+      { "item": "tainted_hide", "chance": 0.4, "min": 1, "max": 2 },
+      { "item": "void_touched_meat", "chance": 0.2, "min": 1, "max": 1 }
+    ],
+    "elementals": [
+      { "item": "shadow_sap", "chance": 0.35, "min": 1, "max": 1 },
+      { "item": "voidbloom_fragment", "chance": 0.15, "min": 1, "max": 1 }
+    ],
+    "moribund": [
+      { "item": "void_insignia", "chance": 0.2, "min": 1, "max": 1 },
+      { "item": "ritual_scroll_fragment", "chance": 0.1, "min": 1, "max": 1 }
+    ],
+    "rare": [
+      { "item": "corrupted_heartwood", "chance": 0.05, "min": 1, "max": 1 },
+      { "item": "blooming_core", "chance": 0.03, "min": 1, "max": 1 }
+    ]
+  },
+
+  "story_seeds": [
+    "Garden Wardens report a massive fungal bloom deep within Ebonbloom Grove.",
+    "Moribund Order ritualists are attempting to awaken something beneath Voidscar Ridge.",
+    "A corrupted treant known as the Rootbound Titan has begun roaming Shatterroot Canyon.",
+    "Steamweaver defectors are smuggling voidbloom fragments into Cinderglen.",
+    "A halfling scouting party vanished near the Ashen Hollows."
+  ]
+}

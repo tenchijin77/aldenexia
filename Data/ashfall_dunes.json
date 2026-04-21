@@ -1,0 +1,119 @@
+{
+  "_comment": "Ashfall Dunes / Deep Sands - Levels 8–10. High-danger deep desert zone with heat mirages, undead, elementals, and the entrance to The Kragthar.",
+  "zone_name": "Ashfall Dunes",
+  "level_range": [8, 10],
+  "biome": "treacherous deep desert, elemental rifts, ancient ruins, burial grounds",
+
+  "environment_hazards": [
+    "advanced_heat_mirage",
+    "extreme_water_drain",
+    "frequent_sandstorms"
+  ],
+
+  "heat_mirage_settings": {
+    "false_enemies": true,
+    "false_oases": true,
+    "distorted_landmarks": true,
+    "notes": "Mirage enemies chase but deal 0 damage; vanish on hit."
+  },
+
+  "water_consumption_multiplier": 2.0,
+
+  "sandstorm_settings": {
+    "chance": 0.20,
+    "duration_minutes": 20,
+    "effects": {
+      "visibility_reduction": "3m",
+      "movement_penalty": -25,
+      "enemy_behavior": "elementals and undead become more aggressive"
+    }
+  },
+
+  "signature_features": {
+    "ancient_ruins": "Crumbling stone structures with Dustwalker Warlord boss camp.",
+    "elemental_rifts": "Spawn points for sandshifters and elemental creatures.",
+    "burial_grounds": "Phantom and undead spawn areas.",
+    "gnoll_warrens": "Bonegnawer territory leading toward The Kragthar.",
+    "kragthar_entrance": "Hidden canyon mouth leading to the dungeon."
+  },
+
+  "landmarks": [
+    "Ancient Desert Ruins",
+    "Elemental Rifts",
+    "Burial Grounds",
+    "Gnoll Warrens",
+    "Hidden Canyon Mouth (The Kragthar Entrance)",
+    "Southeast Path to Shadowfen"
+  ],
+
+  "factions": {
+    "bonegnawer_gnolls": {
+      "alignment": "hostile",
+      "description": "Gnoll packs that guard the entrance to The Kragthar.",
+      "notes": "Social aggro; will assist nearby gnolls."
+    },
+    "dustwalkers": {
+      "alignment": "hostile",
+      "description": "Elite Dustwalker forces operating near the ruins.",
+      "notes": "Warlord boss resides here."
+    },
+    "undead": {
+      "alignment": "hostile",
+      "description": "Spirits and phantoms awakened by Void disturbances.",
+      "notes": "Increased activity during sandstorms."
+    }
+  },
+
+  "enemies": {
+    "gnolls": [
+      "bonegnawer",
+      "bonegnawer_hunter",
+      "bonegnawer_shaman"
+    ],
+    "elementals": [
+      "khepri_beetle",
+      "sandshifter",
+      "sandshifter_elite"
+    ],
+    "undead": [
+      "mirage_phantom",
+      "wight",
+      "tomb_skeleton"
+    ],
+    "dustwalkers": [
+      "dustwalker_ravager",
+      "dustwalker_warlord (boss)"
+    ]
+  },
+
+  "loot_tables": {
+    "gnoll": [
+      { "item": "bone_fragment", "chance": 0.5, "min": 1, "max": 3 },
+      { "item": "tribal_charm", "chance": 0.2, "min": 1, "max": 1 },
+      { "item": "gnoll_leather_piece", "chance": 0.15, "min": 1, "max": 1 }
+    ],
+    "elemental": [
+      { "item": "shimmering_elemental_dust", "chance": 0.4, "min": 1, "max": 2 },
+      { "item": "glass_shard", "chance": 0.3, "min": 1, "max": 2 },
+      { "item": "elemental_particle", "chance": 0.1, "min": 1, "max": 1 }
+    ],
+    "undead": [
+      { "item": "tomb_dust", "chance": 0.3, "min": 1, "max": 2 },
+      { "item": "rotting_cloth", "chance": 0.3, "min": 1, "max": 2 },
+      { "item": "ancient_coin", "chance": 0.15, "min": 1, "max": 3 }
+    ],
+    "dustwalker": [
+      { "item": "elite_humanoid_gear", "chance": 0.15, "min": 1, "max": 1 },
+      { "item": "shimmering_elemental_dust", "chance": 0.2, "min": 1, "max": 2 },
+      { "item": "sun_forged_blade_fragment", "chance": 0.1, "min": 1, "max": 1 }
+    ]
+  },
+
+  "story_seeds": [
+    "Traitor’s Veil – expose Sandveil Order plot.",
+    "Explore toward Voidmire Depths.",
+    "First major boss fight: Dustwalker Warlord.",
+    "Discover clues leading to The Kragthar.",
+    "Investigate elemental disturbances and phantom sightings."
+  ]
+}

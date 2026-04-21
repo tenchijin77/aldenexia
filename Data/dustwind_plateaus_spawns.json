@@ -1,0 +1,165 @@
+{
+  "_comment": "Dustwind Plateaus spawn definitions. Coordinates TBD until zone layout is finalized.",
+  "spawns": [
+
+    /* ============================
+       CORE WILDLIFE & GENERAL MOBS
+       ============================ */
+
+    {
+      "mob_type": "sand_stinger",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.6,
+      "max_active": 6,
+      "respawn_time": 18,
+      "min_level": 4,
+      "max_level": 6,
+      "spawn_zone": "core"
+    },
+    {
+      "mob_type": "wild_dog",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.7,
+      "max_active": 5,
+      "respawn_time": 20,
+      "min_level": 4,
+      "max_level": 6,
+      "spawn_zone": "core"
+    },
+    {
+      "mob_type": "spider",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.5,
+      "max_active": 4,
+      "respawn_time": 22,
+      "min_level": 4,
+      "max_level": 6,
+      "spawn_zone": "core"
+    },
+
+    /* ============================
+       DUSTWALKERS (PRIMARY HOSTILES)
+       ============================ */
+
+    {
+      "mob_type": "dustwalker_scout",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.55,
+      "max_active": 6,
+      "respawn_time": 18,
+      "min_level": 5,
+      "max_level": 7,
+      "spawn_zone": "core"
+    },
+    {
+      "mob_type": "dustwalker_ravager",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.45,
+      "max_active": 4,
+      "respawn_time": 22,
+      "min_level": 6,
+      "max_level": 7,
+      "spawn_zone": "core"
+    },
+    {
+      "mob_type": "dustwalker_ambusher",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.35,
+      "max_active": 3,
+      "respawn_time": 25,
+      "min_level": 6,
+      "max_level": 7,
+      "spawn_zone": "core"
+    },
+
+    /* ============================
+       EDGE / RARE / FACTION MOBS
+       ============================ */
+
+    {
+      "mob_type": "djhanid_nomad",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.25,
+      "max_active": 2,
+      "respawn_time": 30,
+      "min_level": 5,
+      "max_level": 7,
+      "spawn_zone": "edge"
+    },
+    {
+      "mob_type": "sunmaddened_wanderer",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.20,
+      "max_active": 2,
+      "respawn_time": 35,
+      "min_level": 6,
+      "max_level": 7,
+      "spawn_zone": "edge"
+    },
+
+    /* ============================
+       SPIDER NEST OUTCROPS
+       ============================ */
+
+    {
+      "mob_type": "spider",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.7,
+      "max_active": 5,
+      "respawn_time": 20,
+      "min_level": 5,
+      "max_level": 7,
+      "spawn_zone": "nest"
+    },
+    {
+      "mob_type": "spider_broodmother",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.15,
+      "max_active": 1,
+      "respawn_time": 45,
+      "min_level": 7,
+      "max_level": 7,
+      "spawn_zone": "nest"
+    },
+
+    /* ============================
+       RARE / NIGHT / EVENT SPAWNS
+       ============================ */
+
+    {
+      "mob_type": "sand_stinger_elite",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.10,
+      "max_active": 1,
+      "respawn_time": 60,
+      "min_level": 7,
+      "max_level": 7,
+      "spawn_zone": "rare"
+    },
+    {
+      "mob_type": "sunmaddened_berserker",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.08,
+      "max_active": 1,
+      "respawn_time": 75,
+      "min_level": 7,
+      "max_level": 7,
+      "spawn_zone": "rare"
+    },
+
+    /* ============================
+       BOSS SPAWN
+       ============================ */
+
+    {
+      "mob_type": "dustwalker_warlord",
+      "spawn_radius": "TBD",
+      "spawn_chance": 1.0,
+      "max_active": 1,
+      "respawn_time": 7200,
+      "min_level": 7,
+      "max_level": 7,
+      "spawn_zone": "boss"
+    }
+  ]
+}

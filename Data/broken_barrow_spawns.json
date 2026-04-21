@@ -1,0 +1,165 @@
+{
+  "_comment": "Broken Barrow – Full spawn definitions for all wings. Coordinates TBD until dungeon layout is finalized.",
+  "spawns": [
+
+    /* ============================
+       WING 1: COLLAPSED APPROACH
+       ============================ */
+
+    {
+      "mob_type": "ashsnout_miner",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.55,
+      "max_active": 6,
+      "respawn_time": 32,
+      "min_level": 14,
+      "max_level": 15,
+      "spawn_zone": "collapsed_approach"
+    },
+    {
+      "mob_type": "ashsnout_sapper",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.40,
+      "max_active": 4,
+      "respawn_time": 40,
+      "min_level": 14,
+      "max_level": 16,
+      "spawn_zone": "collapsed_approach"
+    },
+    {
+      "mob_type": "spore_thrall",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.45,
+      "max_active": 5,
+      "respawn_time": 30,
+      "min_level": 14,
+      "max_level": 15,
+      "spawn_zone": "collapsed_approach"
+    },
+    {
+      "mob_type": "fungal_stalker",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.30,
+      "max_active": 3,
+      "respawn_time": 45,
+      "min_level": 15,
+      "max_level": 16,
+      "spawn_zone": "collapsed_approach"
+    },
+
+    /* ============================
+       WING 1 MINI-BOSS
+       ============================ */
+
+    {
+      "mob_type": "grimble_the_ashsnout",
+      "spawn_radius": "TBD",
+      "spawn_chance": 1.0,
+      "max_active": 1,
+      "respawn_time": 7200,
+      "min_level": 15,
+      "max_level": 15,
+      "spawn_zone": "collapsed_approach_boss"
+    },
+
+    /* ============================
+       WING 2: FUNGAL CRYPTS
+       ============================ */
+
+    {
+      "mob_type": "blooming_corpse",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.50,
+      "max_active": 5,
+      "respawn_time": 35,
+      "min_level": 15,
+      "max_level": 16,
+      "spawn_zone": "fungal_crypts"
+    },
+    {
+      "mob_type": "mycelial_wight",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.30,
+      "max_active": 3,
+      "respawn_time": 50,
+      "min_level": 16,
+      "max_level": 17,
+      "spawn_zone": "fungal_crypts"
+    },
+    {
+      "mob_type": "voidbloom_elemental",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.20,
+      "max_active": 2,
+      "respawn_time": 60,
+      "min_level": 16,
+      "max_level": 17,
+      "spawn_zone": "fungal_crypts"
+    },
+
+    /* ============================
+       WING 2 BOSS
+       ============================ */
+
+    {
+      "mob_type": "shadecaller_morveth",
+      "spawn_radius": "TBD",
+      "spawn_chance": 1.0,
+      "max_active": 1,
+      "respawn_time": 7200,
+      "min_level": 16,
+      "max_level": 16,
+      "spawn_zone": "fungal_crypts_boss"
+    },
+
+    /* ============================
+       WING 3: IDOL CHAMBER
+       ============================ */
+
+    {
+      "mob_type": "moribund_voidbinder",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.45,
+      "max_active": 4,
+      "respawn_time": 35,
+      "min_level": 16,
+      "max_level": 17,
+      "spawn_zone": "idol_chamber"
+    },
+    {
+      "mob_type": "moribund_ritualist",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.30,
+      "max_active": 3,
+      "respawn_time": 50,
+      "min_level": 17,
+      "max_level": 18,
+      "spawn_zone": "idol_chamber"
+    },
+    {
+      "mob_type": "bone_construct",
+      "spawn_radius": "TBD",
+      "spawn_chance": 0.35,
+      "max_active": 3,
+      "respawn_time": 45,
+      "min_level": 16,
+      "max_level": 18,
+      "spawn_zone": "idol_chamber"
+    },
+
+    /* ============================
+       FINAL BOSS
+       ============================ */
+
+    {
+      "mob_type": "the_barrow_idol",
+      "spawn_radius": "TBD",
+      "spawn_chance": 1.0,
+      "max_active": 1,
+      "respawn_time": 7200,
+      "min_level": 18,
+      "max_level": 18,
+      "spawn_zone": "idol_chamber_boss"
+    }
+  ]
+}

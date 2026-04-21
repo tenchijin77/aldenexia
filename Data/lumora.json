@@ -1,0 +1,101 @@
+{
+  "_comment": "Lumora - Human Starting City. Full town definition with NPCs, trainers, merchants, services, and factions.",
+  "town_name": "Lumora",
+  "biome": "oasis citadel, sandstone walls, central oasis",
+  "level_range": [1, 10],
+
+  "atmosphere": "A prosperous sandstone citadel built around a massive oasis. Bustling markets, sun temples, fortified walls, and the Paladin’s Vigil statue create a sense of order at the edge of a dangerous desert.",
+
+  "landmarks": [
+    "Oasisheart Citadel (Warden headquarters, main quest hub)",
+    "Sandveil Bazaar (merchants, trade stalls, shady dealings)",
+    "Solaris Vault (relic chamber containing the Light of Solara)",
+    "Dawnspire Altar (shrine with fragments of the Sword of Light prophecy)",
+    "Paladin’s Vigil Statue (central plaza landmark)"
+  ],
+
+  "factions": {
+    "oasis_wardens": {
+      "alignment": "protective",
+      "description": "Defenders of Lumora and guardians of the oasis.",
+      "influence": "high"
+    },
+    "sandveil_order": {
+      "alignment": "profit-driven",
+      "description": "Merchants and information brokers with rumored Moribund ties.",
+      "influence": "medium"
+    }
+  },
+
+  "services": {
+    "inn": "The Sunlit Rest",
+    "bank": "Lumora Treasury Office",
+    "bind_point": "Dawnspire Altar",
+    "crafting_stations": [
+      "forge",
+      "alchemy table",
+      "cooking fire",
+      "research desk"
+    ],
+    "merchants": {
+      "general_goods": "Mira Sandwhisper",
+      "weapons": "Darius Ironwind",
+      "armor": "Selene Shieldbloom",
+      "alchemy": "Tovan the Herbalist",
+      "food_drink": "Ressa of the Oasis",
+      "magic_supplies": "Arcanist Velorin"
+    }
+  },
+
+  "trainers": {
+    "voidknight": "Kaelus Darkbrand",
+    "lightsworn": "Sister Aravelle",
+    "blademaster": "Captain Rhoran Steelmark",
+    "lightmender": "Priestess Liora Dawnwell",
+    "spiritcaller": "Elder Thamun Windseer",
+    "wildspeaker": "Druidess Faela Greenroot",
+    "aetherfist": "Master Jinhai of the Sun Monastery",
+    "woodstalker": "Ranger Thalen Quickwind",
+    "shadowblade": "Shade Operative Kessira",
+    "troubadour": "Minstrel Jorren Brightsong",
+    "gravecaller": "Necromancer Valthrix the Pale",
+    "runecaster": "Enchanter Selvar Runeveil",
+    "arcanist": "Magelord Arcturus Vael",
+    "chaosborn": "Sorcerer Lyssandra Stormweave"
+  },
+
+  "quest_givers": {
+    "warden_commander": "Commander Halvar Sunshield",
+    "bazaar_contact": "Sivra the Sandveil Broker",
+    "oasis_scholar": "Archivist Meridan",
+    "temple_priest": "High Priestess Solenne",
+    "rookie_trainer": "Instructor Jalen of the First Spear"
+  },
+
+  "signature_features": {
+    "central_oasis": {
+      "buff": "+3 CON for 15 minutes",
+      "refill_water_bottle": true,
+      "visual": "large glowing oasis pool with sandstone steps"
+    },
+    "heat_mirage_warning": "NPCs hint at false enemies and illusions deeper in the desert.",
+    "starter_prophecy_hook": "Players first hear the Sword of Light prophecy here."
+  },
+
+  "npcs": [
+    "Market vendors",
+    "Oasis Wardens",
+    "Sandveil Order agents",
+    "Pilgrims at the Dawnspire",
+    "Travelers from Kordova",
+    "Djhanid envoys"
+  ],
+
+  "story_seeds": [
+    "Sword of Light prophecy introduction",
+    "Sandveil Order corruption rumors",
+    "Dustwalker raid warnings",
+    "First contact with Djhanid scouts",
+    "Solaris Vault relic mystery"
+  ]
+}

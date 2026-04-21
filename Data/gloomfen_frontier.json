@@ -1,0 +1,138 @@
+{
+  "_comment": "Gloomfen Frontier – Zone 2 (Levels 16–20). Swamp borderlands filled with trolls, bog beasts, fungal horrors, and witch covens.",
+  "zone_name": "Gloomfen Frontier",
+  "level_range": [16, 20],
+  "biome": "deep marshlands, fungal bogs, witch covens, troll dens",
+
+  "environment_hazards": [
+    "bog_mire_slow",
+    "toxic_fen_gas",
+    "witch_hex_zones",
+    "troll_ambush_points",
+    "fungal_spore_clouds"
+  ],
+
+  "hazard_settings": {
+    "bog_mire_slow": {
+      "effect": "movement_reduction",
+      "notes": "Thick swamp mud that slows movement and reduces dodge chance."
+    },
+    "toxic_fen_gas": {
+      "effect": "damage_over_time",
+      "notes": "Gas pockets that burst when disturbed by movement or combat."
+    },
+    "witch_hex_zones": {
+      "effect": "random_debuffs",
+      "notes": "Areas cursed by covens; debuffs include silence, weakness, or confusion."
+    },
+    "troll_ambush_points": {
+      "effect": "surprise_attacks",
+      "notes": "Trolls leap from trees or swamp pits with high opening damage."
+    },
+    "fungal_spore_clouds": {
+      "effect": "stacking_poison",
+      "notes": "Released by fungal beasts or disturbed mushrooms."
+    }
+  },
+
+  "signature_features": {
+    "the_blackfen_crossing": "A treacherous swamp pass patrolled by troll warbands.",
+    "witchlight_hollow": "A glowing fungal basin where witch covens perform rituals.",
+    "bogheart_sink": "A massive sinkhole filled with ancient bones and swamp beasts.",
+    "shrieking_reeds": "Tall reeds that emit haunting sounds when wind passes through.",
+    "the_marrow_pools": "Pools of necrotic water where fungal horrors spawn."
+  },
+
+  "landmarks": [
+    "Blackfen Crossing",
+    "Witchlight Hollow",
+    "Bogheart Sink",
+    "Shrieking Reeds",
+    "Marrow Pools",
+    "Trollwatch Ridge",
+    "The Sunken Causeway"
+  ],
+
+  "factions": {
+    "troll_clan_marrowmaw": {
+      "alignment": "hostile",
+      "description": "Savage swamp trolls who hunt anything entering their territory.",
+      "notes": "High regeneration; vulnerable to fire."
+    },
+    "witchlight_covens": {
+      "alignment": "hostile",
+      "description": "Witches who draw power from fungal growths and swamp spirits.",
+      "notes": "Use hexes, illusions, and charm effects."
+    },
+    "bog_beasts": {
+      "alignment": "hostile",
+      "description": "Swamp creatures mutated by Void seepage and fungal spores.",
+      "notes": "Often emerge from water or mud pits."
+    },
+    "fungal_horrors": {
+      "alignment": "hostile",
+      "description": "Advanced fungal undead and spore constructs.",
+      "notes": "Explode into poison clouds on death."
+    }
+  },
+
+  "enemies": {
+    "trolls": [
+      "marrowmaw_brute",
+      "marrowmaw_hunter",
+      "marrowmaw_shaman"
+    ],
+    "witches": [
+      "witchlight_acolyte",
+      "bog_hexcaller",
+      "swamp_coven_matron"
+    ],
+    "bog_beasts": [
+      "fenlurker_serpent",
+      "bogmaw_snapper",
+      "marrow_pod_crab"
+    ],
+    "fungal_horrors": [
+      "sporebound_husk",
+      "mycelial_abomination",
+      "fungal_titan"
+    ],
+    "rare": [
+      "the_bog_witch",
+      "marrowmaw_warlord",
+      "the_fen_colossus"
+    ]
+  },
+
+  "loot_tables": {
+    "trolls": [
+      { "item": "troll_fang", "chance": 0.45, "min": 1, "max": 2 },
+      { "item": "marrowmaw_hide", "chance": 0.30, "min": 1, "max": 1 }
+    ],
+    "witches": [
+      { "item": "witchlight_charm", "chance": 0.40, "min": 1, "max": 1 },
+      { "item": "hexed_reed_bundle", "chance": 0.25, "min": 1, "max": 2 }
+    ],
+    "bog_beasts": [
+      { "item": "swamp_ichor", "chance": 0.35, "min": 1, "max": 2 },
+      { "item": "fen_scale", "chance": 0.20, "min": 1, "max": 1 }
+    ],
+    "fungal_horrors": [
+      { "item": "spore_cluster", "chance": 0.40, "min": 1, "max": 2 },
+      { "item": "mycelial_core", "chance": 0.15, "min": 1, "max": 1 }
+    ],
+    "rare": [
+      { "item": "witchlight_focus", "chance": 0.05, "min": 1, "max": 1 },
+      { "item": "marrowmaw_totem", "chance": 0.03, "min": 1, "max": 1 },
+      { "item": "fen_colossus_fragment", "chance": 0.02, "min": 1, "max": 1 }
+    ]
+  },
+
+  "story_seeds": [
+    "A witch coven in Witchlight Hollow is preparing a ritual to summon a swamp spirit.",
+    "The Marrowmaw trolls have begun raiding halfling caravans near the Sunken Causeway.",
+    "A fungal titan has emerged from the Marrow Pools, corrupting everything nearby.",
+    "A mysterious bog witch is offering forbidden power to desperate travelers.",
+    "The Shrieking Reeds have begun echoing with unnatural voices."
+  ]
+}
