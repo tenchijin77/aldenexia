@@ -1,5 +1,5 @@
 {
-  "_comment": "Tracks items currently held by the player.",
+  "_comment": "Tracks items currently held by the player's pack.",
   "items": [],
   "equipped": {
 	"weapon": null,

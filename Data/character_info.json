@@ -1,0 +1,80 @@
+{
+  "_comment": "character_info.json - Includes equipment slots and 12 base inventory slots for unbagged items.",
+  "character_stats": {
+    "name": "Bubba",
+    "class": "Lightmender",
+    "race": "Half-Elf",
+    "level": 1,
+    "experience": 0,
+    "health": { "current": 100, "max": 100 },
+    "mana": { "current": 100, "max": 100 },
+    "base_attributes": {
+      "strength": 10,
+      "constitution": 10,
+      "dexterity": 10,
+      "intelligence": 10,
+      "wisdom": 14,
+      "charisma": 12,
+      "luck": 10
+    },
+    "derived_stats": {
+      "attack_power": 0,
+      "spell_power": 0,
+      "crit_chance": 0.0,
+      "haste": 0.0,
+      "armor_class": 0
+    },
+    "resistances": {
+      "fire": 0,
+      "cold": 0,
+      "poison": 0,
+      "disease": 0,
+      "magic": 0
+    }
+  },
+  "equipment_slots": {
+    "head": null,
+    "neck": null,
+    "face": null,
+    "shoulders": null,
+    "back": null,
+    "arms": null,
+    "hands": null,
+    "left_wrist": null,
+    "right_wrist": null,
+    "waist": null,
+    "legs": null,
+    "feet": null,
+    "primary": null,
+    "secondary": null,
+    "ranged": null,
+    "ammunition": null,
+    "trinket": null,
+    "left_ear": null,
+    "right_ear": null,
+    "left_ring": null,
+    "right_ring": null,
+    "focus_item": null,
+    "charm": null,
+    "light_source": null
+  },
+  "base_inventory": {
+    "_comment": "The 12 standard inventory slots available on the character sheet without bags.",
+    "slot_1": null,
+    "slot_2": null,
+    "slot_3": null,
+    "slot_4": null,
+    "slot_5": null,
+    "slot_6": null,
+    "slot_7": null,
+    "slot_8": null,
+    "slot_9": null,
+    "slot_10": null,
+    "slot_11": null,
+    "slot_12": null
+  },
+  "faction_standings": {
+    "djhanid_nomads": 0,
+    "dustwalkers": -100
+  }
+}
