@@ -1,8 +1,8 @@
-[gd_scene load_steps=2 format=3 uid="uid://d1pa1lna4onl5"]
+[gd_scene format=3 uid="uid://d1pa1lna4onl5"]
 
 [ext_resource type="Script" uid="uid://tm51emttknbl" path="res://Scripts/character_creation.gd" id="1_r633d"]
 
-[node name="Control" type="Control"]
+[node name="Control" type="Control" unique_id=309426188]
 top_level = true
 z_index = 10
 layout_mode = 3
@@ -11,145 +11,147 @@ offset_right = 40.0
 offset_bottom = 40.0
 script = ExtResource("1_r633d")
 
-[node name="MarginContainer" type="MarginContainer" parent="."]
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=2055737228]
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer" unique_id=1377663493]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="MarginContainer/VBoxContainer"]
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer" unique_id=236662977]
 layout_mode = 2
 text = "Create Your Character"
 
-[node name="confirm_button" type="Button" parent="MarginContainer/VBoxContainer"]
+[node name="confirm_button" type="Button" parent="MarginContainer/VBoxContainer" unique_id=1628277555]
 layout_mode = 2
 text = "Confirm"
 
-[node name="begin_button" type="Button" parent="MarginContainer/VBoxContainer"]
+[node name="begin_button" type="Button" parent="MarginContainer/VBoxContainer" unique_id=1013060478]
 layout_mode = 2
 text = "Begin Your Adventure"
 
-[node name="top_section" type="VBoxContainer" parent="MarginContainer/VBoxContainer"]
+[node name="top_section" type="VBoxContainer" parent="MarginContainer/VBoxContainer" unique_id=1332336496]
 layout_mode = 2
 
-[node name="name_section" type="HBoxContainer" parent="MarginContainer/VBoxContainer/top_section"]
-layout_mode = 2
-
-[node name="name" type="Label" parent="MarginContainer/VBoxContainer/top_section/name_section"]
-layout_mode = 2
-text = "Name:"
-
-[node name="name_input" type="LineEdit" parent="MarginContainer/VBoxContainer/top_section/name_section"]
-layout_mode = 2
-
-[node name="race_selection" type="HBoxContainer" parent="MarginContainer/VBoxContainer/top_section"]
-layout_mode = 2
-
-[node name="race" type="Label" parent="MarginContainer/VBoxContainer/top_section/race_selection"]
-layout_mode = 2
-text = "Race:"
-
-[node name="race_select" type="OptionButton" parent="MarginContainer/VBoxContainer/top_section/race_selection"]
-layout_mode = 2
-
-[node name="class_selection" type="HBoxContainer" parent="MarginContainer/VBoxContainer/top_section"]
-layout_mode = 2
-
-[node name="class" type="Label" parent="MarginContainer/VBoxContainer/top_section/class_selection"]
-layout_mode = 2
-text = "Class:"
-
-[node name="class_select" type="OptionButton" parent="MarginContainer/VBoxContainer/top_section/class_selection"]
-layout_mode = 2
-
-[node name="GridContainer" type="GridContainer" parent="MarginContainer/VBoxContainer"]
+[node name="name_section" type="HBoxContainer" parent="MarginContainer/VBoxContainer/top_section" unique_id=1316386823]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/GridContainer"]
+[node name="name" type="Label" parent="MarginContainer/VBoxContainer/top_section/name_section" unique_id=180237745]
+layout_mode = 2
+text = "Name:"
+
+[node name="name_input" type="LineEdit" parent="MarginContainer/VBoxContainer/top_section/name_section" unique_id=725142897]
+layout_mode = 2
+expand_to_text_length = true
+
+[node name="race_selection" type="HBoxContainer" parent="MarginContainer/VBoxContainer/top_section" unique_id=1872091828]
+layout_mode = 2
+
+[node name="race" type="Label" parent="MarginContainer/VBoxContainer/top_section/race_selection" unique_id=1638887510]
+layout_mode = 2
+text = "Race:"
+
+[node name="race_select" type="OptionButton" parent="MarginContainer/VBoxContainer/top_section/race_selection" unique_id=1285718783]
+layout_mode = 2
+
+[node name="class_selection" type="HBoxContainer" parent="MarginContainer/VBoxContainer/top_section" unique_id=2143277174]
+layout_mode = 2
+
+[node name="class" type="Label" parent="MarginContainer/VBoxContainer/top_section/class_selection" unique_id=1225470137]
+layout_mode = 2
+text = "Class:"
+
+[node name="class_select" type="OptionButton" parent="MarginContainer/VBoxContainer/top_section/class_selection" unique_id=427508341]
+layout_mode = 2
+
+[node name="GridContainer" type="GridContainer" parent="MarginContainer/VBoxContainer" unique_id=1244145833]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/GridContainer" unique_id=458987525]
 layout_mode = 2
 text = "Distribute Stat Points:"
 
-[node name="strength_section" type="HBoxContainer" parent="MarginContainer/VBoxContainer/GridContainer"]
+[node name="strength_section" type="HBoxContainer" parent="MarginContainer/VBoxContainer/GridContainer" unique_id=597952423]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/GridContainer/strength_section"]
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/GridContainer/strength_section" unique_id=1439036653]
 layout_mode = 2
 text = "Strength:
 "
 
-[node name="strength_spinbox" type="SpinBox" parent="MarginContainer/VBoxContainer/GridContainer/strength_section"]
+[node name="strength_spinbox" type="SpinBox" parent="MarginContainer/VBoxContainer/GridContainer/strength_section" unique_id=2007232599]
 layout_mode = 2
 
-[node name="constitution_section" type="HBoxContainer" parent="MarginContainer/VBoxContainer/GridContainer"]
+[node name="constitution_section" type="HBoxContainer" parent="MarginContainer/VBoxContainer/GridContainer" unique_id=1220427245]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/GridContainer/constitution_section"]
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/GridContainer/constitution_section" unique_id=116154948]
 layout_mode = 2
 text = "Constitution:
 "
 
-[node name="constitution_spinbox" type="SpinBox" parent="MarginContainer/VBoxContainer/GridContainer/constitution_section"]
+[node name="constitution_spinbox" type="SpinBox" parent="MarginContainer/VBoxContainer/GridContainer/constitution_section" unique_id=236906129]
 layout_mode = 2
 
-[node name="dexterity_section" type="HBoxContainer" parent="MarginContainer/VBoxContainer/GridContainer"]
+[node name="dexterity_section" type="HBoxContainer" parent="MarginContainer/VBoxContainer/GridContainer" unique_id=376063642]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/GridContainer/dexterity_section"]
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/GridContainer/dexterity_section" unique_id=1810905737]
 layout_mode = 2
 text = "Dexterity:
 "
 
-[node name="dexterity_spinbox" type="SpinBox" parent="MarginContainer/VBoxContainer/GridContainer/dexterity_section"]
+[node name="dexterity_spinbox" type="SpinBox" parent="MarginContainer/VBoxContainer/GridContainer/dexterity_section" unique_id=225293509]
 layout_mode = 2
 
-[node name="intelligence_section" type="HBoxContainer" parent="MarginContainer/VBoxContainer/GridContainer"]
+[node name="intelligence_section" type="HBoxContainer" parent="MarginContainer/VBoxContainer/GridContainer" unique_id=937982066]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/GridContainer/intelligence_section"]
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/GridContainer/intelligence_section" unique_id=1083731735]
 layout_mode = 2
 text = "Intelligence:
 "
 
-[node name="intelligence_spinbox" type="SpinBox" parent="MarginContainer/VBoxContainer/GridContainer/intelligence_section"]
+[node name="intelligence_spinbox" type="SpinBox" parent="MarginContainer/VBoxContainer/GridContainer/intelligence_section" unique_id=717724210]
 layout_mode = 2
 
-[node name="wisdom_section" type="HBoxContainer" parent="MarginContainer/VBoxContainer/GridContainer"]
+[node name="wisdom_section" type="HBoxContainer" parent="MarginContainer/VBoxContainer/GridContainer" unique_id=749532480]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/GridContainer/wisdom_section"]
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/GridContainer/wisdom_section" unique_id=83783408]
 layout_mode = 2
 text = "Wisdom:
 "
 
-[node name="wisdom_spinbox" type="SpinBox" parent="MarginContainer/VBoxContainer/GridContainer/wisdom_section"]
+[node name="wisdom_spinbox" type="SpinBox" parent="MarginContainer/VBoxContainer/GridContainer/wisdom_section" unique_id=834672230]
 layout_mode = 2
 
-[node name="charisma_section" type="HBoxContainer" parent="MarginContainer/VBoxContainer/GridContainer"]
+[node name="charisma_section" type="HBoxContainer" parent="MarginContainer/VBoxContainer/GridContainer" unique_id=1680448716]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/GridContainer/charisma_section"]
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/GridContainer/charisma_section" unique_id=2045291389]
 layout_mode = 2
 text = "Charisma:
 "
 
-[node name="charisma_spinbox" type="SpinBox" parent="MarginContainer/VBoxContainer/GridContainer/charisma_section"]
+[node name="charisma_spinbox" type="SpinBox" parent="MarginContainer/VBoxContainer/GridContainer/charisma_section" unique_id=1651088853]
 layout_mode = 2
 
-[node name="luck_section" type="HBoxContainer" parent="MarginContainer/VBoxContainer/GridContainer"]
+[node name="luck_section" type="HBoxContainer" parent="MarginContainer/VBoxContainer/GridContainer" unique_id=393735776]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/GridContainer/luck_section"]
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/GridContainer/luck_section" unique_id=464537069]
 layout_mode = 2
 text = "Luck:
 "
 
-[node name="luck_spinbox" type="SpinBox" parent="MarginContainer/VBoxContainer/GridContainer/luck_section"]
+[node name="luck_spinbox" type="SpinBox" parent="MarginContainer/VBoxContainer/GridContainer/luck_section" unique_id=1475642124]
 layout_mode = 2
 
-[node name="points_remaining" type="Label" parent="MarginContainer/VBoxContainer"]
+[node name="points_remaining" type="Label" parent="MarginContainer/VBoxContainer" unique_id=2120317694]
 layout_mode = 2
 
 [connection signal="pressed" from="MarginContainer/VBoxContainer/begin_button" to="." method="_on_begin_button_pressed"]

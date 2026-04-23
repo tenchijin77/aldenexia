@@ -1,13 +1,13 @@
-[gd_scene load_steps=2 format=3 uid="uid://cdphqks0tthh"]
+[gd_scene format=3 uid="uid://cdphqks0tthh"]
 
 [ext_resource type="Script" uid="uid://cwwdyjv2qx4i8" path="res://Scripts/character_sheet.gd" id="1_qwutc"]
 
-[node name="character_sheet" type="CanvasLayer"]
+[node name="character_sheet" type="CanvasLayer" unique_id=928019431]
 process_mode = 3
 layer = 2
 script = ExtResource("1_qwutc")
 
-[node name="main_panel" type="Panel" parent="."]
+[node name="main_panel" type="Panel" parent="." unique_id=323569653]
 top_level = true
 custom_minimum_size = Vector2(300, 400)
 offset_left = 328.0
@@ -15,160 +15,166 @@ offset_top = 80.0
 offset_right = 864.0
 offset_bottom = 584.0
 
-[node name="scroll_container" type="ScrollContainer" parent="main_panel"]
+[node name="scroll_container" type="ScrollContainer" parent="main_panel" unique_id=2054203880]
 layout_mode = 0
 offset_right = 544.0
 offset_bottom = 504.0
 
-[node name="scroll_wrapper" type="VBoxContainer" parent="main_panel/scroll_container"]
+[node name="scroll_wrapper" type="VBoxContainer" parent="main_panel/scroll_container" unique_id=132184958]
 layout_mode = 2
 
-[node name="stat_block" type="VBoxContainer" parent="main_panel/scroll_container/scroll_wrapper"]
+[node name="stat_block" type="VBoxContainer" parent="main_panel/scroll_container/scroll_wrapper" unique_id=1756403712]
 layout_mode = 2
 
-[node name="name_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/stat_block"]
+[node name="name_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/stat_block" unique_id=1343526017]
 layout_mode = 2
 
-[node name="class_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/stat_block"]
+[node name="class_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/stat_block" unique_id=1210273418]
 layout_mode = 2
 
-[node name="level_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/stat_block"]
+[node name="level_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/stat_block" unique_id=1575175048]
 layout_mode = 2
 
-[node name="strength_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/stat_block"]
+[node name="strength_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/stat_block" unique_id=34243827]
 layout_mode = 2
 
-[node name="constitution_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/stat_block"]
+[node name="constitution_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/stat_block" unique_id=133043191]
 layout_mode = 2
 
-[node name="dexterity_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/stat_block"]
+[node name="dexterity_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/stat_block" unique_id=174937415]
 layout_mode = 2
 
-[node name="intelligence_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/stat_block"]
+[node name="intelligence_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/stat_block" unique_id=1281072675]
 layout_mode = 2
 
-[node name="wisdom_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/stat_block"]
+[node name="wisdom_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/stat_block" unique_id=1386218237]
 layout_mode = 2
 
-[node name="charisma_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/stat_block"]
+[node name="charisma_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/stat_block" unique_id=1915938045]
 layout_mode = 2
 
-[node name="luck_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/stat_block"]
+[node name="luck_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/stat_block" unique_id=1906163875]
 layout_mode = 2
 
-[node name="health_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/stat_block"]
+[node name="health_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/stat_block" unique_id=1064779]
 layout_mode = 2
 
-[node name="mana_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/stat_block"]
+[node name="mana_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/stat_block" unique_id=2072086095]
 layout_mode = 2
 
-[node name="stamina_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/stat_block"]
+[node name="stamina_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/stat_block" unique_id=882526129]
 layout_mode = 2
 
-[node name="spell_power_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/stat_block"]
+[node name="spell_power_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/stat_block" unique_id=1377903998]
 layout_mode = 2
 
-[node name="crit_chance_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/stat_block"]
+[node name="crit_chance_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/stat_block" unique_id=954186142]
 layout_mode = 2
 
-[node name="armor_class_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/stat_block"]
+[node name="armor_class_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/stat_block" unique_id=1613848934]
 layout_mode = 2
 
-[node name="attack_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/stat_block"]
+[node name="attack_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/stat_block" unique_id=1664660539]
 layout_mode = 2
 
-[node name="weight_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/stat_block"]
+[node name="weight_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/stat_block" unique_id=1541181059]
 layout_mode = 2
 
-[node name="xp_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/stat_block"]
+[node name="xp_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/stat_block" unique_id=1002956126]
 layout_mode = 2
 
-[node name="resist_block" type="VBoxContainer" parent="main_panel/scroll_container/scroll_wrapper"]
+[node name="resist_block" type="VBoxContainer" parent="main_panel/scroll_container/scroll_wrapper" unique_id=939677692]
 layout_mode = 2
 
-[node name="acid_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/resist_block"]
+[node name="acid_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/resist_block" unique_id=1285160956]
 layout_mode = 2
 
-[node name="cold_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/resist_block"]
+[node name="cold_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/resist_block" unique_id=723899609]
 layout_mode = 2
 
-[node name="fire_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/resist_block"]
+[node name="fire_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/resist_block" unique_id=273132269]
 layout_mode = 2
 
-[node name="magic_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/resist_block"]
+[node name="magic_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/resist_block" unique_id=2036545097]
 layout_mode = 2
 
-[node name="psychic_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/resist_block"]
+[node name="psychic_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/resist_block" unique_id=100208513]
 layout_mode = 2
 
-[node name="equipment_block" type="GridContainer" parent="main_panel/scroll_container/scroll_wrapper"]
+[node name="equipment_block" type="GridContainer" parent="main_panel/scroll_container/scroll_wrapper" unique_id=1658527140]
 layout_mode = 2
 
-[node name="ear1_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block"]
+[node name="ear1_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block" unique_id=69352099]
 layout_mode = 2
 
-[node name="neck_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block"]
+[node name="neck_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block" unique_id=207577266]
 layout_mode = 2
 
-[node name="face_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block"]
+[node name="face_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block" unique_id=2019531696]
 layout_mode = 2
 
-[node name="head_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block"]
+[node name="head_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block" unique_id=1009124219]
 layout_mode = 2
 
-[node name="ear2_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block"]
+[node name="ear2_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block" unique_id=36685595]
 layout_mode = 2
 
-[node name="finger1_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block"]
+[node name="finger1_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block" unique_id=330406455]
 layout_mode = 2
 
-[node name="wrist1_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block"]
+[node name="wrist1_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block" unique_id=1038715754]
 layout_mode = 2
 
-[node name="arms_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block"]
+[node name="arms_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block" unique_id=1466576523]
 layout_mode = 2
 
-[node name="hands_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block"]
+[node name="hands_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block" unique_id=1948904407]
 layout_mode = 2
 
-[node name="wrist2_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block"]
+[node name="wrist2_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block" unique_id=1185699797]
 layout_mode = 2
 
-[node name="finger2_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block"]
+[node name="finger2_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block" unique_id=1094155298]
 layout_mode = 2
 
-[node name="shoulders_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block"]
+[node name="shoulders_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block" unique_id=2003158400]
 layout_mode = 2
 
-[node name="chest_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block"]
+[node name="chest_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block" unique_id=868750430]
 layout_mode = 2
 
-[node name="back_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block"]
+[node name="back_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block" unique_id=649538829]
 layout_mode = 2
 
-[node name="waist_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block"]
+[node name="waist_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block" unique_id=2008095849]
 layout_mode = 2
 
-[node name="legs_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block"]
+[node name="legs_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block" unique_id=458754355]
 layout_mode = 2
 
-[node name="feet_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block"]
+[node name="feet_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block" unique_id=1666698299]
 layout_mode = 2
 
-[node name="trinket1_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block"]
+[node name="trinket1_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block" unique_id=955274397]
 layout_mode = 2
 
-[node name="trinket2_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block"]
+[node name="trinket2_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block" unique_id=1277968134]
 layout_mode = 2
 
-[node name="primary_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block"]
+[node name="primary_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block" unique_id=2033772915]
 layout_mode = 2
 
-[node name="secondary_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block"]
+[node name="secondary_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block" unique_id=1519101747]
 layout_mode = 2
 
-[node name="ranged_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block"]
+[node name="ranged_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block" unique_id=1129655666]
 layout_mode = 2
 
-[node name="ammo_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block"]
+[node name="ammo_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block" unique_id=192445561]
+layout_mode = 2
+
+[node name="charm_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block" unique_id=485989610]
+layout_mode = 2
+
+[node name="focus_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block" unique_id=381351284]
 layout_mode = 2

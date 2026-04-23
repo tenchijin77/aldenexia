@@ -1,0 +1,49 @@
+[gd_scene format=3 uid="uid://bneqghmogu2ch"]
+
+[ext_resource type="Script" uid="uid://mm3crvbiv3uv" path="res://Scripts/backpack_ui.gd" id="1_fd2np"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fd2np"]
+bg_color = Color(0, 0, 0, 1)
+draw_center = false
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_g7sho"]
+bg_color = Color(0.0044222814, 0.0008654396, 0.0017431548, 1)
+
+[node name="Node2D" type="CanvasLayer" unique_id=571786252]
+script = ExtResource("1_fd2np")
+
+[node name="Panel" type="Panel" parent="." unique_id=1424915334]
+offset_left = -1.0
+offset_top = 3.0
+offset_right = 438.0
+offset_bottom = 422.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_fd2np")
+
+[node name="MarginContainer" type="MarginContainer" parent="Panel" unique_id=745562926]
+layout_mode = 0
+offset_right = 440.0
+offset_bottom = 40.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Panel/MarginContainer" unique_id=387894322]
+layout_mode = 2
+
+[node name="SearchBar" type="LineEdit" parent="Panel/MarginContainer/VBoxContainer" unique_id=1365228746]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_g7sho")
+placeholder_text = "Search items..."
+
+[node name="SlotCountLabel" type="Label" parent="Panel/MarginContainer/VBoxContainer" unique_id=358353954]
+layout_mode = 2
+text = "Bag Slots: 0"
+
+[node name="ScrollContainer" type="ScrollContainer" parent="Panel/MarginContainer/VBoxContainer" unique_id=1699001501]
+layout_mode = 2
+
+[node name="SlotGrid" type="GridContainer" parent="Panel/MarginContainer/VBoxContainer/ScrollContainer" unique_id=408487922]
+layout_mode = 2
+columns = 8

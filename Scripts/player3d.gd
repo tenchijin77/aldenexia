@@ -1,31 +1,34 @@
 # player3d.gd - 3D player controller with RPG systems
-# Based on 2D player.gd pattern, adapted for 3D
 extends CharacterBody3D
 class_name Player3D
 
 ## Player 3D Controller with RPG Systems
 ## Combines movement (from original 3D) with health/mana/combat (from 2D)
 
-#region Movement Configuration
+#region Movement configuration
 const WALK_SPEED: float = 5.0
 const RUN_SPEED: float = 8.0
 const CROUCH_SPEED: float = 2.5
 const JUMP_VELOCITY: float = 6.0
 const TURN_SPEED: float = PI
 
-# Stamina system
-const MAX_STAMINA: float = 100.0
-const STAMINA_DRAIN_RUN: float = 0.5
-const STAMINA_DRAIN_JUMP: float = 5.0
-const STAMINA_REGEN_WALK: float = 2.0
-const STAMINA_REGEN_STAND: float = 5.0
-
 const BACKWARD_SPEED_MULT: float = 0.75
 const AIR_CONTROL_MULT: float = 0.3
 const STUMBLE_DURATION: float = 0.2
 #endregion
 
-#region RPG Stats (from 2D player)
+#region Stamina system
+const MAX_STAMINA: float = 100.0
+const STAMINA_DRAIN_RUN: float = 10.0      # per second
+const STAMINA_DRAIN_JUMP: float = 15.0     # per jump
+const STAMINA_REGEN_STAND: float = 10.0    # per second (standing)
+const STAMINA_REGEN_SIT: float = 20.0      # per second (sitting)
+
+var max_stamina: float = MAX_STAMINA
+var current_stamina: float = MAX_STAMINA
+#endregion
+
+#region RPG stats
 @export var max_health := 100
 @export var current_health := 100
 @export var max_mana := 100
@@ -43,8 +46,21 @@ var faction_standing: Dictionary = {"Villagers of Lumora": 50}
 
 var caster_classes := [
 	"voidknight", "gravecaller", "runecaster", "arcanist", "chaosborn",
-	"lightsworn", "lightmender", "spiritcaller", "wildspeaker", "woodstalker", "aetherfist"
+	"lightsworn", "lightmender", "spiritcaller", "wildspeaker",
+	"woodstalker", "aetherfist", "troubadour"
 ]
+#endregion
+
+#region Vitals system (hunger / thirst)
+var satiety: int = 100  # Hunger (0 = starving, 100 = full)
+var thirst: int = 100   # Thirst (0 = dehydrated, 100 = hydrated)
+
+const SATIETY_DECAY_RATE: float = 1.0   # per minute
+const THIRST_DECAY_RATE: float = 2.0    # per minute
+const DECAY_INTERVAL: float = 60.0      # seconds
+
+var satiety_timer: float = 0.0
+var thirst_timer: float = 0.0
 #endregion
 
 #region Combat
@@ -55,8 +71,7 @@ var attack_cooldown: float = 0.0
 var attack_cooldown_duration: float = 1.0
 #endregion
 
-#region Movement State
-var current_stamina: float = MAX_STAMINA
+#region Movement state
 var is_running: bool = true
 var is_crouching: bool = false
 var is_in_air: bool = false
@@ -64,35 +79,35 @@ var stumble_timer: float = 0.0
 var movement_direction: Vector3 = Vector3.ZERO
 var current_speed: float = 0.0
 var last_direction: Vector3 = Vector3.FORWARD
+var is_sitting: bool = false
 #endregion
 
-#region Node References
+#region Node references
 @onready var camera_rig: Node3D = $CameraRig
 @onready var collision_shape: CollisionShape3D = $CollisionShape3D
-# TODO: Add UI references when you create the 3D UI
+# TODO: Add 3D UI references when created
 # @onready var health_bar = $HealthBar3D
 # @onready var mana_bar = $ManaBar3D
 # @onready var name_label = $NameLabel3D
 #endregion
 
+#region Character sheet
+var character_sheet_scene = preload("res://Scenes/character_sheet.tscn")
+var character_sheet_instance: Node = null
+#endregion
+
 #region Initialization
 func _ready() -> void:
-	add_to_group("player")  # Important for monsters to find player!
-
-	# Initial UI setup (if UI nodes exist)
-	# if health_bar:
-	#	 health_bar.max_value = max_health
-	#	 health_bar.value = current_health
-	# if name_label:
-	#	 name_label.text = player_name
+	add_to_group("player")
 
 	load_faction_standing()
 	load_spells()
+	load_player_data_from_global()
 
 	print("[Player3D] ✅ Player initialized: %s (HP: %d/%d)" % [player_name, current_health, max_health])
 #endregion
 
-#region Physics Process
+#region Physics process (movement / stamina / combat)
 func _physics_process(delta: float) -> void:
 	if dying:
 		return
@@ -102,7 +117,7 @@ func _physics_process(delta: float) -> void:
 		stumble_timer -= delta
 		return
 
-	# Apply gravity
+	# Gravity and landing
 	if not is_on_floor():
 		velocity.y -= ProjectSettings.get_setting("physics/3d/default_gravity") * delta
 		is_in_air = true
@@ -111,44 +126,103 @@ func _physics_process(delta: float) -> void:
 			stumble_timer = STUMBLE_DURATION
 		is_in_air = false
 
-	# Handle input
-	handle_toggle_run()
-	handle_crouch()
-	handle_jump()
-	handle_movement(delta)
-	handle_combat()
+	# Input + movement only if not sitting
+	if not is_sitting:
+		handle_toggle_run()
+		handle_crouch()
+		handle_jump()
+		handle_movement(delta)
 
-	# Update stamina
+	handle_combat()
 	update_stamina(delta)
 
-	# Apply movement
 	move_and_slide()
 #endregion
 
-#region Process (for regen)
+#region Process (regen / vitals decay / cooldowns)
 func _process(delta: float) -> void:
-	# Health and mana regeneration (from 2D player)
+	if dying:
+		return
+
+	# Health / mana regeneration
 	regen_timer += delta
 	if regen_timer >= regen_interval:
 		regen_timer = 0.0
 
 		if current_health < max_health:
-			current_health = min(current_health + health_regen_rate, max_health)
+			var regen_h := health_regen_rate
+			if satiety < 25:
+				regen_h *= 0.8
+			current_health = min(current_health + regen_h, max_health)
 			# if health_bar: health_bar.value = current_health
 
 		if current_mana < max_mana:
-			current_mana = min(current_mana + mana_regen_rate, max_mana)
+			var regen_m := mana_regen_rate
+			if thirst < 25:
+				regen_m *= 0.8
+			current_mana = min(current_mana + regen_m, max_mana)
 			# if mana_bar: mana_bar.value = current_mana
 
-	# Update attack cooldown
+	# Attack cooldown
 	if attack_cooldown > 0.0:
 		attack_cooldown -= delta
+
+	# Vitals decay
+	update_vitals_decay(delta)
 #endregion
 
-#region Movement Handlers
+#region Vitals decay system
+func update_vitals_decay(delta: float) -> void:
+	satiety_timer += delta
+	thirst_timer += delta
+
+	# Satiety decay
+	if satiety_timer >= DECAY_INTERVAL:
+		satiety_timer = 0.0
+		satiety = max(satiety - int(SATIETY_DECAY_RATE), 0)
+
+		if satiety <= 0:
+			apply_starvation_damage()
+		elif satiety < 25:
+			print("🍖 Warning: Getting hungry! (%d/100)" % satiety)
+
+	# Thirst decay
+	if thirst_timer >= DECAY_INTERVAL:
+		thirst_timer = 0.0
+		thirst = max(thirst - int(THIRST_DECAY_RATE), 0)
+
+		if thirst <= 0:
+			apply_dehydration_damage()
+		elif thirst < 25:
+			print("💧 Warning: Getting thirsty! (%d/100)" % thirst)
+
+
+func apply_starvation_damage() -> void:
+	var damage: int = int(max_health * 0.01)
+	current_health = max(current_health - damage, 1)
+	print("💀 STARVING! Taking %d damage." % damage)
+
+
+func apply_dehydration_damage() -> void:
+	var damage: int = int(max_health * 0.02)
+	current_health = max(current_health - damage, 1)
+	print("💀 DEHYDRATED! Taking %d damage." % damage)
+
+
+func get_stat_penalty() -> float:
+	var penalty := 1.0
+	if satiety < 25:
+		penalty *= 0.95
+	if thirst < 25:
+		penalty *= 0.90
+	return penalty
+#endregion
+
+#region Movement handlers
 func handle_toggle_run() -> void:
 	if Input.is_action_just_pressed("toggle_run"):
 		is_running = not is_running
+
 
 func handle_crouch() -> void:
 	if Input.is_action_pressed("crouch"):
@@ -160,47 +234,52 @@ func handle_crouch() -> void:
 			is_crouching = false
 			# TODO: Restore collision capsule height
 
+
 func handle_jump() -> void:
 	if Input.is_action_just_pressed("jump") and is_on_floor():
 		if current_stamina <= 0.0:
 			return
 
-		var stamina_cost = STAMINA_DRAIN_JUMP
-		current_stamina -= stamina_cost
+		current_stamina -= STAMINA_DRAIN_JUMP
+		current_stamina = max(current_stamina, 0.0)
 		velocity.y = JUMP_VELOCITY
 
+
 func handle_movement(delta: float) -> void:
-	# Get input direction
-	var input_dir := Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
+	# Sitting blocks movement
+	if is_sitting:
+		velocity.x = move_toward(velocity.x, 0, WALK_SPEED)
+		velocity.z = move_toward(velocity.z, 0, WALK_SPEED)
+		current_speed = 0.0
+		return
+
+	var input_dir := Input.get_vector("strafe_left", "strafe_right", "move_forward", "move_backward")
 	var direction := Vector3(input_dir.x, 0, input_dir.y).normalized()
 
 	if direction.length() > 0.1:
-		last_direction = direction  # Save for combat targeting
+		last_direction = direction
 
-	# Determine speed
 	var target_speed: float
 	if is_crouching:
 		target_speed = CROUCH_SPEED
-	elif is_running and current_stamina > 0:
+	elif is_running and current_stamina > 0.0:
 		target_speed = RUN_SPEED
 	else:
 		target_speed = WALK_SPEED
 
-	# Apply backward penalty
-	if input_dir.y > 0:  # Moving backward
+	# Backward penalty
+	if input_dir.y > 0.0:
 		target_speed *= BACKWARD_SPEED_MULT
 
-	# Apply air control
+	# Air control
 	if not is_on_floor():
 		target_speed *= AIR_CONTROL_MULT
 
-	# Set velocity
 	if direction != Vector3.ZERO:
 		velocity.x = direction.x * target_speed
 		velocity.z = direction.z * target_speed
 
-		# Rotate to face movement direction
-		var target_rotation = atan2(direction.x, direction.z)
+		var target_rotation := atan2(direction.x, direction.z)
 		rotation.y = lerp_angle(rotation.y, target_rotation, TURN_SPEED * delta)
 	else:
 		velocity.x = move_toward(velocity.x, 0, target_speed)
@@ -208,30 +287,46 @@ func handle_movement(delta: float) -> void:
 
 	current_speed = Vector2(velocity.x, velocity.z).length()
 
+
 func update_stamina(delta: float) -> void:
-	var is_moving = current_speed > 0.1
+	var is_moving := current_speed > 0.1
+
+	# Sitting toggle
+	if Input.is_action_just_pressed("sit"):
+		is_sitting = not is_sitting
+		if is_sitting:
+			is_running = false
+			is_crouching = false
 
 	# Drain stamina when running
 	if is_moving and is_running and is_on_floor():
 		current_stamina -= STAMINA_DRAIN_RUN * delta
 
 	# Regenerate stamina
-	if not is_running or not is_moving:
-		var regen_rate = STAMINA_REGEN_STAND if not is_moving else STAMINA_REGEN_WALK
+	if not is_moving and not is_running and is_on_floor():
+		var regen_rate := STAMINA_REGEN_STAND
+		if is_sitting:
+			regen_rate = STAMINA_REGEN_SIT
 		current_stamina += regen_rate * delta
 
-	current_stamina = clamp(current_stamina, 0.0, MAX_STAMINA)
+	current_stamina = clamp(current_stamina, 0.0, max_stamina)
+
+	# If out of stamina, force walk
+	if current_stamina <= 0.0:
+		is_running = false
 #endregion
 
-#region Combat System (adapted from 2D)
+#region Combat system
 func handle_combat() -> void:
-	# Basic melee attack (left click)
-	if Input.is_action_just_pressed("attack") and attack_cooldown <= 0.0:
+	if Input.is_action_just_pressed("melee_attack") and attack_cooldown <= 0.0:
 		perform_melee_attack()
 
-	# TODO: Add spell casting on number keys
+	if Input.is_action_just_pressed("toggle_character_sheet"):
+		toggle_character_sheet()
+	# TODO: Spell casting hooks
 	# if Input.is_action_just_pressed("spell_1"):
-	#	 cast_spell(0)
+	#     cast_spell(0)
+
 
 func perform_melee_attack() -> void:
 	if attacking or dying:
@@ -240,43 +335,43 @@ func perform_melee_attack() -> void:
 	attacking = true
 	attack_cooldown = attack_cooldown_duration
 
-	# Find nearest monster in melee range
-	var attack_range = 3.0
-	var monsters = get_tree().get_nodes_in_group("monsters")
-	var closest_monster: Monster = null
-	var closest_distance = attack_range
+	var attack_range := 3.0
+	var monsters := get_tree().get_nodes_in_group("monsters")
+	var closest_monster: Node = null
+	var closest_distance := attack_range
 
 	for monster in monsters:
-		if not monster is Monster:
+		if not is_instance_valid(monster):
 			continue
-		var distance = global_position.distance_to(monster.global_position)
+		var distance := global_position.distance_to(monster.global_position)
 		if distance < closest_distance:
 			closest_distance = distance
 			closest_monster = monster
 
 	if closest_monster:
-		# Calculate damage (basic formula)
-		var base_damage = 10  # TODO: Get from equipped weapon
-		var str_bonus = stats.get("strength", 10) / 2  # Str modifier
-		var total_damage = int(base_damage + str_bonus)
+		var base_damage := 10
+		var str_bonus: float = float(stats.get("strength", 10)) / 2.0
+		var penalty := get_stat_penalty()
+		var total_damage := int((base_damage + str_bonus) * penalty)
 
-		closest_monster.apply_damage(total_damage, "physical")
-		print("⚔️ Player attacks %s for %d damage!" % [closest_monster.get_monster_name(), total_damage])
+		if closest_monster.has_method("apply_damage"):
+			closest_monster.apply_damage(total_damage, "physical")
+			print("⚔️ Player attacks for %d damage!" % total_damage)
+		else:
+			print("⚔️ Swing and a miss!")
 	else:
-		print("⚔️ Swing and a miss!")
+		print("⚔️ No target in range.")
 
-	# TODO: Play attack animation
 	await get_tree().create_timer(0.3).timeout
 	attacking = false
 
-# Called by monsters when they attack player
+
 func take_damage(amount: int) -> void:
 	if dying:
 		return
 
-	# Apply armor class reduction
-	var damage_reduction = armor_class / 2.0
-	var modified_damage = max(1, amount - int(damage_reduction))
+	var damage_reduction := armor_class / 2.0
+	var modified_damage: int = max(1, amount - int(damage_reduction))
 
 	current_health = max(current_health - modified_damage, 0)
 	# if health_bar: health_bar.value = current_health
@@ -287,15 +382,62 @@ func take_damage(amount: int) -> void:
 	if current_health <= 0:
 		die()
 
+
 func die() -> void:
 	dying = true
 	print("💀 Player defeated!")
-	# TODO: Play death animation
-	# TODO: Show game over screen
-	# TODO: Respawn or reload
+	# TODO: Death animation / game over / respawn
 #endregion
 
-#region Character Data Loading (from 2D player)
+#region Character sheet management
+func toggle_character_sheet() -> void:
+	if character_sheet_instance:
+		character_sheet_instance.queue_free()
+		character_sheet_instance = null
+		print("📋 Character sheet closed")
+	else:
+		character_sheet_instance = character_sheet_scene.instantiate()
+		get_tree().root.add_child(character_sheet_instance)
+
+		if character_sheet_instance.has_method("set_character_data"):
+			var current_data := {
+				"player_name": player_name,
+				"player_class": Global.player_data.get("player_class", "Unknown"),
+				"player_level": Global.player_data.get("player_level", 1),
+				"xp": Global.player_data.get("xp", 0),
+				"xp_next_level": Global.player_data.get("xp_next_level", 100),
+				"current_health": current_health,
+				"current_mana": current_mana,
+				"current_stamina": current_stamina,
+				"max_stamina": max_stamina,
+				"satiety": satiety,
+				"thirst": thirst,
+				"stats": stats,
+				"derived": Global.player_data.get("derived", {}),
+				"resistances": Global.player_data.get("resistances", {}),
+				"equipment": Global.player_data.get("equipment", {}),
+				"character_creation": Global.player_data.get("character_creation", {}),
+				"playtime_seconds": Global.get_total_playtime()
+			}
+			character_sheet_instance.set_character_data(current_data)
+
+		print("📋 Character sheet opened")
+#endregion
+
+#region Character data loading
+func load_player_data_from_global() -> void:
+	if Global.player_data.is_empty():
+		push_error("❌ No player data found in Global!")
+		return
+
+	load_character_data(Global.player_data)
+
+	satiety = Global.player_data.get("satiety", 100)
+	thirst = Global.player_data.get("thirst", 100)
+	current_stamina = Global.player_data.get("current_stamina", MAX_STAMINA)
+	max_stamina = Global.player_data.get("max_stamina", MAX_STAMINA)
+
+
 func load_character_data(data: Dictionary) -> void:
 	print("DEBUG: Player3D: load_character_data called")
 	if typeof(data) != TYPE_DICTIONARY:
@@ -304,9 +446,8 @@ func load_character_data(data: Dictionary) -> void:
 
 	player_name = data.get("player_name", "Unnamed Player")
 	stats = data.get("stats", {})
-	var derived_data = data.get("derived", {})
+	var derived_data: Dictionary = data.get("derived", {})
 
-	# Initialize resistances and equipment
 	data["resistances"] = data.get("resistances", {
 		"acid": 0, "cold": 0, "fire": 0, "magic": 0, "psychic": 0
 	})
@@ -326,22 +467,25 @@ func load_character_data(data: Dictionary) -> void:
 	var is_caster: bool = caster_classes.has(selected_class)
 
 	# if mana_bar: mana_bar.visible = is_caster
-
 	# if name_label: name_label.text = player_name
 
 	print("✅ Loaded stats for %s (Class: %s, HP: %d, Mana: %d)" %
 		[player_name, selected_class, max_health, max_mana])
 
+
 func apply_racial_modifiers(race_name: String) -> void:
 	# TODO: Copy racial modifier logic from 2D player if needed
 	pass
+#endregion
 
+#region Spells and faction
 func load_spells() -> void:
 	var file: FileAccess = FileAccess.open("res://Data/player_spells.json", FileAccess.READ)
 	if file:
 		var content: String = file.get_as_text()
 		var data: Variant = JSON.parse_string(content)
 		file.close()
+
 		if typeof(data) == TYPE_ARRAY:
 			spells = data
 			print("✅ Loaded %d spells from player_spells.json" % spells.size())
@@ -350,24 +494,27 @@ func load_spells() -> void:
 	else:
 		push_error("❌ Failed to open player_spells.json")
 
+
 func load_faction_standing() -> void:
 	var file: FileAccess = FileAccess.open("res://Data/player_faction.json", FileAccess.READ)
 	if file:
 		var json_data: Variant = JSON.parse_string(file.get_as_text())
 		file.close()
+
 		if typeof(json_data) == TYPE_DICTIONARY and json_data.has("factions"):
 			for faction in json_data["factions"]:
 				if faction.has("name") and faction.has("standing"):
 					faction_standing[faction["name"]] = faction["standing"]
-			print("✅ Loaded faction standing")
+		print("✅ Loaded faction standing")
 	else:
 		print("⚠️ player_faction.json not found (optional)")
+
 
 func get_faction_standing(faction_name: String) -> int:
 	return faction_standing.get(faction_name, 0)
 #endregion
 
-#region Helper Functions
+#region Helper functions
 func get_last_direction() -> Vector3:
 	return last_direction
 #endregion
