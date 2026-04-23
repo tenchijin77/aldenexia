@@ -1,0 +1,145 @@
+{
+  "_comment": "solgrave_expanse_loot.json - Unified master loot tables for Zone 1 (Solgrave Expanse). Consolidated from all unique creature loot files.",
+  "zone_loot_tables": {
+    "lumora_outskirts": {
+      "rat": [
+        { "item": "rat_tail", "chance": 0.3, "min": 1, "max": 1 }
+      ],
+      "snake": [
+        { "item": "snake_venom", "chance": 0.15, "min": 1, "max": 1 }
+      ],
+      "dune_scarab": [
+        { "item": "scarab_eye", "chance": 0.12, "min": 1, "max": 2 },
+        { "item": "scarab_shell", "chance": 0.4, "min": 1, "max": 3 },
+        { "item": "beetle_wing", "chance": 0.2, "min": 1, "max": 2 },
+        { "item": "sand_shimmer", "chance": 0.08, "min": 1, "max": 1 },
+        { "item": "shiny_pebble", "chance": 0.35, "min": 1, "max": 1 }
+      ],
+      "slime": [
+        { "item": "slime_gel", "chance": 0.3, "min": 1, "max": 2 },
+        { "item": "sticky_residue", "chance": 0.2, "min": 1, "max": 2 }
+      ],
+      "bat": [
+        { "item": "bat_wing", "chance": 0.6 },
+        { "item": "echolocation_gland", "chance": 0.1 }
+      ]
+    },
+    "dustwind_plateaus": {
+      "sand_stinger": [
+        { "item": "scorpion_leg", "chance": 0.3, "min": 1, "max": 3 },
+        { "item": "stinger_tail", "chance": 0.25, "min": 1, "max": 1 },
+        { "item": "toxic_residue", "chance": 0.15, "min": 1, "max": 2 },
+        { "item": "venom_sac", "chance": 0.12, "min": 1, "max": 1 },
+        { "item": "scorpion_carapace", "chance": 0.2, "min": 1, "max": 1 }
+      ],
+      "wild_dog": [
+        { "item": "mangled_ear", "chance": 0.3, "min": 1, "max": 1 },
+        { "item": "dog_pelt", "chance": 0.25, "min": 1, "max": 2 },
+        { "item": "animal_sinew", "chance": 0.1, "min": 1, "max": 3 },
+        { "item": "sharp_canine", "chance": 0.4, "min": 1, "max": 2 },
+        { "item": "chewed_bone", "chance": 0.35, "min": 1, "max": 1 }
+      ],
+      "dustwalker_scout": [
+        { "item": "small_map", "chance": 0.15, "min": 1, "max": 1 },
+        { "item": "light_leather", "chance": 0.1, "min": 1, "max": 2 },
+        { "item": "worn_sandals", "chance": 0.3, "min": 1, "max": 1 },
+        { "item": "leather_canteen", "chance": 0.1, "min": 1, "max": 1 },
+        { "item": "scout_whistle", "chance": 0.05, "min": 1, "max": 1 }
+      ],
+      "dustwalker_ravager": [
+        { "item": "sharp_dagger", "chance": 0.08, "min": 1, "max": 1 },
+        { "item": "heavy_leather", "chance": 0.25, "min": 1, "max": 3 },
+        { "item": "ravager_earring", "chance": 0.15, "min": 1, "max": 1 },
+        { "item": "notched_blade", "chance": 0.2, "min": 1, "max": 1 },
+        { "item": "combat_wraps", "chance": 0.12, "min": 1, "max": 2 }
+      ],
+      "sunmaddened_wanderer": [
+        { "item": "delusional_scrawl", "chance": 0.4, "min": 1, "max": 1 },
+        { "item": "empty_waterskin", "chance": 0.35, "min": 1, "max": 1 },
+        { "item": "ragged_hood", "chance": 0.25, "min": 1, "max": 1 },
+        { "item": "small_tin_cup", "chance": 0.15, "min": 1, "max": 1 },
+        { "item": "lock_of_hair", "chance": 0.1, "min": 1, "max": 1 }
+      ],
+      "thornback_lizard": [
+        { "item": "tough_hide", "chance": 0.35, "min": 1, "max": 2 },
+        { "item": "sharp_spine", "chance": 0.25, "min": 1, "max": 3 },
+        { "item": "thorned_scale", "chance": 0.15, "min": 1, "max": 2 },
+        { "item": "lizard_tail", "chance": 0.4, "min": 1, "max": 1 },
+        { "item": "desert_root", "chance": 0.1, "min": 1, "max": 1 }
+      ]
+    },
+    "ashfall_dunes": {
+      "sandshifter": [
+        { "item": "crystal_sand", "chance": 0.1, "min": 1, "max": 3 },
+        { "item": "shifting_sand", "chance": 0.35, "min": 1, "max": 2 },
+        { "item": "desert_essence", "chance": 0.05, "min": 1, "max": 1 },
+        { "item": "elemental_core_fragment", "chance": 0.12, "min": 1, "max": 1 },
+        { "item": "sand_vial", "chance": 0.25, "min": 1, "max": 2 }
+      ],
+      "mummy": [
+        { "item": "ancient_bandage", "chance": 0.35, "min": 1, "max": 3 },
+        { "item": "tomb_dust", "chance": 0.3, "min": 1, "max": 2 },
+        { "item": "embalming_salve", "chance": 0.08, "min": 1, "max": 1 },
+        { "item": "canopic_jar_fragment", "chance": 0.12, "min": 1, "max": 1 },
+        { "item": "rotten_linen", "chance": 0.4, "min": 1, "max": 2 }
+      ],
+      "khepri_beetle": [
+        { "item": "acidic_fluid", "chance": 0.15, "min": 1, "max": 2 },
+        { "item": "beetle_horn", "chance": 0.25, "min": 1, "max": 1 },
+        { "item": "heavy_chitin", "chance": 0.3, "min": 1, "max": 2 },
+        { "item": "gilded_wing", "chance": 0.05, "min": 1, "max": 2 },
+        { "item": "ancient_coin", "chance": 0.1, "min": 1, "max": 3 }
+      ]
+    },
+    "the_kragthar": {
+      "bonegnawer": [
+        { "item": "gnawed_femur", "chance": 0.35, "min": 1, "max": 1 },
+        { "item": "rusty_cleaver", "chance": 0.1, "min": 1, "max": 1 },
+        { "item": "bone_totem", "chance": 0.2, "min": 1, "max": 1 },
+        { "item": "scavenged_ring", "chance": 0.05, "min": 1, "max": 1 },
+        { "item": "gnoll_pelt", "chance": 0.25, "min": 1, "max": 2 }
+      ]
+    },
+    "edge_spawns": {
+      "bandit": [
+        { "item": "bandit_dagger", "chance": 0.1, "min": 1, "max": 1 },
+        { "item": "leather_scrap", "chance": 0.2, "min": 1, "max": 3 }
+      ],
+      "goblin": [
+        { "item": "goblin_ear", "chance": 0.2, "min": 1, "max": 2 },
+        { "item": "copper_coin", "chance": 0.5, "min": 5, "max": 15 },
+        { "item": "torn_boots", "chance": 0.15, "min": 1, "max": 1 }
+      ],
+      "skeleton": [
+        { "item": "rusty_sword", "chance": 0.25, "min": 1, "max": 1 },
+        { "item": "bone_shield", "chance": 0.1, "min": 1, "max": 1 },
+        { "item": "copper_coin", "chance": 1.0, "min": 8, "max": 25 }
+      ],
+      "ghost": [
+        { "item": "spectral_dust", "chance": 0.4, "min": 1, "max": 3 },
+        { "item": "ghostly_cloak", "chance": 0.1, "min": 1, "max": 1 },
+        { "item": "silver_coin", "chance": 1.0, "min": 5, "max": 20 }
+      ],
+      "spider": [
+        { "item": "spider_silk", "chance": 0.2, "min": 1, "max": 2 },
+        { "item": "venom_sac", "chance": 0.1, "min": 1, "max": 1 }
+      ]
+    },
+    "special_encounters": {
+      "lumora_outrider": [
+        { "item": "patrol_orders", "chance": 0.3, "min": 1, "max": 1 },
+        { "item": "iron_rations", "chance": 0.4, "min": 1, "max": 2 },
+        { "item": "stable_key", "chance": 0.05, "min": 1, "max": 1 },
+        { "item": "outrider_insignia", "chance": 0.15, "min": 1, "max": 1 },
+        { "item": "standard_issue_spear", "chance": 0.08, "min": 1, "max": 1 }
+      ],
+      "dustwalker_warlord": [
+        { "item": "warlord_scimitar", "chance": 0.05, "min": 1, "max": 1 },
+        { "item": "jeweled_hilt", "chance": 0.1, "min": 1, "max": 1 },
+        { "item": "conqueror_map", "chance": 0.15, "min": 1, "max": 1 },
+        { "item": "command_sigil", "chance": 0.2, "min": 1, "max": 1 },
+        { "item": "royal_sandals", "chance": 0.1, "min": 1, "max": 1 }
+      ]
+    }
+  }
+}
