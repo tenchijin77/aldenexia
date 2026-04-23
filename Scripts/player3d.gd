@@ -5,6 +5,7 @@ class_name Player3D
 ## Player 3D Controller with RPG Systems
 ## Combines movement (from original 3D) with health/mana/combat (from 2D)
 
+
 #region Movement configuration
 const WALK_SPEED: float = 5.0
 const RUN_SPEED: float = 8.0
@@ -43,7 +44,9 @@ var regen_timer := 0.0
 var armor_class := 0
 var stats: Dictionary = {}
 var faction_standing: Dictionary = {"Villagers of Lumora": 50}
+var backpack_scene := preload("res://Scenes/backpack_ui.tscn")
 
+var backpack_instance: Node = null
 var caster_classes := [
 	"voidknight", "gravecaller", "runecaster", "arcanist", "chaosborn",
 	"lightsworn", "lightmender", "spiritcaller", "wildspeaker",
@@ -109,6 +112,9 @@ func _ready() -> void:
 
 #region Physics process (movement / stamina / combat)
 func _physics_process(delta: float) -> void:
+	if Input.is_action_just_pressed("toggle_backpack"):
+		toggle_backpack()
+
 	if dying:
 		return
 
@@ -253,12 +259,27 @@ func handle_movement(delta: float) -> void:
 		current_speed = 0.0
 		return
 
-	var input_dir := Input.get_vector("strafe_left", "strafe_right", "move_forward", "move_backward")
-	var direction := Vector3(input_dir.x, 0, input_dir.y).normalized()
+	# Turning (A/D)
+	if Input.is_action_pressed("turn_left"):
+		rotation.y -= TURN_SPEED * delta
+	if Input.is_action_pressed("turn_right"):
+		rotation.y += TURN_SPEED * delta
 
-	if direction.length() > 0.1:
-		last_direction = direction
+	# Strafing (Q/E)
+	var strafe := 0.0
+	if Input.is_action_pressed("strafe_left"):
+		strafe -= 1.0
+	if Input.is_action_pressed("strafe_right"):
+		strafe += 1.0
 
+	# Forward/back (W/S)
+	var forward := 0.0
+	if Input.is_action_pressed("move_forward"):
+		forward += 1.0
+	if Input.is_action_pressed("move_backward"):
+		forward -= 1.0
+
+	# Determine speed
 	var target_speed: float
 	if is_crouching:
 		target_speed = CROUCH_SPEED
@@ -268,24 +289,24 @@ func handle_movement(delta: float) -> void:
 		target_speed = WALK_SPEED
 
 	# Backward penalty
-	if input_dir.y > 0.0:
+	if forward < 0.0:
 		target_speed *= BACKWARD_SPEED_MULT
 
 	# Air control
 	if not is_on_floor():
 		target_speed *= AIR_CONTROL_MULT
 
-	if direction != Vector3.ZERO:
-		velocity.x = direction.x * target_speed
-		velocity.z = direction.z * target_speed
+	# Build movement vector in local space
+	var local_move := Vector3(strafe, 0, -forward).normalized()
 
-		var target_rotation := atan2(direction.x, direction.z)
-		rotation.y = lerp_angle(rotation.y, target_rotation, TURN_SPEED * delta)
-	else:
-		velocity.x = move_toward(velocity.x, 0, target_speed)
-		velocity.z = move_toward(velocity.z, 0, target_speed)
+	# Convert to world space
+	var world_move := global_transform.basis * local_move
+
+	velocity.x = world_move.x * target_speed
+	velocity.z = world_move.z * target_speed
 
 	current_speed = Vector2(velocity.x, velocity.z).length()
+
 
 
 func update_stamina(delta: float) -> void:
@@ -501,6 +522,7 @@ func load_faction_standing() -> void:
 		var json_data: Variant = JSON.parse_string(file.get_as_text())
 		file.close()
 
+
 		if typeof(json_data) == TYPE_DICTIONARY and json_data.has("factions"):
 			for faction in json_data["factions"]:
 				if faction.has("name") and faction.has("standing"):
@@ -518,3 +540,15 @@ func get_faction_standing(faction_name: String) -> int:
 func get_last_direction() -> Vector3:
 	return last_direction
 #endregion
+
+func toggle_backpack() -> void:
+	if backpack_instance:
+		backpack_instance.queue_free()
+		backpack_instance = null
+		Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+		print("🎒 Backpack closed")
+	else:
+		backpack_instance = backpack_scene.instantiate()
+		get_tree().root.add_child(backpack_instance)
+		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+		print("🎒 Backpack opened")

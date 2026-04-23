@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://wrtx56ntx6l3"]
+[gd_scene format=3 uid="uid://wrtx56ntx6l3"]
 
 [ext_resource type="Script" uid="uid://dwbatsot6n8qy" path="res://Scripts/player.gd" id="1_kry3j"]
 [ext_resource type="SpriteFrames" uid="uid://b6euppeis8v26" path="res://Scenes/player_animation.tres" id="2_21xkr"]
@@ -18,75 +18,75 @@ radius = 26.6854
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_1bvp3"]
 size = Vector2(20, 139)
 
-[node name="Main" type="Node2D"]
+[node name="Main" type="Node2D" unique_id=1016751323]
 
-[node name="Player" type="CharacterBody2D" parent="." groups=["player"]]
+[node name="Player" type="CharacterBody2D" parent="." unique_id=585056926 groups=["player"]]
 scale = Vector2(3, 3)
 collision_mask = 0
 script = ExtResource("1_kry3j")
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="Player"]
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="Player" unique_id=1048391610]
 sprite_frames = ExtResource("2_21xkr")
 animation = &"Idle"
 frame_progress = 0.679896
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Player"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Player" unique_id=235746237]
 shape = SubResource("RectangleShape2D_seu75")
 
-[node name="NameLabel" type="Label" parent="Player"]
+[node name="NameLabel" type="Label" parent="Player" unique_id=1422647993]
 offset_right = 40.0
 offset_bottom = 23.0
 theme_override_font_sizes/font_size = 8
 horizontal_alignment = 1
 
-[node name="NPC" type="Area2D" parent="." groups=["npc"]]
+[node name="NPC" type="Area2D" parent="." unique_id=1489985318 groups=["npc"]]
 position = Vector2(250, 0)
 scale = Vector2(3, 3)
 collision_layer = 2
 script = ExtResource("3_6bp64")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="NPC"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="NPC" unique_id=390743618]
 shape = SubResource("RectangleShape2D_lquwl")
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="NPC"]
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="NPC" unique_id=1740486943]
 sprite_frames = ExtResource("2_21xkr")
 animation = &"Idle"
 flip_h = true
 
-[node name="DetectionZone" type="Area2D" parent="NPC"]
+[node name="DetectionZone" type="Area2D" parent="NPC" unique_id=1460849707]
 collision_layer = 0
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="NPC/DetectionZone"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="NPC/DetectionZone" unique_id=2009406311]
 shape = SubResource("CircleShape2D_1bvp3")
 
-[node name="RayCast2D" type="RayCast2D" parent="NPC"]
+[node name="RayCast2D" type="RayCast2D" parent="NPC" unique_id=2044239160]
 target_position = Vector2(-100, 0)
 
-[node name="NameLabel" type="Label" parent="NPC"]
+[node name="NameLabel" type="Label" parent="NPC" unique_id=1633422693]
 offset_right = 40.0
 offset_bottom = 23.0
 theme_override_font_sizes/font_size = 8
 horizontal_alignment = 1
 
-[node name="ChatWindow" parent="." instance=ExtResource("4_344ge")]
+[node name="ChatWindow" parent="." unique_id=1692659597 instance=ExtResource("4_344ge")]
 position = Vector2(-542, 280)
 
-[node name="Camera2D" type="Camera2D" parent="."]
+[node name="Camera2D" type="Camera2D" parent="." unique_id=559236930]
 
-[node name="StaticBody2D" type="StaticBody2D" parent="."]
+[node name="StaticBody2D" type="StaticBody2D" parent="." unique_id=1941864253]
 collision_mask = 0
 
-[node name="ColorRect" type="ColorRect" parent="StaticBody2D"]
+[node name="ColorRect" type="ColorRect" parent="StaticBody2D" unique_id=74626607]
 offset_left = 93.0
 offset_top = -73.0
 offset_right = 110.0
 offset_bottom = 65.0
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D" unique_id=407175555]
 position = Vector2(101, -3.5)
 shape = SubResource("RectangleShape2D_1bvp3")
 
-[node name="BackgroundMusic" type="AudioStreamPlayer2D" parent="."]
+[node name="BackgroundMusic" type="AudioStreamPlayer2D" parent="." unique_id=1296216531]
 stream = ExtResource("5_ynf5e")
 volume_db = -10.0
 autoplay = true

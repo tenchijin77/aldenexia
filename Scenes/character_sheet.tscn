@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://cdphqks0tthh"]
 
 [ext_resource type="Script" uid="uid://cwwdyjv2qx4i8" path="res://Scripts/character_sheet.gd" id="1_qwutc"]
+[ext_resource type="Script" uid="uid://4n8lmioi8oix" path="res://Scripts/slot_button.gd" id="2_fg8ep"]
 
 [node name="character_sheet" type="CanvasLayer" unique_id=928019431]
 process_mode = 3
@@ -178,3 +179,55 @@ layout_mode = 2
 
 [node name="focus_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block" unique_id=381351284]
 layout_mode = 2
+
+[node name="storage_block" type="GridContainer" parent="main_panel/scroll_container/scroll_wrapper" unique_id=118629136]
+layout_mode = 2
+columns = 2
+
+[node name="slot_0" type="TextureButton" parent="main_panel/scroll_container/scroll_wrapper/storage_block" unique_id=1907685537]
+layout_mode = 2
+script = ExtResource("2_fg8ep")
+
+[node name="slot_1" type="TextureButton" parent="main_panel/scroll_container/scroll_wrapper/storage_block" unique_id=2078556904]
+layout_mode = 2
+script = ExtResource("2_fg8ep")
+
+[node name="slot_2" type="TextureButton" parent="main_panel/scroll_container/scroll_wrapper/storage_block" unique_id=1890043761]
+layout_mode = 2
+script = ExtResource("2_fg8ep")
+
+[node name="slot_3" type="TextureButton" parent="main_panel/scroll_container/scroll_wrapper/storage_block" unique_id=2121360541]
+layout_mode = 2
+script = ExtResource("2_fg8ep")
+
+[node name="slot_4" type="TextureButton" parent="main_panel/scroll_container/scroll_wrapper/storage_block" unique_id=1972520752]
+layout_mode = 2
+script = ExtResource("2_fg8ep")
+
+[node name="slot_5" type="TextureButton" parent="main_panel/scroll_container/scroll_wrapper/storage_block" unique_id=2058217482]
+layout_mode = 2
+script = ExtResource("2_fg8ep")
+
+[node name="slot_6" type="TextureButton" parent="main_panel/scroll_container/scroll_wrapper/storage_block" unique_id=41606100]
+layout_mode = 2
+script = ExtResource("2_fg8ep")
+
+[node name="slot_7" type="TextureButton" parent="main_panel/scroll_container/scroll_wrapper/storage_block" unique_id=1596688040]
+layout_mode = 2
+script = ExtResource("2_fg8ep")
+
+[node name="slot_8" type="TextureButton" parent="main_panel/scroll_container/scroll_wrapper/storage_block" unique_id=1023751612]
+layout_mode = 2
+script = ExtResource("2_fg8ep")
+
+[node name="slot_9" type="TextureButton" parent="main_panel/scroll_container/scroll_wrapper/storage_block" unique_id=384997628]
+layout_mode = 2
+script = ExtResource("2_fg8ep")
+
+[node name="slot_10" type="TextureButton" parent="main_panel/scroll_container/scroll_wrapper/storage_block" unique_id=61532404]
+layout_mode = 2
+script = ExtResource("2_fg8ep")
+
+[node name="slot_11" type="TextureButton" parent="main_panel/scroll_container/scroll_wrapper/storage_block" unique_id=1798786461]
+layout_mode = 2
+script = ExtResource("2_fg8ep")

@@ -73,7 +73,7 @@ func _on_load_button_pressed():
 					Global.current_character_data = character_data
 					
 					# Change scene to the game world
-					get_tree().change_scene_to_file("res://Scenes/lumora_outskirts.tscn")
+					get_tree().change_scene_to_file("res://Scenes/lumora_outskirts3d.tscn")
 					print("✅ Character '%s' data stored in Global. Scene changing to Lumora Outskirts." % selected_character_name_raw)
 				else:
 					push_error("❌ Failed to parse character data from JSON for: %s. Data is not a dictionary. Content: %s" % [selected_character_name_raw, file_content.left(100) + "..."])

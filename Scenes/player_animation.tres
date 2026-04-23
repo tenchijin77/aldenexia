@@ -1,4 +1,4 @@
-[gd_resource type="SpriteFrames" load_steps=27 format=3 uid="uid://b6euppeis8v26"]
+[gd_resource type="SpriteFrames" format=3 uid="uid://b6euppeis8v26"]
 
 [ext_resource type="Texture2D" uid="uid://d4ai3bydcku65" path="res://Assets/Old hero.png" id="1_vjcic"]
 
