@@ -19,6 +19,7 @@ var is_chat_active = false:
 #region Character Data
 var current_character_data: Dictionary = {}
 var current_character_name: String = ""
+var character_options: Dictionary = {}
 var player_data: Dictionary = {}  # Active player data (matches current_character_data)
 #endregion
 
@@ -72,6 +73,7 @@ var total_playtime_seconds: int = 0
 
 func _ready():
 	load_xp_table()
+	load_character_options()
 	initialize_time_system()
 	start_playtime_tracking()
 
@@ -91,6 +93,27 @@ func load_xp_table():
 		if typeof(data) == TYPE_DICTIONARY:
 			xp_table = data
 			max_player_level = xp_table.get("max_level", 20)
+			
+func load_character_options():
+	var path = "res://Data/character_options.json"
+	if not FileAccess.file_exists(path):
+		push_error("❌ character_options.json not found at: " + path)
+		return
+
+	var file := FileAccess.open(path, FileAccess.READ)
+	if not file:
+		push_error("❌ Failed to open character_options.json")
+		return
+
+	var parsed = JSON.parse_string(file.get_as_text())
+	file.close()
+
+	if typeof(parsed) != TYPE_DICTIONARY:
+		push_error("❌ Failed to parse character_options.json")
+		return
+
+	character_options = parsed
+
 
 func initialize_time_system():
 	var total_days = (game_time.month * DAYS_PER_MONTH) + game_time.day - 1
