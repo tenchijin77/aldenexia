@@ -28,7 +28,7 @@
       "name": "Elf",
       "alignment": "good",
       "portrait": "res://Assets/angry_cat.png",
-      "description": "Graceful and ancient, Elves are attuned to Aldenexia's forests and arcane energies. Often aligned with Druids or Enchanters, they seek to protect the realm's natural balance while wary of the Void's corruption.",
+      "description": "Graceful and ancient, Elves are attuned to Aldenexia's forests and arcane energies. Often aligned with Wildcallers or Runecasters, they seek to protect the realm's natural balance while wary of the Void's corruption.",
       "lore": "Elves guard sacred groves tied to the Solstice Aegis' origin, often clashing with The Moribund Order's Void ambitions.",
       "traits": {
         "mana_pool_bonus": 0.10,
@@ -55,7 +55,7 @@
       "name": "Dwarf",
       "alignment": "good",
       "portrait": "res://Assets/angry_cat.png",
-      "description": "Stout and hardy, Dwarves hail from Aldenexia's mountains, excelling as Armorsmiths or Clerics. Their craftsmanship and devotion to honor align them closely with the Luminar Covenant.",
+      "description": "Stout and hardy, Dwarves hail from Aldenexia's mountains, excelling as Lightsword or Lightmenders. Their craftsmanship and devotion to honor align them closely with the Luminar Covenant.",
       "lore": "Dwarves forge weapons for the Luminar Covenant, believing the Solstice Aegis is a divine artifact.",
       "traits": {
         "maximum_health_bonus": 0.15,
@@ -82,7 +82,7 @@
       "name": "Gnome",
       "alignment": "neutral",
       "portrait": "res://Assets/angry_cat.png",
-      "description": "Clever and inventive, Gnomes are tinkerers and scholars who thrive in creating gadgets or studying the Void's mysteries. They often align with Wizards or Enchanters.",
+      "description": "Clever and inventive, Gnomes are tinkerers and scholars who thrive in creating gadgets or studying the Void's mysteries. They often align with Arcanists or Runecasters.",
       "lore": "Gnomes experiment with Void-tainted relics, drawing scrutiny from both the Luminar Covenant and The Moribund Order.",
       "traits": {
         "engineering_skill_bonus": 20,
@@ -108,7 +108,7 @@
       "name": "Halfling",
       "alignment": "good",
       "portrait": "res://Assets/angry_cat.png",
-      "description": "Nimble and cheerful, Halflings are agrarian folk from Lumora's outskirts, excelling as Rangers or Rogues. Their luck and stealth make them adept at exploration.",
+      "description": "Nimble and cheerful, Halflings are agrarian folk from Lumora's outskirts, excelling as Woodstalkers or Shadowblades. Their luck and stealth make them adept at exploration.",
       "lore": "Halflings are beloved by Lumora's villagers but often avoid the larger conflicts surrounding the Solstice Aegis.",
       "traits": {
         "negative_effect_resistance_chance": 0.10,
@@ -135,7 +135,7 @@
       "name": "Half-Elf",
       "alignment": "neutral",
       "portrait": "res://Assets/angry_cat.png",
-      "description": "Born of Human and Elven heritage, Half-Elves blend adaptability with arcane talent. They excel as Minstrels or Rangers, navigating Aldenexia's factions with ease.",
+      "description": "Born of Human and Elven heritage, Half-Elves blend adaptability with arcane talent. They excel as Troubadours, Wildspeakers, or Woodstalkers, navigating Aldenexia's factions with ease.",
       "lore": "Half-Elves serve as mediators between Lumora's villagers and Elven enclaves, seeking the Solstice Aegis to prove their worth.",
       "traits": {
         "all_stats_bonus": 0.05,
@@ -160,7 +160,7 @@
       "name": "Ogre",
       "alignment": "evil",
       "portrait": "res://Assets/angry_cat.png",
-      "description": "Towering and brutal, Ogres are fearsome warriors from Aldenexia's wilds, often serving as Blackguards or Armormen. Their strength makes them formidable in combat.",
+      "description": "Towering and brutal, Ogres are fearsome warriors from Aldenexia's wilds, often serving as Voidknights or Blademasters. Their strength and toughness make them formidable in combat.",
       "lore": "Ogres are often recruited by The Moribund Order for their raw power, though some seek redemption with the Luminar Covenant.",
       "traits": {
         "melee_damage_bonus": 0.20,
@@ -187,7 +187,7 @@
       "name": "Troll",
       "alignment": "evil",
       "portrait": "res://Assets/angry_cat.png",
-      "description": "Savage and regenerative, Trolls are primal denizens of Aldenexia's swamps, excelling as Shamans or Monks. Their resilience makes them hard to kill.",
+      "description": "Savage and regenerative, Trolls are primal denizens of Aldenexia's swamps, excelling as Spiritweavers, Blademasters, or  Voidknights. Their resilience makes them hard to kill.",
       "lore": "Trolls worship primal deities, shunning the Solstice Aegis as a human relic, and often align with The Moribund Order.",
       "traits": {
         "in_combat_health_regeneration": 0.15,
@@ -214,7 +214,7 @@
       "name": "Dark Elf",
       "alignment": "evil",
       "portrait": "res://Assets/angry_cat.png",
-      "description": "Cunning and ambitious, Dark Elves are masters of dark magic and subterfuge, excelling as Necromancers or Rogues. They thrive in the shadows of Aldenexia.",
+      "description": "Cunning and ambitious, Dark Elves are masters of dark magic and subterfuge, excelling as Gravecallers, or Shadowblades. They thrive in the shadows of Aldenexia.",
       "lore": "Dark Elves are key members of The Moribund Order, seeking the Void's power to rival the Solstice Aegis.",
       "traits": {
         "blindness_immunity": true,
@@ -241,7 +241,7 @@
       "name": "Half-Orc",
       "alignment": "neutral",
       "portrait": "res://Assets/angry_cat.png",
-      "description": "Fierce and resilient, Half-Orcs combine Orcish strength with Human adaptability, excelling as Armormen or Monks. They are often mercenaries in Aldenexia's wars.",
+      "description": "Fierce and resilient, Half-Orcs combine Orcish strength with Human adaptability, excelling as Blademasters or Aetherfist. They are often mercenaries in Aldenexia's wars.",
       "lore": "Half-Orcs roam Aldenexia as outcasts, often hired by The Moribund Order or seeking honor with the Luminar Covenant to overcome prejudice.",
       "traits": {
         "melee_damage_bonus": 0.15,
@@ -269,7 +269,7 @@
   "name": "Lizardkin",
   "alignment": "evil",
   "portrait": "res://Assets/angry_cat.png",
-  "description": "Lizardkin are reptilian humanoids adapted to swamps and marshes. They possess natural armor, can breathe underwater, and have a powerful bite.",
+  "description": "Lizardkin are reptilian humanoids adapted to swamps and marshes. They possess natural armor, can breathe underwater, and have a powerful bite. They are formidable Aetherfists, Spiritweavers, and Gravecallers",
   "lore": "Born from the primal essence of Kaerox, they thrive in Aldenexia's swamps while maintaining deep mistrust of the Luminar Covenant.",
   "traits": {
     "armor_class_bonus": 2,
@@ -371,16 +371,16 @@
       "difficulty": "Moderate"
     },
     "spiritcaller": {
-      "name": "Spiritcaller",
+      "name": "Spiritweaver",
       "role": "Healer",
-      "description": "Spiritcallers bridge the mortal and spirit realms, summoning totems that slow enemies, heal allies, or unleash primal fury.",
+      "description": "Spiritweavers bridge the mortal and spirit realms, summoning totems that slow enemies, heal allies, or unleash primal fury.",
       "stat_priorities": {
         "primary": "wisdom",
         "secondary": "intelligence",
         "tertiary": "constitution"
       },
       "alternate_names": [
-        "Spiritcaller",
+        "Shaman",
         "Totem Warden",
         "Mystic Seer"
       ],

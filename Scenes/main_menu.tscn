@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://b8guo66cf6r1f"]
+[gd_scene format=3 uid="uid://b8guo66cf6r1f"]
 
 [ext_resource type="Script" uid="uid://ky1o8ti26whn" path="res://Scripts/main_menu.gd" id="1_28flt"]
 [ext_resource type="Texture2D" uid="uid://ciglchqxkgu7h" path="res://Assets/torch/frame_0_delay-0.1s.png" id="2_16hvj"]
@@ -52,90 +52,90 @@ gradient = SubResource("Gradient_16hvj")
 fill = 1
 fill_from = Vector2(0.5, 0.5)
 
-[node name="main_menu" type="Node"]
+[node name="main_menu" type="Node" unique_id=391608122]
 script = ExtResource("1_28flt")
 
-[node name="Panel" type="Panel" parent="."]
+[node name="Panel" type="Panel" parent="." unique_id=557130822]
 offset_right = 1280.0
-offset_bottom = 706.0
+offset_bottom = 1024.0
 
-[node name="torch" type="AnimatedSprite2D" parent="Panel"]
-position = Vector2(128, 128)
+[node name="torch" type="AnimatedSprite2D" parent="Panel" unique_id=2551081]
+position = Vector2(134, 199)
 scale = Vector2(6.4375, 6.0625)
 sprite_frames = SubResource("SpriteFrames_ujyyl")
 animation = &"torch_flicker"
 frame_progress = 0.569934
 
-[node name="PointLight2D" type="PointLight2D" parent="Panel/torch"]
-position = Vector2(-0.776699, -2.47423)
+[node name="PointLight2D" type="PointLight2D" parent="Panel/torch" unique_id=1260802085]
+position = Vector2(1.7881393e-07, -7.42268)
 scale = Vector2(0.368932, 0.365979)
 color = Color(1, 0.878431, 0.482353, 1)
 energy = 8.0
 shadow_enabled = true
 texture = SubResource("GradientTexture2D_vr1f0")
 
-[node name="torch2" type="AnimatedSprite2D" parent="Panel"]
-position = Vector2(1151, 134)
+[node name="torch2" type="AnimatedSprite2D" parent="Panel" unique_id=1752550889]
+position = Vector2(1142, 198)
 scale = Vector2(6.4375, 6.0625)
 sprite_frames = SubResource("SpriteFrames_ujyyl")
 animation = &"torch_flicker"
 
-[node name="PointLight2D2" type="PointLight2D" parent="Panel/torch2"]
-position = Vector2(0, -4.7835)
+[node name="PointLight2D2" type="PointLight2D" parent="Panel/torch2" unique_id=1933115352]
+position = Vector2(0.3106804, -7.5876293)
 scale = Vector2(0.368932, 0.365979)
 color = Color(1, 0.878431, 0.482353, 1)
 energy = 8.0
 shadow_enabled = true
 texture = SubResource("GradientTexture2D_vr1f0")
 
-[node name="title" type="Label" parent="."]
-offset_left = 54.0
-offset_top = 72.0
-offset_right = 1201.0
-offset_bottom = 257.0
+[node name="title" type="Label" parent="." unique_id=335646915]
+offset_left = 57.0
+offset_top = 126.0
+offset_right = 1204.0
+offset_bottom = 311.0
 theme_override_font_sizes/font_size = 86
 text = "Aldenexia:Lightfall"
 horizontal_alignment = 1
 
-[node name="DirectionalLight2D" type="DirectionalLight2D" parent="."]
+[node name="DirectionalLight2D" type="DirectionalLight2D" parent="." unique_id=107326692]
 position = Vector2(570, -272)
 energy = 0.24
 blend_mode = 1
 
-[node name="torch_sound" type="AudioStreamPlayer2D" parent="."]
+[node name="torch_sound" type="AudioStreamPlayer2D" parent="." unique_id=1804295963]
 position = Vector2(570, 103)
 stream = ExtResource("11_vr1f0")
 volume_db = -4.282
 autoplay = true
 
-[node name="HBoxContainer" type="HBoxContainer" parent="."]
+[node name="HBoxContainer" type="HBoxContainer" parent="." unique_id=263068394]
 offset_left = 51.0
 offset_top = 367.0
 offset_right = 1226.0
 offset_bottom = 473.0
 alignment = 1
 
-[node name="create_character" type="Button" parent="HBoxContainer"]
+[node name="create_character" type="Button" parent="HBoxContainer" unique_id=1675785152]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Create Character"
 
-[node name="load_game" type="Button" parent="HBoxContainer"]
+[node name="load_game" type="Button" parent="HBoxContainer" unique_id=1616350471]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Load"
 
-[node name="credits" type="Button" parent="HBoxContainer"]
+[node name="credits" type="Button" parent="HBoxContainer" unique_id=1468378802]
 layout_mode = 2
 text = "Credits
 "
 
-[node name="options" type="Button" parent="HBoxContainer"]
+[node name="options" type="Button" parent="HBoxContainer" unique_id=1466915718]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Options"
 
-[node name="quit" type="Button" parent="HBoxContainer"]
+[node name="quit" type="Button" parent="HBoxContainer" unique_id=2003900354]
 layout_mode = 2
 text = "Run Away"
 

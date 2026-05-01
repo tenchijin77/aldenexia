@@ -7,6 +7,7 @@ var final_stats: Dictionary = {}
 var stat_pool: int = 4
 var selected_race: String = ""
 var selected_class: String = ""
+var class_restrictions: Dictionary = {}
 
 var casting_stats: Dictionary = {
 	"voidknight": ["intelligence"],
@@ -52,6 +53,7 @@ var casting_stats: Dictionary = {
 @onready var portrait_texture: TextureRect = $MarginContainer/VBoxContainer/top_row/portrait_panel/portrait_texture
 
 func _ready() -> void:
+	load_class_restrictions()
 	load_character_options()
 
 	if race_select.item_count > 0:
@@ -65,9 +67,21 @@ func _ready() -> void:
 		strength_spin, constitution_spin, dexterity_spin,
 		intelligence_spin, wisdom_spin, charisma_spin, luck_spin
 	]
-
 	for spinbox in spinboxes:
 		spinbox.value_changed.connect(_on_spinbox_value_changed)
+
+# ---------------------------------------------------------
+# LOAD CLASS RESTRICTIONS
+# ---------------------------------------------------------
+func load_class_restrictions() -> void:
+	var file = FileAccess.open("res://Data/class_restrictions.json", FileAccess.READ)
+	if file:
+		var parsed = JSON.parse_string(file.get_as_text())
+		file.close()
+		if typeof(parsed) == TYPE_DICTIONARY:
+			class_restrictions = parsed
+		else:
+			push_error("❌ class_restrictions.json failed to parse")
 
 # ---------------------------------------------------------
 # LOAD CHARACTER OPTIONS
@@ -79,7 +93,6 @@ func load_character_options() -> void:
 		return
 
 	var races: Dictionary = data["races"]
-	var classes: Dictionary = data["classes"]
 
 	race_select.clear()
 	class_select.clear()
@@ -90,19 +103,8 @@ func load_character_options() -> void:
 	for key in race_keys:
 		var race_key: String = str(key)
 		var race_data: Dictionary = races[race_key]
-
 		race_select.add_item(race_data["name"])
 		race_select.set_item_metadata(race_select.item_count - 1, race_key)
-
-	var class_keys: Array = classes.keys()
-	class_keys.sort()
-
-	for key in class_keys:
-		var class_key: String = str(key)
-		var class_data: Dictionary = classes[class_key]
-
-		class_select.add_item(class_data["name"])
-		class_select.set_item_metadata(class_select.item_count - 1, class_key)
 
 # ---------------------------------------------------------
 # RACE SELECTION
@@ -112,11 +114,30 @@ func _on_race_selected(index: int) -> void:
 	var race_key: String = str(meta)
 	selected_race = race_key
 
+	var race_display_name: String = Global.character_options["races"][race_key]["name"]
+	update_class_options_for_race(race_display_name)
+
 	load_racial_stats(race_key)
 	load_racial_traits(race_key)
 	update_race_description(race_key)
 	update_portrait(race_key)
 	update_derived_preview()
+
+	if class_select.item_count > 0:
+		_on_class_selected(0)
+
+func update_class_options_for_race(race_display_name: String) -> void:
+	class_select.clear()
+	var classes: Dictionary = Global.character_options["classes"]
+	var class_keys: Array = classes.keys()
+	class_keys.sort()
+	for key in class_keys:
+		var class_key: String = str(key)
+		var class_display_name: String = classes[class_key]["name"]
+		if class_restrictions.has(class_display_name):
+			if race_display_name in class_restrictions[class_display_name]:
+				class_select.add_item(class_display_name)
+				class_select.set_item_metadata(class_select.item_count - 1, class_key)
 
 func update_race_description(race_key: String) -> void:
 	var race: Dictionary = Global.character_options["races"][race_key]
@@ -125,30 +146,30 @@ func update_race_description(race_key: String) -> void:
 
 func update_portrait(race_key: String) -> void:
 	var race: Dictionary = Global.character_options["races"][race_key]
-
-	if race.has("portrait"):
+	if race.has("portrait") and race["portrait"] != "":
 		var path: String = race["portrait"]
 		if ResourceLoader.exists(path):
 			portrait_texture.texture = load(path)
 		else:
-			push_error("❌ Portrait not found: " + path)
+			portrait_texture.texture = null
 	else:
 		portrait_texture.texture = null
 
 func load_racial_stats(race_key: String) -> void:
-	base_stats = {
-		"strength": 10,
-		"constitution": 10,
-		"dexterity": 10,
-		"intelligence": 10,
-		"wisdom": 10,
-		"charisma": 10,
-		"luck": 10
-	}
+	var race_name = Global.character_options["races"][race_key]["name"].to_lower()
+	var file = FileAccess.open("res://Data/racial_stats.json", FileAccess.READ)
+	if file:
+		var data = JSON.parse_string(file.get_as_text())
+		file.close()
+		if typeof(data) == TYPE_DICTIONARY and data.has(race_name):
+			base_stats = data[race_name]["base_stats"]
+		else:
+			base_stats = { "strength": 10, "constitution": 10, "dexterity": 10, "intelligence": 10, "wisdom": 10, "charisma": 10, "luck": 10 }
+	else:
+		base_stats = { "strength": 10, "constitution": 10, "dexterity": 10, "intelligence": 10, "wisdom": 10, "charisma": 10, "luck": 10 }
 
 	final_stats = base_stats.duplicate()
 	stat_pool = 4
-
 	setup_spinboxes()
 	update_point_display()
 
@@ -161,8 +182,7 @@ func load_racial_traits(race_key: String) -> void:
 	traits_list.text = ""
 
 	for key in traits.keys():
-		var t_key: String = str(key)
-		traits_list.text += "• %s: %s\n" % [t_key, str(traits[t_key])]
+		traits_list.text += "• %s: %s\n" % [str(key), str(traits[key])]
 
 	for key in penalties.keys():
 		var p_key: String = str(key)
@@ -201,9 +221,8 @@ func setup_spinboxes() -> void:
 		spin.max_value = base_stats[stat_key] + 4
 		spin.value = base_stats[stat_key]
 
-func _on_spinbox_value_changed(value: float) -> void:
+func _on_spinbox_value_changed(_value: float) -> void:
 	stat_pool = 4
-
 	stat_pool -= int(strength_spin.value - base_stats["strength"])
 	stat_pool -= int(constitution_spin.value - base_stats["constitution"])
 	stat_pool -= int(dexterity_spin.value - base_stats["dexterity"])
@@ -224,7 +243,6 @@ func update_point_display() -> void:
 func update_derived_preview() -> void:
 	var preview: Dictionary = calculate_derived_stats(final_stats, selected_class)
 	derived_list.text = ""
-
 	for key in preview.keys():
 		derived_list.text += "%s: %s\n" % [key.capitalize(), str(preview[key])]
 
@@ -296,27 +314,24 @@ func _on_confirm_pressed() -> void:
 # ---------------------------------------------------------
 # DERIVED STATS
 # ---------------------------------------------------------
-func calculate_derived_stats(base_stats: Dictionary, selected_class: String) -> Dictionary:
+func calculate_derived_stats(stats: Dictionary, class_key: String) -> Dictionary:
 	var derived: Dictionary = {}
 	var required_keys: Array[String] = ["strength", "constitution", "dexterity", "intelligence", "wisdom", "luck"]
 
 	for key in required_keys:
-		if not base_stats.has(key):
+		if not stats.has(key):
 			return derived
 
-	derived["max_weight"] = base_stats["strength"] * 15
-	derived["health"] = base_stats["constitution"] * 10
-	derived["crit_chance"] = (base_stats["dexterity"] + base_stats["luck"]) / 2.0
-	derived["mana"] = base_stats["intelligence"] + (base_stats["wisdom"] * 5)
-	derived["stamina"] = (base_stats["constitution"] + base_stats["dexterity"]) * 5
+	derived["max_weight"] = stats["strength"] * 15
+	derived["health"] = stats["constitution"] * 10
+	derived["crit_chance"] = (stats["dexterity"] + stats["luck"]) / 2.0
+	derived["mana"] = stats["intelligence"] + (stats["wisdom"] * 5)
+	derived["stamina"] = (stats["constitution"] + stats["dexterity"]) * 5
 
-	var class_key: String = selected_class.to_lower()
-	var stats: Array = casting_stats.get(class_key, ["intelligence"])
+	var cast_stats: Array = casting_stats.get(class_key.to_lower(), ["intelligence"])
 	var total: int = 0
-
-	for s in stats:
-		total += base_stats.get(s, 0)
-
+	for s in cast_stats:
+		total += stats.get(s, 0)
 	derived["spell_power"] = total * 2
 
 	return derived
