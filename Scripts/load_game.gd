@@ -70,7 +70,9 @@ func _on_load_button_pressed():
 
 				if typeof(character_data) == TYPE_DICTIONARY:
 					# Store the parsed character data in the global singleton
-					Global.current_character_data = character_data
+					# old, not working Global.current_character_data = character_data
+					Global.set_player_data(character_data)
+					
 					
 					# Change scene to the game world
 					get_tree().change_scene_to_file("res://Scenes/lumora_outskirts3d.tscn")

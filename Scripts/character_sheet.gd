@@ -1,3 +1,4 @@
+#character_sheet.gd - used for player information an equipped inventory
 extends CanvasLayer
 
 # UI references
@@ -45,6 +46,8 @@ func _ready():
 func refresh_storage_slots():
 	for i in range(Inventory.BASIC_INVENTORY_SIZE):
 		var slot = storage_slots[i]
+		slot.custom_minimum_size = Vector2(48, 48)
+		slot.stretch_mode = TextureButton.STRETCH_KEEP_ASPECT_CENTERED
 		slot.slot_type = "basic"
 		slot.slot_index = i
 		slot.bag_slot = -1
@@ -64,6 +67,8 @@ func refresh_storage_slots():
 				slot.texture_normal = null
 
 			slot.tooltip_text = item.get("name", "Unknown Item")
+
+		slot.queue_redraw()
 
 func set_character_data(data: Dictionary):
 	name_label.text = "Name: %s" % data.get("player_name", "")

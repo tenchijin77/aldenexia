@@ -1,3 +1,4 @@
+#slot_button.gd - creates the drag and drop bag slots
 extends TextureButton
 
 var slot_type: String = ""      # "basic", "bag"
@@ -8,8 +9,12 @@ var item_data: Dictionary = {}  # actual item dictionary
 
 func _ready():
 	mouse_filter = Control.MOUSE_FILTER_PASS
+	queue_redraw()
 
-#
+func _draw():
+	draw_rect(Rect2(Vector2.ZERO, size), Color(0.15, 0.15, 0.15, 0.9))
+	draw_rect(Rect2(Vector2.ZERO, size), Color(0.5, 0.5, 0.5, 1.0), false, 1.0)
+	
 # GODOT 4 DRAG START
 #
 func get_drag_data(position):

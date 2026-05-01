@@ -30,6 +30,6 @@ transform = Transform3D(1, 0, 0, 0, 0.9848077, 0.17364818, 0, -0.17364818, 0.984
 script = ExtResource("2_yogew")
 
 [node name="Camera3D" type="Camera3D" parent="CameraRig" unique_id=572376702]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 6)
+transform = Transform3D(0.92825216, -0.064588726, 0.36630058, 0.064588696, 0.9978367, 0.012269691, -0.3663006, 0.012269512, 0.930416, 2.2750812, 1.4153135, 5.3018317)
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=2106662325]
