@@ -1,9 +1,9 @@
-#character_sheet.gd - used for player information an equipped inventory
 extends CanvasLayer
 
 # UI references
 @onready var name_label = $main_panel/scroll_container/scroll_wrapper/stat_block/name_label
 @onready var class_label = $main_panel/scroll_container/scroll_wrapper/stat_block/class_label
+@onready var race_label = $main_panel/scroll_container/scroll_wrapper/stat_block/race_label
 @onready var level_label = $main_panel/scroll_container/scroll_wrapper/stat_block/level_label
 @onready var strength_label = $main_panel/scroll_container/scroll_wrapper/stat_block/strength_label
 @onready var constitution_label = $main_panel/scroll_container/scroll_wrapper/stat_block/constitution_label
@@ -73,6 +73,7 @@ func refresh_storage_slots():
 func set_character_data(data: Dictionary):
 	name_label.text = "Name: %s" % data.get("player_name", "")
 	class_label.text = "Class: %s" % data.get("player_class", "")
+	race_label.text = "Race: %s" % data.get("player_race", "")
 	level_label.text = "Level: %d" % data.get("player_level", 1)
 
 	strength_label.text = "Strength: %d" % data.stats.get("strength", 0)

@@ -1,4 +1,4 @@
-# character_creation.gd
+#character_creation.gd - character creation panel logic
 extends Control
 
 # Stat Logic
@@ -36,9 +36,7 @@ var casting_stats := {
 @onready var wisdom_spin = $MarginContainer/VBoxContainer/GridContainer/wisdom_section/wisdom_spinbox
 @onready var charisma_spin = $MarginContainer/VBoxContainer/GridContainer/charisma_section/charisma_spinbox
 @onready var luck_spin = $MarginContainer/VBoxContainer/GridContainer/luck_section/luck_spinbox
-
 @onready var points_remaining_label = $MarginContainer/VBoxContainer/points_remaining
-
 @onready var confirm_button = $MarginContainer/VBoxContainer/confirm_button
 @onready var begin_button = $MarginContainer/VBoxContainer/begin_button
 
@@ -47,6 +45,9 @@ func _ready():
 
 	load_class_restrictions()
 	load_character_options()
+
+	if race_select.item_count > 0:
+		_on_race_selected(0)
 
 	race_select.item_selected.connect(_on_race_selected)
 	confirm_button.pressed.connect(_on_confirm_pressed)
