@@ -30,6 +30,9 @@ layout_mode = 2
 [node name="name_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/stat_block" unique_id=1343526017]
 layout_mode = 2
 
+[node name="race_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/stat_block" unique_id=668918793]
+layout_mode = 2
+
 [node name="class_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/stat_block" unique_id=1210273418]
 layout_mode = 2
 
@@ -231,3 +234,11 @@ script = ExtResource("2_fg8ep")
 [node name="slot_11" type="TextureButton" parent="main_panel/scroll_container/scroll_wrapper/storage_block" unique_id=1798786461]
 layout_mode = 2
 script = ExtResource("2_fg8ep")
+
+[node name="race_info_label" type="RichTextLabel" parent="main_panel" unique_id=1737171857]
+layout_mode = 0
+offset_right = 1.0
+scale = Vector2(107106.87, -276318.63)
+fit_content = true
+horizontal_alignment = 2
+vertical_alignment = 1
