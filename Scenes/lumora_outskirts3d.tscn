@@ -6,8 +6,8 @@
 [sub_resource type="Environment" id="Environment_7vt6w"]
 
 [sub_resource type="NavigationMesh" id="NavigationMesh_buoj8"]
-vertices = PackedVector3Array(-249.5, 0.5, 44.75, -49.75, 0.5, 44.75, -49.5, 0.5, 43.75, -48.5, 0.5, -249.5, -249.5, 0.5, -249.5, -48.5, 0.5, 43.75, -47.75, 0.5, 43.75, -47.5, 0.5, 44.75, 249.5, 0.5, 44.75, 249.5, 0.5, -249.5, -49.75, 0.5, 45.75, -48.5, 0.5, 46, -249.5, 0.5, 249.5, -48.5, 0.5, 249.5, -47.5, 0.5, 45.75, 249.5, 0.5, 249.5)
-polygons = [PackedInt32Array(1, 0, 2), PackedInt32Array(2, 0, 4), PackedInt32Array(2, 4, 3), PackedInt32Array(3, 5, 2), PackedInt32Array(6, 5, 3), PackedInt32Array(6, 3, 7), PackedInt32Array(7, 3, 8), PackedInt32Array(8, 3, 9), PackedInt32Array(0, 1, 10), PackedInt32Array(10, 11, 0), PackedInt32Array(0, 11, 13), PackedInt32Array(0, 13, 12), PackedInt32Array(11, 14, 13), PackedInt32Array(13, 14, 15), PackedInt32Array(15, 14, 8), PackedInt32Array(14, 7, 8)]
+vertices = PackedVector3Array(-249.5, 0.5, -249.5, -249.5, 0.5, 249.5, 249.5, 0.5, 249.5, 249.5, 0.5, -249.5)
+polygons = [PackedInt32Array(3, 2, 0), PackedInt32Array(0, 2, 1)]
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_7vt6w"]
 size = Vector2(500, 500)

@@ -212,25 +212,14 @@ func handle_movement(delta: float) -> void:
 	if not is_inside_tree() or not nav_agent:
 		return
 
-	if nav_agent.is_navigation_finished():
-		print("MOVE: navigation finished")
-		return
-
 	var next_position: Vector3 = nav_agent.get_next_path_position()
-
-	# --- FIX: separate vertical and horizontal movement ---
 	var to_next: Vector3 = next_position - global_position
 	var flat_dir: Vector3 = Vector3(to_next.x, 0, to_next.z)
 
-	# If horizontally close AND vertically close enough → treat as reached
-	if flat_dir.length() < 0.01 and to_next.length() < nav_agent.target_desired_distance:
-		print("MOVE: close enough to next point")
+	if flat_dir.length() < 0.1:
 		return
 
 	var direction: Vector3 = flat_dir.normalized()
-
-	print("MOVE: pos =", global_position, " next =", next_position, " dir =", direction)
-
 	look_at_target(global_position + direction)
 
 	var speed_3d = speed / 10.0
@@ -362,4 +351,5 @@ func pick_new_patrol_point() -> void:
 func look_at_target(target_pos: Vector3) -> void:
 	var look_pos: Vector3 = target_pos
 	look_pos.y = global_position.y
-	look_at(look_pos, Vector3.UP)
+	if global_position.distance_squared_to(look_pos) > 0.0001:
+		look_at(look_pos, Vector3.UP)
