@@ -14,7 +14,7 @@ height = 2.1645508
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_jstp3"]
 albedo_color = Color(0.60837895, 0.51094186, 0.17938256, 1)
 
-[node name="CharacterBody3D" type="CharacterBody3D" unique_id=992623004]
+[node name="CharacterBody3D" type="CharacterBody3D" unique_id=992623004 groups=["player"]]
 script = ExtResource("1_w11xc")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=947101205]

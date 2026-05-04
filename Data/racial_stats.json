@@ -95,7 +95,7 @@
     },
     "traits": ["regeneration", "darkvision", "aggressive"]
   },
-  "dark elf": {
+  "dark-elf": {
     "base_stats": {
       "strength": 10,
       "constitution": 10,

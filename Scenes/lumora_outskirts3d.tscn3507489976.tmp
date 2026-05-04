@@ -6,10 +6,8 @@
 [sub_resource type="Environment" id="Environment_7vt6w"]
 
 [sub_resource type="NavigationMesh" id="NavigationMesh_buoj8"]
-vertices = PackedVector3Array(-99.75, 0.9999967, -74.75, -99.75, 0.9999967, 74.75, 99.75, 0.9999967, 74.75, 99.75, 0.9999967, -74.75)
-polygons = [PackedInt32Array(3, 2, 0), PackedInt32Array(0, 2, 1)]
-agent_height = 0.5
-agent_radius = 0.2
+vertices = PackedVector3Array(-47.5, 0.9999967, 46, -48.5, 0.9999967, 46.25, -48.5, 0.9999967, 74.5, 99.5, 0.9999967, 74.5, -99.5, 0.9999967, 45, -49.75, 0.9999967, 45, -49.5, 0.9999967, 44, -99.5, 0.9999967, -74.5, -47.75, 0.9999967, 44, 99.5, 0.9999967, -74.5, -49.75, 0.9999967, 46, -99.5, 0.9999967, 74.5)
+polygons = [PackedInt32Array(1, 0, 2), PackedInt32Array(2, 0, 3), PackedInt32Array(5, 4, 6), PackedInt32Array(6, 4, 7), PackedInt32Array(3, 8, 9), PackedInt32Array(9, 8, 7), PackedInt32Array(8, 6, 7), PackedInt32Array(3, 0, 8), PackedInt32Array(1, 2, 10), PackedInt32Array(10, 2, 11), PackedInt32Array(10, 11, 4), PackedInt32Array(4, 5, 10)]
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_7vt6w"]
 size = Vector2(200, 150)
@@ -41,5 +39,5 @@ mesh = SubResource("PlaneMesh_7vt6w")
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 0, 0)
 shape = SubResource("BoxShape3D_buoj8")
 
-[node name="monster_template" parent="." unique_id=2031395971 instance=ExtResource("1_buoj8")]
+[node name="monster_template" parent="NavigationRegion3D/StaticBody3D" unique_id=2031395971 instance=ExtResource("1_buoj8")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -48.594215, 1.5000019, 45.02575)

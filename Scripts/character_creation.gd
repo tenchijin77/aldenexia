@@ -56,9 +56,6 @@ func _ready() -> void:
 	load_class_restrictions()
 	load_character_options()
 
-	if race_select.item_count > 0:
-		_on_race_selected(0)
-
 	race_select.item_selected.connect(_on_race_selected)
 	class_select.item_selected.connect(_on_class_selected)
 	confirm_button.pressed.connect(_on_confirm_pressed)
@@ -69,6 +66,9 @@ func _ready() -> void:
 	]
 	for spinbox in spinboxes:
 		spinbox.value_changed.connect(_on_spinbox_value_changed)
+
+	if race_select.item_count > 0:
+		_on_race_selected(0)
 
 # ---------------------------------------------------------
 # LOAD CLASS RESTRICTIONS
@@ -251,7 +251,6 @@ func update_derived_preview() -> void:
 # ---------------------------------------------------------
 func _on_confirm_pressed() -> void:
 	collect_final_stats()
-
 	var derived_stats: Dictionary = calculate_derived_stats(final_stats, selected_class)
 
 	var character_data: Dictionary = {
@@ -292,11 +291,7 @@ func _on_confirm_pressed() -> void:
 		"character_creation": Global.create_character_creation_timestamp(),
 		"playtime_seconds": 0,
 
-		"inventory_data": {
-			"basic_inventory": [],
-			"bag_contents": {},
-			"bank_storage": {}
-		}
+		"inventory_data": build_starting_inventory(),
 	}
 
 	var save_dir: String = "user://saves"
@@ -310,6 +305,17 @@ func _on_confirm_pressed() -> void:
 		file.close()
 	else:
 		push_error("❌ Failed to write character save file: " + file_path)
+
+# ---------------------------------------------------------
+# STARTING INVENTORY
+# ---------------------------------------------------------
+func build_starting_inventory() -> Dictionary:
+	Inventory.initialize_basic_inventory()
+	Inventory.basic_inventory[0] = Inventory.create_item_instance("faded_note")
+	Inventory.basic_inventory[1] = Inventory.create_item_instance("iron_rations", 20)
+	Inventory.basic_inventory[2] = Inventory.create_item_instance("water_flask", 20)
+	Inventory.basic_inventory[3] = Inventory.create_item_instance("copper_coin", 20)
+	return Inventory.save_inventory_data()
 
 # ---------------------------------------------------------
 # DERIVED STATS
