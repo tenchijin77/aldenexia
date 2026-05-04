@@ -243,9 +243,9 @@ func handle_movement(delta: float) -> void:
 		return
 
 	if Input.is_action_pressed("turn_left"):
-		rotation.y -= TURN_SPEED * delta
-	if Input.is_action_pressed("turn_right"):
 		rotation.y += TURN_SPEED * delta
+	if Input.is_action_pressed("turn_right"):
+		rotation.y -= TURN_SPEED * delta
 
 	var strafe := 0.0
 	if Input.is_action_pressed("strafe_left"):
@@ -273,13 +273,18 @@ func handle_movement(delta: float) -> void:
 	if not is_on_floor():
 		target_speed *= AIR_CONTROL_MULT
 
-	var local_move := Vector3(strafe, 0, -forward).normalized()
-	var world_move := global_transform.basis * local_move
+	# Normalize the basis so movement is always correct
+	var forward_dir: Vector3 = -transform.basis.z.normalized()
+	var right_dir: Vector3 = transform.basis.x.normalized()
+
+	var world_move: Vector3 = (right_dir * strafe) + (forward_dir * forward)
+	world_move = world_move.normalized()
 
 	velocity.x = world_move.x * target_speed
 	velocity.z = world_move.z * target_speed
 
 	current_speed = Vector2(velocity.x, velocity.z).length()
+
 
 
 func update_stamina(delta: float) -> void:

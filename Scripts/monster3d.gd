@@ -123,9 +123,14 @@ func _physics_process(delta: float) -> void:
 		if attack_timer <= 0.0:
 			can_attack = true
 
-	# Find player
-	if player == null:
-		player = get_tree().get_first_node_in_group("player")
+	# Find player safely
+	if not is_instance_valid(player):
+		var players: Array = get_tree().get_nodes_in_group("player")
+		if players.size() > 0:
+			player = players[0]
+		else:
+			return
+
 
 	# State machine
 	match current_state:
@@ -183,6 +188,7 @@ func state_chase(delta: float) -> void:
 
 	if is_inside_tree() and nav_agent:
 		nav_agent.target_position = player.global_position
+		print("CHASE: target =", nav_agent.target_position)
 
 func state_attack(delta: float) -> void:
 	if not player:
@@ -207,26 +213,37 @@ func handle_movement(delta: float) -> void:
 		return
 
 	if nav_agent.is_navigation_finished():
+		print("MOVE: navigation finished")
 		return
 
 	var next_position: Vector3 = nav_agent.get_next_path_position()
-	var direction: Vector3 = (next_position - global_position).normalized()
-	direction.y = 0
 
-	if direction.length() > 0.01:
-		look_at_target(global_position + direction)
+	# --- FIX: separate vertical and horizontal movement ---
+	var to_next: Vector3 = next_position - global_position
+	var flat_dir: Vector3 = Vector3(to_next.x, 0, to_next.z)
 
-	# Convert 2D speed to 3D (your JSON uses 2D speeds like 30.0)
-	var speed_3d = speed / 10.0  # Scale down for 3D
+	# If horizontally close AND vertically close enough → treat as reached
+	if flat_dir.length() < 0.01 and to_next.length() < nav_agent.target_desired_distance:
+		print("MOVE: close enough to next point")
+		return
 
+	var direction: Vector3 = flat_dir.normalized()
+
+	print("MOVE: pos =", global_position, " next =", next_position, " dir =", direction)
+
+	look_at_target(global_position + direction)
+
+	var speed_3d = speed / 10.0
 	velocity.x = direction.x * speed_3d
 	velocity.z = direction.z * speed_3d
 
-	# Gravity
 	if not is_on_floor():
 		velocity.y -= 20.0 * delta
 
 	move_and_slide()
+
+
+
 
 # ===== COMBAT =====
 func perform_attack() -> void:

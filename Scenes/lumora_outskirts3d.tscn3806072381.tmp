@@ -36,12 +36,28 @@ navigation_mesh = SubResource("NavigationMesh_buoj8")
 mesh = SubResource("PlaneMesh_7vt6w")
 skeleton = NodePath("")
 
+[node name="monster_template" parent="NavigationRegion3D" unique_id=2031395971 instance=ExtResource("1_buoj8")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -48.597862, 1.7456951, 44.915657)
+behavior_type = "default"
+speed = 30.0
+max_health = 100
+damage = 15
+armor_class = 10
+level = 1
+attack_range = 2.0
+category = "animal"
+faction = "None"
+zone = "lumora_outskirts"
+xp_gain = 10
+coin_modifier = 0.0
+is_social = false
+anim_idle = ""
+anim_walk = ""
+anim_attack = ""
+
 [node name="StaticBody3D" type="StaticBody3D" parent="." unique_id=587558549]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
 physics_material_override = SubResource("PhysicsMaterial_u020j")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D" unique_id=470756669]
 shape = SubResource("BoxShape3D_btwau")
-
-[node name="monster_template" parent="." unique_id=2031395971 instance=ExtResource("1_buoj8")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -48.598, 0.5, 44.916)

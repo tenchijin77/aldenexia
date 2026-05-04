@@ -14,6 +14,8 @@ height = 2.1645508
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_jstp3"]
 albedo_color = Color(0.60837895, 0.51094186, 0.17938256, 1)
 
+[sub_resource type="BoxMesh" id="BoxMesh_yogew"]
+
 [node name="CharacterBody3D" type="CharacterBody3D" unique_id=992623004 groups=["player"]]
 script = ExtResource("1_w11xc")
 
@@ -25,11 +27,15 @@ mesh = SubResource("CapsuleMesh_jstp3")
 skin = SubResource("Skin_yogew")
 surface_material_override/0 = SubResource("StandardMaterial3D_jstp3")
 
+[node name="MeshInstance3D" type="MeshInstance3D" parent="MeshInstance3D" unique_id=1179376383]
+transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0, 0.40744674, -0.51864713)
+mesh = SubResource("BoxMesh_yogew")
+
 [node name="CameraRig" type="Node3D" parent="." unique_id=122413799]
-transform = Transform3D(1, 0, 0, 0, 0.9848077, 0.17364818, 0, -0.17364818, 0.9848077, 0, 0, 0)
+transform = Transform3D(1, 0, 0, 0, 0.96592575, 0.258819, 0, -0.258819, 0.96592575, 0, 0, 0)
 script = ExtResource("2_yogew")
 
 [node name="Camera3D" type="Camera3D" parent="CameraRig" unique_id=572376702]
-transform = Transform3D(0.92825216, -0.064588726, 0.36630058, 0.064588696, 0.9978367, 0.012269691, -0.3663006, 0.012269512, 0.930416, 2.2750812, 1.4153135, 5.3018317)
+transform = Transform3D(0.9282522, -0.06458873, 0.36630067, 0.06458871, 0.99783665, 0.0122697055, -0.36630067, 0.012269512, 0.93041587, 0, 1.1469043, 6.3025475)
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=2106662325]
