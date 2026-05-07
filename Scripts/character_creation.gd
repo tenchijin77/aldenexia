@@ -8,6 +8,7 @@ var stat_pool: int = 4
 var selected_race: String = ""
 var selected_class: String = ""
 var class_restrictions: Dictionary = {}
+var racial_resistances: Dictionary = {}
 
 var casting_stats: Dictionary = {
 	"voidknight": ["intelligence"],
@@ -163,10 +164,13 @@ func load_racial_stats(race_key: String) -> void:
 		file.close()
 		if typeof(data) == TYPE_DICTIONARY and data.has(race_name):
 			base_stats = data[race_name]["base_stats"]
+			racial_resistances = data[race_name].get("resistances", { "acid": 0, "cold": 0, "fire": 0, "magic": 0, "psychic": 0 })
 		else:
 			base_stats = { "strength": 10, "constitution": 10, "dexterity": 10, "intelligence": 10, "wisdom": 10, "charisma": 10, "luck": 10 }
+			racial_resistances = { "acid": 0, "cold": 0, "fire": 0, "magic": 0, "psychic": 0 }
 	else:
 		base_stats = { "strength": 10, "constitution": 10, "dexterity": 10, "intelligence": 10, "wisdom": 10, "charisma": 10, "luck": 10 }
+		racial_resistances = { "acid": 0, "cold": 0, "fire": 0, "magic": 0, "psychic": 0 }
 
 	final_stats = base_stats.duplicate()
 	stat_pool = 4
@@ -231,6 +235,15 @@ func _on_spinbox_value_changed(_value: float) -> void:
 	stat_pool -= int(charisma_spin.value - base_stats["charisma"])
 	stat_pool -= int(luck_spin.value - base_stats["luck"])
 
+	var remaining: int = max(0, stat_pool)
+	strength_spin.max_value = strength_spin.value + remaining
+	constitution_spin.max_value = constitution_spin.value + remaining
+	dexterity_spin.max_value = dexterity_spin.value + remaining
+	intelligence_spin.max_value = intelligence_spin.value + remaining
+	wisdom_spin.max_value = wisdom_spin.value + remaining
+	charisma_spin.max_value = charisma_spin.value + remaining
+	luck_spin.max_value = luck_spin.value + remaining
+
 	update_point_display()
 	update_derived_preview()
 
@@ -275,9 +288,7 @@ func _on_confirm_pressed() -> void:
 		"gold": 0,
 		"platinum": 0,
 
-		"resistances": {
-			"acid": 0, "cold": 0, "fire": 0, "magic": 0, "psychic": 0
-		},
+		"resistances": racial_resistances.duplicate(),
 
 		"equipment": {
 			"ear1": "", "ear2": "", "neck": "", "face": "", "head": "",

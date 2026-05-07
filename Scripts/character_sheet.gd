@@ -41,6 +41,7 @@ var money_label: Label
 var _dragging := false
 var _resizing := false
 const RESIZE_MARGIN := 16.0
+var resistance_label: Label
 
 func _ready():
 	$main_panel.gui_input.connect(_on_panel_gui_input)
@@ -48,6 +49,8 @@ func _ready():
 	storage_block.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	money_label = Label.new()
 	$main_panel/scroll_container/scroll_wrapper/stat_block.add_child(money_label)
+	resistance_label = Label.new()
+	$main_panel/scroll_container/scroll_wrapper/stat_block.add_child(resistance_label)
 	if Inventory.inventory_changed.is_connected(_on_inventory_changed) == false:
 		Inventory.inventory_changed.connect(_on_inventory_changed)
 	refresh_storage_slots()
@@ -134,7 +137,12 @@ func set_character_data(data: Dictionary):
 	var copper = data.get("copper", 0)
 	if money_label:
 		money_label.text = "Money: %dpp  %dgp  %dsp  %dcp" % [plat, gold, silver, copper]
-
+	var res: Dictionary = data.get("resistances", {})
+	if resistance_label:
+		resistance_label.text = "Resist:  Acid %d  Cold %d  Fire %d  Magic %d  Psychic %d" % [
+		res.get("acid", 0), res.get("cold", 0), res.get("fire", 0),
+		res.get("magic", 0), res.get("psychic", 0)
+	]
 	refresh_storage_slots()
 
 func _on_inventory_changed():

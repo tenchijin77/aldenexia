@@ -1170,7 +1170,7 @@
     "name": "Faded, Handwritten Note",
     "icon": "res://Assets/789_Lorc_RPG_icons/Icon.6_36.png",
     "description": "A worn piece of parchment, the ink faded but still legible.",
-    "lore": "Seek the ruins east of Lumora at nightfall. The Order has hidden what you need beneath the old foundation stone. Trust no one in the village. - Guildmaster Aelric"
+    "lore": "Seek the ruins east of Lumora at nightfall. The Order has hidden what you need beneath the old foundation stone. Trust no one in the village. - Guildmaster Aelric",
     "stackable": false,
     "currency_type": "copper",
     "value": 0,
@@ -1233,13 +1233,27 @@
     "stat_modifiers": { "strength": 4, "agility": 2 },
     "effect": null
   },
-  "small_bag": {
-    "name": "A small bag",
+ "small_bag": {
+    "name": "A Small Bag",
     "icon": "res://Assets/789_Lorc_RPG_icons/Icon.6_37.png",
+    "description": "A small, worn bag that can hold a few items.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 5,
     "type": "bag",
     "bag_size": 4,
-    "stackable": false,
-    "value": 5,
-    "description": "A small, worn bag that can hold a few items.",
-    }
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.5,
+    "size": "small",
+    "class": ["all"],
+    "race": ["all"],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  }
 }

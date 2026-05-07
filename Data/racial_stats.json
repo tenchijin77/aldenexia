@@ -9,8 +9,10 @@
       "charisma": 11,
       "luck": 11
     },
-    "traits": ["versatile", "balanced"]
+    "traits": ["versatile", "balanced"],
+    "resistances": { "acid": 0, "cold": 0, "fire": 0, "magic": 0, "psychic": 0 }
   },
+
   "elf": {
     "base_stats": {
       "strength": 10,
@@ -21,8 +23,10 @@
       "charisma": 10,
       "luck": 10
     },
-    "traits": ["darkvision", "keen senses", "fey ancestry"]
+    "traits": ["darkvision", "keen senses", "fey ancestry"],
+    "resistances": { "acid": 0, "cold": 5, "fire": 0, "magic": 5, "psychic": 0 }
   },
+
   "dwarf": {
     "base_stats": {
       "strength": 11,
@@ -33,8 +37,10 @@
       "charisma": 10,
       "luck": 10
     },
-    "traits": ["darkvision", "dwarven resilience", "stonecunning"]
+    "traits": ["darkvision", "dwarven resilience", "stonecunning"],
+    "resistances": { "acid": 5, "cold": 5, "fire": 0, "magic": 5, "psychic": -5 }
   },
+
   "gnome": {
     "base_stats": {
       "strength": 10,
@@ -45,8 +51,10 @@
       "charisma": 10,
       "luck": 10
     },
-    "traits": ["darkvision", "gnome cunning", "tinker"]
+    "traits": ["darkvision", "gnome cunning", "tinker"],
+    "resistances": { "acid": 0, "cold": 0, "fire": 0, "magic": 10, "psychic": 5 }
   },
+
   "halfling": {
     "base_stats": {
       "strength": 10,
@@ -57,8 +65,10 @@
       "charisma": 10,
       "luck": 11
     },
-    "traits": ["lucky", "brave", "halfling nimbleness"]
+    "traits": ["lucky", "brave", "halfling nimbleness"],
+    "resistances": { "acid": 0, "cold": 0, "fire": 0, "magic": 5, "psychic": 5 }
   },
+
   "half-elf": {
     "base_stats": {
       "strength": 10,
@@ -69,8 +79,10 @@
       "charisma": 12,
       "luck": 11
     },
-    "traits": ["darkvision", "fey ancestry", "versatility"]
+    "traits": ["darkvision", "fey ancestry", "versatility"],
+    "resistances": { "acid": 0, "cold": 0, "fire": 0, "magic": 5, "psychic": 5 }
   },
+
   "ogre": {
     "base_stats": {
       "strength": 14,
@@ -81,8 +93,10 @@
       "charisma": 10,
       "luck": 10
     },
-    "traits": ["large size", "powerful build", "low intelligence"]
+    "traits": ["large size", "powerful build", "low intelligence"],
+    "resistances": { "acid": 10, "cold": 0, "fire": 0, "magic": -10, "psychic": -5 }
   },
+
   "troll": {
     "base_stats": {
       "strength": 14,
@@ -93,8 +107,10 @@
       "charisma": 10,
       "luck": 10
     },
-    "traits": ["regeneration", "darkvision", "aggressive"]
+    "traits": ["regeneration", "darkvision", "aggressive"],
+    "resistances": { "acid": 10, "cold": -5, "fire": -5, "magic": 0, "psychic": 0 }
   },
+
   "dark-elf": {
     "base_stats": {
       "strength": 10,
@@ -105,8 +121,10 @@
       "charisma": 11,
       "luck": 10
     },
-    "traits": ["darkvision", "drow magic", "sunlight sensitivity"]
+    "traits": ["darkvision", "drow magic", "sunlight sensitivity"],
+    "resistances": { "acid": 0, "cold": 0, "fire": -5, "magic": 10, "psychic": 10 }
   },
+
   "half-orc": {
     "base_stats": {
       "strength": 12,
@@ -117,8 +135,10 @@
       "charisma": 9,
       "luck": 10
     },
-    "traits": ["darkvision", "relentless endurance", "savage attacks"]
+    "traits": ["darkvision", "relentless endurance", "savage attacks"],
+    "resistances": { "acid": 5, "cold": 0, "fire": 0, "magic": -5, "psychic": 0 }
   },
+
   "lizardkin": {
     "base_stats": {
       "strength": 10,
@@ -129,6 +149,7 @@
       "charisma": 8,
       "luck": 10
     },
-    "traits": ["natural armor", "amphibious", "bite attack", "cold-blooded"]
+    "traits": ["natural armor", "amphibious", "bite attack", "cold-blooded"],
+    "resistances": { "acid": 5, "cold": -10, "fire": 0, "magic": 0, "psychic": 5 }
   }
 }
