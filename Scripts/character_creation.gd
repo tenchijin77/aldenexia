@@ -270,7 +270,7 @@ func _on_confirm_pressed() -> void:
 
 		"xp": 0,
 		"xp_next_level": 100,
-		"copper": 100,
+		"copper": 20,
 		"silver": 0,
 		"gold": 0,
 		"platinum": 0,
@@ -307,14 +307,16 @@ func _on_confirm_pressed() -> void:
 		push_error("❌ Failed to write character save file: " + file_path)
 
 # ---------------------------------------------------------
-# STARTING INVENTORY
+# STARTING INVENTORYspec
 # ---------------------------------------------------------
 func build_starting_inventory() -> Dictionary:
 	Inventory.initialize_basic_inventory()
-	Inventory.basic_inventory[0] = Inventory.create_item_instance("faded_note")
-	Inventory.basic_inventory[1] = Inventory.create_item_instance("iron_rations", 20)
-	Inventory.basic_inventory[2] = Inventory.create_item_instance("water_flask", 20)
-	Inventory.basic_inventory[3] = Inventory.create_item_instance("copper_coin", 20)
+	Inventory.basic_inventory[0] = Inventory.create_item_instance("small_bag")
+	Inventory.bag_contents["0"] = [
+		Inventory.create_item_instance("faded_note"),
+		Inventory.create_item_instance("iron_rations", 20),
+		Inventory.create_item_instance("water_flask", 20),
+	]
 	return Inventory.save_inventory_data()
 
 # ---------------------------------------------------------

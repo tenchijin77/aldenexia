@@ -684,7 +684,7 @@
   },
   "iron_rations": {
     "name": "Iron Rations",
-    "icon": "res://Assets/Items/rations.png",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.7_100.png",
     "description": "Hardened travel food that lasts a long time.",
     "stackable": true,
     "currency_type": "copper",
@@ -1168,8 +1168,9 @@
   },
     "faded_note": {
     "name": "Faded, Handwritten Note",
-    "icon": "res://Assets/Items/note.png",
-    "description": "A worn piece of parchment covered in hurried handwriting. It reads: 'Find Guildmaster Aelric in Lumora. He will know what to do. Trust no one from the Order. — V'",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.6_36.png",
+    "description": "A worn piece of parchment, the ink faded but still legible.",
+    "lore": "Seek the ruins east of Lumora at nightfall. The Order has hidden what you need beneath the old foundation stone. Trust no one in the village. - Guildmaster Aelric"
     "stackable": false,
     "currency_type": "copper",
     "value": 0,
@@ -1190,7 +1191,7 @@
   },
   "water_flask": {
     "name": "A Flask of Water",
-    "icon": "res://Assets/Items/water_flask.png",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icons8_66.png",
     "description": "A small flask of clean drinking water. Keeps the thirst at bay, but just barely.",
     "stackable": true,
     "currency_type": "copper",
@@ -1231,5 +1232,14 @@
     "range": 0,
     "stat_modifiers": { "strength": 4, "agility": 2 },
     "effect": null
-  }
+  },
+  "small_bag": {
+    "name": "A small bag",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.6_37.png",
+    "type": "bag",
+    "bag_size": 4,
+    "stackable": false,
+    "value": 5,
+    "description": "A small, worn bag that can hold a few items.",
+    }
 }

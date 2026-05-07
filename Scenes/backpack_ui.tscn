@@ -24,9 +24,12 @@ offset_bottom = 422.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_fd2np")
 
 [node name="MarginContainer" type="MarginContainer" parent="Panel" unique_id=745562926]
-layout_mode = 0
-offset_right = 440.0
-offset_bottom = 40.0
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 0.0
+offset_bottom = 0.0
 
 [node name="VBoxContainer" type="VBoxContainer" parent="Panel/MarginContainer" unique_id=387894322]
 layout_mode = 2
@@ -43,7 +46,8 @@ text = "Bag Slots: 0"
 
 [node name="ScrollContainer" type="ScrollContainer" parent="Panel/MarginContainer/VBoxContainer" unique_id=1699001501]
 layout_mode = 2
+size_flags_vertical = 3
 
 [node name="SlotGrid" type="GridContainer" parent="Panel/MarginContainer/VBoxContainer/ScrollContainer" unique_id=408487922]
 layout_mode = 2
-columns = 8
+columns = 4

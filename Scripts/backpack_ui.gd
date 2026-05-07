@@ -1,15 +1,18 @@
+#backpack_ui.gd - displays the player backpack page. This is created by the player adding bags to their 12 original inventory slots in the character_sheet panel.
 extends CanvasLayer
 
 const SLOT_SIZE := Vector2(48, 48)
 
 var slot_buttons: Array = []
 var visible_slots: Array = []
+var _dragging := false
 
 @onready var search_bar = $Panel/MarginContainer/VBoxContainer/SearchBar
 @onready var slot_count_label = $Panel/MarginContainer/VBoxContainer/SlotCountLabel
 @onready var slot_container = $Panel/MarginContainer/VBoxContainer/ScrollContainer/SlotGrid
 
 func _ready():
+	$Panel.gui_input.connect(_on_panel_gui_input)
 	if search_bar:
 		search_bar.text_changed.connect(_on_search_text_changed)
 	if Inventory.inventory_changed.is_connected(_on_inventory_changed) == false:
@@ -34,6 +37,7 @@ func create_slots(count: int):
 	for i in range(count):
 		var slot_button = load("res://Scripts/slot_button.gd").new()
 		slot_button.custom_minimum_size = SLOT_SIZE
+		slot_button.ignore_texture_size = true
 		slot_button.stretch_mode = TextureButton.STRETCH_KEEP_ASPECT_CENTERED
 		slot_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 		slot_button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
@@ -109,3 +113,13 @@ func _on_search_text_changed(new_text: String):
 
 func _on_inventory_changed():
 	refresh_backpack()
+	
+func _on_panel_gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+		_dragging = event.pressed
+	elif event is InputEventMouseMotion and _dragging:
+		var p = $Panel
+		p.offset_left += event.relative.x
+		p.offset_top += event.relative.y
+		p.offset_right += event.relative.x
+		p.offset_bottom += event.relative.y

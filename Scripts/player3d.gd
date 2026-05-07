@@ -477,6 +477,7 @@ func toggle_character_sheet() -> void:
 	if character_sheet_instance:
 		character_sheet_instance.queue_free()
 		character_sheet_instance = null
+		Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 		print("📋 Character sheet closed")
 	else:
 		character_sheet_instance = character_sheet_scene.instantiate()
@@ -503,7 +504,11 @@ func toggle_character_sheet() -> void:
 				"resistances": Global.player_data.get("resistances", {}),
 				"equipment": Global.player_data.get("equipment", {}),
 				"character_creation": Global.player_data.get("character_creation", {}),
-				"playtime_seconds": Global.get_total_playtime()
+				"playtime_seconds": Global.get_total_playtime(),
+				"copper": Global.player_data.get("copper", 0),
+				"silver": Global.player_data.get("silver", 0),
+				"gold": Global.player_data.get("gold", 0),
+				"platinum": Global.player_data.get("platinum", 0),
 			}
 			character_sheet_instance.set_character_data(current_data)
 
