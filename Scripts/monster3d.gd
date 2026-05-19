@@ -212,6 +212,9 @@ func handle_movement(delta: float) -> void:
 	if not is_inside_tree() or not nav_agent:
 		return
 
+	if nav_agent.is_navigation_finished():
+		return
+
 	var next_position: Vector3 = nav_agent.get_next_path_position()
 	var to_next: Vector3 = next_position - global_position
 	var flat_dir: Vector3 = Vector3(to_next.x, 0, to_next.z)

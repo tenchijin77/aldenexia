@@ -14,13 +14,14 @@ albedo_color = Color(0.75, 0.1, 0.1, 1)
 
 [node name="monster_template" type="CharacterBody3D" unique_id=1915340231 groups=["monsters"]]
 script = ExtResource("1_mn001")
-aggro_range = 10.0
+aggro_range = 50.0
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=56529710]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 shape = SubResource("BoxShape3D_001")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1468773833]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 mesh = SubResource("BoxMesh_001")
 surface_material_override/0 = SubResource("StandardMaterial3D_001")
 
