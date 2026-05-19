@@ -7,6 +7,7 @@ signal chat_state_changed(is_active)
 signal time_changed(current_time: Dictionary)
 signal day_changed(new_day: int)
 signal month_changed(new_month: String)
+signal currency_changed
 #endregion
 
 #region Chat System
@@ -181,6 +182,10 @@ func create_character_creation_timestamp() -> Dictionary:
 		"real_time": Time.get_datetime_string_from_system(),
 		"game_time": game_time.duplicate()
 	}
+
+func grant_currency(field: String, amount: int) -> void:
+	player_data[field] = player_data.get(field, 0) + amount
+	currency_changed.emit()
 
 func set_player_data(data: Dictionary):
 	player_data = data

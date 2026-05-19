@@ -105,83 +105,9 @@ layout_mode = 2
 [node name="psychic_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/resist_block" unique_id=100208513]
 layout_mode = 2
 
-[node name="equipment_block" type="GridContainer" parent="main_panel/scroll_container/scroll_wrapper" unique_id=1658527140]
+[node name="equipment_block" type="VBoxContainer" parent="main_panel/scroll_container/scroll_wrapper" unique_id=1658527140]
 layout_mode = 2
-
-[node name="ear1_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block" unique_id=69352099]
-layout_mode = 2
-
-[node name="neck_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block" unique_id=207577266]
-layout_mode = 2
-
-[node name="face_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block" unique_id=2019531696]
-layout_mode = 2
-
-[node name="head_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block" unique_id=1009124219]
-layout_mode = 2
-
-[node name="ear2_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block" unique_id=36685595]
-layout_mode = 2
-
-[node name="finger1_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block" unique_id=330406455]
-layout_mode = 2
-
-[node name="wrist1_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block" unique_id=1038715754]
-layout_mode = 2
-
-[node name="arms_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block" unique_id=1466576523]
-layout_mode = 2
-
-[node name="hands_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block" unique_id=1948904407]
-layout_mode = 2
-
-[node name="wrist2_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block" unique_id=1185699797]
-layout_mode = 2
-
-[node name="finger2_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block" unique_id=1094155298]
-layout_mode = 2
-
-[node name="shoulders_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block" unique_id=2003158400]
-layout_mode = 2
-
-[node name="chest_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block" unique_id=868750430]
-layout_mode = 2
-
-[node name="back_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block" unique_id=649538829]
-layout_mode = 2
-
-[node name="waist_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block" unique_id=2008095849]
-layout_mode = 2
-
-[node name="legs_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block" unique_id=458754355]
-layout_mode = 2
-
-[node name="feet_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block" unique_id=1666698299]
-layout_mode = 2
-
-[node name="trinket1_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block" unique_id=955274397]
-layout_mode = 2
-
-[node name="trinket2_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block" unique_id=1277968134]
-layout_mode = 2
-
-[node name="primary_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block" unique_id=2033772915]
-layout_mode = 2
-
-[node name="secondary_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block" unique_id=1519101747]
-layout_mode = 2
-
-[node name="ranged_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block" unique_id=1129655666]
-layout_mode = 2
-
-[node name="ammo_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block" unique_id=192445561]
-layout_mode = 2
-
-[node name="charm_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block" unique_id=485989610]
-layout_mode = 2
-
-[node name="focus_label" type="Label" parent="main_panel/scroll_container/scroll_wrapper/equipment_block" unique_id=381351284]
-layout_mode = 2
+theme_override_constants/separation = 6
 
 [node name="storage_block" type="GridContainer" parent="main_panel/scroll_container/scroll_wrapper" unique_id=118629136]
 layout_mode = 2

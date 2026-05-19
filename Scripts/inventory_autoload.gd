@@ -4,6 +4,7 @@
 extends Node
 
 signal inventory_changed
+signal equipment_changed
 
 #region Item Data
 var item_data: Dictionary = {}  # Loaded from items.json
@@ -14,20 +15,43 @@ var basic_inventory: Array = [] # 12 slots, can hold items OR bags
 const BASIC_INVENTORY_SIZE = 12
 #endregion
 
+#region Equipment
+const EQUIPMENT_SLOTS: Array = [
+	"ear1", "neck", "face", "head", "ear2",
+	"finger1", "wrist1", "arms", "hands", "wrist2", "finger2",
+	"shoulders", "chest", "back", "waist", "legs", "feet",
+	"trinket1", "trinket2",
+	"primary", "offhand", "ranged", "ammo", "charm", "focus"
+]
+
+# Maps item "slot" field → equipment slot name
+const ITEM_SLOT_MAP: Dictionary = {
+	"primary": "primary", "offhand": "offhand", "secondary": "offhand",
+	"head": "head", "face": "face", "ear": "ear1",
+	"neck": "neck", "shoulders": "shoulders", "chest": "chest",
+	"arms": "arms", "wrist": "wrist1", "hands": "hands",
+	"back": "back", "waist": "waist", "legs": "legs", "feet": "feet",
+	"finger": "finger1", "ring": "finger1",
+	"ranged": "ranged", "ammo": "ammo",
+	"trinket": "trinket1", "charm": "charm", "focus": "focus",
+}
+
+var equipped: Dictionary = {}
+#endregion
+
 #region Bag Contents
-# Dictionary where key = basic_inventory slot index (0-11)
-# Value = Array of items in that bag
 var bag_contents: Dictionary = {}
 #endregion
 
 #region Bank Storage
-var bank_storage: Dictionary = {}   # Same structure as bag_contents (for later)
+var bank_storage: Dictionary = {}
 #endregion
 
 #region Initialization
 func _ready():
 	load_item_data()
 	initialize_basic_inventory()
+	_initialize_equipment()
 	print("✅ Inventory system initialized")
 
 func load_item_data():
@@ -45,10 +69,14 @@ func load_item_data():
 		push_error("❌ items.json not found - creating empty inventory")
 
 func initialize_basic_inventory():
-	# Creates empty basic inventory slots
 	basic_inventory.clear()
 	for i in range(BASIC_INVENTORY_SIZE):
 		basic_inventory.append(null)
+
+func _initialize_equipment():
+	equipped.clear()
+	for slot in EQUIPMENT_SLOTS:
+		equipped[slot] = null
 #endregion
 
 #region Item Instance Creation
@@ -250,22 +278,23 @@ func search_all_items(search_term: String) -> Array:
 
 #region Save/Load
 func save_inventory_data() -> Dictionary:
-	# Exports inventory to dictionary for saving
 	return {
 		"basic_inventory": basic_inventory,
 		"bag_contents": bag_contents,
-		"bank_storage": bank_storage
+		"bank_storage": bank_storage,
+		"equipped": equipped,
 	}
 
 func load_inventory_data(data: Dictionary):
-	# Imports inventory from saved data
 	basic_inventory = data.get("basic_inventory", [])
 	bag_contents = data.get("bag_contents", {})
 	bank_storage = data.get("bank_storage", {})
-
+	equipped = data.get("equipped", {})
+	for slot in EQUIPMENT_SLOTS:
+		if not equipped.has(slot):
+			equipped[slot] = null
 	while basic_inventory.size() < BASIC_INVENTORY_SIZE:
 		basic_inventory.append(null)
-
 	print("✅ Inventory data loaded")
 #endregion
 
@@ -347,6 +376,69 @@ func _swap_bag_items(bag_a: int, index_a: int, bag_b: int, index_b: int) -> void
 	var tmp = items_a[index_a]
 	items_a[index_a] = items_b[index_b]
 	items_b[index_b] = tmp
+#endregion
+
+#region Equipment Management
+func equip_item(item: Dictionary, src_type: String, src_basic_idx: int = -1, src_bag_slot: int = -1, src_item_idx: int = -1) -> bool:
+	var item_slot: String = item.get("slot", "none")
+	var equip_slot: String = ITEM_SLOT_MAP.get(item_slot, "")
+	if equip_slot.is_empty():
+		print("⚠️ '%s' cannot be equipped (slot: %s)" % [item.get("name", "?"), item_slot])
+		return false
+
+	var displaced: Variant = equipped.get(equip_slot, null)
+
+	# Remove item from source, optionally placing displaced item there
+	if src_type == "basic" and src_basic_idx >= 0:
+		basic_inventory[src_basic_idx] = displaced
+	elif src_type == "bag" and src_bag_slot >= 0 and src_item_idx >= 0:
+		var key := str(src_bag_slot)
+		if bag_contents.has(key):
+			if displaced != null:
+				bag_contents[key][src_item_idx] = displaced
+			else:
+				bag_contents[key].remove_at(src_item_idx)
+	elif src_type == "equipment":
+		# Equipping from one equip slot to another — put displaced in source slot
+		var src_slot: String = ITEM_SLOT_MAP.get(displaced.get("slot", "") if displaced else "", "")
+		if not src_slot.is_empty() and displaced != null:
+			equipped[src_slot] = displaced
+		displaced = null
+
+	equipped[equip_slot] = item
+	sync_to_global()
+	equipment_changed.emit()
+	inventory_changed.emit()
+	print("✅ Equipped %s → %s slot" % [item.get("name", "?"), equip_slot])
+	return true
+
+func unequip_item(equip_slot: String) -> bool:
+	var item: Variant = equipped.get(equip_slot, null)
+	if item == null:
+		return false
+	for i in range(BASIC_INVENTORY_SIZE):
+		if basic_inventory[i] == null:
+			basic_inventory[i] = item
+			equipped[equip_slot] = null
+			sync_to_global()
+			equipment_changed.emit()
+			inventory_changed.emit()
+			print("✅ Unequipped %s → inventory slot %d" % [item.get("name", "?"), i])
+			return true
+	print("❌ Inventory full — cannot unequip %s" % item.get("name", "?"))
+	return false
+
+func get_equipped_armor_class() -> int:
+	var total := 0
+	for slot in EQUIPMENT_SLOTS:
+		var item: Variant = equipped.get(slot, null)
+		if item != null:
+			total += item.get("armor_class", 0)
+	return total
+
+func get_equipped_weapon() -> Dictionary:
+	var w: Variant = equipped.get("primary", null)
+	return w if w != null else {}
 #endregion
 
 func sync_to_global():

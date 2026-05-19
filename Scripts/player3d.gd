@@ -93,6 +93,37 @@ var is_sitting: bool = false
 @onready var collision_shape: CollisionShape3D = $CollisionShape3D
 #endregion
 
+#region Loot interaction
+const LOOT_RANGE := 5.0
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton \
+			and event.button_index == MOUSE_BUTTON_RIGHT \
+			and event.pressed \
+			and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
+		_try_loot_corpse()
+
+func _try_loot_corpse() -> void:
+	var nearest: Monster = null
+	var nearest_dist := LOOT_RANGE
+
+	for node in get_tree().get_nodes_in_group("monsters"):
+		if not node is Monster:
+			continue
+		var m := node as Monster
+		if m.current_state != Monster.State.DEAD or not m.is_lootable:
+			continue
+		var dist := global_position.distance_to(m.global_position)
+		if dist < nearest_dist:
+			nearest_dist = dist
+			nearest = m
+
+	if nearest:
+		nearest.open_loot_window()
+	else:
+		print("⚠️ No lootable corpse within range.")
+#endregion
+
 #region Character sheet
 var character_sheet_scene = preload("res://Scenes/character_sheet.tscn")
 var character_sheet_instance: Node = null

@@ -6,6 +6,7 @@ extends CharacterBody3D
 
 # ===== EXPORTED STATS (loaded from JSON, can be overridden in editor) =====
 @export_group("Stats")
+@export var monster_name: String = ""  # Set this in the editor to load from monsters.json
 @export var behavior_type := "default"
 @export var speed: float = 30.0
 @export var max_health: int = 100
@@ -35,6 +36,17 @@ var current_health: int
 var can_attack: bool = true
 var attack_timer: float = 0.0
 var attack_cooldown: float = 1.5
+var is_lootable: bool = false
+var pending_loot: Array = []
+var loot_window: Node = null
+
+# ===== CURRENCY =====
+const CURRENCY_MAP: Dictionary = {
+	"copper_coin":   "copper",
+	"silver_coin":   "silver",
+	"gold_coin":     "gold",
+	"platinum_coin": "platinum"
+}
 
 # ===== REFERENCES =====
 var player: CharacterBody3D = null
@@ -53,8 +65,9 @@ func _ready() -> void:
 	collision_layer = 1 << 3  # Enemy layer (layer 4)
 	collision_mask = 1 << 0   # Default mask (layer 1)
 
-	# Load stats from JSON
-	var monster_name = get_monster_name()
+	# Load stats from JSON — use exported name if set, else fall back to subclass override
+	if monster_name.is_empty():
+		monster_name = get_monster_name()
 	var stats = load_monster_stats(monster_name)
 
 	if typeof(stats) == TYPE_DICTIONARY:
@@ -302,15 +315,75 @@ func call_nearby_allies() -> void:
 
 func die() -> void:
 	change_state(State.DEAD)
-	print("💀 %s died! (XP: %d, Coins: %.2f, Category: %s)" % [get_monster_name(), xp_gain, coin_modifier, category])
+	print("💀 %s died! (XP: %d, Coins: %.2f, Category: %s)" % [monster_name, xp_gain, coin_modifier, category])
+
+	pending_loot = roll_loot()
+	is_lootable = not pending_loot.is_empty()
+	if is_lootable:
+		print("  → Right-click corpse to loot")
 
 	# TODO: Award XP to player
-	# TODO: Drop loot using category + zone (lumora_outskirts.json)
-	# TODO: Drop coins using coin_modifier
 	# TODO: AnimationPlayer death animation
 
-	await get_tree().create_timer(2.0).timeout
+	await get_tree().create_timer(60.0).timeout
+	is_lootable = false
+	if is_instance_valid(loot_window):
+		loot_window.queue_free()
 	queue_free()
+
+func open_loot_window() -> void:
+	if is_instance_valid(loot_window):
+		return
+	loot_window = load("res://Scenes/corpse_loot_window.tscn").instantiate()
+	get_tree().root.add_child(loot_window)
+	loot_window.setup(monster_name.capitalize(), pending_loot)
+
+# ===== LOOT =====
+func roll_loot() -> Array:
+	var loot_data := _load_loot_data()
+	if loot_data.is_empty():
+		return []
+
+	var drops: Array = []
+
+	# Roll once against the shared category table (e.g. all "undead")
+	var cat_table: Array = loot_data.get("category_loot_tables", {}).get(category, [])
+	drops.append_array(_roll_table(cat_table))
+
+	# Roll once against the specific monster's table
+	var mob_table: Array = _find_mob_loot(monster_name, loot_data)
+	drops.append_array(_roll_table(mob_table))
+
+	# Apply coin_modifier as a percentage bonus on all currency drops
+	for drop in drops:
+		if CURRENCY_MAP.has(drop["item"]):
+			drop["quantity"] = int(drop["quantity"] * (1.0 + coin_modifier))
+
+	return drops
+
+func _load_loot_data() -> Dictionary:
+	var file := FileAccess.open("res://Data/solgrave_expanse_loot.json", FileAccess.READ)
+	if not file:
+		push_error("❌ solgrave_expanse_loot.json not found")
+		return {}
+	var result = JSON.parse_string(file.get_as_text())
+	return result if typeof(result) == TYPE_DICTIONARY else {}
+
+func _find_mob_loot(mob_name: String, loot_data: Dictionary) -> Array:
+	# Search all zones for the mob name — zone field on monster may not match loot file zones
+	for zone in loot_data.get("zone_loot_tables", {}).values():
+		if zone.has(mob_name):
+			return zone[mob_name]
+	return []
+
+func _roll_table(table: Array) -> Array:
+	var results: Array = []
+	for entry in table:
+		if randf() < entry.get("chance", 0.0):
+			var qty: int = randi_range(entry.get("min", 1), entry.get("max", 1))
+			results.append({"item": entry["item"], "quantity": qty})
+	return results
+
 
 # ===== HELPERS =====
 func change_state(new_state: State) -> void:

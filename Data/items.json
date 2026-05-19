@@ -112,7 +112,7 @@
   },
   "bandit_dagger": {
     "name": "Bandit Dagger",
-    "icon": "res://Assets/Items/bandit_dagger.png",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icons8_79.png",
     "description": "A dagger favored by bandits, slightly worn but effective.",
     "stackable": false,
     "currency_type": "copper",
@@ -200,7 +200,7 @@
   },
   "bone_shield": {
     "name": "Bone Shield",
-    "icon": "res://Assets/Items/bone_shield.png",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
     "description": "A shield made from bones. Surprisingly sturdy for its grim construction.",
     "stackable": false,
     "currency_type": "copper",

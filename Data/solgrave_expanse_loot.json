@@ -1,5 +1,13 @@
 {
   "_comment": "solgrave_expanse_loot.json - Unified master loot tables for Zone 1 (Solgrave Expanse). Consolidated from all unique creature loot files.",
+  "category_loot_tables": {
+    "animal":    [],
+    "elemental": [],
+    "humanoid":  [],
+    "insect":    [],
+    "reptile":   [],
+    "undead":    []
+  },
   "zone_loot_tables": {
     "lumora_outskirts": {
       "rat": [
