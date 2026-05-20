@@ -2,9 +2,9 @@
 extends Node
 
 @onready var torch_left = $Panel/torch
-@onready var torch_right = $Panel/torch2
+@onready var torch_right = $Panel/TorchRightAnchor/torch2
 @onready var light = $Panel/torch/PointLight2D
-@onready var light_right = $Panel/torch2/PointLight2D2
+@onready var light_right = $Panel/TorchRightAnchor/torch2/PointLight2D2
 @onready var torch_sound = $torch_sound
 
 
