@@ -293,6 +293,7 @@ func _on_confirm_pressed() -> void:
 		"playtime_seconds": 0,
 
 		"inventory_data": build_starting_inventory(selected_class),
+		"skill_levels": build_starting_skill_levels(selected_class),
 	}
 
 	var save_dir: String = "user://saves"
@@ -403,6 +404,20 @@ func build_starting_inventory(p_class: String) -> Dictionary:
 		Inventory.basic_inventory[i + 1] = Inventory.create_item_instance(gear[i])
 
 	return Inventory.save_inventory_data()
+
+# ---------------------------------------------------------
+# STARTING SKILL LEVELS
+# ---------------------------------------------------------
+func build_starting_skill_levels(p_class: String) -> Dictionary:
+	var file := FileAccess.open("res://Data/player_skills.json", FileAccess.READ)
+	if not file:
+		return {}
+	var data = JSON.parse_string(file.get_as_text())
+	file.close()
+	if typeof(data) != TYPE_DICTIONARY:
+		return {}
+	var class_map: Dictionary = data.get("class_skills", {})
+	return class_map.get(p_class, {}).duplicate()
 
 # ---------------------------------------------------------
 # DERIVED STATS

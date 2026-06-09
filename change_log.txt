@@ -1,3 +1,90 @@
+## 2026-06-09 — Session 7: Reduce monster aggro/chase range to 5m
+
+### Bug Fix / Tuning
+
+**monster3d.gd — aggro and leash range capped at 5 meters**
+- JSON aggro_range values are 2D-era units (100–200). Added AGGRO_RANGE_SCALE = 10.0
+  (matches the speed / 10 conversion already in place) so ranges convert to meters.
+- Added MAX_AGGRO_DISTANCE = 5.0 as a hard cap so no monster aggros beyond 5m regardless
+  of what the JSON says.
+- can_see_player() now uses minf(aggro_range / scale, 5.0) as the effective range,
+  preserving passive (÷3) and neutral (÷2) behavior type modifiers.
+- state_chase() leash check uses the same effective range so monsters stop chasing
+  at the same distance they would have aggroed.
+
+---
+
+## 2026-06-09 — Session 6: XP, 3D spawner, live character sheet, skill leveling, combat log
+
+### New Features
+
+**XP award on monster kill (monster3d.gd)**
+- die() now finds the player via group, adds xp_gain to Global.player_data["xp"],
+  and logs "You gain X experience points. (current/next)".
+- Level-up loop handles multiple levels in one kill: increments player_level,
+  looks up next threshold from Global.xp_table, logs level-up message in gold,
+  calls player.on_level_up() to sync CombatNode and restore HP/Mana to full.
+
+**on_level_up (player3d.gd)**
+- Syncs combat_node level, recalculates derived stats, restores HP and Mana to full.
+
+**3D Monster Spawner (Scripts/mob_spawner3d.gd)**
+- New Node3D script that reads lumora_outskirts_spawns.json.
+- Manages per-entry respawn timers, max_active counts, and spawn radius scatter.
+- Supports: rat, snake, slime, spider, bat, skeleton, bandit, goblin, ghost.
+- Add as a Node3D to lumora_outskirts3d.tscn to activate.
+
+**lumora_outskirts_spawns.json**
+- Replaced TBD coordinates with real 3D [x, y, z] positions (Y=2 for terrain drop).
+- Removed dune_scarab (no scene exists). Fixed invalid JS-style block comment.
+- 10 spawn entries: rat x2, snake x2, slime x2, spider x2, skeleton, bandit.
+
+**Live character sheet (character_sheet.gd)**
+- Added set_player(p) method and _process() poll.
+- HP, Mana, Stamina, XP, and Level now update in real time while the sheet is open.
+- Equipment, inventory, and currency were already live via signals.
+- player3d.toggle_character_sheet() now calls set_player(self) after opening.
+
+**Skill leveling system (player3d.gd)**
+- skill_levels Dictionary loaded from player_data["skill_levels"] on game load.
+- _tick_skill(skill_name): chance to increment skill on use, scaling down near cap (252).
+  Logs "Your [skill] skill has increased to X!" on gain.
+- _sync_weapon_skill(): reads equipped weapon's "skill" field, syncs combat_node.weapon_skill.
+- Melee hits tick the weapon's skill (1h_slashing, 1h_piercing, etc.).
+  Successful parry/dodge/riposte also tick their respective skills.
+- Dev fallback and new characters start with class-appropriate skill levels.
+
+**Class starting skill levels (character_creation.gd + player_skills.json)**
+- build_starting_skill_levels() reads player_skills.json "class_skills" section.
+- New characters receive numeric skill levels (e.g. Blademaster: 1h_slashing=10, parry=5).
+- player_skills.json: fixed syntax error + typo (leopard_stike → leopard_strike),
+  completed truncated crafting section, added class_skills for all 15 classes,
+  added skill_max (252) and skill_gain_base_chance (0.15).
+
+**Combat log formatter (Scripts/combat_log_formatter.gd)**
+- New CombatLogFormatter class with static functions for all combat message types.
+- player_attack() / monster_attack(): randomized verb selection by damage type
+  (slashing/piercing/blunt/generic), separate second/third person conjugation.
+- Defensive results (parry, block, dodge, riposte) pick from phrase variant arrays.
+- spell_damage(), spell_heal(), spell_debuff(), begin_cast(), death() helpers.
+- damage_type_from_item() maps item "skill" field → damage type string.
+- monster3d.get_damage_type() derives damage type from monster category.
+- All combat log calls in player3d.gd and monster3d.gd now route through formatter.
+
+---
+
+## 2026-06-08 — Session 5: Documentation — game_flow.txt
+
+### New Files
+
+**game_flow.txt — full codebase reference document**
+- Comprehensive map of every system in the project: autoloads, scene flow,
+  player, combat, monster, HUD, modal UI, character creation, save/load,
+  data files, key signal flows, node groups, and known gaps/TODOs.
+- Intended as a running document — to be updated whenever systems change.
+
+---
+
 ## 2026-06-08 — Session 4: Bug fixes — save/exit cleanup, loot despawn
 
 ### Bug Fixes

@@ -32,6 +32,7 @@ var player_class := ""
 var player_race := ""
 var known_spells: Array = []
 var known_skills: Array = []
+var skill_levels: Dictionary = {}
 var action_bar_slots: Array = []  # Array of {type, name} dicts, 12 elements
 var _spell_cache: Dictionary = {}
 var _spell_by_name: Dictionary = {}
@@ -518,22 +519,23 @@ func attack_current_target() -> void:
 			die()
 			return
 		var target_desc: String = current_target.get("monster_description") if current_target.get("monster_description") != "" else current_target.get_monster_name()
-		match result["result"]:
-			"MISS":
-				GameLog.log_combat("Your attack misses!")
-			"PARRY":
-				GameLog.log_combat("%s parries your attack." % target_desc.capitalize())
-			"BLOCK":
-				GameLog.log_combat("%s blocks your attack." % target_desc.capitalize())
-			"DODGE":
-				GameLog.log_combat("%s dodges your attack." % target_desc.capitalize())
-			"RIPOSTE":
-				GameLog.log_combat("%s ripostes you for [b]%d[/b] damage!" % [target_desc.capitalize(), result["damage"]])
-			"HIT":
-				var hit_type := "critically hit" if result.get("is_crit", false) else "hit"
-				GameLog.log_combat("You [b]%s[/b] %s with melee attack for [b]%d[/b] damage!" % [hit_type, target_desc, result["damage"]])
+		var weapon := Inventory.get_equipped_weapon()
+		var weapon_name: String = weapon.get("name", "")
+		var dmg_type: String = CombatLogFormatter.damage_type_from_item(weapon)
+		var msg: String = CombatLogFormatter.player_attack(result, target_desc, weapon_name, dmg_type)
+		if not msg.is_empty():
+			GameLog.log_combat(msg)
+		if result["result"] == "HIT":
+			var skey: String = weapon.get("skill", "").to_lower().replace(" ", "_")
+			_tick_skill(skey)
+		elif result["result"] == "PARRY":
+			_tick_skill("parry")
+		elif result["result"] == "DODGE":
+			_tick_skill("dodge")
+		elif result["result"] == "RIPOSTE":
+			_tick_skill("riposte")
 		if not current_target.combat_node.is_alive():
-			GameLog.log_combat("%s has been defeated!" % target_desc.capitalize())
+			GameLog.log_combat(CombatLogFormatter.death("You", target_desc))
 			_set_target_frame(null)
 			current_target = null
 			autoattack_enabled = false
@@ -588,10 +590,24 @@ func perform_melee_attack() -> void:
 			if not combat_node.is_alive():
 				die()
 				return
-			if result["result"] != "MISS":
-				GameLog.log_combat(result.get("message", ""))
+			var target_desc: String = target.get("monster_description") if target.get("monster_description") != "" else target.get_monster_name()
+			var weapon := Inventory.get_equipped_weapon()
+			var weapon_name: String = weapon.get("name", "")
+			var dmg_type: String = CombatLogFormatter.damage_type_from_item(weapon)
+			var msg: String = CombatLogFormatter.player_attack(result, target_desc, weapon_name, dmg_type)
+			if not msg.is_empty():
+				GameLog.log_combat(msg)
+			if result["result"] == "HIT":
+				var skey: String = weapon.get("skill", "").to_lower().replace(" ", "_")
+				_tick_skill(skey)
+			elif result["result"] == "PARRY":
+				_tick_skill("parry")
+			elif result["result"] == "DODGE":
+				_tick_skill("dodge")
+			elif result["result"] == "RIPOSTE":
+				_tick_skill("riposte")
 			if not target.combat_node.is_alive() and target.has_method("die"):
-				GameLog.log_combat("💀 %s defeated!" % target.get_monster_name())
+				GameLog.log_combat(CombatLogFormatter.death("You", target_desc))
 				if target == current_target:
 					_set_target_frame(null)
 					current_target = null
@@ -644,6 +660,9 @@ func toggle_character_sheet() -> void:
 	else:
 		character_sheet_instance = character_sheet_scene.instantiate()
 		get_tree().root.add_child(character_sheet_instance)
+
+		if character_sheet_instance.has_method("set_player"):
+			character_sheet_instance.set_player(self)
 
 		if character_sheet_instance.has_method("set_character_data"):
 			var is_caster = caster_classes.has(player_class.to_lower())
@@ -729,6 +748,7 @@ func load_player_data_from_global() -> void:
 			},
 			"known_spells": ["power_strike", "battle_shout"],
 			"known_skills": ["1h_slashing", "parry", "dodge", "weapon_mastery"],
+			"skill_levels": {"1h_slashing": 10, "parry": 5, "dodge": 5, "weapon_mastery": 5},
 			"action_bar_slots": [
 				{"type": "spell", "name": "power_strike"},
 				{"type": "spell", "name": "battle_shout"},
@@ -790,9 +810,11 @@ func load_character_data(data: Dictionary) -> void:
 	combat_node.current_mana = saved_mana if saved_mana >= 0 else combat_node.max_mana
 
 	apply_racial_modifiers(player_race)
-	known_spells    = data.get("known_spells", [])
-	known_skills    = data.get("known_skills", [])
+	known_spells     = data.get("known_spells", [])
+	known_skills     = data.get("known_skills", [])
+	skill_levels     = data.get("skill_levels", {})
 	action_bar_slots = data.get("action_bar_slots", _default_action_bar_slots())
+	_sync_weapon_skill()
 	apply_equipment(data.get("equipment", {}))
 
 	# Starting weapon skill: combat classes begin with a baseline so they can hit
@@ -946,9 +968,9 @@ func cast_spell(spell_name: String) -> void:
 			var final_dmg := combat_node.calculate_spell_damage(damage, true, target_cn)
 			target_node.apply_damage(final_dmg, "magic")
 			var target_desc: String = target_node.get("monster_description") if target_node.get("monster_description") != "" else target_node.get_monster_name()
-			GameLog.log_combat("You cast [b]%s[/b] on %s for [b]%d[/b] damage!" % [display_name, target_desc, final_dmg])
+			GameLog.log_combat(CombatLogFormatter.spell_damage("You", spell_name, target_desc, final_dmg))
 			if not target_node.combat_node.is_alive():
-				GameLog.log_combat("%s has been defeated!" % target_desc.capitalize())
+				GameLog.log_combat(CombatLogFormatter.death("You", target_desc))
 				_set_target_frame(null)
 				current_target = null
 				autoattack_enabled = false
@@ -988,6 +1010,44 @@ func _tick_cooldowns(delta: float) -> void:
 		_spell_cooldowns[spell_name] = maxf(_spell_cooldowns[spell_name] - delta, 0.0)
 	for skill_name in _skill_cooldowns.keys():
 		_skill_cooldowns[skill_name] = maxf(_skill_cooldowns[skill_name] - delta, 0.0)
+
+
+func _tick_skill(skill_name: String) -> void:
+	if skill_name.is_empty() or skill_name == "none":
+		return
+	if not skill_levels.has(skill_name):
+		return
+	var current: int = skill_levels[skill_name]
+	var cap: int = 252
+	if current >= cap:
+		return
+	var chance: float = 0.15 * (1.0 - float(current) / float(cap))
+	if randf() < chance:
+		skill_levels[skill_name] += 1
+		GameLog.log_general("Your [b]%s[/b] skill has increased to %d!" % [
+			skill_name.replace("_", " ").capitalize(), skill_levels[skill_name]
+		])
+		_sync_weapon_skill()
+		Global.player_data["skill_levels"] = skill_levels
+
+
+func _sync_weapon_skill() -> void:
+	var weapon := Inventory.get_equipped_weapon()
+	if weapon.is_empty():
+		return
+	var skey: String = weapon.get("skill", "").to_lower().replace(" ", "_")
+	if skey.is_empty() or skey == "none":
+		return
+	combat_node.weapon_skill = skill_levels.get(skey, 0)
+	combat_node._stats_dirty = true
+
+
+func on_level_up(new_level: int) -> void:
+	combat_node.set_base_stat("level", new_level)
+	combat_node.recalculate_derived_stats()
+	combat_node.current_hp   = combat_node.max_hp
+	combat_node.current_mana = combat_node.max_mana
+	Global.player_data["player_level"] = new_level
 
 
 func toggle_abilities_book() -> void:

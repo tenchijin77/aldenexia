@@ -1,0 +1,490 @@
+## Aldenexia: Lightfall — Game Flow & System Reference
+## Last updated: 2026-06-08
+## Purpose: Running reference for how all systems connect, for troubleshooting and onboarding.
+
+================================================================================
+AUTOLOADS (Global Singletons — always in memory, any scene can access them)
+================================================================================
+
+Global       → Scripts/global.gd
+  - Holds all live player state in Global.player_data (Dict)
+  - Also holds Global.current_character_data, current_character_name
+  - Loads xp_table.json and character_options.json at startup
+  - Game time system: 10-month, 36-day/month, 6-day/week calendar; 30 real
+    seconds = 1 game minute
+  - save_player_data_to_file()  → user://saves/{name}_character_stats.json
+  - load_player_data_from_file() → reads save, calls set_player_data()
+  - grant_currency(field, amount) → adds copper/silver/gold/platinum
+  - Signals: chat_state_changed, time_changed, day_changed, month_changed,
+    currency_changed
+
+GameLog      → Scripts/game_log.gd
+  - Pure signal bus, no state.
+  - GameLog.log_general(text) → emits general_message
+  - GameLog.log_combat(text)  → emits combat_message
+  - GameLog.set_autoattack(bool) → emits autoattack_changed
+  - game_log_window.gd connects to all three and routes them to the correct tab.
+
+Inventory    → Scripts/inventory_autoload.gd
+  - basic_inventory[12] — character sheet carry slots (bags or items)
+  - bag_contents["0"…"11"] — contents of each bag in the above slots
+  - equipped{slot → item_dict or null} — 25 paperdoll equipment slots
+  - Loads all item definitions from items.json on startup
+  - equip_item() / unequip_item() — emits equipment_changed when slot changes
+  - sync_to_global() — writes inventory_data back into Global.player_data
+  - Signals: inventory_changed, equipment_changed
+
+GlobalBackgroundMusic → Scenes/global_background_music.tscn
+  - AudioStreamPlayer that auto-starts on main_menu and character_creation.
+  - Stops automatically for any other scene.
+
+
+================================================================================
+SCENE FLOW (How the player moves between screens)
+================================================================================
+
+  main_menu.tscn
+      │
+      ├─ [New Character] → character_creation.tscn
+      │       └─ [Begin] → saves {name}_character_stats.json
+      │                  → Global.load_player_data_from_file()
+      │                  → lumora_outskirts3d.tscn
+      │
+      └─ [Load Game] → instantiates load_game.tscn as overlay
+              └─ [Load] → Global.set_player_data(parsed_json)
+                        → lumora_outskirts3d.tscn (active 3D zone)
+
+  lumora_outskirts3d.tscn (main gameplay)
+      └─ [Escape → Save & Exit] → saves file, frees HUD, returns to main_menu
+
+
+================================================================================
+LUMORA OUTSKIRTS 3D — WHAT LIVES IN THE SCENE
+================================================================================
+
+lumora_outskirts3d.tscn contains:
+  - Terrain3D node (terrain3d addon)
+  - Player3D (player3d.tscn) — the playable character
+  - NavigationRegion3D — navmesh for monster pathfinding
+  - Lighting / environment nodes
+  - (No mob spawner yet in 3D — monsters are placed directly in the scene)
+
+Note: lumora_outskirts.tscn is the old 2D zone — it is legacy and not the
+active gameplay scene. mob_spawner.tscn / mob_spawner.gd are also 2D legacy.
+
+
+================================================================================
+PLAYER SYSTEM (player3d.gd)
+================================================================================
+
+Class: Player3D extends CharacterBody3D
+Group: "player"
+Scene: Scenes/player3d.tscn (contains CameraRig → CameraController + Camera3D)
+
+--- _ready() order ---
+1. add_to_group("player")
+2. Instantiate CombatNode and add as child
+3. Connect Inventory.equipment_changed → _on_equipment_changed()
+4. load_faction_standing()       — reads Data/player_faction.json
+5. _load_spell_cache()           — reads Data/player_spells.json +
+                                   Data/player_skills.json into Dicts
+6. load_player_data_from_global()— reads Global.player_data, loads inventory,
+                                   applies equipment to CombatNode
+7. _spawn_hud()                  — instantiates four HUD scenes on scene root,
+                                   tags them "game_hud"
+
+--- Movement ---
+  WASD / Arrow keys: move_forward, move_backward, strafe_left, strafe_right,
+                     turn_left, turn_right
+  Shift (toggle_run): toggles run/walk
+  Ctrl (crouch): crouches
+  Space (jump): costs stamina
+  Z (sit): toggles sitting (no movement, faster stamina regen)
+  Stamina drains while running; depletes force-walks the player.
+
+--- Camera (camera_controller.gd) ---
+  Child Node3D "CameraRig" on Player3D.
+  Right-click HOLD → MOUSE_MODE_CAPTURED for mouse look; release = VISIBLE.
+  Mouse wheel → zoom (2m–12m).
+  Home key → cycle three modes:
+    THIRD_PERSON_BEHIND (default, 6m back)
+    THIRD_PERSON_ANGLED (tactical, 8m back / 5m up / 45°)
+    FIRST_PERSON (eye level)
+
+--- Combat ---
+  Tab          → tab_cycle_target() — cycles alive monsters by distance
+  T (attack)   → toggles autoattack; auto-attacks current target each cooldown
+  Left-click   → perform_melee_attack() — hits current target or nearest in 3m
+  Spells       → Keys 1–9, 0, -, = fire action_bar_slots entries
+  Attack sequence: calls CombatNode.resolve_attack() → full EQ-style roll chain
+
+--- Spell Casting (cast_spell) ---
+  Checks cooldown (_spell_cooldowns Dict), mana, target validity.
+  Deducts mana, starts cooldown, calls CombatNode.calculate_spell_damage().
+  Logs result via GameLog.log_combat().
+
+--- Skill Use (use_skill) ---
+  Placeholder — consumes a 6s cooldown and logs the usage.
+  Active effects to be implemented per skill later.
+
+--- Equipment → CombatNode sync ---
+  Inventory.equipment_changed → _on_equipment_changed()
+    → _apply_equipment_from_inventory()
+    → reads Inventory.equipped, sums weapon_damage and gear_ac
+    → sets CombatNode.weapon_damage + gear_ac, calls recalculate_derived_stats()
+    → calls Global.save_player_data_to_file()
+
+--- Vitals (Hunger / Thirst) ---
+  satiety and thirst each decay by 1–2 every 60 real seconds.
+  Below 25: regen penalty on HP and mana regen ticks.
+  At 0: take damage each decay interval (cannot kill — floor at 1 HP).
+
+--- HP / Mana Regen ---
+  EQ-style 6-second tick (regen_timer in _process).
+  Amounts come from CombatNode.get_derived_stat("hp_regen"/"mana_regen").
+
+--- Looting ---
+  Right-click (while MOUSE_CAPTURED) → _try_loot_corpse()
+  Searches "monsters" group for DEAD + is_lootable within 5m.
+  Calls monster.open_loot_window() on nearest.
+
+--- UI Toggles ---
+  Escape → pause menu (pause_menu.tscn)
+  C      → character sheet (character_sheet.tscn)
+  I      → abilities book (abilities_book.tscn)
+  B      → backpack (backpack_ui.tscn)
+  All instantiated on scene root; freed when toggled off.
+
+
+================================================================================
+COMBAT NODE (combatnode.gd)
+================================================================================
+
+Class: CombatNode extends Node
+Added as child to both Player3D and Monster.
+
+--- 7 Base Stats ---
+  strength, constitution, dexterity, intelligence, wisdom, charisma, luck
+
+--- Derived Stats (recalculate_derived_stats, cached until _stats_dirty) ---
+  max_hp     = 50 + con*10 + class_hp_bonus + gear_hp
+  max_mana   = 30 + (int+wis)*5 + class_mana_bonus + gear_mana
+  armor_class = 10 + gear_ac + dex/2 + class_ac_bonus + shield_bonus
+  attack_rating = weapon_skill*2 + str + dex/2 + gear_atk
+  crit_chance = 5 + (dex+luck)/2 + class_crit_bonus + gear_crit  (cap 60%)
+  dodge = class_dodge_base + dex*0.5  (cap 50%)
+  parry = class_parry_base + dex*0.3 + weapon_skill*0.1  (cap 50%)
+  riposte = class_riposte_base + dex*0.2 + weapon_skill*0.1  (cap 100%)
+  arcane_power = int*2 + gear_spell_power
+  hp_regen = 1 + con/5  (per 6s tick)
+  mana_regen = 1 + wis/5  (per 6s tick)
+  carry_weight = 100 + str*2
+
+--- resolve_attack(target: CombatNode) → Dictionary ---
+  Full attack resolution in order:
+  1. Miss check (roll vs hit_chance)
+  2. Riposte check (target parries + ripostes → attacker takes damage)
+  3. Parry check (target parries)
+  4. Block check (target blocks, requires shield)
+  5. Dodge check (target dodges)
+  6. Hit → calculate_melee_damage() → apply_ac_mitigation() → target.current_hp -= dmg
+  Returns: {result, damage, is_crit, message}
+
+--- Other attack modes ---
+  resolve_dual_wield_attack() — main + offhand (-10% hit)
+  resolve_aetherfist_attack() — flurry: main + optional double (lv10+) + triple (lv15+)
+
+--- Spell interrupt (interrupt_spell) ---
+  Checks concentration roll against cast progress.
+  On failure: deducts mana scaled to how far cast had progressed.
+
+--- Class bonuses ---
+  set_class(new_class) applies class-specific hp_bonus, ac_bonus, dodge_base,
+  parry_base, riposte_base, concentration_base.
+  Classes: Blademaster, Aetherfist, Shadowblade, Voidknight, Lightsworn,
+           Woodstalker, Troubadour, Spiritweaver, Gravecaller, Runecaster,
+           Arcanist, Chaosborn
+
+
+================================================================================
+MONSTER SYSTEM (monster3d.gd)
+================================================================================
+
+Class: Monster extends CharacterBody3D
+Group: "monsters"
+Scene: Scenes/monster_template.tscn (base) + individual [name].tscn
+
+--- Loading ---
+  _ready(): reads monster_name (from @export or get_monster_name() override)
+  → load_monster_stats() reads Data/monsters.json
+  → configures CombatNode via _configure_combat_node()
+    (gear values back-calculate from desired HP/AC/ATK so base stats stay 0)
+  Sets gear_atk = 15 + level*5 for hit rates of ~55-60% vs typical player AC.
+
+--- State Machine ---
+  IDLE    → random patrol chance; aggro if player in aggro_range
+  PATROL  → moves to random patrol points; aggro if player spotted
+  CHASE   → uses NavigationAgent3D to path to player; attack when in range
+  ATTACK  → looks at player, calls perform_attack() on cooldown
+  DEAD    → no further processing; triggers loot roll and despawn timer
+
+--- perform_attack() ---
+  Calls CombatNode.resolve_attack(player.combat_node).
+  Reads result and logs to GameLog.log_combat().
+  Social monsters (is_social=true) call call_nearby_allies() — same faction
+  monsters within aggro_range switch to CHASE.
+
+--- Loot on die() ---
+  Rolls _load_loot_data() from Data/solgrave_expanse_loot.json.
+  Rolls category_loot_tables[category] (e.g. "undead", "animal").
+  Rolls zone_loot_tables for monster-specific drops by name.
+  Results combined into pending_loot; is_lootable = true if non-empty.
+  60s auto-despawn via await (guarded with is_inside_tree() check).
+
+--- open_loot_window() ---
+  Instantiates corpse_loot_window.tscn, calls setup(name, pending_loot).
+  pending_loot is passed by reference — taking items depletes the array.
+  Connects all_looted → _on_fully_looted() → 5s despawn.
+
+--- Child Monster Classes ---
+  Each extends Monster, overrides get_monster_name() to return the key used
+  in monsters.json. Optionally overrides modify_damage() for type resistances.
+  Example — skeleton3d.gd:
+    piercing → 70% (resistant)
+    blunt    → 130% (weak)
+    fire     → 110% (weak)
+  Pattern applies to all mobs in Scripts/: bat, rat, slime, snake, spider,
+  goblin, ghost, bandit, bonegnawer, dune_scarab, dustwalker variants,
+  khepri_beetle, lumora_outrider, mirage_phantom, mummy, sand_stinger,
+  sandshifter, sunmaddened_wanderer, thornback_lizard, wild_dog.
+
+
+================================================================================
+HUD SYSTEM
+================================================================================
+
+All four HUD scenes are spawned by player3d._spawn_hud() onto the scene root
+and tagged in group "game_hud". This allows pause_menu._on_save_and_exit() to
+find and free them all at once before changing scene.
+
+player_frame.tscn / player_frame.gd
+  - CanvasLayer, polls player's CombatNode every _process frame.
+  - Shows HP (red), Mana (blue), Stamina (yellow) bars + current/max values.
+  - Bottom-left screen area.
+
+target_frame.tscn / target_frame.gd
+  - CanvasLayer, group "target_frame".
+  - Updated by player3d._set_target_frame(node) when target changes.
+  - EQ-style con coloring: red=very dangerous, orange, yellow, white=even,
+    blue=easy, green=very easy, grey=trivial.
+  - Shows target name, level, HP bar.
+
+game_log_window.tscn / game_log_window.gd
+  - CanvasLayer, two RichTextLabel tabs: General and Combat.
+  - Connects GameLog.general_message → General tab.
+  - Connects GameLog.combat_message → Combat tab.
+  - Red flashing dot (⬤) in top-right: visible when autoattack is ON,
+    animated by Tween, driven by GameLog.autoattack_changed.
+  - Draggable via "Chat" title bar; position saved to Global.player_data
+    ["ui_positions"]["chat"] and persisted on mouse release.
+
+action_bar.tscn / action_bar.gd
+  - CanvasLayer, 12 slots (keys 1–9, 0, -, =), built entirely in _ready().
+  - Polls player.action_bar_slots to show slot contents (spell "S" / skill "K").
+  - Polls player._spell_cooldowns / _skill_cooldowns for cooldown overlays.
+  - Drag-and-drop from abilities_book or other sources to assign slots.
+  - Draggable panel; position saved to Global.player_data["ui_positions"]
+    ["action_bar"].
+
+
+================================================================================
+MODAL UI (toggled on demand, NOT tagged "game_hud")
+================================================================================
+
+pause_menu.gd (Scenes/pause_menu.tscn)
+  - Escape key → player3d._toggle_pause_menu() instantiates this on scene root.
+  - CanvasLayer layer 20 with dim overlay.
+  - Save Game: calls Global.save_player_data_to_file(), logs confirmation.
+  - Save & Exit: saves, frees "game_hud" group, changes scene to main_menu.
+  - Resume / Escape again: emits closed, queue_free().
+
+backpack_ui.gd (Scenes/backpack_ui.tscn)
+  - Toggle with B key from player3d.
+  - Shows bag contents across all bags in basic_inventory.
+  - Reads Inventory.bag_contents, creates slot_button nodes dynamically.
+  - Search bar filters visible slots by item name.
+  - Connects Inventory.inventory_changed → refresh_backpack().
+  - Draggable panel.
+
+character_sheet.gd (Scenes/character_sheet.tscn)
+  - Toggle with C key; player3d passes a sheet_data Dict to set_character_data().
+  - Sheet data includes live CombatNode values (current_hp, max_hp, AC, etc.)
+    plus Global.player_data (xp, currency, equipment, creation date, playtime).
+  - Currently a snapshot; live updates require reopening the sheet.
+
+abilities_book.gd (Scenes/abilities_book.tscn)
+  - Toggle with I key; player3d.toggle_abilities_book() passes self as player.
+  - Shows known_spells and known_skills; spells can be dragged to action_bar.
+
+corpse_loot_window.gd (Scenes/corpse_loot_window.tscn)
+  - Opened by monster3d.open_loot_window().
+  - pending_loot is a direct reference to monster's array — looting depletes it.
+  - "Take" or right-click: _take(drop) → _apply_drop() → removes from array.
+  - "Loot All": iterates all drops.
+  - Currency drops: Global.grant_currency(type, qty).
+  - Item drops: Inventory.add_to_basic_inventory(item_id).
+  - When array is empty: emits all_looted → monster._on_fully_looted() → 5s
+    despawn.
+  - Non-currency items support drag-drop to inventory slots.
+  - Sets MOUSE_MODE_VISIBLE on open; restores MOUSE_MODE_CAPTURED on close.
+
+
+================================================================================
+CHARACTER CREATION (character_creation.gd)
+================================================================================
+
+  1. Reads Global.character_options (loaded by Global._ready from
+     Data/character_options.json) for race and class lists.
+  2. Reads Data/class_restrictions.json to filter classes per race.
+  3. Race selected → load_racial_stats() reads Data/racial_stats.json for
+     base stats and resistances.
+  4. Player distributes 4 bonus points across 7 stats.
+  5. On Confirm: collects stats, builds character_data Dict:
+       - known_spells: from Data/player_spells.json filtered by class + level 1
+       - known_skills: hardcoded match per class
+       - action_bar_slots: first N spells mapped to slots 0..N-1
+       - starting inventory: via build_starting_inventory()
+         - Slot 0: small_bag containing faded_note, 20x iron_rations,
+                   20x water_flask, 5x torch
+         - Slots 1+: class-appropriate armor + weapon
+       - equipment: all empty slots (player equips manually)
+     Saves to user://saves/{name}_character_stats.json.
+  6. On Begin: Global.load_player_data_from_file() → scene change to
+     lumora_outskirts3d.tscn.
+
+
+================================================================================
+SAVE / LOAD SYSTEM
+================================================================================
+
+Save file: user://saves/{character_name}_character_stats.json
+
+Contents:
+  player_name, player_class, player_race, player_level
+  stats: {strength, constitution, dexterity, intelligence, wisdom, charisma, luck}
+  current_hp, current_mana
+  xp, xp_next_level
+  copper, silver, gold, platinum
+  satiety, thirst, current_stamina, max_stamina
+  known_spells[], known_skills[], action_bar_slots[]
+  equipment: {slot → item_id}      ← legacy, used for first-load compat only
+  inventory_data: {basic_inventory, bag_contents, bank_storage, equipped}
+  ui_positions: {chat: [...], action_bar: [...]}
+  resistances: {acid, cold, fire, magic, psychic}
+  character_creation: {real_time, game_time}
+  playtime_seconds
+
+Auto-saved when:
+  - Any equipment slot changes (Inventory.equipment_changed signal)
+  - action_bar or chat window is dragged and released
+  - Save Game is pressed in pause menu
+  - Save & Exit is pressed in pause menu
+
+Load path:
+  main_menu → load_game → Global.set_player_data() → scene change
+  → player3d.load_player_data_from_global()
+  → load_character_data() sets CombatNode stats
+  → Inventory.load_inventory_data() restores all bags/equipment
+  → _apply_equipment_from_inventory() syncs CombatNode weapon_damage + gear_ac
+
+
+================================================================================
+DATA FILES (res://Data/)
+================================================================================
+
+monsters.json           — all monster stats: health, speed, damage, armor_class,
+                          level, aggro_range, behavior_type, xp_gain,
+                          coin_modifier, is_social, faction, category,
+                          description, animations
+items.json              — all item definitions: name, type, slot, damage,
+                          armor_class, stackable, bag_size, icon, etc.
+player_spells.json      — spell definitions: spell_id, spell_name, mana_cost,
+                          damage, recast_time, target (enemy/self/group),
+                          class_level_requirements
+player_skills.json      — skill descriptions keyed by category then skill name
+character_options.json  — race/class data for character creation UI
+                          (portraits, descriptions, lore, traits, penalties)
+racial_stats.json       — base stats and resistances per race
+class_restrictions.json — which races can play which classes
+xp_table.json           — XP thresholds per level (max_level key)
+solgrave_expanse_loot.json — loot tables: category_loot_tables (by category
+                          string) and zone_loot_tables (by mob name)
+player_faction.json     — starting faction standing values
+*_spawns.json           — spawn point definitions for each zone (used by 2D
+                          mob_spawner; 3D replacements TBD)
+dialogue_*.json         — NPC dialogue trees per town/zone
+factions.json           — world faction definitions
+deities.json            — world deity definitions
+
+
+================================================================================
+KEY SIGNAL FLOWS
+================================================================================
+
+Equipping an item:
+  Inventory.equip_item()
+    → Inventory.equipment_changed emitted
+    → player3d._on_equipment_changed()
+    → _apply_equipment_from_inventory() → CombatNode updated
+    → Global.save_player_data_to_file()
+
+Logging a combat event:
+  Any script calls GameLog.log_combat("text")
+    → GameLog emits combat_message
+    → game_log_window._on_combat() appends to Combat tab RichTextLabel
+
+Toggling autoattack:
+  player3d.handle_combat() detects "attack_target" input
+    → GameLog.set_autoattack(bool)
+    → game_log_window._on_autoattack_changed() shows/hides flashing dot
+
+Monster dies and gets fully looted:
+  corpse_loot_window emits all_looted
+    → monster3d._on_fully_looted()
+    → 5s await → loot_window.queue_free() + monster.queue_free()
+
+Monster dies without looting (60s timeout):
+  monster3d.die() → await 60s → if is_inside_tree(): queue_free()
+
+Currency looted:
+  corpse_loot_window._apply_drop()
+    → Global.grant_currency(type, amount)
+    → Global emits currency_changed  (no UI listener yet — future HUD work)
+
+
+================================================================================
+GROUPS
+================================================================================
+
+"player"      — Player3D node; used by monsters to find target and by HUD
+               scripts to find the player in _process
+"monsters"    — all Monster nodes; used by player for targeting, looting,
+               and social aggro calls
+"game_hud"    — player_frame, target_frame, game_log_window, action_bar;
+               freed as a batch on Save & Exit
+"target_frame"— target_frame nodes; player calls set_target(node) on all
+
+
+================================================================================
+KNOWN GAPS / TODOs (as of last session)
+================================================================================
+
+- XP is not awarded to the player on monster kill (TODO in monster3d.die())
+- mob_spawner.gd is 2D only; the 3D zone has no dynamic spawner yet
+- Death animations not implemented (TODO in monster3d.die())
+- character_sheet is a snapshot; live stat updates require a future signal hook
+- currency_changed signal has no UI listener yet
+- character_sheet.gd.old and lumora_outskirts.gd are legacy 2D leftovers
+- player_religion and spellbook save files are planned but not implemented
+- Faction file saves (charactername_player_faction.json) not yet wired up
+- Active skill effects are all placeholder (use_skill logs but does nothing)

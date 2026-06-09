@@ -1,62 +1,87 @@
 {
-  "_comment": "Lumora Outskirts spawn definitions. Coordinates TBD until zone layout is finalized.",
+  "_comment": "lumora_outskirts_spawns.json - 3D spawn definitions for Lumora Outskirts zone. Positions are [x, y, z] world coords. Y=2 ensures spawn above terrain so mobs drop to ground via gravity.",
   "spawns": [
     {
       "mob_type": "rat",
-      "spawn_radius": "TBD",
+      "position": [30, 2, 25],
+      "spawn_radius": 12.0,
       "spawn_chance": 0.7,
       "max_active": 4,
       "respawn_time": 12,
       "min_level": 1,
-      "max_level": 3,
+      "max_level": 2,
       "spawn_zone": "core"
     },
     {
-      "mob_type": "snake",
-      "spawn_radius": "TBD",
-      "spawn_chance": 0.4,
-      "max_active": 2,
-      "respawn_time": 18,
-      "min_level": 1,
-      "max_level": 3,
-      "spawn_zone": "core"
-    },
-    {
-      "mob_type": "dune_scarab",
-      "spawn_radius": "TBD",
-      "spawn_chance": 0.5,
-      "max_active": 3,
-      "respawn_time": 20,
-      "min_level": 1,
-      "max_level": 3,
-      "spawn_zone": "core"
-    },
-    {
-      "mob_type": "slime",
-      "spawn_radius": "TBD",
-      "spawn_chance": 0.8,
-      "max_active": 5,
-      "respawn_time": 20,
-      "min_level": 1,
-      "max_level": 3,
-      "spawn_zone": "core"
-    },
-    {
-      "mob_type": "bat",
-      "spawn_radius": "TBD",
+      "mob_type": "rat",
+      "position": [-35, 2, -20],
+      "spawn_radius": 10.0,
       "spawn_chance": 0.6,
       "max_active": 3,
-      "respawn_time": 15,
+      "respawn_time": 12,
       "min_level": 1,
       "max_level": 2,
       "spawn_zone": "core"
     },
-
-    /* EDGE SPAWNS — appear only near Dustwind Plateaus border */
-
+    {
+      "mob_type": "snake",
+      "position": [-40, 2, 30],
+      "spawn_radius": 10.0,
+      "spawn_chance": 0.5,
+      "max_active": 2,
+      "respawn_time": 18,
+      "min_level": 1,
+      "max_level": 2,
+      "spawn_zone": "core"
+    },
+    {
+      "mob_type": "snake",
+      "position": [50, 2, -15],
+      "spawn_radius": 8.0,
+      "spawn_chance": 0.4,
+      "max_active": 2,
+      "respawn_time": 18,
+      "min_level": 1,
+      "max_level": 2,
+      "spawn_zone": "core"
+    },
+    {
+      "mob_type": "slime",
+      "position": [10, 2, 55],
+      "spawn_radius": 14.0,
+      "spawn_chance": 0.7,
+      "max_active": 4,
+      "respawn_time": 20,
+      "min_level": 1,
+      "max_level": 2,
+      "spawn_zone": "core"
+    },
+    {
+      "mob_type": "slime",
+      "position": [-20, 2, -50],
+      "spawn_radius": 12.0,
+      "spawn_chance": 0.6,
+      "max_active": 3,
+      "respawn_time": 20,
+      "min_level": 1,
+      "max_level": 2,
+      "spawn_zone": "core"
+    },
     {
       "mob_type": "spider",
-      "spawn_radius": "TBD",
+      "position": [75, 2, 70],
+      "spawn_radius": 15.0,
+      "spawn_chance": 0.5,
+      "max_active": 3,
+      "respawn_time": 25,
+      "min_level": 2,
+      "max_level": 3,
+      "spawn_zone": "edge"
+    },
+    {
+      "mob_type": "spider",
+      "position": [-80, 2, 65],
+      "spawn_radius": 14.0,
       "spawn_chance": 0.4,
       "max_active": 2,
       "respawn_time": 25,
@@ -65,42 +90,24 @@
       "spawn_zone": "edge"
     },
     {
+      "mob_type": "skeleton",
+      "position": [-90, 2, -80],
+      "spawn_radius": 15.0,
+      "spawn_chance": 0.35,
+      "max_active": 2,
+      "respawn_time": 30,
+      "min_level": 2,
+      "max_level": 3,
+      "spawn_zone": "edge"
+    },
+    {
       "mob_type": "bandit",
-      "spawn_radius": "TBD",
+      "position": [100, 2, -60],
+      "spawn_radius": 18.0,
       "spawn_chance": 0.5,
       "max_active": 3,
       "respawn_time": 22,
       "min_level": 2,
-      "max_level": 3,
-      "spawn_zone": "edge"
-    },
-    {
-      "mob_type": "goblin",
-      "spawn_radius": "TBD",
-      "spawn_chance": 0.45,
-      "max_active": 3,
-      "respawn_time": 20,
-      "min_level": 2,
-      "max_level": 3,
-      "spawn_zone": "edge"
-    },
-    {
-      "mob_type": "skeleton",
-      "spawn_radius": "TBD",
-      "spawn_chance": 0.3,
-      "max_active": 2,
-      "respawn_time": 30,
-      "min_level": 3,
-      "max_level": 3,
-      "spawn_zone": "edge"
-    },
-    {
-      "mob_type": "ghost",
-      "spawn_radius": "TBD",
-      "spawn_chance": 0.35,
-      "max_active": 1,
-      "respawn_time": 28,
-      "min_level": 3,
       "max_level": 3,
       "spawn_zone": "edge"
     }

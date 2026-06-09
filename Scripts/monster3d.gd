@@ -14,7 +14,9 @@ extends CharacterBody3D
 @export var armor_class: int = 10
 @export var level: int = 1
 @export var attack_range: float = 2.0
-@export var aggro_range: float = 150.0  # Your JSON uses this instead of detection_range
+@export var aggro_range: float = 150.0  # Raw JSON value (2D-era units); scaled to 3D meters at runtime
+const AGGRO_RANGE_SCALE: float = 10.0   # Matches speed scale (speed/10 = m/s)
+const MAX_AGGRO_DISTANCE: float = 5.0   # Hard cap: monsters never aggro beyond this many meters
 
 @export_group("Loot & XP")
 @export var category: String = "animal"  # undead, animal, humanoid, insect, elemental, reptile
@@ -226,8 +228,9 @@ func state_chase(delta: float) -> void:
 
 	var distance: float = global_position.distance_to(player.global_position)
 
-	# Lost aggro
-	if distance > aggro_range:
+	# Lost aggro — leash uses the same effective range so monsters don't chase forever
+	var leash_range: float = minf(aggro_range / AGGRO_RANGE_SCALE, MAX_AGGRO_DISTANCE)
+	if distance > leash_range:
 		change_state(State.PATROL)
 		return
 
@@ -307,12 +310,9 @@ func perform_attack() -> void:
 			elif player.has_method("take_damage"):
 				player.take_damage(result["damage"])
 		var desc: String = monster_description if monster_description != "" else get_monster_name()
-		if result["result"] == "MISS":
-			GameLog.log_combat("%s misses you." % desc.capitalize())
-		elif result["result"] in ["PARRY", "BLOCK", "DODGE"]:
-			GameLog.log_combat("You %s %s's attack." % [result["result"].to_lower(), desc])
-		elif result["damage"] > 0:
-			GameLog.log_combat("%s hits you for [b]%d[/b] damage!" % [desc.capitalize(), result["damage"]])
+		var msg: String = CombatLogFormatter.monster_attack(result, desc, get_damage_type())
+		if not msg.is_empty():
+			GameLog.log_combat(msg)
 	elif player.has_method("take_damage"):
 		player.take_damage(damage)
 		var desc: String = monster_description if monster_description != "" else get_monster_name()
@@ -364,6 +364,15 @@ func call_nearby_allies() -> void:
 				ally.change_state(State.CHASE)
 				print("🆘 %s calls for help! %s responds!" % [get_monster_name(), ally.get_monster_name()])
 
+func get_damage_type() -> String:
+	match category:
+		"humanoid": return "slashing"
+		"animal":   return "blunt"
+		"insect":   return "piercing"
+		"reptile":  return "piercing"
+		"undead":   return "blunt"
+		_:          return "generic"
+
 func die() -> void:
 	change_state(State.DEAD)
 	print("💀 %s died! (XP: %d, Coins: %.2f, Category: %s)" % [monster_name, xp_gain, coin_modifier, category])
@@ -373,7 +382,31 @@ func die() -> void:
 	if is_lootable:
 		print("  → Right-click corpse to loot")
 
-	# TODO: Award XP to player
+	# Award XP to player
+	var players := get_tree().get_nodes_in_group("player")
+	if not players.is_empty():
+		var p := players[0]
+		var cur_xp: int    = Global.player_data.get("xp", 0)
+		var xp_next: int   = Global.player_data.get("xp_next_level", 100)
+		var new_xp: int    = cur_xp + xp_gain
+		Global.player_data["xp"] = new_xp
+		GameLog.log_general("You gain [b]%d[/b] experience points. (%d / %d)" % [xp_gain, new_xp, xp_next])
+
+		# Level-up loop (handles multiple level-ups from one kill)
+		while Global.player_data.get("xp", 0) >= Global.player_data.get("xp_next_level", 999999):
+			var cur_lvl: int = Global.player_data.get("player_level", 1)
+			if cur_lvl >= Global.xp_table.get("max_level", 20):
+				break
+			var new_lvl: int   = cur_lvl + 1
+			var next_thresh: int = int(Global.xp_table.get(str(new_lvl + 1), 0))
+			Global.player_data["player_level"]   = new_lvl
+			Global.player_data["xp_next_level"]  = next_thresh if next_thresh > 0 else 999999
+			GameLog.log_general("[color=#ffdd44][b]You have reached level %d![/b][/color]" % new_lvl)
+			if p.has_method("on_level_up"):
+				p.on_level_up(new_lvl)
+
+		Global.save_player_data_to_file()
+
 	# TODO: AnimationPlayer death animation
 
 	await get_tree().create_timer(60.0).timeout
@@ -464,18 +497,16 @@ func can_see_player() -> bool:
 	if not player:
 		return false
 
-	var distance = global_position.distance_to(player.global_position)
+	var distance: float = global_position.distance_to(player.global_position)
+	var effective_range: float = minf(aggro_range / AGGRO_RANGE_SCALE, MAX_AGGRO_DISTANCE)
 
-	# Use aggro_range from JSON
 	match behavior_type:
 		"passive":
-			# Passive mobs only aggro if attacked (aggro_range is smaller)
-			return distance <= (aggro_range / 3.0)
+			return distance <= (effective_range / 3.0)
 		"neutral":
-			# Neutral mobs only aggro if very close
-			return distance <= (aggro_range / 2.0)
+			return distance <= (effective_range / 2.0)
 		_:  # aggressive, skitter, etc.
-			return distance <= aggro_range
+			return distance <= effective_range
 
 func pick_new_patrol_point() -> void:
 	var random_angle: float = randf() * TAU

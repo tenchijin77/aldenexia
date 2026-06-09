@@ -1,4 +1,6 @@
 {
+  "_comment": "player_skills.json - All skill definitions and class starting skill levels.",
+
   "physical": {
     "athletics": "Increases performance in climbing, jumping, and sustained movement.",
     "dodge": "Improves evasion from melee and ranged attacks.",
@@ -23,9 +25,10 @@
     "2h_slashing": "Increases proficiency with two-handed slashing weapons.",
     "weapon_mastery": "General skill improving melee weapon damage and accuracy.",
     "archery": "Boosts effectiveness with bows and arrows.",
-	"leopard_stike": "Attacks the enemy and has a chance to stun."
+    "leopard_strike": "Attacks the enemy and has a chance to stun.",
     "throwing": "Improves accuracy and range when throwing weapons."
   },
+
   "magic": {
     "abjuration": "Enhances protective and warding spells.",
     "conjuration": "Focuses on summoning creatures or items.",
@@ -47,6 +50,7 @@
     "specialize_divination": "Deepens mastery of divination spells.",
     "specialize_evocation": "Deepens mastery of evocation spells."
   },
+
   "crafting": {
     "alchemy": "Creates potions and magical brews from ingredients.",
     "blacksmithing": "Crafts weapons, armor, and metal tools.",
@@ -55,4 +59,32 @@
     "fletching": "Crafts arrows, bows, and ranged implements.",
     "fishing": "Retrieves fish and aquatic resources from water.",
     "forage": "Gathers herbs, roots, and natural ingredients from terrain.",
-    "jewelcrafting": "
+    "jewelcrafting": "Crafts rings, amulets, and gem-set accessories.",
+    "leatherworking": "Crafts leather armor and accessories from hides.",
+    "prospecting": "Locates ore deposits and mines raw materials.",
+    "tailoring": "Crafts cloth armor and garments.",
+    "tinkering": "Builds mechanical gadgets and clockwork devices.",
+    "woodworking": "Crafts bows, staves, and wooden implements."
+  },
+
+  "class_skills": {
+    "Blademaster":  { "1h_slashing": 10, "parry": 5, "dodge": 5, "weapon_mastery": 5 },
+    "Shadowblade":  { "1h_piercing": 10, "backstab": 5, "dodge": 8, "dual_wield": 5 },
+    "Voidknight":   { "1h_slashing": 8, "parry": 5, "dodge": 3, "weapon_mastery": 5 },
+    "Lightsworn":   { "1h_slashing": 8, "block": 5, "shield_defense": 5, "weapon_mastery": 5 },
+    "Aetherfist":   { "hand_to_hand": 10, "dodge": 8, "mantis_fist": 5 },
+    "Zenblade":     { "hand_to_hand": 8, "dodge": 8, "mantis_fist": 5 },
+    "Woodstalker":  { "archery": 10, "dodge": 5, "throwing": 5 },
+    "Arcanist":     { "spell_casting": 10, "evocation": 5, "concentration": 5 },
+    "Runecaster":   { "spell_casting": 10, "evocation": 5, "concentration": 5 },
+    "Chaosborn":    { "spell_casting": 8, "evocation": 5, "concentration": 5 },
+    "Lightmender":  { "spell_casting": 10, "concentration": 5, "channeling": 5 },
+    "Spiritcaller": { "spell_casting": 10, "concentration": 5, "channeling": 5 },
+    "Gravecaller":  { "spell_casting": 10, "necromancy": 5, "concentration": 5 },
+    "Troubadour":   { "spell_casting": 8, "enchantment": 5, "concentration": 5 },
+    "Wildspeaker":  { "spell_casting": 8, "alteration": 5, "concentration": 5 }
+  },
+
+  "skill_max": 252,
+  "skill_gain_base_chance": 0.15
+}

@@ -38,6 +38,7 @@ extends CanvasLayer
 ]
 
 var money_label: Label
+var _player: Node = null
 var _dragging := false
 var _resizing := false
 const RESIZE_MARGIN := 16.0
@@ -267,6 +268,27 @@ func refresh_equipment_slots() -> void:
 			btn.texture_normal = null
 			btn.tooltip_text = slot_name.capitalize()
 		btn.queue_redraw()
+
+func set_player(p: Node) -> void:
+	_player = p
+
+func _process(_delta: float) -> void:
+	if not is_instance_valid(_player):
+		return
+	var cn = _player.get("combat_node")
+	if cn == null:
+		return
+	health_label.text  = "Health: %d / %d"  % [cn.current_hp,   cn.max_hp]
+	mana_label.text    = "Mana: %d / %d"    % [cn.current_mana, cn.max_mana]
+	stamina_label.text = "Stamina: %d / %d" % [
+		int(_player.current_stamina if "current_stamina" in _player else 0.0),
+		int(_player.max_stamina     if "max_stamina"     in _player else 100.0)
+	]
+	xp_label.text    = "XP: %d / %d" % [
+		Global.player_data.get("xp", 0),
+		Global.player_data.get("xp_next_level", 100)
+	]
+	level_label.text = "Level: %d" % Global.player_data.get("player_level", 1)
 
 func _on_inventory_changed():
 	refresh_storage_slots()
