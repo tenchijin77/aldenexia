@@ -34,7 +34,7 @@ CombatNode (Scripts/combatnode.gd) owns all combat math. Both Player3D and Monst
 
 **Spell casting** (`player3d.cast_spell(spell_name)`): checks cooldown + mana, calls `combat_node.calculate_spell_damage()`, logs to combat tab, updates `_spell_cooldowns` dict. `_tick_cooldowns(delta)` decrements timers each physics frame.
 
-**Equipment application** (`player3d.apply_equipment(dict)`): reads items.json, sums weapon_damage from `primary` slot and gear_ac from all other slots, applies to CombatNode, triggers recalculate.
+**Equipment application (runtime):** `player3d._apply_equipment_from_inventory()` reads `Inventory.equipped` (live paperdoll instances) and updates weapon_damage + gear_ac on CombatNode. Called on every `Inventory.equipment_changed` signal and after `Inventory.load_inventory_data()` at load. The old `apply_equipment(dict)` (slot → item_id strings) still runs once at load for legacy save compatibility but is superseded by the live path.
 
 **Starting weapon_skill by class:** Blademaster/Shadowblade/Voidknight/Lightsworn = 10, Woodstalker/Aetherfist/Zenblade = 8, casters = 4. Set on load if weapon_skill == 0.
 

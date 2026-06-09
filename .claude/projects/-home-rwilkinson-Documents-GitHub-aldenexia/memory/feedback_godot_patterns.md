@@ -29,6 +29,28 @@ ProgressBar fill colors must be set via add_theme_stylebox_override("fill", Styl
 
 ---
 
+Root-level nodes (added via `get_tree().root.add_child()`) survive `SceneTree.change_scene_to_file()` — only the current scene is freed. Always tag root-level HUD/overlay nodes with a group (e.g. "game_hud") and explicitly queue_free them before changing scene.
+
+**Why:** The pause menu overlay and all HUD windows persisted into the main menu because they were root children, not scene children.
+
+**How to apply:** Any CanvasLayer or UI node added directly to root should be in a named group. Scene exit code must free that group before `change_scene_to_file()`.
+
+---
+
+After an `await` in a node method (e.g. a despawn timer), always guard with `if not is_inside_tree(): return` before taking any action. If the node was freed by another path while the timer was running, the continuation will still fire.
+
+**Why:** monster3d.die() had a 60s auto-despawn await. When the player fully looted the monster, `_on_fully_looted()` called queue_free() first. The 60s timer then resumed on a freed node.
+
+**How to apply:** Every `await get_tree().create_timer(...)` in a node should be followed by `if not is_inside_tree(): return`.
+
+---
+
+When a popup window needs to mutate the caller's data (e.g. a loot window depleting a monster's loot array), pass the array by reference — do NOT call `.duplicate()`. Add a signal (e.g. `all_looted`) that fires when the array is empty, and let the caller connect to it for cleanup/despawn.
+
+**Why:** corpse_loot_window called `loot.duplicate(true)`, so the monster's pending_loot was never depleted. Monster stayed lootable forever.
+
+---
+
 When Godot crashes on startup with "Could not parse global class X from res://Scripts/foo.gd", the fix is to delete the stale Godot cache files and let the engine rebuild them:
   - .godot/uid_cache.bin
   - .godot/global_script_class_cache.cfg
