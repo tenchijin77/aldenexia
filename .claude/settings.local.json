@@ -3,7 +3,11 @@
     "allow": [
       "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(list\\(d.keys\\(\\)\\)[:20]\\)\")",
       "Bash(python3 *)",
-      "Bash(awk '{print $9, \"\\(\" $5 \"\\)\"}')"
+      "Bash(awk '{print $9, \"\\(\" $5 \"\\)\"}')",
+      "Bash(sed -i '/^class_name CombatNode/d' /home/rwilkinson/Documents/GitHub/aldenexia/Scripts/combatnode-OLD.gd)",
+      "Bash(sed -i '/^class_name BaseMonster/d' /home/rwilkinson/Documents/GitHub/aldenexia/Scripts/base_monster-OLD.gd)",
+      "Bash(sed -i '/^class_name Mob/d' /home/rwilkinson/Documents/GitHub/aldenexia/Scripts/mob-OLD.gd)",
+      "Bash(git *)"
     ]
   }
 }

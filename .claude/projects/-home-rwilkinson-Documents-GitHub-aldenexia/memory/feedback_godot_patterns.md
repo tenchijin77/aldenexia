@@ -26,3 +26,13 @@ Use the GameLog autoload for any in-game message that should appear in the UI lo
 ProgressBar fill colors must be set via add_theme_stylebox_override("fill", StyleBoxFlat) in _ready() — not in tscn files (too complex to write by hand).
 
 **Why:** Writing inline StyleBoxFlat resources in tscn format is error-prone and verbose.
+
+---
+
+When Godot crashes on startup with "Could not parse global class X from res://Scripts/foo.gd", the fix is to delete the stale Godot cache files and let the engine rebuild them:
+  - .godot/uid_cache.bin
+  - .godot/global_script_class_cache.cfg
+
+**Why:** The uid_cache.bin accumulates UIDs for scripts that have since been deleted or moved. Godot tries to resolve them on startup and fails.
+
+**How to apply:** If a script was recently deleted/moved and Godot crashes with a class parse error, check uid_cache.bin with `strings` for stale paths, then delete both cache files. Godot rebuilds them automatically on next open.
