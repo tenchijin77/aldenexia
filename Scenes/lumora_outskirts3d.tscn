@@ -2,6 +2,7 @@
 
 [ext_resource type="PackedScene" uid="uid://b4k2monster3d" path="res://Scenes/monster_template.tscn" id="1_buoj8"]
 [ext_resource type="PackedScene" uid="uid://cvn5f0j0b3bwg" path="res://Scenes/player3d.tscn" id="1_xodo7"]
+[ext_resource type="Script" uid="uid://cxepbyra8r8c1" path="res://Scripts/mob_spawner3d.gd" id="3_u020j"]
 
 [sub_resource type="Environment" id="Environment_7vt6w"]
 
@@ -45,3 +46,6 @@ shape = SubResource("BoxShape3D_btwau")
 [node name="monster_template" parent="." unique_id=2031395971 instance=ExtResource("1_buoj8")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -48.598, 0.5, 44.916)
 monster_name = "skeleton"
+
+[node name="monster_spawner" type="Node3D" parent="." unique_id=1015832831]
+script = ExtResource("3_u020j")

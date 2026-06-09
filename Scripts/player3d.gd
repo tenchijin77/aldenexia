@@ -33,6 +33,7 @@ var player_race := ""
 var known_spells: Array = []
 var known_skills: Array = []
 var skill_levels: Dictionary = {}
+var regen_bonus: int = 0  # Racial bonus HP added to each regen tick (e.g. Troll regeneration)
 var action_bar_slots: Array = []  # Array of {type, name} dicts, 12 elements
 var _spell_cache: Dictionary = {}
 var _spell_by_name: Dictionary = {}
@@ -109,11 +110,13 @@ const LOOT_RANGE := 5.0
 var _pause_menu_instance: Node = null
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventMouseButton \
-			and event.button_index == MOUSE_BUTTON_RIGHT \
-			and event.pressed \
-			and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
-		_try_loot_corpse()
+	if event is InputEventMouseButton and event.pressed:
+		match event.button_index:
+			MOUSE_BUTTON_RIGHT:
+				_try_loot_corpse()
+			MOUSE_BUTTON_LEFT:
+				if Input.mouse_mode == Input.MOUSE_MODE_VISIBLE:
+					_try_click_target(event.position)
 
 	if event is InputEventKey and event.pressed and not event.echo:
 		if event.keycode == KEY_ESCAPE:
@@ -198,7 +201,7 @@ func _spawn_hud() -> void:
 		"res://Scenes/game_log_window.tscn",
 		"res://Scenes/action_bar.tscn",
 	]:
-		var node := load(scene_path).instantiate()
+		var node: Node = load(scene_path).instantiate()
 		node.add_to_group("game_hud")
 		root.add_child(node)
 	GameLog.log_general("Welcome, [b]%s[/b]." % player_name)
@@ -227,7 +230,7 @@ func _load_spell_cache() -> void:
 		sf.close()
 		if typeof(sd) == TYPE_DICTIONARY:
 			for category in sd:
-				var cat: Dictionary = sd[category]
+				var cat = sd[category]
 				if typeof(cat) == TYPE_DICTIONARY:
 					for skill_name in cat:
 						_skill_data[skill_name] = cat[skill_name]
@@ -276,20 +279,20 @@ func _process(delta: float) -> void:
 		regen_timer = 0.0
 
 		if combat_node.current_hp < combat_node.max_hp:
-			var regen_h = combat_node.get_derived_stat("hp_regen")
+			var regen_h: int = combat_node.get_derived_stat("hp_regen") + regen_bonus
+			if is_sitting:
+				regen_h = int(regen_h * 3.0)
 			if satiety < 25:
 				regen_h = int(regen_h * 0.8)
-			combat_node.current_hp = mini(
-				combat_node.current_hp + regen_h, combat_node.max_hp
-			)
+			combat_node.current_hp = mini(combat_node.current_hp + regen_h, combat_node.max_hp)
 
 		if combat_node.current_mana < combat_node.max_mana:
-			var regen_m = combat_node.get_derived_stat("mana_regen")
+			var regen_m: int = combat_node.get_derived_stat("mana_regen")
+			if is_sitting:
+				regen_m = int(regen_m * 3.0)
 			if thirst < 25:
 				regen_m = int(regen_m * 0.8)
-			combat_node.current_mana = mini(
-				combat_node.current_mana + regen_m, combat_node.max_mana
-			)
+			combat_node.current_mana = mini(combat_node.current_mana + regen_m, combat_node.max_mana)
 
 	if attack_cooldown > 0.0:
 		attack_cooldown -= delta
@@ -420,6 +423,9 @@ func update_stamina(delta: float) -> void:
 		if is_sitting:
 			is_running = false
 			is_crouching = false
+			GameLog.log_general("You sit down to rest.")
+		else:
+			GameLog.log_general("You stand up.")
 
 	if is_moving and is_running and is_on_floor():
 		current_stamina -= STAMINA_DRAIN_RUN * delta
@@ -466,7 +472,8 @@ func tab_cycle_target() -> void:
 
 	if valid.is_empty():
 		current_target = null
-		print("🎯 No targets available.")
+		_set_target_frame(null)
+		GameLog.log_general("No targets available.")
 		return
 
 	valid.sort_custom(func(a, b):
@@ -479,16 +486,35 @@ func tab_cycle_target() -> void:
 		_target_idx = (valid.find(current_target) + 1) % valid.size()
 
 	current_target = valid[_target_idx]
-	var dist := global_position.distance_to(current_target.global_position)
-	_set_target_frame(current_target)
-	var msg := "🎯 %s [HP: %d/%d] (%.1fm)" % [
-		current_target.get_monster_name(),
-		current_target.current_health,
-		current_target.max_health,
-		dist
-	]
-	print(msg)
-	GameLog.log_general(msg)
+	_announce_target(current_target)
+
+
+func _try_click_target(screen_pos: Vector2) -> void:
+	var camera := get_viewport().get_camera_3d()
+	if not camera:
+		return
+	var space := get_world_3d().direct_space_state
+	var origin    := camera.project_ray_origin(screen_pos)
+	var direction := camera.project_ray_normal(screen_pos)
+	var query := PhysicsRayQueryParameters3D.create(origin, origin + direction * 150.0)
+	query.exclude = [self]
+	var hit := space.intersect_ray(query)
+	if hit and hit.collider is Monster:
+		var m := hit.collider as Monster
+		if m.current_state != Monster.State.DEAD:
+			current_target = m
+			_announce_target(current_target)
+
+
+func _announce_target(target: Node) -> void:
+	_set_target_frame(target)
+	var desc: String = target.get("monster_description") if "monster_description" in target else ""
+	if desc.is_empty():
+		desc = target.get("monster_name") if "monster_name" in target else "enemy"
+	var dist := global_position.distance_to(target.global_position)
+	GameLog.log_general("Target: [b]%s[/b] — HP %d/%d (%.1fm away)" % [
+		desc.capitalize(), target.current_health, target.max_health, dist
+	])
 
 
 func attack_current_target() -> void:
@@ -535,11 +561,14 @@ func attack_current_target() -> void:
 		elif result["result"] == "RIPOSTE":
 			_tick_skill("riposte")
 		if not current_target.combat_node.is_alive():
+			var dead := current_target
 			GameLog.log_combat(CombatLogFormatter.death("You", target_desc))
 			_set_target_frame(null)
 			current_target = null
 			autoattack_enabled = false
 			GameLog.set_autoattack(false)
+			if dead.has_method("die"):
+				dead.die()
 	else:
 		var penalty := get_stat_penalty()
 		var total_damage := int(combat_node.calculate_melee_damage(null, combat_node.roll_crit()) * penalty)
@@ -655,7 +684,7 @@ func toggle_character_sheet() -> void:
 	if character_sheet_instance:
 		character_sheet_instance.queue_free()
 		character_sheet_instance = null
-		Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 		print("📋 Character sheet closed")
 	else:
 		character_sheet_instance = character_sheet_scene.instantiate()
@@ -841,6 +870,8 @@ func apply_racial_modifiers(race_name: String) -> void:
 		"lizardkin":
 			combat_node.gear_ac += 2
 			combat_node._stats_dirty = true
+		"troll":
+			regen_bonus = 4  # Troll regeneration trait: +4 HP per regen tick (stacks with sitting bonus)
 #endregion
 
 #region Faction
@@ -935,52 +966,78 @@ func _apply_equipment_from_inventory() -> void:
 func cast_spell(spell_name: String) -> void:
 	var spell: Dictionary = _spell_by_name.get(spell_name, {})
 	if spell.is_empty():
-		GameLog.log_general("Unknown spell: %s" % spell_name)
+		GameLog.log_general("Unknown spell or ability: [b]%s[/b]." % spell_name.replace("_", " ").capitalize())
 		return
 
 	var cd_remaining: float = _spell_cooldowns.get(spell_name, 0.0)
 	if cd_remaining > 0.0:
-		GameLog.log_general("[b]%s[/b] not ready (%.1fs)" % [spell_name.replace("_", " ").capitalize(), cd_remaining])
+		GameLog.log_general("[b]%s[/b] is not ready. (%.1fs remaining)" % [spell_name.replace("_", " ").capitalize(), cd_remaining])
 		return
 
-	var cost: float = spell.get("mana_cost", 0.0)
-	if combat_node.current_mana < int(cost):
-		GameLog.log_general("Not enough mana to cast [b]%s[/b]!" % spell_name.replace("_", " ").capitalize())
+	var cost: int = int(spell.get("mana_cost", 0.0))
+	if combat_node.current_mana < cost:
+		GameLog.log_general("Insufficient mana to use [b]%s[/b]!" % spell_name.replace("_", " ").capitalize())
 		return
 
-	combat_node.current_mana -= int(cost)
-	_spell_cooldowns[spell_name] = spell.get("recast_time", 10.0)
-
-	var display_name := spell_name.replace("_", " ").capitalize()
+	var display_name    := spell_name.replace("_", " ").capitalize()
+	var school: String   = spell.get("spell_school", "arcane")
+	var spell_target    := spell.get("target", "enemy") as String
+	var base_damage: int = spell.get("damage", 0)
 	var target_node: Node = current_target if (current_target and is_instance_valid(current_target)) else null
-	var damage: int = spell.get("damage", 0)
-	var spell_target: String = spell.get("target", "enemy")
 
-	if spell_target == "enemy":
-		if target_node == null:
-			GameLog.log_general("No target for [b]%s[/b]." % display_name)
-			return
-		if target_node.get("current_state") == target_node.State.DEAD:
-			GameLog.log_general("Target is already dead.")
-			return
-		if damage > 0 and target_node.has_method("apply_damage"):
+	# Begin cast message
+	GameLog.log_general(CombatLogFormatter.begin_cast("You"))
+
+	# Commit mana and cooldown
+	combat_node.current_mana -= cost
+	_spell_cooldowns[spell_name] = float(spell.get("recast_time", 10.0))
+
+	# Tick spell_casting skill
+	_tick_skill("spell_casting")
+
+	match spell_target:
+		"enemy":
+			if target_node == null:
+				GameLog.log_general("No target selected for [b]%s[/b]." % display_name)
+				return
+			if target_node.get("current_state") == target_node.State.DEAD:
+				GameLog.log_general("Your target is already dead.")
+				return
+			if not target_node.has_method("apply_damage"):
+				return
+
 			var target_cn = target_node.get("combat_node")
-			var final_dmg := combat_node.calculate_spell_damage(damage, true, target_cn)
-			target_node.apply_damage(final_dmg, "magic")
-			var target_desc: String = target_node.get("monster_description") if target_node.get("monster_description") != "" else target_node.get_monster_name()
+			var target_desc: String = target_node.get("monster_description") \
+				if target_node.get("monster_description") != "" else target_node.get_monster_name()
+
+			var final_dmg: int
+			if school == "physical":
+				# Physical combat abilities scale with STR and are mitigated by AC
+				final_dmg = base_damage + int(combat_node.strength / 2.0)
+				if target_cn is CombatNode:
+					final_dmg = combat_node.apply_ac_mitigation(final_dmg, target_cn)
+				final_dmg = max(1, final_dmg)
+				target_node.apply_damage(final_dmg, "physical")
+			else:
+				# Magical spells scale with arcane/divine power and are resisted
+				var is_arcane := school in ["arcane", "fire", "cold", "poison", "shadow", "void"]
+				final_dmg = combat_node.calculate_spell_damage(base_damage, is_arcane, target_cn)
+				target_node.apply_damage(final_dmg, "magic")
+
 			GameLog.log_combat(CombatLogFormatter.spell_damage("You", spell_name, target_desc, final_dmg))
+
 			if not target_node.combat_node.is_alive():
 				GameLog.log_combat(CombatLogFormatter.death("You", target_desc))
 				_set_target_frame(null)
 				current_target = null
 				autoattack_enabled = false
 				GameLog.set_autoattack(false)
-		else:
-			GameLog.log_combat("You cast [b]%s[/b]!" % display_name)
-	elif spell_target == "self":
-		GameLog.log_combat("You cast [b]%s[/b] on yourself." % display_name)
-	elif spell_target == "group":
-		GameLog.log_combat("You shout [b]%s[/b]!" % display_name)
+
+		"self":
+			GameLog.log_combat("You use [b]%s[/b] on yourself." % display_name)
+
+		"group":
+			GameLog.log_combat("[color=#ffdd88]You use [b]%s[/b]! Your battle cry fills the air.[/color]" % display_name)
 
 
 func _default_action_bar_slots() -> Array:
@@ -1024,7 +1081,7 @@ func _tick_skill(skill_name: String) -> void:
 	var chance: float = 0.15 * (1.0 - float(current) / float(cap))
 	if randf() < chance:
 		skill_levels[skill_name] += 1
-		GameLog.log_general("Your [b]%s[/b] skill has increased to %d!" % [
+		GameLog.log_general("You've become better at [b]%s[/b]! (%d)" % [
 			skill_name.replace("_", " ").capitalize(), skill_levels[skill_name]
 		])
 		_sync_weapon_skill()
@@ -1065,7 +1122,7 @@ func toggle_backpack() -> void:
 	if backpack_instance:
 		backpack_instance.queue_free()
 		backpack_instance = null
-		Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 		print("🎒 Backpack closed")
 	else:
 		backpack_instance = backpack_scene.instantiate()

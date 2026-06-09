@@ -153,21 +153,26 @@ static func monster_attack(result: Dictionary, monster_desc: String, damage_type
 # ── Spell messages ────────────────────────────────────────────────────────────
 
 static func spell_damage(caster: String, spell_name: String, target_desc: String, damage: int) -> String:
-	return "%s casts [b]%s[/b] on %s for [b]%d[/b] damage!" % [
-		caster, spell_name.replace("_", " ").capitalize(), target_desc, damage
+	var verb := "cast" if caster == "You" else "casts"
+	return "%s %s [b]%s[/b] on %s for [b]%d[/b] damage!" % [
+		caster, verb, spell_name.replace("_", " ").capitalize(), target_desc, damage
 	]
 
 static func spell_heal(caster: String, spell_name: String, target_desc: String, amount: int) -> String:
-	return "%s casts [b]%s[/b] on %s, healing [b]%d[/b] health!" % [
-		caster, spell_name.replace("_", " ").capitalize(), target_desc, amount
+	var verb := "cast" if caster == "You" else "casts"
+	return "%s %s [b]%s[/b] on %s, restoring [b]%d[/b] health!" % [
+		caster, verb, spell_name.replace("_", " ").capitalize(), target_desc, amount
 	]
 
 static func spell_debuff(caster: String, spell_name: String, target_desc: String, stat: String, amount: int) -> String:
-	return "%s casts [b]%s[/b] on %s, reducing its %s by %d!" % [
-		caster, spell_name.replace("_", " ").capitalize(), target_desc, stat, amount
+	var verb := "cast" if caster == "You" else "casts"
+	return "%s %s [b]%s[/b] on %s, reducing its %s by %d!" % [
+		caster, verb, spell_name.replace("_", " ").capitalize(), target_desc, stat, amount
 	]
 
 static func begin_cast(caster: String) -> String:
+	if caster == "You":
+		return "You begin casting a spell."
 	return "%s begins casting a spell." % caster
 
 static func death(killer: String, target_desc: String) -> String:

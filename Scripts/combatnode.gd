@@ -247,12 +247,12 @@ func recalculate_derived_stats():
 	_cached_stats["psychic_resist"] = clamp(base_resist + gear_ac, 0, 200)
 	_cached_stats["spirit_resist"] = clamp(int((constitution + wisdom) / 2.0) + gear_spirit_resist, 0, 200)
 
-	# Health Regeneration (per 6-second tick)
-	var hp_regen = 1 + int(constitution / 5.0)  # Base + CON scaling
+	# Health Regeneration (per 6-second tick). Sitting multiplier applied in player3d.
+	var hp_regen = 2 + int(constitution / 3.0)
 	_cached_stats["hp_regen"] = hp_regen
 
-	# Mana Regeneration (per 6-second tick)
-	var mana_regen = 1 + int(wisdom / 5.0)  # Base + WIS scaling
+	# Mana Regeneration (per 6-second tick). Sitting multiplier applied in player3d.
+	var mana_regen = 2 + int(wisdom / 3.0)
 	_cached_stats["mana_regen"] = mana_regen
 
 	# Stamina Regeneration (per second)

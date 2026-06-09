@@ -22,9 +22,29 @@ func _ready() -> void:
 
 func set_target(target: Node) -> void:
 	_target = target
-	visible  = target != null and is_instance_valid(target)
-	if visible:
-		_refresh_name_and_con()
+	visible = target != null and is_instance_valid(target)
+
+
+func _get_display_name(target: Node) -> String:
+	# Prefer monster_description (e.g. "a crumbling skeleton") stripped of leading article
+	var desc: String = ""
+	if "monster_description" in target:
+		desc = str(target.get("monster_description"))
+	if not desc.is_empty():
+		for article in ["an ", "a ", "the "]:
+			if desc.begins_with(article):
+				desc = desc.substr(article.length())
+				break
+		return desc.capitalize()
+	# Fall back to exported monster_name var
+	if "monster_name" in target:
+		var mname: String = str(target.get("monster_name"))
+		if not mname.is_empty() and mname != "monster":
+			return mname.capitalize()
+	# Last resort: virtual method
+	if target.has_method("get_monster_name"):
+		return target.get_monster_name().capitalize()
+	return "Unknown"
 
 
 func _refresh_name_and_con() -> void:
@@ -38,22 +58,18 @@ func _refresh_name_and_con() -> void:
 
 	var diff := target_level - player_level
 	name_label.add_theme_color_override("font_color", _con_color(diff))
+	name_label.text  = _get_display_name(_target)
 	level_label.text = "Lv %d" % target_level
-
-	if _target.has_method("get_monster_name"):
-		name_label.text = _target.get_monster_name().capitalize()
-	elif "monster_name" in _target:
-		name_label.text = str(_target.monster_name).capitalize()
 
 
 func _con_color(diff: int) -> Color:
-	if   diff >= 5:  return Color(1.00, 0.10, 0.10)  # Red    — very dangerous
-	elif diff >= 4:  return Color(1.00, 0.50, 0.00)  # Orange — dangerous
-	elif diff >= 2:  return Color(1.00, 1.00, 0.00)  # Yellow — challenging
-	elif diff >= -1: return Color(1.00, 1.00, 1.00)  # White  — even
-	elif diff >= -3: return Color(0.40, 0.60, 1.00)  # Blue   — easy
-	elif diff >= -5: return Color(0.00, 0.80, 0.00)  # Green  — very easy
-	else:            return Color(0.55, 0.55, 0.55)  # Grey   — trivial (no XP)
+	if   diff >= 6:  return Color(1.00, 0.10, 0.10)  # Red    — 6+ levels above
+	elif diff >= 4:  return Color(1.00, 0.50, 0.00)  # Orange — 4-5 levels above
+	elif diff >= 2:  return Color(1.00, 1.00, 0.00)  # Yellow — 2-3 levels above
+	elif diff >= -1: return Color(1.00, 1.00, 1.00)  # White  — same level / ±1
+	elif diff >= -3: return Color(0.40, 0.60, 1.00)  # Blue   — 2-3 levels below
+	elif diff >= -5: return Color(0.00, 0.80, 0.00)  # Green  — 4-5 levels below
+	else:            return Color(0.55, 0.55, 0.55)  # Grey   — 6+ levels below (no XP)
 
 
 func _process(_delta: float) -> void:
@@ -68,6 +84,7 @@ func _process(_delta: float) -> void:
 		return
 
 	visible = true
+	_refresh_name_and_con()
 
 	if "combat_node" in _target:
 		var cn = _target.combat_node

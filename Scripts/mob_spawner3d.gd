@@ -6,17 +6,15 @@ extends Node3D
 @export var spawn_data_path: String = "res://Data/lumora_outskirts_spawns.json"
 @export var tick_interval: float = 1.0
 
-const MOB_SCENES: Dictionary = {
-	"rat":      "res://Scenes/rat.tscn",
-	"snake":    "res://Scenes/snake.tscn",
-	"slime":    "res://Scenes/slime.tscn",
-	"spider":   "res://Scenes/spider.tscn",
-	"bat":      "res://Scenes/bat.tscn",
-	"skeleton": "res://Scenes/skeleton.tscn",
-	"bandit":   "res://Scenes/bandit.tscn",
-	"goblin":   "res://Scenes/goblin.tscn",
-	"ghost":    "res://Scenes/ghost.tscn",
-}
+# All mobs use the shared 3D template. monster_name is set before _ready() fires
+# so Monster._ready() loads the correct JSON stats automatically.
+const MONSTER_TEMPLATE := "res://Scenes/monster_template.tscn"
+
+# Valid mob_type keys (must match monsters.json keys)
+const VALID_MOB_TYPES: Array = [
+	"rat", "snake", "slime", "spider", "bat",
+	"skeleton", "bandit", "goblin", "ghost",
+]
 
 var _entries: Array = []
 var _cooldowns: Dictionary = {}
@@ -60,7 +58,7 @@ func _try_spawn() -> void:
 			continue
 		var entry: Dictionary = _entries[i]
 		var mob_type: String = entry.get("mob_type", "")
-		if mob_type.is_empty() or not MOB_SCENES.has(mob_type):
+		if mob_type.is_empty() or mob_type not in VALID_MOB_TYPES:
 			continue
 		if _active.get(mob_type, 0) >= entry.get("max_active", 3):
 			continue
@@ -69,12 +67,14 @@ func _try_spawn() -> void:
 		_spawn(i, entry, mob_type)
 
 func _spawn(idx: int, entry: Dictionary, mob_type: String) -> void:
-	var packed: PackedScene = load(MOB_SCENES[mob_type])
+	var packed: PackedScene = load(MONSTER_TEMPLATE)
 	if not packed:
-		push_error("❌ MobSpawner3D: failed to load scene for %s" % mob_type)
+		push_error("❌ MobSpawner3D: failed to load monster_template.tscn")
 		return
 
 	var mob := packed.instantiate()
+	# Set monster_name BEFORE add_child so Monster._ready() loads the correct JSON stats
+	mob.monster_name = mob_type
 
 	var pos_arr: Array = entry.get("position", [0.0, 2.0, 0.0])
 	var base := Vector3(float(pos_arr[0]), float(pos_arr[1]), float(pos_arr[2]))

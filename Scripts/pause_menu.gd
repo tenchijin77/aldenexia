@@ -80,9 +80,13 @@ func _on_save() -> void:
 
 func _on_save_and_exit() -> void:
 	Global.save_player_data_to_file()
-	for node in get_tree().get_nodes_in_group("game_hud"):
-		node.queue_free()
-	queue_free()
+	# Free every CanvasLayer on the root — covers HUD, character sheet, backpack,
+	# abilities book, loot window, inspect popup, and this pause menu itself.
+	# Autoloads (Global, GameLog, Inventory, GlobalBackgroundMusic) are not
+	# CanvasLayers so they are unaffected.
+	for node in get_tree().root.get_children():
+		if node is CanvasLayer:
+			node.queue_free()
 	get_tree().change_scene_to_file("res://Scenes/main_menu.tscn")
 
 
@@ -94,3 +98,4 @@ func _on_resume() -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
 		_on_resume()
+		get_viewport().set_input_as_handled()

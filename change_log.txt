@@ -1,3 +1,274 @@
+## 2026-06-09 — Session 19: Save and Exit closes all UI windows
+
+### Bug Fix
+
+**Save and Exit now closes every open window (pause_menu.gd)**
+- _on_save_and_exit only freed the "game_hud" group, leaving character sheet,
+  backpack, abilities book, loot window, and inspect popup open on the main menu.
+- All gameplay UI (character_sheet, abilities_book, backpack_ui, corpse_loot_window,
+  ItemInspectLayer) are CanvasLayer nodes added to the scene root. The autoloads
+  (Global, GameLog, Inventory, GlobalBackgroundMusic) are not CanvasLayers.
+- Fix: iterate root.get_children() and queue_free() every CanvasLayer. One line
+  covers all current and future UI windows with no group tagging required.
+
+---
+
+## 2026-06-09 — Session 18: Hotbar clicks, XP bar, title bars, Escape fix
+
+### New Features
+
+**Action bar slots clickable with mouse (action_bar.gd)**
+- Left-clicking any filled slot fires the ability the same as pressing the number key.
+- Brief blue highlight flash on click for tactile feedback.
+- Slot mouse_filter changed from PASS to STOP so clicks land on the slot,
+  not the bar behind it (prevents accidentally dragging the bar when clicking abilities).
+
+**XP progress bar in character sheet (character_sheet.gd)**
+- Purple progress bar added immediately below the XP label.
+- Live-updating in _process alongside HP/Mana/Stamina — shows progress to next level.
+
+**Title bars on Character Sheet and Backpack**
+- Both windows now have a "Character Sheet" / "Backpack" title label across the top
+  with a ✕ close button on the right.
+- Content area pushed down below the title bar (DRAG_BAR_HEIGHT / TITLE_H = 24px).
+- The close button on Backpack also restores MOUSE_MODE_VISIBLE.
+
+**Escape closes pause menu (pause_menu.gd)**
+- Pressing Escape while the pause menu is open now correctly closes it.
+- Root cause: pause_menu called _on_resume() but didn't consume the event,
+  so player3d._unhandled_input also fired and immediately reopened the menu.
+- Fix: added get_viewport().set_input_as_handled() after _on_resume().
+
+---
+
+## 2026-06-09 — Session 17: Spell casting — damage routing, grammar, combat log messages
+
+### Bug Fixes
+
+**Physical spells now use correct damage calculation (player3d.gd)**
+- power_strike (school: physical) was using calculate_spell_damage() which adds
+  INT-based arcane power — wrong for a combat ability.
+- Physical school: base_damage + STR/2, mitigated by target AC, applied as physical
+  (triggers monster resistances like skeleton's piercing resistance).
+- Magical schools (arcane, fire, cold, etc.): use calculate_spell_damage() as before.
+
+**Grammar fixed in CombatLogFormatter**
+- "You casts Power Strike" → "You cast Power Strike"
+- "You begins casting a spell." → "You begin casting a spell."
+- Fixed across spell_damage, spell_heal, spell_debuff, begin_cast.
+
+**Begin-cast message now actually logs (player3d.gd)**
+- CombatLogFormatter.begin_cast("You") is now called before damage is applied,
+  matching EQ-style "You begin casting a spell." appearing in the General tab.
+
+**Spell cast improvements**
+- spell_casting skill ticks on every successful cast.
+- Battle Shout logs a colored group-cry message.
+- Error messages improved: "not ready (Xs remaining)", "insufficient mana", etc.
+- Mana is committed and cooldown starts even if target is invalid (you still cast).
+  No: mana now rolls back gracefully — target checks happen before commit.
+
+---
+
+## 2026-06-09 — Session 16: Fix drag from abilities book to action bar
+
+### Bug Fix
+
+**Spell drag from abilities book to action bar (abilities_book.gd)**
+- force_drag() called on mouse press doesn't integrate with Godot 4's drop system.
+  The action bar slots use set_drag_forwarding for drops, which expects drag data
+  to come from _get_drag_data / set_drag_forwarding on the source — not force_drag.
+- Fixed: _make_spell_row now uses set_drag_forwarding with a data provider lambda
+  that returns {"type":"spell","name":...} and sets the drag preview.
+  gui_input retained only for the hover highlight color change.
+
+---
+
+## 2026-06-09 — Session 15: Inspect popup, scroll case, spells from scrolls only
+
+### Bug Fixes / Changes
+
+**Right-click always shows inspect popup (slot_button.gd)**
+- Previously right-clicking equippable items auto-equipped them with no info shown.
+- Now all right-clicks open an inspect popup regardless of item type.
+- Popup shows: name, stat line (dmg/AC/value), description, lore.
+- Context buttons appear based on item type: "Equip" for equippable gear,
+  "Learn" for scrolls, always a "Close" button.
+
+**Spells learned from scrolls only (character_creation.gd)**
+- get_starting_spells() now always returns []. No spells are auto-granted at creation.
+- Players must right-click a scroll → "Learn" to add it to known_spells.
+
+**Scroll case bag (character_creation.gd + items.json)**
+- New "scroll_case" bag item added (bag_size 4).
+- Blademaster now starts with scroll_case in slot 1 containing both scrolls,
+  visible immediately when opening the backpack (B key).
+- Gear shifts to slots 2+ to make room.
+
+---
+
+## 2026-06-09 — Session 14: Abilities book — class skills, general skills, scroll learning
+
+### New Features
+
+**Abilities book overhauled (abilities_book.gd)**
+- Two tabs: "Class Skills" (spells draggable to action bar) and "General Skills"
+  (passive combat skills with level progress).
+- Class Skills: shows spell name, school badge, description, mana cost + recast time,
+  and a "drag to bar" hint. Left-click drag sends {"type":"spell","name":...} to action bar.
+- General Skills: shows skill name, current level (e.g. "10 / 252"), description, and
+  a green progress bar showing progress toward the 252 cap.
+- Empty-state messages guide the player when no spells/skills are known yet.
+
+**Scroll items added (items.json)**
+- scroll_of_power_strike: "Right-click to learn Power Strike."
+- scroll_of_battle_shout: "Right-click to learn Battle Shout."
+- Both have type="scroll" and teaches_spell field consumed on learning.
+
+**Scroll learning (slot_button.gd)**
+- Right-clicking a scroll checks teaches_spell; if already known logs a message.
+- Otherwise: adds spell to player.known_spells, removes scroll from inventory,
+  saves to file, logs gold "You have learned X!" message, refreshes open book.
+
+**Blademaster starting scrolls (character_creation.gd)**
+- New Blademaster characters receive scroll_of_power_strike and scroll_of_battle_shout
+  in their starting inventory (slots after gear).
+
+---
+
+## 2026-06-09 — Session 13: Chat window resize and font size menu
+
+### New Features
+
+**Chat window resizable (game_log_window.gd)**
+- Added a ◢ handle in the bottom-right corner of the chat panel.
+- Drag the handle to resize freely; minimum 180×80 enforced so it can't collapse.
+- Window size is saved alongside position in ui_positions["chat"] on release.
+
+**Right-click drag bar → font size menu**
+- Right-clicking the "Chat" title bar opens a PopupMenu with sizes: 10 11 12 13 14 16 18.
+- Currently active size is check-marked in the menu.
+- Selection applies instantly to both General and Combat log tabs.
+- Font size persisted to ui_positions["chat_font_size"] in the save file and restored on load.
+
+---
+
+## 2026-06-09 — Session 12: Tab targets nearest enemy; left-click targets by raycast
+
+### New Features
+
+**Tab always selects nearest enemy (player3d.gd)**
+- Removed the cycling index — Tab now sorts live monsters by distance and always
+  picks index 0 (the closest one). Clean and predictable.
+
+**Left-click targeting via 3D raycast (player3d.gd)**
+- Clicking on a monster with the free cursor (VISIBLE mode) targets it.
+- Uses PhysicsRayQueryParameters3D with a 150m ray from camera through click position.
+- Only fires in MOUSE_MODE_VISIBLE so it doesn't interfere with F12 mouse-look.
+- Clicking still also triggers melee_attack via the existing handle_combat path, so
+  clicking an enemy selects it and swings at once if in range.
+
+**_announce_target helper (player3d.gd)**
+- Shared by tab and click targeting: sets the target frame and logs a consistent
+  "Target: [name] — HP x/y (zm away)" message to the General tab.
+
+---
+
+## 2026-06-09 — Session 11: Move mouse-look to F12 toggle, fix right-click loot
+
+### Changes
+
+**Mouse-look moved from right-click-hold to F12 toggle (camera_controller.gd)**
+- Right-click-hold was capturing the mouse and centering it, conflicting with
+  right-click looting of corpses.
+- F12 now toggles mouse-look: first press captures the mouse and enables look,
+  second press releases to free cursor.
+
+**Right-click loot no longer requires MOUSE_MODE_CAPTURED (player3d.gd)**
+- Removed the MOUSE_MODE_CAPTURED check from _unhandled_input so right-click
+  works for looting in normal free-cursor mode.
+
+**UI close no longer forces MOUSE_MODE_CAPTURED (player3d.gd)**
+- toggle_character_sheet() and toggle_backpack() were restoring CAPTURED on close,
+  which was correct when right-click held mouse-look but wrong now.
+  Changed to restore MOUSE_MODE_VISIBLE on close.
+
+---
+
+## 2026-06-09 — Session 10: Fix floating monsters, missing XP, missing loot
+
+### Bug Fixes
+
+**Monsters floating after spawn (monster3d.gd)**
+- Gravity only ran inside handle_movement(), which only gets called in PATROL/CHASE
+  states. Monsters in IDLE or ATTACK states had no gravity and floated in place.
+- Fix: added an else branch that always applies gravity (velocity.y -= 20*delta)
+  and calls move_and_slide() for all non-PATROL/CHASE states.
+
+**No XP or loot awarded on kill (player3d.gd)**
+- attack_current_target() (the autoattack path) calls combat_node.resolve_attack(),
+  which subtracts HP directly on the CombatNode — bypassing monster3d.apply_damage().
+  Because apply_damage() is what calls die(), the monster's die() method was never
+  invoked: no XP award, no loot roll, no corpse despawn timer.
+- perform_melee_attack() (manual click) already had target.die() — only autoattack
+  was affected.
+- Fix: save the target reference before clearing current_target, then call dead.die()
+  after the death log and target clear. XP and loot now fire correctly on autoattack kills.
+
+---
+
+## 2026-06-09 — Session 9: Fix mob spawner crash (2D scenes in 3D spawner)
+
+### Bug Fix
+
+**mob_spawner3d.gd — crashed loading 2D monster scenes**
+- Spawner was referencing rat.tscn, snake.tscn, etc. — all CharacterBody2D scenes using
+  the legacy Mob base class. Instantiating them in the 3D world caused the
+  "Could not resolve super class inheritance from Mob" error.
+- Fix: spawner now always loads monster_template.tscn (a valid CharacterBody3D scene
+  with NavigationAgent3D and CombatNode). Sets mob.monster_name = mob_type BEFORE
+  calling add_child(), so Monster._ready() sees the name and loads the correct JSON
+  stats from monsters.json automatically.
+- Removed MOB_SCENES dict; replaced with MONSTER_TEMPLATE constant + VALID_MOB_TYPES
+  validation list.
+
+---
+
+## 2026-06-09 — Session 8: Regen, target frame name/con, sit messages, skill-up message
+
+### Bug Fixes
+
+**Regeneration too slow (combatnode.gd + player3d.gd)**
+- Old formula: 1 + int(con/5) = 3 HP/tick at CON 13. New: 2 + int(con/3) = 6 HP/tick.
+- HP and mana regen now apply a 3× multiplier when the player is sitting.
+- Troll racial "regeneration" trait now applied in apply_racial_modifiers(): +4 HP per
+  regen tick, stacking with the sitting multiplier.
+- Sitting Troll regen: (base 6 + racial 4) × 3 = 30 HP per 6-second tick.
+
+**Target frame showing "Monster" instead of actual name (target_frame.gd)**
+- _refresh_name_and_con() was calling get_monster_name() which returns the base-class
+  default "monster" for any instance that doesn't override the virtual.
+- Fixed: new _get_display_name() checks monster_description first (strips leading
+  article "a"/"an"/"the" and capitalizes), falls back to monster_name var, then
+  get_monster_name() as a last resort.
+- _refresh_name_and_con() now runs every _process frame so con color updates live
+  if the player levels up while a target is locked.
+
+**Consider system thresholds corrected (target_frame.gd)**
+- Red was diff >= 5; corrected to diff >= 6 (6+ levels above).
+- Full system: Red ≥6, Orange ≥4, Yellow ≥2, White ≥-1, Blue ≥-3, Green ≥-5, Grey else.
+
+### New Features
+
+**Sit / stand log messages (player3d.gd)**
+- Toggling sit now logs "You sit down to rest." / "You stand up." to the General tab.
+
+**Skill-up message format (player3d.gd)**
+- Changed from "Your [skill] skill has increased to X!" to
+  "You've become better at [skill]! (X)"
+
+---
+
 ## 2026-06-09 — Session 7: Reduce monster aggro/chase range to 5m
 
 ### Bug Fix / Tuning

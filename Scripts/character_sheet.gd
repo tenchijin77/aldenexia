@@ -38,6 +38,7 @@ extends CanvasLayer
 ]
 
 var money_label: Label
+var xp_bar: ProgressBar
 var _player: Node = null
 var _dragging := false
 var _resizing := false
@@ -47,12 +48,56 @@ var equipment_slots: Dictionary = {}
 
 func _ready():
 	$main_panel.gui_input.connect(_on_panel_gui_input)
+
+	# Title bar
+	var title_lbl := Label.new()
+	title_lbl.text = "Character Sheet"
+	title_lbl.set_anchors_preset(Control.PRESET_TOP_WIDE)
+	title_lbl.offset_bottom = DRAG_BAR_HEIGHT
+	title_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title_lbl.vertical_alignment   = VERTICAL_ALIGNMENT_CENTER
+	title_lbl.add_theme_font_size_override("font_size", 11)
+	title_lbl.add_theme_color_override("font_color", Color(0.9, 0.85, 0.6))
+	title_lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	$main_panel.add_child(title_lbl)
+
+	var close_btn := Button.new()
+	close_btn.text = "✕"
+	close_btn.anchor_left   = 1.0
+	close_btn.anchor_right  = 1.0
+	close_btn.offset_left   = -24.0
+	close_btn.offset_right  = -2.0
+	close_btn.offset_top    = 2.0
+	close_btn.offset_bottom = DRAG_BAR_HEIGHT - 2.0
+	close_btn.pressed.connect(queue_free)
+	$main_panel.add_child(close_btn)
+
+	# Push content below title bar
+	$main_panel/scroll_container.offset_top = DRAG_BAR_HEIGHT
+
 	var storage_block = $main_panel/scroll_container/scroll_wrapper/storage_block
 	storage_block.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+
+	var stat_block = $main_panel/scroll_container/scroll_wrapper/stat_block
+
+	# XP progress bar — inserted right after xp_label
+	xp_bar = ProgressBar.new()
+	xp_bar.show_percentage = false
+	xp_bar.custom_minimum_size = Vector2(0, 10)
+	xp_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var xp_fill := StyleBoxFlat.new()
+	xp_fill.bg_color = Color(0.45, 0.25, 0.75)
+	xp_bar.add_theme_stylebox_override("fill", xp_fill)
+	var xp_bg := StyleBoxFlat.new()
+	xp_bg.bg_color = Color(0.10, 0.08, 0.14)
+	xp_bar.add_theme_stylebox_override("background", xp_bg)
+	stat_block.add_child(xp_bar)
+	stat_block.move_child(xp_bar, xp_label.get_index() + 1)
+
 	money_label = Label.new()
-	$main_panel/scroll_container/scroll_wrapper/stat_block.add_child(money_label)
+	stat_block.add_child(money_label)
 	resistance_label = Label.new()
-	$main_panel/scroll_container/scroll_wrapper/stat_block.add_child(resistance_label)
+	stat_block.add_child(resistance_label)
 	if Inventory.inventory_changed.is_connected(_on_inventory_changed) == false:
 		Inventory.inventory_changed.connect(_on_inventory_changed)
 	if Inventory.equipment_changed.is_connected(_on_equipment_changed) == false:
@@ -158,7 +203,7 @@ func _make_slot_vbox(slot_name: String) -> VBoxContainer:
 
 	return vbox
 
-const DRAG_BAR_HEIGHT := 20.0
+const DRAG_BAR_HEIGHT := 24.0
 
 func _on_panel_gui_input(event: InputEvent) -> void:
 	var panel = $main_panel
@@ -284,11 +329,13 @@ func _process(_delta: float) -> void:
 		int(_player.current_stamina if "current_stamina" in _player else 0.0),
 		int(_player.max_stamina     if "max_stamina"     in _player else 100.0)
 	]
-	xp_label.text    = "XP: %d / %d" % [
-		Global.player_data.get("xp", 0),
-		Global.player_data.get("xp_next_level", 100)
-	]
+	var xp_cur: int  = Global.player_data.get("xp", 0)
+	var xp_next: int = Global.player_data.get("xp_next_level", 100)
+	xp_label.text    = "XP: %d / %d" % [xp_cur, xp_next]
 	level_label.text = "Level: %d" % Global.player_data.get("player_level", 1)
+	if xp_bar:
+		xp_bar.max_value = xp_next
+		xp_bar.value     = xp_cur
 
 func _on_inventory_changed():
 	refresh_storage_slots()

@@ -195,9 +195,14 @@ func _physics_process(delta: float) -> void:
 		State.ATTACK:
 			state_attack(delta)
 
-	# Apply movement
+	# Movement and gravity
 	if current_state in [State.PATROL, State.CHASE]:
 		handle_movement(delta)
+	else:
+		# Always apply gravity so monsters don't float when idle or attacking
+		if not is_on_floor():
+			velocity.y -= 20.0 * delta
+		move_and_slide()
 
 # ===== STATE MACHINE =====
 func state_idle(delta: float) -> void:

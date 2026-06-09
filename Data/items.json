@@ -15,8 +15,12 @@
     "delay": 0,
     "weight": 0.4,
     "size": "small",
-    "class": ["all"],
-    "race": ["all"],
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
@@ -37,8 +41,12 @@
     "delay": 0,
     "weight": 0.5,
     "size": "small",
-    "class": ["all"],
-    "race": ["all"],
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
@@ -59,8 +67,12 @@
     "delay": 0,
     "weight": 0.2,
     "size": "small",
-    "class": ["all"],
-    "race": ["all"],
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
@@ -81,8 +93,12 @@
     "delay": 0,
     "weight": 0.01,
     "size": "tiny",
-    "class": ["all"],
-    "race": ["all"],
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
@@ -103,8 +119,12 @@
     "delay": 0,
     "weight": 0.3,
     "size": "small",
-    "class": ["all"],
-    "race": ["all"],
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
@@ -125,11 +145,17 @@
     "delay": 20,
     "weight": 2.2,
     "size": "small",
-    "class": ["all"],
-    "race": ["all"],
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
     "ratio": 0.25,
     "range": 0,
-    "stat_modifiers": { "dexterity": 1 },
+    "stat_modifiers": {
+      "dexterity": 1
+    },
     "effect": null
   },
   "bat_wing": {
@@ -147,8 +173,12 @@
     "delay": 0,
     "weight": 0.2,
     "size": "small",
-    "class": ["all"],
-    "race": ["all"],
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
@@ -169,8 +199,12 @@
     "delay": 0,
     "weight": 1.2,
     "size": "medium",
-    "class": ["all"],
-    "race": ["all"],
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
@@ -191,8 +225,12 @@
     "delay": 0,
     "weight": 0.5,
     "size": "small",
-    "class": ["all"],
-    "race": ["all"],
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
@@ -213,11 +251,17 @@
     "delay": 0,
     "weight": 4.0,
     "size": "medium",
-    "class": ["all"],
-    "race": ["all"],
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
     "ratio": 0,
     "range": 0,
-    "stat_modifiers": { "stamina": 1 },
+    "stat_modifiers": {
+      "stamina": 1
+    },
     "effect": null
   },
   "bone_totem": {
@@ -235,8 +279,12 @@
     "delay": 0,
     "weight": 1.5,
     "size": "medium",
-    "class": ["all"],
-    "race": ["all"],
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
@@ -257,8 +305,12 @@
     "delay": 0,
     "weight": 0.8,
     "size": "small",
-    "class": ["all"],
-    "race": ["all"],
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
@@ -279,8 +331,12 @@
     "delay": 0,
     "weight": 0.6,
     "size": "small",
-    "class": ["all"],
-    "race": ["all"],
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
@@ -301,8 +357,12 @@
     "delay": 0,
     "weight": 0.2,
     "size": "small",
-    "class": ["all"],
-    "race": ["all"],
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
@@ -323,11 +383,17 @@
     "delay": 0,
     "weight": 1.0,
     "size": "medium",
-    "class": ["all"],
-    "race": ["all"],
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
     "ratio": 0,
     "range": 0,
-    "stat_modifiers": { "charisma": 1 },
+    "stat_modifiers": {
+      "charisma": 1
+    },
     "effect": null
   },
   "cloth_slippers": {
@@ -345,11 +411,17 @@
     "delay": 0,
     "weight": 0.5,
     "size": "small",
-    "class": ["all"],
-    "race": ["all"],
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
     "ratio": 0,
     "range": 0,
-    "stat_modifiers": { "agility": 1 },
+    "stat_modifiers": {
+      "agility": 1
+    },
     "effect": null
   },
   "coarse_bandage": {
@@ -367,8 +439,12 @@
     "delay": 0,
     "weight": 0.3,
     "size": "small",
-    "class": ["all"],
-    "race": ["all"],
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
@@ -389,8 +465,12 @@
     "delay": 0,
     "weight": 1.2,
     "size": "medium",
-    "class": ["all"],
-    "race": ["all"],
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
@@ -411,8 +491,12 @@
     "delay": 0,
     "weight": 0.1,
     "size": "small",
-    "class": ["all"],
-    "race": ["all"],
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
@@ -433,8 +517,12 @@
     "delay": 0,
     "weight": 0.2,
     "size": "tiny",
-    "class": ["all"],
-    "race": ["all"],
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
@@ -455,11 +543,17 @@
     "delay": 22,
     "weight": 2.5,
     "size": "small",
-    "class": ["all"],
-    "race": ["all"],
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
     "ratio": 0.23,
     "range": 0,
-    "stat_modifiers": { "dexterity": 1 },
+    "stat_modifiers": {
+      "dexterity": 1
+    },
     "effect": null
   },
   "delusional_scrawl": {
@@ -477,8 +571,12 @@
     "delay": 0,
     "weight": 0.1,
     "size": "small",
-    "class": ["all"],
-    "race": ["all"],
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
@@ -499,8 +597,12 @@
     "delay": 0,
     "weight": 0.9,
     "size": "medium",
-    "class": ["all"],
-    "race": ["all"],
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
@@ -521,8 +623,12 @@
     "delay": 0,
     "weight": 0.3,
     "size": "small",
-    "class": ["all"],
-    "race": ["all"],
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
@@ -543,8 +649,12 @@
     "delay": 0,
     "weight": 0.5,
     "size": "small",
-    "class": ["all"],
-    "race": ["all"],
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
@@ -565,8 +675,12 @@
     "delay": 0,
     "weight": 0.8,
     "size": "small",
-    "class": ["all"],
-    "race": ["all"],
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
@@ -587,11 +701,17 @@
     "delay": 0,
     "weight": 0.5,
     "size": "large",
-    "class": ["all"],
-    "race": ["all"],
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
     "ratio": 0,
     "range": 0,
-    "stat_modifiers": { "stealth": 2 },
+    "stat_modifiers": {
+      "stealth": 2
+    },
     "effect": null
   },
   "gnawed_femur": {
@@ -609,8 +729,12 @@
     "delay": 0,
     "weight": 1.5,
     "size": "medium",
-    "class": ["all"],
-    "race": ["all"],
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
@@ -631,8 +755,12 @@
     "delay": 0,
     "weight": 1.2,
     "size": "medium",
-    "class": ["all"],
-    "race": ["all"],
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
@@ -653,8 +781,12 @@
     "delay": 0,
     "weight": 0.2,
     "size": "small",
-    "class": ["all"],
-    "race": ["all"],
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
@@ -675,8 +807,12 @@
     "delay": 0,
     "weight": 0.2,
     "size": "small",
-    "class": ["all"],
-    "race": ["all"],
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
@@ -697,8 +833,12 @@
     "delay": 0,
     "weight": 0.8,
     "size": "small",
-    "class": ["all"],
-    "race": ["all"],
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
@@ -719,8 +859,12 @@
     "delay": 0,
     "weight": 0.5,
     "size": "small",
-    "class": ["all"],
-    "race": ["all"],
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
@@ -741,8 +885,12 @@
     "delay": 0,
     "weight": 0.4,
     "size": "small",
-    "class": ["all"],
-    "race": ["all"],
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
@@ -763,8 +911,12 @@
     "delay": 0,
     "weight": 0.1,
     "size": "small",
-    "class": ["all"],
-    "race": ["all"],
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
@@ -785,8 +937,12 @@
     "delay": 0,
     "weight": 0.1,
     "size": "small",
-    "class": ["all"],
-    "race": ["all"],
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
@@ -807,8 +963,12 @@
     "delay": 0,
     "weight": 0.5,
     "size": "small",
-    "class": ["all"],
-    "race": ["all"],
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
@@ -829,8 +989,12 @@
     "delay": 0,
     "weight": 0.5,
     "size": "small",
-    "class": ["all"],
-    "race": ["all"],
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
@@ -851,8 +1015,12 @@
     "delay": 0,
     "weight": 0.5,
     "size": "small",
-    "class": ["all"],
-    "race": ["all"],
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
@@ -873,8 +1041,12 @@
     "delay": 0,
     "weight": 0.3,
     "size": "small",
-    "class": ["all"],
-    "race": ["all"],
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
@@ -895,8 +1067,12 @@
     "delay": 0,
     "weight": 1.0,
     "size": "small",
-    "class": ["all"],
-    "race": ["all"],
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
@@ -917,8 +1093,12 @@
     "delay": 0,
     "weight": 0.3,
     "size": "small",
-    "class": ["all"],
-    "race": ["all"],
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
@@ -939,11 +1119,18 @@
     "delay": 35,
     "weight": 5.0,
     "size": "medium",
-    "class": ["warrior", "shadowknight"],
-    "race": ["all"],
+    "class": [
+      "warrior",
+      "shadowknight"
+    ],
+    "race": [
+      "all"
+    ],
     "ratio": 0.28,
     "range": 0,
-    "stat_modifiers": { "strength": 2 },
+    "stat_modifiers": {
+      "strength": 2
+    },
     "effect": null
   },
   "rusty_sword": {
@@ -961,11 +1148,17 @@
     "delay": 28,
     "weight": 4.0,
     "size": "medium",
-    "class": ["all"],
-    "race": ["all"],
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
     "ratio": 0.21,
     "range": 0,
-    "stat_modifiers": { "dexterity": 1 },
+    "stat_modifiers": {
+      "dexterity": 1
+    },
     "effect": null
   },
   "scavenged_ring": {
@@ -983,11 +1176,17 @@
     "delay": 0,
     "weight": 0.1,
     "size": "tiny",
-    "class": ["all"],
-    "race": ["all"],
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
     "ratio": 0,
     "range": 0,
-    "stat_modifiers": { "stamina": 1 },
+    "stat_modifiers": {
+      "stamina": 1
+    },
     "effect": null
   },
   "silver_coin": {
@@ -1005,8 +1204,12 @@
     "delay": 0,
     "weight": 0.01,
     "size": "tiny",
-    "class": ["all"],
-    "race": ["all"],
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
@@ -1027,8 +1230,12 @@
     "delay": 0,
     "weight": 0.7,
     "size": "small",
-    "class": ["all"],
-    "race": ["all"],
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
@@ -1049,8 +1256,12 @@
     "delay": 0,
     "weight": 0.3,
     "size": "small",
-    "class": ["all"],
-    "race": ["all"],
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
@@ -1071,8 +1282,12 @@
     "delay": 0,
     "weight": 0.3,
     "size": "small",
-    "class": ["all"],
-    "race": ["all"],
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
@@ -1093,8 +1308,12 @@
     "delay": 0,
     "weight": 0.1,
     "size": "tiny",
-    "class": ["all"],
-    "race": ["all"],
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
@@ -1115,8 +1334,12 @@
     "delay": 0,
     "weight": 0.4,
     "size": "small",
-    "class": ["all"],
-    "race": ["all"],
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
@@ -1137,8 +1360,12 @@
     "delay": 0,
     "weight": 0.5,
     "size": "small",
-    "class": ["all"],
-    "race": ["all"],
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
@@ -1159,8 +1386,12 @@
     "delay": 0,
     "weight": 0.1,
     "size": "tiny",
-    "class": ["all"],
-    "race": ["all"],
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
@@ -1181,8 +1412,12 @@
     "delay": 0,
     "weight": 0.1,
     "size": "small",
-    "class": ["all"],
-    "race": ["all"],
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
@@ -1203,8 +1438,12 @@
     "delay": 0,
     "weight": 0.8,
     "size": "medium",
-    "class": ["all"],
-    "race": ["all"],
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
@@ -1225,14 +1464,20 @@
     "delay": 0,
     "weight": 0.2,
     "size": "small",
-    "class": ["all"],
-    "race": ["all"],
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
     "ratio": 0,
     "range": 0,
-    "stat_modifiers": { "wisdom": 1 },
+    "stat_modifiers": {
+      "wisdom": 1
+    },
     "effect": null
   },
-    "faded_note": {
+  "faded_note": {
     "name": "Faded, Handwritten Note",
     "icon": "res://Assets/789_Lorc_RPG_icons/Icon.6_36.png",
     "description": "A worn piece of parchment, the ink faded but still legible.",
@@ -1248,8 +1493,12 @@
     "delay": 0,
     "weight": 0.1,
     "size": "small",
-    "class": ["all"],
-    "race": ["all"],
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
@@ -1270,8 +1519,12 @@
     "delay": 0,
     "weight": 0.5,
     "size": "small",
-    "class": ["all"],
-    "race": ["all"],
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
@@ -1292,14 +1545,25 @@
     "delay": 28,
     "weight": 6.0,
     "size": "medium",
-    "class": ["warrior", "paladin", "shadowknight", "ranger", "bard"],
-    "race": ["all"],
+    "class": [
+      "blademaster",
+      "lightsworn",
+      "voidknight",
+      "woodstalker",
+      "troubadour"
+    ],
+    "race": [
+      "all"
+    ],
     "ratio": 0.64,
     "range": 0,
-    "stat_modifiers": { "strength": 4, "agility": 2 },
+    "stat_modifiers": {
+      "strength": 4,
+      "agility": 2
+    },
     "effect": null
   },
- "small_bag": {
+  "small_bag": {
     "name": "A Small Bag",
     "icon": "res://Assets/789_Lorc_RPG_icons/Icon.6_37.png",
     "description": "A small, worn bag that can hold a few items.",
@@ -1315,8 +1579,93 @@
     "delay": 0,
     "weight": 0.5,
     "size": "small",
-    "class": ["all"],
-    "race": ["all"],
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "scroll_of_power_strike": {
+    "name": "A Scroll of Power Strike",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.2_02.png",
+    "description": "A small, scroll with the Power Strike spell. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 50,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "blademaster"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "power_strike"
+  },
+  "scroll_of_battle_shout": {
+    "name": "Scroll of Battle Shout",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.2_02.png",
+    "description": "A scroll containing the Battle Shout technique. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 50,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "blademaster"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "battle_shout"
+  },
+  "scroll_case": {
+    "name": "Scroll Case",
+    "icon": "",
+    "description": "A sturdy leather case for storing scrolls and documents.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "bag",
+    "bag_size": 4,
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,

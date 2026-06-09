@@ -143,12 +143,23 @@ func _build_ui() -> void:
 		cd_lbl.visible              = false
 		slot_panel.add_child(cd_lbl)
 
+		# Stop clicks here so they don't bubble up and drag the whole bar
+		slot_panel.mouse_filter = Control.MOUSE_FILTER_STOP
+
 		# Wire drop target
 		var slot_idx := i
 		slot_panel.set_drag_forwarding(
 			Callable(),
 			func(_pos, data): return typeof(data) == TYPE_DICTIONARY and data.has("type") and data.has("name"),
 			func(_pos, data): _on_slot_drop(slot_idx, data)
+		)
+
+		# Left-click fires the slotted ability
+		slot_panel.gui_input.connect(func(event: InputEvent) -> void:
+			if event is InputEventMouseButton \
+					and event.button_index == MOUSE_BUTTON_LEFT \
+					and event.pressed:
+				_activate_slot(slot_idx)
 		)
 
 		hbox.add_child(slot_panel)
@@ -165,6 +176,23 @@ func _build_ui() -> void:
 		})
 
 	_load_position()
+
+
+func _activate_slot(idx: int) -> void:
+	var atype: String = _slots[idx]["type"]
+	var aname: String = _slots[idx]["ability"]
+	if aname.is_empty() or not is_instance_valid(_player):
+		return
+
+	# Brief highlight flash
+	var bg: StyleBoxFlat = _slots[idx]["bg"]
+	var orig_color := bg.bg_color
+	bg.bg_color = Color(0.35, 0.35, 0.55, 0.95)
+	get_tree().create_timer(0.08).timeout.connect(func(): bg.bg_color = orig_color)
+
+	match atype:
+		"spell": _player.cast_spell(aname)
+		"skill": _player.use_skill(aname)
 
 
 func _on_slot_drop(idx: int, data: Dictionary) -> void:

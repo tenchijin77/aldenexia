@@ -264,17 +264,19 @@ func update_derived_preview() -> void:
 # ---------------------------------------------------------
 func _on_confirm_pressed() -> void:
 	collect_final_stats()
+	# character_options.json uses lowercase keys; all match statements expect PascalCase.
+	var p_class: String = selected_class.capitalize()
 	var derived_stats: Dictionary = calculate_derived_stats(final_stats, selected_class)
 
 	var character_data: Dictionary = {
 		"player_name": name_input.text,
-		"player_class": selected_class,
+		"player_class": p_class,
 		"player_race": selected_race,
 		"player_level": 1,
 		"stats": final_stats,
-		"known_spells": get_starting_spells(selected_class),
-		"known_skills": get_starting_skills(selected_class),
-		"action_bar_slots": build_starting_action_bar(selected_class),
+		"known_spells": get_starting_spells(p_class),
+		"known_skills": get_starting_skills(p_class),
+		"action_bar_slots": build_starting_action_bar(p_class),
 		"satiety": 100,
 		"thirst": 100,
 
@@ -287,13 +289,13 @@ func _on_confirm_pressed() -> void:
 
 		"resistances": racial_resistances.duplicate(),
 
-		"equipment": get_starting_equipment(selected_class),
+		"equipment": get_starting_equipment(p_class),
 
 		"character_creation": Global.create_character_creation_timestamp(),
 		"playtime_seconds": 0,
 
-		"inventory_data": build_starting_inventory(selected_class),
-		"skill_levels": build_starting_skill_levels(selected_class),
+		"inventory_data": build_starting_inventory(p_class),
+		"skill_levels": build_starting_skill_levels(p_class),
 	}
 
 	var save_dir: String = "user://saves"
@@ -360,20 +362,9 @@ func build_starting_action_bar(p_class: String) -> Array:
 	return slots
 
 
-func get_starting_spells(p_class: String) -> Array:
-	var file := FileAccess.open("res://Data/player_spells.json", FileAccess.READ)
-	if not file:
-		return []
-	var data = JSON.parse_string(file.get_as_text())
-	file.close()
-	if typeof(data) != TYPE_ARRAY:
-		return []
-	var spells: Array = []
-	for spell in data:
-		var reqs: Dictionary = spell.get("class_level_requirements", {})
-		if reqs.has(p_class) and int(reqs[p_class]) <= 1:
-			spells.append(spell.get("spell_name", ""))
-	return spells
+func get_starting_spells(_p_class: String) -> Array:
+	# Spells are learned exclusively from scrolls — no auto-granted spells at creation.
+	return []
 
 
 # ---------------------------------------------------------
@@ -400,8 +391,25 @@ func build_starting_inventory(p_class: String) -> Dictionary:
 		"Shadowblade", "Woodstalker":
 			gear.push_front("dagger")
 
+	# Class scrolls go in a scroll case in slot 1; gear shifts to slots 2+
+	var scrolls: Array[String] = []
+	match p_class:
+		"Blademaster":
+			scrolls = ["scroll_of_power_strike", "scroll_of_battle_shout"]
+		"Voidknight":
+			scrolls = ["scroll_of_power_strike"]
+
+	var gear_start: int = 1
+	if not scrolls.is_empty():
+		Inventory.basic_inventory[1] = Inventory.create_item_instance("scroll_case")
+		Inventory.bag_contents["1"] = []
+		for scroll_id in scrolls:
+			Inventory.bag_contents["1"].append(Inventory.create_item_instance(scroll_id))
+		gear_start = 2
+
 	for i in range(gear.size()):
-		Inventory.basic_inventory[i + 1] = Inventory.create_item_instance(gear[i])
+		if gear_start + i < Inventory.BASIC_INVENTORY_SIZE:
+			Inventory.basic_inventory[gear_start + i] = Inventory.create_item_instance(gear[i])
 
 	return Inventory.save_inventory_data()
 

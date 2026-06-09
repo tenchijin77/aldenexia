@@ -45,16 +45,14 @@ func _ready() -> void:
 	apply_camera_mode()
 
 func _input(event: InputEvent) -> void:
-	# Right-click hold controls mouse look
-	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT:
-		if event.pressed:
-			_right_mouse_held = true
-			Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
-		else:
-			_right_mouse_held = false
-			Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+	# F12 toggles mouse-look on/off
+	if event is InputEventKey and event.keycode == KEY_F12 and event.pressed and not event.echo:
+		_right_mouse_held = not _right_mouse_held
+		Input.set_mouse_mode(
+			Input.MOUSE_MODE_CAPTURED if _right_mouse_held else Input.MOUSE_MODE_VISIBLE
+		)
 
-	# Mouse look — only while right mouse is held
+	# Mouse look — only while toggled on
 	if event is InputEventMouseMotion and _right_mouse_held:
 		handle_mouse_look(event.relative)
 

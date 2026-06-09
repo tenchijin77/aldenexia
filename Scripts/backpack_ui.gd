@@ -11,8 +11,40 @@ var _dragging := false
 @onready var slot_count_label = $Panel/MarginContainer/VBoxContainer/SlotCountLabel
 @onready var slot_container = $Panel/MarginContainer/VBoxContainer/ScrollContainer/SlotGrid
 
+const TITLE_H := 24.0
+
 func _ready():
 	$Panel.gui_input.connect(_on_panel_gui_input)
+
+	# Title bar
+	var title_lbl := Label.new()
+	title_lbl.text = "Backpack"
+	title_lbl.set_anchors_preset(Control.PRESET_TOP_WIDE)
+	title_lbl.offset_bottom = TITLE_H
+	title_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title_lbl.vertical_alignment   = VERTICAL_ALIGNMENT_CENTER
+	title_lbl.add_theme_font_size_override("font_size", 11)
+	title_lbl.add_theme_color_override("font_color", Color(0.9, 0.85, 0.6))
+	title_lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	$Panel.add_child(title_lbl)
+
+	var close_btn := Button.new()
+	close_btn.text = "✕"
+	close_btn.anchor_left   = 1.0
+	close_btn.anchor_right  = 1.0
+	close_btn.offset_left   = -24.0
+	close_btn.offset_right  = -2.0
+	close_btn.offset_top    = 2.0
+	close_btn.offset_bottom = TITLE_H - 2.0
+	close_btn.pressed.connect(func():
+		queue_free()
+		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+	)
+	$Panel.add_child(close_btn)
+
+	# Push content below title bar
+	$Panel/MarginContainer.offset_top = TITLE_H
+
 	if search_bar:
 		search_bar.text_changed.connect(_on_search_text_changed)
 	if Inventory.inventory_changed.is_connected(_on_inventory_changed) == false:

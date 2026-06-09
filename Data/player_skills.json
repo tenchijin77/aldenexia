@@ -85,6 +85,6 @@
     "Wildspeaker":  { "spell_casting": 8, "alteration": 5, "concentration": 5 }
   },
 
-  "skill_max": 252,
+  "skill_max": 275,
   "skill_gain_base_chance": 0.15
 }
