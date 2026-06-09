@@ -223,7 +223,7 @@ func set_character_data(data: Dictionary):
 	charisma_label.text = "Charisma: %d" % data.stats.get("charisma", 0)
 	luck_label.text = "Luck: %d" % data.stats.get("luck", 0)
 
-	health_label.text = "Health: %d / %d" % [data.get("current_health", 0), data.get("max_health", 0)]
+	health_label.text = "Health: %d / %d" % [data.get("current_hp", 0), data.get("max_hp", 0)]
 	mana_label.text = "Mana: %d / %d" % [data.get("current_mana", 0), data.get("max_mana", 0)]
 	stamina_label.text = "Stamina: %d / %d" % [data.get("current_stamina", 0), data.get("max_stamina", 0)]
 

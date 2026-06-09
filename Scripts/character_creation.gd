@@ -272,12 +272,9 @@ func _on_confirm_pressed() -> void:
 		"player_race": selected_race,
 		"player_level": 1,
 		"stats": final_stats,
-		"derived": derived_stats,
-
-		"current_health": derived_stats.get("health", 100),
-		"current_mana": derived_stats.get("mana", 50),
-		"current_stamina": derived_stats.get("stamina", 100),
-		"max_stamina": derived_stats.get("stamina", 100),
+		"known_spells": get_starting_spells(selected_class),
+		"known_skills": get_starting_skills(selected_class),
+		"action_bar_slots": build_starting_action_bar(selected_class),
 		"satiety": 100,
 		"thirst": 100,
 
@@ -290,19 +287,12 @@ func _on_confirm_pressed() -> void:
 
 		"resistances": racial_resistances.duplicate(),
 
-		"equipment": {
-			"ear1": "", "ear2": "", "neck": "", "face": "", "head": "",
-			"finger1": "", "finger2": "", "wrist1": "", "wrist2": "",
-			"charm": "", "focus": "", "arms": "", "hands": "", "shoulders": "",
-			"chest": "", "back": "", "waist": "", "legs": "", "feet": "",
-			"trinket1": "", "trinket2": "", "primary": "", "secondary": "",
-			"ranged": "", "ammo": ""
-		},
+		"equipment": get_starting_equipment(selected_class),
 
 		"character_creation": Global.create_character_creation_timestamp(),
 		"playtime_seconds": 0,
 
-		"inventory_data": build_starting_inventory(),
+		"inventory_data": build_starting_inventory(selected_class),
 	}
 
 	var save_dir: String = "user://saves"
@@ -318,16 +308,100 @@ func _on_confirm_pressed() -> void:
 		push_error("❌ Failed to write character save file: " + file_path)
 
 # ---------------------------------------------------------
-# STARTING INVENTORYspec
+# STARTING EQUIPMENT & SPELLS
 # ---------------------------------------------------------
-func build_starting_inventory() -> Dictionary:
+func get_starting_equipment(_p_class: String) -> Dictionary:
+	# All slots empty — player equips gear manually from the bag
+	return {
+		"ear1": "", "ear2": "", "neck": "", "face": "", "head": "",
+		"finger1": "", "finger2": "", "wrist1": "", "wrist2": "",
+		"charm": "", "focus": "", "arms": "", "hands": "", "shoulders": "",
+		"chest": "", "back": "", "waist": "", "legs": "", "feet": "",
+		"trinket1": "", "trinket2": "", "primary": "", "secondary": "",
+		"ranged": "", "ammo": ""
+	}
+
+
+func get_starting_skills(p_class: String) -> Array:
+	match p_class:
+		"Blademaster":
+			return ["1h_slashing", "parry", "dodge", "weapon_mastery"]
+		"Shadowblade":
+			return ["1h_piercing", "backstab", "dodge", "dual_wield"]
+		"Voidknight":
+			return ["1h_slashing", "parry", "dodge", "weapon_mastery"]
+		"Lightsworn":
+			return ["1h_slashing", "block", "shield_defense", "weapon_mastery"]
+		"Aetherfist", "Zenblade":
+			return ["hand_to_hand", "dodge", "mantis_fist"]
+		"Woodstalker":
+			return ["archery", "dodge", "throwing"]
+		"Arcanist", "Runecaster", "Chaosborn":
+			return ["spell_casting", "evocation", "concentration"]
+		"Lightmender", "Spiritcaller":
+			return ["spell_casting", "concentration", "channeling"]
+		"Gravecaller":
+			return ["spell_casting", "necromancy", "concentration"]
+		"Troubadour":
+			return ["spell_casting", "enchantment", "concentration"]
+		"Wildspeaker":
+			return ["spell_casting", "alteration", "concentration"]
+		_:
+			return []
+
+
+func build_starting_action_bar(p_class: String) -> Array:
+	var slots: Array = []
+	for spell in get_starting_spells(p_class):
+		slots.append({"type": "spell", "name": spell})
+	while slots.size() < 12:
+		slots.append({"type": "", "name": ""})
+	return slots
+
+
+func get_starting_spells(p_class: String) -> Array:
+	var file := FileAccess.open("res://Data/player_spells.json", FileAccess.READ)
+	if not file:
+		return []
+	var data = JSON.parse_string(file.get_as_text())
+	file.close()
+	if typeof(data) != TYPE_ARRAY:
+		return []
+	var spells: Array = []
+	for spell in data:
+		var reqs: Dictionary = spell.get("class_level_requirements", {})
+		if reqs.has(p_class) and int(reqs[p_class]) <= 1:
+			spells.append(spell.get("spell_name", ""))
+	return spells
+
+
+# ---------------------------------------------------------
+# STARTING INVENTORY
+# ---------------------------------------------------------
+func build_starting_inventory(p_class: String) -> Dictionary:
 	Inventory.initialize_basic_inventory()
+	Inventory._initialize_equipment()
+
+	# Slot 0: small bag holds consumables (4-slot capacity fits exactly)
 	Inventory.basic_inventory[0] = Inventory.create_item_instance("small_bag")
 	Inventory.bag_contents["0"] = [
 		Inventory.create_item_instance("faded_note"),
 		Inventory.create_item_instance("iron_rations", 20),
 		Inventory.create_item_instance("water_flask", 20),
+		Inventory.create_item_instance("torch", 5),
 	]
+
+	# Slots 1+: starting gear placed directly so player can drag to equipment slots
+	var gear: Array[String] = ["ragged_hood", "ragged_tunic", "ragged_leggings", "torn_boots", "cloth_cape", "rusty_sword"]
+	match p_class:
+		"Blademaster", "Voidknight", "Lightsworn":
+			gear.push_front("rusty_sword")
+		"Shadowblade", "Woodstalker":
+			gear.push_front("dagger")
+
+	for i in range(gear.size()):
+		Inventory.basic_inventory[i + 1] = Inventory.create_item_instance(gear[i])
+
 	return Inventory.save_inventory_data()
 
 # ---------------------------------------------------------

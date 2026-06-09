@@ -27,8 +27,16 @@ CombatNode (Scripts/combatnode.gd) owns all combat math. Both Player3D and Monst
 - All base stats set to 0
 - gear_ac = monsters.json armor_class - 10
 - gear_hp = monsters.json health - 50
-- gear_atk = 40 + level × 10 (gives ~40-60% hit rate vs typical player AC)
+- gear_atk = 15 + level × 5 (level-2 skeleton ~55-60% hit rate vs player AC 14)
 - weapon_damage = monsters.json damage
+
+**ATK is accuracy only** — `get_atk()` must NOT appear in `calculate_melee_damage()`. It was removed after causing monsters to deal 60+ base damage. Damage formula: `weapon_damage + int(strength / 2.0)` only.
+
+**Spell casting** (`player3d.cast_spell(spell_name)`): checks cooldown + mana, calls `combat_node.calculate_spell_damage()`, logs to combat tab, updates `_spell_cooldowns` dict. `_tick_cooldowns(delta)` decrements timers each physics frame.
+
+**Equipment application** (`player3d.apply_equipment(dict)`): reads items.json, sums weapon_damage from `primary` slot and gear_ac from all other slots, applies to CombatNode, triggers recalculate.
+
+**Starting weapon_skill by class:** Blademaster/Shadowblade/Voidknight/Lightsworn = 10, Woodstalker/Aetherfist/Zenblade = 8, casters = 4. Set on load if weapon_skill == 0.
 
 **Regen tick:** 6 seconds (EQ-style), not per-frame. Stamina regens per second.
 

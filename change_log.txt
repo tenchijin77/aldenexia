@@ -1,0 +1,177 @@
+## 2026-06-08 — Session 4: Bug fixes — save/exit cleanup, loot despawn
+
+### Bug Fixes
+
+**Save and Exit — pause menu overlay persisted on main menu**
+- `_on_save_and_exit()` was calling `change_scene_to_file()` without freeing the
+  PauseMenu CanvasLayer first. Root-level nodes survive scene changes.
+- Fix: added `queue_free()` before `change_scene_to_file()` in pause_menu.gd.
+
+**Save and Exit — HUD (chat, action bar, frames) persisted on main menu**
+- player_frame, target_frame, game_log_window, action_bar are all added to scene root
+  in _spawn_hud() and survive `change_scene_to_file()`.
+- Fix: all HUD nodes now tagged with group `"game_hud"` on spawn. `_on_save_and_exit()`
+  iterates the group and queue_frees every node before changing scene.
+
+**Monster — lootable infinitely after being looted**
+- `corpse_loot_window.setup()` called `loot.duplicate(true)`, giving the window its own
+  copy. Items taken from the window never depleted the monster's `pending_loot`, so
+  `is_lootable` stayed true and the window could be reopened with full loot each time.
+- Fix: removed `.duplicate(true)` — the window now holds a direct reference to the
+  monster's array. `_take()` / `_loot_all()` mutate it in place.
+- Added `signal all_looted` to corpse_loot_window, emitted when `_rebuild_list()` finds
+  the array empty. `open_loot_window()` connects this to `_on_fully_looted()` which sets
+  `is_lootable = false` and despawns the corpse after 5 seconds.
+- Added `if not is_inside_tree(): return` guard in `die()`'s 60s auto-despawn await so
+  it safely exits if the corpse was already freed via the loot path.
+
+---
+
+## 2026-06-08 — Session 3: Inventory, equipment persistence, draggable UI, pause menu
+
+### New Features
+
+**Starting inventory overhaul**
+- New characters receive starting gear in the backpack, not auto-equipped.
+- `basic_inventory[0]` = small_bag with: faded_note, iron_rations×20, water_flask×20, torch×5.
+- `basic_inventory[1+]` = class-appropriate armor pieces + weapon (melee/ranger classes).
+- Equipment slots all start empty; player manually equips via character sheet drag-and-drop.
+- `character_creation.gd: build_starting_inventory(p_class)` handles all of this.
+- `get_starting_equipment()` now returns all-empty slots.
+
+**Equipment → CombatNode live sync**
+- `Inventory.equipment_changed` signal connected in player3d._ready().
+- `_apply_equipment_from_inventory()` reads live `Inventory.equipped` paperdoll and updates
+  `combat_node.weapon_damage` + `gear_ac` immediately on equip/unequip.
+- Equipment state saved to disk automatically after every equip change.
+
+**Right-click to auto-equip (slot_button.gd)**
+- Right-clicking an equippable item calls `Inventory.equip_item()` directly.
+- Right-clicking a non-equippable item (consumables, misc) still shows the inspect popup.
+
+**Save function (global.gd)**
+- Added `Global.save_player_data_to_file()` — writes player_data to
+  `user://saves/{name}_character_stats.json`.
+- Called on equip, window drag release, and from the pause menu.
+
+**Draggable UI windows**
+- `game_log_window.gd`: 22px "Chat" title bar added above the VBox (Label with
+  MOUSE_FILTER_STOP). Drag from the title strip to reposition.
+- `action_bar.gd`: Click and hold anywhere on the bar to drag it. HBoxContainer set to
+  MOUSE_FILTER_PASS so events bubble up to the Panel.
+
+**Window position persistence**
+- `Global.player_data["ui_positions"]` stores offset arrays keyed by window name.
+- Each window saves position on mouse release, loads position on _ready().
+- Persisted to disk via save_player_data_to_file().
+
+**Pause menu (pause_menu.gd + pause_menu.tscn)**
+- Escape key opens a centered modal (layer 20) with a dim overlay.
+- Buttons: Save Game, Save and Exit, Resume.
+- Save Game writes file and logs "Game saved." to General tab.
+- Save and Exit writes file then changes scene to main_menu.tscn.
+- Escape also dismisses the menu. Player3D owns the instance reference.
+
+---
+
+## 2026-06-08 — Session 2: Combat fixes, HUD improvements, action bar
+
+### Bug Fixes
+
+**combatnode.gd — `class_name` reserved keyword crash**
+- `func set_class(class_name: String)` used a GDScript reserved keyword as a parameter.
+- Renamed parameter to `new_class`. Game was unlaunchable until this fix.
+
+**player_frame.gd — `get()` too many arguments**
+- `_player.get("current_stamina", 0.0)` — GDScript's Object.get() takes 1 arg, not 2.
+- Changed to ternary `_player.get("x") if "x" in _player else default`.
+
+**combatnode.gd — ATK stat double-counted in damage**
+- `calculate_melee_damage()` added `get_atk()` to raw damage.
+- ATK is a hit-accuracy stat used in `calculate_hit_chance()`, not a damage bonus.
+- Monsters had `gear_atk = 40 + level×10`; a level-2 skeleton was dealing 60+ base damage.
+- Fix: removed `get_atk()` from damage formula. Damage is now `weapon_damage + str/2`.
+
+**monster3d.gd — monster hit rate too high**
+- `gear_atk = 40 + level×10` gave skeleton ~95% hit rate vs player AC 14.
+- Changed to `gear_atk = 15 + level×5` (level-2 skeleton now ~55-60% hit rate).
+
+**project.godot — A/D keys mapped to ui_left/ui_right**
+- Caused TabContainer in game_log_window to switch tabs while strafing.
+- Removed physical_keycode 65 (A) from ui_left and 68 (D) from ui_right.
+- Arrow keys remain bound; A/D now only fire player movement actions.
+
+**camera_controller.gd — mouse_mode conflict with Alt toggle**
+- Removed Alt-key mouse toggle (unreliable).
+- Replaced with right-click-hold for mouse look: MOUSE_MODE_CAPTURED while held,
+  MOUSE_MODE_VISIBLE on release. Default mode is now VISIBLE (cursor free).
+
+---
+
+### New Features
+
+**Combat log formatting**
+- Monster attacks: "A hooded bandit hits you for 12 damage!" (description from monsters.json)
+- Player attacks: "You hit/critically hit a hooded bandit with melee attack for X damage!"
+- Parry/block/dodge/riposte all have distinct messages.
+- `monster_description` field loaded from monsters.json in monster3d.gd.
+
+**Autoattack indicator**
+- Flashing red dot (⬤) added to top-right of game_log_window panel.
+- Animated via Tween (fade in/out). Appears when autoattack on, disappears on off/kill.
+- Driven by `GameLog.autoattack_changed(bool)` signal + `GameLog.set_autoattack(bool)`.
+
+**Action bar (Scenes/action_bar.tscn + Scripts/action_bar.gd)**
+- 12 slots: keys 1–9, 0, -, =
+- Bottom-center of screen, built entirely in _ready() (no layout in .tscn).
+- Filled slots show gold border tint and spell name (word-wrapped).
+- On-cooldown slots show darkened overlay + countdown timer in seconds.
+- Reads `player.known_spells` and `player._spell_cooldowns` via polling in _process().
+
+**Spell casting (player3d.gd)**
+- `cast_spell(spell_name)` — checks cooldown, mana, applies damage via
+  `combat_node.calculate_spell_damage()`, logs to combat tab.
+- `_tick_cooldowns(delta)` decrements per-spell timers each physics frame.
+- `_spell_by_name` dict built alongside existing `_spell_cache` for O(1) name lookup.
+- Keys 1–9, 0, -, = fire `cast_spell(known_spells[i])` from `_unhandled_input`.
+
+**Starting equipment + weapon skill**
+- `apply_equipment(equipment: Dict)` reads items.json, sets weapon_damage + gear_ac on CombatNode.
+- Starting weapon_skill set by class on first load: Blademaster/Voidknight/etc = 10,
+  ranged/martial = 8, caster = 4.
+- Both trigger `recalculate_derived_stats()` after application.
+
+**Dev character fallback**
+- When launching a 3D scene directly from the editor (Global.player_data empty),
+  player3d.gd now loads hardcoded Blademaster dev defaults instead of erroring out.
+
+---
+
+### Deprecations / Cleanup
+
+**Data/character_stats.json — archived**
+- Was never read by any active script (only by character_sheet.gd.old).
+- Moved to archive-2d/Data/character_stats.json.
+- Dev defaults now live inline in player3d.load_player_data_from_global().
+
+---
+
+## 2026-06-08 — Godot Startup Crash Fix
+
+### Problem
+Game crashed on startup with:
+  Error at (36, 16): Could not parse global class "CombatNode" from "res://Scripts/combatnode-OLD.gd"
+
+### Root Cause
+.godot/uid_cache.bin contained stale UID entries for scripts that had been deleted
+from the Scripts/ directory (backpack_ui-OLD.gd, character_creation-OLD.gd,
+inventory-OLD.gd). Godot tried to resolve these UIDs on startup and failed.
+
+### Fix
+Deleted stale cache files and let Godot rebuild them on next launch:
+  - .godot/uid_cache.bin
+  - .godot/global_script_class_cache.cfg
+
+### Also
+Committed archive-2d/ directory to git as a versioned backup of deprecated 2D
+scripts and scenes (combatnode-OLD, mob-OLD, player-OLD, backpack_ui-OLD, etc.).

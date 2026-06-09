@@ -19,11 +19,13 @@ func _on_body_entered(body: Node) -> void:
 	if body.name == "player":
 		player = body
 		is_chasing = true
-	
+		set_target(body)
+
 func _on_body_exited(body: Node) -> void:
 	if body == player:
 		is_chasing = false
 		player = null
+		clear_target()
 		
 func get_move_direction() -> Vector2:
 	if is_chasing and player:

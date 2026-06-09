@@ -32,8 +32,13 @@ extends CharacterBody3D
 # ===== STATE =====
 enum State { IDLE, PATROL, CHASE, ATTACK, DEAD }
 var current_state: State = State.IDLE
-var current_health: int
 var can_attack: bool = true
+var combat_node: CombatNode
+
+# Kept for backward compat — always mirrors combat_node.current_hp
+var monster_description: String = ""
+var current_health: int:
+	get: return combat_node.current_hp if combat_node else 0
 var attack_timer: float = 0.0
 var attack_cooldown: float = 1.5
 var is_lootable: bool = false
@@ -87,6 +92,7 @@ func _ready() -> void:
 		xp_gain = stats.get("xp_gain", xp_gain)
 		coin_modifier = stats.get("coin_modifier", coin_modifier)
 		is_social = stats.get("is_social", is_social)
+		monster_description = stats.get("description", monster_name)
 
 		# Animations
 		var anims = stats.get("animations", {})
@@ -95,7 +101,10 @@ func _ready() -> void:
 			anim_walk = anims.get("walk", "")
 			anim_attack = anims.get("attack", "")
 
-	current_health = max_health
+	combat_node = CombatNode.new()
+	add_child(combat_node)
+	_configure_combat_node()
+
 	spawn_position = global_position
 	patrol_target = spawn_position
 
@@ -111,15 +120,43 @@ func _ready() -> void:
 		[monster_name, level, max_health, speed, damage, armor_class, faction, category])
 
 # ===== LOAD STATS FROM JSON =====
-func load_monster_stats(monster_name: String) -> Dictionary:
+func load_monster_stats(p_monster_name: String) -> Dictionary:
 	var path = "res://Data/monsters.json"
 	var file := FileAccess.open(path, FileAccess.READ)
 	if file:
-		var content := file.get_as_text()
-		var result: Dictionary = JSON.parse_string(content) as Dictionary
-		if result.has(monster_name):
-			return result[monster_name]
+		var result = JSON.parse_string(file.get_as_text())
+		file.close()
+		if typeof(result) == TYPE_DICTIONARY and result.has(p_monster_name):
+			return result[p_monster_name]
 	return {}
+
+# ===== COMBAT NODE SETUP =====
+func _configure_combat_node() -> void:
+	combat_node.level = level
+	combat_node.weapon_damage = damage
+
+	# Zero base stats so gear values fully control AC, ATK, and HP.
+	combat_node.strength     = 0
+	combat_node.constitution = 0
+	combat_node.dexterity    = 0
+	combat_node.intelligence = 0
+	combat_node.wisdom       = 0
+	combat_node.charisma     = 0
+	combat_node.luck         = 0
+
+	# get_ac() = 10 + gear_ac + dex/2 → with dex=0: gear_ac = armor_class - 10
+	combat_node.gear_ac = armor_class - 10
+
+	# max_hp = 50 + con*10 + gear_hp → with con=0: gear_hp = max_health - 50
+	combat_node.gear_hp = max_health - 50
+
+	# ATK scaled by level for reasonable hit rates vs the player.
+	# hit_chance = (atk - target_ac) + level_modifier + rand(0-20), clamped 5-95
+	combat_node.gear_atk = 15 + level * 5
+
+	combat_node._stats_dirty = true
+	combat_node.recalculate_derived_stats()
+	combat_node.current_hp = combat_node.max_hp
 
 # ===== OVERRIDE IN CHILD CLASSES =====
 func get_monster_name() -> String:
@@ -255,37 +292,50 @@ func perform_attack() -> void:
 	can_attack = false
 	attack_timer = attack_cooldown
 
-	if player and player.has_method("take_damage"):
-		player.take_damage(damage)
-		print("%s attacks player for %d damage!" % [get_monster_name(), damage])
+	if not player:
+		return
 
-	# Call for help if social
+	if "combat_node" in player and player.combat_node is CombatNode:
+		var result = combat_node.resolve_attack(player.combat_node)
+		# Sync our HP in case of riposte (resolve_attack modifies both sides directly)
+		if not combat_node.is_alive():
+			die()
+			return
+		if result["damage"] > 0:
+			if player.has_method("apply_damage"):
+				player.apply_damage(result["damage"])
+			elif player.has_method("take_damage"):
+				player.take_damage(result["damage"])
+		var desc: String = monster_description if monster_description != "" else get_monster_name()
+		if result["result"] == "MISS":
+			GameLog.log_combat("%s misses you." % desc.capitalize())
+		elif result["result"] in ["PARRY", "BLOCK", "DODGE"]:
+			GameLog.log_combat("You %s %s's attack." % [result["result"].to_lower(), desc])
+		elif result["damage"] > 0:
+			GameLog.log_combat("%s hits you for [b]%d[/b] damage!" % [desc.capitalize(), result["damage"]])
+	elif player.has_method("take_damage"):
+		player.take_damage(damage)
+		var desc: String = monster_description if monster_description != "" else get_monster_name()
+		GameLog.log_combat("%s hits you for [b]%d[/b] damage!" % [desc.capitalize(), damage])
+
 	if is_social:
 		call_nearby_allies()
 
-# Same pattern as 2D apply_damage
 func apply_damage(amount: int, damage_type: String = "physical") -> void:
 	if current_state == State.DEAD:
 		return
 
-	# Apply armor class reduction (basic formula)
-	var damage_reduction = armor_class / 2.0
-	var modified_damage = max(1, amount - int(damage_reduction))
+	# Allow child classes to apply resistances/weaknesses before CombatNode takes over
+	var modified_damage = modify_damage(amount, damage_type)
+	combat_node.take_damage(modified_damage)
 
-	# Child class can modify further
-	modified_damage = modify_damage(modified_damage, damage_type)
+	print("DEBUG: %s hit for %d, HP: %d/%d" %
+		[get_monster_name(), modified_damage, combat_node.current_hp, combat_node.max_hp])
 
-	current_health = max(current_health - modified_damage, 0)
-	print("DEBUG: %s hit for %d damage (AC reduced by %d), health now: %d" %
-		[get_monster_name(), modified_damage, int(damage_reduction), current_health])
-
-	# TODO: Update health bar
-
-	# Call for help if social
-	if is_social and current_health > 0:
+	if is_social and combat_node.is_alive():
 		call_nearby_allies()
 
-	if current_health <= 0:
+	if not combat_node.is_alive():
 		die()
 
 # Override in child classes for resistances/weaknesses
@@ -309,7 +359,8 @@ func call_nearby_allies() -> void:
 
 		var distance = global_position.distance_to(ally.global_position)
 		if distance < aggro_range:
-			if ally.current_state == State.IDLE or ally.current_state == State.PATROL:
+			if (ally.current_state == State.IDLE or ally.current_state == State.PATROL) \
+				and ally.combat_node.is_alive():
 				ally.change_state(State.CHASE)
 				print("🆘 %s calls for help! %s responds!" % [get_monster_name(), ally.get_monster_name()])
 
@@ -326,6 +377,8 @@ func die() -> void:
 	# TODO: AnimationPlayer death animation
 
 	await get_tree().create_timer(60.0).timeout
+	if not is_inside_tree():
+		return  # already despawned via _on_fully_looted
 	is_lootable = false
 	if is_instance_valid(loot_window):
 		loot_window.queue_free()
@@ -337,6 +390,15 @@ func open_loot_window() -> void:
 	loot_window = load("res://Scenes/corpse_loot_window.tscn").instantiate()
 	get_tree().root.add_child(loot_window)
 	loot_window.setup(monster_name.capitalize(), pending_loot)
+	loot_window.all_looted.connect(_on_fully_looted)
+
+
+func _on_fully_looted() -> void:
+	is_lootable = false
+	await get_tree().create_timer(5.0).timeout
+	if is_instance_valid(loot_window):
+		loot_window.queue_free()
+	queue_free()
 
 # ===== LOOT =====
 func roll_loot() -> Array:

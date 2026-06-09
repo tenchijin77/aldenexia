@@ -1,0 +1,56 @@
+[gd_scene load_steps=2 format=3 uid="uid://game_log_window_hud"]
+
+[ext_resource type="Script" path="res://Scripts/game_log_window.gd" id="1_gamelog"]
+
+[node name="GameLogWindow" type="CanvasLayer"]
+layer = 5
+script = ExtResource("1_gamelog")
+
+[node name="Panel" type="Panel" parent="."]
+anchor_left = 0.0
+anchor_top = 1.0
+anchor_right = 0.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = -210.0
+offset_right = 480.0
+offset_bottom = -10.0
+grow_vertical = 0
+
+[node name="VBox" type="VBoxContainer" parent="Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 4.0
+offset_top = 4.0
+offset_right = -4.0
+offset_bottom = -4.0
+
+[node name="Tabs" type="TabContainer" parent="Panel/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="General" type="Control" parent="Panel/VBox/Tabs"]
+layout_mode = 2
+
+[node name="GeneralLog" type="RichTextLabel" parent="Panel/VBox/Tabs/General"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+scroll_following = true
+bbcode_enabled = true
+theme_override_font_sizes/normal_font_size = 12
+
+[node name="Combat" type="Control" parent="Panel/VBox/Tabs"]
+layout_mode = 2
+
+[node name="CombatLog" type="RichTextLabel" parent="Panel/VBox/Tabs/Combat"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+scroll_following = true
+bbcode_enabled = true
+theme_override_font_sizes/normal_font_size = 12

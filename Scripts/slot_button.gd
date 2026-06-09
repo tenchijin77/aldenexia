@@ -22,7 +22,11 @@ func _draw():
 func _gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT \
 			and event.pressed and not item_data.is_empty():
-		_show_inspect_popup()
+		var equip_slot: String = Inventory.ITEM_SLOT_MAP.get(item_data.get("slot", ""), "")
+		if not equip_slot.is_empty():
+			Inventory.equip_item(item_data, slot_type, slot_index, bag_slot, item_index)
+		else:
+			_show_inspect_popup()
 
 func _show_inspect_popup() -> void:
 	var root = get_tree().root

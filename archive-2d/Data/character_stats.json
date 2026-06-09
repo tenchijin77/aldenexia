@@ -1,0 +1,28 @@
+{
+	"player_name": "toby",
+	"player_class": "Blademaster",
+	"player_race": "Human",
+	"player_level": 1,
+	"stats": {
+		"strength": 14,
+		"constitution": 12,
+		"dexterity": 12,
+		"intelligence": 10,
+		"wisdom": 10,
+		"charisma": 10,
+		"luck": 10
+	},
+	"equipment": {
+		"primary": "rusty_sword",
+		"head": "ragged_hood",
+		"feet": "torn_boots",
+		"back": "cloth_cape"
+	},
+	"known_spells": ["power_strike", "battle_shout"],
+	"copper": 15,
+	"silver": 2,
+	"gold": 0,
+	"platinum": 0,
+	"xp": 0,
+	"xp_next_level": 100
+}

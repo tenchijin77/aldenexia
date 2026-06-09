@@ -1,0 +1,53 @@
+[gd_scene load_steps=2 format=3 uid="uid://target_frame_hud"]
+
+[ext_resource type="Script" path="res://Scripts/target_frame.gd" id="1_tframe"]
+
+[node name="TargetFrame" type="CanvasLayer"]
+layer = 10
+script = ExtResource("1_tframe")
+
+[node name="Panel" type="Panel" parent="."]
+offset_left = 250.0
+offset_top = 10.0
+offset_right = 460.0
+offset_bottom = 95.0
+
+[node name="VBox" type="VBoxContainer" parent="Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 6.0
+offset_top = 4.0
+offset_right = -6.0
+offset_bottom = -4.0
+
+[node name="NameRow" type="HBoxContainer" parent="Panel/VBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 22)
+
+[node name="name_label" type="Label" parent="Panel/VBox/NameRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Target"
+theme_override_font_sizes/font_size = 13
+
+[node name="level_label" type="Label" parent="Panel/VBox/NameRow"]
+layout_mode = 2
+text = "Lv 1"
+theme_override_font_sizes/font_size = 11
+
+[node name="HPRow" type="HBoxContainer" parent="Panel/VBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 20)
+
+[node name="hp_label" type="Label" parent="Panel/VBox/HPRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(90, 0)
+text = "0 / 0"
+theme_override_font_sizes/font_size = 11
+
+[node name="hp_bar" type="ProgressBar" parent="Panel/VBox/HPRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+show_percentage = false

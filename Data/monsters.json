@@ -1,7 +1,7 @@
 {
   "_comment": "monsters.json - Defines stats and properties for all monsters.",
   "slime": {
-    "description": "a oozing slime",
+    "description": "an oozing slime",
     "speed": 30.0,
     "health": 50,
     "damage": 5,

@@ -220,3 +220,15 @@ func load_player_data_from_file(character_name: String) -> Dictionary:
 		return {}
 	set_player_data(parsed)
 	return parsed
+
+
+func save_player_data_to_file() -> void:
+	if player_data.is_empty() or current_character_name.is_empty():
+		return
+	var file_path := "user://saves/%s_character_stats.json" % current_character_name.to_lower()
+	var file := FileAccess.open(file_path, FileAccess.WRITE)
+	if file:
+		file.store_string(JSON.stringify(player_data, "\t"))
+		file.close()
+	else:
+		push_error("❌ Failed to write save: " + file_path)

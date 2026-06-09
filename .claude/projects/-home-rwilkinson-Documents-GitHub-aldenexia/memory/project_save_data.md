@@ -38,6 +38,10 @@ Save files live at `user://saves/<character_name>_character_stats.json`.
 
 **current_hp convention:** -1 means "default to max" (new character). Actual current HP stored as positive int for in-progress saves.
 
-**known_spells:** Array of spell IDs (ints). Spellbook only shows spells in this list — players must find/train/purchase/research spells before they appear. Master definitions live in Data/player_spells.json.
+**known_spells:** Array of spell **name strings** (e.g. `["power_strike", "battle_shout"]`). Spellbook only shows spells in this list — players must find/train/purchase/research spells before they appear. Master definitions live in Data/player_spells.json. Action bar slots 1–12 map to known_spells[0–11].
+
+**equipment dict:** Maps slot name → item key from items.json. Slots: `primary`, `head`, `feet`, `back`, `offhand`, `neck`, `finger`. Applied at load via `player3d.apply_equipment()` which sets weapon_damage + gear_ac on CombatNode.
+
+**Dev fallback:** When `Global.player_data` is empty (direct scene launch from editor), player3d.gd loads hardcoded Blademaster defaults. `res://Data/character_stats.json` has been archived to `archive-2d/Data/` — it is no longer used.
 
 **Why:** The old "derived" section in saves (health, mana, crit_chance, spell_power, max_weight) was removed — CombatNode owns those calculations now. Old saves with derived sections still load; load_character_data() ignores unknown keys.

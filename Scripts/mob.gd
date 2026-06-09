@@ -1,95 +1,119 @@
-# mob.gd
+# mob.gd — Legacy 2D mob base class (deprecated; active game uses monster3d.gd)
+# Kept alive because mob_spawner.tscn and some 2D monster scripts still reference it.
 class_name Mob
 extends CharacterBody2D
 
-@export var behavior_type := "default" # Customize per mob: "skitter", "flutter", "ambush"
+@export var behavior_type := "default"
 @export var speed: float = 100.0
-@export var max_health: int = 10
-@export var damage: int = 1
+
 @onready var name_label: Label = $name_label
 @onready var health_bar: ProgressBar = $health_bar
 
-var current_health: int
+var combat_node: CombatNode
 var move_direction: Vector2 = Vector2.ZERO
 var movement_offset := 0.0
+var target_player: Node = null
+var attack_timer: float = 0.0
+var attack_cooldown: float = 2.0
+const MELEE_RANGE := 40.0
+
 
 func _ready():
-	add_to_group("monsters") # Consistent group name
-
-	collision_layer = 1 << 3 # Enemy layer (layer 4) to match projectile mask
-	collision_mask = 1 << 0 # Default mask (layer 1), adjust if needed for mob-player collisions
-
+	add_to_group("monsters")
+	collision_layer = 1 << 3
+	collision_mask  = 1 << 0
 	movement_offset = randf_range(0.0, TAU)
 
-	var monster_name = get_monster_name()
-	var stats = load_monster_stats(monster_name)
+	combat_node = CombatNode.new()
+	add_child(combat_node)
 
-	if typeof(stats) == TYPE_DICTIONARY:
-		max_health = stats.get("health", 10)
-		speed = stats.get("speed", 100.0)
-		damage = stats.get("damage", 5)
-		behavior_type = stats.get("behavior_type", behavior_type)
-
-	current_health = max_health
+	var stats = _load_stats(get_monster_name())
+	if not stats.is_empty():
+		_configure_combat_node(stats)
+		behavior_type  = stats.get("behavior_type", behavior_type)
+		attack_cooldown = stats.get("weapon_speed", attack_cooldown)
+		if name_label:
+			name_label.text = stats.get("description", get_monster_name())
 
 	if health_bar:
-		health_bar.max_value = max_health
-		health_bar.value = current_health
+		health_bar.max_value = combat_node.max_hp
+		health_bar.value     = combat_node.current_hp
 
-	if name_label:
-		name_label.text = stats.get("description", monster_name)
 
-	print("✅ %s loaded with health: %d, speed: %f, damage: %d, behavior: %s" % [monster_name, max_health, speed, damage, behavior_type])
+func _configure_combat_node(stats: Dictionary):
+	var lvl     = stats.get("level",        1)
+	var flat_hp = stats.get("health",       50)
+	var flat_ac = stats.get("armor_class",  10)
+	var flat_dmg = stats.get("damage",       5)
 
-func load_monster_stats(monster_name: String) -> Dictionary:
-	var path = "res://Data/monsters.json"
-	var file := FileAccess.open(path, FileAccess.READ)
+	combat_node.level          = lvl
+	combat_node.weapon_damage  = flat_dmg
+	combat_node.strength = combat_node.constitution = combat_node.dexterity = 0
+	combat_node.intelligence = combat_node.wisdom = combat_node.charisma = combat_node.luck = 0
+	combat_node.gear_ac  = flat_ac - 10
+	combat_node.gear_hp  = flat_hp - 50
+	combat_node.gear_atk = 40 + lvl * 10
+	combat_node._stats_dirty = true
+	combat_node.recalculate_derived_stats()
+	combat_node.current_hp = combat_node.max_hp
+
+
+func _load_stats(monster_name: String) -> Dictionary:
+	var file := FileAccess.open("res://Data/monsters.json", FileAccess.READ)
 	if file:
-		var content := file.get_as_text()
-		var result: Dictionary = JSON.parse_string(content) as Dictionary
-		if result.has(monster_name):
+		var result = JSON.parse_string(file.get_as_text())
+		file.close()
+		if typeof(result) == TYPE_DICTIONARY and result.has(monster_name):
 			return result[monster_name]
 	return {}
+
 
 func get_monster_name() -> String:
 	return "mob"
 
-func _physics_process(delta):
-	move_direction = get_move_direction()
-	velocity = move_direction * speed
+
+func _physics_process(delta: float):
+	attack_timer -= delta
+	velocity = get_move_direction() * speed
 	move_and_slide()
+	if target_player and is_instance_valid(target_player):
+		_try_attack()
+
 
 func get_move_direction() -> Vector2:
-	match behavior_type:
-		"skitter":
-			return Vector2(randf_range(-1.0, 1.0), randf_range(-1.0, 1.0)).normalized()
-		"flutter":
-			var t = Time.get_ticks_msec() / 1000.0 + movement_offset
-			return Vector2(cos(t), sin(t * 3.0)).normalized()
-		"ambush":
-			var t = Time.get_ticks_msec() / 1000.0 + movement_offset
-			return Vector2.RIGHT.rotated(fmod(t, TAU)).normalized()
-		_:
-			var t = Time.get_ticks_msec() / 1000.0 + movement_offset
-			return Vector2.RIGHT.rotated(fmod(t, TAU)).normalized()
+	var t = Time.get_ticks_msec() / 1000.0 + movement_offset
+	return Vector2.RIGHT.rotated(fmod(t, TAU)).normalized()
+
+
+func set_target(node: Node): target_player = node
+func clear_target(): target_player = null
+
+
+func _try_attack():
+	if attack_timer > 0 or global_position.distance_to(target_player.global_position) > MELEE_RANGE:
+		return
+	attack_timer = attack_cooldown
+	if "combat_node" in target_player and target_player.combat_node is CombatNode:
+		var result = combat_node.resolve_attack(target_player.combat_node)
+		sync_health_bar()
+		if not combat_node.is_alive(): die()
+		if result["damage"] > 0 and target_player.has_method("apply_damage"):
+			target_player.apply_damage(result["damage"])
+	elif target_player.has_method("apply_damage"):
+		target_player.apply_damage(combat_node.weapon_damage)
+
 
 func apply_damage(amount: int):
-	current_health = max(current_health - amount, 0)
-	if health_bar:
-		health_bar.value = current_health
-	print("DEBUG: %s hit for %d damage, health now: %d" % [get_monster_name(), amount, current_health])
-	if current_health <= 0:
+	combat_node.take_damage(amount)
+	sync_health_bar()
+	if not combat_node.is_alive():
 		die()
 
-func die():
-	if has_node("AnimationPlayer"):
-		var ap := get_node("AnimationPlayer") as AnimationPlayer
-		if ap and ap.has_animation("death"):
-			ap.play("death")
-			await ap.animation_finished
-		else:
-			print("DEBUG: AnimationPlayer missing 'death' animation — freeing immediately")
-	else:
-		print("DEBUG: AnimationPlayer not found — freeing immediately")
 
+func sync_health_bar():
+	if health_bar:
+		health_bar.value = combat_node.current_hp
+
+
+func die():
 	queue_free()

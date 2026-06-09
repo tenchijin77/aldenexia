@@ -19,31 +19,30 @@ completed:
 
 -configured input mapping
 
+-created melee attack - tilde ~ now targets and attacks the nearest monster
+
+-corrected camera move speed to be faster
+
+-added player and target windows with health, mana, stamina and built in con system with monster name colored.
+
+-added in game chat window for text and combat log text; has a red flashing circle icon when player has auto attack enabled
+
+-changed xp bar from progress bar into a label on character sheet, and make character sheet update even when closed
+
+-created ui for the player that shows player name, health, mana, xp, and coin pulled from the character_stats.json file (ui_bar.tscn and ui_bar.gd)
+
+-implemented inventory panel and working inventory/backpack
+
+-created xp system for leveling and implement it. (xp_table.json)
+
+
 to do: (in order of importance)
 
 
 -correct resolution to 1920x1080  or 1080p and fix zooming to full screen windowed with no border, correct camera zoom size in scene
 
--correct camera move speed to be faster
-
--create melee attack
-
 -implement nests for spiders, rats, and bandit camps as spawn locations
-
--create xp system for leveling and implement it. (xp_table.json)
-
--change xp bar from progress bar into a label on character sheet, and make character sheet update even when closed
-
--create ui for the player that shows player name, health, mana, xp, and coin pulled from the character_stats.json file (ui_bar.tscn and ui_bar.gd)
 
 -update character sprites, to include animated sprites for 2 character classes, (one caster, one melee)
 
--implement inventory panel and working inventory/backpack
-
 -implement first working npc with dialog
-
--implement chat system and combat log (change to using dialogic)
-
-
-
-

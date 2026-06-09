@@ -5,6 +5,8 @@
 # Non-currency items can be dragged directly to inventory/bag slots.
 extends CanvasLayer
 
+signal all_looted
+
 const CURRENCY_MAP: Dictionary = {
 	"copper_coin":   "copper",
 	"silver_coin":   "silver",
@@ -37,7 +39,7 @@ func _exit_tree() -> void:
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 
 func setup(display_name: String, loot: Array) -> void:
-	pending_loot = loot.duplicate(true)
+	pending_loot = loot  # reference — mutations here deplete the monster's actual loot
 	title_label.text = "☠  %s" % display_name
 	_rebuild_list()
 
@@ -58,6 +60,7 @@ func _rebuild_list() -> void:
 		empty_lbl.add_theme_color_override("font_color", Color(0.55, 0.55, 0.55))
 		loot_list.add_child(empty_lbl)
 		loot_all_btn.disabled = true
+		all_looted.emit()
 		return
 
 	loot_all_btn.disabled = false

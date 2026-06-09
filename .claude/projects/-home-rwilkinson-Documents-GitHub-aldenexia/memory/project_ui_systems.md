@@ -29,4 +29,13 @@ metadata:
 - `Scenes/backpack_ui.tscn` — inventory grid
 - `Scenes/corpse_loot_window.tscn` — looting interface
 
-**Still to build:** action bar (hotbar 1–0), spellbook UI. [[project-spellbook-design]]
+**Action bar** (`Scenes/action_bar.tscn` / `Scripts/action_bar.gd`) — bottom-center, 12 slots (keys 1–9, 0, -, =). Built entirely in _ready(), no layout in .tscn. Polls `player.known_spells` and `player._spell_cooldowns` in _process(). Filled slots show gold border + spell name; cooldown slots darken with countdown timer. Spawned by _spawn_hud().
+
+**Autoattack indicator** — flashing red ⬤ dot top-right of game_log_window panel. Driven by `GameLog.autoattack_changed(bool)` signal / `GameLog.set_autoattack(bool)`. Tween-animated fade in/out.
+
+**Combat log format:**
+- Monster hits player: `"A hooded bandit hits you for 12 damage!"` — pulls `description` from monsters.json
+- Player hits monster: `"You hit/critically hit a hooded bandit with melee attack for X damage!"`
+- Parry / block / dodge / riposte each have distinct messages
+
+**Still to build:** spellbook UI. [[project-spellbook-design]]
