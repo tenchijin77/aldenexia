@@ -1,3 +1,27 @@
+## 2026-06-09 — Documentation: game_flow.txt updated for Sessions 6–19
+
+### Documentation
+
+**game_flow.txt brought up to date**
+- Added 3D mob spawner (mob_spawner3d.gd) to scene and data sections.
+- Updated camera controls: F12 toggle replaces right-click-hold for mouse-look.
+- Updated targeting: Tab always picks nearest; left-click raycast targeting added.
+- Added Combat Log Formatter section (CombatLogFormatter class).
+- Updated spell casting: physical vs magical school routing, CombatLogFormatter usage.
+- Expanded skill system: skill_levels dict, _tick_skill, _sync_weapon_skill.
+- Updated HP regen formula and sitting/racial multipliers.
+- Updated HUD: action bar mouse-clickable slots; chat window resize + font menu.
+- Updated character sheet: live-updating via set_player/_process, XP bar, title bar.
+- Updated abilities book: two-tab overhaul (Class Skills / General Skills), scroll learning.
+- Updated backpack: title bar with close button.
+- Updated slot_button: right-click always shows inspect popup; scroll learn flow.
+- Updated character creation: known_spells starts empty; scroll_case + class scrolls.
+- Updated save format: skill_levels and chat_font_size added.
+- Added spawn data file entry (lumora_outskirts_spawns.json).
+- Cleared resolved TODOs (XP, 3D spawner, live character sheet).
+
+---
+
 ## 2026-06-09 — Session 19: Save and Exit closes all UI windows
 
 ### Bug Fix

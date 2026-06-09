@@ -1,5 +1,5 @@
 ## Aldenexia: Lightfall — Game Flow & System Reference
-## Last updated: 2026-06-08
+## Last updated: 2026-06-09
 ## Purpose: Running reference for how all systems connect, for troubleshooting and onboarding.
 
 ================================================================================
@@ -55,7 +55,8 @@ SCENE FLOW (How the player moves between screens)
                         → lumora_outskirts3d.tscn (active 3D zone)
 
   lumora_outskirts3d.tscn (main gameplay)
-      └─ [Escape → Save & Exit] → saves file, frees HUD, returns to main_menu
+      └─ [Escape → Save & Exit] → saves file, frees all CanvasLayer UI,
+                                   returns to main_menu
 
 
 ================================================================================
@@ -66,11 +67,11 @@ lumora_outskirts3d.tscn contains:
   - Terrain3D node (terrain3d addon)
   - Player3D (player3d.tscn) — the playable character
   - NavigationRegion3D — navmesh for monster pathfinding
+  - MobSpawner3D (mob_spawner3d.gd) — dynamic 3D monster spawner (Node3D)
   - Lighting / environment nodes
-  - (No mob spawner yet in 3D — monsters are placed directly in the scene)
 
 Note: lumora_outskirts.tscn is the old 2D zone — it is legacy and not the
-active gameplay scene. mob_spawner.tscn / mob_spawner.gd are also 2D legacy.
+active gameplay scene.
 
 
 ================================================================================
@@ -99,33 +100,53 @@ Scene: Scenes/player3d.tscn (contains CameraRig → CameraController + Camera3D)
   Shift (toggle_run): toggles run/walk
   Ctrl (crouch): crouches
   Space (jump): costs stamina
-  Z (sit): toggles sitting (no movement, faster stamina regen)
+  Z (sit): toggles sitting (no movement, faster stamina regen; logs message)
   Stamina drains while running; depletes force-walks the player.
 
 --- Camera (camera_controller.gd) ---
   Child Node3D "CameraRig" on Player3D.
-  Right-click HOLD → MOUSE_MODE_CAPTURED for mouse look; release = VISIBLE.
+  F12 toggle → first press captures mouse and enables mouse-look;
+               second press releases to free cursor (MOUSE_MODE_VISIBLE).
+  Default mode: MOUSE_MODE_VISIBLE (free cursor).
   Mouse wheel → zoom (2m–12m).
   Home key → cycle three modes:
     THIRD_PERSON_BEHIND (default, 6m back)
     THIRD_PERSON_ANGLED (tactical, 8m back / 5m up / 45°)
     FIRST_PERSON (eye level)
 
+--- Targeting ---
+  Tab          → tab_cycle_target() — sorts live monsters by distance, always
+                 selects index 0 (nearest). Logs "Target: [name] — HP x/y (zm away)".
+  Left-click   → PhysicsRayQueryParameters3D ray (150m) from camera through click
+                 position. Only fires in MOUSE_MODE_VISIBLE. Selects clicked monster
+                 AND triggers melee attack if in range (click = target + swing).
+  _announce_target(node) — shared helper for tab and click; updates target frame
+                 and logs target info to General tab.
+
 --- Combat ---
-  Tab          → tab_cycle_target() — cycles alive monsters by distance
   T (attack)   → toggles autoattack; auto-attacks current target each cooldown
-  Left-click   → perform_melee_attack() — hits current target or nearest in 3m
   Spells       → Keys 1–9, 0, -, = fire action_bar_slots entries
   Attack sequence: calls CombatNode.resolve_attack() → full EQ-style roll chain
+  All combat results routed through CombatLogFormatter for colored BBCode messages.
 
 --- Spell Casting (cast_spell) ---
   Checks cooldown (_spell_cooldowns Dict), mana, target validity.
-  Deducts mana, starts cooldown, calls CombatNode.calculate_spell_damage().
-  Logs result via GameLog.log_combat().
+  Deducts mana, starts cooldown.
+  Physical school (e.g. power_strike): base_damage + STR/2, mitigated by target AC,
+    applied as physical (triggers monster resistances).
+  Magical schools (arcane, fire, cold, etc.): CombatNode.calculate_spell_damage()
+    adds INT-based arcane_power.
+  Logs result via CombatLogFormatter.spell_damage() → GameLog.log_combat().
+  spell_casting skill ticks on every successful cast.
 
---- Skill Use (use_skill) ---
-  Placeholder — consumes a 6s cooldown and logs the usage.
-  Active effects to be implemented per skill later.
+--- Skill System ---
+  skill_levels Dict loaded from player_data["skill_levels"] on game load.
+  _tick_skill(skill_name): chance to increment skill on use; scales down near cap
+    (252). Logs "You've become better at [skill]! (X)" on gain.
+  _sync_weapon_skill(): reads equipped weapon's "skill" field, syncs
+    combat_node.weapon_skill to match.
+  Melee hits tick the equipped weapon skill (1h_slashing, 1h_piercing, etc.).
+  Successful parry/dodge/riposte also tick their respective defensive skills.
 
 --- Equipment → CombatNode sync ---
   Inventory.equipment_changed → _on_equipment_changed()
@@ -142,11 +163,16 @@ Scene: Scenes/player3d.tscn (contains CameraRig → CameraController + Camera3D)
 --- HP / Mana Regen ---
   EQ-style 6-second tick (regen_timer in _process).
   Amounts come from CombatNode.get_derived_stat("hp_regen"/"mana_regen").
+  3× multiplier applied while sitting. Troll racial trait adds +4 HP/tick.
 
 --- Looting ---
-  Right-click (while MOUSE_CAPTURED) → _try_loot_corpse()
+  Right-click (in MOUSE_MODE_VISIBLE) → _try_loot_corpse()
   Searches "monsters" group for DEAD + is_lootable within 5m.
   Calls monster.open_loot_window() on nearest.
+
+--- Level Up (on_level_up) ---
+  Called by monster3d.die() when XP threshold crossed.
+  Syncs combat_node level, recalculates derived stats, restores HP and Mana to full.
 
 --- UI Toggles ---
   Escape → pause menu (pause_menu.tscn)
@@ -154,6 +180,35 @@ Scene: Scenes/player3d.tscn (contains CameraRig → CameraController + Camera3D)
   I      → abilities book (abilities_book.tscn)
   B      → backpack (backpack_ui.tscn)
   All instantiated on scene root; freed when toggled off.
+  Closing C/B restores MOUSE_MODE_VISIBLE (does not force capture).
+
+
+================================================================================
+COMBAT LOG FORMATTER (Scripts/combat_log_formatter.gd)
+================================================================================
+
+Class: CombatLogFormatter (class_name — globally available, no autoload)
+All functions are static — call as CombatLogFormatter.player_attack(...).
+
+  player_attack(result, target_desc, weapon_name, damage_type) → BBCode String
+    - Randomizes verb from damage_type-keyed arrays (slashing/piercing/blunt/generic).
+    - Second-person conjugation ("You slash").
+    - Crit prefix added if is_crit.
+
+  monster_attack(result, monster_desc, damage_type) → BBCode String
+    - Third-person conjugation ("A hooded bandit slashes").
+
+  spell_damage(caster, spell_name, target_desc, damage) → String
+  spell_heal(caster, spell_name, target_desc, amount) → String
+  spell_debuff(caster, spell_name, target_desc, stat, amount) → String
+  begin_cast(caster) → String  ("You begin casting a spell.")
+  death(killer, target_desc) → String
+
+  damage_type_from_item(item: Dict) → String
+    Maps item "skill" field to damage type (e.g. "1h_slashing" → "slashing").
+
+  monster3d.get_damage_type() derives damage type from monster category.
+  All combat messages in player3d.gd and monster3d.gd route through this class.
 
 
 ================================================================================
@@ -176,7 +231,7 @@ Added as child to both Player3D and Monster.
   parry = class_parry_base + dex*0.3 + weapon_skill*0.1  (cap 50%)
   riposte = class_riposte_base + dex*0.2 + weapon_skill*0.1  (cap 100%)
   arcane_power = int*2 + gear_spell_power
-  hp_regen = 1 + con/5  (per 6s tick)
+  hp_regen = 2 + int(con/3)  (per 6s tick; ×3 while sitting)
   mana_regen = 1 + wis/5  (per 6s tick)
   carry_weight = 100 + str*2
 
@@ -222,17 +277,31 @@ Scene: Scenes/monster_template.tscn (base) + individual [name].tscn
   Sets gear_atk = 15 + level*5 for hit rates of ~55-60% vs typical player AC.
 
 --- State Machine ---
-  IDLE    → random patrol chance; aggro if player in aggro_range
+  IDLE    → random patrol chance; aggro if player in aggro_range (≤5m)
   PATROL  → moves to random patrol points; aggro if player spotted
   CHASE   → uses NavigationAgent3D to path to player; attack when in range
   ATTACK  → looks at player, calls perform_attack() on cooldown
   DEAD    → no further processing; triggers loot roll and despawn timer
 
+  Aggro range: JSON values scaled by AGGRO_RANGE_SCALE=10.0, hard capped at
+  MAX_AGGRO_DISTANCE=5.0m. Passive (÷3) and neutral (÷2) behavior type
+  modifiers applied before the cap. Leash check uses same effective range.
+
+  Gravity always applied for all states (IDLE/ATTACK also call move_and_slide
+  with gravity) so monsters never float.
+
 --- perform_attack() ---
   Calls CombatNode.resolve_attack(player.combat_node).
-  Reads result and logs to GameLog.log_combat().
+  Routes result through CombatLogFormatter.monster_attack() → GameLog.log_combat().
   Social monsters (is_social=true) call call_nearby_allies() — same faction
   monsters within aggro_range switch to CHASE.
+
+--- XP Award on die() ---
+  Finds player via group, adds xp_gain to Global.player_data["xp"].
+  Logs "You gain X experience points. (current/next)".
+  Level-up loop handles multiple levels in one kill: increments player_level,
+  looks up next threshold from Global.xp_table, logs gold level-up message,
+  calls player.on_level_up() to sync CombatNode and restore HP/Mana to full.
 
 --- Loot on die() ---
   Rolls _load_loot_data() from Data/solgrave_expanse_loot.json.
@@ -260,12 +329,28 @@ Scene: Scenes/monster_template.tscn (base) + individual [name].tscn
 
 
 ================================================================================
+MOB SPAWNER 3D (Scripts/mob_spawner3d.gd)
+================================================================================
+
+Class: Node3D script attached to a MobSpawner3D node in lumora_outskirts3d.tscn.
+
+  - Reads Data/lumora_outskirts_spawns.json on _ready().
+  - Always loads monster_template.tscn (CharacterBody3D); sets mob.monster_name
+    BEFORE add_child() so Monster._ready() auto-loads JSON stats.
+  - Per spawn entry: manages respawn_time cooldowns, max_active counts,
+    and spawn_radius scatter around the spawn point position.
+  - VALID_MOB_TYPES: rat, snake, slime, spider, bat, skeleton, bandit, goblin, ghost.
+  - lumora_outskirts_spawns.json: 10 entries with real 3D [x, y, z] coords (Y=2
+    for terrain drop): rat×2, snake×2, slime×2, spider×2, skeleton, bandit.
+
+
+================================================================================
 HUD SYSTEM
 ================================================================================
 
 All four HUD scenes are spawned by player3d._spawn_hud() onto the scene root
-and tagged in group "game_hud". This allows pause_menu._on_save_and_exit() to
-find and free them all at once before changing scene.
+and tagged in group "game_hud". pause_menu._on_save_and_exit() frees all
+CanvasLayer nodes from the root (covers game_hud and any open modal windows).
 
 player_frame.tscn / player_frame.gd
   - CanvasLayer, polls player's CombatNode every _process frame.
@@ -274,25 +359,36 @@ player_frame.tscn / player_frame.gd
 
 target_frame.tscn / target_frame.gd
   - CanvasLayer, group "target_frame".
-  - Updated by player3d._set_target_frame(node) when target changes.
-  - EQ-style con coloring: red=very dangerous, orange, yellow, white=even,
-    blue=easy, green=very easy, grey=trivial.
+  - Updated by player3d._announce_target(node) when target changes.
+  - EQ-style con coloring (updates live in _process if player levels up):
+      Red ≥6 levels above, Orange ≥4, Yellow ≥2, White ≥-1,
+      Blue ≥-3, Green ≥-5, Grey (trivial).
+  - _get_display_name(): checks monster_description first (strips leading
+    article, capitalizes), falls back to monster_name, then get_monster_name().
   - Shows target name, level, HP bar.
 
 game_log_window.tscn / game_log_window.gd
   - CanvasLayer, two RichTextLabel tabs: General and Combat.
   - Connects GameLog.general_message → General tab.
   - Connects GameLog.combat_message → Combat tab.
-  - Red flashing dot (⬤) in top-right: visible when autoattack is ON,
+  - Red flashing dot (⬤) top-right: visible when autoattack is ON,
     animated by Tween, driven by GameLog.autoattack_changed.
   - Draggable via "Chat" title bar; position saved to Global.player_data
     ["ui_positions"]["chat"] and persisted on mouse release.
+  - Resizable: ◢ handle in bottom-right corner; minimum 180×80 enforced.
+    Size saved to ui_positions["chat"] alongside position.
+  - Right-click title bar → PopupMenu with font sizes: 10 11 12 13 14 16 18.
+    Active size check-marked; selection applies instantly to both log tabs.
+    Font size persisted to ui_positions["chat_font_size"].
 
 action_bar.tscn / action_bar.gd
   - CanvasLayer, 12 slots (keys 1–9, 0, -, =), built entirely in _ready().
   - Polls player.action_bar_slots to show slot contents (spell "S" / skill "K").
   - Polls player._spell_cooldowns / _skill_cooldowns for cooldown overlays.
-  - Drag-and-drop from abilities_book or other sources to assign slots.
+  - Mouse-clickable: left-clicking a filled slot fires the ability same as the
+    number key; brief blue highlight flash for feedback.
+    Slot mouse_filter = STOP so clicks land on the slot, not the bar.
+  - Drag-and-drop from abilities_book to assign slots.
   - Draggable panel; position saved to Global.player_data["ui_positions"]
     ["action_bar"].
 
@@ -305,11 +401,13 @@ pause_menu.gd (Scenes/pause_menu.tscn)
   - Escape key → player3d._toggle_pause_menu() instantiates this on scene root.
   - CanvasLayer layer 20 with dim overlay.
   - Save Game: calls Global.save_player_data_to_file(), logs confirmation.
-  - Save & Exit: saves, frees "game_hud" group, changes scene to main_menu.
-  - Resume / Escape again: emits closed, queue_free().
+  - Save & Exit: saves, frees ALL CanvasLayer children from root (covers hud +
+    any open modal), changes scene to main_menu.
+  - Resume / Escape again: consumes input event then emits closed, queue_free().
 
 backpack_ui.gd (Scenes/backpack_ui.tscn)
   - Toggle with B key from player3d.
+  - Title bar "Backpack" with ✕ close button (also restores MOUSE_MODE_VISIBLE).
   - Shows bag contents across all bags in basic_inventory.
   - Reads Inventory.bag_contents, creates slot_button nodes dynamically.
   - Search bar filters visible slots by item name.
@@ -317,14 +415,25 @@ backpack_ui.gd (Scenes/backpack_ui.tscn)
   - Draggable panel.
 
 character_sheet.gd (Scenes/character_sheet.tscn)
-  - Toggle with C key; player3d passes a sheet_data Dict to set_character_data().
-  - Sheet data includes live CombatNode values (current_hp, max_hp, AC, etc.)
-    plus Global.player_data (xp, currency, equipment, creation date, playtime).
-  - Currently a snapshot; live updates require reopening the sheet.
+  - Toggle with C key; player3d calls set_player(self) after opening.
+  - Title bar "Character Sheet" with ✕ close button.
+  - Live-updating via _process(): HP, Mana, Stamina, XP, and Level update in
+    real time while the sheet is open. Equipment/inventory/currency already live
+    via signals.
+  - Purple XP progress bar displayed immediately below the XP label.
+  - Sheet data includes live CombatNode values plus Global.player_data
+    (xp, currency, equipment, creation date, playtime).
 
 abilities_book.gd (Scenes/abilities_book.tscn)
   - Toggle with I key; player3d.toggle_abilities_book() passes self as player.
-  - Shows known_spells and known_skills; spells can be dragged to action_bar.
+  - Two tabs:
+      "Class Skills" — known spells; shows spell name, school badge, mana cost,
+        recast time, description, and "drag to bar" hint. Drag via
+        set_drag_forwarding → sends {"type":"spell","name":...} to action_bar slots.
+        Empty-state message: "No class abilities known. Use a scroll to learn spells."
+      "General Skills" — passive combat skills; shows skill name, current level
+        (e.g. "10 / 252"), description, and green progress bar toward 252 cap.
+  - Draggable panel.
 
 corpse_loot_window.gd (Scenes/corpse_loot_window.tscn)
   - Opened by monster3d.open_loot_window().
@@ -333,10 +442,20 @@ corpse_loot_window.gd (Scenes/corpse_loot_window.tscn)
   - "Loot All": iterates all drops.
   - Currency drops: Global.grant_currency(type, qty).
   - Item drops: Inventory.add_to_basic_inventory(item_id).
-  - When array is empty: emits all_looted → monster._on_fully_looted() → 5s
-    despawn.
+  - When array is empty: emits all_looted → monster._on_fully_looted() → 5s despawn.
   - Non-currency items support drag-drop to inventory slots.
-  - Sets MOUSE_MODE_VISIBLE on open; restores MOUSE_MODE_CAPTURED on close.
+  - Sets MOUSE_MODE_VISIBLE on open; restores MOUSE_MODE_VISIBLE on close.
+
+slot_button.gd (used by backpack_ui and corpse_loot_window)
+  - Right-click ALWAYS opens an inspect popup (regardless of item type).
+  - Popup shows: name, stat line (dmg/AC/value), description, lore.
+  - Context buttons by item type:
+      Equippable gear → "Equip" button (calls Inventory.equip_item())
+      Scroll → "Learn" button (triggers scroll learning)
+      Always → "Close" button
+  - Scroll learning: checks teaches_spell; if already known logs a message;
+    otherwise adds to player.known_spells, removes scroll from inventory, saves,
+    logs gold "You have learned X!", refreshes open abilities book.
 
 
 ================================================================================
@@ -350,13 +469,18 @@ CHARACTER CREATION (character_creation.gd)
      base stats and resistances.
   4. Player distributes 4 bonus points across 7 stats.
   5. On Confirm: collects stats, builds character_data Dict:
-       - known_spells: from Data/player_spells.json filtered by class + level 1
-       - known_skills: hardcoded match per class
-       - action_bar_slots: first N spells mapped to slots 0..N-1
+       - known_spells: always starts empty [] — spells must be learned from scrolls.
+       - known_skills: [] (skills are auto-loaded from player_data["skill_levels"])
+       - skill_levels: build_starting_skill_levels() reads player_skills.json
+         "class_skills" section; new characters receive numeric starting levels
+         (e.g. Blademaster: 1h_slashing=10, parry=5).
+       - action_bar_slots: empty (player drags spells from abilities book)
        - starting inventory: via build_starting_inventory()
-         - Slot 0: small_bag containing faded_note, 20x iron_rations,
+           Slot 0: small_bag containing faded_note, 20x iron_rations,
                    20x water_flask, 5x torch
-         - Slots 1+: class-appropriate armor + weapon
+           Slot 1: scroll_case (bag_size 4) containing class scrolls
+                   (Blademaster: scroll_of_power_strike, scroll_of_battle_shout)
+           Slots 2+: class-appropriate armor + weapon
        - equipment: all empty slots (player equips manually)
      Saves to user://saves/{name}_character_stats.json.
   6. On Begin: Global.load_player_data_from_file() → scene change to
@@ -377,9 +501,10 @@ Contents:
   copper, silver, gold, platinum
   satiety, thirst, current_stamina, max_stamina
   known_spells[], known_skills[], action_bar_slots[]
+  skill_levels: {skill_name → level}
   equipment: {slot → item_id}      ← legacy, used for first-load compat only
   inventory_data: {basic_inventory, bag_contents, bank_storage, equipped}
-  ui_positions: {chat: [...], action_bar: [...]}
+  ui_positions: {chat: [...], action_bar: [...], chat_font_size: int}
   resistances: {acid, cold, fire, magic, psychic}
   character_creation: {real_time, game_time}
   playtime_seconds
@@ -387,6 +512,7 @@ Contents:
 Auto-saved when:
   - Any equipment slot changes (Inventory.equipment_changed signal)
   - action_bar or chat window is dragged and released
+  - A spell is learned from a scroll
   - Save Game is pressed in pause menu
   - Save & Exit is pressed in pause menu
 
@@ -396,6 +522,7 @@ Load path:
   → load_character_data() sets CombatNode stats
   → Inventory.load_inventory_data() restores all bags/equipment
   → _apply_equipment_from_inventory() syncs CombatNode weapon_damage + gear_ac
+  → skill_levels Dict loaded, _sync_weapon_skill() applied
 
 
 ================================================================================
@@ -408,10 +535,14 @@ monsters.json           — all monster stats: health, speed, damage, armor_clas
                           description, animations
 items.json              — all item definitions: name, type, slot, damage,
                           armor_class, stackable, bag_size, icon, etc.
+                          Scroll items have type="scroll" and teaches_spell field.
+                          scroll_case: bag_size=4 bag item for storing scrolls.
 player_spells.json      — spell definitions: spell_id, spell_name, mana_cost,
                           damage, recast_time, target (enemy/self/group),
                           class_level_requirements
-player_skills.json      — skill descriptions keyed by category then skill name
+player_skills.json      — skill descriptions keyed by category then skill name;
+                          class_skills: starting numeric levels per class;
+                          skill_max: 252; skill_gain_base_chance: 0.15
 character_options.json  — race/class data for character creation UI
                           (portraits, descriptions, lore, traits, penalties)
 racial_stats.json       — base stats and resistances per race
@@ -420,8 +551,10 @@ xp_table.json           — XP thresholds per level (max_level key)
 solgrave_expanse_loot.json — loot tables: category_loot_tables (by category
                           string) and zone_loot_tables (by mob name)
 player_faction.json     — starting faction standing values
-*_spawns.json           — spawn point definitions for each zone (used by 2D
-                          mob_spawner; 3D replacements TBD)
+lumora_outskirts_spawns.json — 3D spawn point definitions used by mob_spawner3d.gd
+                          (10 entries: rat×2, snake×2, slime×2, spider×2,
+                          skeleton, bandit; real [x,y,z] coords with Y=2)
+*_spawns.json           — 2D spawn definitions (legacy, not used in 3D zone)
 dialogue_*.json         — NPC dialogue trees per town/zone
 factions.json           — world faction definitions
 deities.json            — world deity definitions
@@ -461,6 +594,19 @@ Currency looted:
     → Global.grant_currency(type, amount)
     → Global emits currency_changed  (no UI listener yet — future HUD work)
 
+Monster kill → XP → level up:
+  monster3d.die()
+    → Global.player_data["xp"] += xp_gain
+    → level-up loop checks xp_table thresholds
+    → player.on_level_up() → CombatNode synced, HP/Mana restored to full
+
+Spell learned from scroll:
+  slot_button._on_learn_pressed()
+    → player.known_spells.append(spell_id)
+    → Inventory removes scroll
+    → Global.save_player_data_to_file()
+    → abilities_book refreshed if open
+
 
 ================================================================================
 GROUPS
@@ -471,20 +617,20 @@ GROUPS
 "monsters"    — all Monster nodes; used by player for targeting, looting,
                and social aggro calls
 "game_hud"    — player_frame, target_frame, game_log_window, action_bar;
-               freed as a batch on Save & Exit
+               freed as a batch on Save & Exit (also frees all CanvasLayers)
 "target_frame"— target_frame nodes; player calls set_target(node) on all
 
 
 ================================================================================
-KNOWN GAPS / TODOs (as of last session)
+KNOWN GAPS / TODOs (as of 2026-06-09)
 ================================================================================
 
-- XP is not awarded to the player on monster kill (TODO in monster3d.die())
-- mob_spawner.gd is 2D only; the 3D zone has no dynamic spawner yet
 - Death animations not implemented (TODO in monster3d.die())
-- character_sheet is a snapshot; live stat updates require a future signal hook
 - currency_changed signal has no UI listener yet
 - character_sheet.gd.old and lumora_outskirts.gd are legacy 2D leftovers
 - player_religion and spellbook save files are planned but not implemented
 - Faction file saves (charactername_player_faction.json) not yet wired up
 - Active skill effects are all placeholder (use_skill logs but does nothing)
+- Starting scrolls only implemented for Blademaster; other classes TBD
+- Buff system not implemented
+- Cast times (channeled spells) not implemented
