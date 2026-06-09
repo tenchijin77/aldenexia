@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(list\\(d.keys\\(\\)\\)[:20]\\)\")",
-      "Bash(python3 *)"
+      "Bash(python3 *)",
+      "Bash(awk '{print $9, \"\\(\" $5 \"\\)\"}')"
     ]
   }
 }
