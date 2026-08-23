@@ -19,6 +19,7 @@ const MAX_STAMINA: float = 100.0
 const STAMINA_DRAIN_RUN: float = 10.0
 const STAMINA_DRAIN_JUMP: float = 15.0
 const STAMINA_REGEN_STAND: float = 10.0
+const STAMINA_REGEN_WALK: float = 5.0
 const STAMINA_REGEN_SIT: float = 20.0
 
 var max_stamina: float = MAX_STAMINA
@@ -97,6 +98,7 @@ var movement_direction: Vector3 = Vector3.ZERO
 var current_speed: float = 0.0
 var last_direction: Vector3 = Vector3.FORWARD
 var is_sitting: bool = false
+var autorun_enabled: bool = false
 #endregion
 
 #region Node references
@@ -119,7 +121,7 @@ func _unhandled_input(event: InputEvent) -> void:
 					_try_click_target(event.position)
 
 	if event is InputEventKey and event.pressed and not event.echo:
-		if event.keycode == KEY_ESCAPE:
+		if event.keycode == KEY_ESCAPE and not event.ctrl_pressed:
 			_toggle_pause_menu()
 			return
 
@@ -238,7 +240,9 @@ func _load_spell_cache() -> void:
 
 #region Physics process (movement / stamina / combat)
 func _physics_process(delta: float) -> void:
-	if Input.is_action_just_pressed("toggle_backpack"):
+	var chat_focused := get_viewport().gui_get_focus_owner() is LineEdit
+
+	if not chat_focused and Input.is_action_just_pressed("toggle_backpack"):
 		toggle_backpack()
 
 	if dying:
@@ -256,13 +260,19 @@ func _physics_process(delta: float) -> void:
 			stumble_timer = STUMBLE_DURATION
 		is_in_air = false
 
-	if not is_sitting:
+	if chat_focused:
+		velocity.x = move_toward(velocity.x, 0, WALK_SPEED)
+		velocity.z = move_toward(velocity.z, 0, WALK_SPEED)
+		current_speed = 0.0
+	elif not is_sitting:
 		handle_toggle_run()
+		handle_toggle_autorun()
 		handle_crouch()
 		handle_jump()
 		handle_movement(delta)
 
-	handle_combat()
+	if not chat_focused:
+		handle_combat()
 	update_stamina(delta)
 	_tick_cooldowns(delta)
 
@@ -351,6 +361,12 @@ func handle_toggle_run() -> void:
 		is_running = not is_running
 
 
+func handle_toggle_autorun() -> void:
+	if Input.is_action_just_pressed("toggle_autorun"):
+		autorun_enabled = not autorun_enabled
+		GameLog.log_general("Autorun " + ("enabled." if autorun_enabled else "disabled."))
+
+
 func handle_crouch() -> void:
 	if Input.is_action_pressed("crouch"):
 		if not is_crouching:
@@ -388,10 +404,11 @@ func handle_movement(delta: float) -> void:
 		strafe += 1.0
 
 	var forward := 0.0
-	if Input.is_action_pressed("move_forward"):
+	if Input.is_action_pressed("move_forward") or autorun_enabled:
 		forward += 1.0
 	if Input.is_action_pressed("move_backward"):
 		forward -= 1.0
+		autorun_enabled = false
 
 	var target_speed: float
 	if is_crouching:
@@ -429,9 +446,14 @@ func update_stamina(delta: float) -> void:
 
 	if is_moving and is_running and is_on_floor():
 		current_stamina -= STAMINA_DRAIN_RUN * delta
-
-	if not is_moving and not is_running and is_on_floor():
-		var regen_rate := STAMINA_REGEN_SIT if is_sitting else STAMINA_REGEN_STAND
+	elif is_on_floor():
+		var regen_rate: float
+		if is_sitting:
+			regen_rate = STAMINA_REGEN_SIT
+		elif is_moving:
+			regen_rate = STAMINA_REGEN_WALK
+		else:
+			regen_rate = STAMINA_REGEN_STAND
 		current_stamina += regen_rate * delta
 
 	current_stamina = clamp(current_stamina, 0.0, max_stamina)
@@ -443,6 +465,8 @@ func update_stamina(delta: float) -> void:
 func handle_combat() -> void:
 	if Input.is_action_just_pressed("tab_target"):
 		tab_cycle_target()
+	if Input.is_action_just_pressed("clear_target"):
+		clear_target()
 	if Input.is_action_just_pressed("attack_target"):
 		autoattack_enabled = !autoattack_enabled
 		GameLog.set_autoattack(autoattack_enabled)
@@ -461,6 +485,16 @@ func handle_combat() -> void:
 	if Input.is_action_just_pressed("toggle_abilities_book"):
 		toggle_abilities_book()
 
+
+
+func clear_target() -> void:
+	if current_target == null:
+		return
+	current_target = null
+	_set_target_frame(null)
+	autoattack_enabled = false
+	GameLog.set_autoattack(false)
+	GameLog.log_general("You clear your target.")
 
 
 func tab_cycle_target() -> void:

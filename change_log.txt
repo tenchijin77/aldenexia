@@ -1,3 +1,181 @@
+## Commands & Controls Reference
+
+*Living section — update this whenever a command or keybind is added, removed, or rebound.*
+
+### Chat Commands (type in the chat box at the bottom of the log window, or the NPC dialogue box)
+- `/loc` — prints your current X/Y/Z position to the General log tab.
+
+### Movement
+- `W` / `Up` — move forward
+- `S` / `Down` — move backward (also cancels Autorun if active)
+- `A` / `Left` — turn left
+- `D` / `Right` — turn right
+- `Q` — strafe left
+- `E` — strafe right
+- `Shift` — toggle run/walk
+- `R` — toggle Autorun (keeps moving forward until toggled off or you press back)
+- `Ctrl` — crouch (hold)
+- `Space` — jump
+- `X` — sit/stand (rest to regen HP/Mana/Stamina faster)
+
+### Camera
+- `F12` — toggle mouse-look on/off (captures/releases the cursor)
+- Mouse motion (while mouse-look is on) — look around; clamped to 180° left/right, 90° up/down
+- Mouse wheel — zoom in/out
+- `Home` — cycle camera mode (behind / angled / first-person)
+
+### Combat / Targeting
+- `Tab` — target nearest enemy
+- `Ctrl+Tab` — `target_closest` action (bound, not yet wired to a function — known gap)
+- `Ctrl+Escape` — clear current target and turn off autoattack
+- `` ` `` (Quoteleft/tilde) — toggle autoattack on current target
+- Left-click (cursor visible) — target via raycast; also swings if in range
+- `melee_attack` action — defined but currently **unbound to any key** (known gap)
+- `1`–`9`, `0`, `-`, `=` — action bar slots (cast spell / use skill in that slot)
+
+### Interface
+- `C` — toggle character sheet
+- `B` — toggle backpack
+- `K` — toggle abilities book
+- `H` — hail nearby NPC (opens dialogue chat box)
+- `Escape` — pause menu
+
+---
+
+## 2026-08-23 — Session 20: 3D level collision rebuild, chat/log overhaul, campfire audio, camera clamps, autorun
+
+### Bug Fixes
+
+**3D level collision regenerated from the new Blender export (Scenes/lumora_outskirts3d.tscn)**
+- The zone's wall/floor collision was three hand-baked ConcavePolygonShape3D shapes
+  frozen from the old 9.5KB placeholder geometry — completely decoupled from the
+  actual level mesh, and totally stale after the Blender level art pass (glb grew
+  to 112MB+). Built a headless Godot pipeline (`godot --headless --script ...`) that
+  walks every MeshInstance3D in the imported .glb, generates a trimesh
+  StaticBody3D/CollisionShape3D per mesh with the mesh's true world transform baked
+  in, and text-splices the result into the .tscn without touching anything else
+  (UIDs, unrelated nodes) — safer than a full PackedScene resave, which was tried
+  first and silently dropped resource UIDs and failed to persist edits inside the
+  instanced sub-scene at all.
+- Re-run twice more as the source Blender file changed (texture size pass, then the
+  Floor scale fix below) — collision now regenerates cleanly any time the .glb is
+  re-exported.
+
+**Root cause of "character falls through the world" / broken camera / "missing" sand texture**
+- All three symptoms traced to one cause: Blender's `Floor` object had its scale on
+  Blender's Z axis (which maps to Godot's Y/up axis on glTF export) set to exactly 0.
+  Invisible in Blender since the mesh's local vertices already sit at Y=0, but it
+  made the object's transform matrix singular. Godot's physics engine threw
+  `Condition "det == 0"` trying to invert it every physics tick, corrupting the
+  contact normal, which corrupted the player's CharacterBody3D transform — freezing
+  movement and breaking the camera (parented to the corrupted transform), which read
+  as "nothing is rendering right," not a texture problem.
+- Fixed at the Blender source: `Floor` scale Z 0→1. Also caught and reverted a
+  `location.z` of 1.0 left over from a first fix attempt (that axis maps to Godot Y
+  and was floating the floor 1m above its correct height) back to 0.
+- Diagnosed by inspecting the live working .blend directly with
+  `blender --background --python` (found via `find -newer`, since the copy tracked
+  in `zones/` was stale — the real source lives in a separate working folder) rather
+  than guessing from the exported geometry.
+
+**Duplicate "Docks" object removed from the Blender source** — collision mesh count
+went from 15 to 14; confirmed intentional, not an accidental deletion.
+
+**Campfire ambient sound not looping (Assets/…campfire…mp3.import)**
+- `AudioStreamPlayer3D` (autoplay, max_distance=10.0 for the ~10m audible range) was
+  already wired up correctly, but the imported MP3 had `loop=false` — it played once
+  on scene load and then went silent forever, even if you walked back into range.
+  Fixed: `loop=true`.
+
+### New Features
+
+**General-purpose chat input (Scenes/game_log_window.tscn, Scripts/game_log_window.gd)**
+- The always-on "Chat" log window (General/Combat tabs) was output-only — no way to
+  type anything outside of NPC dialogue. Added a LineEdit at the bottom; Enter
+  submits. Non-slash text posts as "You say, '...'" to the General tab; `/`-prefixed
+  text routes to a command handler.
+- `/loc` command added here (prints player X/Y/Z) and also to the NPC dialogue chat
+  box (chat_window.gd) where it was first requested.
+
+**Local-time timestamps on all chat/log messages (game_log_window.gd)**
+- `_append()` now prefixes every General and Combat line with a `[HH:MM AM/PM]`
+  local-time stamp, applied centrally so it covers all existing log traffic
+  (combat, quest text, system messages), not just new chat lines.
+
+**Movement/combat input suppressed while typing (player3d.gd)**
+- Since chat is now usable while walking around (not just static NPC dialogue),
+  typing "w/a/s/d" or other bound letters into the chat box was also moving the
+  character and firing combat actions. `_physics_process` now checks
+  `get_viewport().gui_get_focus_owner() is LineEdit` and skips
+  movement/jump/crouch/run-toggle/combat handling while any text field has focus,
+  smoothly decelerating existing velocity to a stop instead of leaving it stale.
+
+**Autorun (player3d.gd, project.godot)**
+- New `toggle_autorun` input action. Holding forward is simulated via
+  `autorun_enabled` in `handle_movement()`'s forward calculation; turning still
+  works normally while autorunning. Cancels on `move_backward` or toggling again.
+  Logs "Autorun enabled/disabled." to the General tab.
+- Originally bound to tilde/backtick per request; discovered during a later check
+  that tilde was already bound to `attack_target` (autoattack toggle) — my initial
+  "is it free?" check only searched for text key names and missed the numeric
+  keycode binding. Rebound to `R`, which is genuinely unused.
+
+**Camera mouse-look clamps widened and corrected (camera_controller.gd)**
+- The file's own doc comment claimed mouse-look was "active only while right mouse
+  button is held," but the code actually implemented an F12 toggle — comment and
+  implementation had drifted apart. Also: yaw (left/right) had no clamp at all, and
+  pitch (up/down) was clamped to ±60° (120° total).
+- Tried switching the trigger to right-mouse-hold as requested, but that conflicts
+  with the existing right-click "loot corpse" binding, so reverted to F12 per
+  follow-up request. Kept the clamp fixes: yaw now ±90° (180° total), pitch now
+  ±45° (90° total). Comment corrected to match the code.
+
+**Stamina regenerates while walking, not just standing/sitting (player3d.gd)**
+- Previously walking (moving, not running) neither drained nor regenerated stamina
+  at all — a dead zone. Added `STAMINA_REGEN_WALK = 5.0`. Full hierarchy: sitting
+  20/s (fastest) > standing 10/s > walking 5/s (slowest, still nonzero) > running
+  drains at 10/s.
+
+**Procedurally generated sky** — added via WorldEnvironment (Background = Sky,
+ProceduralSkyMaterial); guided setup, implemented in-editor.
+
+### Notes / Known Gaps
+- Texture size pass: `dense_sand`, `worn_planks`, `plastered_stone_wall`, and
+  `marble_rock_02` now embed at 1024×1024 (down from 2048). The pool water texture
+  is still 8192×8192 (16.5MB) — largest single texture in the zone, worth revisiting.
+- Reimporting a re-exported .glb does **not** overwrite already-extracted loose
+  texture files of the same name in `zones/` — delete stale ones before reimporting
+  or Godot silently keeps using the old resolution.
+- `melee_attack` input action exists but has no key bound.
+- Godot's editor "Embed Game" toggle (not a project setting) was the likely cause
+  of the game rendering as a small box even when the window was maximized —
+  toggle it off near the Play buttons or in Editor Settings → Run → Window
+  Placement if that resurfaces.
+
+### Follow-up Fixes (same session)
+
+**Tab targeting fixed (project.godot)**
+- `tab_target` (the action actually polled by `handle_combat()` to cycle target)
+  and `target_closest` (unused elsewhere in code) had their key bindings swapped
+  — `tab_target` was on Escape, `target_closest` was on Tab. Swapped back:
+  `tab_target` → Tab, `target_closest` → Escape. Escape's hardcoded pause-menu
+  behavior in player3d.gd is unaffected (separate code path).
+- `target_closest` then moved again, twice, to avoid new overlaps: Escape → Shift+Tab
+  (conflicted with `toggle_run`, which fires on bare Shift key-down regardless of
+  what else is held) → final: **Ctrl+Tab**.
+
+**Ctrl+Escape clears target (player3d.gd, project.godot)**
+- New `clear_target` input action (Ctrl+Escape) — added per request so a
+  misclick/wrong target can be cleared without waiting out a Tab-cycle.
+  `clear_target()` nulls `current_target`, resets the target frame, and turns
+  off autoattack.
+- The hardcoded `event.keycode == KEY_ESCAPE` check in `_unhandled_input`
+  (separate from the InputMap, opens the pause menu) would otherwise also fire
+  on Ctrl+Escape — guarded with `and not event.ctrl_pressed` so Ctrl+Escape is
+  exclusively the untarget action and plain Escape is exclusively the pause menu.
+
+---
+
 ## 2026-06-09 — Documentation: game_flow.txt updated for Sessions 6–19
 
 ### Documentation

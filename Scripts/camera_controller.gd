@@ -4,7 +4,7 @@ class_name CameraController
 
 ## Camera Controller for Player
 ## Implements: 3 camera modes, zoom, rotation
-## Mouse look is active only while right mouse button is held.
+## Mouse look is toggled on/off with F12.
 
 #region Camera Modes
 enum CameraMode {
@@ -21,6 +21,8 @@ const MOUSE_SENSITIVITY: float = 0.002
 const ZOOM_SPEED: float = 0.5
 const MIN_ZOOM: float = 2.0
 const MAX_ZOOM: float = 12.0
+const MAX_YAW: float = deg_to_rad(90.0)    # 180° total left/right
+const MAX_PITCH: float = deg_to_rad(45.0)  # 90° total up/down
 
 const MODE_POSITIONS := {
 	CameraMode.THIRD_PERSON_BEHIND: Vector3(0, 2, 6),
@@ -70,7 +72,8 @@ func _input(event: InputEvent) -> void:
 func handle_mouse_look(relative: Vector2) -> void:
 	rotation_y -= relative.x * MOUSE_SENSITIVITY
 	rotation_x -= relative.y * MOUSE_SENSITIVITY
-	rotation_x = clamp(rotation_x, -PI/3, PI/3)
+	rotation_y = clamp(rotation_y, -MAX_YAW, MAX_YAW)
+	rotation_x = clamp(rotation_x, -MAX_PITCH, MAX_PITCH)
 	rotation.y = rotation_y
 	rotation.x = rotation_x
 

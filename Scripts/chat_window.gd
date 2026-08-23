@@ -84,9 +84,21 @@ func _on_npc_hailed(faction, npc_name):
 func _on_chat_input_text_submitted(message: String):
 	message = message.strip_edges()
 	if message != "":
-		chat_output.append_text("[color=yellow]You say, '%s'[/color]\n" % message)
-		_handle_player_message(message)
+		if message.begins_with("/"):
+			_handle_slash_command(message)
+		else:
+			chat_output.append_text("[color=yellow]You say, '%s'[/color]\n" % message)
+			_handle_player_message(message)
 	chat_input.text = ""
+
+func _handle_slash_command(message: String) -> void:
+	var cmd := message.split(" ", false)[0].to_lower()
+	match cmd:
+		"/loc":
+			var pos: Vector3 = player.global_position
+			chat_output.append_text("[color=green]Your location: X=%.2f Y=%.2f Z=%.2f[/color]\n" % [pos.x, pos.y, pos.z])
+		_:
+			chat_output.append_text("[color=red]Unknown command: %s[/color]\n" % cmd)
 
 func _handle_player_message(message):
 	var standing = player.get_faction_standing(current_faction)

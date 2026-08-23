@@ -4,6 +4,8 @@ class_name GameLogWindow
 
 @onready var general_log: RichTextLabel = $Panel/VBox/Tabs/General/GeneralLog
 @onready var combat_log:  RichTextLabel = $Panel/VBox/Tabs/Combat/CombatLog
+@onready var chat_input:  LineEdit = $Panel/VBox/ChatInput
+@onready var player := get_tree().get_nodes_in_group("player")[0]
 
 const MAX_LINES  := 200
 const DRAG_BAR_H := 22.0
@@ -31,6 +33,7 @@ func _ready() -> void:
 	$Panel/VBox/Tabs.focus_mode = Control.FOCUS_NONE
 	general_log.focus_mode = Control.FOCUS_NONE
 	combat_log.focus_mode  = Control.FOCUS_NONE
+	chat_input.text_submitted.connect(_on_chat_input_submitted)
 
 
 # ── Font size menu ────────────────────────────────────────────────────────────
@@ -194,6 +197,29 @@ func _on_autoattack_changed(active: bool) -> void:
 		_dot_tween.tween_property(_autoattack_dot, "modulate:a", 1.0,  0.45)
 
 
+# ── Chat input ────────────────────────────────────────────────────────────────
+
+func _on_chat_input_submitted(text: String) -> void:
+	chat_input.text = ""
+	text = text.strip_edges()
+	if text == "":
+		return
+	if text.begins_with("/"):
+		_handle_slash_command(text)
+	else:
+		GameLog.log_general("[color=yellow]You say, '%s'[/color]" % text)
+
+
+func _handle_slash_command(text: String) -> void:
+	var cmd := text.split(" ", false)[0].to_lower()
+	match cmd:
+		"/loc":
+			var pos: Vector3 = player.global_position
+			GameLog.log_general("[color=green]Your location: X=%.2f Y=%.2f Z=%.2f[/color]" % [pos.x, pos.y, pos.z])
+		_:
+			GameLog.log_general("[color=red]Unknown command: %s[/color]" % cmd)
+
+
 # ── Log output ────────────────────────────────────────────────────────────────
 
 func _on_general(text: String) -> void:
@@ -207,4 +233,13 @@ func _on_combat(text: String) -> void:
 func _append(log: RichTextLabel, text: String) -> void:
 	if log.get_paragraph_count() > MAX_LINES:
 		log.clear()
-	log.append_text(text + "\n")
+	log.append_text(_timestamp() + text + "\n")
+
+
+func _timestamp() -> String:
+	var d := Time.get_datetime_dict_from_system(false)
+	var hour12: int = d.hour % 12
+	if hour12 == 0:
+		hour12 = 12
+	var ampm := "AM" if d.hour < 12 else "PM"
+	return "[color=#666666][%02d:%02d %s][/color] " % [hour12, d.minute, ampm]

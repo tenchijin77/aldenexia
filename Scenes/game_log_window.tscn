@@ -54,3 +54,8 @@ anchor_bottom = 1.0
 scroll_following = true
 bbcode_enabled = true
 theme_override_font_sizes/normal_font_size = 12
+
+[node name="ChatInput" type="LineEdit" parent="Panel/VBox"]
+layout_mode = 2
+placeholder_text = "Say something... (or /loc)"
+theme_override_font_sizes/font_size = 12

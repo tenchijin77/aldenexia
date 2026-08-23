@@ -8,7 +8,13 @@
       "Bash(sed -i '/^class_name BaseMonster/d' /home/rwilkinson/Documents/GitHub/aldenexia/Scripts/base_monster-OLD.gd)",
       "Bash(sed -i '/^class_name Mob/d' /home/rwilkinson/Documents/GitHub/aldenexia/Scripts/mob-OLD.gd)",
       "Bash(git *)",
-      "Bash(godot *)"
+      "Bash(godot *)",
+      "Bash(echo \"exit=$?\")",
+      "Bash(grep -v \"^--$\")",
+      "Bash(blender --background \"/home/rwilkinson/NCT/Aldenexia-Lightfall/zones/LumoraOutskirts.blend\" --python /tmp/inspect_floor.py)",
+      "Bash(grep -v \"\\\\.import$\")",
+      "Bash(awk '{print $5, $NF}')",
+      "Bash(awk '/^\\\\[input\\\\]/{f=1;next} /^\\\\[.*\\\\]/{f=0} f' project.godot)"
     ]
   }
 }
