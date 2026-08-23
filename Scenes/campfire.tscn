@@ -1,5 +1,6 @@
 [gd_scene format=3 uid="uid://gbkq7dbtvcwh"]
 
+[ext_resource type="Script" path="res://Scripts/campfire.gd" id="0_campfire"]
 [ext_resource type="PackedScene" uid="uid://0eob0gqo1uay" path="res://models/Campfire.glb" id="1_qcxes"]
 [ext_resource type="Texture2D" uid="uid://br23vq18l8bh3" path="res://Assets/toppng.com-swirling-fire-effect-with-high-glow-530x600.png" id="2_a7vrp"]
 [ext_resource type="Texture2D" uid="uid://ol3fgehyr2gl" path="res://Assets/toppng.com-realistic-smoke-texture-with-soft-particle-edges-png-399x385.png" id="3_a7vrp"]
@@ -95,9 +96,18 @@ particles_anim_loop = false
 [sub_resource type="QuadMesh" id="QuadMesh_c4ttc"]
 material = SubResource("StandardMaterial3D_36m4x")
 
+[sub_resource type="SphereShape3D" id="SphereShape3D_warmth"]
+radius = 4.0
+
 [node name="campfire" type="Node3D" unique_id=232192674]
+script = ExtResource("0_campfire")
 
 [node name="campfire" parent="." unique_id=1916772392 instance=ExtResource("1_qcxes")]
+
+[node name="WarmthArea" type="Area3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="WarmthArea"]
+shape = SubResource("SphereShape3D_warmth")
 
 [node name="flames" type="GPUParticles3D" parent="campfire" unique_id=62835292]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.67478627, 0)

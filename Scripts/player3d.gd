@@ -156,17 +156,21 @@ func _try_loot_corpse() -> void:
 		if not node is Monster:
 			continue
 		var m := node as Monster
-		if m.current_state != Monster.State.DEAD or not m.is_lootable:
+		if m.current_state != Monster.State.DEAD:
 			continue
 		var dist := global_position.distance_to(m.global_position)
 		if dist < nearest_dist:
 			nearest_dist = dist
 			nearest = m
 
-	if nearest:
+	if nearest == null:
+		print("⚠️ No lootable corpse within range.")
+		return
+
+	if nearest.is_lootable:
 		nearest.open_loot_window()
 	else:
-		print("⚠️ No lootable corpse within range.")
+		GameLog.log_general("You search the corpse but find nothing upon it.")
 #endregion
 
 #region Character sheet
