@@ -7,7 +7,8 @@
       "Bash(sed -i '/^class_name CombatNode/d' /home/rwilkinson/Documents/GitHub/aldenexia/Scripts/combatnode-OLD.gd)",
       "Bash(sed -i '/^class_name BaseMonster/d' /home/rwilkinson/Documents/GitHub/aldenexia/Scripts/base_monster-OLD.gd)",
       "Bash(sed -i '/^class_name Mob/d' /home/rwilkinson/Documents/GitHub/aldenexia/Scripts/mob-OLD.gd)",
-      "Bash(git *)"
+      "Bash(git *)",
+      "Bash(godot *)"
     ]
   }
 }
