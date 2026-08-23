@@ -77,7 +77,11 @@ lumora_outskirts3d.tscn contains:
         by Godot's importer — must be re-run manually after every Blender export.
   - monster_template instance (test skeleton spawn) + MobSpawner3D
   - campfire (Scenes/campfire.tscn) — Campfire.glb + flame/smoke GPUParticles3D +
-    looping AudioStreamPlayer3D (max_distance=10.0)
+    looping AudioStreamPlayer3D (max_distance=10.0) + WarmthArea (Area3D,
+    SphereShape3D radius 4.0). campfire.gd logs "The warmth of the fire renews
+    your spirit as you take shelter nearby." to the General tab once when the
+    player (group "player") enters the area; resets on exit so it can fire
+    again next visit.
 
 Note: the Terrain3D addon is present in addons/ but is NOT used by the current
 zone — the level is entirely the Blender-authored LumoraOutskirts.glb mesh.
@@ -242,8 +246,12 @@ Scene: Scenes/player3d.tscn (contains CameraRig → CameraController + Camera3D)
 
 --- Looting ---
   Right-click (in MOUSE_MODE_VISIBLE) → _try_loot_corpse()
-  Searches "monsters" group for DEAD + is_lootable within 5m.
-  Calls monster.open_loot_window() on nearest.
+  Searches "monsters" group for nearest DEAD monster within 5m (regardless of
+  is_lootable, so an empty/already-looted corpse still resolves to a "nearest").
+  If nearest.is_lootable → monster.open_loot_window().
+  Else → GameLog.log_general("You search the corpse but find nothing upon it.")
+  If no DEAD monster at all within 5m → prints "No lootable corpse within range."
+  to the debug console only (not the in-game log).
 
 --- Level Up (on_level_up) ---
   Called by monster3d.die() when XP threshold crossed.

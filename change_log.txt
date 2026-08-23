@@ -174,6 +174,28 @@ ProceduralSkyMaterial); guided setup, implemented in-editor.
   on Ctrl+Escape — guarded with `and not event.ctrl_pressed` so Ctrl+Escape is
   exclusively the untarget action and plain Escape is exclusively the pause menu.
 
+**"Empty corpse" feedback on right-click loot (player3d.gd)**
+- Previously, right-clicking a DEAD monster with no loot (empty pending_loot
+  from `roll_loot()`, or already fully looted) was indistinguishable from
+  right-clicking empty air — both silently no-opped, since `_try_loot_corpse()`
+  only ever considered monsters with `is_lootable == true` when picking a
+  "nearest" target. Reported as "right-click looting stopped working" before
+  being traced to this — the corpse just didn't have anything to drop.
+- Fixed: nearest-DEAD-monster search no longer filters on `is_lootable`. If the
+  nearest corpse in range has loot, opens the loot window as before; if not,
+  logs "You search the corpse but find nothing upon it." to the General tab.
+  The debug-console-only "No lootable corpse within range." warning is now
+  reserved for the case where there's no corpse in range at all.
+
+**Campfire ambient flavor text (Scripts/campfire.gd, Scenes/campfire.tscn)**
+- Added a `WarmthArea` (Area3D, SphereShape3D radius 4.0) as a child of the
+  campfire scene root, with a new `campfire.gd` script watching
+  `body_entered`/`body_exited` for group `"player"`.
+- On entry, logs "The warmth of the fire renews your spirit as you take
+  shelter nearby." to the General tab via `GameLog.log_general()`. Fires once
+  per approach (`_player_near` guard) and resets on exit so it fires again on
+  a later visit, rather than spamming every physics frame spent near the fire.
+
 ---
 
 ## 2026-06-09 — Documentation: game_flow.txt updated for Sessions 6–19
