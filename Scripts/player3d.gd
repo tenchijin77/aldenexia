@@ -363,6 +363,7 @@ func get_stat_penalty() -> float:
 func handle_toggle_run() -> void:
 	if Input.is_action_just_pressed("toggle_run"):
 		is_running = not is_running
+		GameLog.log_general("You begin to sprint." if is_running else "You return to walking speed.")
 
 
 func handle_toggle_autorun() -> void:

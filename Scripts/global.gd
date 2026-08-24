@@ -44,10 +44,20 @@ const DAYS_PER_YEAR = 360
 const MONTHS_PER_YEAR = 10
 const DAYS_PER_WEEK = 6
 
-# Time conversion (2x hybrid speed)
-const REAL_SECONDS_PER_GAME_MINUTE = 30.0
-const REAL_SECONDS_PER_GAME_HOUR = 1800.0
-const REAL_SECONDS_PER_GAME_DAY = 43200.0
+# Standard 24-hour day: day is 6:00-21:00 (14h core daylight + the last hour
+# ramps into dusk), night is 21:00-6:00 (9h). At exactly 1 real second = 1
+# game minute that's 15 real minutes of day (incl. dusk) and 9 of night —
+# close to the original 15/10 target without an unconventional day length.
+# day_night_cycle.gd's dawn_dusk_fraction handles the dawn/dusk visual blend
+# inside the last/first ~1 in-game hour of the day phase.
+const HOURS_PER_DAY = 24
+const DAY_START_HOUR = 6   # sunrise
+const DAY_END_HOUR = 21    # sunset (dusk blend runs ~20:00-21:00)
+
+# Time conversion: 1 real second = 1 game minute
+const REAL_SECONDS_PER_GAME_MINUTE = 1.0
+const REAL_SECONDS_PER_GAME_HOUR = 60.0
+const REAL_SECONDS_PER_GAME_DAY = HOURS_PER_DAY * REAL_SECONDS_PER_GAME_HOUR
 
 const START_YEAR = 300
 const START_MONTH = 0
@@ -128,8 +138,8 @@ func advance_game_time(minutes: int = 1):
 	while game_time.minute >= 60:
 		game_time.minute -= 60
 		game_time.hour += 1
-	while game_time.hour >= 24:
-		game_time.hour -= 24
+	while game_time.hour >= HOURS_PER_DAY:
+		game_time.hour -= HOURS_PER_DAY
 		game_time.day += 1
 		game_time.day_of_week = (game_time.day_of_week + 1) % DAYS_PER_WEEK
 	while game_time.day > DAYS_PER_MONTH:
@@ -175,7 +185,7 @@ func get_total_playtime() -> int:
 	return total_playtime_seconds + int(session)
 
 func is_daytime() -> bool:
-	return game_time.hour >= 6 and game_time.hour < 18
+	return game_time.hour >= DAY_START_HOUR and game_time.hour < DAY_END_HOUR
 
 func create_character_creation_timestamp() -> Dictionary:
 	return {

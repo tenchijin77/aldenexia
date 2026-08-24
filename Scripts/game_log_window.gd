@@ -216,6 +216,21 @@ func _handle_slash_command(text: String) -> void:
 		"/loc":
 			var pos: Vector3 = player.global_position
 			GameLog.log_general("[color=green]Your location: X=%.2f Y=%.2f Z=%.2f[/color]" % [pos.x, pos.y, pos.z])
+		"/time":
+			GameLog.log_general("[color=green]%s[/color]" % Global.format_full_date())
+			var day_night_nodes := get_tree().get_nodes_in_group("day_night_cycle")
+			var day_night = day_night_nodes[0] if day_night_nodes.size() > 0 else null
+			if day_night:
+				var next_label := "sunset" if day_night.is_day() else "sunrise"
+				var remaining := int(day_night.seconds_until_next_phase())
+				GameLog.log_general("[color=green]Sky: %s (%s in %dm %ds)[/color]" % [
+					"Daytime" if day_night.is_day() else "Nighttime", next_label, remaining / 60, remaining % 60])
+			var d := Time.get_datetime_dict_from_system(false)
+			var hour12: int = d.hour % 12
+			if hour12 == 0:
+				hour12 = 12
+			var ampm := "AM" if d.hour < 12 else "PM"
+			GameLog.log_general("[color=green]Real time: %d:%02d %s[/color]" % [hour12, d.minute, ampm])
 		_:
 			GameLog.log_general("[color=red]Unknown command: %s[/color]" % cmd)
 

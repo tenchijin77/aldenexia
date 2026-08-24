@@ -48,8 +48,13 @@ func _configure_combat_node(stats: Dictionary):
 
 	combat_node.level          = lvl
 	combat_node.weapon_damage  = flat_dmg
-	combat_node.strength = combat_node.constitution = combat_node.dexterity = 0
-	combat_node.intelligence = combat_node.wisdom = combat_node.charisma = combat_node.luck = 0
+	combat_node.strength = 0
+	combat_node.constitution = 0
+	combat_node.dexterity = 0
+	combat_node.intelligence = 0
+	combat_node.wisdom = 0
+	combat_node.charisma = 0
+	combat_node.luck = 0
 	combat_node.gear_ac  = flat_ac - 10
 	combat_node.gear_hp  = flat_hp - 50
 	combat_node.gear_atk = 40 + lvl * 10

@@ -1,0 +1,126 @@
+[gd_scene format=3 uid="uid://d0s7d25hdaruk"]
+
+[ext_resource type="PackedScene" uid="uid://b4p4ottcfgsb" path="res://models/Torch.glb" id="2_kg6dd"]
+[ext_resource type="Texture2D" uid="uid://br23vq18l8bh3" path="res://Assets/toppng.com-swirling-fire-effect-with-high-glow-530x600.png" id="3_05x6m"]
+[ext_resource type="Texture2D" uid="uid://ol3fgehyr2gl" path="res://Assets/toppng.com-realistic-smoke-texture-with-soft-particle-edges-png-399x385.png" id="4_d43v6"]
+[ext_resource type="AudioStream" uid="uid://ddoo8b2k3noxl" path="res://Assets/soundsforyou-campfire-crackling-fireplace-sound-119594.mp3" id="5_e64sw"]
+
+[sub_resource type="Gradient" id="Gradient_qycku"]
+offsets = PackedFloat32Array(0, 0.83431953)
+colors = PackedColorArray(0.85056406, 0.70732236, 0.15344492, 1, 0.9945068, 0, 0.20221567, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_q5su3"]
+gradient = SubResource("Gradient_qycku")
+
+[sub_resource type="Curve" id="Curve_1j15t"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.34871796, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="CurveTexture" id="CurveTexture_2jfhp"]
+curve = SubResource("Curve_1j15t")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_fi5mc"]
+angle_min = 1.0728835e-05
+angle_max = 360.00003
+direction = Vector3(0, 1, 0)
+spread = 5.0
+initial_velocity_min = 0.5
+initial_velocity_max = 0.75
+angular_velocity_min = -75.000015
+angular_velocity_max = 74.999985
+gravity = Vector3(0, 0, 0)
+linear_accel_min = 0.99999774
+linear_accel_max = 0.99999774
+scale_curve = SubResource("CurveTexture_2jfhp")
+color_ramp = SubResource("GradientTexture1D_q5su3")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_quco2"]
+transparency = 1
+shading_mode = 0
+vertex_color_use_as_albedo = true
+albedo_texture = ExtResource("3_05x6m")
+texture_filter = 0
+billboard_mode = 3
+particles_anim_h_frames = 1
+particles_anim_v_frames = 1
+particles_anim_loop = false
+
+[sub_resource type="QuadMesh" id="QuadMesh_c7cxm"]
+material = SubResource("StandardMaterial3D_quco2")
+
+[sub_resource type="Gradient" id="Gradient_1j15t"]
+offsets = PackedFloat32Array(0, 0.46153846)
+colors = PackedColorArray(1, 1, 1, 0, 1, 1, 1, 0.5411765)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_blmeq"]
+gradient = SubResource("Gradient_1j15t")
+
+[sub_resource type="Curve" id="Curve_blmeq"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.34871796, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="CurveTexture" id="CurveTexture_own6u"]
+curve = SubResource("Curve_blmeq")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_bfted"]
+angle_min = 1.0728835e-05
+angle_max = 360.00003
+direction = Vector3(0, 1, 0)
+spread = 10.0
+initial_velocity_min = 1.0
+initial_velocity_max = 1.0
+angular_velocity_min = -75.000015
+angular_velocity_max = 74.999985
+gravity = Vector3(0, 0, 0)
+linear_accel_min = 0.99999774
+linear_accel_max = 0.99999774
+scale_curve = SubResource("CurveTexture_own6u")
+color_ramp = SubResource("GradientTexture1D_blmeq")
+anim_speed_min = 0.65999997
+anim_speed_max = 0.65999997
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_36m4x"]
+transparency = 1
+shading_mode = 0
+vertex_color_use_as_albedo = true
+albedo_texture = ExtResource("4_d43v6")
+texture_filter = 0
+billboard_mode = 3
+particles_anim_h_frames = 1
+particles_anim_v_frames = 1
+particles_anim_loop = false
+
+[sub_resource type="QuadMesh" id="QuadMesh_c4ttc"]
+material = SubResource("StandardMaterial3D_36m4x")
+
+[node name="torch" type="Node3D" unique_id=232192674]
+
+[node name="torch" parent="." unique_id=1254413971 instance=ExtResource("2_kg6dd")]
+
+[node name="flames" type="GPUParticles3D" parent="torch" unique_id=62835292]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.97413, 0)
+amount = 16
+process_material = SubResource("ParticleProcessMaterial_fi5mc")
+draw_pass_1 = SubResource("QuadMesh_c7cxm")
+
+[node name="smoke" type="GPUParticles3D" parent="torch" unique_id=2057205439]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.3073742, 0)
+amount = 16
+lifetime = 2.0
+process_material = SubResource("ParticleProcessMaterial_bfted")
+draw_pass_1 = SubResource("QuadMesh_c4ttc")
+
+[node name="AudioStreamPlayer3D" type="AudioStreamPlayer3D" parent="." unique_id=1267309297]
+stream = ExtResource("5_e64sw")
+volume_db = 2.0
+autoplay = true
+max_distance = 10.0
+
+[node name="OmniLight3D" type="OmniLight3D" parent="." unique_id=428813840]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8486712, 0)
+light_color = Color(0.8113769, 0.7029064, 0.19437191, 1)
+light_energy = 3.0
+light_size = 3.0
+shadow_enabled = true
+distance_fade_enabled = true
+omni_range = 6.0
