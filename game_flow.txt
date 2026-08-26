@@ -82,6 +82,10 @@ lumora_outskirts3d.tscn contains:
     your spirit as you take shelter nearby." to the General tab once when the
     player (group "player") enters the area; resets on exit so it can fire
     again next visit.
+  - "Archery Targets" (3 instances) and "Bone Spears" (4 instances), added
+    2026-08-25 — purely decorative set-dressing (res://models/Archery
+    Target.glb, res://models/Bone Spear.glb), no script attached, same
+    grouping convention as Campfires above.
 
 Note: the Terrain3D addon is present in addons/ but is NOT used by the current
 zone — the level is entirely the Blender-authored LumoraOutskirts.glb mesh.

@@ -46,6 +46,16 @@
 
 ---
 
+## 2026-08-25 — Session 25: Archery target + bone spear set-dressing
+
+### New Features
+
+**Zone decoration** (`lumora_outskirts3d.tscn`)
+- Added 3 "Archery Target" and 4 "Bone Spear" instances (`models/Archery
+  Target.glb`, `models/Bone Spear.glb`) as decorative set-dressing around
+  Lumora Outskirts — purely visual, no script attached, same grouping
+  convention as the existing Campfires node.
+
 ## 2026-08-25 — Session 24: Guards targetable, detachable Combat log window
 
 ### Bug Fixes
