@@ -397,7 +397,7 @@ func build_starting_inventory(p_class: String) -> Dictionary:
 		"Blademaster":
 			scrolls = ["scroll_of_power_strike", "scroll_of_battle_shout"]
 		"Voidknight":
-			scrolls = ["scroll_of_power_strike"]
+			scrolls = ["scroll_of_life_siphon", "scroll_of_shadow_aura"]
 
 	var gear_start: int = 1
 	if not scrolls.is_empty():

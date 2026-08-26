@@ -4,6 +4,9 @@
 
 ### Chat Commands (type in the chat box at the bottom of the log window, or the NPC dialogue box)
 - `/loc` — prints your current X/Y/Z position to the General log tab.
+- `/time` — prints the in-game date/day-night phase and real-world time.
+- `/hail` — hails the nearest guard NPC in range (same as pressing H).
+- `/appraise` — Insight Check on your current target (same as pressing I).
 
 ### Movement
 - `W` / `Up` — move forward
@@ -37,10 +40,289 @@
 - `C` — toggle character sheet
 - `B` — toggle backpack
 - `K` — toggle abilities book
-- `H` — hail nearby NPC (opens dialogue chat box)
+- `H` — hail nearby guard NPC (random flavor line in the General log)
+- `I` — Insight Check (appraise) your current target
 - `Escape` — pause menu
 
 ---
+
+## 2026-08-25 — Session 24: Guards targetable, detachable Combat log window
+
+### Bug Fixes
+
+**Lumora Guards couldn't be targeted at all**
+- `tab_cycle_target()` and `_try_click_target()` (`player3d.gd`) only ever
+  considered the `"monsters"` group and the `Monster` type — guards live in
+  `"npc_guard"` as a plain `GuardNPC` (not a `Monster`), so Tab and click
+  targeting silently skipped them entirely. Both now also pull from
+  `"npc_guard"`, using a new `_is_targetable_alive()` helper that falls back
+  to "always alive" for anything without a `current_state`/`State.DEAD`
+  (guards have no death state at all).
+- Making guards targetable exposed several latent crashes in code that
+  assumed every target was a `Monster` (`.get_monster_name()`,
+  `.State.DEAD`, `current_health`/`max_health`) — none of which exist on
+  `GuardNPC`. Fixed by reusing/generalizing `TargetFrame.display_name()`
+  (already static from the appraisal work) everywhere a target's name is
+  needed, and adding a `combat_node`-or-fallback HP lookup in
+  `_announce_target()`. `GuardNPC` also gained a top-level `level` var
+  (mirroring `Monster`'s pattern) so the target frame and appraisal system
+  show its real level instead of defaulting to 1.
+- Since guards have no death handling (see Session 22 — one-directional,
+  monsters can't hurt them, and nothing ever gave them a `die()`), attacking
+  one would reduce its HP into a dead-end with no visible effect. Rather than
+  build out guard death for an edge case nobody asked for, `attack_current_target()`,
+  `cast_spell()`'s enemy branch, and `perform_melee_attack()` now all refuse to
+  target anything `TargetFrame.faction_status()` reports as "Ally" — you
+  simply can't attack your own guards, which also happens to be the sane
+  default anyway.
+- `_faction_reputation_text()` (appraisal) now also checks `npc_faction`
+  (what `GuardNPC` actually exposes) as a fallback when `faction` isn't
+  present, so appraising a guard shows its real standing ("Wardens of the
+  Sacred Flame", Revered) instead of "Unaligned".
+
+### New Features
+
+**Detachable Combat log window** (`game_log_window.gd`)
+- Small "Detach" button in the corner of the Combat tab pops the Combat log out
+  into its own independent, draggable, resizable `CanvasLayer` window (same
+  drag-bar/resize-handle/right-click-font-menu pattern as the main log
+  window), so General and Combat can be arranged side by side instead of
+  tab-switching between them.
+- Implementation reparents the existing `CombatLog` `RichTextLabel` node
+  itself (`Node.reparent()`) rather than copying text — all history and
+  formatting carry over untouched, and `_on_combat()` keeps working
+  unmodified since it's still the same node reference regardless of which
+  window it currently lives in. The "Combat" tab is removed from the
+  `TabContainer` while detached (`tabs.remove_child(combat_tab)`) and
+  restored on reattach via a "Reattach" button in the detached window's title bar.
+- Detached state and the detached window's position both persist to
+  `ui_positions` (`chat_combat_detached`, `chat_combat`) and are restored on
+  load, same as the main window's position/font size.
+
+## 2026-08-25 — Session 22: Voidknight spell/stance revisions, guard combat, mob appraisal system
+
+### Bug Fixes
+
+**Voidknight started with a Blademaster scroll, not one of their own spells**
+- `character_creation.gd`'s starting-scroll table gave every new Voidknight
+  `scroll_of_power_strike` (a Blademaster spell) instead of any Voidknight
+  spell — a fresh Voidknight had no way to ever learn their own kit. Fixed to
+  grant `scroll_of_life_siphon` + `scroll_of_shadow_aura` (their two level-1
+  spells). Also: **no scrolls existed at all** for any of the six Voidknight
+  spells added last session — added `scroll_of_<spell_name>` items for all
+  seven level 1-3 spells (including the new `shadowlight`) so they're
+  actually learnable, matching the existing `scroll_of_power_strike` pattern.
+
+### New Features
+
+**Voidknight spell/stance revisions** (`player3d.gd:cast_spell()`,
+`Data/class_stances.json`)
+- `life_siphon` heal is now randomized 30-70% of damage dealt (was flat 50%).
+- `shadow_aura` (display name "Aura of the Shadow") duration extended to 15
+  minutes (was 30s).
+- `improved_block` is now a **passive** — no longer castable/slotted. Added
+  `CombatNode.has_passive(spell_name)` (checks the owner's `known_spells` via
+  `get_parent()`, same lookup pattern as the existing stagger-attacker code)
+  so its +10% block chance and +5% stagger chance apply automatically
+  whenever it's known, with no `apply_effect()` call needed.
+- New spell `shadowlight` (self, 1hr violet-light buff + flavor; "reveals
+  hidden undead" is flavor only for now — no monster anywhere has a
+  stealth/hidden state to detect).
+- `spectral_minion` renamed in display to "Morthan's Call"; the summoned
+  creature's own name changed to "Skeleton Warrior" to match. Added
+  `Player3D.spell_display_name()` (static, with a small override table) since
+  "Aura of the Shadow"/"Morthan's Call" aren't derivable from the internal
+  snake_case spell_name the way the UI normally builds labels — used
+  everywhere a spell name is shown (`cast_spell()`'s messages, the action bar).
+- Stances fully replaced: **Shadow Ascendant** (+15% dmg, -10% block, -35%
+  threat), **Necrotic Bastion** (+15% block, -10% dmg, +25% Life Drain
+  healing), **Dusk Walker** (+7% dmg, +7% block). Added `threat_mult` (hooked
+  into `CombatNode.generate_threat()`) and `life_drain_heal_mult` (hooked
+  into `life_siphon`'s heal calc) to the buff/debuff engine.
+  Note: `generate_threat()` itself is not called from anywhere else in the
+  codebase yet (no aggro/threat-based targeting exists) — the threat_mult
+  hook is correctly wired but has no visible gameplay effect until a
+  threat-based system exists to consume it.
+
+**Guards actively engage enemies within 4m** (`guard_npc.gd`)
+- Guards now have a real `CombatNode` (stats from a new `lumora_guard` entry
+  in `monsters.json`) and engage the nearest non-dead monster within 4m of
+  their post, chasing up to a 6m leash before disengaging and returning home.
+- One-directional: monsters don't fight back, since `monster3d.gd`'s entire
+  state machine hardcodes "the player" as the only possible target — teaching
+  monsters to recognize a second target type is out of scope for this pass
+  (same limitation already noted for the pet). Guards are effectively
+  invulnerable as a result.
+- Guard kills are quiet: `Monster.die()` gained two optional params,
+  `die(award_xp: bool = true, drop_loot: bool = true)` — guards call
+  `die(false, false)`, skipping loot rolling and the 60s lootable-corpse
+  window (instant `queue_free()`) and skipping the XP/level-up grant, since
+  the player had no part in a kill their guard made unprompted.
+
+**Mob Appraisal System** (`player3d.gd`, `target_frame.gd`)
+- Automatic (shown the moment you target something, no roll): target level
+  is now con-colored too (previously only the name was), reusing the
+  existing 7-tier `_con_color()` scheme unchanged — deliberately did not
+  introduce a second color scheme. New Ally/Neutral/Enemy label, derived from
+  what already exists rather than new faction infrastructure: `npc_guard`
+  group → Ally, `behavior_type == "passive"` → Neutral, everything else in
+  the `monsters` group → Enemy. Boss mobs (`is_boss`) always show the most
+  dangerous existing tier regardless of level.
+- **Insight Check**: `I` key or `/appraise`, requires a current target, 10s
+  cooldown per target. Roll: `d20 + max(INT mod, WIS mod)` vs a DC from level
+  difference (5+ below→5, 2-4 below→10, ±1→15, 2-4 above→20, 5+ above→25) —
+  a new, self-contained dice paradigm separate from the rest of combat's
+  percentile rolls. Ability modifier is the standard `(stat-10)/2`.
+  Success reveals difficulty flavor text, faction-modifier text, estimated
+  threat, resistances/weaknesses, special ability, a loot-quality estimate
+  (heuristic from monster level, not new per-item data), and exact faction
+  reputation (standing number + Hated/Disliked/Neutral/Liked/Revered label).
+  Failure/critical-failure temporarily show the wrong nameplate color (10s /
+  30s) via new `TargetFrame.show_wrong_color()`, then self-correct. Critical
+  success (nat 20) adds one extra line from an optional `secret_note` field.
+- New optional `monsters.json` fields (all default-omitted, no existing
+  entries required to change): `resistances`/`weaknesses` (display-only —
+  deliberately not wired into `modify_damage()`, which stays hardcoded
+  per-subclass; populated skeleton's to match its real `modify_damage()`
+  values so at least one is accurate), `special_ability`, `is_boss`,
+  `secret_note`, `corruption`.
+
+### Bug Fixes
+
+**Learned scrolls stayed visible in the backpack until an unrelated inventory action forced a repaint**
+- Root cause: `Inventory.remove_from_basic_inventory()` and `remove_from_bag()`
+  (`inventory_autoload.gd`) mutated inventory data and called `sync_to_global()`
+  but never emitted `inventory_changed` — the only signal `backpack_ui.gd`
+  listens for to repaint its slot grid. The scroll was actually gone from data
+  immediately; it just stayed on screen until something else (equip, move,
+  reopening the window) happened to trigger a redraw.
+- Fixed by adding `inventory_changed.emit()` to both functions, matching the
+  pattern already used by `equip_item()`, `unequip_item()`, and
+  `move_item_between_slots()`.
+
+### New Features
+
+**Guard NPC + hail (H key / `/hail` chat command)**
+- The old hail system (`npc.gd` + `chat_window.gd`, 2D `Area2D`-based) turned
+  out to be fully dead code — only reachable from `Scenes/main.tscn`, which
+  isn't the game's boot scene (`main_menu.tscn` is). There was no live 3D NPC
+  of any kind before this.
+- Added `Scripts/guard_npc.gd` + `Scenes/guard_npc.tscn` — a stationary guard
+  that responds to a hail with a random line from `Data/guard_flavor_text.json`.
+  Two instances ("Lumora Guard", "Lumora Sentry") placed in
+  `lumora_outskirts3d.tscn` at the existing "Left Guard"/"Right Guard" statue
+  locations.
+- Simplified from the old 2D design: proximity-only (no facing-direction
+  raycast requirement) — the old check leaned on 2D sprite-facing that doesn't
+  translate to the free-look 3D camera.
+- `H` (existing `hail` input action, previously only consumed by the dead 2D
+  code) and a new `/hail` chat command both call
+  `player3d.gd:try_hail_nearby_npc()`, which finds the nearest guard within 5m.
+
+**Generic buff/debuff engine on `CombatNode`**
+- Added `active_effects` dict + `apply_effect()` / `remove_effect()` /
+  `has_effect()` / `get_modifier()` / a ticking `_process()` to `combatnode.gd`.
+  Shared by the player and every `Monster` (both already own a `CombatNode`
+  child), so it covers self-buffs, enemy debuffs, and (later) DoTs with one
+  system instead of one-off hacks per spell.
+- Hooked into `calculate_hit_chance()` (accuracy debuffs), `get_block_chance()`
+  (block buffs), `calculate_melee_damage()` / `calculate_spell_damage()`
+  (damage multipliers), a new stagger check in `resolve_attack()`'s BLOCK
+  branch, and `monster3d.gd`'s `handle_movement()` / `perform_attack()`
+  (movement/attack-speed slows).
+
+**Voidknight spells 1-3 given real effects** (`player3d.gd:cast_spell()`)
+- `life_siphon` — now heals the caster for 50% of the damage dealt.
+- `shadow_aura` — 30s self-buff; continuously applies a short accuracy debuff
+  to any monster within 10m.
+- `blood_ritual` — sacrifices 10% current HP for a 10% damage buff, 8s.
+- `necrotic_grasp` — 15% movement/attack-speed slow on the current target, 6s.
+- `improved_block` — adapted to the existing all-or-nothing block model as
+  +10% block chance (no partial-damage-absorption mechanic exists to hook
+  "absorbs more damage" into) plus a literal 5% chance to stagger the attacker
+  on a successful block.
+- `spectral_minion` — see pet section below.
+- Previously these all either did nothing (self/group-target spells only
+  printed flavor text) or were undefined in code despite being fully specified
+  in `player_spells.json`.
+
+**Spectral Minion pet + command UI**
+- New `Scripts/pet_minion.gd` + `Scenes/pet_minion.tscn` — deliberately *not*
+  a `Monster` subclass, since `monster3d.gd`'s state machine is hardcoded to
+  chase/attack the player. Independent actor with its own small state machine
+  (Follow / Attack / Stop / Sit / Guard), stats from `monsters.json`'s
+  `"skeleton"` entry with HP set to 40% of the caster's max HP.
+- New `Scripts/pet_frame.gd` + `Scenes/pet_frame.tscn` — small draggable HUD
+  panel with the pet's HP bar and six command buttons (Attack / Stop / Back /
+  Follow / Sit / Guard). Spawned when `spectral_minion` is cast, freed when
+  the pet dies.
+- Known limitation: `lumora_outskirts3d.tscn`'s baked `NavigationRegion3D`
+  navmesh currently has zero polygons (confirmed via `git show` — a real bake
+  existed in an earlier commit but isn't in the current scene file), so the
+  pet's pathing is the same straight-line-to-target behavior existing monsters
+  already have on this empty nav map, not full pathfinding. Re-baking the
+  navmesh is a separate fix.
+- Also: nothing currently damages the pet, since every monster's AI only ever
+  targets the player (no per-monster "who is attacking me" concept exists) —
+  `apply_damage()`/`die()` are wired up on the pet for whenever that changes.
+
+**Stance bar (Voidknight)**
+- New `Data/class_stances.json`, `Scripts/stance_bar.gd` +
+  `Scenes/stance_bar.tscn`. Small bar of stance slots shown above the action
+  bar, indented right ("tabbed in"); hidden entirely for any class with no
+  stances defined. Voidknight gets two: Aggressive (+10% damage, -5% block)
+  and Defensive (-10% damage, +10% block), mutually exclusive, toggled via the
+  buff/debuff engine above.
+
+## 2026-08-25 — Session 23: Real threat/aggro system (makes threat_mult work)
+
+### New Features
+
+**Per-monster aggro table** (`monster3d.gd`)
+- Session 22 wired `threat_mult` into `CombatNode.generate_threat()`, but
+  nothing called `generate_threat()` at all and every monster hardcoded
+  "the player" as its only possible attack target — so the stance modifier
+  had nowhere to have an effect. Added a real (if intentionally small) aggro
+  system to fix that:
+  - `Monster.aggro_table: Dictionary` (attacker Node → accumulated threat
+    float), `add_threat(attacker, amount)`, `get_current_target()` (returns
+    whoever has the highest threat, falling back to the player if the table
+    is empty).
+  - `state_chase()`/`state_attack()`/`perform_attack()` now chase/attack
+    `get_current_target()` instead of the hardcoded `player` reference.
+    Initial engagement is unchanged — `can_see_player()`'s proximity check
+    still decides whether a monster notices the player and starts fighting
+    at all; the aggro table only decides *who* it keeps attacking once
+    already in combat, which is exactly the decision `threat_mult` needed to
+    influence.
+  - Aggro table clears when a monster leashes back out of combat (loses the
+    fight entirely), so old threat doesn't linger into the next encounter.
+  - `perform_attack()` now handles hitting a non-player target: reuses the
+    existing `CombatLogFormatter.monster_attack()` "hits you" messages only
+    when the target actually is the player, and a new
+    `_log_attack_on_other()` for third-person messages ("Skeleton hits
+    Skeleton Warrior for 12 damage!") when it isn't.
+- Threat is generated (and added to the target's `aggro_table`) at every
+  place the player or pet deals damage or heals: `player3d.gd`'s
+  `attack_current_target()` and `cast_spell()`'s enemy-damage branch
+  (including a healing-threat bump for `life_siphon`'s self-heal, so Necrotic
+  Bastion's "+25% Life Drain healing, maintains threat through healing"
+  actually keeps the Voidknight on top of the aggro table), and
+  `pet_minion.gd`'s `_perform_attack()`. Guards are deliberately excluded —
+  monsters still can't target them at all (unchanged from Session 22's
+  one-directional guard combat), so they never appear in any aggro table.
+- Net effect: if a Voidknight in Shadow Ascendant (-35% threat) fights
+  alongside their Morthan's Call pet, the pet generates relatively more
+  threat and monsters will actually turn and attack it instead — matching
+  the stance's "DPS/solo, not recommended for group tanking" design intent.
+  Necrotic Bastion's healing-boosted threat has the opposite effect, keeping
+  aggro on the Voidknight as intended for tanking.
+- Verified with a standalone algorithm test (aggro-table max-threat selection
+  logic + the real `CombatNode.generate_threat()`/`threat_mult` path) since
+  `monster3d.gd` can't be loaded in isolation outside the full game (it
+  references the `GameLog` autoload, unavailable to a bare headless test
+  script) — the full-project `--check-only` pass confirms it compiles
+  correctly in the real game.
 
 ## 2026-08-23 — Session 20: 3D level collision rebuild, chat/log overhaul, campfire audio, camera clamps, autorun
 

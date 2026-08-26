@@ -31,6 +31,14 @@ const MAX_AGGRO_DISTANCE: float = 5.0   # Hard cap: monsters never aggro beyond 
 @export var anim_walk: String = ""
 @export var anim_attack: String = ""
 
+@export_group("Appraisal")  # display-only data for player3d.gd's Insight Check
+@export var resistances: Array = []
+@export var weaknesses: Array = []
+@export var special_ability: String = ""
+@export var is_boss: bool = false
+@export var secret_note: String = ""
+@export var corruption: String = ""
+
 # ===== STATE =====
 enum State { IDLE, PATROL, CHASE, ATTACK, DEAD }
 var current_state: State = State.IDLE
@@ -60,6 +68,18 @@ var player: CharacterBody3D = null
 var spawn_position: Vector3
 var patrol_target: Vector3
 var move_direction: Vector3 = Vector3.ZERO
+
+# ===== AGGRO / THREAT =====
+# Node -> accumulated threat. Populated by add_threat() whenever the player
+# or their pet deals damage/heals near this monster (see
+# player3d.gd:attack_current_target()/cast_spell(), pet_minion.gd's attack).
+# Initial engagement is still purely proximity-based (can_see_player(),
+# unchanged) — this table only decides WHO gets attacked once already
+# fighting, so a stance's threat_mult (Shadow Ascendant/Necrotic Bastion)
+# actually has something to influence. Guards are deliberately never part of
+# this — monsters still can't target them (see guard_npc.gd's one-directional
+# combat note).
+var aggro_table: Dictionary = {}
 
 # ===== NAVIGATION =====
 @onready var nav_agent: NavigationAgent3D = $NavigationAgent3D
@@ -102,6 +122,14 @@ func _ready() -> void:
 			anim_idle = anims.get("idle", "")
 			anim_walk = anims.get("walk", "")
 			anim_attack = anims.get("attack", "")
+
+		# Appraisal (display-only)
+		resistances     = stats.get("resistances", resistances)
+		weaknesses      = stats.get("weaknesses", weaknesses)
+		special_ability = stats.get("special_ability", special_ability)
+		is_boss         = stats.get("is_boss", is_boss)
+		secret_note     = stats.get("secret_note", secret_note)
+		corruption      = stats.get("corruption", corruption)
 
 	combat_node = CombatNode.new()
 	add_child(combat_node)
@@ -204,6 +232,24 @@ func _physics_process(delta: float) -> void:
 			velocity.y -= 20.0 * delta
 		move_and_slide()
 
+func add_threat(attacker: Node, amount: float) -> void:
+	if amount <= 0.0 or not is_instance_valid(attacker):
+		return
+	aggro_table[attacker] = aggro_table.get(attacker, 0.0) + amount
+
+func get_current_target() -> Node:
+	if aggro_table.is_empty():
+		return player
+	var best: Node = player
+	var best_threat: float = aggro_table.get(player, 0.0)
+	for attacker in aggro_table:
+		if not is_instance_valid(attacker):
+			continue
+		if aggro_table[attacker] > best_threat:
+			best_threat = aggro_table[attacker]
+			best = attacker
+	return best if is_instance_valid(best) else player
+
 # ===== STATE MACHINE =====
 func state_idle(delta: float) -> void:
 	# Check aggro range (using your JSON field)
@@ -231,12 +277,14 @@ func state_chase(delta: float) -> void:
 		change_state(State.IDLE)
 		return
 
-	var distance: float = global_position.distance_to(player.global_position)
+	var target: Node = get_current_target()
+	var distance: float = global_position.distance_to(target.global_position)
 
 	# Lost aggro — leash uses the same effective range so monsters don't chase forever
 	var leash_range: float = minf(aggro_range / AGGRO_RANGE_SCALE, MAX_AGGRO_DISTANCE)
 	if distance > leash_range:
 		change_state(State.PATROL)
+		aggro_table.clear()
 		return
 
 	# In melee range
@@ -245,7 +293,7 @@ func state_chase(delta: float) -> void:
 		return
 
 	if is_inside_tree() and nav_agent:
-		nav_agent.target_position = player.global_position
+		nav_agent.target_position = target.global_position
 		print("CHASE: target =", nav_agent.target_position)
 
 func state_attack(delta: float) -> void:
@@ -253,14 +301,15 @@ func state_attack(delta: float) -> void:
 		change_state(State.IDLE)
 		return
 
-	var distance: float = global_position.distance_to(player.global_position)
+	var target: Node = get_current_target()
+	var distance: float = global_position.distance_to(target.global_position)
 
-	# Player escaped
+	# Target escaped
 	if distance > attack_range + 1.0:
 		change_state(State.CHASE)
 		return
 
-	look_at_target(player.global_position)
+	look_at_target(target.global_position)
 
 	if can_attack:
 		perform_attack()
@@ -284,6 +333,7 @@ func handle_movement(delta: float) -> void:
 	look_at_target(global_position + direction)
 
 	var speed_3d = speed / 10.0
+	speed_3d *= (1.0 - combat_node.get_modifier("speed_slow"))
 	velocity.x = direction.x * speed_3d
 	velocity.z = direction.z * speed_3d
 
@@ -298,33 +348,57 @@ func handle_movement(delta: float) -> void:
 # ===== COMBAT =====
 func perform_attack() -> void:
 	can_attack = false
-	attack_timer = attack_cooldown
+	attack_timer = attack_cooldown * (1.0 + combat_node.get_modifier("attack_speed_slow"))
 
-	if not player:
+	var target: Node = get_current_target()
+	if not target:
 		return
 
-	if "combat_node" in player and player.combat_node is CombatNode:
-		var result = combat_node.resolve_attack(player.combat_node)
+	if "combat_node" in target and target.combat_node is CombatNode:
+		var result = combat_node.resolve_attack(target.combat_node)
 		# Sync our HP in case of riposte (resolve_attack modifies both sides directly)
 		if not combat_node.is_alive():
 			die()
 			return
 		if result["damage"] > 0:
-			if player.has_method("apply_damage"):
-				player.apply_damage(result["damage"])
-			elif player.has_method("take_damage"):
-				player.take_damage(result["damage"])
+			if target.has_method("apply_damage"):
+				target.apply_damage(result["damage"])
+			elif target.has_method("take_damage"):
+				target.take_damage(result["damage"])
 		var desc: String = monster_description if monster_description != "" else get_monster_name()
-		var msg: String = CombatLogFormatter.monster_attack(result, desc, get_damage_type())
-		if not msg.is_empty():
-			GameLog.log_combat(msg)
-	elif player.has_method("take_damage"):
-		player.take_damage(damage)
-		var desc: String = monster_description if monster_description != "" else get_monster_name()
-		GameLog.log_combat("%s hits you for [b]%d[/b] damage!" % [desc.capitalize(), damage])
+		if target == player:
+			var msg: String = CombatLogFormatter.monster_attack(result, desc, get_damage_type())
+			if not msg.is_empty():
+				GameLog.log_combat(msg)
+		else:
+			var target_name: String = target.get("pet_name") if "pet_name" in target else "your ally"
+			_log_attack_on_other(result, desc, target_name)
+	elif target.has_method("take_damage"):
+		target.take_damage(damage)
+		if target == player:
+			var desc: String = monster_description if monster_description != "" else get_monster_name()
+			GameLog.log_combat("%s hits you for [b]%d[/b] damage!" % [desc.capitalize(), damage])
 
 	if is_social:
 		call_nearby_allies()
+
+
+func _log_attack_on_other(result: Dictionary, attacker_desc: String, target_name: String) -> void:
+	var cap := attacker_desc.capitalize()
+	match result.get("result", ""):
+		"MISS":
+			GameLog.log_combat("%s misses %s!" % [cap, target_name])
+		"PARRY":
+			GameLog.log_combat("%s's attack on %s is parried!" % [cap, target_name])
+		"BLOCK":
+			GameLog.log_combat("%s's attack on %s is blocked!" % [cap, target_name])
+		"DODGE":
+			GameLog.log_combat("%s's attack on %s is dodged!" % [cap, target_name])
+		"RIPOSTE":
+			GameLog.log_combat("%s is riposted by %s for [b]%d[/b] damage!" % [cap, target_name, result.get("damage", 0)])
+		"HIT":
+			var crit: String = " [color=#ffaa00]Critical![/color]" if result.get("is_crit", false) else ""
+			GameLog.log_combat("%s hits %s for [b]%d[/b] damage!%s" % [cap, target_name, result.get("damage", 0), crit])
 
 func apply_damage(amount: int, damage_type: String = "physical") -> void:
 	if current_state == State.DEAD:
@@ -378,41 +452,50 @@ func get_damage_type() -> String:
 		"undead":   return "blunt"
 		_:          return "generic"
 
-func die() -> void:
+func die(award_xp: bool = true, drop_loot: bool = true) -> void:
 	change_state(State.DEAD)
 	print("💀 %s died! (XP: %d, Coins: %.2f, Category: %s)" % [monster_name, xp_gain, coin_modifier, category])
 
-	pending_loot = roll_loot()
-	is_lootable = not pending_loot.is_empty()
-	if is_lootable:
-		print("  → Right-click corpse to loot")
+	if drop_loot:
+		pending_loot = roll_loot()
+		is_lootable = not pending_loot.is_empty()
+		if is_lootable:
+			print("  → Right-click corpse to loot")
+	else:
+		pending_loot = []
+		is_lootable = false
 
 	# Award XP to player
-	var players := get_tree().get_nodes_in_group("player")
-	if not players.is_empty():
-		var p := players[0]
-		var cur_xp: int    = Global.player_data.get("xp", 0)
-		var xp_next: int   = Global.player_data.get("xp_next_level", 100)
-		var new_xp: int    = cur_xp + xp_gain
-		Global.player_data["xp"] = new_xp
-		GameLog.log_general("You gain [b]%d[/b] experience points. (%d / %d)" % [xp_gain, new_xp, xp_next])
+	if award_xp:
+		var players := get_tree().get_nodes_in_group("player")
+		if not players.is_empty():
+			var p := players[0]
+			var cur_xp: int    = Global.player_data.get("xp", 0)
+			var xp_next: int   = Global.player_data.get("xp_next_level", 100)
+			var new_xp: int    = cur_xp + xp_gain
+			Global.player_data["xp"] = new_xp
+			GameLog.log_general("You gain [b]%d[/b] experience points. (%d / %d)" % [xp_gain, new_xp, xp_next])
 
-		# Level-up loop (handles multiple level-ups from one kill)
-		while Global.player_data.get("xp", 0) >= Global.player_data.get("xp_next_level", 999999):
-			var cur_lvl: int = Global.player_data.get("player_level", 1)
-			if cur_lvl >= Global.xp_table.get("max_level", 20):
-				break
-			var new_lvl: int   = cur_lvl + 1
-			var next_thresh: int = int(Global.xp_table.get(str(new_lvl + 1), 0))
-			Global.player_data["player_level"]   = new_lvl
-			Global.player_data["xp_next_level"]  = next_thresh if next_thresh > 0 else 999999
-			GameLog.log_general("[color=#ffdd44][b]You have reached level %d![/b][/color]" % new_lvl)
-			if p.has_method("on_level_up"):
-				p.on_level_up(new_lvl)
+			# Level-up loop (handles multiple level-ups from one kill)
+			while Global.player_data.get("xp", 0) >= Global.player_data.get("xp_next_level", 999999):
+				var cur_lvl: int = Global.player_data.get("player_level", 1)
+				if cur_lvl >= Global.xp_table.get("max_level", 20):
+					break
+				var new_lvl: int   = cur_lvl + 1
+				var next_thresh: int = int(Global.xp_table.get(str(new_lvl + 1), 0))
+				Global.player_data["player_level"]   = new_lvl
+				Global.player_data["xp_next_level"]  = next_thresh if next_thresh > 0 else 999999
+				GameLog.log_general("[color=#ffdd44][b]You have reached level %d![/b][/color]" % new_lvl)
+				if p.has_method("on_level_up"):
+					p.on_level_up(new_lvl)
 
-		Global.save_player_data_to_file()
+			Global.save_player_data_to_file()
 
 	# TODO: AnimationPlayer death animation
+
+	if not drop_loot:
+		queue_free()
+		return
 
 	await get_tree().create_timer(60.0).timeout
 	if not is_inside_tree():

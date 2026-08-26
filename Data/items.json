@@ -1670,5 +1670,195 @@
     "range": 0,
     "stat_modifiers": null,
     "effect": null
+  },
+  "scroll_of_life_siphon": {
+    "name": "Scroll of Life Siphon",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.2_02.png",
+    "description": "A necrotic scroll bearing the Life Siphon technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 50,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "voidknight"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "life_siphon"
+  },
+  "scroll_of_shadow_aura": {
+    "name": "Scroll of the Shadow Aura",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.2_02.png",
+    "description": "A scroll containing the Aura of the Shadow technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 50,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "voidknight"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "shadow_aura"
+  },
+  "scroll_of_blood_ritual": {
+    "name": "Scroll of Blood Ritual",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.2_02.png",
+    "description": "A blood-stained scroll bearing the Blood Ritual technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 50,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "voidknight"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "blood_ritual"
+  },
+  "scroll_of_necrotic_grasp": {
+    "name": "Scroll of Necrotic Grasp",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.2_02.png",
+    "description": "A scroll containing the Necrotic Grasp technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 50,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "voidknight"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "necrotic_grasp"
+  },
+  "scroll_of_shadowlight": {
+    "name": "Scroll of Shadowlight",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.2_02.png",
+    "description": "A scroll containing the Shadowlight technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 50,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "voidknight"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "shadowlight"
+  },
+  "scroll_of_improved_block": {
+    "name": "Scroll of Improved Block",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.2_02.png",
+    "description": "A scroll containing the Improved Block technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 50,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "voidknight",
+      "blademaster"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "improved_block"
+  },
+  "scroll_of_spectral_minion": {
+    "name": "Scroll of Morthan's Call",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.2_02.png",
+    "description": "A scroll containing Morthan's Call, summoning a skeleton warrior. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 50,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "voidknight"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "spectral_minion"
   }
 }

@@ -220,7 +220,7 @@ func _update_slot_display(i: int) -> void:
 		bg.border_color   = Color(0.35, 0.35, 0.45)
 		return
 
-	var display := aname.replace("_", " ").capitalize()
+	var display := Player3D.spell_display_name(aname)
 	if display.length() > 12:
 		var parts := display.split(" ", true, 1)
 		display = "\n".join(parts)

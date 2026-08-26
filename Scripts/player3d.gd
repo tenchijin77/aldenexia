@@ -41,6 +41,10 @@ var _spell_by_name: Dictionary = {}
 var _skill_data: Dictionary = {}   # flat skill_name -> description
 var _spell_cooldowns: Dictionary = {}
 var _skill_cooldowns: Dictionary = {}
+var _appraisal_cooldowns: Dictionary = {}  # target instance ID -> remaining seconds
+var active_pet: Node = null
+var active_pet_frame: Node = null
+var current_stance: String = ""
 
 # Computed properties for backward compat (monster3d reads these on current_target)
 var current_health: int:
@@ -125,6 +129,14 @@ func _unhandled_input(event: InputEvent) -> void:
 			_toggle_pause_menu()
 			return
 
+		if event.is_action_pressed("hail") and not (get_viewport().gui_get_focus_owner() is LineEdit):
+			try_hail_nearby_npc()
+			return
+
+		if event.is_action_pressed("appraise") and not (get_viewport().gui_get_focus_owner() is LineEdit):
+			try_appraise_target()
+			return
+
 		const SLOT_KEYS := [KEY_1, KEY_2, KEY_3, KEY_4, KEY_5, KEY_6, KEY_7, KEY_8, KEY_9, KEY_0, KEY_MINUS, KEY_EQUAL]
 		var idx := SLOT_KEYS.find(event.keycode)
 		if idx >= 0 and idx < action_bar_slots.size():
@@ -171,6 +183,201 @@ func _try_loot_corpse() -> void:
 		nearest.open_loot_window()
 	else:
 		GameLog.log_general("You search the corpse but find nothing upon it.")
+
+
+const HAIL_RANGE := 5.0
+
+func try_hail_nearby_npc() -> void:
+	var nearest: Node = null
+	var nearest_dist := HAIL_RANGE
+
+	for node in get_tree().get_nodes_in_group("npc_guard"):
+		if not is_instance_valid(node):
+			continue
+		var dist := global_position.distance_to(node.global_position)
+		if dist < nearest_dist:
+			nearest_dist = dist
+			nearest = node
+
+	if nearest == null:
+		GameLog.log_general("There's no one nearby to hail.")
+		return
+
+	nearest.respond_to_hail()
+#endregion
+
+#region Mob Appraisal
+const APPRAISAL_COOLDOWN := 10.0
+
+const APPRAISAL_TEXTS := {
+	"Trivial": [
+		"This creature poses no threat whatsoever.",
+		"You could defeat this in your sleep.",
+		"A pathetic opponent. You could easily dispatch it quickly.",
+		"Not even a warm-up.",
+	],
+	"Easy": [
+		"This appears to be a simple opponent.",
+		"You have the advantage here.",
+		"A straightforward victory awaits.",
+		"Nothing you can't handle.",
+		"An easy kill, should you desire it.",
+	],
+	"Moderate": [
+		"A worthy opponent. This could be interesting.",
+		"The battle would be evenly matched.",
+		"You sense a capable foe before you.",
+		"This one fights with skill.",
+		"Victory is possible, but not assured.",
+	],
+	"Hard": [
+		"This creature is significantly more powerful.",
+		"You sense great danger ahead.",
+		"Engaging this foe would be quite risky.",
+		"You are outmatched here.",
+		"Retreat may be the wisest course.",
+	],
+	"Deadly": [
+		"This being radiates an overwhelming aura of power.",
+		"You have no hope against such a force.",
+		"Flight is your only option.",
+		"Death awaits you here.",
+		"Do not engage. You will perish.",
+	],
+}
+
+const APPRAISAL_FACTION_TEXT := {
+	"Ally":    {"prefix": "Your ally appears... ", "suffix": "They seem eager to fight alongside you."},
+	"Neutral": {"prefix": "This stranger... ",      "suffix": "Their intentions remain unclear."},
+	"Enemy":   {"prefix": "Your enemy... ",         "suffix": "They regard you with clear hostility."},
+}
+
+# Monster faction names ("Bandit"/"Dustwalker"/"Lumora"/"None") mostly don't
+# match player_faction.json's named factions — alias the ones that do.
+const FACTION_STANDING_ALIASES := {"Lumora": "Villagers of Lumora"}
+
+
+func _appraisal_tier(diff: int) -> Dictionary:
+	if diff <= -5:
+		return {"dc": 5, "name": "Trivial"}
+	elif diff <= -2:
+		return {"dc": 10, "name": "Easy"}
+	elif diff <= 1:
+		return {"dc": 15, "name": "Moderate"}
+	elif diff <= 4:
+		return {"dc": 20, "name": "Hard"}
+	else:
+		return {"dc": 25, "name": "Deadly"}
+
+
+func _ability_modifier(stat: int) -> int:
+	return int(floor((stat - 10) / 2.0))
+
+
+func _faction_reputation_text(target: Node) -> String:
+	# Monsters expose "faction"; NPCs like guards expose "npc_faction" instead.
+	var target_faction: String = "None"
+	if "faction" in target:
+		target_faction = target.get("faction")
+	elif "npc_faction" in target:
+		target_faction = target.get("npc_faction")
+	var mapped: String = FACTION_STANDING_ALIASES.get(target_faction, target_faction)
+	if not faction_standing.has(mapped):
+		return "Unaligned"
+	var standing: int = faction_standing.get(mapped, 0)
+	var label := "Neutral"
+	if standing <= -25:  label = "Hated"
+	elif standing < 0:   label = "Disliked"
+	elif standing < 20:  label = "Neutral"
+	elif standing < 40:  label = "Liked"
+	else:                label = "Revered"
+	return "%s (%d)" % [label, standing]
+
+
+func try_appraise_target() -> void:
+	if not current_target or not is_instance_valid(current_target):
+		GameLog.log_general("You have no target to appraise.")
+		return
+
+	var target_id := current_target.get_instance_id()
+	var cd: float = _appraisal_cooldowns.get(target_id, 0.0)
+	if cd > 0.0:
+		GameLog.log_general("You must wait %.1fs before appraising that again." % cd)
+		return
+	_appraisal_cooldowns[target_id] = APPRAISAL_COOLDOWN
+
+	var target_level := int(current_target.get("level") if "level" in current_target else 1)
+	var diff := target_level - combat_node.level
+	var tier: Dictionary = _appraisal_tier(diff)
+	var faction: String = TargetFrame.faction_status(current_target)
+	var target_desc: String = TargetFrame.display_name(current_target)
+
+	var int_mod := _ability_modifier(combat_node.intelligence)
+	var wis_mod := _ability_modifier(combat_node.wisdom)
+	var roll := randi_range(1, 20)
+	var total := roll + maxi(int_mod, wis_mod)
+	var success: bool = total >= tier["dc"]
+
+	var frames := get_tree().get_nodes_in_group("target_frame")
+	var frame: Node = frames[0] if not frames.is_empty() else null
+
+	if roll == 1:
+		if frame:
+			frame.show_wrong_color(30.0)
+		GameLog.log_general("[color=#cc4444]Your senses betray you. %s seems %s than it truly is...[/color]" % [
+			target_desc.capitalize(), "weaker" if randf() < 0.5 else "stronger"
+		])
+		return
+
+	if not success:
+		if frame:
+			frame.show_wrong_color(10.0)
+		GameLog.log_general("You sense nothing unusual about %s." % target_desc)
+		return
+
+	var is_crit: bool = roll == 20
+	var flavor_bank: Array = APPRAISAL_TEXTS.get(tier["name"], [])
+	var flavor: String = flavor_bank[randi() % flavor_bank.size()] if not flavor_bank.is_empty() else ""
+	var faction_text: Dictionary = APPRAISAL_FACTION_TEXT.get(faction, {})
+
+	GameLog.log_general("[color=#ccddff][b]Appraisal: %s[/b] (Lv %d, %s)[/color]" % [target_desc.capitalize(), target_level, tier["name"]])
+	if not flavor.is_empty():
+		GameLog.log_general(flavor)
+	GameLog.log_general("%s%s" % [faction_text.get("prefix", ""), faction_text.get("suffix", "")])
+	GameLog.log_general("Estimated threat: %s" % tier["name"])
+
+	var resistances: Array = current_target.get("resistances") if "resistances" in current_target else []
+	var weaknesses: Array = current_target.get("weaknesses") if "weaknesses" in current_target else []
+	if not resistances.is_empty():
+		GameLog.log_general("Resistances: [%s]" % ", ".join(resistances))
+	if not weaknesses.is_empty():
+		GameLog.log_general("Weaknesses: [%s]" % ", ".join(weaknesses))
+
+	var special: String = current_target.get("special_ability") if "special_ability" in current_target else ""
+	if not special.is_empty():
+		GameLog.log_general("Special Ability: %s" % special)
+
+	var quality := "Common"
+	if target_level >= 15:   quality = "Epic"
+	elif target_level >= 10: quality = "Rare"
+	elif target_level >= 5:  quality = "Uncommon"
+	GameLog.log_general("Loot Quality: %s" % quality)
+
+	GameLog.log_general("Faction Reputation: %s" % _faction_reputation_text(current_target))
+
+	var target_is_boss: bool = current_target.get("is_boss") if "is_boss" in current_target else false
+	if target_is_boss:
+		GameLog.log_general("[color=#ff44ff]An aura of ancient power surrounds this being.[/color]")
+
+	var corruption: String = current_target.get("corruption") if "corruption" in current_target else ""
+	if not corruption.is_empty():
+		GameLog.log_general("[color=#aa44ff]This creature is twisted by the Void. (%s)[/color]" % corruption)
+
+	if is_crit:
+		var secret: String = current_target.get("secret_note") if "secret_note" in current_target else ""
+		if secret.is_empty():
+			secret = "You glimpse something the creature is hiding..."
+		GameLog.log_general("[color=#ffdd44]%s[/color]" % secret)
 #endregion
 
 #region Character sheet
@@ -206,6 +413,7 @@ func _spawn_hud() -> void:
 		"res://Scenes/target_frame.tscn",
 		"res://Scenes/game_log_window.tscn",
 		"res://Scenes/action_bar.tscn",
+		"res://Scenes/stance_bar.tscn",
 	]:
 		var node: Node = load(scene_path).instantiate()
 		node.add_to_group("game_hud")
@@ -279,6 +487,7 @@ func _physics_process(delta: float) -> void:
 		handle_combat()
 	update_stamina(delta)
 	_tick_cooldowns(delta)
+	_tick_active_spell_effects(delta)
 
 	move_and_slide()
 #endregion
@@ -502,11 +711,19 @@ func clear_target() -> void:
 	GameLog.log_general("You clear your target.")
 
 
+func _is_targetable_alive(node: Node) -> bool:
+	if not is_instance_valid(node):
+		return false
+	if "current_state" in node:
+		return node.get("current_state") != node.State.DEAD
+	return true  # e.g. guards, which have no death state
+
+
 func tab_cycle_target() -> void:
-	var monsters := get_tree().get_nodes_in_group("monsters")
+	var candidates := get_tree().get_nodes_in_group("monsters") + get_tree().get_nodes_in_group("npc_guard")
 	var valid: Array = []
-	for m in monsters:
-		if is_instance_valid(m) and m.get("current_state") != m.State.DEAD:
+	for m in candidates:
+		if _is_targetable_alive(m):
 			valid.append(m)
 
 	if valid.is_empty():
@@ -538,22 +755,26 @@ func _try_click_target(screen_pos: Vector2) -> void:
 	var query := PhysicsRayQueryParameters3D.create(origin, origin + direction * 150.0)
 	query.exclude = [self]
 	var hit := space.intersect_ray(query)
-	if hit and hit.collider is Monster:
-		var m := hit.collider as Monster
-		if m.current_state != Monster.State.DEAD:
+	if hit and (hit.collider is Monster or hit.collider is GuardNPC):
+		var m: Node = hit.collider
+		if _is_targetable_alive(m):
 			current_target = m
 			_announce_target(current_target)
 
 
 func _announce_target(target: Node) -> void:
 	_set_target_frame(target)
-	var desc: String = target.get("monster_description") if "monster_description" in target else ""
-	if desc.is_empty():
-		desc = target.get("monster_name") if "monster_name" in target else "enemy"
+	var desc: String = TargetFrame.display_name(target)
+	var cur_hp: int
+	var max_hp: int
+	if "combat_node" in target and target.combat_node is CombatNode:
+		cur_hp = target.combat_node.current_hp
+		max_hp = target.combat_node.max_hp
+	else:
+		cur_hp = int(target.get("current_health")) if "current_health" in target else 0
+		max_hp  = int(target.get("max_health")) if "max_health" in target else 0
 	var dist := global_position.distance_to(target.global_position)
-	GameLog.log_general("Target: [b]%s[/b] — HP %d/%d (%.1fm away)" % [
-		desc.capitalize(), target.current_health, target.max_health, dist
-	])
+	GameLog.log_general("Target: [b]%s[/b] — HP %d/%d (%.1fm away)" % [desc, cur_hp, max_hp, dist])
 
 
 func attack_current_target() -> void:
@@ -562,9 +783,13 @@ func attack_current_target() -> void:
 		print("⚔️ No target selected. Press Tab to target.")
 		return
 
-	if current_target.get("current_state") == current_target.State.DEAD:
+	if not _is_targetable_alive(current_target):
 		print("⚔️ Target is already dead.")
 		current_target = null
+		return
+
+	if TargetFrame.faction_status(current_target) == "Ally":
+		GameLog.log_general("You can't attack an ally.")
 		return
 
 	if attack_cooldown > 0.0:
@@ -572,7 +797,7 @@ func attack_current_target() -> void:
 
 	var dist := global_position.distance_to(current_target.global_position)
 	if dist > 3.0:
-		print("⚔️ %s is out of range (%.1fm). Move closer!" % [current_target.get_monster_name(), dist])
+		print("⚔️ %s is out of range (%.1fm). Move closer!" % [TargetFrame.display_name(current_target), dist])
 		return
 
 	attacking = true
@@ -583,6 +808,8 @@ func attack_current_target() -> void:
 		if not combat_node.is_alive():
 			die()
 			return
+		if current_target.has_method("add_threat"):
+			current_target.add_threat(self, combat_node.generate_threat(result.get("damage", 0)))
 		var target_desc: String = current_target.get("monster_description") if current_target.get("monster_description") != "" else current_target.get_monster_name()
 		var weapon := Inventory.get_equipped_weapon()
 		var weapon_name: String = weapon.get("name", "")
@@ -652,13 +879,16 @@ func perform_melee_attack() -> void:
 				closest_distance = distance
 				target = monster
 
+	if target and TargetFrame.faction_status(target) == "Ally":
+		target = null
+
 	if target:
 		if "combat_node" in target and target.combat_node is CombatNode:
 			var result = combat_node.resolve_attack(target.combat_node)
 			if not combat_node.is_alive():
 				die()
 				return
-			var target_desc: String = target.get("monster_description") if target.get("monster_description") != "" else target.get_monster_name()
+			var target_desc: String = TargetFrame.display_name(target)
 			var weapon := Inventory.get_equipped_weapon()
 			var weapon_name: String = weapon.get("name", "")
 			var dmg_type: String = CombatLogFormatter.damage_type_from_item(weapon)
@@ -1002,23 +1232,38 @@ func _apply_equipment_from_inventory() -> void:
 # ⭐ SPELL CASTING
 # ================================================================================
 
+# Spells whose in-fiction name isn't derivable from the internal snake_case
+# spell_name via the usual replace("_"," ").capitalize() convention.
+const SPELL_DISPLAY_NAMES := {
+	"shadow_aura": "Aura of the Shadow",
+	"spectral_minion": "Morthan's Call",
+}
+
+static func spell_display_name(spell_name: String) -> String:
+	return SPELL_DISPLAY_NAMES.get(spell_name, spell_name.replace("_", " ").capitalize())
+
+
 func cast_spell(spell_name: String) -> void:
+	if spell_name == "improved_block":
+		GameLog.log_general("[b]Improved Block[/b] is passive — no need to cast it.")
+		return
+
 	var spell: Dictionary = _spell_by_name.get(spell_name, {})
 	if spell.is_empty():
-		GameLog.log_general("Unknown spell or ability: [b]%s[/b]." % spell_name.replace("_", " ").capitalize())
+		GameLog.log_general("Unknown spell or ability: [b]%s[/b]." % spell_display_name(spell_name))
 		return
 
 	var cd_remaining: float = _spell_cooldowns.get(spell_name, 0.0)
 	if cd_remaining > 0.0:
-		GameLog.log_general("[b]%s[/b] is not ready. (%.1fs remaining)" % [spell_name.replace("_", " ").capitalize(), cd_remaining])
+		GameLog.log_general("[b]%s[/b] is not ready. (%.1fs remaining)" % [spell_display_name(spell_name), cd_remaining])
 		return
 
 	var cost: int = int(spell.get("mana_cost", 0.0))
 	if combat_node.current_mana < cost:
-		GameLog.log_general("Insufficient mana to use [b]%s[/b]!" % spell_name.replace("_", " ").capitalize())
+		GameLog.log_general("Insufficient mana to use [b]%s[/b]!" % spell_display_name(spell_name))
 		return
 
-	var display_name    := spell_name.replace("_", " ").capitalize()
+	var display_name    := spell_display_name(spell_name)
 	var school: String   = spell.get("spell_school", "arcane")
 	var spell_target    := spell.get("target", "enemy") as String
 	var base_damage: int = spell.get("damage", 0)
@@ -1039,8 +1284,11 @@ func cast_spell(spell_name: String) -> void:
 			if target_node == null:
 				GameLog.log_general("No target selected for [b]%s[/b]." % display_name)
 				return
-			if target_node.get("current_state") == target_node.State.DEAD:
+			if not _is_targetable_alive(target_node):
 				GameLog.log_general("Your target is already dead.")
+				return
+			if TargetFrame.faction_status(target_node) == "Ally":
+				GameLog.log_general("You can't target an ally with [b]%s[/b]." % display_name)
 				return
 			if not target_node.has_method("apply_damage"):
 				return
@@ -1065,6 +1313,23 @@ func cast_spell(spell_name: String) -> void:
 
 			GameLog.log_combat(CombatLogFormatter.spell_damage("You", spell_name, target_desc, final_dmg))
 
+			if target_node.has_method("add_threat"):
+				target_node.add_threat(self, combat_node.generate_threat(final_dmg))
+
+			match spell_name:
+				"life_siphon":
+					var heal_pct := randf_range(0.30, 0.70)
+					var heal_amount := int(final_dmg * heal_pct * (1.0 + combat_node.get_modifier("life_drain_heal_mult")))
+					var healed := combat_node.heal(heal_amount)
+					if healed > 0:
+						GameLog.log_general("[color=#66ff99]You siphon life, healing yourself for [b]%d[/b].[/color]" % healed)
+						if target_node.has_method("add_threat"):
+							target_node.add_threat(self, combat_node.generate_threat(0, healed))
+				"necrotic_grasp":
+					if target_cn is CombatNode:
+						target_cn.apply_effect("necrotic_grasp", 6.0, {"speed_slow": 0.15, "attack_speed_slow": 0.15})
+						GameLog.log_general("[color=#8866ff]%s is gripped by necrotic energy, slowing them.[/color]" % target_desc.capitalize())
+
 			if not target_node.combat_node.is_alive():
 				GameLog.log_combat(CombatLogFormatter.death("You", target_desc))
 				_set_target_frame(null)
@@ -1073,10 +1338,44 @@ func cast_spell(spell_name: String) -> void:
 				GameLog.set_autoattack(false)
 
 		"self":
-			GameLog.log_combat("You use [b]%s[/b] on yourself." % display_name)
+			match spell_name:
+				"shadow_aura":
+					combat_node.apply_effect("shadow_aura", 900.0, {})
+					GameLog.log_combat("[color=#8888ff]Shadows coil around you, throwing off nearby enemies' aim.[/color]")
+				"blood_ritual":
+					var cost_hp: int = maxi(1, int(combat_node.max_hp * 0.10))
+					combat_node.current_hp = maxi(1, combat_node.current_hp - cost_hp)
+					combat_node.apply_effect("blood_ritual", 8.0, {"damage_mult": 0.10})
+					GameLog.log_combat("[color=#ff4444]You sacrifice %d health, empowering your attacks![/color]" % cost_hp)
+				"shadowlight":
+					combat_node.apply_effect("shadowlight", 3600.0, {})
+					GameLog.log_combat("[color=#8855cc]A dim violet light kindles across your weapon.[/color]")
+				"spectral_minion":
+					_summon_spectral_minion()
+				_:
+					GameLog.log_combat("You use [b]%s[/b] on yourself." % display_name)
 
 		"group":
 			GameLog.log_combat("[color=#ffdd88]You use [b]%s[/b]! Your battle cry fills the air.[/color]" % display_name)
+
+
+func _summon_spectral_minion() -> void:
+	if is_instance_valid(active_pet):
+		active_pet.queue_free()
+	if is_instance_valid(active_pet_frame):
+		active_pet_frame.queue_free()
+
+	var pet: Node = load("res://Scenes/pet_minion.tscn").instantiate()
+	get_tree().current_scene.add_child(pet)
+	pet.setup(self)
+	active_pet = pet
+
+	var frame: Node = load("res://Scenes/pet_frame.tscn").instantiate()
+	get_tree().root.add_child(frame)
+	frame.set_pet(pet)
+	active_pet_frame = frame
+
+	GameLog.log_general("[color=#aa88ff]You invoke Morthan's Call — a skeleton warrior rises to fight at your side.[/color]")
 
 
 func _default_action_bar_slots() -> Array:
@@ -1106,6 +1405,20 @@ func _tick_cooldowns(delta: float) -> void:
 		_spell_cooldowns[spell_name] = maxf(_spell_cooldowns[spell_name] - delta, 0.0)
 	for skill_name in _skill_cooldowns.keys():
 		_skill_cooldowns[skill_name] = maxf(_skill_cooldowns[skill_name] - delta, 0.0)
+	for target_id in _appraisal_cooldowns.keys():
+		_appraisal_cooldowns[target_id] = maxf(_appraisal_cooldowns[target_id] - delta, 0.0)
+
+
+func _tick_active_spell_effects(_delta: float) -> void:
+	# shadow_aura: continuously debuff accuracy of nearby monsters while active
+	if combat_node.has_effect("shadow_aura"):
+		for monster in get_tree().get_nodes_in_group("monsters"):
+			if monster.get("current_state") == monster.State.DEAD:
+				continue
+			if global_position.distance_to(monster.global_position) <= 10.0:
+				var mob_cn = monster.get("combat_node")
+				if mob_cn is CombatNode:
+					mob_cn.apply_effect("shadow_aura_debuff", 1.5, {"hit_chance": -5.0})
 
 
 func _tick_skill(skill_name: String) -> void:

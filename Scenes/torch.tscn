@@ -117,9 +117,9 @@ autoplay = true
 max_distance = 10.0
 
 [node name="OmniLight3D" type="OmniLight3D" parent="." unique_id=428813840]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8486712, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6736867, -0.004883051)
 light_color = Color(0.8113769, 0.7029064, 0.19437191, 1)
-light_energy = 3.0
+light_energy = 2.5
 light_size = 3.0
 shadow_enabled = true
 distance_fade_enabled = true

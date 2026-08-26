@@ -28,7 +28,7 @@ skin = SubResource("Skin_yogew")
 surface_material_override/0 = SubResource("StandardMaterial3D_jstp3")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="MeshInstance3D" unique_id=1179376383]
-transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0, 0.40744674, -0.51864713)
+transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0, 0.40744674, -0.5339038)
 mesh = SubResource("BoxMesh_yogew")
 
 [node name="CameraRig" type="Node3D" parent="." unique_id=122413799]
@@ -36,6 +36,6 @@ transform = Transform3D(1, 0, 0, 0, 0.96592575, 0.258819, 0, -0.258819, 0.965925
 script = ExtResource("2_yogew")
 
 [node name="Camera3D" type="Camera3D" parent="CameraRig" unique_id=572376702]
-transform = Transform3D(0.99947405, 0.03159109, 0.0073286593, -0.03154466, 0.99948233, -0.006362736, -0.007525955, 0.0061282367, 0.9999531, 0, 1.1469047, 6.302548)
+transform = Transform3D(0.999474, 0.031591065, 0.0073287506, -0.032017857, 0.99715894, 0.0681846, -0.005153905, -0.068383336, 0.997646, 0, 1.320948, 1.3135955)
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=2106662325]

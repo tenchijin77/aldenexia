@@ -1,5 +1,5 @@
 ## Aldenexia: Lightfall — Game Flow & System Reference
-## Last updated: 2026-08-23
+## Last updated: 2026-08-25
 ## Purpose: Running reference for how all systems connect, for troubleshooting and onboarding.
 
 ================================================================================
@@ -283,8 +283,10 @@ Scene: Scenes/player3d.tscn (contains CameraRig → CameraController + Camera3D)
                                    Data/player_skills.json into Dicts
 6. load_player_data_from_global()— reads Global.player_data, loads inventory,
                                    applies equipment to CombatNode
-7. _spawn_hud()                  — instantiates four HUD scenes on scene root,
-                                   tags them "game_hud"
+7. _spawn_hud()                  — instantiates five HUD scenes on scene root,
+                                   tags them "game_hud" (player_frame,
+                                   target_frame, game_log_window, action_bar,
+                                   stance_bar — added 2026-08-25)
 
 --- Movement ---
   WASD / Arrow keys: move_forward, move_backward, strafe_left, strafe_right,
@@ -359,6 +361,205 @@ Scene: Scenes/player3d.tscn (contains CameraRig → CameraController + Camera3D)
     adds INT-based arcane_power.
   Logs result via CombatLogFormatter.spell_damage() → GameLog.log_combat().
   spell_casting skill ticks on every successful cast.
+
+--- Buff/Debuff Engine (CombatNode, added 2026-08-25) ---
+  active_effects Dict on CombatNode: name -> {remaining, modifiers, tick_dmg,
+    tick_interval, tick_accum}. apply_effect()/remove_effect()/has_effect()/
+    get_modifier(key) — sums a named modifier across all active effects.
+  Shared by player AND every Monster (both own a CombatNode child) — one
+  engine for self-buffs, enemy debuffs, and DoTs.
+  Hooked into: calculate_hit_chance() ("hit_chance"), get_block_chance()
+    ("block_chance"), calculate_melee_damage()/calculate_spell_damage()
+    ("damage_mult"), resolve_attack()'s BLOCK branch ("stagger_chance" —
+    extends the attacker's attack_timer via get_parent()), monster3d.gd's
+    handle_movement()/perform_attack() ("speed_slow"/"attack_speed_slow").
+  Ticks down in CombatNode._process(); expired effects removed automatically.
+
+--- Voidknight Spells 1-3 (cast_spell, added 2026-08-25, revised 2026-08-25) ---
+  life_siphon: heals caster for randf_range(0.30,0.70) of damage dealt,
+    further scaled by combat_node.get_modifier("life_drain_heal_mult")
+    (Necrotic Bastion stance) (enemy-target branch).
+  shadow_aura (display name "Aura of the Shadow"): 900s (15min) self-buff;
+    player3d._tick_active_spell_effects() applies a short refreshing accuracy
+    debuff to monsters within 10m each tick while active.
+  blood_ritual: -10% current HP instantly, +10% damage_mult for 8s.
+  necrotic_grasp: applies speed_slow+attack_speed_slow (15%, 6s) to current target.
+  shadowlight (new): self, 3600s (1hr) buff, violet-light + flavor only —
+    "reveals hidden undead" has nothing to detect against (no monster has a
+    stealth/hidden state anywhere in the codebase).
+  improved_block: now a PASSIVE, not castable — cast_spell() early-returns
+    with a "no need to cast it" message if attempted. Its +10% block_chance
+    and +5% stagger_chance apply automatically via
+    CombatNode.has_passive("improved_block") (checks owner.known_spells via
+    get_parent(), same lookup pattern as the stagger-attacker code), checked
+    in get_block_chance() and resolve_attack()'s BLOCK branch. No
+    apply_effect() call — not time-limited. Also usable by Blademaster per
+    class_level_requirements.
+  spectral_minion (display name "Morthan's Call"): see Pet System below.
+  Display names that aren't derivable from spell_name via the usual
+  replace("_"," ").capitalize() convention live in
+  Player3D.SPELL_DISPLAY_NAMES / Player3D.spell_display_name() (static),
+  used by cast_spell()'s messages and action_bar.gd's slot label.
+  All Voidknight spells now have real scroll_of_<spell_name> items in
+  items.json (previously none existed — a fresh Voidknight had no way to
+  learn any spell). Starting scrolls (character_creation.gd) are
+  scroll_of_life_siphon + scroll_of_shadow_aura (previously, a copy-paste
+  bug gave every Voidknight scroll_of_power_strike — a Blademaster spell).
+
+--- Pet System (pet_minion.gd, added 2026-08-25) ---
+  NOT a Monster subclass (monster3d.gd's state machine is hardcoded to chase/
+  attack the player). Independent CharacterBody3D, own CombatNode +
+  NavigationAgent3D, PetState enum {FOLLOW, ATTACK, STOP, SIT, GUARD}.
+  Stats from monsters.json's "skeleton" entry; max_hp = 40% of owner's max_hp.
+  Creature display name "Skeleton Warrior" (spell that summons it is
+  "Morthan's Call" — see above).
+  player3d.active_pet / active_pet_frame hold references; casting
+  spectral_minion again replaces the existing pet.
+  Command UI: pet_frame.gd, 6 buttons calling pet.cmd_attack(target)/
+  cmd_stop()/cmd_back()/cmd_follow()/cmd_sit()/cmd_guard(). Attack targets
+  player.current_target. Guard scans "monsters" group every ~1s for any
+  Monster in State.ATTACK within 8m of the owner (since monsters only ever
+  target the player, being in ATTACK state near the owner already means
+  "attacking the owner" — no separate aggro-target field needed).
+  Pet kills call the target Monster's own die() directly (same pattern as
+  player3d.attack_current_target()), so XP/loot award normally, no special-casing.
+  UPDATE 2026-08-25: the pet CAN now take real damage and die — once the
+  aggro table (see Aggro / Threat System below) exists, a monster's
+  get_current_target() can resolve to the pet if it has more threat than the
+  player, and perform_attack() will actually call the pet's apply_damage().
+  Also inherits the current empty-navmesh straight-line movement limitation
+  (see NavigationRegion3D note under 3D LEVEL COLLISION PIPELINE).
+
+--- Stance Bar (stance_bar.gd, added 2026-08-25, stances revised 2026-08-25) ---
+  Data/class_stances.json: {class_name: [{stance_id, name, description,
+  modifiers}]}. Voidknight has 3: Shadow Ascendant (damage_mult 0.15,
+  block_chance -10, threat_mult -0.35), Necrotic Bastion (damage_mult -0.10,
+  block_chance 15, life_drain_heal_mult 0.25), Dusk Walker (damage_mult 0.07,
+  block_chance 7) — mutually exclusive. stance_bar.gd queue_free()s itself in
+  _ready() if the player's class has no entries — so it's simply absent for
+  other classes, not just hidden; the UI loop is generic over however many
+  stances a class has, no code change needed to go from 2→3. Toggling a
+  stance calls combat_node.apply_effect("stance_" + id, INF, modifiers) /
+  remove_effect() — reuses the buff/debuff engine above with an infinite
+  duration (only cleared by switching/untoggling). player3d.current_stance
+  tracks the active one. UI built in code (same pattern as action_bar.gd),
+  positioned directly above the action bar via ActionBar's own
+  SLOT_SIZE/SLOT_COUNT/SLOT_GAP consts, indented right 60px.
+  threat_mult is hooked into CombatNode.generate_threat(), consumed by the
+  aggro table below — it now actually changes monster targeting behavior.
+
+--- Aggro / Threat System (monster3d.gd, added 2026-08-25) ---
+  Monster.aggro_table: Dictionary (attacker Node -> accumulated threat
+  float). add_threat(attacker, amount) accumulates; get_current_target()
+  returns whoever has the highest threat, falling back to `player` if the
+  table is empty. state_chase()/state_attack()/perform_attack() all target
+  get_current_target() instead of the hardcoded `player`.
+  Initial engagement is UNCHANGED — can_see_player() (proximity + behavior_type
+  divisor) still decides whether a monster notices the player and starts
+  fighting at all. The aggro table only decides who it keeps attacking once
+  already in combat — that's the decision threat_mult needed to influence,
+  and proximity-based initial aggro didn't need to change to make that work.
+  Threat is generated at every player/pet damage/heal call site:
+  player3d.attack_current_target(), player3d.cast_spell()'s enemy branch
+  (life_siphon's self-heal also adds threat via generate_threat(0, healed) —
+  this is what makes Necrotic Bastion's "+25% Life Drain healing... maintains
+  threat generation through healing" actually keep aggro on the Voidknight),
+  and pet_minion._perform_attack(). Each calls attacker.combat_node
+  .generate_threat(damage[, healing]) then target.add_threat(attacker, that
+  value) — generate_threat() already applies the attacker's own
+  combat_node.get_modifier("threat_mult"), so a Shadow Ascendant Voidknight
+  generates 35% less threat per hit, and if a pet is also fighting the same
+  monster, the pet (no stance, full threat) will out-aggro the player and
+  draw the attack instead.
+  aggro_table.clear()s when a monster leashes out of CHASE back to PATROL,
+  so stale threat doesn't carry into the next fight.
+  Guards are deliberately never part of this — monster3d.gd still has no way
+  to target a guard at all (see Guard NPC below), so add_threat() is never
+  called for guard attacks and guards never appear in any aggro_table.
+  perform_attack() picks between the existing CombatLogFormatter
+  .monster_attack() "hits you" messages (only when the resolved target is
+  actually the player) and a new third-person _log_attack_on_other() for
+  anything else (e.g. "Skeleton hits Skeleton Warrior for 12 damage!").
+
+--- Guard NPC (guard_npc.gd, added 2026-08-25, combat added 2026-08-25) ---
+  First live 3D NPC in the project — see the dead-2D-code note under
+  game_log_window.gd above. CharacterBody3D, group "npc_guard", no
+  facing-direction check (proximity only, ~5m via player3d.HAIL_RANGE for
+  hail; separately, 4m via guard's own home_position for combat — see below).
+  respond_to_hail() picks a random line from Data/guard_flavor_text.json.
+  Two instances in lumora_outskirts3d.tscn at the existing "Left Guard"/
+  "Right Guard" statue locations ("Lumora Guard", "Lumora Sentry").
+  Targetable (Tab/click) as of 2026-08-25: player3d.gd's
+  tab_cycle_target()/_try_click_target() include group "npc_guard" alongside
+  "monsters", via a type-agnostic _is_targetable_alive() check (GuardNPC has
+  no current_state/State.DEAD, so it's just always "alive"). Has a top-level
+  `level` var (mirrors Monster's pattern) so the target frame/appraisal show
+  its real level. Always faction_status()=="Ally" — attack_current_target(),
+  cast_spell()'s enemy branch, and perform_melee_attack() all refuse to
+  target Allies, since GuardNPC has no death handling at all (no die()
+  override) and would otherwise just silently absorb damage into a dead end.
+  Combat: own CombatNode, stats from a new "lumora_guard" entry in
+  monsters.json, own NavigationAgent3D. GuardState enum {IDLE, ENGAGE}. Scans
+  "monsters" group every ~1s for the nearest non-dead monster within 4m of
+  home_position (the guard's placed transform, captured in _ready()); chases
+  to melee range and calls combat_node.resolve_attack() on its own cooldown
+  (same pattern as pet_minion.gd's attack loop). Disengages and returns home
+  if the target dies/despawns or strays past a 6m leash from home_position.
+  One-directional: monsters never retaliate (monster3d.gd's state machine
+  only ever targets the player — same limitation as the pet above), so
+  guards are effectively invulnerable. Kills call target.die(false, false) —
+  no XP, no loot, immediate queue_free() instead of the normal 60s lootable-
+  corpse window (see Monster.die() below).
+
+--- Monster.die() quiet-kill params (monster3d.gd, added 2026-08-25) ---
+  die(award_xp: bool = true, drop_loot: bool = true). Both default true, so
+  every existing call site (player3d.attack_current_target(),
+  pet_minion._perform_attack()) is unaffected. drop_loot=false skips
+  roll_loot()/is_lootable and queue_free()s immediately instead of waiting
+  60s for the lootable-corpse timeout. award_xp=false skips the whole
+  XP-grant/level-up block. Used by guard_npc.gd for quiet kills (see above).
+
+--- Mob Appraisal System (player3d.gd, target_frame.gd, added 2026-08-25) ---
+  Automatic info (target_frame.gd, shown the instant something is targeted,
+  no roll needed): name + level are both con-colored via the existing
+  7-tier _con_color() (Red/Orange/Yellow/White/Blue/Green/Grey by level
+  difference) — deliberately reused as-is rather than adding a second color
+  scheme. Boss mobs (is_boss) always show Red regardless of level. New
+  faction_label shows Ally/Neutral/Enemy, colored Blue/White/Red — derived
+  from TargetFrame.faction_status() (static, reusable): group "npc_guard" →
+  Ally, behavior_type=="passive" → Neutral, everything else in "monsters" →
+  Enemy. (behavior_type does NOT indicate friendliness in general — "skitter"
+  is used by both the friendly lumora_outrider.gd and ordinary hostile zone
+  critters, it's a movement style — this mapping only uses the "passive"
+  value, which genuinely does mean "won't aggro readily.")
+  Insight Check (new, active): player3d.try_appraise_target(), bound to the
+  "appraise" input action (I key) and the "/appraise" chat command. Requires
+  current_target. 10s cooldown tracked per-target-instance-ID in
+  player3d._appraisal_cooldowns. Roll: randi_range(1,20) +
+  maxi(int_mod, wis_mod) vs a DC from _appraisal_tier(level_diff) — 5+
+  below→DC5/"Trivial", 2-4 below→DC10/"Easy", ±1→DC15/"Moderate", 2-4
+  above→DC20/"Hard", 5+ above→DC25/"Deadly". Ability modifier is
+  int(floor((stat-10)/2.0)) — standard D&D-style math, decoupled entirely
+  from the display color above (a monster's DC/flavor-text tier and its
+  nameplate color are independently computed from the same level-diff
+  number, on purpose — see change_log.txt Session 22 for why). This is a new
+  d20-based roll paradigm, self-contained to this one feature; everything
+  else in combat is percentile (randi() % 100).
+  Nat 1: TargetFrame.show_wrong_color(30.0) + misleading text. Fail (and
+  didn't hit DC): show_wrong_color(10.0) + generic "sense nothing unusual."
+  Success: multi-line GameLog.log_general() reveal — flavor text
+  (APPRAISAL_TEXTS bank per tier), faction prefix/suffix
+  (APPRAISAL_FACTION_TEXT), estimated threat, resistances/weaknesses (new
+  monsters.json display-only fields, NOT wired into modify_damage() which
+  stays hardcoded per-subclass e.g. skeleton3d.gd — populated for skeleton
+  only so far, matching its real modifiers), special_ability, a loot-quality
+  estimate (heuristic from target level: <5 Common, 5-9 Uncommon, 10-14
+  Rare, 15+ Epic — no new per-item rarity data), and exact faction
+  reputation (monster's "faction" field, aliased via
+  player3d.FACTION_STANDING_ALIASES {"Lumora":"Villagers of Lumora"} where
+  possible, else "Unaligned"; standing→label thresholds calibrated to this
+  game's actual -10..50 range, not a generic MMO scale). Nat 20 adds one
+  extra line from an optional secret_note field.
 
 --- Skill System ---
   skill_levels Dict loaded from player_data["skill_levels"] on game load.
@@ -602,10 +803,14 @@ game_log_window.tscn / game_log_window.gd
     existing log traffic (combat, quests, system messages), not just chat.
   - LineEdit at the bottom of the panel (added 2026-08-23) — was output-only
     before. Enter submits: text starting with "/" routes to
-    _handle_slash_command() (currently: "/loc" prints player X/Y/Z to General
-    tab); anything else posts as "You say, '...'" to General tab.
-    (The NPC dialogue chat_window.gd has its own separate "/loc" handler too —
-    same command, different input box, since that's where it was first asked for.)
+    _handle_slash_command() (currently: "/loc" prints player X/Y/Z, "/time"
+    prints in-game date/day-night phase + real time, "/hail" hails the
+    nearest guard NPC — added 2026-08-25, same as pressing H); anything else
+    posts as "You say, '...'" to General tab.
+    (chat_window.gd, npc.gd, and dialogue_manager.gd are dead 2D-era code —
+    only reachable from Scenes/main.tscn, which main_menu.tscn's flow never
+    loads. Any hail/dialogue/chat feature belongs in game_log_window.gd and
+    player3d.gd, not those files. See guard_npc.gd below for the real 3D NPC.)
   - Red flashing dot (⬤) top-right: visible when autoattack is ON,
     animated by Tween, driven by GameLog.autoattack_changed.
   - Draggable via "Chat" title bar; position saved to Global.player_data
@@ -615,6 +820,23 @@ game_log_window.tscn / game_log_window.gd
   - Right-click title bar → PopupMenu with font sizes: 10 11 12 13 14 16 18.
     Active size check-marked; selection applies instantly to both log tabs.
     Font size persisted to ui_positions["chat_font_size"].
+  - Detachable Combat log (added 2026-08-25): "Detach" button in the Combat tab
+    calls _detach_combat(), which reparents the actual CombatLog
+    RichTextLabel node (Node.reparent(), not a text copy — history/formatting
+    carry over) into a second independent CanvasLayer window built in code
+    (_build_combat_window()), and removes the "Combat" Control from the
+    TabContainer (tabs.remove_child(combat_tab)) so only "General" remains.
+    The detached window has its own drag bar / resize handle / right-click
+    font menu (same _show_font_menu() PopupMenu, shared with the main
+    window). "Reattach" button in its title bar calls _reattach_combat(), which
+    reparents CombatLog back into combat_tab and re-adds combat_tab to
+    tabs (TabContainer derives the tab title from the Control's node name,
+    "Combat", so it reappears correctly with no extra bookkeeping).
+    _on_combat() itself never changed — it always appends to the same
+    `combat_log` node reference regardless of which window currently holds
+    it. Detached state + the detached window's position persist to
+    ui_positions["chat_combat_detached"] / ["chat_combat"], restored via
+    call_deferred("_detach_combat") in _ready() if it was detached last session.
 
 action_bar.tscn / action_bar.gd
   - CanvasLayer, 12 slots (keys 1–9, 0, -, =), built entirely in _ready().
@@ -767,7 +989,11 @@ DATA FILES (res://Data/)
 monsters.json           — all monster stats: health, speed, damage, armor_class,
                           level, aggro_range, behavior_type, xp_gain,
                           coin_modifier, is_social, faction, category,
-                          description, animations
+                          description, animations. Also includes
+                          "lumora_guard" (guard_npc.gd's combat stats, added
+                          2026-08-25) and optional appraisal-only fields
+                          (resistances, weaknesses, special_ability, is_boss,
+                          secret_note, corruption — see Mob Appraisal System)
 items.json              — all item definitions: name, type, slot, damage,
                           armor_class, stackable, bag_size, icon, etc.
                           Scroll items have type="scroll" and teaches_spell field.
@@ -790,9 +1016,14 @@ lumora_outskirts_spawns.json — 3D spawn point definitions used by mob_spawner3
                           (10 entries: rat×2, snake×2, slime×2, spider×2,
                           skeleton, bandit; real [x,y,z] coords with Y=2)
 *_spawns.json           — 2D spawn definitions (legacy, not used in 3D zone)
-dialogue_*.json         — NPC dialogue trees per town/zone
+dialogue_*.json         — NPC dialogue trees per town/zone (not currently
+                          loaded by any live script — see dead-2D-code note
+                          under game_log_window.gd above)
 factions.json           — world faction definitions
 deities.json            — world deity definitions
+class_stances.json      — per-class stance lists (stance_id, name, description,
+                          modifiers); only Voidknight populated (added 2026-08-25)
+guard_flavor_text.json  — flat array of guard NPC hail response lines (added 2026-08-25)
 
 
 ================================================================================
@@ -836,11 +1067,30 @@ Monster kill → XP → level up:
     → player.on_level_up() → CombatNode synced, HP/Mana restored to full
 
 Spell learned from scroll:
-  slot_button._on_learn_pressed()
-    → player.known_spells.append(spell_id)
-    → Inventory removes scroll
+  slot_button._learn_from_scroll()
+    → player.known_spells.append(spell_name)
+    → Inventory.remove_from_basic_inventory()/remove_from_bag() removes scroll
+      (now also emits inventory_changed so backpack_ui repaints immediately —
+      fixed 2026-08-25; previously the scroll stayed visually in the backpack
+      until an unrelated inventory action forced a redraw)
     → Global.save_player_data_to_file()
     → abilities_book refreshed if open
+
+Hailing a guard NPC (H key or "/hail", added 2026-08-25):
+  player3d.try_hail_nearby_npc() finds nearest "npc_guard" group member within 5m
+    → guard_npc.respond_to_hail()
+    → GameLog.log_general() with a random Data/guard_flavor_text.json line
+
+Summoning/commanding the spectral minion pet (added 2026-08-25):
+  player3d.cast_spell("spectral_minion") → _summon_spectral_minion()
+    → frees any existing active_pet/active_pet_frame, instances pet_minion.tscn
+      + pet_frame.tscn, pet.setup(player)
+  pet_frame.gd buttons → pet.cmd_attack()/cmd_stop()/cmd_back()/cmd_follow()/
+    cmd_sit()/cmd_guard() → sets pet.command, drives pet_minion._physics_process()
+
+Toggling a stance (added 2026-08-25):
+  stance_bar.gd slot click → combat_node.apply_effect("stance_"+id, INF, modifiers)
+    (or remove_effect() if toggling off / switching) → player3d.current_stance updated
 
 
 ================================================================================

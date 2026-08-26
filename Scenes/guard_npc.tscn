@@ -1,0 +1,35 @@
+[gd_scene format=3 uid="uid://bqefds74sifgt"]
+
+[ext_resource type="Script" uid="uid://c5ppenhisq11q" path="res://Scripts/guard_npc.gd" id="1_guard01"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_guard01"]
+radius = 0.4
+height = 1.9
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_guard01"]
+radius = 0.4
+height = 1.9
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_guard01"]
+albedo_color = Color(0.3, 0.35, 0.45, 1)
+
+[node name="GuardNPC" type="CharacterBody3D" unique_id=1928338450 groups=["npc_guard"]]
+script = ExtResource("1_guard01")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1102588072]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+shape = SubResource("CapsuleShape3D_guard01")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=753948823]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+mesh = SubResource("CapsuleMesh_guard01")
+surface_material_override/0 = SubResource("StandardMaterial3D_guard01")
+
+[node name="NameLabel" type="Label3D" parent="." unique_id=2050523738]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.4, 0)
+billboard = 1
+no_depth_test = true
+text = "Lumora Guard"
+outline_size = 6
+
+[node name="NavigationAgent3D" type="NavigationAgent3D" parent="." unique_id=771027496]

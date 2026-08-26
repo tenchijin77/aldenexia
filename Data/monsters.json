@@ -439,6 +439,38 @@
       "idle": "skeleton_idle",
       "walk": "skeleton_walk",
       "attack": "skeleton_attack"
+    },
+    "resistances": [
+      "piercing"
+    ],
+    "weaknesses": [
+      "blunt",
+      "fire"
+    ],
+    "special_ability": "",
+    "is_boss": false,
+    "secret_note": "",
+    "corruption": ""
+  },
+  "lumora_guard": {
+    "description": "a Lumora guard",
+    "speed": 30.0,
+    "health": 200,
+    "damage": 25,
+    "behavior_type": "aggressive",
+    "category": "humanoid",
+    "faction": "None",
+    "coin_modifier": 0.0,
+    "xp_gain": 0,
+    "zone": "lumora_outskirts",
+    "armor_class": 25,
+    "is_social": false,
+    "level": 8,
+    "aggro_range": 40.0,
+    "animations": {
+      "idle": "",
+      "walk": "",
+      "attack": ""
     }
   }
 }

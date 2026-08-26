@@ -1,0 +1,22 @@
+{
+  "Voidknight": [
+    {
+      "stance_id": "shadow_ascendant",
+      "name": "Shadow Ascendant",
+      "description": "+15% damage, -10% block chance, -35% threat generation. DPS or solo play; not recommended for group tanking.",
+      "modifiers": { "damage_mult": 0.15, "block_chance": -10.0, "threat_mult": -0.35 }
+    },
+    {
+      "stance_id": "necrotic_bastion",
+      "name": "Necrotic Bastion",
+      "description": "+15% block chance, -10% damage, +25% Life Drain healing. Offsets the damage loss with life steal and maintains threat through healing — ideal for group tanking.",
+      "modifiers": { "damage_mult": -0.10, "block_chance": 15.0, "life_drain_heal_mult": 0.25 }
+    },
+    {
+      "stance_id": "dusk_walker",
+      "name": "Dusk Walker",
+      "description": "+7% damage, +7% block chance. Flexible for mixed scenarios, solo or group content.",
+      "modifiers": { "damage_mult": 0.07, "block_chance": 7.0 }
+    }
+  ]
+}

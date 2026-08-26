@@ -2,7 +2,7 @@
     {
         "spell_id": 1,
         "spell_name": "life_siphon",
-        "description": "Life Siphon deals 50 necrotic damage, heals self for 50% damage dealt.",
+        "description": "Life Siphon deals 50 necrotic damage, heals self for 30-70% of damage dealt (randomized).",
         "caster_proficiency": "intelligence",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -28,7 +28,7 @@
     {
         "spell_id": 2,
         "spell_name": "shadow_aura",
-        "description": "Reduces enemy accuracy by 5% in 10m.",
+        "description": "Reduces enemy accuracy by 5% in 10m radius. Duration: 15 minutes.",
         "caster_proficiency": "intelligence",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -37,7 +37,7 @@
         "damage": 0,
         "target": "self",
         "range": "15m",
-        "duration": 5,
+        "duration": 900,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
@@ -14381,5 +14381,31 @@
         "effect_type": "dot",
         "channel": true,
         "tick_interval": 1.0
+    },
+    {
+        "spell_id": 557,
+        "spell_name": "shadowlight",
+        "description": "Creates a dim violet light on your weapon or hand. Duration: 1 hour.",
+        "caster_proficiency": "intelligence",
+        "mana_cost": 15.0,
+        "recast_time": 5.0,
+        "level": 2,
+        "spell_school": "physical",
+        "damage": 0,
+        "target": "self",
+        "range": "15m",
+        "duration": 3600,
+        "casting_time": 1.0,
+        "failure_rate": 0.0,
+        "location": "all",
+        "blockable": false,
+        "dispellable": true,
+        "spell_type": "utility",
+        "interruptable": false,
+        "class_level_requirements": {
+            "Voidknight": 2
+        },
+        "effect_type": "light",
+        "channel": false
     }
 ]

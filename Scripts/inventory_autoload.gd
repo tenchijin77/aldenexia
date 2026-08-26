@@ -172,6 +172,7 @@ func remove_from_basic_inventory(slot_index: int) -> Dictionary:
 		bag_contents.erase(str(slot_index))
 
 	sync_to_global()
+	inventory_changed.emit()
 	return item if item != null else {}
 
 func get_basic_inventory_slot(slot_index: int) -> Dictionary:
@@ -235,6 +236,7 @@ func remove_from_bag(bag_slot_index: int, item_index: int) -> Dictionary:
 	bag_items.remove_at(item_index)
 
 	sync_to_global()
+	inventory_changed.emit()
 	return item
 
 func get_bag_contents(bag_slot_index: int) -> Array:
