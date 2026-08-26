@@ -81,6 +81,10 @@ completed:
 
 -made the combat log detachable into its own window so it can sit next to general chat
 
+-fixed guards not being targetable, and made the detach/reattach log buttons clearly labeled
+
+-added archery target and bone spear models to lumora outskirts
+
 
 to do: (in order of importance)
 
