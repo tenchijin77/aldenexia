@@ -452,6 +452,48 @@
     "secret_note": "",
     "corruption": ""
   },
+  "goblin": {
+    "description": "a snarling camp goblin",
+    "speed": 32.0,
+    "health": 55,
+    "damage": 8,
+    "behavior_type": "aggressive",
+    "category": "humanoid",
+    "faction": "Goblin",
+    "coin_modifier": 0.3,
+    "xp_gain": 15,
+    "zone": "lumora_outskirts",
+    "armor_class": 11,
+    "is_social": true,
+    "level": 2,
+    "aggro_range": 150.0,
+    "animations": {
+      "idle": "",
+      "walk": "",
+      "attack": ""
+    }
+  },
+  "bat": {
+    "description": "a screeching cave bat",
+    "speed": 45.0,
+    "health": 15,
+    "damage": 3,
+    "behavior_type": "skitter",
+    "category": "animal",
+    "faction": "None",
+    "coin_modifier": 0.05,
+    "xp_gain": 4,
+    "zone": "lumora_outskirts",
+    "armor_class": 10,
+    "is_social": false,
+    "level": 1,
+    "aggro_range": 80.0,
+    "animations": {
+      "idle": "bat_idle",
+      "walk": "bat_walk",
+      "attack": "bat_attack"
+    }
+  },
   "lumora_guard": {
     "description": "a Lumora guard",
     "speed": 30.0,

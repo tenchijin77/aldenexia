@@ -252,6 +252,59 @@ func grant_currency(field: String, amount: int) -> void:
 	player_data[field] = player_data.get(field, 0) + amount
 	currency_changed.emit()
 
+# ── Denomination-aware currency helpers (vendor buy/sell) ──────────────────
+# Currency is stored as 4 independent counters (copper/silver/gold/platinum).
+# These treat that as one pool of copper-equivalent wealth — spending/adding
+# collapses to a single total and re-mints it back into denominations greedily
+# from platinum down, rather than requiring exact change in a specific coin.
+const COPPER_PER_SILVER := 10
+const COPPER_PER_GOLD := 100
+const COPPER_PER_PLATINUM := 1000
+
+func get_total_copper() -> int:
+	return player_data.get("copper", 0) \
+		+ player_data.get("silver", 0) * COPPER_PER_SILVER \
+		+ player_data.get("gold", 0) * COPPER_PER_GOLD \
+		+ player_data.get("platinum", 0) * COPPER_PER_PLATINUM
+
+func _set_total_copper(total: int) -> void:
+	total = maxi(total, 0)
+	player_data["platinum"] = total / COPPER_PER_PLATINUM
+	total %= COPPER_PER_PLATINUM
+	player_data["gold"] = total / COPPER_PER_GOLD
+	total %= COPPER_PER_GOLD
+	player_data["silver"] = total / COPPER_PER_SILVER
+	total %= COPPER_PER_SILVER
+	player_data["copper"] = total
+	currency_changed.emit()
+
+func can_afford(copper_cost: int) -> bool:
+	return get_total_copper() >= copper_cost
+
+func spend_currency_copper(copper_cost: int) -> bool:
+	var total := get_total_copper()
+	if total < copper_cost:
+		return false
+	_set_total_copper(total - copper_cost)
+	save_player_data_to_file()
+	return true
+
+func add_currency_copper(copper_amount: int) -> void:
+	_set_total_copper(get_total_copper() + copper_amount)
+	save_player_data_to_file()
+
+# An item's "value" is denominated in whatever "currency_type" it declares
+# (almost always copper; a handful of higher-tier trophy items are authored
+# in silver to keep their value numbers small/readable) — this normalizes
+# either to a flat copper amount for pricing.
+func item_value_in_copper(item_def: Dictionary) -> int:
+	var value: int = item_def.get("value", 0)
+	match item_def.get("currency_type", "copper"):
+		"silver":   return value * COPPER_PER_SILVER
+		"gold":     return value * COPPER_PER_GOLD
+		"platinum": return value * COPPER_PER_PLATINUM
+		_:          return value
+
 # ── Loot preferences (advanced-loot style "always loot/ignore/sell this item") ──
 # Keyed by item_id, one of "loot" / "ignore" / "sell", or unset for "always ask"
 # (i.e. show it in the loot window). Set from corpse_loot_window.gd's checkboxes,

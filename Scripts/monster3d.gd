@@ -235,22 +235,38 @@ func _configure_combat_node() -> void:
 	combat_node.level = level
 	combat_node.weapon_damage = damage
 
-	# Zero base stats so gear values fully control AC, ATK, and HP.
-	combat_node.strength     = 0
-	combat_node.constitution = 0
-	combat_node.dexterity    = 0
-	combat_node.intelligence = 0
-	combat_node.wisdom       = 0
-	combat_node.charisma     = 0
-	combat_node.luck         = 0
+	# Real, level-scaled secondary stats — NOT flatly zeroed. Balance pass,
+	# 2026-09-14: every base stat used to be 0, with only gear_atk/gear_ac/
+	# gear_hp (flat, level-derived) controlling combat. Since melee damage
+	# comes from weapon_damage + STR/2, hit chance from weapon_skill*2 + STR
+	# + DEX/2 + gear_atk, and magic resistance from CON/2 + WIS/2, zeroing
+	# every stat silently collapsed monster accuracy AND zeroed their magic
+	# resistance entirely (confirmed: every monster had exactly 0% arcane
+	# resist) — which is why a single Life Siphon (~70 flat damage) could
+	# one-shot a rat (20 HP) five times over and take a bandit (80 HP) to
+	# 12% remaining, fully unresisted, while monsters barely hit the player
+	# back (e.g. a level-3 bandit: 41% hit chance for 6% of player HP).
+	var stat_scale: int = 8 + level * 3
+	combat_node.strength     = stat_scale
+	combat_node.constitution = stat_scale
+	combat_node.dexterity    = stat_scale
+	combat_node.intelligence = 5
+	combat_node.wisdom       = 5
+	combat_node.charisma     = 5
+	combat_node.luck         = 5
 
-	# get_ac() = 10 + gear_ac + dex/2 → with dex=0: gear_ac = armor_class - 10
+	# get_ac() = 10 + gear_ac + dex/2 + class_ac_bonus(0, monsters have no class)
 	combat_node.gear_ac = armor_class - 10
 
-	# max_hp = 50 + con*10 + gear_hp → with con=0: gear_hp = max_health - 50
-	combat_node.gear_hp = max_health - 50
+	# max_hp = 50 + con*10 + gear_hp — compensate so the JSON's hand-tuned
+	# max_health stays the authoritative number despite constitution no
+	# longer being 0 (don't want stats to silently inflate per-mob HP pools
+	# on top of what's already been balanced there).
+	combat_node.gear_hp = max_health - 50 - combat_node.constitution * 10
 
-	# ATK scaled by level for reasonable hit rates vs the player.
+	# ATK scaled by level for reasonable hit rates vs the player. Left at its
+	# original, more modest formula — the strength/dexterity contributions
+	# above now do most of the scaling work themselves.
 	# hit_chance = (atk - target_ac) + level_modifier + rand(0-20), clamped 5-95
 	combat_node.gear_atk = 15 + level * 5
 

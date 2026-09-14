@@ -61,6 +61,17 @@ func _learn_from_scroll() -> void:
 			node.set_player(player)
 			break
 
+func _consume_item() -> void:
+	var players := get_tree().get_nodes_in_group("player")
+	if players.is_empty():
+		return
+	var player := players[0]
+	if not player.has_method("consume_food_or_drink"):
+		return
+	player.consume_food_or_drink(item_data)
+	Inventory.consume_one(slot_type, slot_index, bag_slot, item_index)
+
+
 func _show_inspect_popup() -> void:
 	var root = get_tree().root
 	var existing = root.get_node_or_null("ItemInspectLayer")
@@ -153,6 +164,16 @@ func _show_inspect_popup() -> void:
 			_learn_from_scroll()
 		)
 		btn_row.add_child(learn_btn)
+
+	# Eat/Drink button (food/drink items only — see consume_food_or_drink())
+	if item_data.get("type") in ["food", "drink"]:
+		var consume_btn := Button.new()
+		consume_btn.text = "Eat" if item_data.get("type") == "food" else "Drink"
+		consume_btn.pressed.connect(func():
+			layer.queue_free()
+			_consume_item()
+		)
+		btn_row.add_child(consume_btn)
 
 	# Close button
 	var close_btn := Button.new()

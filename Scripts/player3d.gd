@@ -120,7 +120,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed:
 		match event.button_index:
 			MOUSE_BUTTON_RIGHT:
-				_try_loot_corpse()
+				_try_open_shop_or_loot()
 			MOUSE_BUTTON_LEFT:
 				if Input.mouse_mode == Input.MOUSE_MODE_VISIBLE:
 					_try_click_target(event.position)
@@ -160,6 +160,42 @@ func _toggle_pause_menu() -> void:
 	)
 	get_tree().root.add_child(_pause_menu_instance)
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+
+const SHOP_RANGE := 5.0
+var _shop_window_instance: Node = null
+
+# Right-click: opens a nearby vendor's shop if one's in range, otherwise falls
+# through to the existing loot-corpse behavior — range-based (like hail)
+# rather than a raycast under the cursor, since it needs to work the same way
+# regardless of mouse mode (captured while mouselooking, visible otherwise).
+func _try_open_shop_or_loot() -> void:
+	var vendor := _find_nearby_vendor()
+	if vendor:
+		_open_shop(vendor)
+	else:
+		_try_loot_corpse()
+
+
+func _find_nearby_vendor() -> Node:
+	var nearest: Node = null
+	var nearest_dist := SHOP_RANGE
+	for node in get_tree().get_nodes_in_group("npc_vendor"):
+		if not is_instance_valid(node):
+			continue
+		var dist := global_position.distance_to(node.global_position)
+		if dist < nearest_dist:
+			nearest_dist = dist
+			nearest = node
+	return nearest
+
+
+func _open_shop(vendor: Node) -> void:
+	if is_instance_valid(_shop_window_instance):
+		_shop_window_instance.queue_free()
+	_shop_window_instance = load("res://Scenes/shop_window.tscn").instantiate()
+	get_tree().root.add_child(_shop_window_instance)
+	_shop_window_instance.setup(vendor)
+
 
 func _try_loot_corpse() -> void:
 	var nearest: Monster = null
@@ -564,7 +600,10 @@ func _process(delta: float) -> void:
 	if regen_timer >= REGEN_INTERVAL:
 		regen_timer = 0.0
 
-		if combat_node.current_hp < combat_node.max_hp:
+		# satiety <= 0 halts HP regen entirely (not just a reduction) — see
+		# update_vitals_decay() below. Below 25 but still >0 is just a graduated
+		# warning-zone penalty, same as before.
+		if combat_node.current_hp < combat_node.max_hp and satiety > 0:
 			var regen_h: int = combat_node.get_derived_stat("hp_regen") + regen_bonus + int(combat_node.get_modifier("hp_regen_bonus"))
 			if is_sitting:
 				regen_h = int(regen_h * 3.0)
@@ -572,7 +611,8 @@ func _process(delta: float) -> void:
 				regen_h = int(regen_h * 0.8)
 			combat_node.current_hp = mini(combat_node.current_hp + regen_h, combat_node.max_hp)
 
-		if combat_node.current_mana < combat_node.max_mana:
+		# thirst <= 0 halts mana regen entirely — mirrors the satiety/HP rule above.
+		if combat_node.current_mana < combat_node.max_mana and thirst > 0:
 			var regen_m: int = combat_node.get_derived_stat("mana_regen") + int(combat_node.get_modifier("mana_regen_bonus"))
 			if is_sitting:
 				regen_m = int(regen_m * 3.0)
@@ -587,6 +627,21 @@ func _process(delta: float) -> void:
 #endregion
 
 #region Vitals decay system
+# Satiety/thirst decay slowly over real time (satiety: ~100 real minutes to
+# fully drain from 100; thirst: ~50, roughly twice as fast — matches EQ's
+# "water more often than food" convention) and gate regeneration rather than
+# dealing chip damage: satiety<=0 halts HP (and movement stamina, see
+# update_stamina()) regen entirely, thirst<=0 halts mana regen entirely (see
+# the regen block in _process() above). Eating/drinking (consume_food_or_drink,
+# triggered from the inventory's right-click "Eat"/"Drink" button) restores
+# them; a "Well Fed" buff (_update_well_fed_buff) gives a small regen bonus
+# and visible buff-bar feedback while both stay topped up.
+# Edge-triggered warning state, one stage per vital: "" (fine) -> "low"
+# (<25, warned once) -> "empty" (<=0, warned once). Reset back to "" once the
+# vital climbs back above the low threshold, so a future drop warns again.
+var _hunger_warn_stage: String = ""
+var _thirst_warn_stage: String = ""
+
 func update_vitals_decay(delta: float) -> void:
 	satiety_timer += delta
 	thirst_timer += delta
@@ -594,32 +649,28 @@ func update_vitals_decay(delta: float) -> void:
 	if satiety_timer >= DECAY_INTERVAL:
 		satiety_timer = 0.0
 		satiety = max(satiety - int(SATIETY_DECAY_RATE), 0)
-		if satiety <= 0:
-			apply_starvation_damage()
-		elif satiety < 25:
-			print("🍖 Warning: Getting hungry! (%d/100)" % satiety)
+		if satiety <= 0 and _hunger_warn_stage != "empty":
+			_hunger_warn_stage = "empty"
+			GameLog.log_general("[color=#ff8866]You are famished. Your health will no longer recover until you eat something.[/color]")
+		elif satiety > 0 and satiety < 25 and _hunger_warn_stage == "":
+			_hunger_warn_stage = "low"
+			GameLog.log_general("[color=#ffaa66]Your stomach growls. You should find something to eat soon.[/color]")
+		elif satiety >= 25:
+			_hunger_warn_stage = ""
 
 	if thirst_timer >= DECAY_INTERVAL:
 		thirst_timer = 0.0
 		thirst = max(thirst - int(THIRST_DECAY_RATE), 0)
-		if thirst <= 0:
-			apply_dehydration_damage()
-		elif thirst < 25:
-			print("💧 Warning: Getting thirsty! (%d/100)" % thirst)
+		if thirst <= 0 and _thirst_warn_stage != "empty":
+			_thirst_warn_stage = "empty"
+			GameLog.log_general("[color=#66aaff]You are parched. Your mana will no longer recover until you drink something.[/color]")
+		elif thirst > 0 and thirst < 25 and _thirst_warn_stage == "":
+			_thirst_warn_stage = "low"
+			GameLog.log_general("[color=#88ccff]Your throat is dry. You should find something to drink soon.[/color]")
+		elif thirst >= 25:
+			_thirst_warn_stage = ""
 
-
-func apply_starvation_damage() -> void:
-	var dmg: int = max(1, int(combat_node.max_hp * 0.01))
-	combat_node.take_damage(dmg)
-	combat_node.current_hp = max(combat_node.current_hp, 1)  # starvation can't kill
-	print("💀 STARVING! Taking %d damage." % dmg)
-
-
-func apply_dehydration_damage() -> void:
-	var dmg: int = max(1, int(combat_node.max_hp * 0.02))
-	combat_node.take_damage(dmg)
-	combat_node.current_hp = max(combat_node.current_hp, 1)  # dehydration can't kill
-	print("💀 DEHYDRATED! Taking %d damage." % dmg)
+	_update_well_fed_buff()
 
 
 func get_stat_penalty() -> float:
@@ -629,6 +680,43 @@ func get_stat_penalty() -> float:
 	if thirst < 25:
 		penalty *= 0.90
 	return penalty
+
+
+const WELL_FED_THRESHOLD := 75
+const WELL_FED_MODIFIERS := {
+	"hp_regen_bonus": 2,
+	"mana_regen_bonus": 2,
+	"stamina_regen_bonus": 2,
+}
+
+# Re-evaluated every vitals tick rather than run on a fixed timer — toggles on
+# the moment satiety/thirst are both topped back up (usually right after
+# eating/drinking) and falls off on its own once either drops back below the
+# threshold, no separate expiry bookkeeping needed.
+func _update_well_fed_buff() -> void:
+	if satiety >= WELL_FED_THRESHOLD and thirst >= WELL_FED_THRESHOLD:
+		if not combat_node.has_effect("well_fed"):
+			combat_node.apply_effect("well_fed", INF, WELL_FED_MODIFIERS)
+			GameLog.log_general("[color=#ffdd88]You feel well fed and hydrated.[/color]")
+	elif combat_node.has_effect("well_fed"):
+		combat_node.remove_effect("well_fed")
+
+
+# Called from slot_button.gd's inventory right-click "Eat"/"Drink" button.
+func consume_food_or_drink(item: Dictionary) -> void:
+	var restores: String = item.get("restores", "")
+	var amount: int = item.get("restore_amount", 0)
+	var item_name: String = item.get("name", "item")
+	match restores:
+		"satiety":
+			satiety = mini(satiety + amount, 100)
+			GameLog.log_general("You eat %s. (Hunger: %d/100)" % [item_name, satiety])
+		"thirst":
+			thirst = mini(thirst + amount, 100)
+			GameLog.log_general("You drink %s. (Thirst: %d/100)" % [item_name, thirst])
+		_:
+			return
+	_update_well_fed_buff()
 #endregion
 
 #region Movement handlers
@@ -723,7 +811,7 @@ func update_stamina(delta: float) -> void:
 
 	if is_moving and is_running and is_on_floor():
 		current_stamina -= STAMINA_DRAIN_RUN * delta
-	elif is_on_floor():
+	elif is_on_floor() and satiety > 0:  # satiety<=0 halts stamina regen too, see update_vitals_decay()
 		var regen_rate: float
 		if is_sitting:
 			regen_rate = STAMINA_REGEN_SIT

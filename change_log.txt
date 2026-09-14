@@ -73,6 +73,242 @@
 
 ---
 
+## 2026-09-14 — Session 29: Satiety system made functional, general goods vendor + shop window
+
+Requested after Session 28's overnight balance pass: "implement the satiety
+system... they should be consumed to allow the player to restore health and
+mana... add a well fed buff... when the player is out of food, health and
+stamina don't regenerate... out of drink, mana doesn't regenerate" — plus a
+vendor NPC "just past the two guards" the player can right-click to buy
+food/drink/bags and sell exploring loot for coin.
+
+### Satiety / Thirst — was decaying but non-functional, now a full loop
+
+`player3d.gd` already had satiety/thirst decaying over real time (satiety:
+100 real minutes to fully drain from 100; thirst ~50, roughly twice as fast)
+and a `get_stat_penalty()` combat debuff below 25 — but nothing could ever
+raise them back up (no eat/drink action existed anywhere), the "out of X"
+behavior was a flat 20% regen reduction rather than a hard stop, running out
+dealt small chip damage instead, and the two `print()` warnings never
+actually reached the player (console-only, no GameLog call).
+
+- **Hard regen gating**: satiety <= 0 now halts HP regen (`_process()`'s regen
+  tick) AND movement stamina regen (`update_stamina()`) entirely — not a
+  percentage reduction. thirst <= 0 halts mana regen entirely. The existing
+  <25 soft penalty (0.8x regen, 5%/10% melee damage) still applies above 0 as
+  a graduated warning zone.
+- Removed `apply_starvation_damage()`/`apply_dehydration_damage()` (chip
+  damage on empty) — replaced by the regen gating above, which is what was
+  actually asked for. Added real, edge-triggered (fires once per threshold
+  crossing, not every 60s tick) `GameLog` warnings instead of the old silent
+  `print()`s: "Your stomach growls..." at <25, "You are famished..." at 0
+  (and the thirst equivalents), so the player actually sees why regen
+  stopped.
+- **Consumption**: `consume_food_or_drink(item)` (player3d.gd) reads an
+  item's `restores` ("satiety"/"thirst") and `restore_amount` fields, capped
+  at 100. Triggered from a new "Eat"/"Drink" button in the inventory's
+  right-click inspect popup (`slot_button.gd`, alongside the existing
+  Equip/Learn buttons) for any item with `type` "food"/"drink". Consumes
+  exactly one unit via a new `Inventory.consume_one()` (decrements a stack's
+  quantity, or removes the slot/entry entirely at quantity 1 — the same
+  addressing scheme `slot_button.gd`'s drag payload already uses).
+  `iron_rations`/`water_flask` (`items.json`) already had unused "Restores 15
+  Hunger/Thirst" flavor text — wired that exact number up rather than
+  inventing a new one. Added two cheaper tiers, `trail_rations` (+8 satiety,
+  2cp) and `spring_water` (+8 thirst, 1cp), for vendor variety.
+- **Well Fed buff**: re-evaluated every vitals tick (not a fixed timer) —
+  `combat_node.apply_effect("well_fed", INF, {hp_regen_bonus:2,
+  mana_regen_bonus:2, stamina_regen_bonus:2})` while satiety AND thirst are
+  both >= 75, removed the moment either drops below. Reuses the existing
+  generic buff/debuff system (`combatnode.gd`'s `active_effects`, same one
+  `campfire.gd`'s "Warmth of the Campfire" and stances use) — shows up on the
+  buff bar automatically with no separate UI wiring, exactly the "give
+  feedback to the player" the request asked for. Added its description to
+  `buff_bar.gd`'s `ENVIRONMENTAL_EFFECT_DESCRIPTIONS`.
+- **HUD**: `player_frame.tscn`/`.gd` gained Food/Water bars (orange/teal)
+  below the existing HP/MP/STA rows — satiety/thirst had no player-visible
+  readout at all before this, which would have made "why did my HP stop
+  healing" undebuggable from in-game alone.
+
+### General Goods Vendor — new NPC + shop window
+
+- **`Scripts/vendor_npc.gd` + `Scenes/vendor_npc.tscn`** (new): stationary
+  `CharacterBody3D`, group `"npc_vendor"`, reuses the player's own Mixamo
+  model/idle animation for its visual (same convention as `monster3d.gd`'s
+  humanoid mobs) — no combat, no navigation, just stands and has a name
+  label like `guard_npc.gd`. Loads its stock list from `Data/vendor_shop.json`
+  by `shop_id` (`get_shop_stock()`, `get_sell_price()`).
+- **`Data/vendor_shop.json`** (new): per-vendor stock lists + buy/sell
+  multipliers. Prices are NOT duplicated data — they derive from each
+  item's own `items.json` `value`/`currency_type` via a new
+  `Global.item_value_in_copper()` helper (handles the handful of
+  silver-denominated trophy items correctly), scaled by the vendor's
+  multiplier (buy 1.0x, sell 0.5x for the starting vendor). First vendor,
+  "Aldric the Provisioner", stocks `trail_rations`, `iron_rations`,
+  `spring_water`, `water_flask`, `small_bag`, a new `traveler_pack` (8-slot
+  bag, up from `small_bag`'s 4), and `torch`.
+- **Currency**: was 4 independent counters (copper/silver/gold/platinum)
+  with no conversion helper anywhere — `grant_currency()` could only add to
+  one denomination at a time, unusable for "pay 17 copper" style pricing.
+  Added `Global.get_total_copper()`/`can_afford()`/`spend_currency_copper()`/
+  `add_currency_copper()` — these collapse all 4 counters to one
+  copper-equivalent pool (standard 10cp=1sp/10sp=1gp/10sp=1pp conversion),
+  spend/add against that pool, then re-mint the result back into
+  denominations greedily from platinum down. Verified: 5cp+2sp=25cp total;
+  spending 8cp against that yields 7cp+1sp; adding 150cp yields 1gp+6sp+7cp.
+- **`Scripts/shop_window.gd` + `Scenes/shop_window.tscn`** (new): draggable
+  window (same `WindowPosition`/title-bar/close-button pattern as
+  `corpse_loot_window.gd`/`backpack_ui.gd`) with a currency readout and two
+  lists — "For Sale" (the vendor's stock, Buy buttons, disabled when
+  unaffordable) and "Your Items" (everything in the player's basic inventory
+  slots and every bag's contents except bags themselves — selling a bag
+  would destroy its contents, so those are excluded — each with a Sell
+  button). Buying calls `Inventory.add_to_basic_inventory()` +
+  `Global.spend_currency_copper()`; selling calls `Inventory.consume_one()` +
+  `Global.add_currency_copper()`. Both list rebuilds are wired to
+  `Global.currency_changed`/`Inventory.inventory_changed` so afford-state and
+  contents stay live without manual refresh calls scattered everywhere.
+- **Interaction**: right-click now goes through
+  `player3d.gd`'s `_try_open_shop_or_loot()` — checks for a `"npc_vendor"`
+  within `SHOP_RANGE` (5m, same range-based pattern as `try_hail_nearby_npc()`)
+  first, opens the shop if found, otherwise falls through to the existing
+  `_try_loot_corpse()` unchanged. Deliberately range-based rather than a
+  raycast under the cursor (like left-click targeting uses) — a raycast
+  would behave inconsistently between mouselook (captured cursor, fixed
+  screen position) and free-look (visible, cursor-following) mouse modes;
+  range-based works identically in both, matching how hail/loot already work.
+- **Placement**: initially placed as a temporary stand-in near the guards,
+  since the user's own marker cube existed only in their unsaved editor
+  session at the time. Once they saved it and named it ("Vendor_shape", a
+  `CollisionShape3D` under `NavigationRegion3D/LumoraOutskirts_Collision`,
+  origin (45.77, 5.0, -23.22)), moved the vendor to just in front of and to
+  the right of that marker — (49.77, 0.6725, -27.22), offset along the
+  scene's world +X/-Z axes (matching `player3d.gd`'s own `right_dir`/
+  `forward_dir` convention), verified with a 0.0 unit navmesh snap distance.
+  The user then fine-tuned the exact spot and facing themselves in the
+  editor; final saved transform in `Scenes/lumora_outskirts3d.tscn` is
+  origin (45.075, 0, -15.055) with a custom rotation, confirmed working
+  ("it looks great!").
+- Verified end-to-end with a full scene-load headless test: vendor spawns at
+  the placed position with a 0.0 navmesh snap distance, the player's
+  proximity check finds it, `_open_shop()` opens a real window instance with
+  7 populated buy rows and 10 populated sell rows (drawn from the player's
+  actual starting inventory).
+
+---
+
+## 2026-09-14 — Session 28: Monster balance pass — combat math, zone spawn density, loot expansion
+
+Overnight autonomous session, triggered by: "monsters aren't doing much damage... I
+can kill them with the siphon life spell and they're not hitting me for the most
+part," plus a request to review the zone's spawn density against its area map
+(mausoleum → undead, goblin/bandit camps → goblins/bandits, spider den → spiders)
+and to compare loot density/variety to EverQuest starting zones ("way too sparse").
+
+### Bug Fixes
+
+**Monster combat stats were flatly zeroed (`monster3d.gd` `_configure_combat_node()`)**
+- Every monster's base STR/CON/DEX/INT/WIS/CHA/LUCK was hardcoded to 0, with only
+  flat, level-derived `gear_atk`/`gear_ac`/`gear_hp` offsets driving combat — a
+  pattern intended to let the JSON's `armor_class`/`max_health` stay authoritative,
+  but with an unintended side effect: melee damage (`weapon_damage + STR/2`), hit
+  chance (`weapon_skill*2 + STR + DEX/2 + gear_atk`), and ALL magic resistance
+  (`CON/2 + WIS/2`) all lost their stat contribution entirely — confirmed every
+  monster had exactly 0% arcane/divine resist.
+- This is why a single Life Siphon (~70 flat damage) could one-shot a rat (20 HP)
+  five times over and take a bandit (80 HP) to 12% remaining, fully unresisted,
+  while monsters barely hit the player back (e.g. a level-3 bandit: 41% hit chance
+  for 6% of player HP per hit).
+- Fixed by giving monsters real, level-scaled stats (`stat_scale = 8 + level*3` for
+  STR/CON/DEX, flat 5 for the rest) while backing out the JSON's hand-tuned
+  `max_health`/`armor_class` via `gear_hp`/`gear_ac` so per-mob HP/AC didn't
+  silently inflate on top of already-balanced numbers.
+- Verified via a headless before/after comparison script: monster hit chance vs.
+  player went from 9–41% to 19–55%; damage per hit from 0.6–6.8% to 3.4–10.2% of
+  player HP. Life Siphon vs. monsters went from 70–350% (always fully unresisted)
+  to 60–65 flat/65–320% of HP with resistances now correctly applying 7–13%.
+
+**Spell resistance had never actually applied, to anyone (`combatnode.gd`)**
+- `get_resistance(resist_type)` appends `"_resist"` to its argument itself. Both
+  `calculate_spell_damage()` and the (dead/unused, confirmed via grep)
+  `calculate_resist_chance()` were calling it with an already-suffixed key
+  (`"arcane_resist"`/`"divine_resist"`), producing a lookup for the nonexistent
+  `"arcane_resist_resist"`/`"divine_resist_resist"` — always 0.
+- This meant spell damage has never been resisted by any target, player or
+  monster, in the entire game, until this fix. Fixed by passing the unsuffixed
+  `"arcane"`/`"divine"` instead.
+
+### Zone Spawns — density pass against the hand-drawn area map (`Data/lumora_outskirts_spawns.json`)
+
+- Previously just 10 sparse entries, only 2 zones ("core"/"edge"), a single
+  skeleton spawn in a disconnected far corner, a single bandit spawn, and **no
+  goblin spawns at all** despite goblins being a defined humanoid mob type.
+- Real-world coordinates for every named map area were extracted from the
+  `Transform3D` origins of the level's own named `CollisionShape3D` nodes under
+  `NavigationRegion3D/LumoraOutskirts_Collision` in `Scenes/lumora_outskirts3d.tscn`
+  (auto-generated from the Blender-exported level geometry, so these are exact,
+  current level positions, not guesses). No dedicated geometry exists for "Bandit
+  Camp" or "Spider Den," so those two were placed by cross-referencing the
+  schematic map's relative layout (bandit camps between the dune starter area and
+  the goblin camps; spider den in its own southwest quadrant) against the real
+  navmesh bounds — discovered mid-session to be far larger than assumed
+  (`X[-1485.5,115.0] Z[-1167.5,1002.0]`, not the small ~-90..100 corner exercised
+  by earlier chase-bug testing). Every candidate coordinate, old and new, was
+  verified with `NavigationServer3D.map_get_closest_point()` before being written
+  in — all 27 final entries resolve within 1.5 units of the real navmesh surface.
+- New layout: Sand Dunes starter area (rat/snake/slime + new dune_scarab/bat, near
+  the origin) → Mausoleum/Graveyard/2 Small Crypts undead cluster (4 skeleton
+  spawns + a mummy + a mirage_phantom, southeast) → 2 Bandit Camps (4 spawns,
+  between the dunes and the goblin camps) → 3 Goblin Camps (goblins, clustered
+  around ~(-568,605), matching the map's "three circles") → a dedicated 4-spawn
+  Spider Den (southwest), replacing the two disconnected scattered spider spawns.
+- Added `goblin` and `bat` entries to `Data/monsters.json` (goblin didn't exist as
+  a monster at all before this, despite already being in `monster3d.gd`'s
+  `HUMANOID_MOB_TYPES`), and added `dune_scarab`/`mummy`/`mirage_phantom`/`goblin`
+  to `mob_spawner3d.gd`'s `VALID_MOB_TYPES` allowlist (previously present in
+  `monsters.json` but silently unspawnable, or vice versa).
+- Verified with a full in-engine functional test: loaded the real zone scene,
+  confirmed all 27 spawn positions resolve onto the live navmesh, and spawned one
+  of every new mob type via `monster_template.tscn` to confirm correct stat
+  loading from JSON.
+
+### Loot — expanded and compared against EverQuest-style starting-zone density (`Data/solgrave_expanse_loot.json`, `Data/items.json`)
+
+- `category_loot_tables` (a baseline roll that fires once per kill *in addition*
+  to the mob's own species table, per `monster3d.gd roll_loot()`) were all
+  completely empty — a large part of why loot felt sparse regardless of species.
+  Populated with a small per-category floor: animal → occasional fur pelt;
+  insect → occasional chitin; reptile → occasional scale; humanoid → occasional
+  leather scrap + modest copper; undead → occasional bone fragment + modest
+  copper. This gives every mob of a given category a guaranteed-nonzero loot
+  floor even before its bespoke table is considered.
+- Expanded per-species tables for every mob now spawning in the zone: rat/snake
+  gained a coin chance and a second junk item; dune_scarab's 5-entry table (item
+  names already present in the JSON, but referencing items that didn't exist in
+  `items.json`) got real item definitions instead of silently failing to loot;
+  bandit/goblin/skeleton (`edge_spawns` table) each grew from 3–4 entries to 5–6
+  (added silver coin/note flavor to bandit, a dagger/charm to goblin, bone
+  fragment/bandage to skeleton); spider grew from 2 sparse entries (one of which,
+  `venom_sac`, had no item definition either) to 5; added an entirely new
+  `mirage_phantom` table (previously nonexistent anywhere in the file, despite
+  the monster existing) with spectral loot + a meaningful silver coin chance.
+- Added 10 missing item definitions to `items.json` (`scarab_eye`, `scarab_shell`,
+  `beetle_wing`, `sand_shimmer`, `shiny_pebble`, `venom_sac`, `spider_fang`,
+  `embalming_salve`, `canopic_jar_fragment`, `rotten_linen`) — these item names
+  were already referenced by loot tables (dune_scarab, spider, mummy) but had no
+  entry in `items.json`, so `Inventory.get_item_definition()` returned empty and
+  the drop couldn't be looted/displayed properly.
+- Verified with a 300-trial-per-mob headless simulation of `roll_loot()`: dune
+  trash mobs (rat/snake/slime/bat/dune_scarab) now have a 61–73% chance of
+  *something* dropping (up from ~1 sparse entry each, often nothing); camp/undead
+  mobs (goblin/bandit/skeleton/mummy/mirage_phantom) have an 89–100% chance of a
+  drop and consistent coin (goblin ~10cp/kill avg, bandit ~15cp/kill avg, skeleton
+  ~21cp/kill avg, mirage_phantom ~8cp/kill avg with silver mixed in) — a clear
+  gradient from "light dune scavenging" to "worth farming the camps," matching
+  typical EQ starting-zone loot pacing.
+
+---
+
 ## 2026-09-14 — Session 27: The real monster-movement fix, guard's own animations, humanoid mobs, options menu
 
 ### Bug Fixes

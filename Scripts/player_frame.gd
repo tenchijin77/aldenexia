@@ -12,6 +12,10 @@ const POSITION_KEY := "player_frame"
 @onready var mp_bar:     ProgressBar = $Panel/VBox/MPRow/mp_bar
 @onready var sta_label:  Label      = $Panel/VBox/STARow/sta_label
 @onready var sta_bar:    ProgressBar = $Panel/VBox/STARow/sta_bar
+@onready var food_label: Label      = $Panel/VBox/FoodRow/food_label
+@onready var food_bar:   ProgressBar = $Panel/VBox/FoodRow/food_bar
+@onready var water_label: Label     = $Panel/VBox/WaterRow/water_label
+@onready var water_bar:  ProgressBar = $Panel/VBox/WaterRow/water_bar
 
 var _player: Node = null
 var _dragging := false
@@ -29,6 +33,14 @@ func _ready() -> void:
 	var sta_fill = StyleBoxFlat.new()
 	sta_fill.bg_color = Color(0.85, 0.75, 0.1)
 	sta_bar.add_theme_stylebox_override("fill", sta_fill)
+
+	var food_fill = StyleBoxFlat.new()
+	food_fill.bg_color = Color(0.75, 0.45, 0.15)
+	food_bar.add_theme_stylebox_override("fill", food_fill)
+
+	var water_fill = StyleBoxFlat.new()
+	water_fill.bg_color = Color(0.15, 0.65, 0.75)
+	water_bar.add_theme_stylebox_override("fill", water_fill)
 
 	panel.gui_input.connect(_on_panel_gui_input)
 	WindowPosition.load_position_into(POSITION_KEY, panel)
@@ -72,3 +84,13 @@ func _process(_delta: float) -> void:
 	sta_bar.max_value = max_sta
 	sta_bar.value     = sta
 	sta_label.text    = "STA %d / %d" % [int(sta), int(max_sta)]
+
+	var food = int(_player.get("satiety") if "satiety" in _player else 100)
+	food_bar.max_value = 100
+	food_bar.value     = food
+	food_label.text    = "Food %d / 100" % food
+
+	var water = int(_player.get("thirst") if "thirst" in _player else 100)
+	water_bar.max_value = 100
+	water_bar.value     = water
+	water_label.text    = "Water %d / 100" % water

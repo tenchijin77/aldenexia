@@ -239,6 +239,36 @@ func remove_from_bag(bag_slot_index: int, item_index: int) -> Dictionary:
 	inventory_changed.emit()
 	return item
 
+# Removes ONE unit of an item (eating food, drinking water, selling a single
+# item off a stack) instead of the whole stack entry — decrements quantity if
+# stackable and more than one remains, otherwise removes the slot/entry
+# entirely. slot_type is "basic" (character-sheet slots, addressed by
+# slot_index) or "bag" (addressed by bag_slot + item_index), matching the
+# addressing already used throughout (slot_button.gd's drag payload, etc.).
+func consume_one(slot_type: String, slot_index: int, bag_slot: int, item_index: int) -> void:
+	if slot_type == "bag":
+		var bag_key = str(bag_slot)
+		if not bag_contents.has(bag_key):
+			return
+		var bag_items = bag_contents[bag_key]
+		if item_index < 0 or item_index >= bag_items.size():
+			return
+		var item = bag_items[item_index]
+		if item.get("stackable", false) and item.get("quantity", 1) > 1:
+			item.quantity -= 1
+			sync_to_global()
+			inventory_changed.emit()
+		else:
+			remove_from_bag(bag_slot, item_index)
+	else:
+		var item = get_basic_inventory_slot(slot_index)
+		if item.get("stackable", false) and item.get("quantity", 1) > 1:
+			item.quantity -= 1
+			sync_to_global()
+			inventory_changed.emit()
+		else:
+			remove_from_basic_inventory(slot_index)
+
 func get_bag_contents(bag_slot_index: int) -> Array:
 	# Returns array of items in a bag
 	var bag_key = str(bag_slot_index)

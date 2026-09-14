@@ -128,6 +128,7 @@ func _format_remaining(remaining: float) -> String:
 # real description on the buff bar instead of just a titled name.
 const ENVIRONMENTAL_EFFECT_DESCRIPTIONS := {
 	"campfire_warmth": "Resting by a campfire's warmth. +2 HP/Mana/Stamina regeneration.",
+	"well_fed": "Well fed and hydrated. +2 HP/Mana/Stamina regeneration.",
 }
 
 # Resolves an active_effects key to a display name + description by checking,

@@ -1,0 +1,17 @@
+{
+  "_comment": "vendor_shop.json - stock lists for general goods vendors. A vendor_npc.gd instance exports shop_id, which selects one of these tables. Buy/sell prices are derived from the item's own 'value'/'currency_type' fields in items.json (via Global.item_value_in_copper()), not duplicated here - buy_price_multiplier and sell_price_multiplier scale that base value for this vendor.",
+  "lumora_general_goods": {
+    "vendor_name": "Aldric the Provisioner",
+    "buy_price_multiplier": 1.0,
+    "sell_price_multiplier": 0.5,
+    "stock": [
+      "trail_rations",
+      "iron_rations",
+      "spring_water",
+      "water_flask",
+      "small_bag",
+      "traveler_pack",
+      "torch"
+    ]
+  }
+}

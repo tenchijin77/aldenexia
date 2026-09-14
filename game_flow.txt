@@ -1072,6 +1072,16 @@ Added as child to both Player3D and Monster.
   resolve_dual_wield_attack() — main + offhand (-10% hit)
   resolve_aetherfist_attack() — flurry: main + optional double (lv10+) + triple (lv15+)
 
+--- get_resistance(resist_type) / calculate_spell_damage() ---
+  get_resistance(resist_type) appends "_resist" to its argument itself and
+  looks up the derived stat. Bug fixed 2026-09-14 (Session 28): both
+  calculate_spell_damage() and the dead/unused calculate_resist_chance() were
+  calling it with an ALREADY-suffixed key ("arcane_resist"/"divine_resist"),
+  producing a lookup for the nonexistent "arcane_resist_resist"/
+  "divine_resist_resist" — always 0. Spell damage had never actually been
+  resisted by any target, player or monster, until this fix. Call sites now
+  pass the unsuffixed "arcane"/"divine".
+
 --- Spell interrupt (interrupt_spell) ---
   Checks concentration roll against cast progress.
   On failure: deducts mana scaled to how far cast had progressed.
@@ -1096,8 +1106,13 @@ Scene: Scenes/monster_template.tscn (base) + individual [name].tscn
   _ready(): reads monster_name (from @export or get_monster_name() override)
   → load_monster_stats() reads Data/monsters.json
   → configures CombatNode via _configure_combat_node()
-    (gear values back-calculate from desired HP/AC/ATK so base stats stay 0)
-  Sets gear_atk = 15 + level*5 for hit rates of ~55-60% vs typical player AC.
+  Balance pass, 2026-09-14 (Session 28): base stats are NO LONGER flatly zero —
+  they used to be, which silently collapsed monster accuracy AND zeroed all
+  magic resistance (get_resistance() always returned 0% for every combatant,
+  see the combatnode.gd note below). STR/CON/DEX = 8 + level*3, INT/WIS/CHA/LUCK
+  = 5 flat. gear_hp/gear_ac still back-calculate so the JSON's hand-tuned
+  max_health/armor_class stay authoritative on top of the new base stats.
+  gear_atk = 15 + level*5 (unchanged) for hit rates of ~55-60% vs typical player AC.
 
 --- State Machine ---
   IDLE    → random patrol chance; aggro if player in aggro_range (≤5m)
@@ -1128,10 +1143,22 @@ Scene: Scenes/monster_template.tscn (base) + individual [name].tscn
 
 --- Loot on die() ---
   Rolls _load_loot_data() from Data/solgrave_expanse_loot.json.
-  Rolls category_loot_tables[category] (e.g. "undead", "animal").
-  Rolls zone_loot_tables for monster-specific drops by name.
+  Rolls category_loot_tables[category] (e.g. "undead", "animal") — this is a
+  universal per-category floor (populated 2026-09-14, Session 28; was empty
+  before, a big part of why loot felt sparse regardless of species) that fires
+  in ADDITION to the mob's own species table below, not instead of it.
+  Rolls zone_loot_tables for monster-specific drops by name (searches every
+  zone sub-table in the file regardless of the mob's own `zone` field — see
+  _find_mob_loot()).
   Results combined into pending_loot; is_lootable = true if non-empty.
   60s auto-despawn via await (guarded with is_inside_tree() check).
+  Every item referenced by a lumora_outskirts-reachable loot table now has a
+  real entry in Data/items.json (Session 28 added 10 that were missing —
+  scarab_eye/scarab_shell/beetle_wing/sand_shimmer/shiny_pebble/venom_sac/
+  spider_fang/embalming_salve/canopic_jar_fragment/rotten_linen — item IDs the
+  loot tables already referenced but that had no definition, so
+  Inventory.get_item_definition() returned empty and the drop silently
+  couldn't be looted/displayed properly).
 
 --- open_loot_window() ---
   Instantiates corpse_loot_window.tscn, calls setup(name, pending_loot).
@@ -1162,9 +1189,138 @@ Class: Node3D script attached to a MobSpawner3D node in lumora_outskirts3d.tscn.
     BEFORE add_child() so Monster._ready() auto-loads JSON stats.
   - Per spawn entry: manages respawn_time cooldowns, max_active counts,
     and spawn_radius scatter around the spawn point position.
-  - VALID_MOB_TYPES: rat, snake, slime, spider, bat, skeleton, bandit, goblin, ghost.
-  - lumora_outskirts_spawns.json: 10 entries with real 3D [x, y, z] coords (Y=2
-    for terrain drop): rat×2, snake×2, slime×2, spider×2, skeleton, bandit.
+  - VALID_MOB_TYPES: rat, snake, slime, spider, bat, dune_scarab, skeleton,
+    bandit, goblin, ghost, mummy, mirage_phantom (dune_scarab/mummy/
+    mirage_phantom added Session 28 — dune_scarab already existed in
+    monsters.json but wasn't spawnable; goblin already existed here but had
+    no monsters.json entry until Session 28 added one).
+  - lumora_outskirts_spawns.json: rewritten Session 28 (2026-09-14) — 27
+    entries, positioned to match the zone's hand-drawn area map using real
+    coordinates pulled from the level's own named CollisionShape3D nodes
+    (Scenes/lumora_outskirts3d.tscn, NavigationRegion3D/LumoraOutskirts_
+    Collision) and verified via NavigationServer3D.map_get_closest_point():
+      dunes_start (near origin): rat×2, snake×2, slime×2, dune_scarab×2, bat×2
+      mausoleum/graveyard/2 small crypts (SE, ~X:42-56 Z:-215..-288):
+        skeleton×4, mummy×1, mirage_phantom×1
+      bandit_camp_1/2 (~X:-220..-330 Z:280..400, between dunes and goblin
+        camps): bandit×4
+      goblin_camp_1/2/3 (~X:-545..-589 Z:580..634, three tight clusters):
+        goblin×3
+      spider_den (SW, ~X:-320..-380 Z:-370..-430): spider×4
+    Previous 10-entry version (2 zones "core"/"edge", one disconnected
+    skeleton spawn, one bandit spawn, zero goblin spawns) is gone.
+
+
+================================================================================
+VITALS: SATIETY / THIRST (player3d.gd, made functional Session 29 — 2026-09-14)
+================================================================================
+
+satiety/thirst: int 0-100, decay over real time via update_vitals_decay()
+(called every _process() frame; the decay itself only ticks every
+DECAY_INTERVAL=60s). satiety -1/tick (~100 real min to fully drain from 100),
+thirst -2/tick (~50 min — twice as fast, deliberately, so water needs more
+frequent attention than food).
+
+--- Regen gating (the actual point of the system) ---
+  satiety <= 0: HP regen (in _process()'s REGEN_INTERVAL block) AND movement
+    stamina regen (update_stamina()) both skip entirely — not a percentage
+    reduction, a hard stop.
+  thirst <= 0: mana regen skips entirely, same hard stop.
+  Below 25 (but still >0): soft warning-zone penalty only — 0.8x regen
+    (get_stat_penalty() also applies a small 5%/10% melee damage penalty,
+    unrelated function, unchanged by this pass).
+  Edge-triggered GameLog warnings (not spammed every tick) at the <25 and
+  <=0 thresholds for both — see _hunger_warn_stage/_thirst_warn_stage.
+
+--- Consuming food/drink ---
+  consume_food_or_drink(item: Dictionary) — reads item["restores"]
+  ("satiety" or "thirst") and item["restore_amount"], adds to the matching
+  vital (capped at 100), logs a GameLog message, then calls
+  _update_well_fed_buff(). Triggered from slot_button.gd's right-click
+  inspect popup: an "Eat"/"Drink" button appears for any item whose
+  items.json "type" is "food"/"drink". Consumes exactly one unit via
+  Inventory.consume_one(slot_type, slot_index, bag_slot, item_index) —
+  decrements a stack's quantity, or removes the slot/bag entry entirely at
+  quantity 1.
+  Food/drink items in Data/items.json: trail_rations (+8 satiety, 2cp),
+  iron_rations (+15 satiety, 4cp), spring_water (+8 thirst, 1cp),
+  water_flask (+15 thirst, 2cp). Real characters start with 20 of each
+  ration/flask (character_creation.gd's build_starting_inventory()).
+
+--- Well Fed buff ---
+  Re-evaluated every vitals tick (not a fixed-duration timer): while both
+  satiety AND thirst are >= WELL_FED_THRESHOLD (75), combat_node has the
+  "well_fed" effect applied (+2 hp_regen/mana_regen/stamina_regen_bonus,
+  same generic apply_effect() system campfire.gd/stance_bar.gd use — shows
+  up on the buff bar automatically, see buff_bar.gd's
+  ENVIRONMENTAL_EFFECT_DESCRIPTIONS). Removed the moment either drops below
+  75 — no separate expiry timer needed since it's just re-checked each tick.
+
+--- HUD ---
+  player_frame.tscn/.gd: Food/Water progress bars (orange/teal) below the
+  existing HP/MP/STA rows — the first player-visible readout of these vitals
+  at all; before this pass they decayed silently.
+
+
+================================================================================
+VENDOR / SHOP (Scripts/vendor_npc.gd, Scripts/shop_window.gd — added Session 29)
+================================================================================
+
+Class: VendorNPC extends CharacterBody3D, group "npc_vendor". Stationary —
+no combat, no NavigationAgent3D. Reuses the player's own Mixamo
+model/idle animation for its visual (same convention monster3d.gd's
+HUMANOID_MOB_TYPES uses), with a Label3D name tag like guard_npc.gd.
+
+--- Stock / pricing ---
+  shop_id (@export) selects a table from Data/vendor_shop.json:
+  {vendor_name, buy_price_multiplier, sell_price_multiplier, stock: [item_id,...]}.
+  Prices are NOT stored in vendor_shop.json — they derive from each item's
+  own items.json "value"/"currency_type" via Global.item_value_in_copper()
+  (handles the handful of silver-denominated trophy items correctly:
+  ancient_coin, command_sigil, ghostly_cloak, moribund_order_notes,
+  spectral_dust, warlord_scimitar), scaled by the vendor's multiplier.
+  get_shop_stock() -> [{item_id, item_def, price}] (buy price).
+  get_sell_price(item_def) -> int (what the vendor pays the player).
+  First/only vendor so far: "lumora_general_goods" ("Aldric the
+  Provisioner") — trail_rations, iron_rations, spring_water, water_flask,
+  small_bag, traveler_pack (new 8-slot bag, up from small_bag's 4), torch.
+  Placed in lumora_outskirts3d.tscn at (45.075, 0, -15.055), with a custom
+  facing rotation — just in front of and to the right of "Vendor_shape" (a
+  CollisionShape3D under NavigationRegion3D/LumoraOutskirts_Collision, origin
+  (45.77, 5.0, -23.22)), the marker the user placed to show the intended
+  spot. Started as a temporary stand-in near the guards before the marker
+  was saved/named; once named, moved near it and navmesh-verified, then the
+  user hand-tuned the final position/facing themselves in the editor.
+
+--- Currency (Global.gd) ---
+  Stored as 4 independent player_data counters: copper/silver/gold/platinum.
+  grant_currency(field, amount) (pre-existing) only ever touches one field —
+  fine for loot drops (always a single denomination) but useless for paying
+  an arbitrary price. Added for the shop: get_total_copper() (10cp=1sp,
+  10sp=1gp, 10gp=1pp conversion), can_afford(cost), spend_currency_copper(cost)
+  (false if unaffordable), add_currency_copper(amount) — all three
+  operate by collapsing all 4 counters to one copper-equivalent total, then
+  re-minting the result back into denominations greedily from platinum down.
+
+--- Interaction ---
+  player3d.gd's right-click handler is now _try_open_shop_or_loot():
+  checks for a "npc_vendor" within SHOP_RANGE (5m, range-based like
+  try_hail_nearby_npc() — deliberately NOT a raycast under the cursor, since
+  that would behave differently between mouselook's captured/fixed cursor
+  and free-look's visible/moving one) and opens shop_window.tscn against it
+  if found, otherwise falls through to the unchanged _try_loot_corpse().
+
+--- shop_window.gd (draggable CanvasLayer, same WindowPosition/title-bar
+    pattern as corpse_loot_window.gd/backpack_ui.gd) ---
+  Two lists: "For Sale" (vendor.get_shop_stock(), Buy buttons disabled when
+  Global.can_afford() is false) and "Your Items" (every basic_inventory slot
+  and every bag's contents, EXCLUDING bags themselves — selling one would
+  destroy its contents — each with a Sell button at vendor.get_sell_price()).
+  Buy: Inventory.add_to_basic_inventory() + Global.spend_currency_copper().
+  Sell: Inventory.consume_one() + Global.add_currency_copper().
+  Both lists rebuild automatically on Global.currency_changed /
+  Inventory.inventory_changed (plus manual rebuild calls where those signals
+  don't fire — add_to_basic_inventory() doesn't emit inventory_changed).
 
 
 ================================================================================

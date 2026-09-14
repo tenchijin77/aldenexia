@@ -545,10 +545,15 @@ func calculate_spell_damage(base_spell_damage: int, is_arcane: bool = true, targ
 	if is_crit:
 		damage = int(damage * 1.75)  # 175% crit damage for spells
 
-	# Subtract target resist if provided
+	# Subtract target resist if provided. get_resistance() appends "_resist"
+	# itself (see its definition) — this used to pass the already-suffixed
+	# name ("arcane_resist"/"divine_resist"), producing a lookup for
+	# "arcane_resist_resist" that never matched anything, so spell damage has
+	# never actually been resisted by ANY target, player or monster. Found
+	# during the 2026-09-14 monster balance pass.
 	if target:
-		var resist_type = "arcane_resist" if is_arcane else "divine_resist"
-		var target_resist = target.get_resistance(resist_type)
+		var resist_type := "arcane" if is_arcane else "divine"
+		var target_resist := target.get_resistance(resist_type)
 		damage = int(damage * (1.0 - (target_resist / 100.0)))
 
 	damage = int(damage * (1.0 + get_modifier("damage_mult")))
@@ -591,7 +596,7 @@ func calculate_resist_chance(target: CombatNode, is_arcane: bool = true) -> int:
 	"""Calculate spell resist chance"""
 	var level_modifier = (target.level - level) * 10
 	var my_power = get_arcane_power() if is_arcane else get_divine_power()
-	var target_resist = target.get_resistance("arcane_resist" if is_arcane else "divine_resist")
+	var target_resist = target.get_resistance("arcane" if is_arcane else "divine")
 
 	var resist_chance = int((target_resist - my_power + level_modifier) / 2.0)
 	resist_chance = clamp(resist_chance, 0, 200)
