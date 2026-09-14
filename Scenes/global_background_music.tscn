@@ -6,6 +6,7 @@
 [node name="background_music" type="AudioStreamPlayer"]
 stream = ExtResource("1_u048c")
 autoplay = true
+bus = &"Music"
 script = ExtResource("2_7ckel")
 
 [connection signal="finished" from="." to="." method="_on_finished"]
