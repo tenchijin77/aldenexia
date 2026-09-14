@@ -43,7 +43,14 @@ func _ready() -> void:
 	tabs.focus_mode = Control.FOCUS_NONE
 	general_log.focus_mode = Control.FOCUS_NONE
 	combat_log.focus_mode  = Control.FOCUS_NONE
+	# Up/Down aren't meaningful to a single-line field, so without this Godot's
+	# default focus-traversal grabs them instead and hands focus off to some
+	# other focusable control while the chat box is active.
+	chat_input.focus_neighbor_top    = chat_input.get_path()
+	chat_input.focus_neighbor_bottom = chat_input.get_path()
 	chat_input.text_submitted.connect(_on_chat_input_submitted)
+	chat_input.gui_input.connect(_on_chat_input_gui_input)
+	set_process_unhandled_input(true)
 
 	if Global.player_data.get("ui_positions", {}).get("chat_combat_detached", false):
 		call_deferred("_detach_combat")
@@ -376,8 +383,22 @@ func _on_autoattack_changed(active: bool) -> void:
 
 # ── Chat input ────────────────────────────────────────────────────────────────
 
+# Enter opens the chat box for typing when nothing else has focus. If chat_input
+# (or any other Control) is already focused, it consumes Enter itself during
+# GUI input processing, so this never even sees the event in that case.
+func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and not event.echo \
+			and (event.keycode == KEY_ENTER or event.keycode == KEY_KP_ENTER):
+		chat_input.grab_focus()
+		get_viewport().set_input_as_handled()
+
+
 func _on_chat_input_submitted(text: String) -> void:
 	chat_input.text = ""
+	# Sending a message (or just pressing Enter on an empty box) hands focus
+	# back to the game — otherwise the player stays locked out of movement
+	# (see player3d.gd's chat_focused check) until they click the box again.
+	chat_input.release_focus()
 	text = text.strip_edges()
 	if text == "":
 		return
@@ -385,6 +406,14 @@ func _on_chat_input_submitted(text: String) -> void:
 		_handle_slash_command(text)
 	else:
 		GameLog.log_general("[color=yellow]You say, '%s'[/color]" % text)
+
+
+# Lets Escape back out of an accidental click into the chat box without
+# sending anything — same "give movement back" reasoning as submitting.
+func _on_chat_input_gui_input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
+		chat_input.text = ""
+		chat_input.release_focus()
 
 
 func _handle_slash_command(text: String) -> void:

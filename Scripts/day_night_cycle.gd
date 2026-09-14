@@ -26,7 +26,7 @@ signal phase_changed(is_day: bool)
 
 @export_group("Moon (night)")
 @export var moon_rotation_degrees: Vector3 = Vector3(-55.0, 200.0, 0.0)
-@export var moon_energy: float = 0.04
+@export var moon_energy: float = 0.25  # was 0.04 — too dim to see anything by; still a fraction of sun_peak_energy
 @export var moon_color: Color = Color(0.55, 0.65, 0.95)
 
 @export_group("Sky / Ambient")
@@ -35,7 +35,7 @@ signal phase_changed(is_day: bool)
 @export var night_sky_top_color: Color = Color(0.01, 0.015, 0.04)
 @export var night_sky_horizon_color: Color = Color(0.03, 0.035, 0.07)
 @export var day_ambient_energy: float = 1.0
-@export var night_ambient_energy: float = 0.05
+@export var night_ambient_energy: float = 0.18  # was 0.05 — same reasoning as moon_energy
 
 enum Phase { DAY, NIGHT }
 
@@ -99,9 +99,18 @@ func _apply_lighting() -> void:
 
 	if phase == Phase.DAY:
 		var altitude: float = lerp(sun_min_altitude_degrees, sun_max_altitude_degrees, sin(progress * PI))
-		_sun.rotation_degrees = Vector3(-altitude, sun_yaw_degrees, 0.0)
-		_sun.light_energy = lerp(sun_edge_energy, sun_peak_energy, daylight)
-		_sun.light_color = sun_edge_color.lerp(sun_noon_color, daylight)
+		var sun_rotation := Vector3(-altitude, sun_yaw_degrees, 0.0)
+		var sun_color := sun_edge_color.lerp(sun_noon_color, daylight)
+		var sun_energy: float = lerp(sun_edge_energy, sun_peak_energy, daylight)
+		# Continuously crossfade with the moon's exact rotation/color/energy
+		# right at the edges of the day phase (daylight 0..1) instead of a
+		# hard switch the instant phase flips to/from NIGHT — at daylight=0
+		# this evaluates to precisely the moon's values on both sides of the
+		# boundary (NIGHT always renders pure moon values too), so there's no
+		# discontinuous jump in light direction, color, or brightness.
+		_sun.rotation_degrees = moon_rotation_degrees.lerp(sun_rotation, daylight)
+		_sun.light_color = moon_color.lerp(sun_color, daylight)
+		_sun.light_energy = lerp(moon_energy, sun_energy, daylight)
 	else:
 		_sun.rotation_degrees = moon_rotation_degrees
 		_sun.light_energy = moon_energy

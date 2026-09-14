@@ -2,6 +2,9 @@
 extends CanvasLayer
 class_name PlayerFrame
 
+const POSITION_KEY := "player_frame"
+
+@onready var panel:      Panel      = $Panel
 @onready var name_label: Label      = $Panel/VBox/name_label
 @onready var hp_label:   Label      = $Panel/VBox/HPRow/hp_label
 @onready var hp_bar:     ProgressBar = $Panel/VBox/HPRow/hp_bar
@@ -11,6 +14,7 @@ class_name PlayerFrame
 @onready var sta_bar:    ProgressBar = $Panel/VBox/STARow/sta_bar
 
 var _player: Node = null
+var _dragging := false
 
 
 func _ready() -> void:
@@ -25,6 +29,21 @@ func _ready() -> void:
 	var sta_fill = StyleBoxFlat.new()
 	sta_fill.bg_color = Color(0.85, 0.75, 0.1)
 	sta_bar.add_theme_stylebox_override("fill", sta_fill)
+
+	panel.gui_input.connect(_on_panel_gui_input)
+	WindowPosition.load_position_into(POSITION_KEY, panel)
+
+
+func _on_panel_gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+		_dragging = event.pressed
+		if not _dragging:
+			WindowPosition.save(POSITION_KEY, panel)
+	elif event is InputEventMouseMotion and _dragging:
+		panel.offset_left   += event.relative.x
+		panel.offset_top    += event.relative.y
+		panel.offset_right  += event.relative.x
+		panel.offset_bottom += event.relative.y
 
 
 func _process(_delta: float) -> void:

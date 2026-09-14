@@ -108,6 +108,7 @@ var autorun_enabled: bool = false
 #region Node references
 @onready var camera_rig: Node3D = $CameraRig
 @onready var collision_shape: CollisionShape3D = $CollisionShape3D
+@onready var animation_player: AnimationPlayer = $Character/AnimationPlayer
 #endregion
 
 #region Loot interaction
@@ -150,12 +151,12 @@ func _toggle_pause_menu() -> void:
 	if is_instance_valid(_pause_menu_instance):
 		_pause_menu_instance.queue_free()
 		_pause_menu_instance = null
-		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+		Global.restore_mouse_mode()
 		return
 	_pause_menu_instance = load("res://Scenes/pause_menu.tscn").instantiate()
 	_pause_menu_instance.closed.connect(func():
 		_pause_menu_instance = null
-		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+		Global.restore_mouse_mode()
 	)
 	get_tree().root.add_child(_pause_menu_instance)
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
@@ -389,6 +390,7 @@ var abilities_book_instance: Node = null
 #region Initialization
 func _ready() -> void:
 	add_to_group("player")
+	_setup_animations()
 
 	combat_node = CombatNode.new()
 	add_child(combat_node)
@@ -398,12 +400,71 @@ func _ready() -> void:
 	load_faction_standing()
 	_load_spell_cache()
 	load_player_data_from_global()
+
+	# Dictionaries are references in GDScript — aliasing these means every
+	# future apply_effect()/remove_effect() (stances, campfire warmth, spell
+	# buffs) is automatically reflected in Global.player_data with no
+	# per-frame sync needed, so whatever triggers the next
+	# save_player_data_to_file() (there are many call sites) always writes
+	# current buff state, not a stale snapshot from login.
+	Global.player_data["active_effects"] = combat_node.active_effects
+
 	_spawn_hud()
 
 	print("[Player3D] ✅ %s initialized | HP: %d/%d | Mana: %d/%d" % [
 		player_name, combat_node.current_hp, combat_node.max_hp,
 		combat_node.current_mana, combat_node.max_mana
 	])
+
+
+# Mixamo animations are baked into a single shared AnimationLibrary at
+# res://models/player/player_animations.res (idle/walk/run/jump/sit/
+# attack_horizontal/attack_downward/death) rather than kept as separate
+# imported scenes, so the game only loads the lightweight keyframe data
+# instead of instancing the (much heavier) source meshes just to steal their
+# animations.
+func _setup_animations() -> void:
+	if not animation_player:
+		return
+	var lib := load("res://models/player/player_animations.res") as AnimationLibrary
+	if not lib:
+		return
+	# The imported model's AnimationPlayer already owns a "" library (its raw
+	# Mixamo export clips) — replace it so idle/walk/jump can be played
+	# unprefixed instead of needing a distinct library name.
+	if animation_player.has_animation_library(""):
+		animation_player.remove_animation_library("")
+	animation_player.add_animation_library("", lib)
+
+
+const ATTACK_ANIMS := ["attack_horizontal", "attack_downward"]
+var _current_attack_anim: String = ""
+
+# Picks one of the two melee swings at random for this strike; _update_animation
+# keeps playing it every frame while `attacking` is true (called right where
+# `attacking` is set true, in attack_current_target() and perform_melee_attack()).
+func _trigger_attack_animation() -> void:
+	_current_attack_anim = ATTACK_ANIMS[randi() % ATTACK_ANIMS.size()]
+
+
+func _update_animation() -> void:
+	if not animation_player or animation_player.get_animation_list().is_empty():
+		return
+	var anim_name: String
+	if attacking and _current_attack_anim != "":
+		anim_name = _current_attack_anim
+	elif not is_on_floor():
+		anim_name = "jump"
+	elif is_sitting:
+		anim_name = "sit"
+	elif current_speed > WALK_SPEED + 0.5:
+		anim_name = "run"
+	elif current_speed > 0.1:
+		anim_name = "walk"
+	else:
+		anim_name = "idle"
+	if animation_player.current_animation != anim_name:
+		animation_player.play(anim_name, 0.15)
 
 
 func _spawn_hud() -> void:
@@ -414,6 +475,7 @@ func _spawn_hud() -> void:
 		"res://Scenes/game_log_window.tscn",
 		"res://Scenes/action_bar.tscn",
 		"res://Scenes/stance_bar.tscn",
+		"res://Scenes/buff_bar.tscn",
 	]:
 		var node: Node = load(scene_path).instantiate()
 		node.add_to_group("game_hud")
@@ -490,6 +552,7 @@ func _physics_process(delta: float) -> void:
 	_tick_active_spell_effects(delta)
 
 	move_and_slide()
+	_update_animation()
 #endregion
 
 #region Process (regen / vitals / cooldowns)
@@ -502,7 +565,7 @@ func _process(delta: float) -> void:
 		regen_timer = 0.0
 
 		if combat_node.current_hp < combat_node.max_hp:
-			var regen_h: int = combat_node.get_derived_stat("hp_regen") + regen_bonus
+			var regen_h: int = combat_node.get_derived_stat("hp_regen") + regen_bonus + int(combat_node.get_modifier("hp_regen_bonus"))
 			if is_sitting:
 				regen_h = int(regen_h * 3.0)
 			if satiety < 25:
@@ -510,7 +573,7 @@ func _process(delta: float) -> void:
 			combat_node.current_hp = mini(combat_node.current_hp + regen_h, combat_node.max_hp)
 
 		if combat_node.current_mana < combat_node.max_mana:
-			var regen_m: int = combat_node.get_derived_stat("mana_regen")
+			var regen_m: int = combat_node.get_derived_stat("mana_regen") + int(combat_node.get_modifier("mana_regen_bonus"))
 			if is_sitting:
 				regen_m = int(regen_m * 3.0)
 			if thirst < 25:
@@ -668,7 +731,7 @@ func update_stamina(delta: float) -> void:
 			regen_rate = STAMINA_REGEN_WALK
 		else:
 			regen_rate = STAMINA_REGEN_STAND
-		current_stamina += regen_rate * delta
+		current_stamina += (regen_rate + combat_node.get_modifier("stamina_regen_bonus")) * delta
 
 	current_stamina = clamp(current_stamina, 0.0, max_stamina)
 	if current_stamina <= 0.0:
@@ -802,6 +865,7 @@ func attack_current_target() -> void:
 
 	attacking = true
 	attack_cooldown = attack_cooldown_duration
+	_trigger_attack_animation()
 
 	if "combat_node" in current_target and current_target.combat_node is CombatNode:
 		var result = combat_node.resolve_attack(current_target.combat_node)
@@ -860,6 +924,7 @@ func perform_melee_attack() -> void:
 
 	attacking = true
 	attack_cooldown = attack_cooldown_duration
+	_trigger_attack_animation()
 
 	var attack_range := 3.0
 	var target: Node = null
@@ -924,23 +989,28 @@ func perform_melee_attack() -> void:
 	attacking = false
 
 
-func take_damage(amount: int) -> void:
+func take_damage(amount: int, attacker: Node = null) -> void:
 	if dying:
 		return
 	combat_node.take_damage(amount)
 	GameLog.log_combat("💔 You take %d damage. [HP: %d/%d]" % [amount, combat_node.current_hp, combat_node.max_hp])
+	if attacker and is_instance_valid(attacker) and current_target != attacker:
+		current_target = attacker
+		_announce_target(attacker)
 	if not combat_node.is_alive():
 		die()
 
 
-func apply_damage(amount: int) -> void:
-	take_damage(amount)
+func apply_damage(amount: int, attacker: Node = null) -> void:
+	take_damage(amount, attacker)
 
 
 func die() -> void:
 	dying = true
 	GameLog.log_combat("[color=red]You have been defeated![/color]")
 	print("💀 Player defeated!")
+	if animation_player and animation_player.has_animation("death"):
+		animation_player.play("death")
 
 
 func _set_target_frame(target: Node) -> void:
@@ -953,7 +1023,7 @@ func toggle_character_sheet() -> void:
 	if character_sheet_instance:
 		character_sheet_instance.queue_free()
 		character_sheet_instance = null
-		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+		Global.restore_mouse_mode()
 		print("📋 Character sheet closed")
 	else:
 		character_sheet_instance = character_sheet_scene.instantiate()
@@ -1107,6 +1177,18 @@ func load_character_data(data: Dictionary) -> void:
 	var saved_mana = data.get("current_mana", -1)
 	combat_node.current_mana = saved_mana if saved_mana >= 0 else combat_node.max_mana
 
+	# Restore active buffs/debuffs (stances, campfire warmth, etc.) exactly as
+	# they were at save time — active_effects is plain data (no Node
+	# references), so it round-trips through JSON as-is. Also restores
+	# current_stance so the stance bar highlights the right slot again.
+	var saved_effects: Dictionary = data.get("active_effects", {})
+	for effect_name in saved_effects:
+		combat_node.active_effects[effect_name] = saved_effects[effect_name]
+	for effect_name in saved_effects:
+		if effect_name.begins_with("stance_"):
+			current_stance = effect_name.substr(len("stance_"))
+			break
+
 	apply_racial_modifiers(player_race)
 	known_spells     = data.get("known_spells", [])
 	known_skills     = data.get("known_skills", [])
@@ -1237,6 +1319,7 @@ func _apply_equipment_from_inventory() -> void:
 const SPELL_DISPLAY_NAMES := {
 	"shadow_aura": "Aura of the Shadow",
 	"spectral_minion": "Morthan's Call",
+	"campfire_warmth": "Warmth of the Campfire",
 }
 
 static func spell_display_name(spell_name: String) -> String:
@@ -1474,7 +1557,7 @@ func toggle_backpack() -> void:
 	if backpack_instance:
 		backpack_instance.queue_free()
 		backpack_instance = null
-		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+		Global.restore_mouse_mode()
 		print("🎒 Backpack closed")
 	else:
 		backpack_instance = backpack_scene.instantiate()

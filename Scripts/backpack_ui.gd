@@ -12,9 +12,11 @@ var _dragging := false
 @onready var slot_container = $Panel/MarginContainer/VBoxContainer/ScrollContainer/SlotGrid
 
 const TITLE_H := 24.0
+const POSITION_KEY := "backpack"
 
 func _ready():
 	$Panel.gui_input.connect(_on_panel_gui_input)
+	WindowPosition.load_full_into(POSITION_KEY, $Panel)
 
 	# Title bar
 	var title_lbl := Label.new()
@@ -38,7 +40,7 @@ func _ready():
 	close_btn.offset_bottom = TITLE_H - 2.0
 	close_btn.pressed.connect(func():
 		queue_free()
-		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+		Global.restore_mouse_mode()
 	)
 	$Panel.add_child(close_btn)
 
@@ -149,6 +151,8 @@ func _on_inventory_changed():
 func _on_panel_gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		_dragging = event.pressed
+		if not _dragging:
+			WindowPosition.save(POSITION_KEY, $Panel)
 	elif event is InputEventMouseMotion and _dragging:
 		var p = $Panel
 		p.offset_left += event.relative.x

@@ -2,6 +2,9 @@
 extends CanvasLayer
 class_name TargetFrame
 
+const POSITION_KEY := "target_frame"
+
+@onready var panel:         Panel       = $Panel
 @onready var name_label:    Label       = $Panel/VBox/NameRow/name_label
 @onready var level_label:   Label       = $Panel/VBox/NameRow/level_label
 @onready var faction_label: Label       = $Panel/VBox/NameRow/faction_label
@@ -10,6 +13,7 @@ class_name TargetFrame
 
 var _player: Node = null
 var _target: Node = null
+var _dragging := false
 
 # Appraisal "wrong color" cosmetic effect (failed/critically-failed Insight
 # Check) — overrides the real con-color for a short time, then self-corrects.
@@ -24,6 +28,21 @@ func _ready() -> void:
 	var hp_fill = StyleBoxFlat.new()
 	hp_fill.bg_color = Color(0.75, 0.1, 0.1)
 	hp_bar.add_theme_stylebox_override("fill", hp_fill)
+
+	panel.gui_input.connect(_on_panel_gui_input)
+	WindowPosition.load_position_into(POSITION_KEY, panel)
+
+
+func _on_panel_gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+		_dragging = event.pressed
+		if not _dragging:
+			WindowPosition.save(POSITION_KEY, panel)
+	elif event is InputEventMouseMotion and _dragging:
+		panel.offset_left   += event.relative.x
+		panel.offset_top    += event.relative.y
+		panel.offset_right  += event.relative.x
+		panel.offset_bottom += event.relative.y
 
 
 func set_target(target: Node) -> void:

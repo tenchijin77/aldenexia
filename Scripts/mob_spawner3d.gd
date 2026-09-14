@@ -81,7 +81,18 @@ func _spawn(idx: int, entry: Dictionary, mob_type: String) -> void:
 	var radius: float = entry.get("spawn_radius", 5.0)
 	var angle: float = randf() * TAU
 	var offset := Vector3(cos(angle) * randf() * radius, 0.0, sin(angle) * randf() * radius)
-	mob.global_position = base + offset
+	var target_pos := base + offset
+
+	# Snap onto the navmesh surface. lumora_outskirts_spawns.json hardcodes a
+	# flat Y per entry that rarely matches the real terrain height at the
+	# randomized X/Z offset, leaving mobs floating above/below the ground —
+	# NavigationAgent3D's first path waypoint then becomes a pure vertical
+	# correction with zero horizontal component, which handle_movement()'s
+	# "basically no movement needed" check (monster3d.gd) treats as "arrived,"
+	# permanently blocking any real chase/patrol movement.
+	var map_rid: RID = get_world_3d().navigation_map
+	var snapped: Vector3 = NavigationServer3D.map_get_closest_point(map_rid, target_pos)
+	mob.global_position = snapped if snapped != Vector3.ZERO else target_pos
 
 	get_tree().current_scene.add_child(mob)
 	_active[mob_type] = _active.get(mob_type, 0) + 1

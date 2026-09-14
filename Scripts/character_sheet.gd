@@ -48,6 +48,7 @@ var equipment_slots: Dictionary = {}
 
 func _ready():
 	$main_panel.gui_input.connect(_on_panel_gui_input)
+	WindowPosition.load_full_into(POSITION_KEY, $main_panel)
 
 	# Title bar
 	var title_lbl := Label.new()
@@ -69,7 +70,10 @@ func _ready():
 	close_btn.offset_right  = -2.0
 	close_btn.offset_top    = 2.0
 	close_btn.offset_bottom = DRAG_BAR_HEIGHT - 2.0
-	close_btn.pressed.connect(queue_free)
+	close_btn.pressed.connect(func():
+		queue_free()
+		Global.restore_mouse_mode()
+	)
 	$main_panel.add_child(close_btn)
 
 	# Push content below title bar
@@ -204,6 +208,7 @@ func _make_slot_vbox(slot_name: String) -> VBoxContainer:
 	return vbox
 
 const DRAG_BAR_HEIGHT := 24.0
+const POSITION_KEY := "character_sheet"
 
 func _on_panel_gui_input(event: InputEvent) -> void:
 	var panel = $main_panel
@@ -215,6 +220,8 @@ func _on_panel_gui_input(event: InputEvent) -> void:
 			elif pos.y < DRAG_BAR_HEIGHT:
 				_dragging = true
 		else:
+			if _dragging or _resizing:
+				WindowPosition.save(POSITION_KEY, panel)
 			_dragging = false
 			_resizing = false
 	elif event is InputEventMouseMotion:

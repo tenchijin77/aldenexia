@@ -142,7 +142,7 @@ func _on_slot_clicked(stance_id: String, bg: StyleBoxFlat) -> void:
 
 		combat_node.apply_effect("stance_" + stance_id, INF, stance.get("modifiers", {}))
 		_player.current_stance = stance_id
-		GameLog.log_general("[color=#ffcc66]You assume the %s.[/color]" % stance.get("name", ""))
+		GameLog.log_general("[color=#ffcc66]You assume the %s stance.[/color]" % stance.get("name", ""))
 
 	_refresh_highlight()
 

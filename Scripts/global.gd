@@ -17,6 +17,59 @@ var is_chat_active = false:
 		emit_signal("chat_state_changed", is_chat_active)
 #endregion
 
+#region Mouse mode
+# Single source of truth for whether mouselook (F12, camera_controller.gd) is
+# toggled on. UI windows (backpack, character sheet, pause menu, loot window)
+# always force the mouse visible while they're open, then call
+# restore_mouse_mode() on close instead of hardcoding a mode — that way
+# closing a window resumes mouselook if it was on, instead of silently
+# cancelling it (or, worse, capturing/hiding the mouse when it wasn't).
+var mouselook_enabled: bool = false
+
+func restore_mouse_mode() -> void:
+	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED if mouselook_enabled else Input.MOUSE_MODE_VISIBLE)
+#endregion
+
+#region Settings (system-wide — NOT part of player_data, so they survive
+# independently of which character is loaded/saved, and are available even
+# from the main menu before any character is loaded)
+const SETTINGS_PATH := "user://settings.json"
+
+var settings: Dictionary = {
+	"music_volume": 1.0,   # linear 0..1, applied to the "Music" audio bus
+	"sfx_volume": 1.0,     # linear 0..1, applied to the "SFX" audio bus
+	"invert_look_y": false,  # flips vertical mouse input for both mouselook and head-turn (camera_controller.gd)
+}
+
+func load_settings() -> void:
+	if not FileAccess.file_exists(SETTINGS_PATH):
+		return
+	var file := FileAccess.open(SETTINGS_PATH, FileAccess.READ)
+	if not file:
+		return
+	var parsed = JSON.parse_string(file.get_as_text())
+	file.close()
+	if typeof(parsed) == TYPE_DICTIONARY:
+		for key in parsed:
+			settings[key] = parsed[key]
+
+
+func save_settings() -> void:
+	var file := FileAccess.open(SETTINGS_PATH, FileAccess.WRITE)
+	if file:
+		file.store_string(JSON.stringify(settings, "\t"))
+		file.close()
+
+
+func apply_audio_settings() -> void:
+	var music_bus := AudioServer.get_bus_index("Music")
+	if music_bus >= 0:
+		AudioServer.set_bus_volume_db(music_bus, linear_to_db(settings.get("music_volume", 1.0)))
+	var sfx_bus := AudioServer.get_bus_index("SFX")
+	if sfx_bus >= 0:
+		AudioServer.set_bus_volume_db(sfx_bus, linear_to_db(settings.get("sfx_volume", 1.0)))
+#endregion
+
 #region Character Data
 var current_character_data: Dictionary = {}
 var current_character_name: String = ""
@@ -87,6 +140,8 @@ func _ready():
 	load_character_options()
 	initialize_time_system()
 	start_playtime_tracking()
+	load_settings()
+	apply_audio_settings()
 
 func _process(delta: float):
 	if not time_running:
@@ -196,6 +251,19 @@ func create_character_creation_timestamp() -> Dictionary:
 func grant_currency(field: String, amount: int) -> void:
 	player_data[field] = player_data.get(field, 0) + amount
 	currency_changed.emit()
+
+# ── Loot preferences (advanced-loot style "always loot/ignore/sell this item") ──
+# Keyed by item_id, one of "loot" / "ignore" / "sell", or unset for "always ask"
+# (i.e. show it in the loot window). Set from corpse_loot_window.gd's checkboxes,
+# read back in monster3d.gd's die() to auto-resolve future drops of that item.
+func get_loot_preference(item_id: String) -> String:
+	return player_data.get("loot_preferences", {}).get(item_id, "")
+
+func set_loot_preference(item_id: String, preference: String) -> void:
+	var prefs: Dictionary = player_data.get("loot_preferences", {})
+	prefs[item_id] = preference
+	player_data["loot_preferences"] = prefs
+	save_player_data_to_file()
 
 func set_player_data(data: Dictionary):
 	player_data = data

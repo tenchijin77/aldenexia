@@ -1,10 +1,14 @@
 # guard_npc.gd — Stationary guard NPC. Responds to a nearby player's "hail"
 # (H key or /hail command, handled by player3d.gd:try_hail_nearby_npc()) with
-# a random flavor line, and actively engages any monster that wanders within
-# 4m of its post. Kills are quiet — no loot, no corpse, immediately removed
-# (Monster.die(false, false)) — this is one-directional: monsters have no
-# concept of attacking anything but the player (monster3d.gd hardcodes that
-# target everywhere), so they won't fight back against a guard.
+# a random flavor line, and calls out when it engages a monster. Day/night
+# transitions trigger a scripted back-and-forth between two guards instead of
+# each guard commenting individually — see npc_scripted_conversation.gd and
+# the "GuardConversations" node in the outskirts scene.
+# Actively engages any monster that wanders within 4m of its post. Kills are
+# quiet — no loot, no corpse, immediately removed (Monster.die(false, false))
+# — this is one-directional: monsters have no concept of attacking anything
+# but the player (monster3d.gd hardcodes that target everywhere), so they
+# won't fight back against a guard.
 extends CharacterBody3D
 class_name GuardNPC
 
@@ -18,11 +22,13 @@ enum GuardState { IDLE, ENGAGE }
 
 @export var npc_name: String = "Lumora Guard"
 @export var npc_faction: String = "Wardens of the Sacred Flame"
+@export var flavor_text_path: String = "res://Data/guard_flavor_text.json"
 
 @onready var name_label: Label3D = $NameLabel
 @onready var nav_agent: NavigationAgent3D = $NavigationAgent3D
+@onready var animation_player: AnimationPlayer = $Character/AnimationPlayer
 
-var _flavor_lines: Array = []
+var _flavor: NPCFlavorText
 
 var combat_node: CombatNode
 var level: int = 8  # mirrors combat_node.level; exposed at the top level like monster3d.gd's `level`
@@ -42,24 +48,39 @@ func _ready() -> void:
 	add_to_group("npc_guard")
 	if name_label:
 		name_label.text = npc_name
-	_flavor_lines = _load_flavor_lines()
+	_flavor = NPCFlavorText.new(flavor_text_path)
 	home_position = global_position
 	_setup_combat()
-
-
-func _load_flavor_lines() -> Array:
-	var file := FileAccess.open("res://Data/guard_flavor_text.json", FileAccess.READ)
-	if not file:
-		return []
-	var data = JSON.parse_string(file.get_as_text())
-	file.close()
-	return data if typeof(data) == TYPE_ARRAY else []
+	_setup_animations()
 
 
 func respond_to_hail() -> void:
-	if _flavor_lines.is_empty():
+	_face_player()
+	_say_flavor("hail")
+
+
+func _face_player() -> void:
+	var players := get_tree().get_nodes_in_group("player")
+	if players.is_empty():
 		return
-	var line: String = _flavor_lines[randi() % _flavor_lines.size()]
+	var player: Node3D = players[0]
+	var target_pos := player.global_position
+	target_pos.y = global_position.y  # stay upright, don't tilt up/down toward the player
+	if target_pos.distance_to(global_position) > 0.01:
+		look_at(target_pos, Vector3.UP)
+
+
+func _say_flavor(category: String) -> void:
+	var line := _flavor.get_line(category)
+	if line == "":
+		return
+	say(line)
+
+
+# Speaks an exact line (as opposed to _say_flavor's random pick from this
+# guard's own flavor file) — used by npc_scripted_conversation.gd to hand
+# specific dialogue to specific guards during a scripted exchange.
+func say(line: String) -> void:
 	GameLog.log_general("[color=#cccc88]%s says, \"%s\"[/color]" % [npc_name, line])
 
 
@@ -108,6 +129,60 @@ func _load_guard_stats() -> Dictionary:
 	return {}
 
 
+# ── Animation ─────────────────────────────────────────────────────────────────
+# Guards use a different Mixamo model (models/guard/character.fbx, "Paladin J
+# Nordstrom") than the player/humanoid monsters. Its own idle + sword-and-
+# shield-attack downloads are properly calibrated to its rest pose/proportions
+# — reusing the player model's idle/attack clips looked wrong (retargeted mocap
+# across models with different proportions/rest poses doesn't reliably line
+# up). walk/death have no guard-specific replacement, so those two are still
+# pulled from the player's downloads, but with every track's bone path
+# rewritten from "mixamorig1_<Bone>" (the player model's convention) to
+# "mixamorig_<Bone>" (this model's own, unrenamed) at build time — see
+# models/guard/guard_animations.res and the build step that assembled it.
+# All four animations in that library consistently target the guard's actual
+# bone names, so no runtime skeleton renaming is needed here.
+func _setup_animations() -> void:
+	if not animation_player:
+		return
+	var lib := load("res://models/guard/guard_animations.res") as AnimationLibrary
+	if not lib:
+		return
+	if animation_player.has_animation_library(""):
+		animation_player.remove_animation_library("")
+	animation_player.add_animation_library("", lib)
+
+
+var _attack_anim_timer: float = 0.0  # counts down while an attack swing should stay visible
+
+
+func _update_animation() -> void:
+	if not animation_player or animation_player.get_animation_list().is_empty():
+		return
+	if _attack_anim_timer > 0.0:
+		return
+	var moving := Vector2(velocity.x, velocity.z).length() > 0.1
+	var anim_name := "walk" if moving else "idle"
+	if animation_player.current_animation != anim_name:
+		animation_player.play(anim_name, 0.15)
+
+
+func _play_attack_animation() -> void:
+	if not animation_player or not animation_player.has_animation("attack"):
+		return
+	animation_player.play("attack", 0.1)
+	_attack_anim_timer = animation_player.get_animation("attack").length
+
+
+# Not called anywhere yet — guards have no health/damage-taking system in this
+# codebase (monsters only ever attack the player, never a guard; see the file
+# header), so nothing currently puts a guard in a state to die. Wired here so
+# it's a one-line hookup whenever guard vulnerability gets built.
+func play_death_animation() -> void:
+	if animation_player and animation_player.has_animation("death"):
+		animation_player.play("death")
+
+
 # ── Engagement state machine ─────────────────────────────────────────────────
 
 func _physics_process(delta: float) -> void:
@@ -115,6 +190,9 @@ func _physics_process(delta: float) -> void:
 		attack_timer -= delta
 		if attack_timer <= 0.0:
 			can_attack = true
+
+	if _attack_anim_timer > 0.0:
+		_attack_anim_timer -= delta
 
 	match state:
 		GuardState.IDLE:
@@ -129,6 +207,7 @@ func _physics_process(delta: float) -> void:
 			_process_engage(delta)
 
 	move_and_slide()
+	_update_animation()
 
 
 func _scan_for_targets() -> void:
@@ -144,6 +223,7 @@ func _scan_for_targets() -> void:
 	if nearest:
 		attack_target = nearest
 		state = GuardState.ENGAGE
+		_say_flavor("engage")
 
 
 func _process_engage(delta: float) -> void:
@@ -212,6 +292,7 @@ func _move_toward(target_pos: Vector3, stop_distance: float, delta: float) -> vo
 func _perform_attack() -> void:
 	can_attack = false
 	attack_timer = attack_cooldown
+	_play_attack_animation()
 
 	if not (attack_target.get("combat_node") is CombatNode):
 		return

@@ -16,7 +16,15 @@ extends CharacterBody3D
 @export var attack_range: float = 2.0
 @export var aggro_range: float = 150.0  # Raw JSON value (2D-era units); scaled to 3D meters at runtime
 const AGGRO_RANGE_SCALE: float = 10.0   # Matches speed scale (speed/10 = m/s)
-const MAX_AGGRO_DISTANCE: float = 5.0   # Hard cap: monsters never aggro beyond this many meters
+const MAX_AGGRO_DISTANCE: float = 5.0   # Hard cap: monsters never *notice* the player by sight beyond this many meters (can_see_player()) — once aggroed (by sight, or by taking damage/threat from any range, e.g. a spell pull), there is no leash — see state_chase()
+const CHASE_SPEED_MULTIPLIER: float = 2.0  # only while actively chasing (not patrolling) — see handle_movement()
+
+# Humanoid-shaped mob types get the same Mixamo character model/animations as
+# the player and guards instead of the generic placeholder box, swapped in at
+# runtime by _setup_humanoid_visual() — see monster_template.tscn, which is
+# shared by every mob type and keeps the box as the default/fallback visual.
+const HUMANOID_MOB_TYPES: Array = ["bandit", "skeleton", "goblin"]
+const ATTACK_ANIMS := ["attack_horizontal", "attack_downward"]
 
 @export_group("Loot & XP")
 @export var category: String = "animal"  # undead, animal, humanoid, insect, elemental, reptile
@@ -83,6 +91,12 @@ var aggro_table: Dictionary = {}
 
 # ===== NAVIGATION =====
 @onready var nav_agent: NavigationAgent3D = $NavigationAgent3D
+@onready var mesh_instance: MeshInstance3D = $MeshInstance3D
+@onready var collision_shape: CollisionShape3D = $CollisionShape3D
+
+# Only set for HUMANOID_MOB_TYPES — see _setup_humanoid_visual()
+var animation_player: AnimationPlayer = null
+var _attack_anim_timer: float = 0.0
 
 # ===== INITIALIZATION =====
 func _ready() -> void:
@@ -131,6 +145,9 @@ func _ready() -> void:
 		secret_note     = stats.get("secret_note", secret_note)
 		corruption      = stats.get("corruption", corruption)
 
+	if monster_name in HUMANOID_MOB_TYPES:
+		_setup_humanoid_visual()
+
 	combat_node = CombatNode.new()
 	add_child(combat_node)
 	_configure_combat_node()
@@ -140,14 +157,67 @@ func _ready() -> void:
 
 	# Configure NavigationAgent
 	if is_inside_tree() and nav_agent:
-		nav_agent.path_desired_distance = 0.5
-		nav_agent.target_desired_distance = 0.5
+		# "Have I reached this waypoint" is checked in full 3D (including Y),
+		# and the baked navmesh surface can sit a good bit above the true
+		# collision floor at a given spot (measured up to ~0.7m on this
+		# terrain) — too small a value here means a monster can get
+		# permanently stuck waiting to close a vertical gap gravity will
+		# never let it close, never advancing past the first waypoint.
+		nav_agent.path_desired_distance = 1.5
+		nav_agent.target_desired_distance = 1.5
 		nav_agent.max_speed = speed
 
 	change_state(State.IDLE)
 
 	print("✅ %s (Lv%d) loaded | HP:%d | SPD:%.1f | DMG:%d | AC:%d | Faction:%s | Category:%s" %
 		[monster_name, level, max_health, speed, damage, armor_class, faction, category])
+
+
+# ===== HUMANOID VISUAL (reuses the player/guard Mixamo model + shared anim library) =====
+
+func _setup_humanoid_visual() -> void:
+	mesh_instance.visible = false
+
+	var capsule := CapsuleShape3D.new()
+	capsule.radius = 0.35
+	capsule.height = 1.8
+	collision_shape.shape = capsule
+	collision_shape.position = Vector3(0, 0.9, 0)
+
+	var character_scene := load("res://models/player/character.fbx")
+	var character: Node3D = character_scene.instantiate()
+	character.name = "Character"
+	character.transform = Transform3D.IDENTITY.rotated(Vector3.UP, PI)  # same 180°-Y facing fix baked into player3d.tscn/guard_npc.tscn's Character node
+	add_child(character)
+
+	animation_player = character.get_node("AnimationPlayer")
+	var lib := load("res://models/player/player_animations.res") as AnimationLibrary
+	if lib and animation_player:
+		if animation_player.has_animation_library(""):
+			animation_player.remove_animation_library("")
+		animation_player.add_animation_library("", lib)
+
+
+func _update_animation() -> void:
+	if not animation_player or animation_player.get_animation_list().is_empty():
+		return
+	if _attack_anim_timer > 0.0:
+		return
+	var moving := Vector2(velocity.x, velocity.z).length() > 0.1
+	var anim_name := "idle"
+	if moving:
+		anim_name = "run" if current_state == State.CHASE else "walk"
+	if animation_player.current_animation != anim_name:
+		animation_player.play(anim_name, 0.15)
+
+
+func _play_attack_animation() -> void:
+	if not animation_player or animation_player.get_animation_list().is_empty():
+		return
+	var anim_name: String = ATTACK_ANIMS[randi() % ATTACK_ANIMS.size()]
+	animation_player.play(anim_name, 0.1)
+	_attack_anim_timer = animation_player.get_animation(anim_name).length
+
 
 # ===== LOAD STATS FROM JSON =====
 func load_monster_stats(p_monster_name: String) -> Dictionary:
@@ -203,6 +273,9 @@ func _physics_process(delta: float) -> void:
 		if attack_timer <= 0.0:
 			can_attack = true
 
+	if _attack_anim_timer > 0.0:
+		_attack_anim_timer -= delta
+
 	# Find player safely
 	if not is_instance_valid(player):
 		var players: Array = get_tree().get_nodes_in_group("player")
@@ -232,10 +305,18 @@ func _physics_process(delta: float) -> void:
 			velocity.y -= 20.0 * delta
 		move_and_slide()
 
+	_update_animation()
+
 func add_threat(attacker: Node, amount: float) -> void:
 	if amount <= 0.0 or not is_instance_valid(attacker):
 		return
 	aggro_table[attacker] = aggro_table.get(attacker, 0.0) + amount
+	# Being attacked pulls a monster into combat immediately, regardless of
+	# can_see_player()'s (short, behavior-scaled) vision range — otherwise a
+	# monster can take damage all day while standing in IDLE/PATROL, since
+	# those states only ever check for the player by sight, never by threat.
+	if current_state == State.IDLE or current_state == State.PATROL:
+		change_state(State.CHASE)
 
 func get_current_target() -> Node:
 	if aggro_table.is_empty():
@@ -280,12 +361,10 @@ func state_chase(delta: float) -> void:
 	var target: Node = get_current_target()
 	var distance: float = global_position.distance_to(target.global_position)
 
-	# Lost aggro — leash uses the same effective range so monsters don't chase forever
-	var leash_range: float = minf(aggro_range / AGGRO_RANGE_SCALE, MAX_AGGRO_DISTANCE)
-	if distance > leash_range:
-		change_state(State.PATROL)
-		aggro_table.clear()
-		return
+	# No leash, by design — once aggroed, a monster chases until it or its
+	# target dies. This is deliberate EQ-style behavior: a distance-based
+	# give-up would let players train mobs through an area and shake them by
+	# just running past a leash point.
 
 	# In melee range
 	if distance <= attack_range:
@@ -315,30 +394,41 @@ func state_attack(delta: float) -> void:
 		perform_attack()
 
 # ===== MOVEMENT =====
+# Gravity/move_and_slide() must run every call regardless of whether there's
+# horizontal nav movement to do this frame — a monster can be legitimately
+# "not yet at its next waypoint" for purely vertical reasons (the navmesh
+# surface a waypoint sits on can differ from the actual collision floor by a
+# bit, e.g. by roughly cell_height), and gating gravity behind the same
+# "close enough, nothing to do" check used to deadlock those monsters
+# permanently: they needed gravity to reach the height that check would
+# consider "arrived," but gravity was gated behind that exact check.
 func handle_movement(delta: float) -> void:
 	if not is_inside_tree() or not nav_agent:
 		return
 
-	if nav_agent.is_navigation_finished():
-		return
+	velocity.x = 0.0
+	velocity.z = 0.0
 
-	var next_position: Vector3 = nav_agent.get_next_path_position()
-	var to_next: Vector3 = next_position - global_position
-	var flat_dir: Vector3 = Vector3(to_next.x, 0, to_next.z)
+	if not nav_agent.is_navigation_finished():
+		var next_position: Vector3 = nav_agent.get_next_path_position()
+		var to_next: Vector3 = next_position - global_position
+		var flat_dir: Vector3 = Vector3(to_next.x, 0, to_next.z)
 
-	if flat_dir.length() < 0.1:
-		return
+		if flat_dir.length() >= 0.1:
+			var direction: Vector3 = flat_dir.normalized()
+			look_at_target(global_position + direction)
 
-	var direction: Vector3 = flat_dir.normalized()
-	look_at_target(global_position + direction)
-
-	var speed_3d = speed / 10.0
-	speed_3d *= (1.0 - combat_node.get_modifier("speed_slow"))
-	velocity.x = direction.x * speed_3d
-	velocity.z = direction.z * speed_3d
+			var speed_3d = speed / 10.0
+			if current_state == State.CHASE:
+				speed_3d *= CHASE_SPEED_MULTIPLIER  # most base speeds (2.5-3.5 m/s) trail the player's 5 m/s walk — an aggroed monster should feel urgent, not be outrun at a stroll
+			speed_3d *= (1.0 - combat_node.get_modifier("speed_slow"))
+			velocity.x = direction.x * speed_3d
+			velocity.z = direction.z * speed_3d
 
 	if not is_on_floor():
 		velocity.y -= 20.0 * delta
+	else:
+		velocity.y = 0.0
 
 	move_and_slide()
 
@@ -349,6 +439,7 @@ func handle_movement(delta: float) -> void:
 func perform_attack() -> void:
 	can_attack = false
 	attack_timer = attack_cooldown * (1.0 + combat_node.get_modifier("attack_speed_slow"))
+	_play_attack_animation()
 
 	var target: Node = get_current_target()
 	if not target:
@@ -361,7 +452,9 @@ func perform_attack() -> void:
 			die()
 			return
 		if result["damage"] > 0:
-			if target.has_method("apply_damage"):
+			if target == player:
+				target.take_damage(result["damage"], self)
+			elif target.has_method("apply_damage"):
 				target.apply_damage(result["damage"])
 			elif target.has_method("take_damage"):
 				target.take_damage(result["damage"])
@@ -457,7 +550,7 @@ func die(award_xp: bool = true, drop_loot: bool = true) -> void:
 	print("💀 %s died! (XP: %d, Coins: %.2f, Category: %s)" % [monster_name, xp_gain, coin_modifier, category])
 
 	if drop_loot:
-		pending_loot = roll_loot()
+		pending_loot = _auto_process_loot(roll_loot())
 		is_lootable = not pending_loot.is_empty()
 		if is_lootable:
 			print("  → Right-click corpse to loot")
@@ -485,13 +578,14 @@ func die(award_xp: bool = true, drop_loot: bool = true) -> void:
 				var next_thresh: int = int(Global.xp_table.get(str(new_lvl + 1), 0))
 				Global.player_data["player_level"]   = new_lvl
 				Global.player_data["xp_next_level"]  = next_thresh if next_thresh > 0 else 999999
-				GameLog.log_general("[color=#ffdd44][b]You have reached level %d![/b][/color]" % new_lvl)
+				GameLog.log_general("[color=#ffdd44][b]Fortune smiles upon you; your adventures have made you stronger! You are now level %d.[/b][/color]" % new_lvl)
 				if p.has_method("on_level_up"):
 					p.on_level_up(new_lvl)
 
 			Global.save_player_data_to_file()
 
-	# TODO: AnimationPlayer death animation
+	if animation_player and animation_player.has_animation("death"):
+		animation_player.play("death")
 
 	if not drop_loot:
 		queue_free()
@@ -520,6 +614,33 @@ func _on_fully_looted() -> void:
 	if is_instance_valid(loot_window):
 		loot_window.queue_free()
 	queue_free()
+
+# Currency is always auto-collected (no reason to ever manually click for
+# coins). Everything else is resolved against the player's saved loot
+# preference — "loot"/"sell" auto-loot it here, "ignore" discards it, and
+# anything with no saved preference is left for the loot window to show.
+func _auto_process_loot(drops: Array) -> Array:
+	var remaining: Array = []
+	for drop in drops:
+		var item_id: String = drop["item"]
+		if CURRENCY_MAP.has(item_id):
+			var currency_field: String = CURRENCY_MAP[item_id]
+			Global.grant_currency(currency_field, drop["quantity"])
+			GameLog.log_general("[color=#ffd966]You receive %d %s.[/color]" % [drop["quantity"], currency_field.capitalize()])
+			continue
+		match Global.get_loot_preference(item_id):
+			"loot", "sell":
+				if Inventory.get_item_definition(item_id).is_empty():
+					remaining.append(drop)  # not a real item yet — fall back to manual
+				else:
+					Inventory.add_to_basic_inventory(item_id)
+					GameLog.log_general("You automatically loot %s." % item_id.replace("_", " ").capitalize())
+			"ignore":
+				pass  # discarded silently
+			_:
+				remaining.append(drop)
+	return remaining
+
 
 # ===== LOOT =====
 func roll_loot() -> Array:
@@ -578,6 +699,10 @@ func change_state(new_state: State) -> void:
 	match new_state:
 		State.PATROL:
 			pick_new_patrol_point()
+		State.CHASE:
+			if get_current_target() == player:
+				var desc: String = monster_description if monster_description != "" else get_monster_name()
+				GameLog.log_combat("[color=orange]%s attacks you![/color]" % desc.capitalize())
 		State.ATTACK:
 			velocity = Vector3.ZERO
 

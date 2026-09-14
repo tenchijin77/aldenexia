@@ -1,0 +1,41 @@
+{
+  "day": [
+    [
+      "Mornin'. Quiet night, for once.",
+      "Don't jinx it. Shift's not over 'til the captain says so."
+    ],
+    [
+      "Sun's finally up. My feet are killing me.",
+      "Should've taken the day shift like I did.",
+      "You say that every time."
+    ],
+    [
+      "Reckon we'll get relieved on time today?",
+      "When have we ever?"
+    ],
+    [
+      "Nice to see the road again. Night watch plays tricks on the eyes.",
+      "Tricks, or that flask you keep in your pack?",
+      "...Fair point."
+    ]
+  ],
+  "night": [
+    [
+      "Beautiful night, innit?",
+      "If you like the smell of dustwalker dung, sure."
+    ],
+    [
+      "Torches lit?",
+      "Lit and watched. Nothing's sneaking past me tonight.",
+      "That's what you said last week."
+    ],
+    [
+      "Moon's got that strange color again.",
+      "Captain says pay it no mind. Captain's not the one staring at it all night."
+    ],
+    [
+      "Stay sharp. Dark's when the outskirts get interesting.",
+      "Interesting's one word for it."
+    ]
+  ]
+}

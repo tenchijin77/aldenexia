@@ -65,25 +65,268 @@ completed:
 
 -added ctrl-escape to clear current target and stop autoattack
 
--fixed scroll not disappearing from backpack after learning it (wasn't refreshing the UI)
+8/25/26
+------------
+-fixed camera settings on player to line up better
+-implement NPC flavortext (character can hail the guards and they will respond with random feedback text) H key will be hail command or /hail in chat window
+-fix spell scrolls so they disappear from inventory when used
+-implement stance bar, this should be a slightly smaller bar, above the spells hotbar at the bottom of the screen, indented a small bit to the right (like it is tabbed in from the spells' bar layout). It should be hidden if a class doesn't have stances.
+-implement spells for the voidknight class up through level 3.
+-implement guards protecting their area (4m): when enemies enter their area they will engage and actively attack them. When the guards kill an enemy they will drop no loot or corpse and be removed from the game when killed.
+-implement mob appraisal system: lets the player determine the attitude(stance towards the player),strengths/weaknesses of the mob, and Level  - I key, or /appraise
+-added threat system to monsters
 
--implemented voidknight spells 1-3: life siphon, aura of the shadow, blood ritual, necrotic grasp, shadowlight, improved block (passive), morthan's call (skeleton pet)
+STANCE SYSTEM
 
--added voidknight stances (shadow ascendant, necrotic bastion, dusk walker) with a stance bar above the action bar
+All stances have a 10 second cooldown to switch between them and persist until changed. Only one stance can be active at a time. Hover over them to see their details, and show in the spell book as well so people can see the details there if desired. They should be automatically unlocked, with no need to learn them.
 
--implemented pet command ui for morthan's call (attack/stop/back/follow/sit/guard)
+Shadow Ascendant (Offensive Stance)
+Effect: +15% damage, -10% defense, -35% threat generation
+Use case: DPS or solo play, not recommended for group tanking
 
--implemented guard npcs: hail them for flavor text, they fight enemies that wander close to them, and can now be targeted
+Necrotic Bastion (Defensive Stance)
+Effect: +15% defense, -10% damage
+Unique Bonus: +25% Life Drain healing
+This stance offsets the damage loss through enhanced life steal and maintains threat generation through healing, making it ideal for group tanking situations.
 
--implemented mob appraisal system (insight check, con coloring, ally/neutral/enemy status)
+Dusk Walker (Balanced Stance)
+Effect: +7% damage, +7% defense
+Use case: Flexible for mixed scenarios, solo or group content
 
--added a real threat/aggro system so tanking/dps stances actually change who monsters attack
+CORE MECHANICS
 
--made the combat log detachable into its own window so it can sit next to general chat
+Life Drain Sustainability: Life-draining attacks heal the Voidknight for a portion of damage dealt, ensuring survivability increases with combat intensity.
 
--fixed guards not being targetable, and made the detach/reattach log buttons clearly labeled
+Undead Army: Voidknights summon skeleton warriors, wraiths, and shades that fight alongside them. These pets have no duration and persist until killed, allowing players to build an army of undead allies.
 
--added archery target and bone spear models to lumora outskirts
+Necromantic Control: DoTs and debuffs are Voidknight's primary tool for controlling enemy behavior and weakening them over time.
+
+Resource System: Mana (regenerates passively)
+
+PET SYSTEM
+
+All Voidknight summons follow these rules:
+- No duration - persist until killed by enemy damage
+- Inherit player buffs and debuffs normally (player and group can cast buffs on them)
+- Auto-defend player when attacked
+- Can be resummoned after death
+- Follow standard commands: Attack, Follow, Guard, Passive
+
+SPELL LIST
+
+Level 1:
+
+Life Siphon (Melee)
+Deals 50 necrotic damage, heals self for 30-70% damage dealt (roll randomly to determine amount).
+
+Aura of the Shadow (Aura)
+Reduces enemy accuracy by 5% in 10m radius.
+Duration: 15 minutes
+
+Level 2:
+
+Blood Ritual (Self-Buff)
+Sacrifice 10% health for +10% attack power.
+Duration: 30 seconds
+
+Necrotic Grasp (Debuff)
+Slows target's movement speed and attack speed by 15% for 6 seconds.
+
+Shadowlight (Utility)
+Creates dim violet light on weapon or hand, reveals hidden undead.
+Duration: 1 hour
+
+Level 3:
+
+Improved Block (Passive, shows in spellbook, but no need to equip or cast)
+Block absorbs 10% more damage and has 5% chance to stagger attacker.
+
+Morthan's Call (Summon)
+Summons skeleton warrior that scales at 40% of caster's health.
+No duration - lasts until killed
+
+
+
+
+MOB Appraisal system (this lets the player see monster difficulty, weaknesses, and faction)
+HYBRID APPRAISAL SYSTEM
+
+AUTOMATIC INFO (always shown):
+- NPC Name
+- Level (colored by difficulty: Green/Yellow/Orange/Red/Purple)
+- Basic faction standing (Ally/Neutral/Enemy) Nameplate color: Ally: Blue, Neutral: White, Enemy: Red
+
+INSIGHT CHECK (skill-based, cooldown):
+- Press C or use Appraise command /appraise
+- Roll Check (Intelligence or Wisdom, whichever is higher)
+
+APPRAISAL ROLL MECHANIC:
+
+Roll vs. target's Defense (Intelligence or Wisdom, whichever is higher)
+
+DC (Difficulty Class) by target level difference:
+
+Green (5+ levels below): DC 5 (auto-success)
+Yellow (2-4 levels below): DC 10 (easy)
+Orange (Equal level): DC 15 (moderate)
+Red (2-4 levels above): DC 20 (hard)
+Purple (5+ levels above): DC 25 (very hard)
+
+ROLL FORMULA:
+Player rolls d20 + (Intelligence modifier OR Wisdom modifier, whichever is higher) vs. Target DC
+
+SUCCESS:
+
+Display all difficulty text + faction modifiers
+Reveal resistances, weaknesses, special abilities
+Show loot quality estimate
+Show exact faction reputation
+
+FAILURE:
+
+Display only base difficulty color (might be wrong)
+Show generic "You sense nothing unusual"
+Color could flash incorrectly then correct after 10 seconds
+No additional details revealed
+
+CRITICAL SUCCESS (roll 20):
+
+All success info PLUS hidden details (secret boss mechanic, rare loot chance, etc.)
+
+CRITICAL FAILURE (roll 1):
+
+Difficulty color is completely wrong for 30 seconds
+Misleading text (appears weaker/stronger than actual)
+Then corrects naturally
+
+COOLDOWN: 10 seconds between Appraisals on same target
+- Success reveals:
+  - Exact difficulty assessment text
+  - Estimated threat level
+  - Specific faction modifiers
+  - Special notes (weaknesses, resistances, loot quality)
+- Failure reveals:
+  - Generic "You sense nothing unusual" or misread the threat level
+  - Could display wrong difficulty color temporarily
+- Cooldown: 10 seconds per target (prevents spam)
+
+
+
+COLOR CODING:
+- Green = Trivial (low XP)
+- Yellow = Easy (standard)
+- Orange = Moderate (challenging)
+- Red = Hard (dangerous)
+- Purple = Deadly (impossible)
+
+FACTION MODIFIERS:
+- Allies get friendly text
+- Enemies get hostile warnings
+- Neutrals get cautious assessment
+
+---
+
+DIFFICULTY ASSESSMENT TEXTS:Matched the pre-existing con system:
+
+Red  - 6 or more levels above
+Orange - 4-5 levels above
+Yellow - 2-3 levels above
+White - 1 level above/below or same level
+Blue - 2-3 levels below
+Green - 4-5 levels below
+Grey - 6+ levels below (no XP)
+
+(Trivial - 5+ levels below):
+- "This creature poses no threat whatsoever."
+- "You could defeat this in your sleep."
+- "A pathetic opponent. You could easily dispatch it quickly."
+- "Not even a warm-up."
+
+(Easy - 2-4 levels below):
+- "This appears to be a simple opponent."
+- "You have the advantage here."
+- "A straightforward victory awaits."
+- "Nothing you can't handle."
+- "An easy kill, should you desire it."
+
+(Moderate - Equal level, within 1 level):
+- "A worthy opponent. This could be interesting."
+- "The battle would be evenly matched."
+- "You sense a capable foe before you."
+- "This one fights with skill."
+- "Victory is possible, but not assured."
+
+(Hard - 2-4 levels above):
+- "This creature is significantly more powerful."
+- "You sense great danger ahead."
+- "Engaging this foe would be quite risky."
+- "You are outmatched here."
+- "Retreat may be the wisest course."
+
+(Deadly - 5+ levels above):
+- "This being radiates an overwhelming aura of power."
+- "You have no hope against such a force."
+- "Flight is your only option."
+- "Death awaits you here."
+- "Do not engage. You will perish."
+
+---
+
+FACTION MODIFIERS:
+
+Ally:
+- Prefix: "Your ally appears... " or "This friend is..."
+- Suffix: "They seem eager to fight alongside you."
+
+Neutral:
+- Prefix: "This stranger..."
+- Suffix: "Their intentions remain unclear."
+
+Enemy:
+- Prefix: "Your enemy..."
+- Suffix: "They regard you with clear hostility."
+- Suffix: "You sense their desire for your death."
+
+---
+
+INSIGHT CHECK RESULTS:
+
+Successful Check reveals additional details:
+- "Resistances: [Fire, Magic]"
+- "Weaknesses: [Ice, Holy]"
+- "Special Ability: [Summons allies / Casts spells / Regenerates]"
+- "Loot Quality: [Common/Uncommon/Rare/Epic]"
+- "Faction Reputation: [Hated / Disliked / Neutral / Liked / Revered]"
+
+Failed Check reveals confusion:
+- "You misjudge their power... they may be stronger than you thought."
+- "Something about this creature unnerves you. It's harder to read than expected."
+- "Your senses betray you. The difficulty is unclear."
+
+---
+
+SPECIAL CASES:
+
+Boss Mobs:
+- Always show as PURPLE regardless of level
+- Text: "An aura of ancient power surrounds this being."
+- Check reveals: Boss name, special mechanics, recommended group size
+
+Corrupted/Void Mobs:
+- Add purple aura description
+- Text includes: "This creature is twisted by the Void."
+- Check reveals: Void corruption level, purification options
+
+Faction-Specific Text:
+
+If Revered with their faction:
+- "This being views you as an ally."
+- Appraise reveals they won't attack
+
+If Hated:
+- "This creature will attack on sight."
+- Appraise reveals aggressive behavior
+
 
 
 to do: (in order of importance)
@@ -94,10 +337,12 @@ to do: (in order of importance)
 
 -update character sprites, to include animated sprites for 2 character classes, (one caster, one melee)
 
+-implement first working npc with dialog, thinking of starting with guards and a vender NPC
+
 -implement buying and selling from vendor npc
 
 -create blender models for all lumora outskirts mobs: skeleton, goblins (x2), spider, bandit, snake, slime, dune scarab, and ghost_fire
 
 -create blender models for male and female human character_stats
 
--continue voidknight spells to level 4+ (levels 1-3 done); ensure leveling and xp works
+-create voidknight spells and get it working to level 4; ensure leveling and xp works

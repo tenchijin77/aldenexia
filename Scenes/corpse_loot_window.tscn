@@ -8,8 +8,8 @@ script = ExtResource("1_lootwin")
 [node name="Panel" type="Panel" parent="."]
 offset_left = 220.0
 offset_top = 160.0
-offset_right = 500.0
-offset_bottom = 480.0
+offset_right = 440.0
+offset_bottom = 360.0
 
 [node name="Margin" type="MarginContainer" parent="Panel"]
 layout_mode = 1
@@ -44,7 +44,6 @@ layout_mode = 2
 [node name="Scroll" type="ScrollContainer" parent="Panel/Margin/VBox"]
 layout_mode = 2
 size_flags_vertical = 3
-custom_minimum_size = Vector2(0, 200)
 
 [node name="LootList" type="VBoxContainer" parent="Panel/Margin/VBox/Scroll"]
 layout_mode = 2

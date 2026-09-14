@@ -22,10 +22,15 @@
 - `X` — sit/stand (rest to regen HP/Mana/Stamina faster)
 
 ### Camera
-- `F12` — toggle mouse-look on/off (captures/releases the cursor)
-- Mouse motion (while mouse-look is on) — look around; clamped to 180° left/right, 90° up/down
+- `F12` — toggle free-look mouselook on/off (captures/releases the cursor). Uncapped
+  yaw (spins fully around), pitch capped only to avoid flipping past straight up/down.
+  Changed 2026-09-13 — was clamped to 180°/90° like a "head turn"; see below.
+- Hold Right Mouse Button — "head turn" look, independent of mouselook: capped to a
+  realistic 180° left/right, 90° up/down range, doesn't move past that cap, stays where
+  you left it on release. Added 2026-09-13. Captures the cursor only while held.
 - Mouse wheel — zoom in/out
 - `Home` — cycle camera mode (behind / angled / first-person)
+- Both look modes respect the "Invert Look Y" option (Escape → Options), added 2026-09-14.
 
 ### Combat / Targeting
 - `Tab` — target nearest enemy
@@ -35,6 +40,8 @@
 - Left-click (cursor visible) — target via raycast; also swings if in range
 - `melee_attack` action — defined but currently **unbound to any key** (known gap)
 - `1`–`9`, `0`, `-`, `=` — action bar slots (cast spell / use skill in that slot)
+- Taking damage from a monster automatically switches your target to it (added 2026-09-14) —
+  no more losing track of who's actually hitting you mid-fight.
 
 ### Interface
 - `C` — toggle character sheet
@@ -42,7 +49,473 @@
 - `K` — toggle abilities book
 - `H` — hail nearby guard NPC (random flavor line in the General log)
 - `I` — Insight Check (appraise) your current target
-- `Escape` — pause menu
+- `Escape` — pause menu (also cancels chat typing without sending, if the chat box has focus)
+- `Enter` — opens the chat box for typing when nothing else has focus (added 2026-09-13);
+  sends the message and returns focus/movement to the game if the chat box is already focused
+- Escape → **Options** (added 2026-09-14) — Music/Sound volume sliders, Invert Look Y toggle,
+  and a Loot Preferences list (reset an accidentally-marked item's Loot/Ignore/Sell choice
+  without needing to re-encounter it). Settings live in `user://settings.json`, separate from
+  character saves.
+- Every HUD/UI window is now draggable and remembers its position across sessions
+  (added 2026-09-14) — previously only the chat window did; player frame and target frame
+  had no drag handler at all.
+
+### Looting
+- Right-click a corpse (cursor visible) — opens the loot window, or auto-resolves and
+  skips the window entirely if every item on the corpse already has a saved preference
+- Loot window has Loot / Ignore / Sell toggles per item (added 2026-09-13, rendering fixed
+  2026-09-14 — Godot's CheckBox wasn't drawing its check glyph at all, so these are now
+  self-styled toggle buttons instead) — toggling one sets a permanent preference for that
+  item id (applies immediately to the current drop too) so future drops of it are handled
+  automatically without opening the window. Currency always auto-collects, no toggle needed,
+  and now logs "You receive X Copper." same as any other pickup (was silent).
+- The window auto-resizes to fit its contents (added 2026-09-14).
+
+---
+
+## 2026-09-14 — Session 27: The real monster-movement fix, guard's own animations, humanoid mobs, options menu
+
+### Bug Fixes
+
+**Monsters still didn't chase, even after Session 26's fixes — the actual root
+cause** (`monster3d.gd`, `mob_spawner3d.gd`, `Scenes/lumora_outskirts3d.tscn`)
+- Session 26 fixed two real bugs (add_threat() not forcing CHASE, and a too-
+  short leash) but they weren't sufficient — a monster still stood
+  completely frozen even under direct, sustained melee attack. Root-caused
+  with an 8-second real-physics trace (not a single-frame snapshot, which is
+  what let the Session 26 fix look "confirmed" when it wasn't): the zone's
+  baked `NavigationMesh` had **zero vertices** — never actually baked,
+  despite `NavigationRegion3D` being present and enabled. Every path query
+  returned nothing, so `handle_movement()` (used for both PATROL and CHASE)
+  always saw "no path" and did nothing at all — no movement, not even
+  gravity. Re-baking directly failed at first too: the default cell_size of
+  0.25m is sized for small indoor spaces, and tried to generate an
+  impossibly large voxel grid for this ~180×120 unit outdoor zone ("Baking
+  interrupted... would likely crash the engine"). Fixed by setting
+  `geometry_parsed_geometry_type = STATIC_COLLIDERS` (bakes from the zone's
+  own maintained collision shapes instead of GPU mesh data — faster, and
+  what the bake warning itself recommended) and `cell_size`/`cell_height` to
+  0.5, producing a real 466-vertex/391-polygon mesh, saved as
+  `Data/lumora_outskirts_navmesh.tres` and wired into the scene as an
+  external resource (replacing the broken empty embedded one).
+- Second, deeper bug found once the navmesh was real: `mob_spawner3d.gd`
+  hardcodes a flat Y per spawn entry (`lumora_outskirts_spawns.json`) that
+  rarely matches the real terrain height at the randomized X/Z offset,
+  leaving mobs floating above/below the ground. A floating mob's first path
+  waypoint becomes a pure vertical correction (near-zero horizontal delta),
+  and `handle_movement()`'s "basically no movement needed" early-return
+  treated that as "arrived" — permanently frozen one layer deeper than the
+  first bug. Fixed by snapping spawn position onto the navmesh via
+  `NavigationServer3D.map_get_closest_point()` before the mob enters the tree.
+- Third bug, found from the SAME 8-second trace after the above two were
+  fixed: gravity itself was gated behind the identical "close enough, nothing
+  to do" check that gated horizontal movement — so a monster whose
+  navmesh-projected waypoint differed from its true resting height by more
+  than a hair (the baked navmesh surface can legitimately sit above the
+  actual collision floor by a bit) could never fall/settle to the height
+  that check would consider "arrived": it needed gravity to reach that
+  height, but gravity was gated behind reaching it. `handle_movement()`
+  restructured so gravity/`move_and_slide()` run unconditionally every PATROL/
+  CHASE tick, independent of whether there's horizontal nav movement to do.
+- Fourth and final piece, from the SAME trace: even with all three fixed, a
+  monster attacked from ~12m away would take one step then freeze again —
+  `NavigationAgent3D.get_next_path_position()` doesn't advance to the next
+  real waypoint until the agent is within `path_desired_distance` (was 0.5)
+  of the current one, using full 3D (including Y) distance — and the
+  navmesh-vs-floor height gap (measured up to ~0.7m on this terrain) alone
+  already exceeded that, so the agent could wait forever to close a vertical
+  gap it was never going to close. Bumped `path_desired_distance`/
+  `target_desired_distance` to 1.5. Verified end-to-end with a real spawned
+  bandit, hit from 6m, tracked for 8 full seconds of physics: closes
+  distance, correctly switches to melee ATTACK on arrival, holds there.
+- Also fixed while in here: leash removed entirely per explicit request (see
+  New Features below), and monster chase speed doubled (also below) — both
+  needed for the fix to actually feel complete once movement itself worked.
+
+**Guard T-posed** (`guard_npc.gd`, `models/guard/guard_animations.res`)
+- The FIRST guard-animation library build (this same session, superseded
+  before ever reaching the user — see below) mixed two bone-naming
+  conventions in one AnimationLibrary: idle/attack tracks pulled from the
+  guard's own downloads use "mixamorig_<Bone>" (matching the Paladin model's
+  actual skeleton), while walk/death tracks reused from the player's
+  downloads use "mixamorig1_<Bone>". A single runtime skeleton-bone rename
+  pass can only satisfy one convention, not both — so walk/death animated
+  correctly while idle/attack silently found no matching bone and left the
+  guard in bind pose (T-pose) whenever idle or mid-swing. Root-caused by
+  inspecting the saved .res file's raw track path strings directly rather
+  than re-guessing. Fixed at the build step instead of at runtime: walk/death
+  tracks now have every track path rewritten from "mixamorig1_" to
+  "mixamorig_" (the OPPOSITE direction — matching the guard's own unrenamed
+  skeleton) before being saved into the library, so all four animations
+  consistently target the guard's actual bone names and the runtime
+  skeleton-rename function was removed entirely (no longer needed).
+
+**Loot window's Loot/Ignore/Sell controls didn't render** (`corpse_loot_window.gd`)
+- Confirmed from a screenshot: genuinely just bare text, no checkbox glyph
+  at all, no theme override in the project to explain why. Replaced
+  Godot's `CheckBox` with plain toggle-mode `Button`s carrying explicit
+  stylebox overrides (dark/bordered when off, green/bordered when on) —
+  self-drawn, not dependent on any theme icon resource. Same pattern reused
+  for the new Options menu's Invert Look Y toggle.
+
+**Currency drops were silent** (`monster3d.gd`)
+- `_auto_process_loot()` (Session 26) auto-collects currency at death with
+  no GameLog message at all — every other drop type logged something, coins
+  logged nothing, which read as "almost no money dropping" even when it was
+  working correctly. Fixed: now logs "You receive X Copper." (etc.) same as
+  item pickups.
+
+**Day/night transition had a bright flash at the horizon** (`day_night_cycle.gd`)
+- At the exact instant phase flips between DAY and NIGHT, the sun/moon's
+  rotation, color, AND energy all snapped simultaneously — the moon's fixed
+  rotation/cool-blue color/dim energy vs. the sun's completely different
+  "edge" angle/warm-orange color/energy, with no interpolation between them
+  at the boundary itself (daylight-factor math was continuous, but sun vs.
+  moon was a hard `if phase == DAY / else` switch). Rewrote `_apply_lighting()`
+  so DAY-phase rotation/color/energy each crossfade toward the exact moon
+  values as `daylight` approaches 0 (`moon_x.lerp(sun_x, daylight)`) instead
+  of switching to a different fixed "sun edge" value — at daylight=0 this
+  evaluates to precisely what NIGHT phase renders, on both sides of the
+  boundary. Verified numerically at all 4 relevant timestamps (20:59, 21:00,
+  05:59, 06:00): rotation/color/energy are now continuous to 3+ decimal
+  places across both transitions, where they previously snapped.
+
+### New Features
+
+**Real per-mob-type 3D character models** (`monster3d.gd`, new
+`_setup_humanoid_visual()`/`_update_animation()`/`_play_attack_animation()`)
+- Bandit, skeleton, and goblin (`HUMANOID_MOB_TYPES` const) now use the same
+  Mixamo model/animation system as the player instead of the shared
+  placeholder red box every mob type previously rendered as
+  (`monster_template.tscn`'s `BoxMesh`) — hides the box, swaps in
+  `models/player/character.fbx`, resizes collision to a human-scale capsule
+  (matching the player/guard fix), and reuses `player_animations.res` for
+  idle/walk/run/attack/death, driven by the same velocity+state logic as
+  guards. Other mob types (rat, spider, etc.) are unaffected — still the box.
+  `Monster.die()`'s long-standing "TODO: AnimationPlayer death animation" is
+  now implemented for these three (monsters generally still have none).
+
+**Guard's own idle/attack animations** (`models/guard/`)
+- User-downloaded Mixamo "Neutral Idle" and "Sword And Shield Attack",
+  calibrated specifically to the Paladin model's own rest pose/proportions
+  (reusing the player model's clips across models with different
+  proportions doesn't reliably retarget — this was the actual reason the
+  Paladin "didn't render properly" on the first pass with borrowed
+  animations). `guard_animations.res` rebuilt from these two plus the
+  existing walk/death (see Bug Fixes above for the track-naming fix).
+  `_play_attack_animation()` now plays a single "attack" clip (was a random
+  pick between two player-model swings that no longer apply here).
+
+**Monster aggro announcement** (`monster3d.gd`, `change_state()`)
+- The instant a monster enters CHASE targeting the player specifically
+  (`get_current_target() == player` — not a pet or other aggro-table entry),
+  logs e.g. "A Hooded Bandit attacks you!" using the existing
+  `monster_description` field (already phrased naturally: "a hooded
+  bandit"). Fires once per engagement (change_state()'s existing same-state
+  early-return prevents re-firing on every subsequent hit while still in
+  combat).
+
+**No chase leash, by design** (`monster3d.gd`)
+- Removed the distance-based give-up entirely from `state_chase()` per
+  explicit request — EQ-style "once aggroed, chases until it or you die," so
+  players can't train a mob through an area and shake it by outrunning a
+  fixed leash radius. `MAX_CHASE_LEASH_DISTANCE` (added, then removed same
+  session) is gone; `MAX_AGGRO_DISTANCE` (initial by-sight detection range)
+  is untouched and still applies.
+
+**Monster chase speed doubled while actively chasing** (`monster3d.gd`,
+`CHASE_SPEED_MULTIPLIER`)
+- Most base speeds (2.5–3.5 m/s) trailed the player's 5 m/s walk, so a
+  "threatening" aggroed monster could be outrun at a stroll. `handle_movement()`
+  now applies a 2x multiplier only in CHASE state (not PATROL, which stays
+  at its normal ambient pace) — a bandit now closes at ~7 m/s.
+
+**Auto-target the enemy that's hitting you** (`player3d.gd`, `monster3d.gd`)
+- `take_damage()`/`apply_damage()` gained an optional `attacker` parameter;
+  `monster3d.gd`'s attack resolution passes itself when the player is the
+  target. Switches `current_target` (and announces it, same as Tab/click)
+  whenever hit by someone you're not already targeting — skips re-announcing
+  on repeated hits from the same attacker.
+
+**Cooler level-up message** (`monster3d.gd`)
+- "You have reached level X!" → "Fortune smiles upon you; your adventures
+  have made you stronger! You are now level X."
+
+**Options menu** (`pause_menu.gd` restructured, `global.gd`,
+`camera_controller.gd`, new `default_bus_layout.tres`)
+- Escape menu gained an "Options" button that swaps to a second panel
+  (Back/Escape returns to the main pause menu rather than closing outright).
+  Music Volume / Sound Volume sliders (0–100, live-applied on drag, saved on
+  release), an Invert Look Y toggle (affects both mouselook and head-turn —
+  one shared setting, not two), and a Loot Preferences list — every
+  item_id → Loot/Ignore/Sell mapping with a per-item Reset button, so an
+  accidental "Sell" doesn't require re-encountering the item to fix.
+- New `Global.settings` (Dictionary: music_volume, sfx_volume,
+  invert_look_y) persisted to `user://settings.json` — deliberately separate
+  from `player_data`/character saves, since audio/control preferences are
+  system-wide, not per-character, and need to exist even before any
+  character is loaded.
+- Real audio bus infrastructure added — the project had none before (single
+  default Master bus). New `default_bus_layout.tres` (Master/Music/SFX,
+  registered via `project.godot`'s `[audio]` section). Routed the only two
+  LIVE sound sources — `torch.tscn` and `campfire.tscn`'s
+  `AudioStreamPlayer3D`s — to "SFX", and `global_background_music.tscn` to
+  "Music". (`magic_missile.tscn`, `ranged_attack.tscn`, `hand-torch.tscn` are
+  all dead 2D-legacy code — confirmed via reference search before touching
+  anything — so left unbused.)
+- `Global.settings.get("invert_look_y")` now flips the vertical sign in both
+  `camera_controller.gd`'s `_handle_free_look()` and `_handle_head_turn()`.
+
+**Draggable + position-persistent windows, everywhere** (new
+`Scripts/window_position.gd`, `player_frame.gd`, `target_frame.gd`,
+`buff_bar.gd`, `corpse_loot_window.gd`, `character_sheet.gd`, `backpack_ui.gd`)
+- `player_frame`/`target_frame` had no drag handler at all (the actual bug
+  behind "I can't seem to move the player and target frames") — added,
+  matching the drag pattern already used everywhere else. Position
+  persistence (only chat had it before) added via a new shared
+  `WindowPosition` helper (`save()`/`load_position_into()` — position only,
+  so it doesn't fight the loot window's own auto-resize-to-content —
+  `load_full_into()` for resizable windows) to buff bar, loot window,
+  character sheet, and backpack. Stance bar deliberately left non-draggable
+  — it's docked to a fixed position above the action bar by design.
+
+**Loot table data fix, at the user's direction** (`Data/solgrave_expanse_loot.json`)
+- Investigated "almost no money dropping": not a code bug — `edge_spawns`
+  (bandit/skeleton/goblin's actual loot table, despite the zone-name
+  mismatch with where they spawn — the lookup searches all zones regardless
+  of name) had skeleton and goblin already dropping coin, but bandit had
+  none at all (only a 10% dagger chance and 20% leather scrap chance). Added
+  `copper_coin` (60% chance, 5–20) to bandit's table per the user's request
+  to have all humanoid mobs drop coin.
+
+---
+
+## 2026-09-13 — Session 26: Player/guard 3D models, monster chase fix, advanced loot, camera look modes
+
+### New Features
+
+**Player 3D model + Mixamo animations** (`player3d.tscn`, `player3d.gd`)
+- Replaced the placeholder capsule (visual AND collision — radius 1.08m, i.e.
+  2.16m wide, never actually tuned to human scale) with a real Mixamo
+  character model. Collision resized to a sane radius 0.35m / height 1.8m,
+  repositioned so its bottom sits at the node's local Y=0 (the model's own
+  feet are there too), replacing the old "capsule centered on the node
+  origin" convention.
+- 8 Mixamo animations (idle, walk, run, jump, sit, attack_horizontal,
+  attack_downward, death) imported to `models/player/*.fbx`, each stripped
+  down to just its real clip (`mixamo_com` — Mixamo FBX exports also contain
+  a bogus identical-length `Take 001` placeholder in every file) and merged
+  into one shared `AnimationLibrary` at `models/player/player_animations.res`
+  — built once via a headless script rather than kept as 8 separate imported
+  scenes, so the game only loads keyframe data instead of instancing 8x the
+  mesh/skeleton just to steal one animation each.
+- `player3d.gd`: `_setup_animations()` loads that library onto
+  `$Character/AnimationPlayer`, replacing the FBX's own default `""` library
+  (which owns the raw `Take 001`/`mixamo_com` clips and silently blocks
+  `add_animation_library("")` if not removed first — the one real bug hit
+  while wiring this up). `_update_animation()` (called after `move_and_slide()`
+  each physics tick) picks the animation by priority: mid-attack → the
+  attack anim chosen for this swing → airborne → jump → sitting → sit →
+  `current_speed` above/below `WALK_SPEED+0.5` → run/walk → idle.
+  `_trigger_attack_animation()` (called from both `attack_current_target()`
+  and `perform_melee_attack()`) randomly picks attack_horizontal or
+  attack_downward per swing, held via `_current_attack_anim` for the
+  duration of the `attacking` flag. `die()` plays the death animation
+  directly (bypasses `_update_animation()`, which stops running once `dying`
+  short-circuits `_physics_process`).
+- Facing was backwards on the first pass — fixed with a 180°-Y transform on
+  the `Character` node (`Transform3D(-1,0,~0, 0,1,0, ~0,0,-1, ...)`).
+
+**Guard 3D model + animations** (`guard_npc.tscn`, `guard_npc.gd`)
+- Same model, same shared `player_animations.res` (identical skeleton, no
+  duplication needed) — swapped in for the guards' flat gray capsule mesh,
+  same facing-fix transform. Collision left as-is (was already reasonably
+  human-scaled, unlike the player's).
+- `_update_animation()`: idle/walk off actual velocity magnitude (guards
+  move at one fixed nav-agent speed, no run/walk distinction to key off of —
+  `run` is in the shared library but unused here). `_play_attack_animation()`
+  picks a random swing and holds it via `_attack_anim_timer` (counts down
+  from the clip's real length) so sustained combat reads as continuous
+  swinging rather than snapping to idle between 1.5s attack-cooldown hits.
+  `play_death_animation()` added but not called anywhere — guards have no
+  health/damage-taking system at all (monsters only ever attack the player),
+  so nothing currently puts one in a state to die; one-line hookup whenever
+  that gets built.
+- Guards were both facing the wrong way in the outskirts entryway — rotated
+  90° in `lumora_outskirts3d.tscn` (world-space Y rotation on each GuardNPC
+  instance, not a model-local fix like the one above).
+- `respond_to_hail()` now calls a new `_face_player()` first — looks up the
+  player via the `"player"` group and `look_at()`s them (Y-locked, no
+  tilting), so a hailed guard visibly turns to face you. They don't turn
+  back afterward — same as most NPCs that turn to greet you and just stay
+  that way.
+
+**Buff bar** (`buff_bar.tscn`, `buff_bar.gd`, added to `player3d._spawn_hud()`)
+- Draggable vertical HUD panel (same drag pattern as the loot window), one
+  row per entry in `combat_node.active_effects` — reads that Dictionary
+  directly rather than tracking its own list, so anything already going
+  through `apply_effect()` (stances, spell buffs/debuffs, the new campfire
+  buff below) shows up automatically with zero extra wiring per-effect.
+  Rows only rebuild when the *set* of active effects changes; countdown
+  labels update every frame without rebuilding.
+- `_resolve_effect_display(effect_name)` turns an `active_effects` key into
+  a name + "what it does" description by checking, in order: stance data
+  (`stance_<id>` → `class_stances.json`), the player's own spell cache
+  (`apply_effect`'s effect_name matches `spell_name` exactly for every
+  spell-driven buff/debuff already in `player3d.gd` — e.g. `blood_ritual`,
+  `necrotic_grasp`, `shadow_aura`), then a new small
+  `ENVIRONMENTAL_EFFECT_DESCRIPTIONS` table for non-spell effects (currently
+  just `campfire_warmth`), falling back to a titled raw name if nothing
+  matches. Icon: each row reserves a blank bordered 28×28 box — no icon
+  assets exist yet, `_build_row()`'s `icon_box` is where to wire real
+  textures in later.
+
+**Advanced loot preferences** (`corpse_loot_window.gd`, `monster3d.gd`,
+`global.gd`)
+- `Global.player_data["loot_preferences"]`: item_id → `"loot"` / `"ignore"`
+  / `"sell"`, via new `Global.get_loot_preference()`/`set_loot_preference()`
+  (the latter saves immediately, same as other player_data mutations).
+- `corpse_loot_window.gd`: each row gets 3 mutually-exclusive checkboxes
+  (`ButtonGroup`-backed) — checking one calls `set_loot_preference()` *and*
+  resolves the current drop immediately (loot/sell → `_apply_drop()` +
+  remove from list; ignore → just remove, nothing granted).
+- `monster3d.gd`: `die()` now runs `pending_loot` through a new
+  `_auto_process_loot()` before `is_lootable` is computed. Currency is
+  always auto-collected (no checkbox — collecting coins was never something
+  worth a manual click) and never reaches the window at all anymore. Every
+  other drop is checked against the saved preference: `loot`/`sell` →
+  auto-loot + a GameLog line, `ignore` → discarded silently, no preference →
+  left in `pending_loot` for the window. If auto-processing empties
+  `pending_loot` entirely, `is_lootable` is false and right-clicking the
+  corpse never opens a window at all — matches EQ's advanced-loot autoloot
+  behavior (fully-decided corpses just resolve, no popup).
+- Junk was folded into Sell (confirmed with the user they're mechanically
+  identical — no separate "Junk" checkbox, just Loot/Ignore/Sell).
+- Known pre-existing gap, NOT fixed here: `_apply_drop()`
+  (`corpse_loot_window.gd`) only ever adds 1 unit to inventory regardless of
+  a drop's `quantity` — a stack of 5 skins only grants 1. `_auto_process_loot()`
+  inherits the same behavior for consistency; worth fixing later.
+
+### Bug Fixes
+
+**Monsters never chased or fought back when attacked — the real bug**
+(`monster3d.gd`)
+- `add_threat()` recorded damage into `aggro_table` but never changed
+  `current_state` — the ONLY thing that ever moved a monster out of
+  IDLE/PATROL into CHASE was `can_see_player()`, a pure proximity check
+  (capped at `MAX_AGGRO_DISTANCE`=5m, and as tight as ~1.67m for
+  `behavior_type=="passive"` mobs — smaller than the default 2m
+  `attack_range`, so even point-blank melee against a passive mob could
+  fail to register). Landing a hit would damage the monster and add threat,
+  but if that same swing didn't also happen to satisfy the separate,
+  narrower sight check, the monster just stood there taking hits forever.
+  Fixed by having `add_threat()` itself force `change_state(State.CHASE)`
+  whenever amount > 0 and the monster is currently IDLE or PATROL — being
+  attacked now always starts a fight, regardless of the vision-range math.
+  (A pure miss still generates 0 threat and won't wake a monster on its
+  own — you need to land at least one hit.)
+
+**Chat window could permanently lock out player movement**
+(`game_log_window.gd`)
+- `chat_input` (the chat `LineEdit`) never released keyboard focus after
+  being clicked — not on Enter, not on Escape. `player3d.gd` already
+  (correctly) blocks movement while any `LineEdit` has focus, so one click
+  into the chat box left you stuck until you clicked it again. Separately,
+  `W`/`S` are bound to both `move_forward`/`move_backward` *and* Godot's
+  built-in `ui_up`/`ui_down` focus-navigation (checked `project.godot`), and
+  a single-line field doesn't consume vertical arrows itself, so those
+  keypresses fell through to Godot's default "hand focus to some other
+  control" behavior — read by the user as "pressing forward/back moves the
+  selected tab." Fixed: `_on_chat_input_submitted()` now calls
+  `chat_input.release_focus()` after clearing the text; a new
+  `_on_chat_input_gui_input()` handler releases focus on Escape too; and
+  `chat_input.focus_neighbor_top`/`focus_neighbor_bottom` are pinned to
+  itself so W/S can never hand focus off while genuinely typing.
+- Added the flip side while in here: `_unhandled_input()` on
+  `game_log_window.gd` now grabs `chat_input` focus on Enter when nothing
+  else is focused (so you don't have to click the box first) —
+  `set_input_as_handled()`'d so it can't double-fire.
+
+**Mouse cursor could get stuck hidden, or mouselook could get silently
+cancelled** (`global.gd`, `camera_controller.gd`, `player3d.gd`,
+`corpse_loot_window.gd`, `backpack_ui.gd`, `character_sheet.gd`)
+- Mouse-mode state was scattered across 6 files, each independently
+  hardcoding `MOUSE_MODE_VISIBLE`/`MOUSE_MODE_CAPTURED` with no shared
+  source of truth for "is mouselook actually on." Two concrete bugs:
+  `corpse_loot_window.gd` forced the mouse to CAPTURED on close even if
+  mouselook was never enabled (hidden mouse after looting); every other
+  window (pause menu, character sheet, backpack) forced VISIBLE on close,
+  silently cancelling mouselook if it happened to be on. Fixed with a new
+  `Global.mouselook_enabled` bool (F12/`camera_controller.gd` is the only
+  writer) and `Global.restore_mouse_mode()` — every window still forces
+  VISIBLE on open, but all now call `restore_mouse_mode()` on close instead
+  of hardcoding a mode.
+
+**Fullscreen resolution / camera distortion** (`project.godot`)
+- Was launching windowed at a hardcoded 1280×1024 with `window/stretch/
+  aspect="ignore"` (non-uniform stretch — the actual source of the reported
+  camera distortion). Now `window/size/mode=3` (borderless fullscreen at
+  the OS-reported native resolution, not hardcoded), 1920×1080 design
+  base, `stretch/mode="canvas_items"` (keeps the 3D scene rendering at full
+  native resolution instead of upscaling a fixed-size buffer),
+  `stretch/aspect="keep_height"` (fills widescreen monitors instead of
+  letterboxing, no non-uniform stretch).
+
+**Night was pitch black** (`day_night_cycle.gd`)
+- `moon_energy` (the sun light repurposed as moonlight at night) was 0.04 —
+  about 3% of the daytime peak of 1.3. `night_ambient_energy` was 0.05,
+  about 5% of daytime's 1.0. Both raised to 0.25 and 0.18 respectively —
+  still a clearly dim, moody night, but no longer unable to make out
+  terrain. Local light sources (campfires, torches) remain the dominant
+  light source at night by design (see the TIME SYSTEM section in
+  game_flow.txt) — this only fixes the ambient/moonlight floor.
+
+**Camera look was one clamped mode, tied to F12** (`camera_controller.gd`)
+- F12 mouselook was clamped to ±90°/±45° — fine for a "turn your head"
+  feel, wrong for a free-look camera (couldn't even look directly behind
+  you). Split into two distinct, independently-triggered modes: F12
+  mouselook is now uncapped yaw (wraps via `wrapf`, doesn't grow unbounded)
+  with pitch capped only to `±89°` (avoids flipping past vertical); holding
+  Right Mouse Button (new, independent of F12) reuses the old ±90°/±45°
+  clamp for a "head turn" feel, snapping to nothing special on release — it
+  just stops moving. Mouse mode: RMB-held captures the cursor directly
+  (bypassing `Global.mouselook_enabled`, which is reserved for the F12
+  flag) and calls `Global.restore_mouse_mode()` on release.
+
+**"You assume the Dusk Walker." missing the word "stance"** (`stance_bar.gd`)
+- One-line format-string fix in `_on_slot_clicked()` — now
+  `"You assume the %s stance."`, works for any current or future stance
+  without needing "stance" baked into each `class_stances.json` entry's name.
+
+### New Content
+
+**Campfire warmth buff** (`campfire.gd`)
+- `WarmthArea` (`Area3D`, already existed, previously just logged a flavor
+  line) now starts a real `Timer` (30s, cancelled on early exit) when the
+  player enters; on completion, grants "Warmth of the Campfire" via
+  `combat_node.apply_effect("campfire_warmth", 300.0, {"hp_regen_bonus":2,
+  "mana_regen_bonus":2, "stamina_regen_bonus":2})` — same `active_effects`
+  system as stances, so it shows up in the new buff bar automatically.
+  `player3d.gd`'s HP/mana regen tick (`_process()`) and stamina's continuous
+  regen (`update_stamina()`) both now add
+  `combat_node.get_modifier("*_regen_bonus")` alongside their existing
+  calculations. Display name added to `SPELL_DISPLAY_NAMES`.
+
+**Guard flavor text + scripted day/night conversations** (`guard_npc.gd`,
+new `Scripts/npc_flavor_text.gd`, `Scripts/npc_scripted_conversation.gd`,
+`Data/guard_flavor_text.json` restructured to `{hail:[...], engage:[...]}`,
+new `Data/guard_conversations.json`)
+- `NPCFlavorText`: reusable random-line-per-category picker (any future NPC
+  just needs its own JSON file). Guards now have an `engage` line (fires
+  once, on the IDLE→ENGAGE transition) alongside the existing `hail` lines.
+- `NPCScriptedConversation`: reusable "pick two members of a group, play a
+  random multi-line back-and-forth between them" component — replaces the
+  old per-guard day/night line (both guards independently commenting was
+  the actual bug being fixed: only one scripted 2-3 line exchange now plays
+  per day/night transition, between two randomly-picked guards, from 4
+  hand-written exchanges each in `guard_conversations.json`). Guards were
+  also both renamed ("Guard Corwin"/"Guard Reyna" in
+  `lumora_outskirts3d.tscn`) so the exchange reads as two different people.
 
 ---
 
