@@ -422,7 +422,7 @@ func set_class(new_class: String):
 			class_riposte_base = 1
 			class_concentration_base = 10
 
-		"Spiritweaver":
+		"Spiritcaller":
 			class_hp_bonus = 0.08
 			class_ac_bonus = 0
 			class_dodge_base = 3
@@ -800,6 +800,10 @@ func resolve_attack(target: CombatNode) -> Dictionary:
 	var is_crit = roll_crit()
 	var damage = calculate_melee_damage(target, is_crit)
 	damage = apply_ac_mitigation(damage, target)
+	# Generic flat "% less damage taken" modifier — e.g. Spiritcaller's Earth
+	# Totem — distinct from absorb (a depletable shield) and damage_drain_pct
+	# (heal-back): this just reduces the hit outright.
+	damage = int(damage * (1.0 - target.get_modifier("damage_taken_mult")))
 	damage = target.absorb_incoming_damage(damage)
 
 	target.current_hp -= damage
@@ -867,6 +871,7 @@ func _resolve_offhand_hit(target: CombatNode) -> Dictionary:
 	var is_crit = roll_crit()
 	var damage = calculate_offhand_damage(target, is_crit)
 	damage = apply_ac_mitigation(damage, target)
+	damage = int(damage * (1.0 - target.get_modifier("damage_taken_mult")))
 	damage = target.absorb_incoming_damage(damage)
 
 	target.current_hp -= damage

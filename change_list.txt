@@ -114,8 +114,25 @@ completed:
 -renamed the loot window to "Modern Loot Manager" and the Buffs panel to "Status Effects"
 -stance bar now ring-highlights the active stance (yellow) the same way the pet's mode buttons do, and shows the right one immediately on login instead of only after clicking
 -removed temporary pet debug logging
+-fixed detached combat log window closing on Escape (wasn't tagged as persistent HUD)
+-monsters and guards now regen HP out of combat, so a hard fight can't be cheesed by repeated retreat-and-return
+-added group frame (name/HP/MP for the player, smaller row for their pet beneath) — foundation for the future networked party list
+-started spiritcaller (levels 1-2: spirit mend, earth totem, spirit strike, ancestral guidance) — healers can now target/heal/buff any friendly NPC, not just self
+-added a generic "% less damage taken" combat modifier for Earth Totem and future defensive buffs
+-new characters now start knowing their class's first two level-1 spells outright (no scroll needed) — everything else, including further level-1s like Taunt, is vendor-only. Aetherfist and Chaosborn have no spell data at all yet (Aetherfist looks skill-based by design, Chaosborn looks like a real gap)
+-spell-less classes (Aetherfist) now start with their skills on the action bar instead of a completely empty bar — worth knowing: use_skill() is still a placeholder for every skill (logs a use + starts a cooldown, no real effect yet), same state spells were in before this session's work
+-fixed Spiritcaller showing as "Spiritweaver" in character creation (leftover from an old rename, same as the earlier lightcaller/lightmender fix) — also fixed class_restrictions.json and combatnode.gd's per-class stat bonuses, which were silently keyed to the wrong name too
+-added EQ-style F1-F6 group targeting: F1 = group member 1 (just yourself for now, until a real party system exists), pressing the same F-key again while already targeting that member toggles to their pet (and back on a third press)
+-fixed targeting yourself showing as "Unknown"/"(Enemy)" in the target frame — same missing-name-field bug as the earlier pet fix, plus a faction-classification gap
+-added /log — toggles writing chat and combat to a plain-text timestamped file (user://logs/, prints the real path when started) for balance/metrics review; captures every combat message regardless of the 10m on-screen distance filter
 
 to do: (in order of importance)
+
+-write spell data for Chaosborn (currently has zero spells at any level)
+
+-finish spiritcaller levels 3-8 (chain heals, remaining totems, ghost wolf, spirit link, hex)
+
+-build real party/group system (invite, member list) before networking
 
 -implement nests for rats and bandit camps as spawn locations
 

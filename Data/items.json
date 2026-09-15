@@ -2481,5 +2481,113 @@
     "stat_modifiers": null,
     "effect": null,
     "teaches_spell": "taunt"
+  },
+  "scroll_of_spirit_mend": {
+    "name": "Scroll of Spirit Mend",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.2_02.png",
+    "description": "A scroll containing the Spirit Mend technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "spiritcaller"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "spirit_mend"
+  },
+  "scroll_of_earth_totem": {
+    "name": "Scroll of Earth Totem",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.2_02.png",
+    "description": "A scroll containing the Earth Totem technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "spiritcaller"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "earth_totem"
+  },
+  "scroll_of_spirit_strike": {
+    "name": "Scroll of Spirit Strike",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.2_02.png",
+    "description": "A scroll containing the Spirit Strike technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "spiritcaller"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "spirit_strike"
+  },
+  "scroll_of_ancestral_guidance": {
+    "name": "Scroll of Ancestral Guidance",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.2_02.png",
+    "description": "A scroll containing the Ancestral Guidance technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "spiritcaller"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "ancestral_guidance"
   }
 }

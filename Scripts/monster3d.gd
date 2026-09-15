@@ -60,6 +60,13 @@ var current_health: int:
 	get: return combat_node.current_hp if combat_node else 0
 var attack_timer: float = 0.0
 var attack_cooldown: float = 1.5
+# Out-of-combat regen (same 6s EQ-tick as the player/pet) — without this a
+# monster could be fought down to near-death, disengaged from, and finished
+# off on a second pass with zero risk, repeated indefinitely to cheese any
+# encounter that's actually hard. Only ticks while IDLE/PATROL (see
+# _physics_process below).
+const REGEN_INTERVAL := 6.0
+var _regen_timer: float = 0.0
 var is_lootable: bool = false
 var pending_loot: Array = []
 var loot_window: Node = null
@@ -296,6 +303,15 @@ func _physics_process(delta: float) -> void:
 
 	if _attack_anim_timer > 0.0:
 		_attack_anim_timer -= delta
+
+	if current_state == State.IDLE or current_state == State.PATROL:
+		_regen_timer += delta
+		if _regen_timer >= REGEN_INTERVAL:
+			_regen_timer = 0.0
+			if combat_node.current_hp < combat_node.max_hp:
+				combat_node.current_hp = mini(combat_node.current_hp + combat_node.get_derived_stat("hp_regen"), combat_node.max_hp)
+	else:
+		_regen_timer = 0.0
 
 	# Find player safely
 	if not is_instance_valid(player):

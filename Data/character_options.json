@@ -187,7 +187,7 @@
       "name": "Troll",
       "alignment": "evil",
       "portrait": "res://Assets/angry_cat.png",
-      "description": "Savage and regenerative, Trolls are primal denizens of Aldenexia's swamps, excelling as Spiritweavers, Blademasters, or  Voidknights. Their resilience makes them hard to kill.",
+      "description": "Savage and regenerative, Trolls are primal denizens of Aldenexia's swamps, excelling as Spiritcallers, Blademasters, or  Voidknights. Their resilience makes them hard to kill.",
       "lore": "Trolls worship primal deities, shunning the Solstice Aegis as a human relic, and often align with The Moribund Order.",
       "traits": {
         "in_combat_health_regeneration": 0.15,
@@ -269,7 +269,7 @@
   "name": "Lizardkin",
   "alignment": "evil",
   "portrait": "res://Assets/angry_cat.png",
-  "description": "Lizardkin are reptilian humanoids adapted to swamps and marshes. They possess natural armor, can breathe underwater, and have a powerful bite. They are formidable Aetherfists, Spiritweavers, and Gravecallers",
+  "description": "Lizardkin are reptilian humanoids adapted to swamps and marshes. They possess natural armor, can breathe underwater, and have a powerful bite. They are formidable Aetherfists, Spiritcallers, and Gravecallers",
   "lore": "Born from the primal essence of Kaerox, they thrive in Aldenexia's swamps while maintaining deep mistrust of the Luminar Covenant.",
   "traits": {
     "armor_class_bonus": 2,
@@ -371,9 +371,9 @@
       "difficulty": "Moderate"
     },
     "spiritcaller": {
-      "name": "Spiritweaver",
+      "name": "Spiritcaller",
       "role": "Healer",
-      "description": "Spiritweavers bridge the mortal and spirit realms, summoning totems that slow enemies, heal allies, or unleash primal fury.",
+      "description": "Spiritcallers bridge the mortal and spirit realms, summoning totems that slow enemies, heal allies, or unleash primal fury.",
       "stat_priorities": {
         "primary": "wisdom",
         "secondary": "intelligence",

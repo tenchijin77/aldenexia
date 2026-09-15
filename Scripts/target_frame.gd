@@ -95,8 +95,13 @@ func show_wrong_color(duration: float) -> void:
 
 
 static func display_name(target: Node) -> String:
-	# Pets expose pet_name (their random summon name, e.g. "Nyxfell") rather
-	# than any of the monster_description/monster_name/npc_name fields below.
+	# The player (targetable via group-targeting or the group frame's own row)
+	# and pets each expose their name under a different field than any of the
+	# monster_description/monster_name/npc_name ones below.
+	if "player_name" in target:
+		var plname: String = str(target.get("player_name"))
+		if not plname.is_empty():
+			return plname
 	if "pet_name" in target:
 		var pname: String = str(target.get("pet_name"))
 		if not pname.is_empty():
@@ -166,7 +171,7 @@ func _con_color(diff: int) -> Color:
 static func faction_status(target: Node) -> String:
 	# Ally/Neutral/Enemy — derived from what already exists (group membership,
 	# behavior_type), not a separate faction-standing system. See game_flow.txt.
-	if target.is_in_group("npc_guard") or target.is_in_group("npc_vendor") or target.is_in_group("pets"):
+	if target.is_in_group("player") or target.is_in_group("npc_guard") or target.is_in_group("npc_vendor") or target.is_in_group("pets"):
 		return "Ally"
 	if target.get("behavior_type") == "passive":
 		return "Neutral"

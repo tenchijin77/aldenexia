@@ -62,6 +62,8 @@ var move_speed: float = 3.0
 var can_attack: bool = true
 var attack_timer: float = 0.0
 var attack_cooldown: float = 1.5
+const REGEN_INTERVAL := 6.0
+var _regen_timer: float = 0.0
 
 var _scan_timer: float = 0.0
 var _banter_timer: float = 0.0
@@ -255,6 +257,17 @@ func _physics_process(delta: float) -> void:
 
 	if _attack_anim_timer > 0.0:
 		_attack_anim_timer -= delta
+
+	# Out-of-combat regen (same 6s EQ-tick as the player/pet/monsters) —
+	# prevents a guard being chipped down over repeated fights with no risk.
+	if state != GuardState.ENGAGE:
+		_regen_timer += delta
+		if _regen_timer >= REGEN_INTERVAL:
+			_regen_timer = 0.0
+			if combat_node.current_hp < combat_node.max_hp:
+				combat_node.current_hp = mini(combat_node.current_hp + combat_node.get_derived_stat("hp_regen"), combat_node.max_hp)
+	else:
+		_regen_timer = 0.0
 
 	# Banter periodically while not fighting — timer resets (not just pauses)
 	# on entering combat, so a fresh ~5-9 min interval starts once the fight

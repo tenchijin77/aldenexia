@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/group_frame.gd" id="1_groupframe"]
+
+[node name="GroupFrame" type="CanvasLayer"]
+script = ExtResource("1_groupframe")

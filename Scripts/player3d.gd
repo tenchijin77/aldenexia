@@ -77,7 +77,7 @@ var backpack_instance: Node = null
 var caster_classes := [
 	"voidknight", "gravecaller", "runecaster", "arcanist", "chaosborn",
 	"lightsworn", "lightmender", "spiritcaller", "wildspeaker",
-	"woodstalker", "aetherfist", "troubadour", "spiritweaver"
+	"woodstalker", "aetherfist", "troubadour"
 ]
 #endregion
 
@@ -116,6 +116,14 @@ var attack_cooldown: float = 0.0
 var attack_cooldown_duration: float = 1.0
 var current_target: Node = null
 var _target_idx: int = -1
+
+# F1-F6 group targeting (EQ/modern-MMO style) — group_members[0] is always
+# "yourself" until a real party system exists (see change_list.txt to-do);
+# members 2-6 are simply absent for now, so those keys are no-ops rather than
+# erroring. Pressing the same F-key again while already targeting that
+# member switches to their pet instead (and back again on a third press) —
+# see _handle_group_target_key() below.
+var group_members: Array = []
 #endregion
 
 #region Movement state
@@ -172,6 +180,12 @@ func _unhandled_input(event: InputEvent) -> void:
 		if event.is_action_pressed("appraise") and not (get_viewport().gui_get_focus_owner() is LineEdit):
 			try_appraise_target()
 			return
+
+		if not (get_viewport().gui_get_focus_owner() is LineEdit):
+			for i in range(1, 7):
+				if event.is_action_pressed("group_target_%d" % i):
+					_handle_group_target_key(i)
+					return
 
 		const SLOT_KEYS := [KEY_1, KEY_2, KEY_3, KEY_4, KEY_5, KEY_6, KEY_7, KEY_8, KEY_9, KEY_0, KEY_MINUS, KEY_EQUAL]
 		var idx := SLOT_KEYS.find(event.keycode)
@@ -503,6 +517,7 @@ var abilities_book_instance: Node = null
 func _ready() -> void:
 	add_to_group("player")
 	_setup_animations()
+	group_members = [self]
 
 	combat_node = CombatNode.new()
 	add_child(combat_node)
@@ -589,6 +604,7 @@ func _spawn_hud() -> void:
 	for scene_path in [
 		"res://Scenes/player_frame.tscn",
 		"res://Scenes/target_frame.tscn",
+		"res://Scenes/group_frame.tscn",
 		"res://Scenes/game_log_window.tscn",
 		"res://Scenes/action_bar.tscn",
 		"res://Scenes/stance_bar.tscn",
@@ -1119,6 +1135,33 @@ func _is_targetable_alive(node: Node) -> bool:
 	if "current_state" in node:
 		return node.get("current_state") != node.State.DEAD
 	return true  # e.g. guards, which have no death state
+
+
+# F1-F6 group targeting. n is 1-based (F1 = group_members[0], ... F6 =
+# group_members[5]) — a no-op if that slot doesn't have a real member yet
+# (always true past slot 1 until a party system exists). Pressing the same
+# F-key again while already targeting that exact member switches to their
+# pet instead; pressing it again after that switches back to the member —
+# a clean toggle with no extra state needed beyond checking current_target.
+func _handle_group_target_key(n: int) -> void:
+	if n < 1 or n > group_members.size():
+		return
+	var member: Node = group_members[n - 1]
+	if not is_instance_valid(member):
+		return
+
+	if current_target == member:
+		var pet: Node = member.get("active_pet") if "active_pet" in member else null
+		if is_instance_valid(pet):
+			current_target = pet
+			_announce_target(pet)
+		else:
+			var who: String = member.player_name if "player_name" in member else "That group member"
+			GameLog.log_general("%s has no pet out." % who)
+		return
+
+	current_target = member
+	_announce_target(member)
 
 
 func tab_cycle_target() -> void:
@@ -2096,8 +2139,42 @@ func cast_spell(spell_name: String) -> void:
 							autoattack_enabled = false
 							GameLog.set_autoattack(false)
 
+		# "group" is used for both single-ally heals/buffs (Spirit Mend,
+		# Ancestral Guidance) and true small-radius group buffs (Earth Totem) —
+		# the JSON doesn't distinguish these, so it's handled per spell_name
+		# below. Ally resolution deliberately allows ANY non-Enemy target (a
+		# guard, a vendor, your own pet), not just other players/party members —
+		# there's no real party system yet, and letting healers test on any
+		# friendly NPC is the point until one exists.
 		"group":
-			GameLog.log_combat("[color=#ffdd88]You use [b]%s[/b]! Your battle cry fills the air.[/color]" % display_name)
+			var ally_target: Node = self
+			if target_node != null and is_instance_valid(target_node) and TargetFrame.faction_status(target_node) != "Enemy":
+				ally_target = target_node
+			var ally_cn = ally_target.get("combat_node")
+			var ally_desc: String = "yourself" if ally_target == self else TargetFrame.display_name(ally_target)
+
+			match spell_name:
+				"spirit_mend":
+					if ally_cn is CombatNode:
+						var healed: int = ally_cn.heal(base_damage)
+						GameLog.log_combat("[color=#66ff99]You mend %s, restoring [b]%d[/b] health.[/color]" % [ally_desc, healed])
+				"ancestral_guidance":
+					if ally_cn is CombatNode:
+						ally_cn.apply_effect("ancestral_guidance", 8.0, {"damage_mult": 0.05})
+						GameLog.log_general("[color=#88ffcc]Ancestral spirits quicken %s.[/color]" % ally_desc)
+				"earth_totem":
+					# True small-radius group buff: caster + any non-Enemy within 8m.
+					var protected: Array = [self]
+					for node in get_tree().get_nodes_in_group("pets") + get_tree().get_nodes_in_group("npc_guard") + get_tree().get_nodes_in_group("npc_vendor"):
+						if is_instance_valid(node) and node != self and global_position.distance_to(node.global_position) <= 8.0:
+							protected.append(node)
+					for node in protected:
+						var cn = node.get("combat_node")
+						if cn is CombatNode:
+							cn.apply_effect("earth_totem", 15.0, {"damage_taken_mult": 0.05})
+					GameLog.log_general("[color=#88cc66]You plant an Earth Totem, warding %d nearby allies.[/color]" % protected.size())
+				_:
+					GameLog.log_combat("[color=#ffdd88]You use [b]%s[/b]! Your battle cry fills the air.[/color]" % display_name)
 
 
 # Actual point light (not just a "see invisible" flag) so it doubles as real

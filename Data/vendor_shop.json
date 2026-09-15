@@ -30,7 +30,11 @@
       "scroll_of_blood_aegis",
       "scroll_of_deaths_echo",
       "scroll_of_deathly_visage",
-      "scroll_of_taunt"
+      "scroll_of_taunt",
+      "scroll_of_spirit_mend",
+      "scroll_of_earth_totem",
+      "scroll_of_spirit_strike",
+      "scroll_of_ancestral_guidance"
     ]
   }
 }

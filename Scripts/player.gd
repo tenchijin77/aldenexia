@@ -16,7 +16,7 @@ var faction_standing: Dictionary = {"Villagers of Lumora": 50}
 var caster_classes := [
 	"voidknight", "gravecaller", "runecaster", "arcanist", "chaosborn",
 	"lightsworn", "lightmender", "spiritcaller", "wildspeaker", "woodstalker",
-	"troubadour", "spiritweaver"
+	"troubadour"
 ]
 
 var magic_missile_scene: PackedScene = preload("res://Scenes/magic_missile.tscn")

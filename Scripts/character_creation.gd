@@ -357,14 +357,46 @@ func build_starting_action_bar(p_class: String) -> Array:
 	var slots: Array = []
 	for spell in get_starting_spells(p_class):
 		slots.append({"type": "spell", "name": spell})
+	# Spell-less classes (Aetherfist) would otherwise start with a completely
+	# empty bar despite already knowing skills via get_starting_skills() —
+	# fill remaining slots with those instead so there's something to test.
+	# Left off classes that already have spells so their bar isn't cluttered
+	# with passive weapon-proficiency skills (1h_slashing, dodge, etc.) they'd
+	# never click.
+	if slots.is_empty():
+		for skill in get_starting_skills(p_class):
+			slots.append({"type": "skill", "name": skill})
 	while slots.size() < 12:
 		slots.append({"type": "", "name": ""})
 	return slots
 
 
-func get_starting_spells(_p_class: String) -> Array:
-	# Spells are learned exclusively from scrolls — no auto-granted spells at creation.
-	return []
+# Every class's first two level-1 spells from player_spells.json, granted
+# outright at character creation — no scroll/learning step needed for these
+# two. Everything else (including further level-1 spells like Taunt for the
+# tank classes) is scroll-only, bought from a vendor.
+const STARTING_SPELLS := {
+	"Blademaster":  ["power_strike", "battle_shout"],
+	"Lightsworn":   ["holy_strike", "blessing_of_light"],
+	"Voidknight":   ["life_siphon", "shadow_aura"],
+	"Spiritcaller": ["spirit_mend", "earth_totem"],
+	"Lightmender":  ["cure_wounds", "bless"],
+	"Wildspeaker":  ["regrowth", "entangle"],
+	"Woodstalker":  ["aimed_shot", "hunters_mark"],
+	"Shadowblade":  ["backstab", "shadowstep"],
+	"Troubadour":   ["song_of_courage", "dissonant_chord"],
+	"Gravecaller":  ["shadow_bolt", "raise_skeleton"],
+	"Runecaster":   ["charm", "illusionary_bolt"],
+	"Arcanist":     ["magic_missile", "arcane_armor"],
+	# Aetherfist has no player_spells.json entries at any level — a Monk-style
+	# martial class, presumably meant to run entirely on known_skills/
+	# use_skill() instead of spells. Chaosborn also has none, but as a Caster
+	# DPS (Sorcerer) that reads like a real content gap rather than by design
+	# — flagging rather than inventing spells for it here.
+}
+
+func get_starting_spells(p_class: String) -> Array:
+	return STARTING_SPELLS.get(p_class, []).duplicate()
 
 
 # ---------------------------------------------------------
@@ -391,21 +423,11 @@ func build_starting_inventory(p_class: String) -> Dictionary:
 		"Shadowblade", "Woodstalker":
 			gear.push_front("dagger")
 
-	# Class scrolls go in a scroll case in slot 1; gear shifts to slots 2+
-	var scrolls: Array[String] = []
-	match p_class:
-		"Blademaster":
-			scrolls = ["scroll_of_power_strike", "scroll_of_battle_shout"]
-		"Voidknight":
-			scrolls = ["scroll_of_life_siphon", "scroll_of_shadow_aura"]
-
+	# No starting scroll case anymore — the class's first two spells are now
+	# granted directly via known_spells (get_starting_spells() above), and
+	# every other spell (including further level-1s like Taunt) is bought
+	# from a vendor instead.
 	var gear_start: int = 1
-	if not scrolls.is_empty():
-		Inventory.basic_inventory[1] = Inventory.create_item_instance("scroll_case")
-		Inventory.bag_contents["1"] = []
-		for scroll_id in scrolls:
-			Inventory.bag_contents["1"].append(Inventory.create_item_instance(scroll_id))
-		gear_start = 2
 
 	for i in range(gear.size()):
 		if gear_start + i < Inventory.BASIC_INVENTORY_SIZE:

@@ -207,6 +207,11 @@ func _reattach_combat() -> void:
 func _build_combat_window() -> Control:
 	var window := CanvasLayer.new()
 	window.layer = 5
+	# Persistent HUD, same as the main chat window it detached from — without
+	# this, player3d.gd's Escape handler (which closes every CanvasLayer NOT
+	# in this group) was treating the detached combat log as just another
+	# modal window and closing it.
+	window.add_to_group("game_hud")
 	get_tree().root.add_child(window)
 	_combat_window = window
 
@@ -420,7 +425,7 @@ func _on_chat_input_gui_input(event: InputEvent) -> void:
 # too (Linux-style abbreviation) — see _resolve_command() below. e.g. "/loc"
 # and "/location" both resolve to "/location" since no other command starts
 # with "loc"; "/f" would be ambiguous if two commands both started with "f".
-const COMMANDS := ["/location", "/hail", "/appraise", "/time", "/follow", "/camp", "/exit"]
+const COMMANDS := ["/location", "/hail", "/appraise", "/time", "/follow", "/camp", "/exit", "/log"]
 
 
 func _handle_slash_command(text: String) -> void:
@@ -446,6 +451,8 @@ func _handle_slash_command(text: String) -> void:
 			_start_camp_sequence()
 		"/exit":
 			_save_and_quit()
+		"/log":
+			_toggle_file_logging()
 		"/time":
 			GameLog.log_general("[color=green]%s[/color]" % Global.format_full_date())
 			var day_night_nodes := get_tree().get_nodes_in_group("day_night_cycle")
@@ -540,15 +547,64 @@ func _resolve_command(typed: String) -> String:
 
 func _on_general(text: String) -> void:
 	_append(general_log, text)
+	_write_to_log_file("GENERAL", text)
 
 
 const COMBAT_VISIBILITY_RANGE := 10.0
 
 func _on_combat(text: String, has_position: bool, position: Vector3) -> void:
+	# The file log is for balance/metrics review, so it captures every combat
+	# message unconditionally (e.g. a distant guard fight) — the 10m range
+	# above only gates what's actually shown on screen.
+	_write_to_log_file("COMBAT", text)
 	if has_position and is_instance_valid(player) \
 			and player.global_position.distance_to(position) > COMBAT_VISIBILITY_RANGE:
 		return
 	_append(combat_log, text)
+
+
+# ===== /log — dumps chat + combat to a plain-text file for balance review =====
+
+var _log_file: FileAccess = null
+const LOG_DIR := "user://logs"
+
+func _toggle_file_logging() -> void:
+	if _log_file != null:
+		_log_file.close()
+		_log_file = null
+		GameLog.log_general("[color=#88cc88]Logging stopped.[/color]")
+		return
+
+	DirAccess.make_dir_recursive_absolute(LOG_DIR)
+	var d := Time.get_datetime_dict_from_system(false)
+	var stamp := "%04d-%02d-%02d_%02d-%02d-%02d" % [d.year, d.month, d.day, d.hour, d.minute, d.second]
+	var file_path := "%s/session_%s.txt" % [LOG_DIR, stamp]
+	_log_file = FileAccess.open(file_path, FileAccess.WRITE)
+	if _log_file:
+		var real_path := ProjectSettings.globalize_path(file_path)
+		GameLog.log_general("[color=#88cc88]Logging chat and combat to:[/color] %s" % real_path)
+	else:
+		GameLog.log_general("[color=#ff6666]Couldn't open a log file to write to.[/color]")
+
+
+func _write_to_log_file(channel: String, text: String) -> void:
+	if _log_file == null:
+		return
+	var d := Time.get_datetime_dict_from_system(false)
+	_log_file.store_line("[%02d:%02d:%02d] [%s] %s" % [d.hour, d.minute, d.second, channel, _strip_bbcode(text)])
+	_log_file.flush()  # write-through so a crash or force-quit doesn't lose a buffered tail
+
+
+func _exit_tree() -> void:
+	if _log_file != null:
+		_log_file.close()
+		_log_file = null
+
+
+func _strip_bbcode(text: String) -> String:
+	var regex := RegEx.new()
+	regex.compile("\\[[^\\]]*\\]")
+	return regex.sub(text, "", true)
 
 
 func _append(log: RichTextLabel, text: String) -> void:
