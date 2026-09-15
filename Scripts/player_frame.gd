@@ -22,28 +22,43 @@ var _dragging := false
 
 
 func _ready() -> void:
-	var hp_fill = StyleBoxFlat.new()
-	hp_fill.bg_color = Color(0.75, 0.1, 0.1)
-	hp_bar.add_theme_stylebox_override("fill", hp_fill)
+	_style_panel()
+	_style_bar(hp_bar,    Color(0.8, 0.15, 0.15), Color(0.12, 0.05, 0.05))
+	_style_bar(mp_bar,    Color(0.2, 0.35, 0.9),  Color(0.05, 0.06, 0.12))
+	_style_bar(sta_bar,   Color(0.9, 0.8, 0.15),  Color(0.12, 0.10, 0.04))
+	_style_bar(food_bar,  Color(0.8, 0.5, 0.2),   Color(0.12, 0.08, 0.04))
+	_style_bar(water_bar, Color(0.2, 0.7, 0.8),   Color(0.04, 0.1, 0.12))
 
-	var mp_fill = StyleBoxFlat.new()
-	mp_fill.bg_color = Color(0.1, 0.25, 0.85)
-	mp_bar.add_theme_stylebox_override("fill", mp_fill)
-
-	var sta_fill = StyleBoxFlat.new()
-	sta_fill.bg_color = Color(0.85, 0.75, 0.1)
-	sta_bar.add_theme_stylebox_override("fill", sta_fill)
-
-	var food_fill = StyleBoxFlat.new()
-	food_fill.bg_color = Color(0.75, 0.45, 0.15)
-	food_bar.add_theme_stylebox_override("fill", food_fill)
-
-	var water_fill = StyleBoxFlat.new()
-	water_fill.bg_color = Color(0.15, 0.65, 0.75)
-	water_bar.add_theme_stylebox_override("fill", water_fill)
+	name_label.clip_text = true
+	name_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 
 	panel.gui_input.connect(_on_panel_gui_input)
 	WindowPosition.load_position_into(POSITION_KEY, panel)
+
+
+# Same dark parchment-bordered look as target_frame.gd/pet_frame.gd — see
+# target_frame.gd's _style_panel()/_style_bar() for why this isn't shared.
+func _style_panel() -> void:
+	var bg := StyleBoxFlat.new()
+	bg.bg_color = Color(0.08, 0.07, 0.06, 0.92)
+	bg.border_color = Color(0.45, 0.38, 0.25)
+	bg.set_border_width_all(2)
+	bg.set_corner_radius_all(5)
+	panel.add_theme_stylebox_override("panel", bg)
+
+
+func _style_bar(bar: ProgressBar, fill_color: Color, bg_color: Color) -> void:
+	var fill := StyleBoxFlat.new()
+	fill.bg_color = fill_color
+	fill.set_corner_radius_all(3)
+	bar.add_theme_stylebox_override("fill", fill)
+
+	var back := StyleBoxFlat.new()
+	back.bg_color = bg_color
+	back.border_color = Color(0, 0, 0, 0.5)
+	back.set_border_width_all(1)
+	back.set_corner_radius_all(3)
+	bar.add_theme_stylebox_override("background", back)
 
 
 func _on_panel_gui_input(event: InputEvent) -> void:

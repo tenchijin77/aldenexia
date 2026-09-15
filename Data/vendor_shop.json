@@ -11,7 +11,26 @@
       "water_flask",
       "small_bag",
       "traveler_pack",
-      "torch"
+      "torch",
+      "scroll_of_life_siphon",
+      "scroll_of_shadow_aura",
+      "scroll_of_blood_ritual",
+      "scroll_of_necrotic_grasp",
+      "scroll_of_shadowlight",
+      "scroll_of_improved_block",
+      "scroll_of_spectral_minion",
+      "scroll_of_curse_of_weakness",
+      "scroll_of_dark_pact",
+      "scroll_of_enhanced_riposte",
+      "scroll_of_plague_strike",
+      "scroll_of_shadow_ward",
+      "scroll_of_soul_leech",
+      "scroll_of_improved_disarm",
+      "scroll_of_gravechill",
+      "scroll_of_blood_aegis",
+      "scroll_of_deaths_echo",
+      "scroll_of_deathly_visage",
+      "scroll_of_taunt"
     ]
   }
 }

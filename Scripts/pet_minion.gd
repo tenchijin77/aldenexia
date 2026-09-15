@@ -6,14 +6,37 @@
 extends CharacterBody3D
 class_name PetMinion
 
-enum PetState { FOLLOW, ATTACK, STOP, SIT, GUARD }
+# Emitted only on these two specific, voluntary/combat removals — NOT on
+# tree_exited, which also fires when the whole zone (pet included) is freed
+# during a scene change (/camp, /exit, Save & Exit). player3d.gd used to key
+# persistence off tree_exited and that scene-teardown case fired it too,
+# silently overwriting a correct "pet is still alive" save with "gone" right
+# after logging out with a live pet. died additionally costs the pet's gear;
+# dismissed does not.
+signal died
+signal dismissed
 
-const FOLLOW_DISTANCE := 3.0
+enum PetState { FOLLOW, ATTACK, SIT, GUARD, ASSIST }
+
+const FOLLOW_DISTANCE := 3.0  # how far behind the player's facing to trail
+const FOLLOW_ARRIVAL := 1.0   # tolerance around that spot before it's "close enough"
 const ATTACK_RANGE := 2.5
-const GUARD_SCAN_RADIUS := 8.0
+# Faster than the player's own RUN_SPEED (8.0, player3d.gd) — the skeleton's
+# base monsters.json speed (2.5 m/s) is nowhere near fast enough to keep pace
+# while the player sprints, so the pet always moves at this speed (Follow,
+# Guard's return-to-post, and closing distance to an Attack target alike),
+# never its own "walking" pace.
+const SPRINT_SPEED := 10.0
+const GUARD_SCAN_RADIUS := 5.0
 const GUARD_SCAN_INTERVAL := 1.0
-const SIT_REGEN_INTERVAL := 6.0
+const REGEN_INTERVAL := 6.0
+# How recently the owner must have taken a hit to count as "under attack right
+# now" for Follow/Guard/Assist's auto-defend reaction, and how often that (and
+# Assist's "join the owner's fight") check runs.
+const DEFEND_REACTION_WINDOW_MS := 1500
+const AUTO_ENGAGE_SCAN_INTERVAL := 0.5
 const GRAVITY := 20.0
+const ATTACK_ANIMS := ["attack_horizontal", "attack_downward"]
 
 var owner_player: Node = null
 var command: PetState = PetState.FOLLOW
@@ -21,8 +44,12 @@ var attack_target: Node = null
 var guard_position: Vector3 = Vector3.ZERO
 
 # Command that ATTACK reverts to once its target dies or becomes invalid —
-# lets "Guard" auto-engagements return to holding position instead of following.
+# lets auto-engagements (Guard's proximity scan, Follow/Assist's reactions
+# below) return to holding position/mode instead of always defaulting to
+# Follow. Also what "Back" recalls to.
 var _pre_attack_command: PetState = PetState.FOLLOW
+var _standing_command: PetState = PetState.FOLLOW  # last explicitly-picked Follow/Guard/Assist
+var _auto_engage_timer: float = 0.0
 
 var combat_node: CombatNode
 var pet_name: String = "Skeleton Warrior"
@@ -33,22 +60,114 @@ var attack_timer: float = 0.0
 var attack_cooldown: float = 2.0
 
 var _guard_scan_timer: float = 0.0
-var _sit_regen_timer: float = 0.0
+var _regen_timer: float = 0.0
+var _attack_anim_timer: float = 0.0
 
-@onready var nav_agent: NavigationAgent3D = $NavigationAgent3D
+# Gear bonuses applied on top of the base skeleton stats — kept as separate
+# fields (rather than folded into combat_node directly) so re-equipping can
+# just call _recalculate_stats() again without re-reading monsters.json.
+var gear_weapon_damage: int = 0
+var gear_armor_class: int = 0
+
+var animation_player: AnimationPlayer = null
+var _base_stats: Dictionary = {}
+
+# Self-managed NavigationServer3D.query_path() movement — NavigationAgent3D's
+# get_next_path_position() was found to go stale over distance/after external
+# repositioning (see guard_npc.gd's patrol and player3d.gd's /follow, both
+# rewritten for the same reason). Follow/guard/attack all funnel through
+# _move_toward() below, so fixing it here covers all three commands at once.
+const REPATH_INTERVAL := 0.75
+const WAYPOINT_EPSILON := 0.4
+# Only forces an immediate repath on a big, discontinuous jump in the desired
+# destination (e.g. switching from "walk to the dead monster" back to "walk
+# to the player" the instant combat ends) — NOT on the player's own continuous
+# walking drift during a normal Follow, which can cover several meters between
+# the 0.75s timer's own repaths at sprint speed and should just ride that
+# timer instead of re-querying the nav server on nearly every frame.
+const RETARGET_THRESHOLD := 8.0
+var _nav_path: Array = []
+var _nav_path_target: Vector3 = Vector3.ZERO
+var _repath_timer: float = 0.0
+
+# Local obstacle steering + stuck-recovery, ported from guard_npc.gd after the
+# pet was found getting wedged on town-area props the baked navmesh doesn't
+# cleanly route around — a fresh path alone isn't enough when the obstacle
+# itself sits ON the path, so this casts a short ray ahead and sidesteps
+# around anything it hits, with the stuck timer as a fallback that forces a
+# full repath if sidestepping still isn't enough.
+const OBSTACLE_CHECK_DISTANCE := 1.5
+const OBSTACLE_AVOID_ANGLES_DEG := [30.0, -30.0, 60.0, -60.0, 90.0, -90.0]
+const STUCK_THRESHOLD := 2.0
+const STUCK_MOVE_EPSILON := 0.1
+var _stuck_timer: float = 0.0
+var _last_stuck_check_pos: Vector3 = Vector3.ZERO
+var _stuck_repath_requested: bool = false
+
+# Escape hatch for a genuine navmesh gap/seam at a specific spot (confirmed via
+# temporary debug logging: the pet froze at nearly the same world coordinates
+# twice, on open flat ground with nothing to obstruct it — not a caching or
+# logic bug, an actual hole in the baked navmesh that no amount of repathing fixes).
+# If the stuck-detector fires twice in a row without the pet actually moving,
+# it stops trusting the navmesh path for a few seconds and just walks straight
+# at the target (still using the obstacle raycast for real collision), which
+# gets it across a small gap the navmesh doesn't cover.
+const DIRECT_FALLBACK_MS := 4000
+var _consecutive_stuck_count: int = 0
+var _direct_fallback_until_ms: int = 0
 
 
-func setup(p_owner: Node) -> void:
+func _ready() -> void:
+	_setup_visual()
+
+
+# Reuses the same Mixamo character.fbx + shared animation library that
+# monster3d.gd's HUMANOID_MOB_TYPES (skeleton/bandit/goblin) use, so the pet
+# looks like the skeletons/bandits already in the zone instead of a generic
+# placeholder box.
+func _setup_visual() -> void:
+	var character_scene := load("res://models/player/character.fbx")
+	if not character_scene:
+		return
+	var character: Node3D = character_scene.instantiate()
+	character.name = "Character"
+	character.transform = Transform3D.IDENTITY.rotated(Vector3.UP, PI)
+	add_child(character)
+
+	animation_player = character.get_node("AnimationPlayer")
+	var lib := load("res://models/player/player_animations.res") as AnimationLibrary
+	if lib and animation_player:
+		if animation_player.has_animation_library(""):
+			animation_player.remove_animation_library("")
+		animation_player.add_animation_library("", lib)
+
+
+func _pick_random_name() -> String:
+	var file := FileAccess.open("res://Data/pet_names.json", FileAccess.READ)
+	if not file:
+		return "Skeleton Warrior"
+	var result = JSON.parse_string(file.get_as_text())
+	file.close()
+	var names: Array = result.get("names", []) if typeof(result) == TYPE_DICTIONARY else []
+	if names.is_empty():
+		return "Skeleton Warrior"
+	return names[randi() % names.size()]
+
+
+func setup(p_owner: Node, preset_name: String = "") -> void:
 	owner_player = p_owner
 	global_position = p_owner.global_position + p_owner.global_transform.basis.x * 1.5
 	guard_position = global_position
+	pet_name = preset_name if not preset_name.is_empty() else _pick_random_name()
+	if has_node("NameLabel"):
+		$NameLabel.text = pet_name
 
 	var stats := _load_skeleton_stats()
+	_base_stats = stats
 
 	combat_node = CombatNode.new()
 	add_child(combat_node)
 	combat_node.level = p_owner.combat_node.level
-	combat_node.weapon_damage = stats.get("damage", 12)
 	combat_node.strength     = 0
 	combat_node.constitution = 0
 	combat_node.dexterity    = 0
@@ -57,24 +176,35 @@ func setup(p_owner: Node) -> void:
 	combat_node.charisma     = 0
 	combat_node.luck         = 0
 
-	var armor_class: int = stats.get("armor_class", 10)
-	combat_node.gear_ac = armor_class - 10
-
 	# "40% of caster's health" per the spectral_minion spell description
 	var pet_max_hp: int = max(1, int(p_owner.combat_node.max_hp * 0.4))
 	combat_node.gear_hp = pet_max_hp - 50
 	combat_node.gear_atk = 15 + combat_node.level * 5
-	combat_node._stats_dirty = true
-	combat_node.recalculate_derived_stats()
+	_recalculate_stats()
 	combat_node.current_hp = combat_node.max_hp
 
-	move_speed = stats.get("speed", 25.0) / 10.0
-	if nav_agent:
-		nav_agent.path_desired_distance = 0.5
-		nav_agent.target_desired_distance = 0.5
-		nav_agent.max_speed = move_speed
+	move_speed = SPRINT_SPEED
 
 	add_to_group("pets")
+
+
+# Called by player3d.gd's _summon_spectral_minion() right after setup(), and
+# again any time pet gear changes while this instance is alive — see
+# equip_to_pet()/unequip_from_pet() in player3d.gd.
+func apply_gear_bonus(weapon_dmg: int, armor_ac: int) -> void:
+	gear_weapon_damage = weapon_dmg
+	gear_armor_class = armor_ac
+	_recalculate_stats()
+
+
+func _recalculate_stats() -> void:
+	if not combat_node:
+		return
+	combat_node.weapon_damage = _base_stats.get("damage", 12) + gear_weapon_damage
+	var base_armor_class: int = _base_stats.get("armor_class", 10)
+	combat_node.gear_ac = (base_armor_class - 10) + gear_armor_class
+	combat_node._stats_dirty = true
+	combat_node.recalculate_derived_stats()
 
 
 func _load_skeleton_stats() -> Dictionary:
@@ -97,25 +227,52 @@ func _physics_process(delta: float) -> void:
 		if attack_timer <= 0.0:
 			can_attack = true
 
+	if _attack_anim_timer > 0.0:
+		_attack_anim_timer -= delta
+
+	_process_regen(delta)
+
 	match command:
 		PetState.FOLLOW:
-			_move_toward(owner_player.global_position, FOLLOW_DISTANCE, delta)
+			_move_toward(_follow_spot(), FOLLOW_ARRIVAL, delta)
+			_process_auto_engage(delta, false)
+		PetState.ASSIST:
+			_move_toward(_follow_spot(), FOLLOW_ARRIVAL, delta)
+			_process_auto_engage(delta, true)
 		PetState.ATTACK:
 			_process_attack(delta)
-		PetState.STOP:
-			_apply_gravity(delta)
-			velocity.x = 0.0
-			velocity.z = 0.0
 		PetState.SIT:
 			_apply_gravity(delta)
 			velocity.x = 0.0
 			velocity.z = 0.0
-			_process_sit_regen(delta)
 		PetState.GUARD:
 			_move_toward(guard_position, 0.5, delta)
 			_process_guard(delta)
+			_process_auto_engage(delta, false)
 
 	move_and_slide()
+	_update_animation()
+	if has_node("NameLabel"):
+		$NameLabel.visible = Global.settings.get("show_name_tags", true)
+
+
+func _update_animation() -> void:
+	if not animation_player or animation_player.get_animation_list().is_empty():
+		return
+	if _attack_anim_timer > 0.0:
+		return
+	var moving := Vector2(velocity.x, velocity.z).length() > 0.1
+	var anim_name := "walk" if moving else "idle"
+	if animation_player.current_animation != anim_name:
+		animation_player.play(anim_name, 0.15)
+
+
+func _play_attack_animation() -> void:
+	if not animation_player or animation_player.get_animation_list().is_empty():
+		return
+	var anim_name: String = ATTACK_ANIMS[randi() % ATTACK_ANIMS.size()]
+	animation_player.play(anim_name, 0.1)
+	_attack_anim_timer = animation_player.get_animation(anim_name).length
 
 
 func _apply_gravity(delta: float) -> void:
@@ -125,24 +282,70 @@ func _apply_gravity(delta: float) -> void:
 		velocity.y = 0.0
 
 
+# A point FOLLOW_DISTANCE behind wherever the player is currently facing,
+# rather than just "the player's position" with a stop-radius around it — the
+# old approach let the pet approach from any angle and could end up nose-to-
+# nose with (or clipped into) the player before the radius check kicked in.
+#
+# Snapped onto the navmesh before returning: the raw "3m behind" point is a
+# free-floating offset that can easily land inside a wall, off a ledge, or
+# past a doorway edge in dense town geometry. Pathing to an off-navmesh point
+# ends at the nearest reachable spot to it, which can still be farther than
+# FOLLOW_ARRIVAL away — the pet then perpetually believes it still needs to
+# move but can never close that last bit, a real dead end (not a caching
+# issue), which is exactly why re-issuing Follow didn't help: as long as the
+# player stands in the same spot, the freshly computed "behind" point hits
+# the same wall every time.
+func _follow_spot() -> Vector3:
+	var forward: Vector3 = -owner_player.global_transform.basis.z.normalized()
+	var raw_spot: Vector3 = owner_player.global_position - forward * FOLLOW_DISTANCE
+	if not is_inside_tree():
+		return raw_spot
+	var map_rid: RID = get_world_3d().navigation_map
+	var snapped: Vector3 = NavigationServer3D.map_get_closest_point(map_rid, raw_spot)
+	return snapped if snapped != Vector3.ZERO else raw_spot
+
+
+# Same idea as _follow_spot() but behind whatever the pet is attacking —
+# ATTACK_RANGE * 0.6 puts the pet within melee range of the target once it
+# arrives, on the far side from wherever the target is currently facing.
+func _attack_flank_spot(target: Node) -> Vector3:
+	var forward: Vector3 = -target.global_transform.basis.z.normalized()
+	var raw_spot: Vector3 = target.global_position - forward * (ATTACK_RANGE * 0.6)
+	if not is_inside_tree():
+		return raw_spot
+	var map_rid: RID = get_world_3d().navigation_map
+	var snapped: Vector3 = NavigationServer3D.map_get_closest_point(map_rid, raw_spot)
+	return snapped if snapped != Vector3.ZERO else raw_spot
+
+
 func _move_toward(target_pos: Vector3, stop_distance: float, delta: float) -> void:
 	_apply_gravity(delta)
+	_tick_stuck_detector(delta)
 
 	if global_position.distance_to(target_pos) <= stop_distance:
 		velocity.x = 0.0
 		velocity.z = 0.0
+		_nav_path.clear()
 		return
 
-	if not nav_agent:
-		return
+	var direct_fallback_active := Time.get_ticks_msec() < _direct_fallback_until_ms
 
-	nav_agent.target_position = target_pos
-	if nav_agent.is_navigation_finished():
-		velocity.x = 0.0
-		velocity.z = 0.0
-		return
+	if not direct_fallback_active:
+		_repath_timer -= delta
+		var need_repath := _repath_timer <= 0.0 or _nav_path.is_empty() or _stuck_repath_requested \
+			or _nav_path_target.distance_to(target_pos) > RETARGET_THRESHOLD
+		if need_repath:
+			_stuck_repath_requested = false
+			_repath_timer = REPATH_INTERVAL
+			_recompute_nav_path(target_pos)
 
-	var next_position: Vector3 = nav_agent.get_next_path_position()
+		while _nav_path.size() > 1 and global_position.distance_to(_nav_path[0]) < WAYPOINT_EPSILON:
+			_nav_path.remove_at(0)
+
+	# While the fallback is armed, ignore the cached path entirely and walk
+	# straight at the real target — see DIRECT_FALLBACK_MS above.
+	var next_position: Vector3 = target_pos if direct_fallback_active or _nav_path.is_empty() else _nav_path[0]
 	var to_next: Vector3 = next_position - global_position
 	var flat_dir := Vector3(to_next.x, 0.0, to_next.z)
 	if flat_dir.length() < 0.1:
@@ -151,9 +354,85 @@ func _move_toward(target_pos: Vector3, stop_distance: float, delta: float) -> vo
 		return
 
 	var direction := flat_dir.normalized()
+	direction = _steer_around_obstacles(direction)
 	look_at(global_position + direction, Vector3.UP)
 	velocity.x = direction.x * move_speed
 	velocity.z = direction.z * move_speed
+
+
+# Detects "hasn't actually moved in a while despite trying to" and forces a
+# fresh repath next _move_toward() call.
+func _tick_stuck_detector(delta: float) -> void:
+	if global_position.distance_to(_last_stuck_check_pos) > STUCK_MOVE_EPSILON:
+		_stuck_timer = 0.0
+		_last_stuck_check_pos = global_position
+		_consecutive_stuck_count = 0
+		return
+	_stuck_timer += delta
+	if _stuck_timer < STUCK_THRESHOLD:
+		return
+	_stuck_timer = 0.0
+	_last_stuck_check_pos = global_position
+	_stuck_repath_requested = true
+	_consecutive_stuck_count += 1
+
+	if _consecutive_stuck_count >= 2:
+		_direct_fallback_until_ms = Time.get_ticks_msec() + DIRECT_FALLBACK_MS
+
+
+# Short forward raycast; if something's directly ahead, try a handful of
+# alternate headings and take the first one that's actually clear.
+func _steer_around_obstacles(direction: Vector3) -> Vector3:
+	if not is_inside_tree():
+		return direction
+	var space := get_world_3d().direct_space_state
+	var origin := global_position + Vector3(0, 0.9, 0)
+
+	if not _ray_blocked(space, origin, direction):
+		return direction
+
+	for angle_deg in OBSTACLE_AVOID_ANGLES_DEG:
+		var candidate := direction.rotated(Vector3.UP, deg_to_rad(angle_deg))
+		if not _ray_blocked(space, origin, candidate):
+			return candidate
+
+	return direction
+
+
+# A hit only counts as a real obstacle to dodge if its surface is fairly
+# vertical (a wall or prop) — a shallow-angle hit is just rising ground (dune
+# slopes, ramps), and treating that as an "obstacle" made the pet zigzag
+# constantly on any open terrain with a slope, cutting its effective speed
+# well below move_speed and letting the player outrun it.
+func _ray_blocked(space: PhysicsDirectSpaceState3D, origin: Vector3, direction: Vector3) -> bool:
+	var query := PhysicsRayQueryParameters3D.create(origin, origin + direction * OBSTACLE_CHECK_DISTANCE)
+	# Never treat the owner as an "obstacle" — the whole point of Follow/Guard
+	# is to end up near them, so a route that grazes their own collision
+	# capsule shouldn't be dodged (or worse, get stuck endlessly trying to
+	# route around a body that's the destination itself).
+	query.exclude = [self, owner_player] if is_instance_valid(owner_player) else [self]
+	var result := space.intersect_ray(query)
+	if result.is_empty():
+		return false
+	var normal: Vector3 = result.get("normal", Vector3.UP)
+	return absf(normal.y) < 0.6
+
+
+func _recompute_nav_path(target_pos: Vector3) -> void:
+	_nav_path.clear()
+	_nav_path_target = target_pos
+	if not is_inside_tree():
+		return
+	var query := NavigationPathQueryParameters3D.new()
+	query.map = get_world_3d().navigation_map
+	query.start_position = global_position
+	query.target_position = target_pos
+	var result := NavigationPathQueryResult3D.new()
+	NavigationServer3D.query_path(query, result)
+	for p in result.path:
+		_nav_path.append(p)
+	if _nav_path.size() > 1:
+		_nav_path.remove_at(0)  # path[0] is just our own current position
 
 
 func _process_attack(delta: float) -> void:
@@ -164,7 +443,13 @@ func _process_attack(delta: float) -> void:
 
 	var distance := global_position.distance_to(attack_target.global_position)
 	if distance > ATTACK_RANGE:
-		_move_toward(attack_target.global_position, ATTACK_RANGE, delta)
+		# Aim for a spot behind the target rather than its bare position —
+		# combatnode.gd's positional combat now skips block/parry/dodge/riposte
+		# entirely for a rear attack, so flanking actually lands more hits, not
+		# just looks better. Still just a preference: if that spot turns out to
+		# be unreachable, _move_toward()'s own stuck-recovery/navmesh-snap
+		# fallback gets the pet close enough to fight anyway.
+		_move_toward(_attack_flank_spot(attack_target), ATTACK_RANGE * 0.8, delta)
 		return
 
 	_apply_gravity(delta)
@@ -183,6 +468,7 @@ func _target_alive(target: Node) -> bool:
 func _perform_attack() -> void:
 	can_attack = false
 	attack_timer = attack_cooldown
+	_play_attack_animation()
 
 	if not (attack_target.get("combat_node") is CombatNode):
 		return
@@ -218,14 +504,20 @@ func _perform_attack() -> void:
 		command = _pre_attack_command
 
 
-func _process_sit_regen(delta: float) -> void:
-	_sit_regen_timer += delta
-	if _sit_regen_timer < SIT_REGEN_INTERVAL:
+# Same EQ-style 6s tick as the player (player3d.gd's REGEN_INTERVAL) — regens
+# passively in any state, at 3x rate while sitting, same multiplier the
+# player gets.
+func _process_regen(delta: float) -> void:
+	_regen_timer += delta
+	if _regen_timer < REGEN_INTERVAL:
 		return
-	_sit_regen_timer = 0.0
-	if combat_node.current_hp < combat_node.max_hp:
-		var regen: int = int(combat_node.get_derived_stat("hp_regen") * 3.0)
-		combat_node.current_hp = mini(combat_node.current_hp + regen, combat_node.max_hp)
+	_regen_timer = 0.0
+	if combat_node.current_hp >= combat_node.max_hp:
+		return
+	var regen: int = combat_node.get_derived_stat("hp_regen")
+	if command == PetState.SIT:
+		regen = int(regen * 3.0)
+	combat_node.current_hp = mini(combat_node.current_hp + regen, combat_node.max_hp)
 
 
 func _process_guard(delta: float) -> void:
@@ -233,63 +525,134 @@ func _process_guard(delta: float) -> void:
 	if _guard_scan_timer < GUARD_SCAN_INTERVAL:
 		return
 	_guard_scan_timer = 0.0
-	if not is_instance_valid(owner_player):
-		return
 
-	# Every monster's own AI only ever targets the player (monster3d.gd hardcodes
-	# `player` as its sole target) — so "in ATTACK state near the owner" already
-	# means "attacking the owner." No separate aggro-target lookup needed.
+	# Pure proximity to the held guard point — any living monster that wanders
+	# within range gets engaged, whether or not it's already attacking anyone.
 	for monster in get_tree().get_nodes_in_group("monsters"):
-		if monster.get("current_state") != monster.State.ATTACK:
+		if not _target_alive(monster):
 			continue
-		if owner_player.global_position.distance_to(monster.global_position) <= GUARD_SCAN_RADIUS:
-			attack_target = monster
-			_pre_attack_command = PetState.GUARD
-			command = PetState.ATTACK
+		if guard_position.distance_to(monster.global_position) <= GUARD_SCAN_RADIUS:
+			_engage(monster)
 			return
 
 
+# Two reactive triggers, checked from Follow/Guard/Assist alike (never while
+# already fighting): "defend" — the owner was just hit, so attack whatever hit
+# them — and, only when assist_mode is true (the Assist command), "join in" —
+# the owner is actively fighting something themselves, so pile on the same
+# target. Both reuse existing state rather than needing new signals: defend
+# reads player3d.gd's last_damage_time_ms + current_target (already kept in
+# sync by _register_attacker() whenever the player takes a hit), and assist
+# reads the player's own autoattack_enabled + current_target.
+func _process_auto_engage(delta: float, assist_mode: bool) -> void:
+	_auto_engage_timer += delta
+	if _auto_engage_timer < AUTO_ENGAGE_SCAN_INTERVAL:
+		return
+	_auto_engage_timer = 0.0
+	if not is_instance_valid(owner_player):
+		return
+
+	var recently_hit: bool = "last_damage_time_ms" in owner_player \
+		and Time.get_ticks_msec() - owner_player.last_damage_time_ms < DEFEND_REACTION_WINDOW_MS
+	if recently_hit:
+		var attacker: Node = owner_player.get("current_target")
+		if is_instance_valid(attacker) and _target_alive(attacker) and attacker.is_in_group("monsters"):
+			_engage(attacker)
+			return
+
+	if assist_mode and owner_player.get("autoattack_enabled"):
+		var owner_target: Node = owner_player.get("current_target")
+		if is_instance_valid(owner_target) and _target_alive(owner_target) and owner_target.is_in_group("monsters"):
+			_engage(owner_target)
+
+
+func _engage(target: Node) -> void:
+	attack_target = target
+	_pre_attack_command = _standing_command
+	command = PetState.ATTACK
+
+
 # ── Commands (called by pet_frame.gd's UI buttons) ─────────────────────────────
+# Each prints a short flavor line in the pet's "voice" (GameLog.log_general),
+# distinct from GameLog.log_combat's attack-resolution lines above.
+
+func _say(line: String) -> void:
+	GameLog.log_general("[color=#aa88ff]%s says, \"%s\"[/color]" % [pet_name, line])
+
 
 func cmd_attack(target: Node) -> void:
 	if target == null or not is_instance_valid(target):
 		GameLog.log_general("%s has no target to attack." % pet_name)
 		return
-	attack_target = target
-	_pre_attack_command = PetState.FOLLOW
-	command = PetState.ATTACK
+	var target_desc: String = target.get("monster_description")
+	if target_desc == "":
+		target_desc = target.get_monster_name() if target.has_method("get_monster_name") else str(target.name)
+	_engage(target)
+	_say("I will destroy %s master!" % target_desc)
 
 
-func cmd_stop() -> void:
-	attack_target = null
-	command = PetState.STOP
-
-
+# Immediately breaks off combat and returns to whichever of Follow/Guard/
+# Assist was last explicitly chosen — distinct from Follow itself now that
+# Follow no longer doubles as a "stop attacking" button.
 func cmd_back() -> void:
 	attack_target = null
-	command = PetState.FOLLOW
+	command = _standing_command
+	_say("Following your lead, dark lord.")
 
 
 func cmd_follow() -> void:
 	attack_target = null
 	command = PetState.FOLLOW
+	_standing_command = PetState.FOLLOW
+	_persist_mode()
+	_say("Following your lead, dark lord.")
 
 
 func cmd_sit() -> void:
 	attack_target = null
 	command = PetState.SIT
+	_persist_mode()
+	_say("Retiring for a bit...")
 
 
 func cmd_guard() -> void:
 	attack_target = null
 	guard_position = global_position
 	command = PetState.GUARD
+	_standing_command = PetState.GUARD
+	_persist_mode()
+	_say("I will protect this area from your enemies, m'lord")
+
+
+# Replaces the old Stop button — rather than just standing down, the pet now
+# shadows whatever the player is fighting.
+func cmd_assist() -> void:
+	attack_target = null
+	command = PetState.ASSIST
+	_standing_command = PetState.ASSIST
+	_persist_mode()
+	_say("I will join your fight, master.")
+
+
+# Saves whichever of Follow/Guard/Assist/Sit was last picked (never ATTACK —
+# that's transient) so the pet resumes the same mode on the next login instead
+# of always defaulting back to Follow. Mirrors pet_active/pet_name's own
+# persistence in player3d.gd's _summon_spectral_minion()/_restore_pet_if_saved().
+func _persist_mode() -> void:
+	Global.player_data["pet_mode"] = command
+	Global.save_player_data_to_file()
+
+
+# Voluntary desummon — distinct from die() (no combat, no "dissipates" line).
+func cmd_dismiss() -> void:
+	_say("Until I can be of assistance again. Farewell, master.")
+	dismissed.emit()
+	queue_free()
 
 
 # ── Damage / death ──────────────────────────────────────────────────────────────
-# NOTE: monster3d.gd's AI only ever targets the player, so nothing currently
-# damages the pet in combat — this is wired up for when that changes, and so
-# the pet can still be freed cleanly if damaged by some other future source.
+# monster3d.gd's aggro_table can put the pet ahead of the player in threat
+# (see add_threat() calls above), so monsters really can target and kill it.
 
 func apply_damage(amount: int, _damage_type: String = "physical") -> void:
 	combat_node.take_damage(amount)
@@ -299,4 +662,5 @@ func apply_damage(amount: int, _damage_type: String = "physical") -> void:
 
 func die() -> void:
 	GameLog.log_general("[color=#888888]%s dissipates.[/color]" % pet_name)
+	died.emit()
 	queue_free()

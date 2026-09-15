@@ -176,4 +176,5 @@ static func begin_cast(caster: String) -> String:
 	return "%s begins casting a spell." % caster
 
 static func death(killer: String, target_desc: String) -> String:
-	return "[color=#ff4444]%s has slain %s![/color]" % [killer, target_desc.capitalize()]
+	var verb := "have" if killer == "You" else "has"
+	return "[color=#ff4444]%s %s slain %s![/color]" % [killer, verb, target_desc.capitalize()]

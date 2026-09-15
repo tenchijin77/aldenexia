@@ -342,6 +342,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -33.49823, 0, 125.7903)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -36.372375, 0, -244.27975)
 
 [node name="Spider Den" type="Marker3D" parent="Markers" unique_id=487491048]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -850.8617)
 
 [node name="Goblin Camp 1" type="Marker3D" parent="Markers" unique_id=453703295]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -572.32983, 0, 605.41705)

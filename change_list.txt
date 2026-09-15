@@ -1,6 +1,6 @@
 change list:
 
-This is my developer notes for the game. I'll keep my pending tasks and completed ones in here.
+This is my developer notes for the game. I'll keep my pending tasks and completed ones in here. Full change notes will be kept in change_log.txt; this is more for a roadmap and milestones tracking document.
 
 completed:
 -created change list to track new and upcoming edits
@@ -75,274 +75,59 @@ completed:
 -implement guards protecting their area (4m): when enemies enter their area they will engage and actively attack them. When the guards kill an enemy they will drop no loot or corpse and be removed from the game when killed.
 -implement mob appraisal system: lets the player determine the attitude(stance towards the player),strengths/weaknesses of the mob, and Level  - I key, or /appraise
 -added threat system to monsters
-
-STANCE SYSTEM
-
-All stances have a 10 second cooldown to switch between them and persist until changed. Only one stance can be active at a time. Hover over them to see their details, and show in the spell book as well so people can see the details there if desired. They should be automatically unlocked, with no need to learn them.
-
-Shadow Ascendant (Offensive Stance)
-Effect: +15% damage, -10% defense, -35% threat generation
-Use case: DPS or solo play, not recommended for group tanking
-
-Necrotic Bastion (Defensive Stance)
-Effect: +15% defense, -10% damage
-Unique Bonus: +25% Life Drain healing
-This stance offsets the damage loss through enhanced life steal and maintains threat generation through healing, making it ideal for group tanking situations.
-
-Dusk Walker (Balanced Stance)
-Effect: +7% damage, +7% defense
-Use case: Flexible for mixed scenarios, solo or group content
-
-CORE MECHANICS
-
-Life Drain Sustainability: Life-draining attacks heal the Voidknight for a portion of damage dealt, ensuring survivability increases with combat intensity.
-
-Undead Army: Voidknights summon skeleton warriors, wraiths, and shades that fight alongside them. These pets have no duration and persist until killed, allowing players to build an army of undead allies.
-
-Necromantic Control: DoTs and debuffs are Voidknight's primary tool for controlling enemy behavior and weakening them over time.
-
-Resource System: Mana (regenerates passively)
-
-PET SYSTEM
-
-All Voidknight summons follow these rules:
-- No duration - persist until killed by enemy damage
-- Inherit player buffs and debuffs normally (player and group can cast buffs on them)
-- Auto-defend player when attacked
-- Can be resummoned after death
-- Follow standard commands: Attack, Follow, Guard, Passive
-
-SPELL LIST
-
-Level 1:
-
-Life Siphon (Melee)
-Deals 50 necrotic damage, heals self for 30-70% damage dealt (roll randomly to determine amount).
-
-Aura of the Shadow (Aura)
-Reduces enemy accuracy by 5% in 10m radius.
-Duration: 15 minutes
-
-Level 2:
-
-Blood Ritual (Self-Buff)
-Sacrifice 10% health for +10% attack power.
-Duration: 30 seconds
-
-Necrotic Grasp (Debuff)
-Slows target's movement speed and attack speed by 15% for 6 seconds.
-
-Shadowlight (Utility)
-Creates dim violet light on weapon or hand, reveals hidden undead.
-Duration: 1 hour
-
-Level 3:
-
-Improved Block (Passive, shows in spellbook, but no need to equip or cast)
-Block absorbs 10% more damage and has 5% chance to stagger attacker.
-
-Morthan's Call (Summon)
-Summons skeleton warrior that scales at 40% of caster's health.
-No duration - lasts until killed
-
-
-
-
-MOB Appraisal system (this lets the player see monster difficulty, weaknesses, and faction)
-HYBRID APPRAISAL SYSTEM
-
-AUTOMATIC INFO (always shown):
-- NPC Name
-- Level (colored by difficulty: Green/Yellow/Orange/Red/Purple)
-- Basic faction standing (Ally/Neutral/Enemy) Nameplate color: Ally: Blue, Neutral: White, Enemy: Red
-
-INSIGHT CHECK (skill-based, cooldown):
-- Press C or use Appraise command /appraise
-- Roll Check (Intelligence or Wisdom, whichever is higher)
-
-APPRAISAL ROLL MECHANIC:
-
-Roll vs. target's Defense (Intelligence or Wisdom, whichever is higher)
-
-DC (Difficulty Class) by target level difference:
-
-Green (5+ levels below): DC 5 (auto-success)
-Yellow (2-4 levels below): DC 10 (easy)
-Orange (Equal level): DC 15 (moderate)
-Red (2-4 levels above): DC 20 (hard)
-Purple (5+ levels above): DC 25 (very hard)
-
-ROLL FORMULA:
-Player rolls d20 + (Intelligence modifier OR Wisdom modifier, whichever is higher) vs. Target DC
-
-SUCCESS:
-
-Display all difficulty text + faction modifiers
-Reveal resistances, weaknesses, special abilities
-Show loot quality estimate
-Show exact faction reputation
-
-FAILURE:
-
-Display only base difficulty color (might be wrong)
-Show generic "You sense nothing unusual"
-Color could flash incorrectly then correct after 10 seconds
-No additional details revealed
-
-CRITICAL SUCCESS (roll 20):
-
-All success info PLUS hidden details (secret boss mechanic, rare loot chance, etc.)
-
-CRITICAL FAILURE (roll 1):
-
-Difficulty color is completely wrong for 30 seconds
-Misleading text (appears weaker/stronger than actual)
-Then corrects naturally
-
-COOLDOWN: 10 seconds between Appraisals on same target
-- Success reveals:
-  - Exact difficulty assessment text
-  - Estimated threat level
-  - Specific faction modifiers
-  - Special notes (weaknesses, resistances, loot quality)
-- Failure reveals:
-  - Generic "You sense nothing unusual" or misread the threat level
-  - Could display wrong difficulty color temporarily
-- Cooldown: 10 seconds per target (prevents spam)
-
-
-
-COLOR CODING:
-- Green = Trivial (low XP)
-- Yellow = Easy (standard)
-- Orange = Moderate (challenging)
-- Red = Hard (dangerous)
-- Purple = Deadly (impossible)
-
-FACTION MODIFIERS:
-- Allies get friendly text
-- Enemies get hostile warnings
-- Neutrals get cautious assessment
-
----
-
-DIFFICULTY ASSESSMENT TEXTS:Matched the pre-existing con system:
-
-Red  - 6 or more levels above
-Orange - 4-5 levels above
-Yellow - 2-3 levels above
-White - 1 level above/below or same level
-Blue - 2-3 levels below
-Green - 4-5 levels below
-Grey - 6+ levels below (no XP)
-
-(Trivial - 5+ levels below):
-- "This creature poses no threat whatsoever."
-- "You could defeat this in your sleep."
-- "A pathetic opponent. You could easily dispatch it quickly."
-- "Not even a warm-up."
-
-(Easy - 2-4 levels below):
-- "This appears to be a simple opponent."
-- "You have the advantage here."
-- "A straightforward victory awaits."
-- "Nothing you can't handle."
-- "An easy kill, should you desire it."
-
-(Moderate - Equal level, within 1 level):
-- "A worthy opponent. This could be interesting."
-- "The battle would be evenly matched."
-- "You sense a capable foe before you."
-- "This one fights with skill."
-- "Victory is possible, but not assured."
-
-(Hard - 2-4 levels above):
-- "This creature is significantly more powerful."
-- "You sense great danger ahead."
-- "Engaging this foe would be quite risky."
-- "You are outmatched here."
-- "Retreat may be the wisest course."
-
-(Deadly - 5+ levels above):
-- "This being radiates an overwhelming aura of power."
-- "You have no hope against such a force."
-- "Flight is your only option."
-- "Death awaits you here."
-- "Do not engage. You will perish."
-
----
-
-FACTION MODIFIERS:
-
-Ally:
-- Prefix: "Your ally appears... " or "This friend is..."
-- Suffix: "They seem eager to fight alongside you."
-
-Neutral:
-- Prefix: "This stranger..."
-- Suffix: "Their intentions remain unclear."
-
-Enemy:
-- Prefix: "Your enemy..."
-- Suffix: "They regard you with clear hostility."
-- Suffix: "You sense their desire for your death."
-
----
-
-INSIGHT CHECK RESULTS:
-
-Successful Check reveals additional details:
-- "Resistances: [Fire, Magic]"
-- "Weaknesses: [Ice, Holy]"
-- "Special Ability: [Summons allies / Casts spells / Regenerates]"
-- "Loot Quality: [Common/Uncommon/Rare/Epic]"
-- "Faction Reputation: [Hated / Disliked / Neutral / Liked / Revered]"
-
-Failed Check reveals confusion:
-- "You misjudge their power... they may be stronger than you thought."
-- "Something about this creature unnerves you. It's harder to read than expected."
-- "Your senses betray you. The difficulty is unclear."
-
----
-
-SPECIAL CASES:
-
-Boss Mobs:
-- Always show as PURPLE regardless of level
-- Text: "An aura of ancient power surrounds this being."
-- Check reveals: Boss name, special mechanics, recommended group size
-
-Corrupted/Void Mobs:
-- Add purple aura description
-- Text includes: "This creature is twisted by the Void."
-- Check reveals: Void corruption level, purification options
-
-Faction-Specific Text:
-
-If Revered with their faction:
-- "This being views you as an ally."
-- Appraise reveals they won't attack
-
-If Hated:
-- "This creature will attack on sight."
-- Appraise reveals aggressive behavior
-
-
+-added stance bar and 3-stance system for voidknight (Shadow Ascendant: +15% dmg/-10% defense/-35% threat; Necrotic Bastion: +15% defense/-10% dmg/+25% life drain healing; Dusk Walker: +7% dmg/+7% defense), 10s switch cooldown
+-fleshed out voidknight spell list through level 3 (Life Siphon, Aura of the Shadow, Blood Ritual, Necrotic Grasp, Shadowlight, Improved Block, Morthan's Call) with full descriptions
+-fleshed out mob appraisal system with full DC/roll table, per-tier flavor text, faction modifiers, and critical success/failure behavior
+
+9/15/26
+------------
+-corrected resolution to use full screen
+-corrected camera to snap to emulate player's head movement. F12 is free look and let's the player move the camera around
+-repositioned and bumped spawns to ~10 of each mob type at Mausoleum, Goblin Camp 1/2/3, and Spider Den, matching the new in-editor 3D markers
+-updated player sprites to use mixamo 3d models. humanoids are using the same model, and guards have their own specific model as well
+-implement first working npc with dialog, thinking of starting with guards and a vendor NPC
+-implement buying and selling from vendor npc
+-finished voidknight spells through level 8 (curse of weakness, dark pact, enhanced riposte, plague strike, shadow ward, soul leech, improved disarm, gravechill, blood aegis, death's echo), plus a new level 8 utility spell, Deathly Visage (see invisible + real light radius, 15 min)
+-added combat primitives needed for the above: damage-absorb shields, magic resist buffs, riposte bonus damage, and a kill-triggered damage proc
+-stocked all 18 voidknight scrolls (level 1-8) on Aldric at 10c each for testing
+-campfire buff duration increased from 5 to 15 minutes
+-pet system overhaul (Morthan's Call / spectral minion):
+  -pet now uses the same humanoid model/animations as skeletons and bandits instead of a placeholder box
+  -random EQ-style pet names (Data/pet_names.json, user-editable)
+  -pet gear/paperdoll: equip weapons/armor via right-click on inventory items, unequip via new pet gear window (P key), stat bonuses apply live; gear persists through logout/dismiss but is lost if the pet dies
+  -fixed pet pathing: ported guard NPC's direct-navmesh movement, obstacle-avoidance raycast (ignores slopes and the owner), and a direct-movement fallback for navmesh gaps that were leaving it permanently stuck
+  -pet always moves at sprint speed (10 m/s) so it doesn't lag behind while running
+  -Follow/Guard/Assist are now persistent auto-engage modes: Follow defends the owner, Guard holds a position and engages anything nearby or attacking the owner, Assist mirrors whatever the player attacks
+  -added Back (recall to last mode) and Dismiss (desummon) commands, and pet flavor-text lines for every command
+  -fixed pet not persisting across logout (real save-order bug) — pet now auto-resummons on login with the same name and last-used mode (Follow/Guard/Assist/Sit) if it was alive when you camped out
+  -passive HP regen at all times, 3x while sitting (matches player regen)
+  -added a mana bar to the pet frame (red HP / blue MP, matching the player frame), wired up for when pets get spells that spend mana
+  -fixed clicking the pet not targeting it, and fixed it showing "Unknown" as its name in the target frame
+  -pet command buttons now ring-highlight whichever mode is currently active
+-added /camp (15s channel to log out, interrupted by taking damage, sits the player down) and /exit commands
+-added Taunt spell for all three tank classes (Blademaster, Lightsworn, Voidknight) — guarantees a threat-table takeover instead of a flat threat add
+-positional combat: attacking a target from behind now bypasses their block/parry/dodge/riposte entirely (pets try to flank to their target's rear to take advantage of this)
+-Escape now closes all open UI windows at once instead of only toggling the pause menu
+-combat log messages from fights that don't involve the player or their pet (e.g. guard NPC fights) are now limited to within 10m
+-restyled player/target/pet frames and the status effects panel to match the game's UI look, and fixed long monster/status-effect names overlapping the text next to them
+-fixed "You has slain X" grammar to "You have slain X"
+-renamed the loot window to "Modern Loot Manager" and the Buffs panel to "Status Effects"
+-stance bar now ring-highlights the active stance (yellow) the same way the pet's mode buttons do, and shows the right one immediately on login instead of only after clicking
+-removed temporary pet debug logging
 
 to do: (in order of importance)
 
--correct resolution to 1920x1080  or 1080p and fix zooming to full screen windowed with no border, correct camera zoom size in scene
-
--implement nests for spiders, rats, goblins, and bandit camps as spawn locations
+-implement nests for rats and bandit camps as spawn locations
 
 -update character sprites, to include animated sprites for 2 character classes, (one caster, one melee)
 
--implement first working npc with dialog, thinking of starting with guards and a vender NPC
-
--implement buying and selling from vendor npc
-
 -create blender models for all lumora outskirts mobs: skeleton, goblins (x2), spider, bandit, snake, slime, dune scarab, and ghost_fire
 
--create blender models for male and female human character_stats
+-create blender models for male and female human characters
 
--create voidknight spells and get it working to level 4; ensure leveling and xp works
+-test and balance the new voidknight spells (levels 4-8) and taunt in actual play, adjust numbers/mechanics based on feedback
+
+
+
+Notes:
+

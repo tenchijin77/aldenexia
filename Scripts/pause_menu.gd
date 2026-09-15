@@ -128,6 +128,7 @@ func _build_options_panel() -> void:
 	vbox.add_child(_make_slider_row("Music Volume", "music_volume"))
 	vbox.add_child(_make_slider_row("Sound Volume", "sfx_volume"))
 	vbox.add_child(_make_invert_y_row())
+	vbox.add_child(_make_toggle_row("Show Name Tags", "show_name_tags"))
 
 	vbox.add_child(HSeparator.new())
 
@@ -238,6 +239,57 @@ func _make_invert_y_row() -> Control:
 	btn.toggled.connect(func(pressed: bool) -> void:
 		btn.text = "On" if pressed else "Off"
 		Global.settings["invert_look_y"] = pressed
+		Global.save_settings()
+	)
+	row.add_child(btn)
+
+	return row
+
+
+# Generic version of _make_invert_y_row()'s on/off toggle button, for any
+# boolean Global.settings key — defaults to true unless default_value says
+# otherwise (Show Name Tags defaults on, unlike Invert Look Y).
+func _make_toggle_row(label_text: String, settings_key: String, default_value: bool = true) -> Control:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 8)
+
+	var label := Label.new()
+	label.text = label_text
+	label.custom_minimum_size = Vector2(100, 0)
+	row.add_child(label)
+
+	var off_style := StyleBoxFlat.new()
+	off_style.bg_color = Color(0.16, 0.16, 0.18)
+	off_style.border_color = Color(0.4, 0.4, 0.45)
+	off_style.set_border_width_all(1)
+	off_style.set_corner_radius_all(3)
+	off_style.content_margin_left = 10
+	off_style.content_margin_right = 10
+	off_style.content_margin_top = 3
+	off_style.content_margin_bottom = 3
+
+	var on_style := StyleBoxFlat.new()
+	on_style.bg_color = Color(0.25, 0.5, 0.28)
+	on_style.border_color = Color(0.5, 0.95, 0.55)
+	on_style.set_border_width_all(1)
+	on_style.set_corner_radius_all(3)
+	on_style.content_margin_left = 10
+	on_style.content_margin_right = 10
+	on_style.content_margin_top = 3
+	on_style.content_margin_bottom = 3
+
+	var btn := Button.new()
+	var current: bool = Global.settings.get(settings_key, default_value)
+	btn.text = "On" if current else "Off"
+	btn.toggle_mode = true
+	btn.button_pressed = current
+	btn.add_theme_stylebox_override("normal", off_style)
+	btn.add_theme_stylebox_override("hover", off_style)
+	btn.add_theme_stylebox_override("pressed", on_style)
+	btn.add_theme_stylebox_override("hover_pressed", on_style)
+	btn.toggled.connect(func(pressed: bool) -> void:
+		btn.text = "On" if pressed else "Off"
+		Global.settings[settings_key] = pressed
 		Global.save_settings()
 	)
 	row.add_child(btn)

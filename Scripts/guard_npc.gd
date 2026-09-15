@@ -523,21 +523,21 @@ func _perform_attack() -> void:
 
 	match result.get("result", ""):
 		"MISS":
-			GameLog.log_combat("%s misses %s!" % [npc_name, target_desc])
+			GameLog.log_combat("%s misses %s!" % [npc_name, target_desc], global_position)
 		"PARRY":
-			GameLog.log_combat("%s's attack is parried!" % npc_name)
+			GameLog.log_combat("%s's attack is parried!" % npc_name, global_position)
 		"BLOCK":
-			GameLog.log_combat("%s's attack is blocked!" % npc_name)
+			GameLog.log_combat("%s's attack is blocked!" % npc_name, global_position)
 		"DODGE":
-			GameLog.log_combat("%s's attack is dodged!" % npc_name)
+			GameLog.log_combat("%s's attack is dodged!" % npc_name, global_position)
 		"RIPOSTE":
-			GameLog.log_combat("%s is riposted for [b]%d[/b] damage!" % [npc_name, result.get("damage", 0)])
+			GameLog.log_combat("%s is riposted for [b]%d[/b] damage!" % [npc_name, result.get("damage", 0)], global_position)
 		"HIT":
 			var crit: String = " [color=#ffaa00]Critical![/color]" if result.get("is_crit", false) else ""
-			GameLog.log_combat("%s hits %s for [b]%d[/b] damage!%s" % [npc_name, target_desc, result.get("damage", 0), crit])
+			GameLog.log_combat("%s hits %s for [b]%d[/b] damage!%s" % [npc_name, target_desc, result.get("damage", 0), crit], global_position)
 
 	if not target_cn.is_alive():
-		GameLog.log_combat("[color=#88ccff]%s dispatches %s.[/color]" % [npc_name, target_desc])
+		GameLog.log_combat("[color=#88ccff]%s dispatches %s.[/color]" % [npc_name, target_desc], global_position)
 		if attack_target.has_method("die"):
 			attack_target.die(false, false)
 		attack_target = null

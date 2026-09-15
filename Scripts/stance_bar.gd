@@ -35,6 +35,7 @@ func _process(_delta: float) -> void:
 		return
 
 	_build_ui()
+	_refresh_highlight()  # in case current_stance was already restored from a save
 
 
 func _load_stances_for_class(class_name_str: String) -> Array:
@@ -148,11 +149,18 @@ func _on_slot_clicked(stance_id: String, bg: StyleBoxFlat) -> void:
 
 
 func _refresh_highlight() -> void:
+	# Same ring treatment as pet_frame.gd's mode buttons — a bright border plus
+	# a tinted background, not just a subtle border-color shift, so the active
+	# stance reads at a glance instead of needing a close look.
 	for i in range(_stances.size()):
 		var stance: Dictionary = _stances[i]
 		var slot_panel: Control = _slot_panels[i]
 		var bg: StyleBoxFlat = slot_panel.get_theme_stylebox("panel")
 		if stance.get("stance_id", "") == _player.current_stance:
-			bg.border_color = Color(0.55, 0.45, 0.25)
+			bg.bg_color = Color(0.5, 0.42, 0.12, 0.92)
+			bg.border_color = Color(1.0, 0.85, 0.3)
+			bg.set_border_width_all(2)
 		else:
+			bg.bg_color = Color(0.08, 0.08, 0.12, 0.92)
 			bg.border_color = Color(0.35, 0.35, 0.45)
+			bg.set_border_width_all(1)

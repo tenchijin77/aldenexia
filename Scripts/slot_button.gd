@@ -146,7 +146,7 @@ func _show_inspect_popup() -> void:
 
 	# Equip button (equippable items only)
 	var equip_slot: String = Inventory.ITEM_SLOT_MAP.get(item_data.get("slot", ""), "")
-	if not equip_slot.is_empty():
+	if not equip_slot.is_empty() and slot_type != "pet_equipment":
 		var equip_btn := Button.new()
 		equip_btn.text = "Equip"
 		equip_btn.pressed.connect(func():
@@ -154,6 +154,29 @@ func _show_inspect_popup() -> void:
 			Inventory.equip_item(item_data, slot_type, slot_index, bag_slot, item_index)
 		)
 		btn_row.add_child(equip_btn)
+
+	# Equip to Pet button (weapon/armor items only, and only while a pet is out)
+	var players := get_tree().get_nodes_in_group("player")
+	var player := players[0] if not players.is_empty() else null
+	if player and slot_type != "pet_equipment" and player.has_method("pet_can_equip_slot") \
+			and player.pet_can_equip_slot(equip_slot) and is_instance_valid(player.get("active_pet")):
+		var pet_equip_btn := Button.new()
+		pet_equip_btn.text = "Equip to Pet"
+		pet_equip_btn.pressed.connect(func():
+			layer.queue_free()
+			player.equip_to_pet(item_data, slot_type, slot_index, bag_slot, item_index)
+		)
+		btn_row.add_child(pet_equip_btn)
+
+	# Unequip button (pet gear window slots only)
+	if slot_type == "pet_equipment" and player:
+		var unequip_btn := Button.new()
+		unequip_btn.text = "Unequip"
+		unequip_btn.pressed.connect(func():
+			layer.queue_free()
+			player.unequip_from_pet(slot_name)
+		)
+		btn_row.add_child(unequip_btn)
 
 	# Learn button (scrolls only)
 	if item_data.get("type") == "scroll" and item_data.has("teaches_spell"):

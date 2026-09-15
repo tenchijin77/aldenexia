@@ -44,7 +44,17 @@ var _skill_cooldowns: Dictionary = {}
 var _appraisal_cooldowns: Dictionary = {}  # target instance ID -> remaining seconds
 var active_pet: Node = null
 var active_pet_frame: Node = null
+var _deathly_visage_light: OmniLight3D = null
+var last_damage_time_ms: int = 0  # Time.get_ticks_msec() of the last hit taken — used to interrupt /camp
 var current_stance: String = ""
+
+# Pet's own gear, kept separate from Inventory.equipped (the player's 25-slot
+# paperdoll) — a reduced weapon+armor set since rings/trinkets/etc. don't make
+# sense on a summoned pet. Persists in Global.player_data["pet_equipment"]
+# across zoning/exit even while no pet is summoned; re-applied to whatever
+# PetMinion instance exists via _apply_pet_gear_bonus().
+const PET_EQUIPMENT_SLOTS: Array = ["primary", "offhand", "head", "chest", "arms", "hands", "legs", "feet"]
+var pet_equipment: Dictionary = {}
 
 # Computed properties for backward compat (monster3d reads these on current_target)
 var current_health: int:
@@ -151,7 +161,8 @@ func _unhandled_input(event: InputEvent) -> void:
 
 	if event is InputEventKey and event.pressed and not event.echo:
 		if event.keycode == KEY_ESCAPE and not event.ctrl_pressed:
-			_toggle_pause_menu()
+			if not _close_all_windows():
+				_toggle_pause_menu()
 			return
 
 		if event.is_action_pressed("hail") and not (get_viewport().gui_get_focus_owner() is LineEdit):
@@ -169,6 +180,21 @@ func _unhandled_input(event: InputEvent) -> void:
 			match slot.get("type", ""):
 				"spell": cast_spell(slot["name"])
 				"skill": use_skill(slot["name"])
+
+
+# Closes every open modal window at once (character sheet, backpack, abilities
+# book, shop, corpse loot, pet gear, the item-inspect popup, and the pause
+# menu itself if up) — anything that isn't part of the persistent HUD group
+# (_spawn_hud() / pet_frame below both tag their nodes "game_hud"). Returns
+# whether anything was actually closed, so the Escape handler above only
+# falls back to opening the pause menu when nothing was open to close.
+func _close_all_windows() -> bool:
+	var closed_any := false
+	for node in get_tree().root.get_children():
+		if node is CanvasLayer and not node.is_in_group("game_hud"):
+			node.queue_free()
+			closed_any = true
+	return closed_any
 
 
 func _toggle_pause_menu() -> void:
@@ -486,6 +512,7 @@ func _ready() -> void:
 	load_faction_standing()
 	_load_spell_cache()
 	load_player_data_from_global()
+	call_deferred("_restore_pet_if_saved")
 	_death_flavor = NPCFlavorText.new("res://Data/player_death_flavor.json")
 	_food_drink_flavor = NPCFlavorText.new("res://Data/food_drink_flavor.json")
 	_restore_last_position()
@@ -1067,6 +1094,12 @@ func handle_combat() -> void:
 		toggle_character_sheet()
 	if Input.is_action_just_pressed("toggle_abilities_book"):
 		toggle_abilities_book()
+	if Input.is_action_just_pressed("toggle_pet_gear"):
+		toggle_pet_gear_window()
+	if is_instance_valid(_deathly_visage_light):
+		_deathly_visage_light.visible = combat_node.has_effect("deathly_visage")
+	if has_node("NameLabel"):
+		$NameLabel.visible = Global.settings.get("show_name_tags", true)
 
 
 
@@ -1089,7 +1122,7 @@ func _is_targetable_alive(node: Node) -> bool:
 
 
 func tab_cycle_target() -> void:
-	var candidates := get_tree().get_nodes_in_group("monsters") + get_tree().get_nodes_in_group("npc_guard") + get_tree().get_nodes_in_group("npc_vendor")
+	var candidates := get_tree().get_nodes_in_group("monsters") + get_tree().get_nodes_in_group("npc_guard") + get_tree().get_nodes_in_group("npc_vendor") + get_tree().get_nodes_in_group("pets")
 	var valid: Array = []
 	for m in candidates:
 		if _is_targetable_alive(m):
@@ -1124,7 +1157,7 @@ func _try_click_target(screen_pos: Vector2) -> void:
 	var query := PhysicsRayQueryParameters3D.create(origin, origin + direction * 150.0)
 	query.exclude = [self]
 	var hit := space.intersect_ray(query)
-	if hit and (hit.collider is Monster or hit.collider is GuardNPC or hit.collider is VendorNPC):
+	if hit and (hit.collider is Monster or hit.collider is GuardNPC or hit.collider is VendorNPC or hit.collider is PetMinion):
 		var m: Node = hit.collider
 		if _is_targetable_alive(m):
 			current_target = m
@@ -1198,6 +1231,7 @@ func attack_current_target() -> void:
 			_tick_skill("riposte")
 		if not current_target.combat_node.is_alive():
 			var dead := current_target
+			combat_node.notify_kill()
 			GameLog.log_combat(CombatLogFormatter.death("You", target_desc))
 			_set_target_frame(null)
 			current_target = null
@@ -1276,6 +1310,7 @@ func perform_melee_attack() -> void:
 			elif result["result"] == "RIPOSTE":
 				_tick_skill("riposte")
 			if not target.combat_node.is_alive() and target.has_method("die"):
+				combat_node.notify_kill()
 				GameLog.log_combat(CombatLogFormatter.death("You", target_desc))
 				if target == current_target:
 					_set_target_frame(null)
@@ -1298,6 +1333,7 @@ func perform_melee_attack() -> void:
 func take_damage(amount: int, attacker: Node = null) -> void:
 	if dying:
 		return
+	last_damage_time_ms = Time.get_ticks_msec()
 	combat_node.take_damage(amount)
 	GameLog.log_combat("💔 You take %d damage. [HP: %d/%d]" % [amount, combat_node.current_hp, combat_node.max_hp])
 	_register_attacker(attacker)
@@ -1316,6 +1352,7 @@ func apply_damage(amount: int, attacker: Node = null) -> void:
 func on_combat_node_hit(attacker: Node) -> void:
 	if dying:
 		return
+	last_damage_time_ms = Time.get_ticks_msec()
 	_register_attacker(attacker)
 	if not combat_node.is_alive():
 		die(attacker)
@@ -1592,10 +1629,18 @@ func load_character_data(data: Dictionary) -> void:
 	player_race  = data.get("player_race",  "Human")
 	stats        = data.get("stats",        {})
 
+	if has_node("NameLabel"):
+		$NameLabel.text = player_name
+
 	data["resistances"] = data.get("resistances", {
 		"acid": 0, "cold": 0, "fire": 0, "magic": 0, "psychic": 0
 	})
 	data["equipment"] = data.get("equipment", {})
+
+	pet_equipment = data.get("pet_equipment", {})
+	for slot in PET_EQUIPMENT_SLOTS:
+		if not pet_equipment.has(slot):
+			pet_equipment[slot] = null
 
 	combat_node.character_name = player_name
 	combat_node.set_base_stat("level",        data.get("player_level", 1))
@@ -1749,6 +1794,81 @@ func _apply_equipment_from_inventory() -> void:
 
 
 # ================================================================================
+# ⭐ PET EQUIPMENT (separate paperdoll from the player's own gear — see
+# PET_EQUIPMENT_SLOTS. Equip/unequip happen via slot_button.gd's inspect
+# popup buttons, not drag-and-drop, matching the rest of the item UI.)
+# ================================================================================
+
+# item comes from slot_button.gd's inspect popup (a basic_inventory or bag
+# slot); src_* identify where to put the pet's previously-equipped item back.
+func pet_can_equip_slot(equip_slot: String) -> bool:
+	return equip_slot in PET_EQUIPMENT_SLOTS
+
+
+func equip_to_pet(item: Dictionary, src_type: String, src_basic_idx: int = -1, src_bag_slot: int = -1, src_item_idx: int = -1) -> bool:
+	var item_slot: String = item.get("slot", "none")
+	var pet_slot: String = Inventory.ITEM_SLOT_MAP.get(item_slot, "")
+	if pet_slot.is_empty() or pet_slot not in PET_EQUIPMENT_SLOTS:
+		GameLog.log_general("[b]%s[/b] can't be equipped on your pet." % item.get("name", "?"))
+		return false
+
+	var displaced: Variant = pet_equipment.get(pet_slot, null)
+
+	if src_type == "basic" and src_basic_idx >= 0:
+		Inventory.basic_inventory[src_basic_idx] = displaced
+	elif src_type == "bag" and src_bag_slot >= 0 and src_item_idx >= 0:
+		var key := str(src_bag_slot)
+		if Inventory.bag_contents.has(key):
+			if displaced != null:
+				Inventory.bag_contents[key][src_item_idx] = displaced
+			else:
+				Inventory.bag_contents[key].remove_at(src_item_idx)
+
+	pet_equipment[pet_slot] = item
+	_on_pet_equipment_changed()
+	GameLog.log_general("[color=#aa88ff]Your pet is now equipped with %s.[/color]" % item.get("name", "?"))
+	return true
+
+
+func unequip_from_pet(slot: String) -> bool:
+	var item: Variant = pet_equipment.get(slot, null)
+	if item == null:
+		return false
+	for i in range(Inventory.BASIC_INVENTORY_SIZE):
+		if Inventory.basic_inventory[i] == null:
+			Inventory.basic_inventory[i] = item
+			pet_equipment[slot] = null
+			_on_pet_equipment_changed()
+			return true
+	GameLog.log_general("[color=#ff8866]Your inventory is full — can't unequip that.[/color]")
+	return false
+
+
+func _on_pet_equipment_changed() -> void:
+	Global.player_data["pet_equipment"] = pet_equipment
+	Global.save_player_data_to_file()
+	Inventory.inventory_changed.emit()
+	_apply_pet_gear_bonus()
+
+
+func _apply_pet_gear_bonus() -> void:
+	if not is_instance_valid(active_pet):
+		return
+	var weapon_dmg := 0
+	var bonus_ac   := 0
+	for slot in PET_EQUIPMENT_SLOTS:
+		var item: Variant = pet_equipment.get(slot, null)
+		if item == null or typeof(item) != TYPE_DICTIONARY:
+			continue
+		if slot == "primary":
+			weapon_dmg = item.get("damage", 0)
+		else:
+			bonus_ac += item.get("armor_class", 0)
+	if active_pet.has_method("apply_gear_bonus"):
+		active_pet.apply_gear_bonus(weapon_dmg, bonus_ac)
+
+
+# ================================================================================
 # ⭐ SPELL CASTING
 # ================================================================================
 
@@ -1758,6 +1878,8 @@ const SPELL_DISPLAY_NAMES := {
 	"shadow_aura": "Aura of the Shadow",
 	"spectral_minion": "Morthan's Call",
 	"campfire_warmth": "Warmth of the Campfire",
+	"curse_of_weakness": "Curse of Weakness",
+	"deaths_echo": "Death's Echo",
 }
 
 static func spell_display_name(spell_name: String) -> String:
@@ -1850,8 +1972,36 @@ func cast_spell(spell_name: String) -> void:
 					if target_cn is CombatNode:
 						target_cn.apply_effect("necrotic_grasp", 6.0, {"speed_slow": 0.15, "attack_speed_slow": 0.15})
 						GameLog.log_general("[color=#8866ff]%s is gripped by necrotic energy, slowing them.[/color]" % target_desc.capitalize())
+				"curse_of_weakness":
+					if target_cn is CombatNode:
+						target_cn.apply_effect("curse_of_weakness", 10.0, {"damage_mult": -0.05})
+						GameLog.log_general("[color=#8866ff]%s is weakened, their attacks feeble.[/color]" % target_desc.capitalize())
+				"plague_strike":
+					if target_cn is CombatNode:
+						target_cn.apply_effect("plague_strike", 8.0, {}, 5, 1.0)
+						GameLog.log_general("[color=#77aa44]%s is wracked with plague.[/color]" % target_desc.capitalize())
+				"soul_leech":
+					if target_cn is CombatNode:
+						var drained := int(target_cn.max_mana * 0.03)
+						target_cn.current_mana = maxf(0.0, target_cn.current_mana - drained)
+						var healed := combat_node.heal(int(drained * 0.30))
+						if healed > 0:
+							GameLog.log_general("[color=#66ff99]You leech %d mana from %s, healing yourself for [b]%d[/b].[/color]" % [drained, target_desc, healed])
+				"improved_disarm":
+					if randf() < 0.40:
+						if "attack_timer" in target_node and "attack_cooldown" in target_node:
+							target_node.can_attack = false
+							target_node.attack_timer = 2.0
+						GameLog.log_general("[color=#ffcc66]You disarm %s, disrupting their attack![/color]" % target_desc)
+					else:
+						GameLog.log_general("Your disarm attempt on %s fails." % target_desc)
+				"taunt":
+					if target_node.has_method("taunt"):
+						target_node.taunt(self)
+						GameLog.log_general("[color=#ffcc66]You bellow a challenge — %s's fury turns on you![/color]" % target_desc)
 
 			if not target_node.combat_node.is_alive():
+				combat_node.notify_kill()
 				GameLog.log_combat(CombatLogFormatter.death("You", target_desc))
 				_set_target_frame(null)
 				current_target = null
@@ -1873,14 +2023,99 @@ func cast_spell(spell_name: String) -> void:
 					GameLog.log_combat("[color=#8855cc]A dim violet light kindles across your weapon.[/color]")
 				"spectral_minion":
 					_summon_spectral_minion()
+				"dark_pact":
+					var mana_cost_extra: int = int(combat_node.max_mana * 0.05)
+					combat_node.current_mana = maxf(0.0, combat_node.current_mana - mana_cost_extra)
+					combat_node.apply_effect("dark_pact", 30.0, {"magic_resist_bonus": 10.0})
+					GameLog.log_combat("[color=#8866ff]You forge a dark pact, warding your mind against magic.[/color]")
+				"enhanced_riposte":
+					combat_node.apply_effect("enhanced_riposte", 30.0, {"riposte_bonus_damage": 10.0})
+					GameLog.log_combat("[color=#8888ff]Your riposte crackles with necrotic energy.[/color]")
+				"shadow_ward":
+					combat_node.apply_effect("shadow_ward", 8.0, {})
+					combat_node.active_effects["shadow_ward"]["absorb_remaining"] = 100
+					GameLog.log_combat("[color=#8866ff]A ward of shadow surrounds you, absorbing damage.[/color]")
+				"blood_aegis":
+					combat_node.apply_effect("blood_aegis", 6.0, {"damage_drain_pct": 0.20})
+					GameLog.log_combat("[color=#ff4444]Your blood aegis stirs, ready to drink the pain you take.[/color]")
+				"deaths_echo":
+					combat_node.apply_effect("deaths_echo", 30.0, {})
+					GameLog.log_combat("[color=#aa88ff]Death's Echo lingers, ready to answer your next kill.[/color]")
+				"deathly_visage":
+					combat_node.apply_effect("deathly_visage", 900.0, {"see_invisible": 1.0})
+					_enable_deathly_visage_light()
+					GameLog.log_combat("[color=#88bbcc]A pale, deathly light fills your eyes — the unseen becomes visible.[/color]")
 				_:
 					GameLog.log_combat("You use [b]%s[/b] on yourself." % display_name)
+
+		# "cone" (Gravechill) — no real directional cone geometry in this codebase yet,
+		# so approximated as the primary target plus any other hostile monster within
+		# 4m of it (a small cleave), which reads close enough to a cone hit for testing.
+		"cone":
+			if target_node == null:
+				GameLog.log_general("No target selected for [b]%s[/b]." % display_name)
+				return
+			if not _is_targetable_alive(target_node):
+				GameLog.log_general("Your target is already dead.")
+				return
+			if TargetFrame.faction_status(target_node) == "Ally":
+				GameLog.log_general("You can't target an ally with [b]%s[/b]." % display_name)
+				return
+
+			var cone_targets: Array = [target_node]
+			for monster in get_tree().get_nodes_in_group("monsters"):
+				if monster == target_node or not is_instance_valid(monster):
+					continue
+				if TargetFrame.faction_status(monster) == "Ally":
+					continue
+				if monster.global_position.distance_to(target_node.global_position) <= 4.0:
+					cone_targets.append(monster)
+
+			for hit_target in cone_targets:
+				if not hit_target.has_method("apply_damage"):
+					continue
+				var hit_cn = hit_target.get("combat_node")
+				var hit_desc: String = hit_target.get("monster_description") \
+					if hit_target.get("monster_description") != "" else hit_target.get_monster_name()
+				var cone_dmg: int = base_damage + int(combat_node.strength / 2.0)
+				if hit_cn is CombatNode:
+					cone_dmg = combat_node.apply_ac_mitigation(cone_dmg, hit_cn)
+				cone_dmg = max(1, cone_dmg)
+				hit_target.apply_damage(cone_dmg, "physical")
+				GameLog.log_combat(CombatLogFormatter.spell_damage("You", spell_name, hit_desc, cone_dmg))
+				if hit_target.has_method("add_threat"):
+					hit_target.add_threat(self, combat_node.generate_threat(cone_dmg))
+				if hit_cn is CombatNode:
+					hit_cn.apply_effect("gravechill", 6.0, {"speed_slow": 0.15, "attack_speed_slow": 0.15})
+					if not hit_cn.is_alive():
+						combat_node.notify_kill()
+						GameLog.log_combat(CombatLogFormatter.death("You", hit_desc))
+						if hit_target == current_target:
+							_set_target_frame(null)
+							current_target = null
+							autoattack_enabled = false
+							GameLog.set_autoattack(false)
 
 		"group":
 			GameLog.log_combat("[color=#ffdd88]You use [b]%s[/b]! Your battle cry fills the air.[/color]" % display_name)
 
 
-func _summon_spectral_minion() -> void:
+# Actual point light (not just a "see invisible" flag) so it doubles as real
+# night vision — 10m range, matching the spell's stated radius. Left attached
+# and just toggled invisible/visible off the "deathly_visage" active_effect
+# rather than freed on expiry, so recasting doesn't need to recreate it.
+func _enable_deathly_visage_light() -> void:
+	if not is_instance_valid(_deathly_visage_light):
+		_deathly_visage_light = OmniLight3D.new()
+		_deathly_visage_light.light_color = Color(0.65, 0.85, 1.0)
+		_deathly_visage_light.light_energy = 1.2
+		_deathly_visage_light.omni_range = 10.0
+		_deathly_visage_light.position = Vector3(0, 1.5, 0)
+		add_child(_deathly_visage_light)
+	_deathly_visage_light.visible = true
+
+
+func _summon_spectral_minion(preset_name: String = "") -> void:
 	if is_instance_valid(active_pet):
 		active_pet.queue_free()
 	if is_instance_valid(active_pet_frame):
@@ -1888,15 +2123,75 @@ func _summon_spectral_minion() -> void:
 
 	var pet: Node = load("res://Scenes/pet_minion.tscn").instantiate()
 	get_tree().current_scene.add_child(pet)
-	pet.setup(self)
+	pet.setup(self, preset_name)
 	active_pet = pet
+	_apply_pet_gear_bonus()
+	pet.dismissed.connect(_on_pet_gone)
+	pet.died.connect(_on_pet_gone)
+	pet.died.connect(_on_pet_died)
+
+	Global.player_data["pet_active"] = true
+	Global.player_data["pet_name"] = pet.pet_name
+	Global.save_player_data_to_file()
+	_apply_saved_pet_mode(pet)
 
 	var frame: Node = load("res://Scenes/pet_frame.tscn").instantiate()
+	frame.add_to_group("game_hud")
 	get_tree().root.add_child(frame)
 	frame.set_pet(pet)
 	active_pet_frame = frame
 
-	GameLog.log_general("[color=#aa88ff]You invoke Morthan's Call — a skeleton warrior rises to fight at your side.[/color]")
+	GameLog.log_general("[color=#aa88ff]You invoke Morthan's Call — %s rises to fight at your side.[/color]" % pet.pet_name)
+
+
+# Re-applies whichever of Follow/Guard/Assist/Sit was last commanded (see
+# pet_minion.gd's _persist_mode()) on every fresh summon, not just the
+# restore-on-login case below — so dismissing a Guard-mode pet and recasting
+# the spell doesn't silently reset it back to Follow. PetState.ATTACK is
+# never actually persisted (see _persist_mode()), so it's covered by the
+# same default-to-Follow branch as an unset value.
+func _apply_saved_pet_mode(pet: Node) -> void:
+	match Global.player_data.get("pet_mode", 0):
+		2: pet.cmd_sit()
+		3: pet.cmd_guard()
+		4: pet.cmd_assist()
+		_: pet.cmd_follow()
+
+
+# Fires on death (pet_minion.gd's died signal) and on Dismiss (dismissed
+# signal) alike — either way the pet is gone voluntarily/in combat, so it
+# shouldn't come back on next login. Deliberately NOT tied to tree_exited:
+# that also fires when the whole zone (pet included) is freed during a scene
+# change (/camp, /exit, Save & Exit), which was overwriting a correct
+# "pet is still alive" save with "gone" right after logging out with a live
+# pet — the exact bug this signal split fixes.
+func _on_pet_gone() -> void:
+	Global.player_data["pet_active"] = false
+	Global.save_player_data_to_file()
+
+
+# Only on an actual death (not Dismiss, not logging out with a pet out) —
+# whatever gear was equipped on the pet is lost with it, same idea as the
+# pet's own HP being at risk.
+func _on_pet_died() -> void:
+	var had_gear := false
+	for slot in PET_EQUIPMENT_SLOTS:
+		if pet_equipment.get(slot, null) != null:
+			had_gear = true
+		pet_equipment[slot] = null
+	if had_gear:
+		GameLog.log_general("[color=#ff6666]Your pet's equipment is lost along with it.[/color]")
+	Global.player_data["pet_equipment"] = pet_equipment
+	Global.save_player_data_to_file()
+
+
+# Called once from _ready() after load_player_data_from_global() — brings the
+# pet back on login instead of it just being gone, keeping its saved name so
+# it reads as the same pet rather than a freshly re-rolled one. Full HP, not
+# whatever it was at logout — pets aren't saved mid-fight, only "had one out."
+func _restore_pet_if_saved() -> void:
+	if Global.player_data.get("pet_active", false):
+		_summon_spectral_minion(Global.player_data.get("pet_name", ""))
 
 
 func _default_action_bar_slots() -> Array:
@@ -1978,6 +2273,16 @@ func on_level_up(new_level: int) -> void:
 	combat_node.current_hp   = combat_node.max_hp
 	combat_node.current_mana = combat_node.max_mana
 	Global.player_data["player_level"] = new_level
+
+
+func toggle_pet_gear_window() -> void:
+	var existing := get_tree().root.get_node_or_null("PetGearWindow")
+	if existing:
+		existing.queue_free()
+		return
+	var window: Node = load("res://Scenes/pet_gear_window.tscn").instantiate()
+	get_tree().root.add_child(window)
+	window.set_player(self)
 
 
 func toggle_abilities_book() -> void:

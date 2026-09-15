@@ -18,6 +18,12 @@ shape = SubResource("CapsuleShape3D_yogew")
 [node name="Character" parent="." unique_id=398354528 instance=ExtResource("3_charmdl")]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, 0)
 
+[node name="NameLabel" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.4, 0)
+billboard = 1
+no_depth_test = true
+outline_size = 6
+
 [node name="CameraRig" type="Node3D" parent="." unique_id=122413799]
 transform = Transform3D(1, 0, 0, 0, 0.96592575, 0.258819, 0, -0.258819, 0.96592575, 0, 0, 0)
 script = ExtResource("2_yogew")

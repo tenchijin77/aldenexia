@@ -98,6 +98,7 @@ var settings: Dictionary = {
 	"music_volume": 1.0,   # linear 0..1, applied to the "Music" audio bus
 	"sfx_volume": 1.0,     # linear 0..1, applied to the "SFX" audio bus
 	"invert_look_y": false,  # flips vertical mouse input for both mouselook and head-turn (camera_controller.gd)
+	"show_name_tags": true,  # floating Label3D above the player's and pet's heads (player3d.gd, pet_minion.gd)
 }
 
 func load_settings() -> void:

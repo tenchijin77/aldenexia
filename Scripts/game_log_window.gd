@@ -420,7 +420,7 @@ func _on_chat_input_gui_input(event: InputEvent) -> void:
 # too (Linux-style abbreviation) — see _resolve_command() below. e.g. "/loc"
 # and "/location" both resolve to "/location" since no other command starts
 # with "loc"; "/f" would be ambiguous if two commands both started with "f".
-const COMMANDS := ["/location", "/hail", "/appraise", "/time", "/follow"]
+const COMMANDS := ["/location", "/hail", "/appraise", "/time", "/follow", "/camp", "/exit"]
 
 
 func _handle_slash_command(text: String) -> void:
@@ -442,6 +442,10 @@ func _handle_slash_command(text: String) -> void:
 			player.try_appraise_target()
 		"/follow":
 			player.try_follow(arg)
+		"/camp":
+			_start_camp_sequence()
+		"/exit":
+			_save_and_quit()
 		"/time":
 			GameLog.log_general("[color=green]%s[/color]" % Global.format_full_date())
 			var day_night_nodes := get_tree().get_nodes_in_group("day_night_cycle")
@@ -457,6 +461,59 @@ func _handle_slash_command(text: String) -> void:
 				hour12 = 12
 			var ampm := "AM" if d.hour < 12 else "PM"
 			GameLog.log_general("[color=green]Real time: %d:%02d %s[/color]" % [hour12, d.minute, ampm])
+
+
+# 15-second channel before /camp actually saves and exits to the main menu —
+# without this, /camp is a free instant escape from a bad pull or a fight
+# gone wrong. Interrupted (not just delayed) by taking any damage during the
+# channel, same idea as EQ's camp timer resetting on a hit.
+var _camping := false
+const CAMP_CHANNEL_MS := 15000
+
+func _start_camp_sequence() -> void:
+	if _camping:
+		GameLog.log_general("[color=#ffaa66]You are already trying to camp.[/color]")
+		return
+	if not is_instance_valid(player):
+		return
+	_camping = true
+	var start_ms := Time.get_ticks_msec()
+	var start_damage_ms: int = player.last_damage_time_ms
+	var was_sitting: bool = player.is_sitting
+	player.is_sitting = true
+	GameLog.log_general("[color=#ffdd88]You sit down and prepare to break camp. Remain undisturbed for 15 seconds...[/color]")
+
+	while Time.get_ticks_msec() - start_ms < CAMP_CHANNEL_MS:
+		await get_tree().create_timer(0.25).timeout
+		if not is_instance_valid(player):
+			_camping = false
+			return
+		if player.last_damage_time_ms > start_damage_ms:
+			GameLog.log_general("[color=#ff6666]Your camping attempt is interrupted — you've taken damage![/color]")
+			player.is_sitting = was_sitting
+			_camping = false
+			return
+
+	_camping = false
+	GameLog.log_general("[color=#88cc88]You finish breaking camp.[/color]")
+	_save_and_return_to_menu()
+
+
+# Same save-and-tear-down sequence as pause_menu.gd's "Save and Exit" button —
+# frees every CanvasLayer on root (HUD, character sheet, backpack, pet frame,
+# etc.) before switching scenes, since none of those free themselves on their
+# own when the zone scene changes out from under them.
+func _save_and_return_to_menu() -> void:
+	Global.save_player_data_to_file()
+	for node in get_tree().root.get_children():
+		if node is CanvasLayer:
+			node.queue_free()
+	get_tree().change_scene_to_file("res://Scenes/main_menu.tscn")
+
+
+func _save_and_quit() -> void:
+	Global.save_player_data_to_file()
+	get_tree().quit()
 
 
 # Resolves a typed command to a canonical one from COMMANDS, allowing any
@@ -485,7 +542,12 @@ func _on_general(text: String) -> void:
 	_append(general_log, text)
 
 
-func _on_combat(text: String) -> void:
+const COMBAT_VISIBILITY_RANGE := 10.0
+
+func _on_combat(text: String, has_position: bool, position: Vector3) -> void:
+	if has_position and is_instance_valid(player) \
+			and player.global_position.distance_to(position) > COMBAT_VISIBILITY_RANGE:
+		return
 	_append(combat_log, text)
 
 

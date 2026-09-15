@@ -48,7 +48,7 @@ func _exit_tree() -> void:
 
 func setup(display_name: String, loot: Array) -> void:
 	pending_loot = loot  # reference — mutations here deplete the monster's actual loot
-	title_label.text = "☠  %s" % display_name
+	title_label.text = "Modern Loot Manager — %s" % display_name
 	_rebuild_list()
 
 # Called by slot_button when an item is successfully drag-dropped into inventory.

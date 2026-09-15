@@ -97,6 +97,8 @@ func _build_row(effect_name: String, display_name: String, description: String, 
 	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	name_label.add_theme_font_size_override("font_size", 11)
 	name_label.add_theme_color_override("font_color", Color(0.95, 0.85, 0.55))
+	name_label.clip_text = true
+	name_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	name_row.add_child(name_label)
 
 	var time_label := Label.new()

@@ -1,11 +1,11 @@
 # campfire.gd — logs a flavor message when the player warms up near the fire,
-# and grants "Warmth of the Campfire" (+2 HP/Mana/Stamina regen for 5 minutes)
+# and grants "Warmth of the Campfire" (+2 HP/Mana/Stamina regen for 15 minutes)
 # after they've lingered nearby for 30 continuous seconds. Leaving early
 # cancels the countdown — you have to actually sit through it.
 extends Node3D
 
 const WARMTH_LINGER_SECONDS := 30.0
-const BUFF_DURATION_SECONDS := 300.0  # 5 minutes
+const BUFF_DURATION_SECONDS := 900.0  # 15 minutes
 const BUFF_MODIFIERS := {
 	"hp_regen_bonus": 2,
 	"mana_regen_bonus": 2,

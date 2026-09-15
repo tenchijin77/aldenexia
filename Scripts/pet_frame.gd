@@ -1,7 +1,7 @@
 # pet_frame.gd — Small HUD panel for the active pet: name, HP bar, and command
-# buttons (Attack / Stop / Back / Follow / Sit / Guard). Built in code, same
-# pattern as action_bar.gd. Instantiated by player3d.gd when a pet is summoned,
-# freed when the pet dies.
+# buttons (Attack / Assist / Back / Follow / Sit / Guard / Gear / Dismiss).
+# Built in code, same pattern as action_bar.gd. Instantiated by player3d.gd
+# when a pet is summoned, freed when the pet dies.
 extends CanvasLayer
 class_name PetFrame
 
@@ -15,7 +15,18 @@ var _panel: Panel = null
 var _name_label: Label = null
 var _hp_bar: ProgressBar = null
 var _hp_label: Label = null
+var _mp_bar: ProgressBar = null
+var _mp_label: Label = null
 var _dragging := false
+
+# Follow/Guard/Assist/Sit are persistent modes (not one-shot actions like
+# Attack/Back/Gear/Dismiss) — keyed by PetState.PetState value so _process()
+# can ring-highlight whichever one is actually active, both to answer "is
+# this pet actually in Guard mode or not" at a glance and to make it obvious
+# a mode change really took (e.g. leaving Sit for Follow).
+var _mode_buttons: Dictionary = {}
+var _mode_style_off: StyleBoxFlat
+var _mode_style_on: StyleBoxFlat
 
 
 func _ready() -> void:
@@ -32,10 +43,17 @@ func _build_ui() -> void:
 	panel.offset_left   = 16
 	panel.offset_top    = 150
 	panel.offset_right  = 16 + PANEL_WIDTH
-	panel.offset_bottom = 150 + 150
+	panel.offset_bottom = 150 + 200  # +20 over the old height for the new MP row
 	panel.gui_input.connect(_on_panel_gui_input)
 	_panel = panel
 	add_child(panel)
+
+	var bg := StyleBoxFlat.new()
+	bg.bg_color = Color(0.08, 0.07, 0.06, 0.92)
+	bg.border_color = Color(0.45, 0.38, 0.25)
+	bg.set_border_width_all(2)
+	bg.set_corner_radius_all(5)
+	panel.add_theme_stylebox_override("panel", bg)
 
 	var vbox := VBoxContainer.new()
 	vbox.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -50,6 +68,8 @@ func _build_ui() -> void:
 	_name_label.text = "Spectral Minion"
 	_name_label.add_theme_font_size_override("font_size", 12)
 	_name_label.add_theme_color_override("font_color", Color(0.75, 0.6, 1.0))
+	_name_label.clip_text = true
+	_name_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	vbox.add_child(_name_label)
 
 	var hp_row := HBoxContainer.new()
@@ -59,9 +79,7 @@ func _build_ui() -> void:
 	_hp_bar.custom_minimum_size = Vector2(0, BAR_HEIGHT)
 	_hp_bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_hp_bar.show_percentage = false
-	var hp_fill := StyleBoxFlat.new()
-	hp_fill.bg_color = Color(0.55, 0.35, 0.85)
-	_hp_bar.add_theme_stylebox_override("fill", hp_fill)
+	_style_bar(_hp_bar, Color(0.8, 0.15, 0.15), Color(0.12, 0.05, 0.05))
 	hp_row.add_child(_hp_bar)
 
 	_hp_label = Label.new()
@@ -70,25 +88,65 @@ func _build_ui() -> void:
 	_hp_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	hp_row.add_child(_hp_label)
 
+	# Pets don't spend mana on anything yet, but the bar's wired up now so it's
+	# ready the moment they get spells that do.
+	var mp_row := HBoxContainer.new()
+	vbox.add_child(mp_row)
+
+	_mp_bar = ProgressBar.new()
+	_mp_bar.custom_minimum_size = Vector2(0, BAR_HEIGHT)
+	_mp_bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_mp_bar.show_percentage = false
+	_style_bar(_mp_bar, Color(0.2, 0.35, 0.9), Color(0.05, 0.06, 0.12))
+	mp_row.add_child(_mp_bar)
+
+	_mp_label = Label.new()
+	_mp_label.add_theme_font_size_override("font_size", 10)
+	_mp_label.custom_minimum_size = Vector2(70, 0)
+	_mp_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	mp_row.add_child(_mp_label)
+
+	_mode_style_off = StyleBoxFlat.new()
+	_mode_style_off.bg_color = Color(0.16, 0.16, 0.18)
+	_mode_style_off.border_color = Color(0.4, 0.4, 0.45)
+	_mode_style_off.set_border_width_all(1)
+	_mode_style_off.set_corner_radius_all(3)
+
+	_mode_style_on = StyleBoxFlat.new()
+	_mode_style_on.bg_color = Color(0.32, 0.22, 0.5)
+	_mode_style_on.border_color = Color(0.75, 0.55, 1.0)
+	_mode_style_on.set_border_width_all(2)
+	_mode_style_on.set_corner_radius_all(3)
+
 	var btn_grid := GridContainer.new()
 	btn_grid.columns = 3
 	btn_grid.add_theme_constant_override("h_separation", 4)
 	btn_grid.add_theme_constant_override("v_separation", 4)
 	vbox.add_child(btn_grid)
 
+	# PetMinion.PetState: FOLLOW=0, ATTACK=1, SIT=2, GUARD=3, ASSIST=4 — the
+	# four persistent-mode entries below record their state value so
+	# _process() can look up which button to ring-highlight.
 	var commands := [
-		["Attack", func(): _on_attack_pressed()],
-		["Stop",   func(): _on_simple_command("cmd_stop")],
-		["Back",   func(): _on_simple_command("cmd_back")],
-		["Follow", func(): _on_simple_command("cmd_follow")],
-		["Sit",    func(): _on_simple_command("cmd_sit")],
-		["Guard",  func(): _on_simple_command("cmd_guard")],
+		["Attack", func(): _on_attack_pressed(), -1],
+		["Assist", func(): _on_simple_command("cmd_assist"), 4],
+		["Back",   func(): _on_simple_command("cmd_back"), -1],
+		["Follow", func(): _on_simple_command("cmd_follow"), 0],
+		["Sit",    func(): _on_simple_command("cmd_sit"), 2],
+		["Guard",  func(): _on_simple_command("cmd_guard"), 3],
+		["Gear",   func(): _on_gear_pressed(), -1],
+		["Dismiss", func(): _on_simple_command("cmd_dismiss"), -1],
 	]
 	for entry in commands:
 		var btn := Button.new()
 		btn.text = entry[0]
 		btn.custom_minimum_size = Vector2(0, BTN_HEIGHT)
 		btn.pressed.connect(entry[1])
+		var state_value: int = entry[2]
+		if state_value >= 0:
+			btn.add_theme_stylebox_override("normal", _mode_style_off)
+			btn.add_theme_stylebox_override("hover", _mode_style_off)
+			_mode_buttons[state_value] = btn
 		btn_grid.add_child(btn)
 
 	_load_position()
@@ -130,6 +188,21 @@ func set_pet(pet: Node) -> void:
 		_name_label.text = pet.pet_name
 
 
+# Same helper as player_frame.gd/target_frame.gd — see those for why it isn't shared.
+func _style_bar(bar: ProgressBar, fill_color: Color, bg_color: Color) -> void:
+	var fill := StyleBoxFlat.new()
+	fill.bg_color = fill_color
+	fill.set_corner_radius_all(3)
+	bar.add_theme_stylebox_override("fill", fill)
+
+	var back := StyleBoxFlat.new()
+	back.bg_color = bg_color
+	back.border_color = Color(0, 0, 0, 0.5)
+	back.set_border_width_all(1)
+	back.set_corner_radius_all(3)
+	bar.add_theme_stylebox_override("background", back)
+
+
 func _get_player() -> Node:
 	if not is_instance_valid(_player):
 		var players := get_tree().get_nodes_in_group("player")
@@ -153,6 +226,12 @@ func _on_simple_command(method: String) -> void:
 		_pet.call(method)
 
 
+func _on_gear_pressed() -> void:
+	var player := _get_player()
+	if player and player.has_method("toggle_pet_gear_window"):
+		player.toggle_pet_gear_window()
+
+
 func _process(_delta: float) -> void:
 	if not is_instance_valid(_pet):
 		queue_free()
@@ -162,3 +241,13 @@ func _process(_delta: float) -> void:
 	_hp_bar.max_value = cn.max_hp
 	_hp_bar.value     = cn.current_hp
 	_hp_label.text    = "%d / %d" % [cn.current_hp, cn.max_hp]
+
+	_mp_bar.max_value = cn.max_mana
+	_mp_bar.value     = cn.current_mana
+	_mp_label.text    = "%d / %d" % [cn.current_mana, cn.max_mana]
+
+	var active_state: int = _pet.command
+	for state_value in _mode_buttons:
+		var btn: Button = _mode_buttons[state_value]
+		btn.add_theme_stylebox_override("normal", _mode_style_on if state_value == active_state else _mode_style_off)
+		btn.add_theme_stylebox_override("hover", _mode_style_on if state_value == active_state else _mode_style_off)

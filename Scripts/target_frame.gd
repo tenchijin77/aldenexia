@@ -25,12 +25,44 @@ func _ready() -> void:
 	add_to_group("target_frame")
 	visible = false
 
-	var hp_fill = StyleBoxFlat.new()
-	hp_fill.bg_color = Color(0.75, 0.1, 0.1)
-	hp_bar.add_theme_stylebox_override("fill", hp_fill)
+	_style_panel(panel)
+	_style_bar(hp_bar, Color(0.8, 0.15, 0.15), Color(0.12, 0.05, 0.05))
+
+	# Long monster names (or the appraisal color effect landing on a long one)
+	# used to overflow the label's own box and visually overlap level_label/
+	# faction_label next to it — clip with an ellipsis instead.
+	name_label.clip_text = true
+	name_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 
 	panel.gui_input.connect(_on_panel_gui_input)
 	WindowPosition.load_position_into(POSITION_KEY, panel)
+
+
+# Shared with player_frame.gd/pet_frame.gd's look (dark parchment-bordered
+# panel, same palette pause_menu.gd/corpse_loot_window.gd already use) —
+# duplicated per-file rather than factored into a shared util, matching how
+# each HUD frame already builds its own styleboxes independently.
+func _style_panel(target_panel: Panel) -> void:
+	var bg := StyleBoxFlat.new()
+	bg.bg_color = Color(0.08, 0.07, 0.06, 0.92)
+	bg.border_color = Color(0.45, 0.38, 0.25)
+	bg.set_border_width_all(2)
+	bg.set_corner_radius_all(5)
+	target_panel.add_theme_stylebox_override("panel", bg)
+
+
+func _style_bar(bar: ProgressBar, fill_color: Color, bg_color: Color) -> void:
+	var fill := StyleBoxFlat.new()
+	fill.bg_color = fill_color
+	fill.set_corner_radius_all(3)
+	bar.add_theme_stylebox_override("fill", fill)
+
+	var back := StyleBoxFlat.new()
+	back.bg_color = bg_color
+	back.border_color = Color(0, 0, 0, 0.5)
+	back.set_border_width_all(1)
+	back.set_corner_radius_all(3)
+	bar.add_theme_stylebox_override("background", back)
 
 
 func _on_panel_gui_input(event: InputEvent) -> void:
@@ -63,6 +95,12 @@ func show_wrong_color(duration: float) -> void:
 
 
 static func display_name(target: Node) -> String:
+	# Pets expose pet_name (their random summon name, e.g. "Nyxfell") rather
+	# than any of the monster_description/monster_name/npc_name fields below.
+	if "pet_name" in target:
+		var pname: String = str(target.get("pet_name"))
+		if not pname.is_empty():
+			return pname
 	# Prefer monster_description (e.g. "a crumbling skeleton") stripped of leading article
 	var desc: String = ""
 	if "monster_description" in target:
@@ -128,7 +166,7 @@ func _con_color(diff: int) -> Color:
 static func faction_status(target: Node) -> String:
 	# Ally/Neutral/Enemy — derived from what already exists (group membership,
 	# behavior_type), not a separate faction-standing system. See game_flow.txt.
-	if target.is_in_group("npc_guard") or target.is_in_group("npc_vendor"):
+	if target.is_in_group("npc_guard") or target.is_in_group("npc_vendor") or target.is_in_group("pets"):
 		return "Ally"
 	if target.get("behavior_type") == "passive":
 		return "Neutral"

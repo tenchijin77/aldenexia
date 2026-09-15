@@ -339,6 +339,21 @@ func add_threat(attacker: Node, amount: float) -> void:
 	if current_state == State.IDLE or current_state == State.PATROL:
 		change_state(State.CHASE)
 
+
+# Tank Taunt abilities call this instead of add_threat() — a flat threat bump
+# isn't reliable (a healer/DPS could already be far ahead), so this sets the
+# tank's threat to just above whatever the current highest entry is,
+# guaranteeing an immediate target switch regardless of the existing gap.
+func taunt(attacker: Node, margin: float = 1.0) -> void:
+	if not is_instance_valid(attacker):
+		return
+	var highest: float = aggro_table.get(player, 0.0)
+	for t in aggro_table.values():
+		highest = max(highest, t)
+	aggro_table[attacker] = max(aggro_table.get(attacker, 0.0), highest) + margin
+	if current_state == State.IDLE or current_state == State.PATROL:
+		change_state(State.CHASE)
+
 func get_current_target() -> Node:
 	if aggro_table.is_empty():
 		return player
@@ -515,18 +530,18 @@ func _log_attack_on_other(result: Dictionary, attacker_desc: String, target_name
 	var cap := attacker_desc.capitalize()
 	match result.get("result", ""):
 		"MISS":
-			GameLog.log_combat("%s misses %s!" % [cap, target_name])
+			GameLog.log_combat("%s misses %s!" % [cap, target_name], global_position)
 		"PARRY":
-			GameLog.log_combat("%s's attack on %s is parried!" % [cap, target_name])
+			GameLog.log_combat("%s's attack on %s is parried!" % [cap, target_name], global_position)
 		"BLOCK":
-			GameLog.log_combat("%s's attack on %s is blocked!" % [cap, target_name])
+			GameLog.log_combat("%s's attack on %s is blocked!" % [cap, target_name], global_position)
 		"DODGE":
-			GameLog.log_combat("%s's attack on %s is dodged!" % [cap, target_name])
+			GameLog.log_combat("%s's attack on %s is dodged!" % [cap, target_name], global_position)
 		"RIPOSTE":
-			GameLog.log_combat("%s is riposted by %s for [b]%d[/b] damage!" % [cap, target_name, result.get("damage", 0)])
+			GameLog.log_combat("%s is riposted by %s for [b]%d[/b] damage!" % [cap, target_name, result.get("damage", 0)], global_position)
 		"HIT":
 			var crit: String = " [color=#ffaa00]Critical![/color]" if result.get("is_crit", false) else ""
-			GameLog.log_combat("%s hits %s for [b]%d[/b] damage!%s" % [cap, target_name, result.get("damage", 0), crit])
+			GameLog.log_combat("%s hits %s for [b]%d[/b] damage!%s" % [cap, target_name, result.get("damage", 0), crit], global_position)
 
 func apply_damage(amount: int, damage_type: String = "physical") -> void:
 	if current_state == State.DEAD:

@@ -1972,7 +1972,7 @@
     "description": "A necrotic scroll bearing the Life Siphon technique. Right-Click to learn.",
     "stackable": true,
     "currency_type": "copper",
-    "value": 50,
+    "value": 10,
     "type": "scroll",
     "armor_class": 0,
     "slot": "none",
@@ -1999,7 +1999,7 @@
     "description": "A scroll containing the Aura of the Shadow technique. Right-Click to learn.",
     "stackable": true,
     "currency_type": "copper",
-    "value": 50,
+    "value": 10,
     "type": "scroll",
     "armor_class": 0,
     "slot": "none",
@@ -2026,7 +2026,7 @@
     "description": "A blood-stained scroll bearing the Blood Ritual technique. Right-Click to learn.",
     "stackable": true,
     "currency_type": "copper",
-    "value": 50,
+    "value": 10,
     "type": "scroll",
     "armor_class": 0,
     "slot": "none",
@@ -2053,7 +2053,7 @@
     "description": "A scroll containing the Necrotic Grasp technique. Right-Click to learn.",
     "stackable": true,
     "currency_type": "copper",
-    "value": 50,
+    "value": 10,
     "type": "scroll",
     "armor_class": 0,
     "slot": "none",
@@ -2080,7 +2080,7 @@
     "description": "A scroll containing the Shadowlight technique. Right-Click to learn.",
     "stackable": true,
     "currency_type": "copper",
-    "value": 50,
+    "value": 10,
     "type": "scroll",
     "armor_class": 0,
     "slot": "none",
@@ -2107,7 +2107,7 @@
     "description": "A scroll containing the Improved Block technique. Right-Click to learn.",
     "stackable": true,
     "currency_type": "copper",
-    "value": 50,
+    "value": 10,
     "type": "scroll",
     "armor_class": 0,
     "slot": "none",
@@ -2135,7 +2135,7 @@
     "description": "A scroll containing Morthan's Call, summoning a skeleton warrior. Right-Click to learn.",
     "stackable": true,
     "currency_type": "copper",
-    "value": 50,
+    "value": 10,
     "type": "scroll",
     "armor_class": 0,
     "slot": "none",
@@ -2155,5 +2155,331 @@
     "stat_modifiers": null,
     "effect": null,
     "teaches_spell": "spectral_minion"
+  },
+  "scroll_of_curse_of_weakness": {
+    "name": "Scroll of Curse of Weakness",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.2_02.png",
+    "description": "A scroll containing the Curse of Weakness technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "voidknight"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "curse_of_weakness"
+  },
+  "scroll_of_dark_pact": {
+    "name": "Scroll of Dark Pact",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.2_02.png",
+    "description": "A scroll containing the Dark Pact technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "voidknight"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "dark_pact"
+  },
+  "scroll_of_enhanced_riposte": {
+    "name": "Scroll of Enhanced Riposte",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.2_02.png",
+    "description": "A scroll containing the Enhanced Riposte technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "voidknight"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "enhanced_riposte"
+  },
+  "scroll_of_plague_strike": {
+    "name": "Scroll of Plague Strike",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.2_02.png",
+    "description": "A scroll containing the Plague Strike technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "voidknight"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "plague_strike"
+  },
+  "scroll_of_shadow_ward": {
+    "name": "Scroll of Shadow Ward",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.2_02.png",
+    "description": "A scroll containing the Shadow Ward technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "voidknight"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "shadow_ward"
+  },
+  "scroll_of_soul_leech": {
+    "name": "Scroll of Soul Leech",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.2_02.png",
+    "description": "A scroll containing the Soul Leech technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "voidknight"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "soul_leech"
+  },
+  "scroll_of_improved_disarm": {
+    "name": "Scroll of Improved Disarm",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.2_02.png",
+    "description": "A scroll containing the Improved Disarm technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "voidknight"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "improved_disarm"
+  },
+  "scroll_of_gravechill": {
+    "name": "Scroll of Gravechill",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.2_02.png",
+    "description": "A scroll containing the Gravechill technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "voidknight"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "gravechill"
+  },
+  "scroll_of_blood_aegis": {
+    "name": "Scroll of Blood Aegis",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.2_02.png",
+    "description": "A scroll containing the Blood Aegis technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "voidknight"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "blood_aegis"
+  },
+  "scroll_of_deaths_echo": {
+    "name": "Scroll of Death's Echo",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.2_02.png",
+    "description": "A scroll containing the Death's Echo technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "voidknight"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "deaths_echo"
+  },
+  "scroll_of_deathly_visage": {
+    "name": "Scroll of Deathly Visage",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.2_02.png",
+    "description": "A scroll containing Deathly Visage, granting Deathsight. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "voidknight"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "deathly_visage"
+  },
+  "scroll_of_taunt": {
+    "name": "Scroll of Taunt",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.2_02.png",
+    "description": "A scroll containing the Taunt technique, shared training among the realm's tank orders. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 25,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "blademaster",
+      "lightsworn",
+      "voidknight"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "taunt"
   }
 }

@@ -153,6 +153,31 @@ func has_passive(spell_name: String) -> bool:
 		return spell_name in owner_node.known_spells
 	return false
 
+# Reduces incoming damage against any active effect carrying an
+# "absorb_remaining" pool (e.g. Shadow Ward) — consumes the pool as it soaks
+# damage, and lets the effect's own duration/removal handle final cleanup
+# once the pool hits zero. Not part of the generic modifiers dict because it
+# needs to be consumed (drained), not just summed like get_modifier().
+func absorb_incoming_damage(amount: int) -> int:
+	for effect in active_effects.values():
+		if amount <= 0:
+			break
+		if effect.get("absorb_remaining", 0) > 0:
+			var absorbed: int = mini(amount, effect["absorb_remaining"])
+			effect["absorb_remaining"] -= absorbed
+			amount -= absorbed
+	return amount
+
+# Voidknight's Death's Echo — "killing an enemy boosts next attack damage by
+# 10%." Callers invoke this right where they already confirm a kill (player3d.gd's
+# melee/autoattack/spell-cast kill blocks). Converts the standing buff into a
+# short damage_mult proc rather than something callers have to remember to
+# clear after one hit — simpler than tracking "next attack only" exactly.
+func notify_kill() -> void:
+	if has_effect("deaths_echo"):
+		remove_effect("deaths_echo")
+		apply_effect("deaths_echo_proc", 20.0, {"damage_mult": 0.10})
+
 func _process(delta: float) -> void:
 	if active_effects.is_empty():
 		return
@@ -553,7 +578,7 @@ func calculate_spell_damage(base_spell_damage: int, is_arcane: bool = true, targ
 	# during the 2026-09-14 monster balance pass.
 	if target:
 		var resist_type := "arcane" if is_arcane else "divine"
-		var target_resist := target.get_resistance(resist_type)
+		var target_resist := target.get_resistance(resist_type) + int(target.get_modifier("magic_resist_bonus"))
 		damage = int(damage * (1.0 - (target_resist / 100.0)))
 
 	damage = int(damage * (1.0 + get_modifier("damage_mult")))
@@ -661,6 +686,29 @@ func roll_riposte() -> bool:
 # ⭐ COMBAT RESOLUTION (Main Attack Sequence)
 # ================================================================================
 
+# True if this CombatNode's owner is positioned in target's rear hemisphere
+# (dot product of target's forward vector and the direction to the attacker
+# is negative) — i.e. the attack is coming from behind the target, which
+# resolve_attack() uses to bypass all four defensive rolls. Missing node refs
+# (an owner not in the 3D scene, e.g. a pure test CombatNode) or an
+# attacker standing exactly on top of the target default to "in front" —
+# not being able to prove the attack is a backstab means it isn't one.
+func is_attacked_from_behind(target: CombatNode) -> bool:
+	var attacker_node: Node3D = get_parent() as Node3D
+	var defender_node: Node3D = target.get_parent() as Node3D
+	if not attacker_node or not defender_node:
+		return false
+	var to_attacker: Vector3 = attacker_node.global_position - defender_node.global_position
+	to_attacker.y = 0.0
+	if to_attacker.length() < 0.01:
+		return false
+	var defender_forward: Vector3 = -defender_node.global_transform.basis.z
+	defender_forward.y = 0.0
+	if defender_forward.length() < 0.01:
+		return false
+	return defender_forward.normalized().dot(to_attacker.normalized()) < 0.0
+
+
 func resolve_attack(target: CombatNode) -> Dictionary:
 	"""
 	Main attack sequence:
@@ -688,14 +736,22 @@ func resolve_attack(target: CombatNode) -> Dictionary:
 			"message": "Your attack misses!"
 		}
 
+	# Positional combat: block/parry/dodge/riposte all require the defender to
+	# actually be facing their attacker — you can't parry a blade you never
+	# saw coming. Attacking from behind (a rogue backstab, a flanking pet)
+	# skips straight to the hit roll, bypassing all four defensive checks.
+	var from_behind := is_attacked_from_behind(target)
+
 	# 2. RIPOSTE CHECK (Defender)
-	if target.roll_parry():
+	if not from_behind and target.roll_parry():
 		if target.roll_riposte():
 			var riposte_damage = target.calculate_melee_damage(self)
 			var riposte_crit = target.roll_crit()
 			if riposte_crit:
 				riposte_damage = target.calculate_melee_damage(self, true)
+			riposte_damage += int(target.get_modifier("riposte_bonus_damage"))
 			riposte_damage = apply_ac_mitigation(riposte_damage, self)
+			riposte_damage = absorb_incoming_damage(riposte_damage)
 			current_hp -= riposte_damage
 			return {
 				"result": "RIPOSTE",
@@ -704,7 +760,7 @@ func resolve_attack(target: CombatNode) -> Dictionary:
 			}
 
 	# 3. PARRY CHECK (Defender)
-	if target.roll_parry():
+	if not from_behind and target.roll_parry():
 		return {
 			"result": "PARRY",
 			"damage": 0,
@@ -712,7 +768,7 @@ func resolve_attack(target: CombatNode) -> Dictionary:
 		}
 
 	# 4. BLOCK CHECK (Defender)
-	if target.roll_block():
+	if not from_behind and target.roll_block():
 		var stagger_chance: float = target.get_modifier("stagger_chance")
 		if target.has_passive("improved_block"):
 			stagger_chance += 0.05
@@ -733,7 +789,7 @@ func resolve_attack(target: CombatNode) -> Dictionary:
 		}
 
 	# 5. DODGE CHECK (Defender)
-	if target.roll_dodge():
+	if not from_behind and target.roll_dodge():
 		return {
 			"result": "DODGE",
 			"damage": 0,
@@ -744,8 +800,16 @@ func resolve_attack(target: CombatNode) -> Dictionary:
 	var is_crit = roll_crit()
 	var damage = calculate_melee_damage(target, is_crit)
 	damage = apply_ac_mitigation(damage, target)
+	damage = target.absorb_incoming_damage(damage)
 
 	target.current_hp -= damage
+
+	# Blood Aegis — "converts 20% incoming damage to health drain," i.e. the
+	# defender heals for a cut of the damage they just took rather than the
+	# damage itself being reduced.
+	var drain_pct: float = target.get_modifier("damage_drain_pct")
+	if drain_pct > 0.0 and damage > 0:
+		target.heal(int(damage * drain_pct))
 
 	var crit_message = " [CRITICAL]" if is_crit else ""
 	return {
@@ -803,8 +867,13 @@ func _resolve_offhand_hit(target: CombatNode) -> Dictionary:
 	var is_crit = roll_crit()
 	var damage = calculate_offhand_damage(target, is_crit)
 	damage = apply_ac_mitigation(damage, target)
+	damage = target.absorb_incoming_damage(damage)
 
 	target.current_hp -= damage
+
+	var offhand_drain_pct: float = target.get_modifier("damage_drain_pct")
+	if offhand_drain_pct > 0.0 and damage > 0:
+		target.heal(int(damage * offhand_drain_pct))
 
 	var crit_message = " [CRITICAL]" if is_crit else ""
 	return {

@@ -294,7 +294,7 @@
         "level": 6,
         "spell_school": "physical",
         "damage": 0,
-        "target": "self",
+        "target": "enemy",
         "range": "15m",
         "duration": 5,
         "casting_time": 2.0,
@@ -320,7 +320,7 @@
         "level": 7,
         "spell_school": "physical",
         "damage": 2,
-        "target": "self",
+        "target": "enemy",
         "range": "15m",
         "duration": 5,
         "casting_time": 2.0,
@@ -14406,6 +14406,60 @@
             "Voidknight": 2
         },
         "effect_type": "light",
+        "channel": false
+    },
+    {
+        "spell_id": 558,
+        "spell_name": "deathly_visage",
+        "description": "Grants Deathsight: see invisible creatures and see clearly in darkness within 10m of yourself, for 15 minutes.",
+        "caster_proficiency": "intelligence",
+        "mana_cost": 30.0,
+        "recast_time": 10.0,
+        "level": 8,
+        "spell_school": "shadow",
+        "damage": 0,
+        "target": "self",
+        "range": "15m",
+        "duration": 900,
+        "casting_time": 2.0,
+        "failure_rate": 0.0,
+        "location": "all",
+        "blockable": false,
+        "dispellable": true,
+        "spell_type": "utility",
+        "interruptable": false,
+        "class_level_requirements": {
+            "Voidknight": 8
+        },
+        "effect_type": "light",
+        "channel": false
+    },
+    {
+        "spell_id": 559,
+        "spell_name": "taunt",
+        "description": "A furious challenge that forces an enemy's full attention onto you, guaranteeing your threat overtakes whoever else has been hitting it.",
+        "caster_proficiency": "none",
+        "mana_cost": 10.0,
+        "recast_time": 8.0,
+        "level": 1,
+        "spell_school": "physical",
+        "damage": 15,
+        "target": "enemy",
+        "range": "15m",
+        "duration": 5,
+        "casting_time": 0.5,
+        "failure_rate": 0.0,
+        "location": "all",
+        "blockable": true,
+        "dispellable": false,
+        "spell_type": "detrimental",
+        "interruptable": false,
+        "class_level_requirements": {
+            "Blademaster": 1,
+            "Lightsworn": 1,
+            "Voidknight": 1
+        },
+        "effect_type": "taunt",
         "channel": false
     }
 ]
