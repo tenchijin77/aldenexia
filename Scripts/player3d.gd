@@ -84,7 +84,22 @@ var thirst_timer: float = 0.0
 #endregion
 
 #region Combat
+# dying: true for the whole time the player can't act — both while
+# incapacitated (bleeding out) and during the brief window between true death
+# and respawn. Freezes movement (_physics_process) and regen/vitals
+# (_process) via their existing "if dying: return" gates. See die()/
+# _tick_bleedout()/_die_for_real()/_respawn() below.
 var dying: bool = false
+var is_incapacitated: bool = false
+const BLEED_OUT_DURATION := 20.0    # seconds at 0 HP before true death
+const BLEED_OUT_WARN_INTERVAL := 5.0
+const RESPAWN_DELAY := 3.0          # seconds the black respawn screen holds before teleporting
+var _bleedout_elapsed: float = 0.0
+var _bleedout_warn_timer: float = 0.0
+var _last_attacker_desc: String = "an unknown foe"
+var _death_flavor: NPCFlavorText = null
+var _food_drink_flavor: NPCFlavorText = null
+var _death_screen: CanvasLayer = null
 var attacking: bool = false
 var autoattack_enabled: bool = false
 var attack_cooldown: float = 0.0
@@ -103,6 +118,15 @@ var current_speed: float = 0.0
 var last_direction: Vector3 = Vector3.FORWARD
 var is_sitting: bool = false
 var autorun_enabled: bool = false
+
+# /follow — see start_following()/stop_following() and _handle_follow_movement()
+# in the "Movement handlers" region below.
+var _follow_target: Node3D = null
+var _follow_path: Array = []
+var _follow_repath_timer: float = 0.0
+const FOLLOW_STOP_DISTANCE := 3.0
+const FOLLOW_REPATH_INTERVAL := 0.75
+const FOLLOW_WAYPOINT_EPSILON := 1.5
 #endregion
 
 #region Node references
@@ -161,32 +185,53 @@ func _toggle_pause_menu() -> void:
 	get_tree().root.add_child(_pause_menu_instance)
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 
-const SHOP_RANGE := 5.0
 var _shop_window_instance: Node = null
 
-# Right-click: opens a nearby vendor's shop if one's in range, otherwise falls
-# through to the existing loot-corpse behavior — range-based (like hail)
-# rather than a raycast under the cursor, since it needs to work the same way
-# regardless of mouse mode (captured while mouselooking, visible otherwise).
+# Right-click: opens a vendor's shop only if the cursor is precisely on that
+# vendor's model (raycast), otherwise falls through to the existing
+# loot-corpse behavior — range-based, was previously "nearest vendor within
+# 5m regardless of where you clicked," which meant a vendor standing near a
+# corpse always stole the right-click and made that corpse unlootable.
+# Raycasting only works with a real screen-space cursor position, so this
+# (like _try_click_target()'s left-click targeting) is meant to skip while
+# mouselooking, where there's no cursor to aim with.
+#
+# Gated on Global.mouselook_enabled rather than Input.mouse_mode — bug fixed
+# 2026-09-14 (Session 37): camera_controller.gd's _input() handles this same
+# right-click press FIRST (every node's _input() runs before
+# _unhandled_input(), where this lives) and immediately sets
+# Input.mouse_mode to CAPTURED for its own "hold right-click to head-turn"
+# feature, completely independent of mouselook. By the time this ran,
+# Input.mouse_mode == MOUSE_MODE_VISIBLE was ALWAYS false — every right-click
+# looked like it happened in mouselook even when the cursor was genuinely
+# visible a moment before, so the raycast never fired and this silently fell
+# through to loot-corpse 100% of the time. Global.mouselook_enabled is the
+# stable, persistent toggle that head-turn's transient capture never
+# touches (see camera_controller.gd: it only captures "if not
+# Global.mouselook_enabled" in the first place), so it actually reflects
+# whether the player is in normal cursor-visible play.
 func _try_open_shop_or_loot() -> void:
-	var vendor := _find_nearby_vendor()
-	if vendor:
-		_open_shop(vendor)
-	else:
-		_try_loot_corpse()
+	if not Global.mouselook_enabled:
+		var vendor := _raycast_vendor(get_viewport().get_mouse_position())
+		if vendor:
+			_open_shop(vendor)
+			return
+	_try_loot_corpse()
 
 
-func _find_nearby_vendor() -> Node:
-	var nearest: Node = null
-	var nearest_dist := SHOP_RANGE
-	for node in get_tree().get_nodes_in_group("npc_vendor"):
-		if not is_instance_valid(node):
-			continue
-		var dist := global_position.distance_to(node.global_position)
-		if dist < nearest_dist:
-			nearest_dist = dist
-			nearest = node
-	return nearest
+func _raycast_vendor(screen_pos: Vector2) -> Node:
+	var camera := get_viewport().get_camera_3d()
+	if not camera:
+		return null
+	var space := get_world_3d().direct_space_state
+	var origin := camera.project_ray_origin(screen_pos)
+	var direction := camera.project_ray_normal(screen_pos)
+	var query := PhysicsRayQueryParameters3D.create(origin, origin + direction * 100.0)
+	query.exclude = [self]
+	var hit := space.intersect_ray(query)
+	if hit and hit.collider is VendorNPC:
+		return hit.collider
+	return null
 
 
 func _open_shop(vendor: Node) -> void:
@@ -195,6 +240,8 @@ func _open_shop(vendor: Node) -> void:
 	_shop_window_instance = load("res://Scenes/shop_window.tscn").instantiate()
 	get_tree().root.add_child(_shop_window_instance)
 	_shop_window_instance.setup(vendor)
+	if vendor.has_method("greet_player"):
+		vendor.greet_player(player_name)
 
 
 func _try_loot_corpse() -> void:
@@ -228,7 +275,7 @@ func try_hail_nearby_npc() -> void:
 	var nearest: Node = null
 	var nearest_dist := HAIL_RANGE
 
-	for node in get_tree().get_nodes_in_group("npc_guard"):
+	for node in get_tree().get_nodes_in_group("npc_guard") + get_tree().get_nodes_in_group("npc_vendor"):
 		if not is_instance_valid(node):
 			continue
 		var dist := global_position.distance_to(node.global_position)
@@ -240,7 +287,10 @@ func try_hail_nearby_npc() -> void:
 		GameLog.log_general("There's no one nearby to hail.")
 		return
 
-	nearest.respond_to_hail()
+	if nearest is VendorNPC:
+		_open_shop(nearest)
+	elif nearest.has_method("respond_to_hail"):
+		nearest.respond_to_hail()
 #endregion
 
 #region Mob Appraisal
@@ -436,6 +486,10 @@ func _ready() -> void:
 	load_faction_standing()
 	_load_spell_cache()
 	load_player_data_from_global()
+	_death_flavor = NPCFlavorText.new("res://Data/player_death_flavor.json")
+	_food_drink_flavor = NPCFlavorText.new("res://Data/food_drink_flavor.json")
+	_restore_last_position()
+	_ensure_bind_point()
 
 	# Dictionaries are references in GDScript — aliasing these means every
 	# future apply_effect()/remove_effect() (stances, campfire warmth, spell
@@ -593,6 +647,8 @@ func _physics_process(delta: float) -> void:
 
 #region Process (regen / vitals / cooldowns)
 func _process(delta: float) -> void:
+	if is_incapacitated:
+		_tick_bleedout(delta)
 	if dying:
 		return
 
@@ -649,6 +705,8 @@ func update_vitals_decay(delta: float) -> void:
 	if satiety_timer >= DECAY_INTERVAL:
 		satiety_timer = 0.0
 		satiety = max(satiety - int(SATIETY_DECAY_RATE), 0)
+		if satiety < 25:
+			_try_auto_consume("satiety")
 		if satiety <= 0 and _hunger_warn_stage != "empty":
 			_hunger_warn_stage = "empty"
 			GameLog.log_general("[color=#ff8866]You are famished. Your health will no longer recover until you eat something.[/color]")
@@ -661,6 +719,8 @@ func update_vitals_decay(delta: float) -> void:
 	if thirst_timer >= DECAY_INTERVAL:
 		thirst_timer = 0.0
 		thirst = max(thirst - int(THIRST_DECAY_RATE), 0)
+		if thirst < 25:
+			_try_auto_consume("thirst")
 		if thirst <= 0 and _thirst_warn_stage != "empty":
 			_thirst_warn_stage = "empty"
 			GameLog.log_general("[color=#66aaff]You are parched. Your mana will no longer recover until you drink something.[/color]")
@@ -702,6 +762,20 @@ func _update_well_fed_buff() -> void:
 		combat_node.remove_effect("well_fed")
 
 
+# Called from update_vitals_decay() the moment satiety/thirst dips below the
+# "low" threshold — eats/drinks the first matching item found anywhere in the
+# player's inventory (basic slots, then bags) so the player doesn't have to
+# babysit food/water manually. Silently does nothing if no matching item is
+# carried, and the normal low/empty warning messages take over from there.
+func _try_auto_consume(restores: String) -> bool:
+	var found: Dictionary = Inventory.find_first_by_restores(restores)
+	if found.is_empty():
+		return false
+	consume_food_or_drink(found["item"])
+	Inventory.consume_one(found["slot_type"], found["slot_index"], found["bag_slot"], found["item_index"])
+	return true
+
+
 # Called from slot_button.gd's inventory right-click "Eat"/"Drink" button.
 func consume_food_or_drink(item: Dictionary) -> void:
 	var restores: String = item.get("restores", "")
@@ -710,10 +784,12 @@ func consume_food_or_drink(item: Dictionary) -> void:
 	match restores:
 		"satiety":
 			satiety = mini(satiety + amount, 100)
-			GameLog.log_general("You eat %s. (Hunger: %d/100)" % [item_name, satiety])
+			var line: String = _food_drink_flavor.get_line("eat") if _food_drink_flavor else ""
+			GameLog.log_general(line % item_name if not line.is_empty() else "You eat %s." % item_name)
 		"thirst":
 			thirst = mini(thirst + amount, 100)
-			GameLog.log_general("You drink %s. (Thirst: %d/100)" % [item_name, thirst])
+			var line: String = _food_drink_flavor.get_line("drink") if _food_drink_flavor else ""
+			GameLog.log_general(line % item_name if not line.is_empty() else "You drink %s." % item_name)
 		_:
 			return
 	_update_well_fed_buff()
@@ -757,6 +833,18 @@ func handle_movement(delta: float) -> void:
 		current_speed = 0.0
 		return
 
+	if _follow_target != null:
+		if not is_instance_valid(_follow_target):
+			stop_following("You are no longer following your target.")
+		elif Input.is_action_pressed("move_forward") or Input.is_action_pressed("move_backward") \
+				or Input.is_action_pressed("strafe_left") or Input.is_action_pressed("strafe_right") \
+				or Input.is_action_pressed("turn_left") or Input.is_action_pressed("turn_right") \
+				or Input.is_action_just_pressed("jump"):
+			stop_following("You stop following %s." % _follow_display_name(_follow_target))
+		else:
+			_handle_follow_movement(delta)
+			return
+
 	if Input.is_action_pressed("turn_left"):
 		rotation.y += TURN_SPEED * delta
 	if Input.is_action_pressed("turn_right"):
@@ -795,6 +883,136 @@ func handle_movement(delta: float) -> void:
 	velocity.x = world_move.x * target_speed
 	velocity.z = world_move.z * target_speed
 	current_speed = Vector2(velocity.x, velocity.z).length()
+
+
+# ── /follow ──────────────────────────────────────────────────────────────────
+# Steers the player toward _follow_target using the same self-managed
+# NavigationServer3D.query_path() approach guard_npc.gd uses for patrols —
+# NavigationAgent3D's get_next_path_position() was found to go stale over
+# long distances/after external repositioning during that work, and following
+# an NPC across the whole zone (e.g. Sergeant Bryn's patrol) hits exactly that
+# case. Canceled by any manual movement input (see handle_movement()), by the
+# target going invalid, or by issuing /follow again.
+func _follow_display_name(target: Node) -> String:
+	if "player_name" in target:
+		var pname: String = str(target.get("player_name"))
+		if not pname.is_empty():
+			return pname
+	return TargetFrame.display_name(target)
+
+
+func start_following(target: Node3D) -> void:
+	_follow_target = target
+	_follow_path.clear()
+	_follow_repath_timer = 0.0
+	GameLog.log_general("You begin following [b]%s[/b]." % _follow_display_name(target))
+
+
+func stop_following(reason: String = "") -> void:
+	if _follow_target == null:
+		return
+	_follow_target = null
+	_follow_path.clear()
+	if not reason.is_empty():
+		GameLog.log_general(reason)
+
+
+func _handle_follow_movement(delta: float) -> void:
+	var target_pos: Vector3 = _follow_target.global_position
+	if global_position.distance_to(target_pos) <= FOLLOW_STOP_DISTANCE:
+		velocity.x = move_toward(velocity.x, 0, WALK_SPEED)
+		velocity.z = move_toward(velocity.z, 0, WALK_SPEED)
+		current_speed = 0.0
+		_follow_path.clear()
+		return
+
+	_follow_repath_timer -= delta
+	if _follow_repath_timer <= 0.0 or _follow_path.is_empty():
+		_follow_repath_timer = FOLLOW_REPATH_INTERVAL
+		_recompute_follow_path(target_pos)
+
+	while _follow_path.size() > 1 and global_position.distance_to(_follow_path[0]) < FOLLOW_WAYPOINT_EPSILON:
+		_follow_path.remove_at(0)
+
+	var next_point: Vector3 = _follow_path[0] if not _follow_path.is_empty() else target_pos
+	var look_point := Vector3(next_point.x, global_position.y, next_point.z)
+	if look_point.distance_to(global_position) > 0.01:
+		look_at(look_point, Vector3.UP)
+
+	var target_speed: float = RUN_SPEED if is_running and current_stamina > 0.0 else WALK_SPEED
+	var forward_dir: Vector3 = -transform.basis.z.normalized()
+	velocity.x = forward_dir.x * target_speed
+	velocity.z = forward_dir.z * target_speed
+	current_speed = Vector2(velocity.x, velocity.z).length()
+
+
+func _recompute_follow_path(target_pos: Vector3) -> void:
+	_follow_path.clear()
+	if not is_inside_tree():
+		return
+	var query := NavigationPathQueryParameters3D.new()
+	query.map = get_world_3d().navigation_map
+	query.start_position = global_position
+	query.target_position = target_pos
+	var result := NavigationPathQueryResult3D.new()
+	NavigationServer3D.query_path(query, result)
+	for p in result.path:
+		_follow_path.append(p)
+	if _follow_path.size() > 1:
+		_follow_path.remove_at(0)  # path[0] is just our own current position
+
+
+# Called from game_log_window.gd's /follow command. query is the name text
+# typed after the command; empty means "follow my current target". Searches
+# guards, vendors, monsters, and (for future multiplayer) other players by
+# name, nearest match wins.
+func try_follow(query: String) -> void:
+	var target: Node3D = null
+
+	if query.is_empty():
+		if current_target != null and is_instance_valid(current_target):
+			target = current_target
+		else:
+			GameLog.log_general("[color=red]You need to target or name someone to follow. Try /follow <name>.[/color]")
+			return
+	else:
+		target = _find_followable_by_name(query)
+		if target == null:
+			GameLog.log_general("[color=red]No one named '%s' is nearby.[/color]" % query)
+			return
+
+	if target == self:
+		GameLog.log_general("[color=red]You can't follow yourself.[/color]")
+		return
+
+	if _follow_target == target:
+		stop_following("You stop following %s." % _follow_display_name(target))
+		return
+
+	start_following(target)
+
+
+func _find_followable_by_name(query: String) -> Node3D:
+	var query_lower := query.to_lower()
+	var best: Node3D = null
+	var best_dist := INF
+	var candidates: Array = []
+	candidates.append_array(get_tree().get_nodes_in_group("npc_guard"))
+	candidates.append_array(get_tree().get_nodes_in_group("npc_vendor"))
+	candidates.append_array(get_tree().get_nodes_in_group("monsters"))
+	candidates.append_array(get_tree().get_nodes_in_group("player"))
+
+	for node in candidates:
+		if node == self or not is_instance_valid(node) or not (node is Node3D):
+			continue
+		var name_lower := _follow_display_name(node).to_lower()
+		if query_lower in name_lower:
+			var dist := global_position.distance_to(node.global_position)
+			if dist < best_dist:
+				best_dist = dist
+				best = node
+
+	return best
 
 
 func update_stamina(delta: float) -> void:
@@ -871,7 +1089,7 @@ func _is_targetable_alive(node: Node) -> bool:
 
 
 func tab_cycle_target() -> void:
-	var candidates := get_tree().get_nodes_in_group("monsters") + get_tree().get_nodes_in_group("npc_guard")
+	var candidates := get_tree().get_nodes_in_group("monsters") + get_tree().get_nodes_in_group("npc_guard") + get_tree().get_nodes_in_group("npc_vendor")
 	var valid: Array = []
 	for m in candidates:
 		if _is_targetable_alive(m):
@@ -906,7 +1124,7 @@ func _try_click_target(screen_pos: Vector2) -> void:
 	var query := PhysicsRayQueryParameters3D.create(origin, origin + direction * 150.0)
 	query.exclude = [self]
 	var hit := space.intersect_ray(query)
-	if hit and (hit.collider is Monster or hit.collider is GuardNPC):
+	if hit and (hit.collider is Monster or hit.collider is GuardNPC or hit.collider is VendorNPC):
 		var m: Node = hit.collider
 		if _is_targetable_alive(m):
 			current_target = m
@@ -958,7 +1176,7 @@ func attack_current_target() -> void:
 	if "combat_node" in current_target and current_target.combat_node is CombatNode:
 		var result = combat_node.resolve_attack(current_target.combat_node)
 		if not combat_node.is_alive():
-			die()
+			die(current_target)
 			return
 		if current_target.has_method("add_threat"):
 			current_target.add_threat(self, combat_node.generate_threat(result.get("damage", 0)))
@@ -1039,7 +1257,7 @@ func perform_melee_attack() -> void:
 		if "combat_node" in target and target.combat_node is CombatNode:
 			var result = combat_node.resolve_attack(target.combat_node)
 			if not combat_node.is_alive():
-				die()
+				die(target)
 				return
 			var target_desc: String = TargetFrame.display_name(target)
 			var weapon := Inventory.get_equipped_weapon()
@@ -1082,23 +1300,155 @@ func take_damage(amount: int, attacker: Node = null) -> void:
 		return
 	combat_node.take_damage(amount)
 	GameLog.log_combat("💔 You take %d damage. [HP: %d/%d]" % [amount, combat_node.current_hp, combat_node.max_hp])
-	if attacker and is_instance_valid(attacker) and current_target != attacker:
-		current_target = attacker
-		_announce_target(attacker)
+	_register_attacker(attacker)
 	if not combat_node.is_alive():
-		die()
+		die(attacker)
 
 
 func apply_damage(amount: int, attacker: Node = null) -> void:
 	take_damage(amount, attacker)
 
 
-func die() -> void:
+# Called instead of take_damage() by anything that already applied its own
+# damage via CombatNode.resolve_attack() (which mutates current_hp directly —
+# see monster3d.gd's perform_attack()) — calling take_damage() there too would
+# double-apply the same hit. Handles only the non-HP side effects.
+func on_combat_node_hit(attacker: Node) -> void:
+	if dying:
+		return
+	_register_attacker(attacker)
+	if not combat_node.is_alive():
+		die(attacker)
+
+
+func _register_attacker(attacker: Node) -> void:
+	if attacker and is_instance_valid(attacker) and current_target != attacker:
+		current_target = attacker
+		_announce_target(attacker)
+
+
+# ===== DEATH / INCAPACITATION / RESPAWN =====
+# EQ-style: 0 HP doesn't kill outright — it incapacitates (downed, frozen,
+# bleeding out). Every monster currently fighting the player disengages
+# immediately and heads back to its spawn point (monster3d.gd's
+# force_disengage()), and won't re-aggro a downed/dead player
+# (can_see_player()'s "dying" check) — so the bleed-out window that follows
+# is never interrupted by more combat, it's a pure countdown. If it reaches
+# BLEED_OUT_DURATION, true death fires: a red "defeated by X" message, a
+# random flavor line, a full black respawn screen, then teleport to the
+# player's bind point (wherever they first spawned in, see
+# _ensure_bind_point()) at full HP/mana/stamina.
+
+func die(attacker: Node = null) -> void:
+	if dying:
+		return
 	dying = true
-	GameLog.log_combat("[color=red]You have been defeated![/color]")
-	print("💀 Player defeated!")
+	is_incapacitated = true
+	_bleedout_elapsed = 0.0
+	_bleedout_warn_timer = 0.0
+	combat_node.current_hp = 0  # clamp — resolve_attack() can overshoot well below 0 on a single big hit
+
+	if attacker and is_instance_valid(attacker):
+		var desc: String = attacker.get("monster_description") if "monster_description" in attacker else ""
+		if desc == "" and attacker.has_method("get_monster_name"):
+			desc = attacker.get_monster_name()
+		if desc != "":
+			_last_attacker_desc = desc
+
+	GameLog.log_combat("[color=#ff8866]You collapse, bleeding out...[/color]")
+	autoattack_enabled = false
+	GameLog.set_autoattack(false)
+
+	for m in get_tree().get_nodes_in_group("monsters"):
+		if is_instance_valid(m) and m.has_method("force_disengage"):
+			m.force_disengage()
+
 	if animation_player and animation_player.has_animation("death"):
 		animation_player.play("death")
+
+
+func _tick_bleedout(delta: float) -> void:
+	_bleedout_elapsed += delta
+	if _bleedout_elapsed >= BLEED_OUT_DURATION:
+		_die_for_real()
+		return
+	_bleedout_warn_timer += delta
+	if _bleedout_warn_timer >= BLEED_OUT_WARN_INTERVAL:
+		_bleedout_warn_timer = 0.0
+		GameLog.log_combat("[color=#aa3333]You are bleeding out...[/color]")
+
+
+func _die_for_real() -> void:
+	is_incapacitated = false
+	GameLog.log_combat("[color=#ff4444]You have been defeated by %s![/color]" % _last_attacker_desc.capitalize())
+	if _death_flavor:
+		var line := _death_flavor.get_line("death")
+		if line != "":
+			GameLog.log_general("[color=#999999]%s[/color]" % line)
+	_show_death_screen()
+	await get_tree().create_timer(RESPAWN_DELAY).timeout
+	_respawn()
+
+
+func _show_death_screen() -> void:
+	_death_screen = CanvasLayer.new()
+	_death_screen.layer = 100
+	var bg := ColorRect.new()
+	bg.color = Color(0, 0, 0, 1)
+	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_death_screen.add_child(bg)
+	var lbl := Label.new()
+	lbl.text = "RETURNING TO YOUR BIND POINT..."
+	lbl.set_anchors_preset(Control.PRESET_FULL_RECT)
+	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	lbl.add_theme_font_size_override("font_size", 22)
+	lbl.add_theme_color_override("font_color", Color(0.8, 0.8, 0.8))
+	_death_screen.add_child(lbl)
+	get_tree().root.add_child(_death_screen)
+
+
+func _respawn() -> void:
+	if is_instance_valid(_death_screen):
+		_death_screen.queue_free()
+	_death_screen = null
+
+	global_position = get_bind_point()
+	combat_node.current_hp = combat_node.max_hp
+	combat_node.current_mana = combat_node.max_mana
+	current_stamina = max_stamina
+	current_target = null
+	_set_target_frame(null)
+	dying = false
+	GameLog.log_general("[color=#88ccff]You awaken at your bind point.[/color]")
+
+
+# The player's bind point defaults to wherever they first spawned into the
+# world (no bind spell/NPC exists yet — this can grow into that later
+# without changing anything here, just what sets Global.player_data["bind_point"]).
+# Stored as a plain [x,y,z] array since Vector3 isn't JSON-serializable.
+func _ensure_bind_point() -> void:
+	if not Global.player_data.has("bind_point"):
+		Global.player_data["bind_point"] = [global_position.x, global_position.y, global_position.z]
+		Global.save_player_data_to_file()
+
+
+# Restores the position saved by Global.save_player_data_to_file() so the
+# player logs back in exactly where they logged out, instead of always at the
+# zone scene's fixed Player3D spawn transform. No-op for a brand new
+# character (no "last_position" saved yet), which just keeps the zone's
+# default spawn.
+func _restore_last_position() -> void:
+	var arr: Array = Global.player_data.get("last_position", [])
+	if arr.size() == 3:
+		global_position = Vector3(arr[0], arr[1], arr[2])
+
+
+func get_bind_point() -> Vector3:
+	var arr: Array = Global.player_data.get("bind_point", [])
+	if arr.size() == 3:
+		return Vector3(arr[0], arr[1], arr[2])
+	return global_position
 
 
 func _set_target_frame(target: Node) -> void:

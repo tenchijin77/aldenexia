@@ -39,6 +39,30 @@ func get_vendor_display_name() -> String:
 	return _shop_data.get("vendor_name", npc_name)
 
 
+# player3d.gd's try_hail_nearby_npc() (H key / "/hail") calls this on
+# whichever NPC in group "npc_guard"/"npc_vendor" is nearest — same method
+# name guard_npc.gd uses, so that dispatcher doesn't need to know the NPC's
+# type. Reuses greet_player()'s line rather than a separate flavor pool;
+# hailing him is just a way to get his greeting without opening the shop.
+func respond_to_hail() -> void:
+	var players := get_tree().get_nodes_in_group("player")
+	if players.is_empty():
+		return
+	greet_player(players[0].player_name)
+
+
+# Called by player3d.gd's _open_shop() the moment the shop window opens.
+func greet_player(player_name: String) -> void:
+	var stock := get_shop_stock()
+	if stock.is_empty():
+		return
+	var item_def: Dictionary = stock[randi() % stock.size()]["item_def"]
+	var item_name: String = item_def.get("name", "item")
+	GameLog.log_general("[color=#cccc88]%s says, \"Welcome, %s. I have a good %s you might be interested in.\"[/color]" % [
+		get_vendor_display_name(), player_name, item_name
+	])
+
+
 # Returns [{item_id, item_def, price}] for everything this vendor stocks,
 # skipping any item_id from the JSON that has no items.json definition.
 func get_shop_stock() -> Array:

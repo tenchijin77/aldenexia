@@ -1,0 +1,20 @@
+{
+  "_comment": "food_drink_flavor.json - random flavor line shown whenever the player eats or drinks (manually via the inventory Eat/Drink button, or automatically when hunger/thirst runs low). %s is replaced with the item's name. Edit or add to these lists freely - player3d.gd picks one at random via NPCFlavorText.get_line('eat'/'drink') from consume_food_or_drink().",
+  "eat": [
+    "You consume %s. Yumm! That was tasty!",
+    "You wolf down %s. That hit the spot!",
+    "You eat %s. Not bad at all.",
+    "You devour %s, feeling a bit better already.",
+    "You eat %s. Simple, but satisfying.",
+    "You make quick work of %s.",
+    "You eat %s, and your stomach thanks you for it."
+  ],
+  "drink": [
+    "You quench your thirst with %s. Ahhh! That hit the spot.",
+    "You drink %s, and feel refreshed.",
+    "You down %s in a few quick gulps.",
+    "You sip %s. Much better.",
+    "You drink %s, washing the dust from your throat.",
+    "You drink deeply from %s. Ahhh!"
+  ]
+}

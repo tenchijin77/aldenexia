@@ -224,36 +224,48 @@ func _set_preference(item_id: String, preference: String, drop: Dictionary) -> v
 	if preference == "ignore":
 		pending_loot.erase(drop)
 	else:  # loot / sell — resolve this drop right now too
-		_apply_drop(drop)
-		pending_loot.erase(drop)
+		if _apply_drop(drop):
+			pending_loot.erase(drop)
 	_rebuild_list()
 
 
 # ===== LOOT ACTIONS =====
 
 func _take(drop: Dictionary) -> void:
-	_apply_drop(drop)
-	pending_loot.erase(drop)
+	if _apply_drop(drop):
+		pending_loot.erase(drop)
 	_rebuild_list()
 
 func _loot_all() -> void:
 	for drop in pending_loot.duplicate():
-		_apply_drop(drop)
-	pending_loot.clear()
+		if _apply_drop(drop):
+			pending_loot.erase(drop)
 	_rebuild_list()
 
-func _apply_drop(drop: Dictionary) -> void:
+# Returns true only if the drop was actually applied — a full inventory
+# leaves the drop on the corpse instead of vanishing (previously this always
+# reported success and removed the drop regardless of whether
+# add_to_basic_inventory() actually found room, which is why looted items
+# could silently disappear).
+func _apply_drop(drop: Dictionary) -> bool:
 	var item_id: String = drop["item"]
 	var qty: int        = drop["quantity"]
 	if CURRENCY_MAP.has(item_id):
 		Global.grant_currency(CURRENCY_MAP[item_id], qty)
+		Global.play_coin_sound()
 		GameLog.log_general("[color=#ffd966]You receive %d %s.[/color]" % [qty, CURRENCY_LABELS[item_id]])
+		return true
 	elif Inventory.get_item_definition(item_id).is_empty():
 		print("⚠️ %s not yet in items.json" % item_id)
+		return false
 	else:
-		Inventory.add_to_basic_inventory(item_id)
 		var display_name: String = item_id.replace("_", " ").capitalize()
-		GameLog.log_general("You receive %s%s." % [display_name, (" x%d" % qty) if qty > 1 else ""])
+		if Inventory.add_item(item_id, qty):
+			GameLog.log_general("You receive %s%s." % [display_name, (" x%d" % qty) if qty > 1 else ""])
+			return true
+		else:
+			GameLog.log_general("[color=#ff8866]Your inventory is full — you leave %s behind.[/color]" % display_name)
+			return false
 
 # ===== DRAGGABLE PANEL =====
 

@@ -13,6 +13,7 @@
 [ext_resource type="Script" uid="uid://dlymcplumwpqu" path="res://Scripts/npc_scripted_conversation.gd" id="11_gdconv1"]
 [ext_resource type="NavigationMesh" path="res://Data/lumora_outskirts_navmesh.tres" id="12_navmesh"]
 [ext_resource type="PackedScene" uid="uid://bvendor01npc" path="res://Scenes/vendor_npc.tscn" id="13_vendor1"]
+[ext_resource type="AudioStream" uid="uid://canimf824sbt2" path="res://Assets/wind woosh loop.ogg" id="14_windamb"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_1j15t"]
 sky_top_color = Color(0.22986513, 0.3887299, 0.9202023, 1)
@@ -79,7 +80,7 @@ data = PackedVector3Array(-22.296099, -1, 1, -22.296099, 1, -1, -22.296099, 1, 1
 backface_collision = true
 
 [sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_gen13"]
-data = PackedVector3Array(-1, -1, -1, 1, 1, -1, -1, 1, -1, -1, -1, -1, 1, -1, -1, 1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1, -1, 1, 1, -1, 1, 1, 1, -1, 1, 1, 1, -1, -1, 1, 1, 1, 1, 1, -1, 1, -1, -1, 1, -1, 1, 1, 1, 1, 1, -1, 1, -1, 1, 1, 1, 1, 1, 1, -1, 1, -1, -1, 1, -1, 1, 1, -1, -1, -1, 1, -1, 1, 1, -1, -1, -1, -1, -1, -1, -1, 1, 1, -1, 1, -0.98069996, -0.318, -0.3735, -0.98069996, -1, -0.9999, -0.98069996, -1, -0.3735, -0.98069996, -0.318, -0.3735, -0.98069996, -0.318, -0.9999, -0.98069996, -1, -0.9999, -0.98069996, 1, -0.3735, -0.98069996, -0.318, -0.9999, -0.98069996, -0.318, -0.3735, -0.98069996, 1, -0.3735, -0.98069996, 1, -0.9999, -0.98069996, -0.318, -0.9999, -0.98069996, 1, 0.3629, -0.98069996, 1, -0.3735, -0.98069996, -0.318, -0.3735, -0.98069996, 1, 0.3629, -0.98069996, -0.318, -0.3735, -0.98069996, -0.318, 0.3629, -0.98069996, 1, 1.0001, -0.98069996, 1, 0.3629, -0.98069996, -0.318, 0.3629, -0.98069996, 1, 1.0001, -0.98069996, -0.318, 0.3629, -0.98069996, -0.318, 1.0001, -0.98069996, -0.318, 1.0001, -0.98069996, -0.318, 0.3629, -0.98069996, -1, 0.3629, -0.98069996, -0.318, 1.0001, -0.98069996, -1, 0.3629, -0.98069996, -1, 1.0001)
+data = PackedVector3Array(-1, -1, -1, 1, 1, -1, -1, 1, -1, -1, -1, -1, 1, -1, -1, 1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1, -1, 1, 1, -1, 1, 1, 1, -1, 1, 1, 1, -1, -1, 1, 1, 1, 1, 1, -1, 1, -1, -1, 1, -1, 1, 1, 1, 1, 1, -1, 1, -1, 1, 1, 1, 1, 1, 1, -1, 1, -1, -1, 1, -1, 1, 1, -1, -1, -1, 1, -1, 1, 1, -1, -1, -1, -1, -1, -1, -1, 1, 1, -1, 1, -0.99799997, -0.318, -0.3735, -0.99799997, -1, -0.9999, -0.99799997, -1, -0.3735, -0.99799997, -0.318, -0.3735, -0.99799997, -0.318, -0.9999, -0.99799997, -1, -0.9999, -0.99799997, 1, -0.3735, -0.99799997, -0.318, -0.9999, -0.99799997, -0.318, -0.3735, -0.99799997, 1, -0.3735, -0.99799997, 1, -0.9999, -0.99799997, -0.318, -0.9999, -0.99799997, 1, 0.3629, -0.99799997, 1, -0.3735, -0.99799997, -0.318, -0.3735, -0.99799997, 1, 0.3629, -0.99799997, -0.318, -0.3735, -0.99799997, -0.318, 0.3629, -0.99799997, 1, 1.0001, -0.99799997, 1, 0.3629, -0.99799997, -0.318, 0.3629, -0.99799997, 1, 1.0001, -0.99799997, -0.318, 0.3629, -0.99799997, -0.318, 1.0001, -0.99799997, -0.318, 1.0001, -0.99799997, -0.318, 0.3629, -0.99799997, -1, 0.3629, -0.99799997, -0.318, 1.0001, -0.99799997, -1, 0.3629, -0.99799997, -1, 1.0001)
 backface_collision = true
 
 [sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_gen14"]
@@ -130,6 +131,12 @@ environment = SubResource("Environment_7vt6w")
 [node name="DayNightCycle" type="Node" parent="." unique_id=847362915]
 script = ExtResource("4_dyncyc")
 
+[node name="AmbientWind" type="AudioStreamPlayer" parent="." unique_id=2008731715]
+stream = ExtResource("14_windamb")
+volume_db = -10.0
+autoplay = true
+bus = &"SFX"
+
 [node name="CharacterBody3D" parent="." unique_id=992623004 instance=ExtResource("1_xodo7")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -32.28161, 1.5000012, 12.601559)
 
@@ -140,95 +147,95 @@ navigation_mesh = ExtResource("12_navmesh")
 
 [node name="LumoraOutskirts_Collision" type="StaticBody3D" parent="NavigationRegion3D" unique_id=1441045215]
 
-[node name="City Wall_shape" type="CollisionShape3D" parent="NavigationRegion3D/LumoraOutskirts_Collision" unique_id=151872188]
+[node name="City Wall_shape" type="CollisionShape3D" parent="NavigationRegion3D/LumoraOutskirts_Collision" unique_id=1300157832]
 transform = Transform3D(5, 0, 0, 0, -5, -4.3711393e-07, 0, 4.3711393e-07, -5, 7.0228004, 5, 35.02952)
 shape = SubResource("ConcavePolygonShape3D_gen0")
 
-[node name="Floor_shape" type="CollisionShape3D" parent="NavigationRegion3D/LumoraOutskirts_Collision" unique_id=1654795517]
+[node name="Floor_shape" type="CollisionShape3D" parent="NavigationRegion3D/LumoraOutskirts_Collision" unique_id=524067673]
 transform = Transform3D(800, 0, 0, 0, 1, 0, 0, 0, 1000, -31.9766, 0, 2.6990795)
 shape = SubResource("ConcavePolygonShape3D_gen1")
 
-[node name="Goblin Camp 1_shape" type="CollisionShape3D" parent="NavigationRegion3D/LumoraOutskirts_Collision" unique_id=1082939597]
+[node name="Goblin Camp 1_shape" type="CollisionShape3D" parent="NavigationRegion3D/LumoraOutskirts_Collision" unique_id=1947949034]
 transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, -544.84973, 3, 600.62274)
 shape = SubResource("ConcavePolygonShape3D_gen2")
 
-[node name="Goblin Camp 1_001_shape" type="CollisionShape3D" parent="NavigationRegion3D/LumoraOutskirts_Collision" unique_id=388409368]
+[node name="Goblin Camp 1_001_shape" type="CollisionShape3D" parent="NavigationRegion3D/LumoraOutskirts_Collision" unique_id=1282752275]
 transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, -282.92023, 2.996119, 629.61444)
 shape = SubResource("ConcavePolygonShape3D_gen3")
 
-[node name="Goblin Camp 1_002_shape" type="CollisionShape3D" parent="NavigationRegion3D/LumoraOutskirts_Collision" unique_id=1210181432]
+[node name="Goblin Camp 1_002_shape" type="CollisionShape3D" parent="NavigationRegion3D/LumoraOutskirts_Collision" unique_id=1052326622]
 transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, -401.7943, 2.430605, 363.43137)
 shape = SubResource("ConcavePolygonShape3D_gen4")
 
-[node name="Goblin Camp 2_shape" type="CollisionShape3D" parent="NavigationRegion3D/LumoraOutskirts_Collision" unique_id=203448819]
+[node name="Goblin Camp 2_shape" type="CollisionShape3D" parent="NavigationRegion3D/LumoraOutskirts_Collision" unique_id=1795870189]
 transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, -588.6522, 3, 633.50024)
 shape = SubResource("ConcavePolygonShape3D_gen5")
 
-[node name="Goblin Camp 2_001_shape" type="CollisionShape3D" parent="NavigationRegion3D/LumoraOutskirts_Collision" unique_id=247899927]
+[node name="Goblin Camp 2_001_shape" type="CollisionShape3D" parent="NavigationRegion3D/LumoraOutskirts_Collision" unique_id=1019079064]
 transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, -326.72272, 2.996119, 662.49194)
 shape = SubResource("ConcavePolygonShape3D_gen6")
 
-[node name="Goblin Camp 2_002_shape" type="CollisionShape3D" parent="NavigationRegion3D/LumoraOutskirts_Collision" unique_id=248175100]
+[node name="Goblin Camp 2_002_shape" type="CollisionShape3D" parent="NavigationRegion3D/LumoraOutskirts_Collision" unique_id=1441275796]
 transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, -445.5968, 2.430605, 396.30887)
 shape = SubResource("ConcavePolygonShape3D_gen7")
 
-[node name="Goblin Camp 3_shape" type="CollisionShape3D" parent="NavigationRegion3D/LumoraOutskirts_Collision" unique_id=1680772286]
+[node name="Goblin Camp 3_shape" type="CollisionShape3D" parent="NavigationRegion3D/LumoraOutskirts_Collision" unique_id=1890382013]
 transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, -570.82025, 3, 580.2546)
 shape = SubResource("ConcavePolygonShape3D_gen8")
 
-[node name="Goblin Camp 3_001_shape" type="CollisionShape3D" parent="NavigationRegion3D/LumoraOutskirts_Collision" unique_id=1066797217]
+[node name="Goblin Camp 3_001_shape" type="CollisionShape3D" parent="NavigationRegion3D/LumoraOutskirts_Collision" unique_id=1899815714]
 transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, -308.89075, 2.996119, 609.2463)
 shape = SubResource("ConcavePolygonShape3D_gen9")
 
-[node name="Goblin Camp 3_002_shape" type="CollisionShape3D" parent="NavigationRegion3D/LumoraOutskirts_Collision" unique_id=1867568231]
+[node name="Goblin Camp 3_002_shape" type="CollisionShape3D" parent="NavigationRegion3D/LumoraOutskirts_Collision" unique_id=1444951179]
 transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, -427.76483, 2.430605, 343.0632)
 shape = SubResource("ConcavePolygonShape3D_gen10")
 
-[node name="Graveyard_shape" type="CollisionShape3D" parent="NavigationRegion3D/LumoraOutskirts_Collision" unique_id=1441943428]
+[node name="Graveyard_shape" type="CollisionShape3D" parent="NavigationRegion3D/LumoraOutskirts_Collision" unique_id=594813654]
 transform = Transform3D(-32.469643, 0, 0, 0, 2, 0, 0, 0, 1, 41.673878, 2, -287.48196)
 shape = SubResource("ConcavePolygonShape3D_gen11")
 
-[node name="Left Tower_shape" type="CollisionShape3D" parent="NavigationRegion3D/LumoraOutskirts_Collision" unique_id=1972129644]
+[node name="Left Tower_shape" type="CollisionShape3D" parent="NavigationRegion3D/LumoraOutskirts_Collision" unique_id=1714487722]
 transform = Transform3D(1, 0, 0, 0, 2, 0, 0, 0, 1, -16.578445, 2, -14.851065)
 shape = SubResource("ConcavePolygonShape3D_gen12")
 
-[node name="Mausoleum_shape" type="CollisionShape3D" parent="NavigationRegion3D/LumoraOutskirts_Collision" unique_id=518064843]
+[node name="Mausoleum_shape" type="CollisionShape3D" parent="NavigationRegion3D/LumoraOutskirts_Collision" unique_id=1511845294]
 transform = Transform3D(20, 0, 0, 0, 25, 0, 0, 0, 19, 47.841606, 25.018751, -245.26178)
 shape = SubResource("ConcavePolygonShape3D_gen13")
 
-[node name="Right Tower_shape" type="CollisionShape3D" parent="NavigationRegion3D/LumoraOutskirts_Collision" unique_id=1168053346]
+[node name="Right Tower_shape" type="CollisionShape3D" parent="NavigationRegion3D/LumoraOutskirts_Collision" unique_id=854886309]
 transform = Transform3D(0, 0, -1, 0, 2, 0, 1, 0, 0, -36.27665, 2, 13.920704)
 shape = SubResource("ConcavePolygonShape3D_gen14")
 
-[node name="Sandcrest Landing Docks_shape" type="CollisionShape3D" parent="NavigationRegion3D/LumoraOutskirts_Collision" unique_id=1349306776]
-transform = Transform3D(30, 0, 0, 0, 1, 0, 0, 0, 50, -755.2989, 1, -1036.273)
+[node name="Sandcrest Landing Docks_shape" type="CollisionShape3D" parent="NavigationRegion3D/LumoraOutskirts_Collision" unique_id=224976735]
+transform = Transform3D(30, 0, 0, 0, 1, 0, 0, 0, 50, -755.2989, 0, -1036.273)
 shape = SubResource("ConcavePolygonShape3D_gen15")
 
-[node name="Signpost_shape" type="CollisionShape3D" parent="NavigationRegion3D/LumoraOutskirts_Collision" unique_id=1233057466]
+[node name="Signpost_shape" type="CollisionShape3D" parent="NavigationRegion3D/LumoraOutskirts_Collision" unique_id=1351374957]
 transform = Transform3D(2, 0, 0, 0, 3, 0, 0, 0, 2, -555.36084, 3, -43.763702)
 shape = SubResource("ConcavePolygonShape3D_gen16")
 
-[node name="Small Crypt 1_shape" type="CollisionShape3D" parent="NavigationRegion3D/LumoraOutskirts_Collision" unique_id=297190471]
+[node name="Small Crypt 1_shape" type="CollisionShape3D" parent="NavigationRegion3D/LumoraOutskirts_Collision" unique_id=262884549]
 transform = Transform3D(5, 0, 0, 0, 5, 0, 0, 0, 5, 55.22563, 5, -275.63446)
 shape = SubResource("ConcavePolygonShape3D_gen17")
 
-[node name="Small Crypt 2_shape" type="CollisionShape3D" parent="NavigationRegion3D/LumoraOutskirts_Collision" unique_id=1194780627]
+[node name="Small Crypt 2_shape" type="CollisionShape3D" parent="NavigationRegion3D/LumoraOutskirts_Collision" unique_id=720271664]
 transform = Transform3D(5, 0, 0, 0, 5, 0, 0, 0, 5, 56.22563, 5, -214.63446)
 shape = SubResource("ConcavePolygonShape3D_gen18")
 
-[node name="Traveling Merchant_shape" type="CollisionShape3D" parent="NavigationRegion3D/LumoraOutskirts_Collision" unique_id=1685688277]
+[node name="Traveling Merchant_shape" type="CollisionShape3D" parent="NavigationRegion3D/LumoraOutskirts_Collision" unique_id=906338267]
 transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, -762.1179, 3, 750.988)
 shape = SubResource("ConcavePolygonShape3D_gen19")
 
-[node name="Vendor_shape" type="CollisionShape3D" parent="NavigationRegion3D/LumoraOutskirts_Collision" unique_id=1747360689]
+[node name="Vendor_shape" type="CollisionShape3D" parent="NavigationRegion3D/LumoraOutskirts_Collision" unique_id=799309700]
 transform = Transform3D(5, 0, 0, 0, 5, 0, 0, 0, 5, 45.77304, 5, -23.223478)
 shape = SubResource("ConcavePolygonShape3D_gen20")
 
-[node name="Wagon Crash Site_shape" type="CollisionShape3D" parent="NavigationRegion3D/LumoraOutskirts_Collision" unique_id=410021609]
+[node name="Wagon Crash Site_shape" type="CollisionShape3D" parent="NavigationRegion3D/LumoraOutskirts_Collision" unique_id=25405522]
 transform = Transform3D(2, 0, 0, 0, 3, 0, 0, 0, 2, -595.62854, 3, -566.2761)
 shape = SubResource("ConcavePolygonShape3D_gen21")
 
-[node name="Water_shape" type="CollisionShape3D" parent="NavigationRegion3D/LumoraOutskirts_Collision" unique_id=272891716]
+[node name="Water_shape" type="CollisionShape3D" parent="NavigationRegion3D/LumoraOutskirts_Collision" unique_id=1010077571]
 transform = Transform3D(800, 0, 0, 0, 1, 0, 0, 0, 85, -797.9773, -3.827507, -1082.9705)
 shape = SubResource("ConcavePolygonShape3D_gen22")
 
@@ -250,7 +257,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -21.452074, -3.0095892, -282.
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -21.452074, -3.0095892, -195.85712)
 
 [node name="monster_template" parent="." unique_id=2031395971 instance=ExtResource("1_buoj8")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -48.598, 0.5, 44.916)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -56.570557, 0, -786.9494)
 monster_name = "skeleton"
 
 [node name="monster_spawner" type="Node3D" parent="." unique_id=1015832831]
@@ -269,17 +276,22 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -565.75, 0, 934.534)
 
 [node name="GuardNPC" parent="Guards" unique_id=183512532 instance=ExtResource("5_guard1")]
 transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -2.8464518, 0, 25.837505)
-npc_name = "Guard Corwin"
+npc_name = "Private Corwin"
 
 [node name="GuardNPC2" parent="Guards" unique_id=329975956 instance=ExtResource("5_guard1")]
 transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -3.1122952, 0, -7.294902)
 npc_name = "Guard Reyna"
 
+[node name="GuardNPC3" parent="Guards" unique_id=2001772179 instance=ExtResource("5_guard1")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.7632446, 0, 6.958519)
+npc_name = "Sergeant Bryn"
+patrol_waypoints = Array[NodePath]([NodePath("../../Markers/Town Gate"), NodePath("../../Markers/Mausoleum"), NodePath("../../Markers/Dock"), NodePath("../../Markers/South Zone"), NodePath("../../Markers/Traveling Merchant"), NodePath("../../Markers/Signpost"), NodePath("../../Markers/Archery Targets")])
+
 [node name="GuardConversations" type="Node" parent="." unique_id=-831986189]
 script = ExtResource("11_gdconv1")
 
 [node name="VendorNPC" parent="." unique_id=59779778 instance=ExtResource("13_vendor1")]
-transform = Transform3D(-0.9943609, 0.047365174, 0.09488348, 0.029841524, 0.9835344, -0.17824003, -0.101763554, -0.17440349, -0.9794017, 45.075, 0, -15.055)
+transform = Transform3D(-0.994645, 0, 0.103347, 0, 1, 0, -0.103347, 0, -0.994645, 45.075, 0, -15.055)
 
 [node name="Bone Spears" type="Node3D" parent="." unique_id=1575841877]
 
@@ -305,3 +317,40 @@ transform = Transform3D(0.023607604, -0.99610966, -0.08490132, 0.46668175, 0.086
 
 [node name="Archery Target3" parent="Archery Targets" unique_id=2006479380 instance=ExtResource("10_867tm")]
 transform = Transform3D(0.023607604, -0.99610966, -0.08490132, 0.46668175, 0.08608447, -0.8802258, 0.88411003, -0.018841892, 0.46689835, 37.031548, 1.1229138, 177.39656)
+
+[node name="Markers" type="Node3D" parent="." unique_id=1353419039]
+
+[node name="Town Gate" type="Marker3D" parent="Markers" unique_id=1731383424]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.7632446, 0, 6.958519)
+
+[node name="Dock" type="Marker3D" parent="Markers" unique_id=1391371630]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -759.6306, 0, -947.18774)
+
+[node name="South Zone" type="Marker3D" parent="Markers" unique_id=708732291]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1355.2678, 0, -195.6928)
+
+[node name="Traveling Merchant" type="Marker3D" parent="Markers" unique_id=1711146770]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -998.3683, 0, 474.28345)
+
+[node name="Signpost" type="Marker3D" parent="Markers" unique_id=1359139698]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -529.1732, 0, 0)
+
+[node name="Archery Targets" type="Marker3D" parent="Markers" unique_id=1932618479]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -33.49823, 0, 125.7903)
+
+[node name="Mausoleum" type="Marker3D" parent="Markers" unique_id=1573785626]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -36.372375, 0, -244.27975)
+
+[node name="Spider Den" type="Marker3D" parent="Markers" unique_id=487491048]
+
+[node name="Goblin Camp 1" type="Marker3D" parent="Markers" unique_id=453703295]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -572.32983, 0, 605.41705)
+
+[node name="Goblin Camp 2" type="Marker3D" parent="Markers" unique_id=1998913407]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -422.55908, 0, 371.4443)
+
+[node name="Goblin Camp 3" type="Marker3D" parent="Markers" unique_id=746583681]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -313.709, 0, 635.21643)
+
+[node name="Wagon Crash Site" type="Marker3D" parent="Markers" unique_id=788774885]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -592.9677, 0, -570.0188)

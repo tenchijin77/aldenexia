@@ -12,8 +12,14 @@ func _ready():
 	torch_left.play("torch_flicker")
 	torch_right.play("torch_flicker")
 	torch_sound.play()
-	GlobalBackgroundMusic.stop()
-	GlobalBackgroundMusic.play()
+	# GlobalBackgroundMusic already autoplays on boot and restarts itself via
+	# its own _check_and_play_music() (child_entered_tree hook) the moment
+	# main_menu becomes the current scene — this explicit stop()+play() was
+	# fully redundant with that, and restarted the track from the beginning
+	# every time you returned to the main menu. Removed 2026-09-14 while
+	# investigating a reported music startup delay (see global.gd's
+	# _warm_up_audio() — this wasn't the cause, just dead weight found along
+	# the way).
 	print("Has GlobalBackgroundMusic?", Engine.has_singleton("GlobalBackgroundMusic"))
 	print("Has method?", GlobalBackgroundMusic.has_method("_check_and_play_music"))
 

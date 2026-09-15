@@ -168,7 +168,7 @@
       "spawn_zone": "mausoleum"
     },
     {
-      "mob_type": "mirage_phantom",
+      "mob_type": "ghost",
       "position": [41.7, 2, -287.5],
       "spawn_radius": 20.0,
       "spawn_chance": 0.25,
@@ -191,6 +191,17 @@
       "spawn_zone": "goblin_camp_1"
     },
     {
+      "mob_type": "goblin_warrior",
+      "position": [-544.85, 2, 600.62],
+      "spawn_radius": 22.0,
+      "spawn_chance": 0.3,
+      "max_active": 1,
+      "respawn_time": 30,
+      "min_level": 3,
+      "max_level": 4,
+      "spawn_zone": "goblin_camp_1"
+    },
+    {
       "mob_type": "goblin",
       "position": [-588.65, 2, 633.5],
       "spawn_radius": 22.0,
@@ -199,6 +210,17 @@
       "respawn_time": 18,
       "min_level": 2,
       "max_level": 3,
+      "spawn_zone": "goblin_camp_2"
+    },
+    {
+      "mob_type": "goblin_scout",
+      "position": [-588.65, 2, 633.5],
+      "spawn_radius": 22.0,
+      "spawn_chance": 0.5,
+      "max_active": 2,
+      "respawn_time": 16,
+      "min_level": 1,
+      "max_level": 2,
       "spawn_zone": "goblin_camp_2"
     },
     {
@@ -300,6 +322,17 @@
       "respawn_time": 16,
       "min_level": 2,
       "max_level": 3,
+      "spawn_zone": "spider_den"
+    },
+    {
+      "mob_type": "spiderling",
+      "position": [-355, 2, -392],
+      "spawn_radius": 24.0,
+      "spawn_chance": 0.8,
+      "max_active": 6,
+      "respawn_time": 10,
+      "min_level": 1,
+      "max_level": 1,
       "spawn_zone": "spider_den"
     }
   ]

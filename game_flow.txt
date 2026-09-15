@@ -238,7 +238,17 @@ to 0.25 and 0.18 — still a clearly dim, moody night (local light sources
 are still the dominant light by design, per above), just no longer
 functionally lightless. If still too dark in practice, these two exported
 vars are the next thing to nudge; a carryable player torch was discussed as
-a follow-up but not built this session. Emits phase_changed(is_day) — currently unused but available
+a follow-up but not built this session.
+FIXED 2026-09-14 (Session 42): _apply_lighting() animated sky_top_color and
+sky_horizon_color every tick but never touched ground_horizon_color (the
+sky dome's lower hemisphere), which sat at its bright default around the
+clock — invisible by day, but at night the sky above went dark while the
+ground half of the horizon stayed lit, producing a glowing horizontal seam
+right at the horizon in every outdoor zone. Fix: ground_horizon_color now
+mirrors the same computed sky_horizon_color every update. Verified via a
+headless test forcing 2 AM game time and reading both values back off the
+live ProceduralSkyMaterial — confirmed exact match.
+Emits phase_changed(is_day) — currently unused but available
 (e.g. for auto-lighting torches at dusk later). Adds itself to group
 "day_night_cycle" in _ready() — look it up via
 get_tree().get_nodes_in_group("day_night_cycle"), NOT
@@ -253,11 +263,12 @@ To add day/night to another outdoor zone: add a Node child named
 world_environment_path). Indoor/dungeon zones can skip it entirely —
 nothing else currently depends on it.
 
-/time chat command: Scripts/game_log_window.gd, in the "/loc" match block
-inside _handle_slash_command(). Prints Global.format_full_date(), the
-DayNightCycle node's day/night status + time to next phase (group lookup,
-null-safe — skips that line in zones with no DayNightCycle), and
-real-world time.
+/time chat command: Scripts/game_log_window.gd, in the "/location" match
+block inside _handle_slash_command() (renamed from the old literal "/loc"
+2026-09-14 Session 42 — see prefix-matching note below). Prints
+Global.format_full_date(), the DayNightCycle node's day/night status + time
+to next phase (group lookup, null-safe — skips that line in zones with no
+DayNightCycle), and real-world time.
 
 GOTCHA — Scripts/chat_window.gd + Scenes/chat_window.tscn are DEAD 2D-era
 code (2026-08-23): they're only instanced inside Scenes/main.tscn, a
@@ -269,13 +280,27 @@ run — chat_input.visible=false by default, only shown when an NPC's
 Scripts/game_log_window.gd (CanvasLayer, in player3d.gd's _spawn_hud()
 list) — General/Combat tabs fed by the GameLog signal bus, PLUS its own
 chat_input LineEdit and _handle_slash_command() dispatcher (currently
-"/loc" and "/time"). The two files have near-identical
-_handle_slash_command() structure because game_log_window.gd is a 3D port
-of chat_window.gd's dispatcher that nobody deleted the original for. Don't
-add new slash commands to chat_window.gd — verify a script is actually
-reachable from lumora_outskirts3d.tscn (or wherever the live zone is)
-before assuming it's live, the same way this file's "2D→3D migration
-complete" line already warns for Scripts/skeleton.gd et al.
+"/location", "/time", "/hail", "/appraise", "/follow" — full behavior of
+each in change_log.txt's "Chat Commands" reference at the top of the
+file). The two files have near-identical _handle_slash_command() structure
+because game_log_window.gd is a 3D port of chat_window.gd's dispatcher that
+nobody deleted the original for. Don't add new slash commands to
+chat_window.gd — verify a script is actually reachable from
+lumora_outskirts3d.tscn (or wherever the live zone is) before assuming it's
+live, the same way this file's "2D→3D migration complete" line already
+warns for Scripts/skeleton.gd et al.
+
+Commands are Linux-shell-style prefix-matched (added 2026-09-14, Session
+42): _resolve_command(typed) checks the COMMANDS const array for an exact
+match first, then any command the typed text is an unambiguous prefix of
+(e.g. "/fol" -> "/follow", "/loc" -> "/location" — this is why "/loc" was
+renamed from being the literal command name to just an abbreviation of it).
+Zero matches logs "Unknown command"; more than one logs "Ambiguous command"
+with the candidate list rather than guessing. _handle_slash_command() calls
+this once up front and matches on the resolved canonical name, so each
+individual command's match-arm code is unaffected by the abbreviation
+logic. Adding a new command = add its canonical "/name" to COMMANDS and a
+match arm — abbreviation support is automatic, nothing per-command needed.
 
 Nothing else in the codebase depended on the old calendar pacing before
 this change (REAL_SECONDS_PER_GAME_HOUR/_DAY were dead constants,
@@ -340,10 +365,21 @@ Scene: Scenes/player3d.tscn (contains CameraRig → CameraController + Camera3D)
     and owns the mouse mode if already on) → "head turn". Capped to
     MAX_YAW=±90° (180° total)/MAX_PITCH=±45° (90° total) — a realistic
     head-turn range, holds at the cap instead of wrapping, no snap-back on
-    release. Captures the mouse (Input.set_mouse_mode CAPTURED) only while
-    held; calls Global.restore_mouse_mode() on release.
-  Mouse wheel → zoom (2m–12m).
-  Home key → cycle three modes:
+    release. Hides the mouse (Input.set_mouse_mode HIDDEN, changed from
+    CAPTURED 2026-09-14 Session 42 — CAPTURED locks the OS cursor to the
+    window center every frame to report unlimited relative motion, which
+    head-turn's ±90°/±45° cap never needed, and made the literal cursor jump
+    to screen center on release of EVERY right-click, including a quick
+    click to loot/shop that never dragged at all; HIDDEN reports real
+    relative motion without touching cursor position) only while held;
+    calls Global.restore_mouse_mode() on release.
+  Mouse wheel → zoom (MIN_ZOOM=2m–MAX_ZOOM=12m). As of 2026-09-14 (Session
+  30), zooming all the way in (current_zoom hits MIN_ZOOM) from EITHER
+  third-person mode auto-switches current_mode to FIRST_PERSON instead of
+  just stopping at the closest third-person distance; scrolling back out
+  while in FIRST_PERSON pops back to THIRD_PERSON_BEHIND at MIN_ZOOM — one
+  continuous zoom gesture rather than a jump between unrelated modes.
+  Home key → cycle three modes (unaffected by the above, still a direct jump):
     THIRD_PERSON_BEHIND (default, 6m back)
     THIRD_PERSON_ANGLED (tactical, 8m back / 5m up / 45°)
     FIRST_PERSON (eye level)
@@ -634,27 +670,121 @@ Scene: Scenes/player3d.tscn (contains CameraRig → CameraController + Camera3D)
   conversations between them read as two different people; also rotated 90°
   in-scene 2026-09-13, having been placed facing the wrong way in the
   outskirts entryway.
+  say(line) — the single chokepoint _say_flavor() (hail/engage) and
+  npc_scripted_conversation.gd's scripted day/night exchange both route
+  through — is range-gated as of 2026-09-14 (Session 30):
+  HEAR_RANGE=5.0, checked via _player_in_hear_range() at the top of say().
+  Previously logged unconditionally regardless of the player's distance from
+  the speaking guard, so e.g. the day/night guard-to-guard conversation
+  would show in the log no matter where the player was standing in the
+  zone. try_hail_nearby_npc() (player3d.gd) already required proximity
+  before calling respond_to_hail() at all, so hail itself was unaffected —
+  only unprompted lines were ever broadcasting past hearing range.
   Targetable (Tab/click) as of 2026-08-25: player3d.gd's
   tab_cycle_target()/_try_click_target() include group "npc_guard" alongside
-  "monsters", via a type-agnostic _is_targetable_alive() check (GuardNPC has
-  no current_state/State.DEAD, so it's just always "alive"). Has a top-level
+  "monsters" (and, since 2026-09-14 Session 36, "npc_vendor"/VendorNPC too —
+  see VENDOR / SHOP below), via a type-agnostic _is_targetable_alive() check
+  (GuardNPC/VendorNPC have no current_state/State.DEAD, so they're just
+  always "alive"). Has a top-level
   `level` var (mirrors Monster's pattern) so the target frame/appraisal show
   its real level. Always faction_status()=="Ally" — attack_current_target(),
   cast_spell()'s enemy branch, and perform_melee_attack() all refuse to
   target Allies, since GuardNPC has no death handling at all (no die()
   override) and would otherwise just silently absorb damage into a dead end.
   Combat: own CombatNode, stats from a new "lumora_guard" entry in
-  monsters.json, own NavigationAgent3D. GuardState enum {IDLE, ENGAGE}. Scans
-  "monsters" group every ~1s for the nearest non-dead monster within 4m of
-  home_position (the guard's placed transform, captured in _ready()); chases
-  to melee range and calls combat_node.resolve_attack() on its own cooldown
-  (same pattern as pet_minion.gd's attack loop). Disengages and returns home
-  if the target dies/despawns or strays past a 6m leash from home_position.
+  monsters.json, own NavigationAgent3D. GuardState enum {IDLE, ENGAGE,
+  PATROL — PATROL added 2026-09-14, Session 38, see below}. Scans "monsters"
+  group every SCAN_INTERVAL for the nearest non-dead monster within
+  ENGAGE_RANGE (4m, stationary guards, measured from home_position) or
+  PATROL_ENGAGE_RANGE (3m, patrolling guards, measured from their current
+  position — they have no fixed post). SCAN_INTERVAL dropped from 1.0 to
+  0.2 in Session 41 — at ~3 m/s and a 3m PATROL_ENGAGE_RANGE, a patrolling
+  guard could previously cover nearly its whole engage range between two
+  scans, so most of a cluster of monsters would simply never be "in range"
+  at the exact instant a check ran (confirmed: a guard reported walking
+  through a group and only engaging the one it physically ran into). 0.2s
+  caps travel between scans to ~0.6m. Chases to melee range and calls
+  combat_node.resolve_attack() on its own cooldown (same pattern as
+  pet_minion.gd's attack loop). Disengages and returns to _default_state
+  (IDLE or PATROL) if the target dies/despawns or strays past a 6m leash
+  from _engage_origin (wherever the guard was standing when it entered
+  ENGAGE — unifies the stationary/patrol leash into one mechanism instead of
+  two, since for a stationary guard that's practically the same point as
+  home_position anyway).
   One-directional: monsters never retaliate (monster3d.gd's state machine
   only ever targets the player — same limitation as the pet above), so
   guards are effectively invulnerable. Kills call target.die(false, false) —
   no XP, no loot, immediate queue_free() instead of the normal 60s lootable-
   corpse window (see Monster.die() below).
+
+--- Patrol (added 2026-09-14, Session 38; movement rewritten Session 39;
+    local obstacle steering + faster aggro scan added Session 41) ---
+  @export patrol_waypoints: Array[NodePath] = [] — empty (default) keeps a
+  guard exactly as before, stationary. Set to a list of Node3D/Marker3D
+  paths and a guard walks them in order, looping forever. _setup_patrol()
+  (_ready()) resolves each NodePath to a world position once
+  (_patrol_points) and, if non-empty, sets _default_state = PATROL so
+  combat returns there instead of IDLE. _process_patrol() advances to the
+  next waypoint once within WAYPOINT_ARRIVAL (1.5) of the current one, via
+  _move_toward().
+  Third guard "Guard Bryn" in lumora_outskirts3d.tscn, patrol_waypoints
+  pointing at six user-placed Marker3D nodes under a "Markers" node: Town
+  Gate → Dock → South Zone → Traveling Merchant → Signpost → Archery
+  Targets → (loops back to Town Gate) — a genuinely long, cross-map route
+  (~4000+ units total), the first thing in this project to exercise
+  NavigationAgent3D over serious distance rather than a short chase/local
+  wander.
+  _move_toward() manages its OWN corner list (_current_path:
+  Array[Vector3]) via direct NavigationServer3D.query_path() calls, NOT
+  NavigationAgent3D.target_position/get_next_path_position() — reworked
+  2026-09-14 (Session 39) after three failed attempts (see change_log.txt
+  for the full story) established that the agent's own cached path can go
+  stale relative to the guard's actual position over a long route, in a way
+  simply loosening its arrival tolerance or externally nudging position
+  couldn't reliably fix — a query_path() called fresh from the guard's
+  exact current position was consistently correct where the agent's own
+  get_next_path_position() sometimes wasn't. _recompute_path() re-queries
+  whenever _current_path is empty, the target moved > 0.5m, or the
+  stuck-detector below requests one; CORNER_ARRIVAL (0.75) governs
+  advancing through the cached corners. _current_path is explicitly cleared
+  whenever combat ends and a patrolling guard returns to PATROL (fighting
+  can move it well off whatever was cached pre-fight) and whenever
+  _move_toward()'s own stop_distance is reached.
+  _tick_stuck_detector() (STUCK_THRESHOLD=2.0s, STUCK_MOVE_EPSILON=0.1):
+  if position hasn't moved more than a few cm in 2 seconds, sets
+  _stuck_repath_requested so the next _move_toward() call forces a fresh
+  query_path() — covers both a genuine navmesh/true-floor height mismatch
+  (confirmed elsewhere in this project, up to ~0.7m) and any physical
+  corner-wedge move_and_slide() might deflect a guard into, without needing
+  to know or care which one actually happened.
+  NavigationAgent3D's own path_desired_distance/target_desired_distance
+  (0.75, up from the original 0.5) are still configured in _setup_combat()
+  but no longer drive path-following — kept as-is since nothing currently
+  reads them, low-risk to leave.
+  _steer_around_obstacles(direction) (added Session 41, called from
+  _move_toward() right before committing to a movement direction): a real-
+  time local sidestep layered on top of the query_path()-based global
+  routing above. Casts a short forward ray (OBSTACLE_CHECK_DISTANCE, 1.5m)
+  along the intended heading; if clear, returns it unchanged; if blocked,
+  tries alternate headings in order (OBSTACLE_AVOID_ANGLES_DEG: ±30°, ±60°,
+  ±90°) and returns the first one that's actually clear, falling back to
+  the original heading if none are (the stuck-detector recovers from that
+  case instead). Added after a second stuck report at unrelated geometry
+  (the wagon crash site, nothing to do with the gate Session 39 fixed) — the
+  navmesh not cleanly routing around every piece of debris/prop collision
+  on a ~4000-unit route turned out to be a general problem, not one bad
+  spot, so this handles "something's in the way right now" independent of
+  whether that specific geometry happens to be accounted for in the bake.
+
+--- Banter (added 2026-09-14, Session 38) ---
+  All guards (stationary and patrolling) periodically say a random line from
+  guard_flavor_text.json's new "banter" array while not in ENGAGE — a
+  per-guard randomized _banter_interval (randf_range(BANTER_MIN_INTERVAL,
+  BANTER_MAX_INTERVAL) = 5-9 min, deliberately not a flat 7 min so multiple
+  guards don't end up banter-ing in lockstep), counted in _physics_process()
+  and reset to 0 (not paused) on entering combat so a fresh interval starts
+  once a fight ends. Routes through the same _say_flavor()/say() chokepoint
+  as hail/engage, so it's silent unless the player is within HEAR_RANGE (5m).
 
   Guard's own model + animations (models/guard/, added 2026-09-13, animation
   library fixed 2026-09-14): guard_npc.tscn instances
@@ -888,9 +1018,22 @@ Scene: Scenes/player3d.tscn (contains CameraRig → CameraController + Camera3D)
   rows (capped 260px, then the list scrolls). Position (top-left only, not
   size — see WindowPosition.load_position_into() under Draggable Windows
   below) persists across sessions.
-  KNOWN GAP, not fixed: _apply_drop() only ever grants 1 unit regardless of
-  a drop's quantity field — a stack of 5 only grants 1. _auto_process_loot()
-  inherits the same behavior for consistency.
+  FIXED 2026-09-14 (Session 30): the above gap, PLUS a second, worse bug it
+  was masking — _apply_drop() (and every other "player receives an item"
+  call site: monster3d.gd's auto-loot, slot_button.gd's drag-to-inventory
+  loot path, shop_window.gd's Buy) called Inventory.add_to_basic_inventory()
+  and logged "You receive X" WITHOUT checking its return value, so a full
+  inventory (easy on a new character — small_bag + 6 pieces of unequipped
+  starting gear already fill 7 of the 12 basic_inventory slots) made loot
+  silently vanish while the log kept claiming success. Fixed via a new
+  Inventory.add_item(item_id, quantity) — merges onto an existing bag stack
+  first (now correctly applying quantity, fixing the KNOWN GAP above too),
+  then any bag with room, then falls back to a bare basic_inventory slot;
+  returns false only when there's truly no room anywhere. Every call site
+  above now checks that return value: corpse_loot_window.gd's _apply_drop()
+  returns bool and only removes the drop from pending_loot (Take/Loot
+  All/preference checkboxes) when it actually landed somewhere, so a
+  full-inventory drop stays on the corpse instead of disappearing.
   Data/solgrave_expanse_loot.json is genuinely sparse for some mob types —
   investigated 2026-09-14 after a "almost no money/loot dropping" report:
   not a code bug, bandit's table (under zone_loot_tables.edge_spawns —
@@ -971,12 +1114,46 @@ Scene: Scenes/player3d.tscn (contains CameraRig → CameraController + Camera3D)
   res://default_bus_layout.tres (Master/Music/SFX, Music and SFX both
   sending to Master), registered via project.godot's new [audio] section
   (buses/default_bus_layout). Of every AudioStreamPlayer(3D) in the
-  project, only TWO are actually live: torch.tscn and campfire.tscn's
-  AudioStreamPlayer3D (bus="SFX") and global_background_music.tscn's
-  AudioStreamPlayer (bus="Music"). magic_missile.tscn, ranged_attack.tscn
-  (only referenced by the dead 2D Scripts/player.gd) and hand-torch.tscn
-  (referenced by nothing at all) are dead code — confirmed via reference
-  search before touching anything, left unbused.
+  project, only a few are actually live: torch.tscn and campfire.tscn's
+  AudioStreamPlayer3D (bus="SFX"), global_background_music.tscn's
+  AudioStreamPlayer (bus="Music"), and — added 2026-09-14 (Session 32) —
+  Global.play_sfx()'s dynamically-spawned ones (see below). magic_missile.tscn,
+  ranged_attack.tscn (only referenced by the dead 2D Scripts/player.gd) and
+  hand-torch.tscn (referenced by nothing at all) are dead code — confirmed
+  via reference search before touching anything, left unbused.
+
+--- One-shot UI/feedback SFX (Global.gd, added 2026-09-14, Session 32) ---
+  Global.play_sfx(stream: AudioStream, volume_db: float = 0.0) — spawns a
+  fresh AudioStreamPlayer as a child of Global on the "SFX" bus (so it
+  automatically respects the volume slider above), plays it, frees itself
+  on `finished`. A NEW player per call rather than one shared/reused player,
+  so firing this several times in quick succession layers the sounds
+  instead of each new call cutting the previous one off.
+  Global.play_coin_sound() — the concrete first use: preloads
+  Assets/yodguard-coin-collect-3-540190.mp3, called from every place
+  currency lands in the player's favor: corpse_loot_window.gd's
+  _apply_drop() currency branch, monster3d.gd's _auto_process_loot()
+  currency branch, shop_window.gd's _sell(). NOT called from
+  shop_window.gd's _buy() (spending coin, not receiving it).
+  This is the pattern to reuse for any future one-shot UI sound — call
+  Global.play_sfx(preload("res://Assets/whatever.mp3")) from wherever the
+  triggering event already lives, no new AudioStreamPlayer node needed in
+  any .tscn.
+
+--- Zone ambient loop (lumora_outskirts3d.tscn's "AmbientWind" node, added
+    2026-09-14, Session 40) ---
+  No zone-level background/ambient audio system existed before this —
+  global_background_music.gd is menu-only (allowed_scenes explicitly
+  excludes every gameplay zone); torch.tscn/campfire.tscn's own loops are
+  AudioStreamPlayer3D, positional, tied to a specific prop, not a whole-zone
+  ambiance. AmbientWind is a plain non-positional AudioStreamPlayer
+  (Assets/wind woosh loop.ogg, loop enabled via the .ogg.import's
+  loop=true — same mechanism Torch Loop.ogg's crackle uses, not
+  script-side), autoplay=true, bus="SFX" (so it respects the same Options-
+  menu SFX slider as everything else), volume_db=-10.0 to sit as a
+  background layer. Zone-scene-embedded rather than global/autoloaded —
+  the pattern to follow for a different zone's own ambiance later is just
+  the same node type dropped into that zone's own .tscn, not a shared system.
   Sliders: 0-100 range, live-apply on every value_changed (instant audio
   feedback while dragging), Global.save_settings() only on drag_ended (not
   every intermediate tick — avoids writing the settings file dozens of
@@ -1068,6 +1245,24 @@ Added as child to both Player3D and Monster.
   6. Hit → calculate_melee_damage() → apply_ac_mitigation() → target.current_hp -= dmg
   Returns: {result, damage, is_crit, message}
 
+  IMPORTANT: step 6 already applies the damage directly to
+  target.current_hp — resolve_attack() is a complete, self-contained damage
+  application, not just a calculator. A caller must NOT also call
+  target.take_damage()/apply_damage() for the same hit, or it double-applies.
+  Bug fixed 2026-09-14 (Session 33): monster3d.gd's perform_attack() did
+  exactly that for monster-vs-player hits (resolve_attack() applied the hit,
+  then also called player.take_damage(result["damage"], ...) for the same
+  hit) — monsters were dealing EXACTLY DOUBLE damage to the player, verified
+  with a headless test (18/47 raw damage from resolve_attack() landing as
+  36/94 through the full call). Player-vs-monster (player3d.gd),
+  guard-vs-monster (guard_npc.gd), and pet-vs-monster (pet_minion.gd) were
+  all already correct — only the monster-vs-player direction had the
+  redundant second call. Fixed by removing it; monster3d.gd now calls
+  player3d.gd's on_combat_node_hit(attacker) instead, which handles ONLY the
+  side effects resolve_attack() doesn't already cover (auto-target-switch,
+  the incapacitation check — see player3d.gd's death system below) without
+  touching HP again.
+
 --- Other attack modes ---
   resolve_dual_wield_attack() — main + offhand (-10% hit)
   resolve_aetherfist_attack() — flurry: main + optional double (lv10+) + triple (lv15+)
@@ -1115,24 +1310,70 @@ Scene: Scenes/monster_template.tscn (base) + individual [name].tscn
   gear_atk = 15 + level*5 (unchanged) for hit rates of ~55-60% vs typical player AC.
 
 --- State Machine ---
-  IDLE    → random patrol chance; aggro if player in aggro_range (≤5m)
+  IDLE    → patrols after a randomized wait; aggro if player in aggro_range (≤5m)
   PATROL  → moves to random patrol points; aggro if player spotted
   CHASE   → uses NavigationAgent3D to path to player; attack when in range
   ATTACK  → looks at player, calls perform_attack() on cooldown
   DEAD    → no further processing; triggers loot roll and despawn timer
 
+  IDLE→PATROL timing (reworked 2026-09-14, Session 34): a deterministic
+  timer, not the old 1%-per-frame RNG roll. Non-passive behavior_types wait
+  _idle_duration seconds (randf_range(IDLE_MIN_DURATION, IDLE_MAX_DURATION)
+  = 2–5s, rolled on entering State.IDLE via change_state()'s IDLE case) then
+  switch to PATROL; passive types never do (stay put until aggroed, same as
+  before). pick_new_patrol_point() rolls a distance between
+  PATROL_MIN_DISTANCE (5) and PATROL_MAX_DISTANCE (18) from spawn_position —
+  was a flat 0–10 with no minimum, which combined with the old slow RNG
+  trigger made monsters read as essentially static (confirmed headlessly:
+  ~3 units of net movement over 12s before this pass, ~14 units of total
+  path covered over 10s after).
+
   Aggro range: JSON values scaled by AGGRO_RANGE_SCALE=10.0, hard capped at
   MAX_AGGRO_DISTANCE=5.0m. Passive (÷3) and neutral (÷2) behavior type
   modifiers applied before the cap. Leash check uses same effective range.
+  can_see_player() also returns false outright whenever player.dying is true
+  (added 2026-09-14, Session 33) — a monster in IDLE/PATROL won't re-aggro a
+  downed/dead-pending-respawn player no matter how close it is; see the
+  disengage-on-death behavior below.
 
   Gravity always applied for all states (IDLE/ATTACK also call move_and_slide
   with gravity) so monsters never float.
 
 --- perform_attack() ---
-  Calls CombatNode.resolve_attack(player.combat_node).
-  Routes result through CombatLogFormatter.monster_attack() → GameLog.log_combat().
+  Calls CombatNode.resolve_attack(player.combat_node) — this call ALONE
+  applies the hit's damage (see the resolve_attack() note above). Routes
+  result through CombatLogFormatter.monster_attack() → GameLog.log_combat(),
+  then calls player.on_combat_node_hit(self) for the non-HP side effects
+  (auto-target-switch, incapacitation check) — NOT player.take_damage(),
+  which would double-apply the hit (this was a real, serious bug until
+  Session 33 — see the resolve_attack() note above).
   Social monsters (is_social=true) call call_nearby_allies() — same faction
-  monsters within aggro_range switch to CHASE.
+  monsters within ASSIST_RANGE (5.0m, a real meter distance) switch to
+  CHASE. Bug fixed 2026-09-14 (Session 34): this used to compare a real
+  meter distance against aggro_range, which is documented above as the RAW
+  unscaled JSON value, not meters — a bandit's aggro_range is 200.0, so
+  allies anywhere in roughly a 200m radius would come assist. Now a
+  dedicated ASSIST_RANGE constant, decoupled from aggro_range entirely.
+
+--- Disengage on player death (force_disengage(), added 2026-09-14, Session 33) ---
+  Called on every monster in group "monsters" the instant the player becomes
+  incapacitated (player3d.gd's die()). Clears aggro_table and, if currently
+  CHASE/ATTACK, switches to PATROL with patrol_target forced to
+  spawn_position (overriding change_state()'s own random nearby point) —
+  walks straight back to its spawn area instead of wandering off randomly.
+  Combined with can_see_player()'s player.dying check above, a monster won't
+  pick the fight back up even if the still-incapacitated player is standing
+  right next to it during the ~20s bleed-out window (see player3d.gd's death
+  system below) — the encounter is simply over from the monster's side.
+
+--- Monster death lines (Data/humanoid_death_lines.json, added 2026-09-14, Session 33) ---
+  die() logs a random line from this file (NPCFlavorText, same loader
+  guard_flavor_text.json uses — {"death": [...]}, one category, user-editable)
+  for any monster whose category is "humanoid" (bandits, goblins, dustwalker
+  variants, etc.) — NOT "undead" (skeletons, mummy, mirage_phantom), which
+  wouldn't make sense saying last words. Logged via GameLog.log_general(),
+  attributed to the monster by monster_description/name, same
+  "$Name says, ..." convention guard_npc.gd uses.
 
 --- XP Award on die() ---
   Finds player via group, adds xp_gain to Global.player_data["xp"].
@@ -1212,6 +1453,55 @@ Class: Node3D script attached to a MobSpawner3D node in lumora_outskirts3d.tscn.
 
 
 ================================================================================
+PLAYER DEATH / INCAPACITATION / RESPAWN (player3d.gd, added 2026-09-14, Session 33)
+================================================================================
+
+EQ-style: 0 HP doesn't kill outright, it incapacitates. dying: bool (already
+existed, froze movement via _physics_process()'s "if dying: return" and
+regen/vitals via _process()'s — previously nothing ever cleared it back to
+false, so hitting 0 HP was a permanent, unrecoverable freeze) is now the
+"can't act" gate for BOTH sub-states below, cleared again on respawn.
+
+--- Sequence ---
+  1. combat_node.is_alive() goes false (from on_combat_node_hit() — a
+     monster hit — or a riposte while the player is attacking) → die(attacker).
+  2. die(attacker): dying=true, is_incapacitated=true, clamps
+     combat_node.current_hp to exactly 0 (resolve_attack() doesn't clamp —
+     a big single hit can overshoot well below 0), captures attacker's
+     description as _last_attacker_desc, logs "You collapse, bleeding
+     out...", turns off autoattack, and calls force_disengage() on every
+     monster in group "monsters" (see monster3d.gd above) — the fight is
+     over immediately, nothing can interrupt the bleed-out that follows.
+  3. _tick_bleedout(delta), driven from _process() (runs even though dying
+     is true — checked BEFORE the early-return): counts up to
+     BLEED_OUT_DURATION (20s), logging "You are bleeding out..." every
+     BLEED_OUT_WARN_INTERVAL (5s). Purely passive/deterministic — no more
+     combat damage can land (monsters disengaged), and regen is frozen too
+     (existing dying gate), so there's no self-stabilizing mid-bleed-out.
+  4. At BLEED_OUT_DURATION, _die_for_real(): is_incapacitated=false, logs
+     "You have been defeated by <_last_attacker_desc>!" (red), then a random
+     line from Data/player_death_flavor.json (NPCFlavorText, own wording —
+     NOT copied from any specific reference), then _show_death_screen() — a
+     full-screen black CanvasLayer (layer 100) reading "RETURNING TO YOUR
+     BIND POINT..." — held for RESPAWN_DELAY (3s) via
+     `await get_tree().create_timer(...)`.
+  5. _respawn(): frees the death screen, teleports global_position to
+     get_bind_point(), restores HP/mana/stamina to full, clears
+     current_target/target_frame, dying=false. Logs "You awaken at your
+     bind point."
+
+--- Bind point ---
+  No bind spell/NPC exists yet. _ensure_bind_point() (called once from
+  _ready(), after load_player_data_from_global()) defaults it to wherever
+  the character first spawns into the world if Global.player_data has no
+  "bind_point" key yet. Stored as a plain [x,y,z] Array (Vector3 isn't
+  JSON-serializable) — get_bind_point() reads it back, falling back to the
+  player's current position if somehow unset. A future bind spell/NPC only
+  needs to overwrite Global.player_data["bind_point"] — nothing else
+  changes.
+
+
+================================================================================
 VITALS: SATIETY / THIRST (player3d.gd, made functional Session 29 — 2026-09-14)
 ================================================================================
 
@@ -1235,10 +1525,22 @@ frequent attention than food).
 --- Consuming food/drink ---
   consume_food_or_drink(item: Dictionary) — reads item["restores"]
   ("satiety" or "thirst") and item["restore_amount"], adds to the matching
-  vital (capped at 100), logs a GameLog message, then calls
-  _update_well_fed_buff(). Triggered from slot_button.gd's right-click
-  inspect popup: an "Eat"/"Drink" button appears for any item whose
-  items.json "type" is "food"/"drink". Consumes exactly one unit via
+  vital (capped at 100), logs a random flavor line from
+  Data/food_drink_flavor.json (via NPCFlavorText — "You consume X. Yumm!
+  That was tasty!" / "You quench your thirst with X. Ahhh! That hit the
+  spot.", changed 2026-09-14 Session 42, replaces the old plain "You eat X.
+  (Hunger: N/100)" message), then calls _update_well_fed_buff(). Triggered
+  two ways:
+    - Manual: slot_button.gd's right-click inspect popup — an "Eat"/"Drink"
+      button appears for any item whose items.json "type" is "food"/"drink".
+    - Automatic (added 2026-09-14, Session 42): update_vitals_decay() calls
+      _try_auto_consume("satiety"/"thirst") the moment either vital ticks
+      below 25 (the existing "low" warning threshold) — finds the first
+      matching item via Inventory.find_first_by_restores() (basic slots,
+      then bags) and eats/drinks it automatically, no player action needed.
+      Falls through to the normal low/empty GameLog warnings unchanged if
+      nothing suitable is carried.
+  Both paths consume exactly one unit via
   Inventory.consume_one(slot_type, slot_index, bag_slot, item_index) —
   decrements a stack's quantity, or removes the slot/bag entry entirely at
   quantity 1.
@@ -1284,13 +1586,48 @@ HUMANOID_MOB_TYPES uses), with a Label3D name tag like guard_npc.gd.
   First/only vendor so far: "lumora_general_goods" ("Aldric the
   Provisioner") — trail_rations, iron_rations, spring_water, water_flask,
   small_bag, traveler_pack (new 8-slot bag, up from small_bag's 4), torch.
-  Placed in lumora_outskirts3d.tscn at (45.075, 0, -15.055), with a custom
-  facing rotation — just in front of and to the right of "Vendor_shape" (a
-  CollisionShape3D under NavigationRegion3D/LumoraOutskirts_Collision, origin
-  (45.77, 5.0, -23.22)), the marker the user placed to show the intended
-  spot. Started as a temporary stand-in near the guards before the marker
-  was saved/named; once named, moved near it and navmesh-verified, then the
-  user hand-tuned the final position/facing themselves in the editor.
+  Placed in lumora_outskirts3d.tscn at (45.075, 0, -15.055) — just in front
+  of and to the right of "Vendor_shape" (a CollisionShape3D under
+  NavigationRegion3D/LumoraOutskirts_Collision, origin (45.77, 5.0, -23.22)),
+  the marker the user placed to show the intended spot. Started as a
+  temporary stand-in near the guards before the marker was saved/named; once
+  named, moved near it and navmesh-verified, then the user hand-tuned the
+  final position/facing themselves in the editor. Transform corrected
+  2026-09-14 (Session 36): the hand-tuned rotation had picked up a real
+  ~10°/~3° pitch/roll beyond the intended facing turn (probably a free-rotate
+  drag rather than a clean Y-axis one) — measurably offset both the
+  collision shape and the visible model from where they should sit, and was
+  very likely why right-click (added Session 35, needs a precise hit on the
+  collision shape) was hard to land. Fixed by extracting just the yaw via
+  Basis.get_euler() and rebuilding a clean Y-only rotation at the same
+  position — collision shape now sits exactly upright at (45.075, 1.0, -15.055).
+
+--- Targeting / hail (added 2026-09-14, Session 36) ---
+  Originally shop-only — right-click was the sole interaction, Tab/left-click
+  targeting and H/"/hail" both silently ignored VendorNPC entirely (not a
+  regression from the Session 35 right-click rework, just never built).
+  Added to tab_cycle_target()/_try_click_target() (group "npc_vendor"/type
+  VendorNPC, alongside monsters and guards) and try_hail_nearby_npc() (scans
+  "npc_guard" + "npc_vendor" together, dispatches via
+  has_method("respond_to_hail") — see below). TargetFrame.faction_status()
+  also didn't know about vendors and fell through to its default "Enemy" —
+  fixed by adding the same is_in_group() check guards get, so he now shows
+  "Ally" (blue) instead of looking hostile once targeted.
+
+--- Greeting (added 2026-09-14, Session 32; hail wiring Session 36) ---
+  VendorNPC.greet_player(player_name: String) — picks a random entry from
+  this vendor's own get_shop_stock() and logs, in the same "$NPC says, ..."
+  style guard_npc.gd uses: "Welcome, <player>. I have a good <item name> you
+  might be interested in." Called from player3d.gd's _open_shop() right
+  after the shop window opens, passing the player's own player_name.
+  Hailing a vendor (H / "/hail") now OPENS THE SHOP too, not just the
+  greeting (changed 2026-09-14, Session 42) — try_hail_nearby_npc() special-
+  cases `nearest is VendorNPC` and calls _open_shop(nearest) directly
+  (which calls greet_player() itself) instead of the generic
+  has_method("respond_to_hail") dispatch guards still use. Previously
+  VendorNPC.respond_to_hail() just called greet_player() on its own, so
+  hailing did nothing beyond the flavor line and you still had to
+  right-click precisely on the vendor's 3D model to actually shop.
 
 --- Currency (Global.gd) ---
   Stored as 4 independent player_data counters: copper/silver/gold/platinum.
@@ -1303,12 +1640,30 @@ HUMANOID_MOB_TYPES uses), with a Label3D name tag like guard_npc.gd.
   re-minting the result back into denominations greedily from platinum down.
 
 --- Interaction ---
-  player3d.gd's right-click handler is now _try_open_shop_or_loot():
-  checks for a "npc_vendor" within SHOP_RANGE (5m, range-based like
-  try_hail_nearby_npc() — deliberately NOT a raycast under the cursor, since
-  that would behave differently between mouselook's captured/fixed cursor
-  and free-look's visible/moving one) and opens shop_window.tscn against it
-  if found, otherwise falls through to the unchanged _try_loot_corpse().
+  player3d.gd's right-click handler is _try_open_shop_or_loot(). Reworked
+  2026-09-14 (Session 35) from range-based (nearest "npc_vendor" within 5m,
+  unconditionally — meant a vendor standing near a fresh corpse always stole
+  the right-click, making that corpse unlootable) to raycast-based:
+  _raycast_vendor(screen_pos) casts from the camera through the cursor
+  position (same project_ray_origin()/project_ray_normal() pattern
+  _try_click_target() already uses for left-click monster/guard targeting)
+  and only returns a hit if it's precisely on that VendorNPC's own collision
+  shape. Anything else the raycast doesn't hit — including a corpse
+  standing right next to the vendor — falls through to the unchanged
+  _try_loot_corpse().
+  Gated on `not Global.mouselook_enabled`, NOT `Input.mouse_mode ==
+  MOUSE_MODE_VISIBLE` — bug fixed 2026-09-14 (Session 37): the initial
+  Session 35 version used the mouse_mode check, but camera_controller.gd's
+  _input() handles this same right-click press FIRST (every node's _input()
+  runs before _unhandled_input(), where this lives) for its own unrelated
+  "hold right-click to head-turn" feature, and unconditionally sets
+  Input.mouse_mode to CAPTURED the instant right-click is pressed — so by
+  the time this ran, the mouse_mode check was ALWAYS false and the raycast
+  NEVER fired, on every single right-click. Global.mouselook_enabled (the
+  actual F12 toggle) is what actually reflects normal cursor-visible play;
+  head-turn's transient capture doesn't touch it (camera_controller.gd's own
+  head-turn code only captures "if not Global.mouselook_enabled" to begin
+  with).
 
 --- shop_window.gd (draggable CanvasLayer, same WindowPosition/title-bar
     pattern as corpse_loot_window.gd/backpack_ui.gd) ---
@@ -1423,15 +1778,44 @@ backpack_ui.gd (Scenes/backpack_ui.tscn)
   - Connects Inventory.inventory_changed → refresh_backpack().
   - Draggable panel.
 
-character_sheet.gd (Scenes/character_sheet.tscn)
+character_sheet.gd (Scenes/character_sheet.tscn) — rebuilt 2026-09-14 (Session
+31) into three tabs behind a persistent identity+vitals strip, replacing the
+old single scrolling column of ~25 raw Labels ("cluttered and clunky" —
+mocked up as an HTML artifact and approved before building).
   - Toggle with C key; player3d calls set_player(self) after opening.
-  - Title bar "Character Sheet" with ✕ close button.
-  - Live-updating via _process(): HP, Mana, Stamina, XP, and Level update in
-    real time while the sheet is open. Equipment/inventory/currency already live
-    via signals.
-  - Purple XP progress bar displayed immediately below the XP label.
+  - Title bar "Character Sheet" with ✕ close button. Draggable/resizable,
+    unchanged from before (WindowPosition, RESIZE_MARGIN corner drag).
+  - identity_strip (persistent across all 3 tabs): name/level, race+class
+    subtitle, and 5 vital bars — HP/MP/STA (as before) plus Food/Water, new
+    in this pass, read the same way player_frame.gd does
+    (player.satiety/player.thirst). Live-updating via _process(), same as
+    before.
+  - tab_rail (left, 3 self-drawn toggle buttons — same off/on StyleBoxFlat
+    pattern as corpse_loot_window.gd's Loot/Ignore/Sell) switches which of
+    3 ScrollContainers is visible: _select_tab("stats"/"equipment"/"inventory").
+  - Stats tab: Attributes (4-col grid of bordered tiles), Combat (AC/Attack/
+    Crit/Spell Power/Weight as kv rows), Resistances (color-dot badges),
+    Experience (existing purple XP bar + numbers), Currency (4 coin dots).
+    All built via _stat_labels: Dictionary (key -> Label) instead of the old
+    one-@onready-per-label approach, so set_character_data()/_process() just
+    index into it.
+  - Equipment tab: same paperdoll layout/slot_button.gd instances as before
+    (_init_equipment_slots(), 25 EQUIPMENT_SLOTS), just relocated to its own
+    tab instead of one section in the long scroll.
+  - Inventory tab: the 12 basic_inventory root slots ARE the primary
+    inventory display (not a pointer to the separate Backpack window) — any
+    equipped bag gets its own nested section directly below with its own
+    full-capacity slot grid, rebuilt on every Inventory.inventory_changed via
+    _rebuild_bag_sections(). Every slot in a bag's section (filled or empty)
+    carries the correct bag_slot index so dropping an item from the root
+    grid into a bag works via the existing slot_button.gd/
+    move_item_between_slots() drag-and-drop, unchanged. The separate
+    Backpack window (B key, backpack_ui.gd) still exists and reads the same
+    underlying Inventory data — this doesn't replace it.
   - Sheet data includes live CombatNode values plus Global.player_data
-    (xp, currency, equipment, creation date, playtime).
+    (xp, currency, equipment, creation date, playtime) — same shape as
+    before, player3d.gd's toggle_character_sheet() build of sheet_data is
+    unchanged.
 
 abilities_book.gd (Scenes/abilities_book.tscn)
   - Toggle with I key; player3d.toggle_abilities_book() passes self as player.
@@ -1450,7 +1834,8 @@ corpse_loot_window.gd (Scenes/corpse_loot_window.tscn)
   - "Take" or right-click: _take(drop) → _apply_drop() → removes from array.
   - "Loot All": iterates all drops.
   - Currency drops: Global.grant_currency(type, qty).
-  - Item drops: Inventory.add_to_basic_inventory(item_id).
+  - Item drops: Inventory.add_item(item_id, quantity) as of 2026-09-14
+    (Session 30) — see the Looting section above for why (silent-vanish fix).
   - When array is empty: emits all_looted → monster._on_fully_looted() → 5s despawn.
   - Non-currency items support drag-drop to inventory slots.
   - Sets MOUSE_MODE_VISIBLE on open; restores MOUSE_MODE_VISIBLE on close.
@@ -1517,6 +1902,8 @@ Contents:
   resistances: {acid, cold, fire, magic, psychic}
   character_creation: {real_time, game_time}
   playtime_seconds
+  bind_point: [x, y, z]   ← death-respawn location, set once on first spawn
+  last_position: [x, y, z] ← added 2026-09-14 Session 42, see below
 
 Auto-saved when:
   - Any equipment slot changes (Inventory.equipment_changed signal)
@@ -1524,6 +1911,16 @@ Auto-saved when:
   - A spell is learned from a scroll
   - Save Game is pressed in pause menu
   - Save & Exit is pressed in pause menu
+
+Player position (added 2026-09-14, Session 42): Global.save_player_data_to_file()
+  captures the live player's global_position into player_data["last_position"]
+  itself, right before every write — centralized here rather than patched into
+  each of the several call sites above, so a future new save call site can't
+  forget it. player3d._restore_last_position() (runs in _ready(), after
+  load_player_data_from_global(), before _ensure_bind_point()) applies it back
+  on load; no-op for a brand new character, which just keeps the zone's default
+  Player3D spawn transform. Distinct from bind_point (death respawn) — logging
+  out and dying return you to different places, same as EQ.
 
 Load path:
   main_menu → load_game → Global.set_player_data() → scene change
@@ -1545,7 +1942,19 @@ monsters.json           — all monster stats: health, speed, damage, armor_clas
                           "lumora_guard" (guard_npc.gd's combat stats, added
                           2026-08-25) and optional appraisal-only fields
                           (resistances, weaknesses, special_ability, is_boss,
-                          secret_note, corruption — see Mob Appraisal System)
+                          secret_note, corruption — see Mob Appraisal System).
+                          Reconciled against the user's Zone_Spawn_Sheet.xlsx
+                          2026-09-14 Session 42: added spiderling,
+                          goblin_scout, goblin_warrior, ghost (all
+                          lumora_outskirts); rezoned dustwalker,
+                          dustwalker_scout/ravager/warlord, wild_dog,
+                          khepri_beetle, sand_stinger, sandshifter,
+                          bonegnawer, sunmaddened_wanderer, mirage_phantom
+                          away from lumora_outskirts to dustwind_plateaus/
+                          ashfall_dunes (the sheet's other two tabs — those
+                          zones aren't built yet, this is prep only; the
+                          zone field is metadata only, not consumed by spawn
+                          placement — see lumora_outskirts_spawns.json).
 items.json              — all item definitions: name, type, slot, damage,
                           armor_class, stackable, bag_size, icon, etc.
                           Scroll items have type="scroll" and teaches_spell field.
@@ -1564,9 +1973,22 @@ xp_table.json           — XP thresholds per level (max_level key)
 solgrave_expanse_loot.json — loot tables: category_loot_tables (by category
                           string) and zone_loot_tables (by mob name)
 player_faction.json     — starting faction standing values
-lumora_outskirts_spawns.json — 3D spawn point definitions used by mob_spawner3d.gd
-                          (10 entries: rat×2, snake×2, slime×2, spider×2,
-                          skeleton, bandit; real [x,y,z] coords with Y=2)
+lumora_outskirts_spawns.json — 3D spawn point definitions used by mob_spawner3d.gd.
+                          Reconciled against the user's Zone_Spawn_Sheet.xlsx
+                          2026-09-14 Session 42 — all 13 monsters on that
+                          sheet's LumoraOutskirts tab are now live (rat,
+                          snake, slime, spider, spiderling, bat, skeleton,
+                          ghost, dune_scarab, bandit, goblin, goblin_scout,
+                          goblin_warrior), plus mummy (not on the sheet,
+                          left as-is, flagged to user); real [x,y,z] coords
+                          with Y=2. The sheet's other two tabs (DustwindPlateaus,
+                          AshfallDunes) are the next two zones, not yet built —
+                          several monsters.json entries were rezoned to match
+                          (see monsters.json entry below) but nothing for
+                          those zones spawns yet.
+food_drink_flavor.json  — random eat/drink flavor lines (added 2026-09-14,
+                          Session 42), %s for item name, loaded via
+                          NPCFlavorText same as player_death_flavor.json
 *_spawns.json           — 2D spawn definitions (legacy, not used in 3D zone)
 dialogue_*.json         — NPC dialogue trees per town/zone (not currently
                           loaded by any live script — see dead-2D-code note
@@ -1628,10 +2050,36 @@ Spell learned from scroll:
     → Global.save_player_data_to_file()
     → abilities_book refreshed if open
 
-Hailing a guard NPC (H key or "/hail", added 2026-08-25):
-  player3d.try_hail_nearby_npc() finds nearest "npc_guard" group member within 5m
-    → guard_npc.respond_to_hail()
-    → GameLog.log_general() with a random Data/guard_flavor_text.json line
+Hailing a guard or vendor NPC (H key or "/hail", added 2026-08-25, extended
+to vendors 2026-09-14 Session 36; vendor hail now opens the shop Session 42):
+  player3d.try_hail_nearby_npc() finds nearest "npc_guard"/"npc_vendor"
+  group member within 5m
+    → if it's a VendorNPC: calls _open_shop(nearest) directly (opens the
+      shop window AND greets, changed Session 42 — see VENDOR / SHOP's
+      Greeting section)
+    → otherwise dispatched via has_method("respond_to_hail") so the caller
+      doesn't need to know the NPC's concrete type
+        → guard_npc.respond_to_hail() → GameLog.log_general() with a
+          random Data/guard_flavor_text.json line
+
+Following an NPC or player, "/follow [name]" (added 2026-09-14, Session 42):
+  game_log_window._handle_slash_command() → player3d.try_follow(query)
+    → empty query: follows current_target (Tab/left-click); else searches
+      groups "npc_guard"/"npc_vendor"/"monsters"/"player" by
+      case-insensitive substring match on TargetFrame.display_name(),
+      nearest wins
+    → start_following(target) logs "You begin following X."; calling
+      /follow again on the same target calls stop_following() instead
+      (toggle off)
+  Every physics frame thereafter, handle_movement() checks _follow_target
+  first: any manual movement input (forward/back/strafe/turn/jump) calls
+  stop_following() and falls through to normal player-controlled movement
+  for that frame; otherwise _handle_follow_movement() steers toward the
+  target using NavigationServer3D.query_path() directly — the same
+  self-managed approach guard_npc.gd's patrol system uses (Session 39/41)
+  instead of NavigationAgent3D, repathing every 0.75s
+  (FOLLOW_REPATH_INTERVAL) and stopping 3m short (FOLLOW_STOP_DISTANCE).
+  Also stops itself if the target goes invalid (is_instance_valid() check).
 
 Summoning/commanding the spectral minion pet (added 2026-08-25):
   player3d.cast_spell("spectral_minion") → _summon_spectral_minion()

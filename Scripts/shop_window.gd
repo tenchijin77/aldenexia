@@ -117,13 +117,12 @@ func _buy(entry: Dictionary) -> void:
 	if not Global.can_afford(price):
 		GameLog.log_general("You can't afford that.")
 		return
-	if not Inventory.add_to_basic_inventory(item_id):
+	if not Inventory.add_item(item_id):
 		GameLog.log_general("Your inventory is full.")
 		return
 	Global.spend_currency_copper(price)
 	GameLog.log_general("You purchase %s for %d copper." % [item_def.get("name", item_id), price])
-	_rebuild_buy_list()
-	_rebuild_sell_list()  # add_to_basic_inventory() doesn't emit inventory_changed itself
+	_rebuild_buy_list()  # add_item() emits inventory_changed itself, which refreshes the sell list
 
 
 # ===== SELL LIST =====
@@ -214,6 +213,7 @@ func _sell(row_data: Dictionary) -> void:
 
 	Inventory.consume_one(row_data["slot_type"], row_data["slot_index"], row_data["bag_slot"], row_data["item_index"])
 	Global.add_currency_copper(price)
+	Global.play_coin_sound()
 	GameLog.log_general("You sell %s for %d copper." % [item.get("name", "an item"), price])
 	# consume_one() emits inventory_changed, which _rebuild_sell_list is
 	# connected to — only the buy list (afford-state) needs a manual refresh.

@@ -90,7 +90,14 @@ func _apply_lighting() -> void:
 
 	if _sky_material:
 		_sky_material.sky_top_color = night_sky_top_color.lerp(day_sky_top_color, daylight)
-		_sky_material.sky_horizon_color = night_sky_horizon_color.lerp(day_sky_horizon_color, daylight)
+		var horizon_color: Color = night_sky_horizon_color.lerp(day_sky_horizon_color, daylight)
+		_sky_material.sky_horizon_color = horizon_color
+		# ground_horizon_color was never touched, so it sat at its bright
+		# default gray around the clock — invisible by day, but at night it
+		# stayed lit while sky_horizon_color above it went dark, producing a
+		# glowing seam right at the horizon. Mirroring it to the same color
+		# keeps the sky/ground halves of the dome seamless at every hour.
+		_sky_material.ground_horizon_color = horizon_color
 	if _environment:
 		_environment.ambient_light_energy = lerp(night_ambient_energy, day_ambient_energy, daylight)
 

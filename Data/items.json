@@ -1808,7 +1808,7 @@
     "description": "A sturdy pack with room for a great deal more than a small bag.",
     "stackable": false,
     "currency_type": "copper",
-    "value": 40,
+    "value": 150,
     "type": "bag",
     "bag_size": 8,
     "armor_class": 0,

@@ -221,10 +221,13 @@ func _drop_data(at_position: Vector2, data: Variant) -> void:
 		var item_id: String = data.get("item_id", "")
 		if item_id.is_empty():
 			return
-		if Inventory.add_to_basic_inventory(item_id):
+		var qty: int = data.get("loot_drop", {}).get("quantity", 1)
+		if Inventory.add_item(item_id, qty):
 			var window = data.get("loot_window")
 			if is_instance_valid(window):
 				window.consume_loot(data.get("loot_drop"))
+		else:
+			GameLog.log_general("[color=#ff8866]Your inventory is full.[/color]")
 	elif slot_type == "equipment":
 		Inventory.equip_item(
 			data.get("item_data", {}),

@@ -1,0 +1,22 @@
+{
+  "_comment": "player_death_flavor.json - random flavor line shown right after the 'You have been defeated by X!' message when the player dies. Edit or add to this list freely - player3d.gd picks one at random via NPCFlavorText.get_line('death') at the moment of true death (after the bleed-out window completes).",
+  "death": [
+    "Darkness folds in around you.",
+    "Your strength drains away.",
+    "The world grows distant and cold.",
+    "Consciousness slips through your fingers.",
+    "Your legs give out beneath you.",
+    "Everything fades to silence.",
+    "A heavy stillness settles over you.",
+    "The light dims, and then is gone.",
+    "Your thoughts scatter into the void.",
+    "A cold hush settles over your mind.",
+    "Your heartbeat falters and fades.",
+    "Growing shadows swallow the last of your awareness.",
+    "Your senses unravel one by one.",
+    "The ground drifts away beneath you.",
+    "A distant echo is the last thing you hear.",
+    "Your vision dissolves into nothingness.",
+    "Stillness claims what remains of you."
+  ]
+}

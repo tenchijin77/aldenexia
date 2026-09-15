@@ -1,0 +1,25 @@
+{
+  "_comment": "humanoid_death_lines.json - random lines a humanoid monster (bandit, goblin, skeleton, etc) says when it dies. Edit or add to this list freely - monster3d.gd picks one at random via NPCFlavorText.get_line('death') whenever a monster in the 'humanoid' category dies.",
+  "death": [
+    "This isn't... over...",
+    "No... not like this...",
+    "You'll pay for this...",
+    "Tell them... I tried...",
+    "Curse you, outlander...",
+    "I yield... too late...",
+    "The others... will find you...",
+    "Argh... my watch... is over...",
+    "It's... cold...",
+    "I should've... run...",
+    "I won’t... be forgotten...",
+    "They’ll avenge... this...",
+    "My blood... seals your fate...",
+    "You’ve only... doomed yourself...",
+    "This land... will swallow you...",
+    "I fall... but the legion rises...",
+    "You’ll never reach... the end...",
+    "My kin... will finish you...",
+    "The shadows... take me back...",
+    "Enjoy this... victory..."
+  ]
+}

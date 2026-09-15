@@ -132,13 +132,13 @@ func can_place_bag_in_bag(bag_item: Dictionary, target_bag_slot: int) -> bool:
 #endregion
 
 #region Basic Inventory Management
-func add_to_basic_inventory(item_id: String, slot_index: int = -1) -> bool:
+func add_to_basic_inventory(item_id: String, slot_index: int = -1, quantity: int = 1) -> bool:
 	# Adds item to basic inventory (character sheet slots)
 	if not item_data.has(item_id):
 		push_error("❌ Item not found: %s" % item_id)
 		return false
 
-	var item = create_item_instance(item_id)
+	var item = create_item_instance(item_id, quantity)
 
 	if slot_index >= 0 and slot_index < BASIC_INVENTORY_SIZE:
 		if basic_inventory[slot_index] == null:
@@ -181,10 +181,54 @@ func get_basic_inventory_slot(slot_index: int) -> Dictionary:
 		return {}
 	var item = basic_inventory[slot_index]
 	return item if item != null else {}
+
+
+# Smart "give the player an item" entrypoint — every loot/purchase call site
+# should go through this instead of add_to_basic_inventory() directly. Prefers
+# merging onto an existing stack in any bag (correctly applying `quantity` —
+# every prior call site called add_to_basic_inventory()/add_to_bag() with no
+# quantity arg at all, so a "3x spider silk" drop only ever added 1), then
+# any bag with room (keeps the scarce 12 basic_inventory slots free for
+# equipment/bags rather than 1-per-item loot), and only falls back to a bare
+# basic_inventory slot if every bag is full. Returns false only when there's
+# truly no room anywhere — callers MUST check this before claiming success
+# (add_to_basic_inventory's return value being ignored at several call sites
+# was why "You receive X" could log while the item silently failed to fit).
+func add_item(item_id: String, quantity: int = 1) -> bool:
+	if not item_data.has(item_id):
+		push_error("❌ Item not found: %s" % item_id)
+		return false
+
+	var def: Dictionary = item_data[item_id]
+
+	if def.get("stackable", false):
+		for bag_slot in range(BASIC_INVENTORY_SIZE):
+			for existing in bag_contents.get(str(bag_slot), []):
+				if existing.get("item_id") == item_id:
+					existing.quantity += quantity
+					sync_to_global()
+					inventory_changed.emit()
+					return true
+
+	for bag_slot in range(BASIC_INVENTORY_SIZE):
+		var bag = basic_inventory[bag_slot]
+		if bag == null or not is_bag(bag):
+			continue
+		if bag_contents.get(str(bag_slot), []).size() >= get_bag_size(bag):
+			continue
+		if add_to_bag(bag_slot, item_id, quantity):
+			inventory_changed.emit()
+			return true
+
+	if add_to_basic_inventory(item_id, -1, quantity):
+		inventory_changed.emit()
+		return true
+
+	return false
 #endregion
 
 #region Bag Content Management
-func add_to_bag(bag_slot_index: int, item_id: String) -> bool:
+func add_to_bag(bag_slot_index: int, item_id: String, quantity: int = 1) -> bool:
 	# Adds item to a bag in basic inventory
 	var bag = get_basic_inventory_slot(bag_slot_index)
 	if not is_bag(bag):
@@ -202,7 +246,7 @@ func add_to_bag(bag_slot_index: int, item_id: String) -> bool:
 		print("❌ Bag is full (%d/%d)" % [bag_items.size(), bag_capacity])
 		return false
 
-	var item = create_item_instance(item_id)
+	var item = create_item_instance(item_id, quantity)
 
 	if is_bag(item) and not can_place_bag_in_bag(item, bag_slot_index):
 		print("❌ Cannot place bag inside another unless it's empty!")
@@ -211,7 +255,7 @@ func add_to_bag(bag_slot_index: int, item_id: String) -> bool:
 	if item.get("stackable", false):
 		for existing in bag_items:
 			if existing.item_id == item_id:
-				existing.quantity += item.get("quantity", 1)
+				existing.quantity += quantity
 				print("✅ Stacked %s (now %d)" % [item.name, existing.quantity])
 				sync_to_global()
 				return true
@@ -273,6 +317,28 @@ func get_bag_contents(bag_slot_index: int) -> Array:
 	# Returns array of items in a bag
 	var bag_key = str(bag_slot_index)
 	return bag_contents.get(bag_key, [])
+
+
+# Finds the first item anywhere in the player's inventory (basic slots, then
+# bags) whose item definition restores the given vital ("satiety"/"thirst") —
+# used by player3d.gd's auto-eat/auto-drink so it doesn't need to know about
+# basic_inventory vs. bag_contents storage. Returns the same
+# (slot_type, slot_index, bag_slot, item_index) addressing consume_one()
+# expects, or an empty dict if nothing matches.
+func find_first_by_restores(restores: String) -> Dictionary:
+	for i in range(BASIC_INVENTORY_SIZE):
+		var item = basic_inventory[i]
+		if item != null and item.get("restores", "") == restores:
+			return {"item": item, "slot_type": "basic", "slot_index": i, "bag_slot": -1, "item_index": -1}
+
+	for bag_key in bag_contents.keys():
+		var bag_items = bag_contents[bag_key]
+		for j in range(bag_items.size()):
+			var item = bag_items[j]
+			if item.get("restores", "") == restores:
+				return {"item": item, "slot_type": "bag", "slot_index": -1, "bag_slot": int(bag_key), "item_index": j}
+
+	return {}
 #endregion
 
 #region Search & Filter

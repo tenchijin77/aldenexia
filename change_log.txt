@@ -3,10 +3,27 @@
 *Living section — update this whenever a command or keybind is added, removed, or rebound.*
 
 ### Chat Commands (type in the chat box at the bottom of the log window, or the NPC dialogue box)
-- `/loc` — prints your current X/Y/Z position to the General log tab.
+Commands work Linux-shell-style: type any unambiguous prefix and it resolves to the
+full command (added 2026-09-14, Session 42) — e.g. `/fol` or `/foll` both run `/follow`,
+`/loc` runs `/location`, since no other command starts with those letters. If a typed
+prefix matches more than one command it prints "Ambiguous command" and lists the
+candidates instead of guessing; a typo that matches nothing prints "Unknown command".
+- `/location` (or any unique prefix, e.g. `/loc`) — prints your current X/Y/Z position
+  to the General log tab. Renamed from the old bare `/loc` command name (2026-09-14) —
+  `/loc` still works, it's now just an abbreviation rather than the literal command.
 - `/time` — prints the in-game date/day-night phase and real-world time.
 - `/hail` — hails the nearest guard NPC in range (same as pressing H).
 - `/appraise` — Insight Check on your current target (same as pressing I).
+- `/follow [name]` (added 2026-09-14, Session 42) — follow an NPC or player around the
+  zone, e.g. `/follow Sergeant Bryn` to tag along on his patrol. With no name, follows
+  your current target (Tab/left-click) instead. Typing `/follow` again on whoever you're
+  already following stops following them (toggle). Stops automatically if you press any
+  movement key (W/S/A/D/Q/E/turn/jump — taking the wheel manually always overrides it),
+  or if the target becomes invalid (despawns, etc). Steers using the same self-managed
+  `NavigationServer3D.query_path()` approach guard_npc.gd's patrol system uses (Session
+  39/41) rather than `NavigationAgent3D`, for the same long-distance-reliability reasons.
+  Stops 3m short of the target rather than walking into them. See `player3d.gd`:
+  `try_follow()`, `start_following()`, `stop_following()`, `_handle_follow_movement()`.
 
 ### Movement
 - `W` / `Up` — move forward
@@ -27,7 +44,12 @@
   Changed 2026-09-13 — was clamped to 180°/90° like a "head turn"; see below.
 - Hold Right Mouse Button — "head turn" look, independent of mouselook: capped to a
   realistic 180° left/right, 90° up/down range, doesn't move past that cap, stays where
-  you left it on release. Added 2026-09-13. Captures the cursor only while held.
+  you left it on release. Added 2026-09-13. Hides the cursor only while held (changed
+  2026-09-14, Session 42, from `MOUSE_MODE_CAPTURED` to `MOUSE_MODE_HIDDEN` — `CAPTURED`
+  locks the OS cursor to the window center every frame, so releasing it — including on a
+  quick right-click to loot/shop that never even dragged — made the cursor visibly jump
+  to screen center. Head-turn's ±90°/±45° cap never needed `CAPTURED`'s unlimited
+  relative motion, so `HIDDEN` fixes it with no functional loss).
 - Mouse wheel — zoom in/out
 - `Home` — cycle camera mode (behind / angled / first-person)
 - Both look modes respect the "Invert Look Y" option (Escape → Options), added 2026-09-14.
@@ -47,7 +69,10 @@
 - `C` — toggle character sheet
 - `B` — toggle backpack
 - `K` — toggle abilities book
-- `H` — hail nearby guard NPC (random flavor line in the General log)
+- `H` — hail nearby guard or vendor NPC. Hailing a guard gives a random flavor line;
+  hailing a vendor (e.g. Aldric the Provisioner) now opens their shop window directly
+  (changed 2026-09-14, Session 42 — used to just print a greeting line, so you still had
+  to right-click precisely on the vendor's model to actually shop).
 - `I` — Insight Check (appraise) your current target
 - `Escape` — pause menu (also cancels chat typing without sending, if the chat box has focus)
 - `Enter` — opens the chat box for typing when nothing else has focus (added 2026-09-13);
@@ -70,6 +95,888 @@
   automatically without opening the window. Currency always auto-collects, no toggle needed,
   and now logs "You receive X Copper." same as any other pickup (was silent).
 - The window auto-resizes to fit its contents (added 2026-09-14).
+
+### Food & Water
+- Auto-eat/auto-drink (added 2026-09-14, Session 42) — the moment satiety or thirst
+  drops below 25, the player automatically eats/drinks the first matching item found
+  in their inventory (basic slots checked first, then bags) — no more manually opening
+  the backpack to eat. Falls back to the old "Your stomach growls"/"Your throat is dry"
+  warnings if nothing suitable is carried. Manual Eat/Drink from the inventory
+  right-click menu still works exactly as before.
+- Both manual and automatic eating/drinking now print a random flavor line from
+  `Data/food_drink_flavor.json` (e.g. "You consume Iron Rations. Yumm! That was
+  tasty!", "You quench your thirst with A Flask of Water. Ahhh! That hit the spot.")
+  instead of the old plain "(Hunger: X/100)" message.
+
+### Saving
+- Your position is now saved every time the game saves (Save, or Save & Exit from the
+  pause menu) and restored on next login, so you log back in exactly where you logged
+  out (added 2026-09-14, Session 42) — previously you always woke up at the zone's fixed
+  spawn point regardless of where you'd actually been. Separate from your bind point
+  (death-respawn location), which is unaffected.
+
+---
+
+## 2026-09-14 — Session 42: Lumora monster roster, /follow, food auto-consume, position save, minor fixes
+
+### Monster roster reconciled against `Zone_Spawn_Sheet.xlsx` (`Data/monsters.json`, `Data/lumora_outskirts_spawns.json`)
+
+User supplied a spreadsheet (3 tabs: LumoraOutskirts, DustwindPlateaus,
+AshfallDunes — the latter two are the *next two zones*, not yet built, so
+their content is reference-only for now) listing the intended monster
+roster per zone. Read it via raw zip/XML parsing (`zipfile` + `xml.etree`
+against `xl/sharedStrings.xml` and `xl/worksheets/sheetN.xml`) since neither
+`openpyxl` nor pandas's Excel engine is installed in this environment.
+
+- Added 4 new monster types to match the sheet: `spiderling` ("a spiderling
+  swarmer", Ensnaring Web), `goblin_scout` ("a desert goblin scout", fast/
+  light), `goblin_warrior` ("a desert goblin warrior", tougher pack leader),
+  `ghost` ("a tormented spirit", undead).
+- `ghost` replaces `mirage_phantom` as the graveyard's rare elite spawn in
+  `lumora_outskirts_spawns.json` — the sheet's AshfallDunes tab confirmed
+  `mirage_phantom` is actually a level 10-12 Ashfall mob (way too strong for
+  a level 1-4 starter zone); the sheet's "Tormented Spirit" is clearly the
+  intended replacement for that graveyard-elite role.
+- Rezoned (via `monsters.json`'s `zone` field only — cosmetic, this field
+  isn't otherwise consumed for spawn placement, confirmed via grep) several
+  mobs whose "Old Name" in the sheet's DustwindPlateaus/AshfallDunes tabs
+  matched a current key here, meaning they belong to those later zones, not
+  Lumora: `dustwalker`, `dustwalker_scout`, `dustwalker_ravager`,
+  `dustwalker_warlord`, `wild_dog`, `khepri_beetle`, `sand_stinger`,
+  `sandshifter`, `bonegnawer`, `sunmaddened_wanderer` → `dustwind_plateaus`
+  or `ashfall_dunes` as appropriate. None of these were actually referenced
+  in the live spawn table, so this was pure data hygiene, zero gameplay risk.
+- Fixed a leftover typo the user hadn't caught yet: `skeleton`'s description
+  was still "a fallen scount skeleton" — fixed to "a fallen scout skeleton"
+  to match the sheet's "A Fallen Scout Skeleton". Every other Lumora-zoned
+  monster's description already matched the sheet (the user had updated them
+  correctly).
+- Added `special_ability` text (shown in the appraisal system,
+  `player3d.gd`'s `try_appraise_target()`) where the sheet specified one:
+  Poison Bite (spider, snake), Life Tap (bat), Acid Attack (slime),
+  Ensnaring Web (spiderling). Also recategorized `slime` from `"animal"` to
+  `"elemental"` and gave it `weaknesses: ["cold", "fire"]`, matching the
+  sheet's explicit Type column and flavor text.
+- **All 13 LumoraOutskirts-tab monsters are now live** in
+  `lumora_outskirts_spawns.json`: added `spiderling` to the spider den,
+  `goblin_scout`/`goblin_warrior` to the goblin camps (alongside base
+  `goblin`, at lower/higher spawn chance respectively — scout common,
+  warrior rare pack leader).
+- Left `thornback_lizard` and `mummy` zoned `lumora_outskirts` unchanged —
+  neither appears anywhere across all 3 of the sheet's tabs, flagged to the
+  user rather than guessed at. `mummy` is still live in the mausoleum spawn.
+- `lumora_guard` and `lumora_outrider` (Lumora-faction NPCs, not hostile
+  wildlife) were left alone — out of scope for a hostile-mob spawn sheet.
+
+### `/follow` command (`player3d.gd`, `game_log_window.gd`)
+
+`/follow [name]` — follow an NPC or another player around the zone (e.g.
+`/follow Sergeant Bryn` to tag along on his patrol route). See the Chat
+Commands reference at the top of this file for full behavior. Implementation:
+
+- `try_follow(query)` resolves a target: empty query uses `current_target`
+  (Tab/left-click selection); otherwise searches groups `npc_guard`,
+  `npc_vendor`, `monsters`, and `player` by case-insensitive substring match
+  on display name (`TargetFrame.display_name()`, with a `player_name`
+  check first for future multiplayer), nearest match wins. Calling it again
+  on whoever you're already following toggles follow off.
+- `_handle_follow_movement()` steers toward the target using
+  `NavigationServer3D.query_path()` directly — the same self-managed
+  approach `guard_npc.gd`'s patrol system uses (Session 39/41), not
+  `NavigationAgent3D`, for the same reason: `NavigationAgent3D`'s cached
+  path was found to go stale over long distances / after the target moves
+  out from under it. Repaths every 0.75s (`FOLLOW_REPATH_INTERVAL`) rather
+  than every frame, drops waypoints as it passes within 1.5m of them
+  (`FOLLOW_WAYPOINT_EPSILON`), stops 3m short of the target
+  (`FOLLOW_STOP_DISTANCE`) instead of walking into them, and turns via
+  `look_at()` toward the next waypoint (Y-flattened so it doesn't pitch).
+- Wired into `handle_movement()`: any manual movement input (forward,
+  backward, strafe, turn, jump) cancels follow immediately and hands
+  control back, same as pressing backward already cancels Autorun.
+- Also invalidates cleanly if the target despawns mid-follow
+  (`is_instance_valid()` check each frame).
+
+### Chat commands are now Linux-style prefix-matched (`game_log_window.gd`)
+
+`_resolve_command()` added: given a typed command, matches it against a
+`COMMANDS` list of canonical names — exact match wins immediately, else any
+*unambiguous* prefix resolves (e.g. `/fol` → `/follow`), else it prints
+"Ambiguous command" with the candidate list, or "Unknown command" if nothing
+matches. Renamed the old literal `/loc` command to `/location` as the
+canonical name (`/loc` still works, it's just an abbreviation now rather
+than the literal command) — the clearest example of the new behavior, and
+what prompted doing this generically for every command instead of one-off.
+
+### Food/water auto-consume + flavor text (`player3d.gd`, `Scripts/inventory_autoload.gd`, `Data/food_drink_flavor.json`)
+
+- `Inventory.find_first_by_restores(restores)` — new helper, searches basic
+  inventory slots then bags for the first item whose def has a matching
+  `restores` ("satiety"/"thirst"), returning the same
+  `(slot_type, slot_index, bag_slot, item_index)` addressing
+  `Inventory.consume_one()` already expects.
+- `player3d.gd`'s `update_vitals_decay()`: the moment satiety/thirst ticks
+  below 25 (the existing "low" warning threshold), `_try_auto_consume()`
+  now fires first — eats/drinks a matching item if one's carried, which
+  naturally suppresses the low/empty warning messages that follow in the
+  same tick since the vital is back up. No item carried → same warnings as
+  before, unchanged.
+- New `Data/food_drink_flavor.json` (`eat`/`drink` line pools, `%s` for the
+  item name), loaded via the existing `NPCFlavorText` helper class (same
+  reusable picker `player_death_flavor.json`/`guard_flavor_text.json` use).
+  `consume_food_or_drink()` (used by both manual Eat/Drink and the new
+  auto-consume path) now prints a random line from it, e.g. "You consume
+  Iron Rations. Yumm! That was tasty!" / "You quench your thirst with A
+  Flask of Water. Ahhh! That hit the spot." — replaces the old plain
+  "You eat X. (Hunger: N/100)" message.
+
+### Player position saved/restored across sessions (`Global.gd`, `player3d.gd`)
+
+- `Global.save_player_data_to_file()` now captures the live player's
+  `global_position` into `player_data["last_position"]` right before
+  writing — done centrally here rather than patching every one of the
+  several call sites (pause menu Save/Save & Exit, bind point setup, etc.)
+  individually, so it can never be forgotten at a new call site later.
+- `player3d.gd`'s new `_restore_last_position()` runs in `_ready()` (after
+  `load_player_data_from_global()`, before `_ensure_bind_point()`): sets
+  `global_position` from `player_data["last_position"]` if present. No-op
+  for a brand-new character (nothing saved yet), which just keeps the
+  zone's default spawn transform. Distinct from `bind_point`
+  (death-respawn location, set once on first spawn and otherwise only
+  changed by a future bind spell/NPC) — logging out and dying restore to
+  different places, same as EQ.
+
+### Minor fixes
+
+- **Aldric the Provisioner (and any vendor) now opens his shop when
+  hailed** (`player3d.gd`'s `try_hail_nearby_npc()`) — `respond_to_hail()`
+  used to just print a greeting line for vendors, so hailing did nothing
+  useful; you still had to right-click precisely on the vendor's 3D model
+  to actually shop. Hailing a `VendorNPC` now calls `_open_shop()` directly
+  (which also handles the greeting), same as before for guards.
+- **Right-click cursor no longer snaps to screen center**
+  (`camera_controller.gd`) — every right-click (even a quick click to loot/
+  shop, not just a head-turn drag) was switching `Input.mouse_mode` to
+  `MOUSE_MODE_CAPTURED` for the "hold right-click to head-turn" feature.
+  `CAPTURED` locks the OS cursor to the window center every frame to report
+  unlimited relative motion; releasing it left the literal OS cursor
+  sitting at that center point. Head-turn is capped to ±90°/±45° and never
+  needed unlimited motion, so switched to `MOUSE_MODE_HIDDEN`, which
+  reports real relative motion without warping the cursor position.
+- **Fixed a glowing horizon seam at night** (`day_night_cycle.gd`) —
+  `_apply_lighting()` animated the sky dome's `sky_top_color` and
+  `sky_horizon_color` between day/night values every tick, but never
+  touched `ground_horizon_color` (the lower half of the sky dome), which
+  sat at its bright default around the clock. Invisible by day, but at
+  night the sky above went dark while the ground half of the horizon
+  stayed lit, producing a bright horizontal line right at the horizon in
+  every outdoor zone at night. Fix: mirror `ground_horizon_color` to the
+  same computed `sky_horizon_color` every update — verified via a headless
+  test forcing 2 AM game time, confirming both values match exactly.
+
+---
+
+## 2026-09-14 — Session 41: Guard patrol — local obstacle steering, faster aggro scan
+
+Reported after further testing: Bryn got stuck again, this time at the
+wagon crash site (unrelated geometry to the gate fixed in Session 39 —
+confirms the issue isn't one bad spot, it's that global pathfinding alone
+doesn't reliably route around every piece of debris/prop collision on a
+long cross-map route); and separately, he "walked through a group of
+enemies and only engaged the one he ran into directly."
+
+### Local obstacle steering (`guard_npc.gd`)
+
+- New `_steer_around_obstacles(direction)`, called from `_move_toward()`
+  right before committing to a movement direction: casts a short forward
+  ray (`OBSTACLE_CHECK_DISTANCE`, 1.5m) along the intended heading; if
+  clear, uses it unchanged; if something's directly ahead, tries a series
+  of alternate headings (`OBSTACLE_AVOID_ANGLES_DEG`: ±30°, ±60°, ±90°,
+  widening outward) and walks the first one that's actually clear instead.
+  A real-time local sidestep layered on top of the global path-following
+  system rewritten last session — rather than continuing to hand-fix
+  individual navmesh trouble spots one at a time as they turn up (the gate,
+  now the wagon crash site, potentially more elsewhere on a ~4000-unit
+  route), this handles "something's in the way right now" generically,
+  independent of whether the baked navmesh accounts for that particular
+  piece of geometry. The existing stuck-detector (Session 39) remains the
+  fallback for anything this can't steer around.
+- Verified headlessly: a direction with nothing ahead passes through
+  unchanged; a real `StaticBody3D` wall placed directly in front produces a
+  genuinely different, clear heading instead of driving straight into it.
+
+### Faster aggro scan (`guard_npc.gd`)
+
+- `SCAN_INTERVAL` was `1.0` — at ~3 m/s and a 3m `PATROL_ENGAGE_RANGE`, a
+  patrolling guard could cover nearly its entire engage range in the gap
+  between two consecutive scans, meaning most of a cluster of monsters
+  would simply never be "in range" at the exact instant a check ran. Dropped
+  to `0.2` (caps travel between scans to ~0.6m, reliably catching anything
+  the engage range actually covers). Stationary guards are unaffected
+  beyond reacting slightly sooner.
+- Verified headlessly: a cluster of three monsters placed ahead of a moving
+  guard's path is now correctly noticed and engaged, where before only
+  whichever one he happened to be standing next to at a scan tick would be.
+
+### Combined regression check
+
+Ran the full patrol loop for 2 minutes straight after both changes: steady,
+uninterrupted progress the entire time (~15.5 units every 5s, matching his
+move speed) covering 343 units total with zero stalls — well past where he
+previously got stuck, and no jitter/instability introduced by the new
+per-frame steering raycasts.
+
+---
+
+## 2026-09-14 — Session 40: Ambient wind loop for Lumora Outskirts
+
+Requested while the guard-patrol fix was being tested: a downloaded wind
+sound as background ambiance for the zone.
+
+### `Scenes/lumora_outskirts3d.tscn` — new AmbientWind node
+
+- No zone-level ambient/background audio system existed at all —
+  `global_background_music.gd` only plays in the main menu/character
+  creation screens (`allowed_scenes` explicitly excludes every gameplay
+  zone), and nothing else in the project loops non-positional audio for an
+  entire level (`torch.tscn`/`campfire.tscn` are `AudioStreamPlayer3D`,
+  positional, tied to a specific prop).
+- `Assets/wind woosh loop.ogg` (copied in from the user's Downloads,
+  keeping the original descriptive filename per the project's existing
+  convention). Loop enabled via the import settings (`loop=true` in the
+  generated `.ogg.import`, same mechanism `Torch Loop.ogg`'s own looping
+  crackle already uses) rather than any script-side handling.
+- New `AmbientWind` (`AudioStreamPlayer`, non-positional so it plays evenly
+  regardless of where the player is in the zone) node, `autoplay = true`,
+  `bus = "SFX"` (matches campfire/torch's own classification as
+  environmental audio, so it responds to the same Options-menu SFX volume
+  slider), `volume_db = -10.0` to sit as a background layer rather than
+  compete with combat/UI sound.
+- Verified headlessly: loading the real zone scene, the node is present,
+  its stream has `loop == true`, it's on the `SFX` bus, and it's actually
+  `playing` immediately (autoplay fired correctly).
+
+---
+
+## 2026-09-14 — Session 39: Guard Bryn's patrol stuck at the gate — NavigationAgent3D going stale over long distance
+
+Reported immediately after Session 38, with a screenshot: Bryn walked
+~20m out of the town gate and stopped dead next to a pillar, never resuming.
+
+### Three attempts, in order, before landing on the real fix
+
+1. **First hypothesis (wrong): another instance of the vertical navmesh/
+   floor-height bug.** Confirmed via a headless test that
+   `nav_agent.get_next_path_position()` was returning a point ~0.72m away
+   with the entire difference in Y and zero in X/Z — looked exactly like
+   the bug already fixed in `monster3d.gd`, and this file's own
+   `path_desired_distance`/`target_desired_distance` were still the
+   original, un-fixed `0.5`. Bumped to `1.5` to match. This DID get him
+   moving (confirmed: ~17.5 units in 6s) — but only past the very first
+   corner. Longer-duration testing showed he stopped again a few meters
+   later, and a forward raycast in his direction of travel hit a real wall
+   with `normal: (0,0,1)` — `1.5` was loose enough that the agent considered
+   itself "arrived" at corners near the gate's tight passage and walked
+   straight through a wall corner instead of hugging around it.
+2. **Second attempt: a stuck-detector, position-based.** Tightened
+   `path_desired_distance`/`target_desired_distance` back down to `0.75`
+   (enough margin over the measured 0.72m gap without being as loose as
+   1.5) and added logic to detect "hasn't moved in 2s" and snap the Y
+   coordinate to the navmesh surface. Extended testing showed this WASN'T
+   enough either — he kept re-getting stuck at nearly the identical XZ
+   spot, orbiting a few meters for 75+ seconds straight.
+3. **Root cause, finally isolated**: a fresh `NavigationServer3D.query_path()`
+   called directly from his exact stuck position, every time, consistently
+   returned short, sane, obviously-correct corners — but
+   `nav_agent.get_next_path_position()` kept offering a corner that led
+   right back to the same spot. `NavigationAgent3D`'s own internal path had
+   gone stale relative to where he actually was (most likely compounded by
+   the earlier stuck-detector attempts externally repositioning him without
+   the agent noticing) — the underlying "trust the agent to track its own
+   progress along a path this long, then let it recompute on its own
+   schedule" approach was fragile regardless.
+
+### The actual fix (`guard_npc.gd`)
+
+Rewrote `_move_toward()` to manage its own corner list
+(`_current_path: Array[Vector3]`) via direct
+`NavigationServer3D.query_path()` calls instead of relying on
+`NavigationAgent3D.target_position`/`get_next_path_position()` at all — the
+agent node stays in the scene (still configured, harmless) but is no
+longer used for path-following decisions. The path is recomputed
+(`_recompute_path()`) whenever it's empty, the target has moved
+significantly, or the stuck-detector requests one; corner advancement
+(`CORNER_ARRIVAL`, 0.75) is tracked entirely in guard-owned state, so an
+externally-moved position (combat interrupting patrol, the stuck-detector,
+anything else) can never leave a dangling reference to the agent's own
+notion of "where am I on this path." The stuck-detector now just clears
+`_current_path` to force a fresh query rather than trying to manually
+nudge a position — simpler, and doesn't need to guess how far to move.
+Also clears `_current_path` explicitly whenever combat ends and a
+patrolling guard returns to `PATROL`, since fighting can move a guard well
+off whatever path was cached before the fight started.
+
+Verified headlessly: Bryn now covers real, continuous ground — 308 units
+over 100 seconds with steady, unbroken progress the whole way, cleanly
+through the exact gate passage that stopped him before. Re-verified combat
+interrupting and resuming patrol still works correctly (engage on a nearby
+monster, kill it, patrol resumes and moves normally afterward), and
+stationary guards (Corwin/Reyna) are unaffected.
+
+---
+
+## 2026-09-14 — Session 38: Third guard patrols a full loop, all guards banter periodically
+
+Requested while the right-click fix was being tested: a third guard that
+loops through six 3D markers the user placed (Town Gate → Dock → South
+Zone → Traveling Merchant → Signpost → Archery Targets → back to Town
+Gate), attacking any monster within 3m along the way; and — using a new
+"banter" section the user added to guard_flavor_text.json — all guards
+occasionally say one of those lines to themselves when not in combat,
+roughly every 7 minutes.
+
+### Patrol capability (`guard_npc.gd`)
+
+- Guards were stationary-only: `GuardState { IDLE, ENGAGE }`, engaging
+  anything within `ENGAGE_RANGE` (4m) of a fixed `home_position`. Added a
+  third state, `PATROL`, and a new `@export var patrol_waypoints:
+  Array[NodePath] = []` — empty (the default) keeps a guard exactly as
+  before; setting it makes that guard walk the given nodes in order,
+  looping forever, via the same `_move_toward()` helper `ENGAGE` already
+  used to close distance on a target.
+- Since a patrolling guard has no fixed post, `_scan_for_targets()` now uses
+  a new `PATROL_ENGAGE_RANGE` (3m, from the guard's CURRENT position) instead
+  of `ENGAGE_RANGE`/`home_position` for patrol-configured guards; stationary
+  guards are unaffected. Leashing during combat was reworked the same way —
+  a new `_engage_origin` (set to wherever the guard was standing the moment
+  it entered `ENGAGE`) replaces the old fixed-`home_position` leash check,
+  which unifies stationary and patrolling guards under one mechanism instead
+  of needing two (for a stationary guard, `_engage_origin` and
+  `home_position` are practically the same thing anyway). A new
+  `_default_state` (IDLE for stationary, PATROL for patrolling) is what
+  combat returns to once a fight ends, instead of hardcoding `IDLE`.
+- **Bug fix, found while testing**: a patrolling guard didn't move at all —
+  confirmed headlessly that `NavigationAgent3D.get_next_path_position()`
+  was returning a point ~0.72m away with the ENTIRE difference in Y and
+  ZERO in X/Z. This is the exact same bug fixed in `monster3d.gd` earlier
+  this session (the baked navmesh surface sits a bit above the true
+  collision floor, so a fresh path's first waypoint is nearly a pure
+  vertical correction) — `monster3d.gd`'s `nav_agent.path_desired_distance`/
+  `target_desired_distance` were bumped from 0.5 to 1.5 back then, but that
+  fix was never applied to `guard_npc.gd`, which nothing had exercised over
+  a long enough distance to expose until this patrol route. Applied the
+  same fix here.
+- New third guard, "Guard Bryn," added to `lumora_outskirts3d.tscn` at the
+  Town Gate marker with `patrol_waypoints` pointing at all six of the
+  user's placed `Marker3D` nodes in the requested order.
+- Verified headlessly, post-fix: Bryn covers real ground now (~17.5 units
+  over 6s toward the first leg, matching guard move speed), still correctly
+  engages a monster placed within 3m while patrolling, and the existing
+  stationary guards (Corwin/Reyna) are unaffected — still engage normally
+  from their fixed posts.
+
+### Periodic banter (`guard_npc.gd`)
+
+- Every guard (all three) now has a randomized `_banter_interval` (5-9 min,
+  averaging ~7 — deliberately not a flat 7 minutes so multiple guards don't
+  end up banter-ing in lockstep) that, whenever NOT in `ENGAGE`, counts up
+  and fires a random line from the flavor file's new `"banter"` array via
+  the existing `_say_flavor()`/`say()` path — same hearing-range gate
+  (`HEAR_RANGE`, 5m) as every other guard line, so it's silent unless the
+  player's actually close enough to hear it. The timer resets (not just
+  pauses) on entering combat, so a fresh interval starts once a fight ends
+  rather than potentially firing mid-swing.
+- Verified headlessly: forcing a guard's banter timer past its interval
+  (with the player in hearing range) correctly logged a real random line
+  from the new banter pool.
+
+---
+
+## 2026-09-14 — Session 37: Right-click still didn't work — real cause was a mouse-mode race, not targeting
+
+Reported after Session 36's fixes: "right clicking him still does nothing.
+hailing him and targeting him work." Since hail/target (both range-based,
+untouched by the Session 35 raycast rework) worked fine, this pointed
+straight back at the raycast path itself.
+
+### Bug: `Input.mouse_mode` was always wrong by the time the gate checked it
+
+`_try_open_shop_or_loot()` gated the raycast on `Input.mouse_mode ==
+MOUSE_MODE_VISIBLE`. But `camera_controller.gd`'s `_input()` handles the
+*same* right-click press first — every node's `_input()` runs before
+`_unhandled_input()`, where `_try_open_shop_or_loot()` lives — for its own
+unrelated "hold right-click to head-turn the camera" feature, and
+immediately calls `Input.set_mouse_mode(MOUSE_MODE_CAPTURED)` the instant
+right-click is pressed, regardless of whether mouselook is even on. By the
+time `_try_open_shop_or_loot()` ran, `Input.mouse_mode` had already flipped
+to `CAPTURED` for *every* right-click, so the `MOUSE_MODE_VISIBLE` check was
+never true — the raycast never fired, and every right-click silently fell
+through to `_try_loot_corpse()`. This is why it "did nothing" against the
+vendor specifically: with no corpse nearby, that fallback had nothing to do
+either.
+- Fixed by gating on `Global.mouselook_enabled` instead — the actual
+  persistent user toggle (F12), which the head-turn feature's transient
+  capture never touches (`camera_controller.gd`'s own head-turn code only
+  captures the mouse "if not Global.mouselook_enabled" in the first place,
+  so this flag correctly reflects normal cursor-visible play regardless of
+  what a same-frame right-click did to `Input.mouse_mode` a moment earlier).
+- Verified headlessly: calling the gating logic with `Input.mouse_mode`
+  forced to `CAPTURED` (reproducing the exact same-frame ordering) but
+  `Global.mouselook_enabled` left `false` still correctly finds the vendor
+  via the raycast; with `Global.mouselook_enabled` genuinely `true`, it
+  still correctly skips. (The full end-to-end call through
+  `_try_open_shop_or_loot()` itself couldn't be exercised headlessly —
+  `Viewport.warp_mouse()` needs a real display server — but the fixed logic
+  itself is proven correct in isolation.)
+
+---
+
+## 2026-09-14 — Session 36: Vendor targeting/hail were never wired up, plus his tilted transform fixed
+
+Reported right after the raycast fix: "I'm not able to target, hail, or
+right click Aldric the Provisioner now." Target (Tab/left-click) and hail
+had actually never worked on him at all — VendorNPC was never added to
+either system when it was built, this wasn't a regression from the
+right-click change. Right-click itself turned out to have a real
+contributing cause: his placed transform.
+
+### Root cause of the right-click trouble: the same tilt flagged last session
+
+The "incidental finding, not touched" note from the right-click fix — his
+transform had a ~10° pitch and ~3° roll beyond a clean facing turn — turned
+out to matter after all: `Scenes/lumora_outskirts3d.tscn`'s VendorNPC now
+requires clicking his exact collision shape, and that shape (and the
+visible character mesh, which inherits the same parent tilt) was measurably
+offset from where it naively should sit. Computed the clean replacement
+(`Basis.get_euler()` to extract just the yaw, `Basis.IDENTITY.rotated(Vector3.UP,
+yaw)` to rebuild without the pitch/roll) and swapped in that transform,
+keeping his exact position and facing direction. Verified: the collision
+capsule now sits exactly where a straight, upright NPC's would
+((45.075, 1.0, -15.055), basis.y exactly (0,1,0)).
+
+### Target / hail extended to vendors (`player3d.gd`, `vendor_npc.gd`, `target_frame.gd`)
+
+- `tab_cycle_target()`/`_try_click_target()`: both now include group
+  `"npc_vendor"`/type `VendorNPC` alongside monsters and guards.
+  `_is_targetable_alive()` already had a generic fallback for non-`Monster`
+  nodes (guards used it too), so no change needed there.
+- `try_hail_nearby_npc()`: now scans `"npc_guard"` + `"npc_vendor"` and
+  calls `respond_to_hail()` on whichever's nearest (guarded by
+  `has_method()` rather than assuming every hailable NPC type shares it).
+  New `VendorNPC.respond_to_hail()` reuses `greet_player()`'s existing line
+  — hailing him is just a way to get his greeting without opening the shop.
+- `TargetFrame.faction_status()` didn't know about vendors at all and fell
+  through to its default `"Enemy"` — meaning targeting him (once added to
+  the systems above) would have shown him red or hostile. Added
+  `target.is_in_group("npc_vendor")` alongside the existing guard check, so
+  he shows `"Ally"` (blue) like a guard does.
+- Verified headlessly: `Tab` correctly selects him when nearby, left-click
+  correctly selects him when the raycast lands on his (now properly
+  aligned) collision shape, `faction_status()` returns `"Ally"`, and hailing
+  him logs his greeting line.
+
+---
+
+## 2026-09-14 — Session 35: Right-click vendor now requires clicking his model
+
+Reported: "sometimes I have to kill enemies near him, but I can't loot them
+because it is opening his vendor window instead of the corpse" — right-click
+opened the shop for the nearest vendor within 5m regardless of where the
+cursor was, so a vendor standing near a fresh corpse always stole the
+right-click.
+
+### `player3d.gd`
+
+- `_try_open_shop_or_loot()` (formerly range-based — nearest `"npc_vendor"`
+  within 5m, unconditionally) is now raycast-based: the shop only opens if
+  the cursor is precisely on that vendor's own collision shape, the same way
+  `_try_click_target()` already raycasts for left-click monster/guard
+  targeting. Everything else — including a corpse standing right next to
+  the vendor — falls straight through to the unchanged, range-based
+  `_try_loot_corpse()`.
+- Only fires in `MOUSE_MODE_VISIBLE`, matching `_try_click_target()`'s own
+  gating: while mouselooking (captured), there's no real screen-space cursor
+  position to raycast from (Godot's virtual mouse position drifts based on
+  accumulated relative motion while captured, it doesn't track "where the
+  camera is looking"), so right-click just goes straight to loot-corpse in
+  that mode, same as before.
+- `_find_nearby_vendor()` removed — replaced by `_raycast_vendor(screen_pos)`,
+  which casts a ray from the camera through the given screen position
+  (`camera.project_ray_origin()`/`project_ray_normal()`) and returns the hit
+  only if it's a `VendorNPC`.
+- Verified the raycast mechanism directly (positioned a camera to look
+  exactly at the vendor's real collision-shape center via
+  `camera.look_at()`, then fed `camera.unproject_position()`'s result back
+  into `_raycast_vendor()`): correctly found the vendor when aimed at him,
+  correctly returned nothing when aimed elsewhere. Verifying the full
+  right-click flow end-to-end wasn't possible headlessly — `Viewport.warp_mouse()`
+  needs a real display server, unavailable under `--headless` — but the
+  function it depends on is proven correct in isolation, and the
+  surrounding logic (mouse-mode gate, fallback to loot-corpse) is a handful
+  of lines checked by inspection.
+- Incidental finding while testing, not touched: the vendor's placed
+  transform in `lumora_outskirts3d.tscn` has a slight pitch/roll beyond a
+  simple facing rotation (its basis.y isn't exactly `(0,1,0)`) — likely from
+  a free-rotate drag in the editor rather than a clean Y-axis turn. Harmless
+  for this fix (the collision capsule rotates correctly with it either way),
+  but worth a look in the editor if the model ever looks subtly tilted.
+
+---
+
+## 2026-09-14 — Session 34: Assist-range bug fix, real monster patrol
+
+Reported while testing the death system: "if I'm fighting a bandit and
+another spawns during the fight, it will come assist even if it is 20m
+away" — plus a request for monsters to actually wander instead of standing
+still ("add a patrol function so the enemies move around and are not static").
+
+### Bug fix: ally-assist range was effectively unlimited (`monster3d.gd`)
+
+`call_nearby_allies()` compared a real meter distance
+(`global_position.distance_to(ally.global_position)`) against `aggro_range`
+— but `aggro_range` is documented (and used everywhere else) as the RAW,
+unscaled 2D-era JSON value, not meters (e.g. a bandit's `aggro_range` is
+`200.0`). So allies within roughly a 200m radius, not 20m, were being pulled
+into the fight — the 20m the user actually observed was well inside that,
+not an edge case. Fixed with a dedicated `ASSIST_RANGE := 5.0` constant
+(real meters, matching the requested 5m), decoupled entirely from
+`aggro_range`. Verified headlessly: an ally 20m away stayed put, one 3m away
+correctly joined.
+
+### Real monster patrol (`monster3d.gd`)
+
+A patrol mechanism nominally already existed (IDLE had a 1%-per-frame
+chance to switch to PATROL, then wandered within a flat 10-unit radius of
+spawn) but read as functionally static — a 10-unit bubble with a generous
+1-unit "close enough" arrival radius meant a monster's actual net movement
+over any given stretch of time was tiny, easy to miss entirely. Confirmed
+headlessly before changing anything: a bandit idling for 12s only ended up
+~3 units from its start position.
+- Replaced the per-frame RNG roll with a deterministic timer
+  (`_idle_timer`/`_idle_duration`, randomized `IDLE_MIN_DURATION`–
+  `IDLE_MAX_DURATION` = 2–5s, rolled fresh via a new `State.IDLE` case in
+  `change_state()`) — patrol now starts reliably instead of "eventually,
+  probably."
+- Widened the wander area: `pick_new_patrol_point()` now rolls a distance
+  between `PATROL_MIN_DISTANCE` (5) and `PATROL_MAX_DISTANCE` (18) from
+  spawn instead of a flat `0–10`, which also guarantees every leg is long
+  enough to actually read as movement (no more trivially-short hops).
+  Passive-behavior mobs are unchanged — they still stay put until aggroed,
+  same as before.
+- Verified headlessly: the same bandit setup now covers ~14 units of total
+  path over 10s and reaches ~12 units from spawn (previously ~3 units net
+  over 12s), confirmed still in `PATROL` throughout.
+
+---
+
+## 2026-09-14 — Session 33: Player death/respawn system, monster death lines, and a serious double-damage bug fix
+
+Prompted by: "I went out and found the bandit camp, and they swiftly kicked
+my ass!" — an EQ-style death flow was requested: incapacitate at 0 HP
+(EXISTING and existing HP=0 previously just froze the player forever, no
+recovery), bleed out ~20 more "HP" over time, then true death → respawn at a
+bind point, with monsters resetting and walking home rather than farming a
+downed player. Investigating "swiftly kicked my ass" surfaced something far
+more consequential than expected.
+
+### Bug fix: monster attacks against the player were dealing EXACTLY DOUBLE damage
+
+Root cause, `monster3d.gd`'s `perform_attack()`: `CombatNode.resolve_attack()`
+already applies a hit's damage directly (`target.current_hp -= damage`,
+`combatnode.gd`) as part of resolving it — but `perform_attack()` then ALSO
+called `target.take_damage(result["damage"], self)` for the same hit when
+the target was the player, and `player3d.gd`'s `take_damage()` applies
+`combat_node.take_damage(amount)` on top of that. Every monster hit against
+the player was landing twice. Player-vs-monster, guard-vs-monster, and
+pet-vs-monster attacks were all already correct (none of those call sites
+had the redundant second application) — this was isolated to monster-vs-player,
+which is exactly the direction that made the bandit camp brutal.
+- Verified with a headless test before touching anything: a bandit hitting
+  the player for a raw, `resolve_attack()`-reported 18 or 47 damage was
+  landing as 36 or 94 through the full `perform_attack()` call — exactly
+  double, every time.
+- Fixed by removing the redundant `take_damage()`/`apply_damage()` calls
+  from that branch entirely and adding `player3d.gd::on_combat_node_hit()` —
+  handles ONLY the side effects `resolve_attack()` doesn't (auto-target-switch
+  to the attacker, the incapacitation check) without re-applying damage.
+  Applied the same fix to the parallel (currently unreachable, but
+  structurally identical) case of a monster hitting some other
+  `CombatNode`-carrying target — added an explicit death check there too,
+  since removing the old `apply_damage()` call also removed the death
+  check it used to carry internally.
+- Re-verified after the fix: the same bandit now lands for exactly 18/47,
+  matching `resolve_attack()`'s own reported damage 1:1.
+
+### Player death / incapacitation / respawn (`player3d.gd`)
+
+- `dying: bool` already existed (froze movement/regen via existing gates in
+  `_physics_process()`/`_process()`) but nothing ever set it back to false —
+  hitting 0 HP was a permanent, unrecoverable freeze. Kept `dying` as that
+  same "can't act" gate, layered a real state machine on top:
+  **incapacitated** (0 HP, `is_incapacitated=true`, `dying=true`) → 20
+  seconds of passive bleed-out (`BLEED_OUT_DURATION`, periodic "You are
+  bleeding out..." reminders every 5s) → **true death** → a black respawn
+  screen for `RESPAWN_DELAY` (3s) → teleport to bind point at full HP/mana/
+  stamina, `dying` cleared.
+- The bleed-out window is deliberately passive/deterministic, not more
+  combat damage — monsters disengage the instant incapacitation starts (see
+  below), so nothing can interrupt or accelerate it. Regen is also frozen
+  throughout (the existing `dying` gate already did this), so there's no
+  chance of self-stabilizing mid-bleed-out.
+- A single overkill hit can drop `combat_node.current_hp` well below 0
+  (`resolve_attack()` doesn't clamp) — `die()` clamps it back to exactly 0
+  on entry so the HP bar and the bleed-out window both start clean
+  regardless of how large the killing blow was.
+- Sequence at true death, refined through two rounds of feedback (an EQ1
+  reference — red "you have been slain" text, a random flavor line, then a
+  black "LOADING, PLEASE WAIT" screen — then "don't copy those messages
+  exactly, have something similar"): a red `"You have been defeated by
+  <attacker>!"` combat-log line (attacker captured at the moment of
+  incapacitation, not true death, since the killing blow's source is what
+  actually matters — `_last_attacker_desc`), a random line from a new
+  `Data/player_death_flavor.json` (own wording — "Darkness folds in around
+  you.", "Your legs give out beneath you.", etc., not EQ's actual text),
+  then a full-screen black `CanvasLayer` reading "RETURNING TO YOUR BIND
+  POINT..." (own wording, not "LOADING, PLEASE WAIT") held for
+  `RESPAWN_DELAY` before the teleport.
+- **Bind point**: no bind spell/NPC exists yet, so
+  `_ensure_bind_point()` defaults it to wherever the character first spawns
+  into the world, stored as `Global.player_data["bind_point"]` (a plain
+  `[x,y,z]` array — `Vector3` isn't JSON-serializable), persisted once and
+  read back by `get_bind_point()`. Structured so a real bind
+  spell/NPC can just overwrite that same field later without touching
+  anything else.
+- Verified headlessly end-to-end: forcing the bleed-out timer past
+  `BLEED_OUT_DURATION` while the player stood far from their bind point
+  correctly fired the "defeated by" message, held the black screen, then
+  teleported back to the bind point at full HP with `dying`/
+  `is_incapacitated` both cleared.
+
+### Monsters disengage and go home instead of farming a downed player (`monster3d.gd`)
+
+- New `force_disengage()`: clears `aggro_table` and, if currently
+  `CHASE`/`ATTACK`, switches to `PATROL` with `patrol_target` set straight
+  to `spawn_position` (overriding `change_state()`'s own random nearby
+  patrol point) — reads as "gives up and walks home" rather than wandering
+  off to a random nearby spot. Called on every monster in the `"monsters"`
+  group the instant the player becomes incapacitated (from `player3d.gd`'s
+  `die()`).
+- `can_see_player()` now returns false whenever `player.dying` is true — so
+  a monster that's mid-`PATROL` back to spawn (or any other monster in
+  `IDLE`/`PATROL`) won't re-aggro the same downed/dead-pending-respawn
+  player standing right next to it. Once the player actually respawns
+  (potentially far away, at their bind point), `dying` clears and normal
+  sight-based aggro resumes as before.
+- Verified headlessly: a monster mid-CHASE against the player, on
+  `player.die()`, correctly switched to PATROL with an empty aggro table,
+  and `can_see_player()` returned false while the player remained `dying`.
+
+### Monster death lines (`Data/humanoid_death_lines.json`)
+
+- New user-editable flat line pool (`{"death": [...]}`, same shape/loader —
+  `NPCFlavorText`, already built for `guard_flavor_text.json` — as the
+  existing guard hail/engage system), 10 starting lines. `monster3d.gd`'s
+  `die()` logs a random one, attributed to the monster by name/description,
+  for any monster in the `"humanoid"` category (bandits, goblins, etc. —
+  NOT skeletons/mummies/mirage_phantom, which are `"undead"`, a distinct
+  category that wouldn't make sense saying human last words).
+- Verified: a dying bandit correctly logged one of the file's lines; a
+  dying skeleton (undead category) correctly logged nothing, confirming the
+  category gate works as intended.
+
+---
+
+## 2026-09-14 — Session 32: Coin sound effect on loot/sell, vendor greeting line
+
+Requested right after testing the character sheet redesign: play a
+downloaded sound ("yodguard-coin-collect") whenever the player loots coin
+from a corpse, or sells an item to a vendor.
+
+### `Scripts/global.gd` — new `play_sfx()`/`play_coin_sound()`
+
+- No existing precedent for a one-shot, non-positional UI sound anywhere in
+  the live 3D codebase — the only `AudioStreamPlayer` usage in the project
+  is either looping ambient audio (campfire, torch) or belongs to dead
+  2D-era scenes (`magic_missile.tscn`, `ranged_attack.tscn`, unreachable
+  from the live game). Built fresh on `Global` (already the autoload that
+  owns the "SFX" bus and its Options-menu volume slider), rather than a new
+  parallel audio system.
+- `play_sfx(stream, volume_db=0.0)`: spawns a short-lived `AudioStreamPlayer`
+  as a child of `Global`, on the `"SFX"` bus (so it respects the existing
+  SFX volume setting automatically), plays it, and frees itself on
+  `finished` — a fresh player per call rather than one shared/reused player,
+  so looting several coin drops in quick succession layers the sound
+  instead of each new play cutting the previous one off.
+- `play_coin_sound()`: the specific entrypoint, preloading
+  `Assets/yodguard-coin-collect-3-540190.mp3` (copied in from the user's
+  Downloads folder, following the project's existing convention of keeping
+  long descriptive downloaded filenames as-is — see
+  `soundsforyou-campfire-crackling-fireplace-sound-119594.mp3`).
+- Wired into the three places currency actually changes hands in the
+  player's favor: `corpse_loot_window.gd`'s `_apply_drop()` currency branch
+  (manual Take/Loot All/loot-preference), `monster3d.gd`'s
+  `_auto_process_loot()` currency branch (auto-looted coin), and
+  `shop_window.gd`'s `_sell()`. Deliberately NOT wired into buying from the
+  vendor (`shop_window.gd`'s `_buy()`) — the request was specifically about
+  receiving coin, not spending it.
+- Verified headlessly across all three trigger points plus a direct call:
+  `Global`'s child count increments by exactly one `AudioStreamPlayer` per
+  coin event and returns to zero a couple seconds later once every sound has
+  finished playing and freed itself — confirms no leak from firing this
+  repeatedly.
+
+### Vendor greeting line (`vendor_npc.gd`, `player3d.gd`)
+
+- Requested in the same breath: have the vendor say something when the shop
+  window opens, in the same "$NPC says, ..." style guard_npc.gd already uses
+  for hail/engage lines. New `VendorNPC.greet_player(player_name)` — picks a
+  random entry from the vendor's own `get_shop_stock()` and logs `"Welcome,
+  <player>. I have a good <item name> you might be interested in."` Called
+  from `player3d.gd`'s `_open_shop()` right after the window opens, passing
+  the player's own `player_name`.
+- Verified headlessly: opening the shop as "Zozuur" produced exactly one
+  General-log line — `Aldric the Provisioner says, "Welcome, Zozuur. I have
+  a good Trail Rations you might be interested in."`
+
+---
+
+## 2026-09-14 — Session 31: Character sheet redesign — tabbed Stats/Equipment/Inventory
+
+Prompted by a screenshot: the character sheet was a single scrolling column
+of ~25 raw stat Labels stacked above the equipment grid stacked above the
+flat inventory grid — "cluttered and clunky." Compared against an EQ2
+character-window screenshot the user shared; agreed a left-hand vertical tab
+rail (Stats / Equipment / Inventory) was the right shape, mocked it up as an
+HTML artifact first (approved: "that looks perfect!"), then built it.
+
+### `Scripts/character_sheet.gd` / `Scenes/character_sheet.tscn` — rebuilt
+
+- New structure: a persistent identity+vitals strip (name/race/class/level,
+  plus HP/MP/STA/Food/Water bars — Food/Water are new here, sourced the same
+  way `player_frame.gd` does via `player.satiety`/`player.thirst`) sits above
+  a left tab rail and a content area that shows exactly one of three
+  ScrollContainers at a time (`_select_tab()`). The `.tscn` only declares the
+  structural containers; all actual content (stat tiles, kv rows, resistance
+  badges, the paperdoll, inventory slots) is still built in `_ready()` via
+  helper functions, matching the existing project convention (the old
+  equipment paperdoll was already 100% code-built via
+  `_init_equipment_slots()`) rather than hand-authoring dozens of `.tscn`
+  node blocks.
+- **Stats tab**: Attributes as a 4-column grid of bordered tiles (reusing the
+  exact dark-panel/thin-border style already established by
+  `corpse_loot_window.gd`/`shop_window.gd`'s rows, not a new palette);
+  Combat (Armor Class/Attack/Crit/Spell Power/Carry Weight) as alternating-
+  shade key/value rows; Resistances as small pill badges with a color dot per
+  damage type; Experience as the existing purple XP bar plus numbers;
+  Currency as four coin-colored dots (platinum/gold/silver/copper).
+- **Equipment tab**: the paperdoll grid is functionally unchanged (same
+  `_init_equipment_slots()` layout, same 25 `EQUIPMENT_SLOTS`, same
+  `slot_button.gd` instances) — just moved into its own tab instead of being
+  one more section in the long scroll.
+- **Inventory tab** — the one genuinely new piece, and the one the user
+  specifically weighed in on: "the bag slots (inventory) are the main
+  player's inventory system until you find some real bags... a mix of what
+  I've seen in other MMO games." The 12 `basic_inventory` root slots are
+  shown as the actual inventory (not a pointer to a separate window), and
+  any bag equipped into one of them (`small_bag`, `traveler_pack`, etc.) gets
+  its own nested section directly below with its own full-capacity slot
+  grid — `_rebuild_bag_sections()`, rebuilt on every
+  `Inventory.inventory_changed`. Each bag's slots (filled AND empty) get the
+  correct `bag_slot` index so dropping an item from the root grid straight
+  into a bag works via the existing `slot_button.gd`/`move_item_between_slots()`
+  drag-and-drop plumbing, unchanged. The separate Backpack window (`B` key)
+  still exists and shows the same underlying data — this doesn't replace it,
+  just stops the character sheet from hiding that data behind it.
+- Draggable/resizable window behavior (`_on_panel_gui_input()`,
+  `WindowPosition` save/load) is unchanged, just retargeted at the new
+  container names.
+- Verified in the real zone scene: opening the sheet populates every field
+  correctly (name/level/subtitle, all 7 attributes, armor class, resistances,
+  XP, coins, all 5 vitals); tab switching correctly shows exactly one panel;
+  the Equipment tab has all 25 slots; the Inventory tab shows all 12 root
+  slots plus one bag section for the starting Small Bag with the right
+  tooltip; adding an item live-refreshes the bag section without error;
+  drag/resize input handling doesn't crash.
+
+---
+
+## 2026-09-14 — Session 30: Loot silently vanishing, guard chatter range, zoom-to-first-person
+
+Reported while testing a fresh character: looted "Bone Shield" logged as
+received but never appeared anywhere in inventory. Also asked for guard/NPC
+speech to only show in the log when the player's close enough to hear it
+(~5m), and for zooming the camera all the way in to drop into first-person.
+
+### Bug: loot could report success while silently failing to fit
+
+**Root cause, `Scripts/inventory_autoload.gd`**: every "player receives an
+item" call site (`corpse_loot_window.gd`'s Take/Loot All/preference
+checkboxes, the manual loot-window drag-to-inventory path in
+`slot_button.gd`, `monster3d.gd`'s auto-loot, `shop_window.gd`'s Buy) called
+`Inventory.add_to_basic_inventory(item_id)` and then unconditionally logged
+"You receive X" — the function's boolean return value (false when all 12
+`basic_inventory` slots are full) was never checked at any of those sites.
+A new character starts with `small_bag` + 6 pieces of unequipped starting
+gear already occupying 7 of those 12 slots directly (not in a bag — they're
+a staging area to be dragged onto equipment slots), so it doesn't take much
+looting before `add_to_basic_inventory` starts silently failing while the
+log keeps claiming success.
+- A second, independent bug in the same code path: **every** call to
+  `add_to_basic_inventory()`/`add_to_bag()` across the whole codebase passed
+  no quantity argument, so `create_item_instance(item_id)` always defaulted
+  to quantity 1 — a "3x Spider Silk" drop's log message correctly said
+  "x3," but only 1 was ever actually added.
+- Fixed both by adding a new `Inventory.add_item(item_id, quantity)` —
+  merges onto an existing stack in any bag first (correctly applying
+  `quantity`), then any bag with room (keeps loot from eating the scarce 12
+  `basic_inventory` slots one-per-item when a bag has space), and only falls
+  back to a bare `basic_inventory` slot if every bag is full. Returns false
+  only when there is truly no room anywhere. `add_to_basic_inventory()`/
+  `add_to_bag()` both gained an optional `quantity` parameter (default 1,
+  so every existing call site is unaffected) so `add_item()` can thread a
+  real quantity through instead of hardcoding 1.
+- Every "player receives an item" call site now checks `add_item()`'s return
+  value: `corpse_loot_window.gd`'s `_apply_drop()` now returns bool and only
+  logs "You receive X" on success, logging "Your inventory is full — you
+  leave X behind" otherwise; `_take()`/`_loot_all()`/the preference
+  checkboxes only remove the drop from the corpse (`pending_loot`) when it
+  was actually applied, so a full-inventory drop stays lootable instead of
+  vanishing. Same fix applied to `monster3d.gd`'s auto-loot (falls back to
+  the manual loot window instead of disappearing), `slot_button.gd`'s
+  drag-to-inventory loot path, and `shop_window.gd`'s Buy.
+- Verified headlessly: stacking 3 then 2 more of a stackable item onto the
+  same bag slot correctly reaches quantity 5; filling a 4-slot bag correctly
+  spills the next item into `basic_inventory`; filling every slot
+  everywhere makes `add_item()` return false and `_apply_drop()` leaves the
+  drop in `pending_loot` rather than discarding it.
+
+### Guard/NPC speech now range-gated (`guard_npc.gd`)
+
+- `say()` (the single chokepoint both `_say_flavor()`'s hail/engage lines
+  and `npc_scripted_conversation.gd`'s day/night scripted guard exchange
+  route through) previously logged unconditionally regardless of the
+  player's distance from the speaking guard — the screenshot that prompted
+  this showed Guard Corwin and Guard Reyna's day/night exchange appearing in
+  the log while the player was at the vendor, nowhere near either guard.
+  Added `HEAR_RANGE := 5.0` and a `_player_in_hear_range()` check at the top
+  of `say()`; verified in the real zone scene (far away = silenced, within
+  range = heard).
+- `try_hail_nearby_npc()`'s own H-key hail already required proximity before
+  calling `respond_to_hail()` at all, so this doesn't change hail behavior —
+  only unprompted lines (engage callouts, scripted conversations) were ever
+  broadcasting past hearing range.
+
+### Camera: zooming all the way in drops into first-person (`camera_controller.gd`)
+
+- `zoom_camera()`: from either third-person mode, scrolling in until
+  `current_zoom` hits `MIN_ZOOM` now switches `current_mode` to
+  `FIRST_PERSON` automatically instead of just stopping at the closest
+  third-person distance. Scrolling out again while in first-person pops back
+  to `THIRD_PERSON_BEHIND` at `MIN_ZOOM`, so the whole thing reads as one
+  continuous zoom rather than a jump between unrelated modes. `Home`'s
+  manual camera-mode cycle is unchanged.
+- Verified headlessly: zooming in from just above `MIN_ZOOM` switches mode
+  to `FIRST_PERSON`; zooming back out from `FIRST_PERSON` switches back to
+  `THIRD_PERSON_BEHIND` with `current_zoom` reset to `MIN_ZOOM`.
 
 ---
 

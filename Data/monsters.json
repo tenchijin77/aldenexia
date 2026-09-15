@@ -1,12 +1,12 @@
 {
   "_comment": "monsters.json - Defines stats and properties for all monsters.",
   "slime": {
-    "description": "an oozing slime",
+    "description": "an acidic slime",
     "speed": 30.0,
     "health": 50,
     "damage": 5,
     "behavior_type": "skitter",
-    "category": "animal",
+    "category": "elemental",
     "faction": "None",
     "coin_modifier": 0.0,
     "xp_gain": 7,
@@ -15,14 +15,41 @@
     "is_social": true,
     "level": 2,
     "aggro_range": 150.0,
+    "special_ability": "Acid Attack",
+    "weaknesses": [
+      "cold",
+      "fire"
+    ],
     "animations": {
       "idle": "slime_idle",
       "walk": "slime_walk",
       "attack": "slime_attack"
     }
   },
+  "spiderling": {
+    "description": "a spiderling swarmer",
+    "speed": 38.0,
+    "health": 15,
+    "damage": 2,
+    "behavior_type": "skitter",
+    "category": "insect",
+    "faction": "None",
+    "coin_modifier": 0.0,
+    "xp_gain": 3,
+    "zone": "lumora_outskirts",
+    "armor_class": 9,
+    "is_social": true,
+    "level": 1,
+    "aggro_range": 120.0,
+    "special_ability": "Ensnaring Web",
+    "animations": {
+      "idle": "spiderling_idle",
+      "walk": "spiderling_walk",
+      "attack": "spiderling_attack"
+    }
+  },
   "rat": {
-    "description": "a filthy rat",
+    "description": "A desert scavenger",
     "speed": 30.0,
     "health": 20,
     "damage": 2,
@@ -43,7 +70,7 @@
     }
   },
   "bandit": {
-    "description": "a hooded bandit",
+    "description": "a sand brigand",
     "speed": 35.0,
     "health": 80,
     "damage": 12,
@@ -64,7 +91,7 @@
     }
   },
   "spider": {
-    "description": "a creeping spider",
+    "description": "a giant desert spider",
     "speed": 30.0,
     "health": 45,
     "damage": 11,
@@ -78,6 +105,7 @@
     "is_social": true,
     "level": 2,
     "aggro_range": 150.0,
+    "special_ability": "Poison Bite",
     "animations": {
       "idle": "spider_idle",
       "walk": "spider_walk",
@@ -85,7 +113,7 @@
     }
   },
   "snake": {
-    "description": "a grass snake",
+    "description": "a sand viper",
     "speed": 12.0,
     "health": 25,
     "damage": 7,
@@ -99,6 +127,7 @@
     "is_social": false,
     "level": 1,
     "aggro_range": 100.0,
+    "special_ability": "Poison Bite",
     "animations": {
       "idle": "snake_idle",
       "walk": "snake_walk",
@@ -115,7 +144,7 @@
     "faction": "Dustwalker",
     "coin_modifier": 0.35,
     "xp_gain": 18,
-    "zone": "lumora_outskirts",
+    "zone": "ashfall_dunes",
     "armor_class": 13,
     "is_social": true,
     "level": 2,
@@ -136,7 +165,7 @@
     "faction": "Dustwalker",
     "coin_modifier": 0.42,
     "xp_gain": 12,
-    "zone": "lumora_outskirts",
+    "zone": "dustwind_plateaus",
     "armor_class": 12,
     "is_social": true,
     "level": 1,
@@ -157,7 +186,7 @@
     "faction": "Dustwalker",
     "coin_modifier": 0.18,
     "xp_gain": 44,
-    "zone": "lumora_outskirts",
+    "zone": "dustwind_plateaus",
     "armor_class": 14,
     "is_social": true,
     "level": 4,
@@ -178,7 +207,7 @@
     "faction": "Dustwalker",
     "coin_modifier": 0.48,
     "xp_gain": 70,
-    "zone": "lumora_outskirts",
+    "zone": "dustwind_plateaus",
     "armor_class": 16,
     "is_social": true,
     "level": 5,
@@ -199,7 +228,7 @@
     "faction": "None",
     "coin_modifier": 0.22,
     "xp_gain": 14,
-    "zone": "lumora_outskirts",
+    "zone": "dustwind_plateaus",
     "armor_class": 12,
     "is_social": true,
     "level": 1,
@@ -211,7 +240,7 @@
     }
   },
   "dune_scarab": {
-    "description": "a peaceful sand beetle",
+    "description": "a dune scarab",
     "speed": 27.0,
     "health": 40,
     "damage": 3,
@@ -241,7 +270,7 @@
     "faction": "None",
     "coin_modifier": 0.28,
     "xp_gain": 36,
-    "zone": "lumora_outskirts",
+    "zone": "ashfall_dunes",
     "armor_class": 14,
     "is_social": true,
     "level": 3,
@@ -262,7 +291,7 @@
     "faction": "None",
     "coin_modifier": 0.12,
     "xp_gain": 22,
-    "zone": "lumora_outskirts",
+    "zone": "dustwind_plateaus",
     "armor_class": 12,
     "is_social": false,
     "level": 2,
@@ -274,7 +303,7 @@
     }
   },
   "lumora_outrider": {
-    "description": "a patrol from Lumora",
+    "description": "a Lumoran Outrider",
     "speed": 35.0,
     "health": 160,
     "damage": 16,
@@ -304,7 +333,7 @@
     "faction": "None",
     "coin_modifier": 0.25,
     "xp_gain": 30,
-    "zone": "lumora_outskirts",
+    "zone": "ashfall_dunes",
     "armor_class": 14,
     "is_social": false,
     "level": 3,
@@ -325,7 +354,7 @@
     "faction": "None",
     "coin_modifier": 0.45,
     "xp_gain": 39,
-    "zone": "lumora_outskirts",
+    "zone": "ashfall_dunes",
     "armor_class": 13,
     "is_social": false,
     "level": 3,
@@ -367,7 +396,7 @@
     "faction": "None",
     "coin_modifier": 0.24,
     "xp_gain": 22,
-    "zone": "lumora_outskirts",
+    "zone": "ashfall_dunes",
     "armor_class": 13,
     "is_social": true,
     "level": 2,
@@ -388,7 +417,7 @@
     "faction": "None",
     "coin_modifier": 0.12,
     "xp_gain": 12,
-    "zone": "lumora_outskirts",
+    "zone": "dustwind_plateaus",
     "armor_class": 11,
     "is_social": false,
     "level": 1,
@@ -421,7 +450,7 @@
     }
   },
   "skeleton": {
-    "description": "an animated skeleton",
+    "description": "a fallen scout skeleton",
     "speed": 25.0,
     "health": 80,
     "damage": 12,
@@ -452,8 +481,29 @@
     "secret_note": "",
     "corruption": ""
   },
+  "ghost": {
+    "description": "a tormented spirit",
+    "speed": 40.0,
+    "health": 105,
+    "damage": 16,
+    "behavior_type": "aggressive",
+    "category": "undead",
+    "faction": "None",
+    "coin_modifier": 0.05,
+    "xp_gain": 28,
+    "zone": "lumora_outskirts",
+    "armor_class": 12,
+    "is_social": false,
+    "level": 3,
+    "aggro_range": 150.0,
+    "animations": {
+      "idle": "ghost_idle",
+      "walk": "ghost_walk",
+      "attack": "ghost_attack"
+    }
+  },
   "goblin": {
-    "description": "a snarling camp goblin",
+    "description": "a desert goblin",
     "speed": 32.0,
     "health": 55,
     "damage": 8,
@@ -473,8 +523,50 @@
       "attack": ""
     }
   },
+  "goblin_scout": {
+    "description": "a desert goblin scout",
+    "speed": 48.0,
+    "health": 35,
+    "damage": 6,
+    "behavior_type": "aggressive",
+    "category": "humanoid",
+    "faction": "Goblin",
+    "coin_modifier": 0.15,
+    "xp_gain": 12,
+    "zone": "lumora_outskirts",
+    "armor_class": 9,
+    "is_social": true,
+    "level": 2,
+    "aggro_range": 150.0,
+    "animations": {
+      "idle": "goblin_scout_idle",
+      "walk": "goblin_scout_walk",
+      "attack": "goblin_scout_attack"
+    }
+  },
+  "goblin_warrior": {
+    "description": "a desert goblin warrior",
+    "speed": 30.0,
+    "health": 130,
+    "damage": 18,
+    "behavior_type": "aggressive",
+    "category": "humanoid",
+    "faction": "Goblin",
+    "coin_modifier": 0.4,
+    "xp_gain": 35,
+    "zone": "lumora_outskirts",
+    "armor_class": 14,
+    "is_social": true,
+    "level": 4,
+    "aggro_range": 150.0,
+    "animations": {
+      "idle": "goblin_warrior_idle",
+      "walk": "goblin_warrior_walk",
+      "attack": "goblin_warrior_attack"
+    }
+  },
   "bat": {
-    "description": "a screeching cave bat",
+    "description": "a dusk bat",
     "speed": 45.0,
     "health": 15,
     "damage": 3,
@@ -488,6 +580,7 @@
     "is_social": false,
     "level": 1,
     "aggro_range": 80.0,
+    "special_ability": "Life Tap",
     "animations": {
       "idle": "bat_idle",
       "walk": "bat_walk",
@@ -495,7 +588,7 @@
     }
   },
   "lumora_guard": {
-    "description": "a Lumora guard",
+    "description": "a Lumoran guard",
     "speed": 30.0,
     "health": 200,
     "damage": 25,

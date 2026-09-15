@@ -416,16 +416,32 @@ func _on_chat_input_gui_input(event: InputEvent) -> void:
 		chat_input.release_focus()
 
 
+# Canonical / commands. Typing any unambiguous prefix of one of these works
+# too (Linux-style abbreviation) — see _resolve_command() below. e.g. "/loc"
+# and "/location" both resolve to "/location" since no other command starts
+# with "loc"; "/f" would be ambiguous if two commands both started with "f".
+const COMMANDS := ["/location", "/hail", "/appraise", "/time", "/follow"]
+
+
 func _handle_slash_command(text: String) -> void:
-	var cmd := text.split(" ", false)[0].to_lower()
+	var parts := text.split(" ", false)
+	var typed_cmd := parts[0].to_lower()
+	var arg := text.substr(parts[0].length()).strip_edges()
+
+	var cmd := _resolve_command(typed_cmd)
+	if cmd.is_empty():
+		return  # _resolve_command already logged unknown/ambiguous
+
 	match cmd:
-		"/loc":
+		"/location":
 			var pos: Vector3 = player.global_position
 			GameLog.log_general("[color=green]Your location: X=%.2f Y=%.2f Z=%.2f[/color]" % [pos.x, pos.y, pos.z])
 		"/hail":
 			player.try_hail_nearby_npc()
 		"/appraise":
 			player.try_appraise_target()
+		"/follow":
+			player.try_follow(arg)
 		"/time":
 			GameLog.log_general("[color=green]%s[/color]" % Global.format_full_date())
 			var day_night_nodes := get_tree().get_nodes_in_group("day_night_cycle")
@@ -441,8 +457,26 @@ func _handle_slash_command(text: String) -> void:
 				hour12 = 12
 			var ampm := "AM" if d.hour < 12 else "PM"
 			GameLog.log_general("[color=green]Real time: %d:%02d %s[/color]" % [hour12, d.minute, ampm])
-		_:
-			GameLog.log_general("[color=red]Unknown command: %s[/color]" % cmd)
+
+
+# Resolves a typed command to a canonical one from COMMANDS, allowing any
+# unambiguous prefix (e.g. "/fol" -> "/follow") the same way Linux shells
+# tab-complete unique abbreviations. Logs "Unknown"/"Ambiguous" itself and
+# returns "" in either failure case, so callers can just bail on empty.
+func _resolve_command(typed: String) -> String:
+	if COMMANDS.has(typed):
+		return typed
+	var matches: Array = []
+	for c in COMMANDS:
+		if c.begins_with(typed):
+			matches.append(c)
+	if matches.size() == 1:
+		return matches[0]
+	if matches.size() > 1:
+		GameLog.log_general("[color=red]Ambiguous command '%s' — did you mean: %s?[/color]" % [typed, ", ".join(matches)])
+		return ""
+	GameLog.log_general("[color=red]Unknown command: %s[/color]" % typed)
+	return ""
 
 
 # ── Log output ────────────────────────────────────────────────────────────────

@@ -18,6 +18,7 @@ extends CharacterBody3D
 const AGGRO_RANGE_SCALE: float = 10.0   # Matches speed scale (speed/10 = m/s)
 const MAX_AGGRO_DISTANCE: float = 5.0   # Hard cap: monsters never *notice* the player by sight beyond this many meters (can_see_player()) — once aggroed (by sight, or by taking damage/threat from any range, e.g. a spell pull), there is no leash — see state_chase()
 const CHASE_SPEED_MULTIPLIER: float = 2.0  # only while actively chasing (not patrolling) — see handle_movement()
+const ASSIST_RANGE: float = 5.0  # call_nearby_allies() — real meters, see the fix note there
 
 # Humanoid-shaped mob types get the same Mixamo character model/animations as
 # the player and guards instead of the generic placeholder box, swapped in at
@@ -76,6 +77,10 @@ var player: CharacterBody3D = null
 var spawn_position: Vector3
 var patrol_target: Vector3
 var move_direction: Vector3 = Vector3.ZERO
+const IDLE_MIN_DURATION: float = 2.0  # how long a non-passive monster waits in IDLE before patrolling
+const IDLE_MAX_DURATION: float = 5.0
+var _idle_timer: float = 0.0
+var _idle_duration: float = 3.0
 
 # ===== AGGRO / THREAT =====
 # Node -> accumulated threat. Populated by add_threat() whenever the player
@@ -354,8 +359,15 @@ func state_idle(delta: float) -> void:
 		change_state(State.CHASE)
 		return
 
-	# Randomly patrol based on behavior
-	if behavior_type != "passive" and randf() < 0.01:
+	# Passive creatures stay put until aggroed; everything else patrols after
+	# a short, randomized wait (deterministic timer, not a per-frame RNG roll
+	# — the old 1%-per-frame chance averaged ~1.7s, close enough in theory,
+	# but combined with a 10-unit wander radius it read as barely moving at
+	# all in practice — see PATROL_RADIUS/pick_new_patrol_point() below).
+	if behavior_type == "passive":
+		return
+	_idle_timer += delta
+	if _idle_timer >= _idle_duration:
 		change_state(State.PATROL)
 
 func state_patrol(delta: float) -> void:
@@ -463,25 +475,32 @@ func perform_attack() -> void:
 
 	if "combat_node" in target and target.combat_node is CombatNode:
 		var result = combat_node.resolve_attack(target.combat_node)
-		# Sync our HP in case of riposte (resolve_attack modifies both sides directly)
+		# resolve_attack() already applies the hit directly to
+		# target.combat_node.current_hp ("target.current_hp -= damage" inside
+		# combatnode.gd) — do NOT also call target.take_damage()/apply_damage()
+		# here, that double-applies the same hit. Confirmed via a headless
+		# test (2026-09-14): monster attacks against the player were landing
+		# for exactly double the damage resolve_attack() itself reported,
+		# because this used to call player.take_damage(result["damage"], ...)
+		# on top of resolve_attack()'s own direct mutation. A real, serious
+		# contributor to monsters feeling far too strong after the balance
+		# pass — the math was right, the damage was just being applied twice.
 		if not combat_node.is_alive():
 			die()
 			return
-		if result["damage"] > 0:
-			if target == player:
-				target.take_damage(result["damage"], self)
-			elif target.has_method("apply_damage"):
-				target.apply_damage(result["damage"])
-			elif target.has_method("take_damage"):
-				target.take_damage(result["damage"])
+
 		var desc: String = monster_description if monster_description != "" else get_monster_name()
 		if target == player:
 			var msg: String = CombatLogFormatter.monster_attack(result, desc, get_damage_type())
 			if not msg.is_empty():
 				GameLog.log_combat(msg)
+			if result.get("damage", 0) > 0 and target.has_method("on_combat_node_hit"):
+				target.on_combat_node_hit(self)
 		else:
 			var target_name: String = target.get("pet_name") if "pet_name" in target else "your ally"
 			_log_attack_on_other(result, desc, target_name)
+			if not target.combat_node.is_alive() and target.has_method("die"):
+				target.die()
 	elif target.has_method("take_damage"):
 		target.take_damage(damage)
 		if target == player:
@@ -545,8 +564,14 @@ func call_nearby_allies() -> void:
 		if ally.faction != faction or ally.faction == "None":
 			continue
 
+		# Bug fixed 2026-09-14: this compared a real meter distance against
+		# aggro_range, which is the RAW, unscaled JSON value (2D-era units —
+		# see aggro_range's own doc comment) — e.g. a bandit's aggro_range is
+		# 200.0, so allies anywhere in roughly a 200m radius would come
+		# assist, not the handful of meters it looked like. ASSIST_RANGE is a
+		# real, deliberately short meter distance instead.
 		var distance = global_position.distance_to(ally.global_position)
-		if distance < aggro_range:
+		if distance < ASSIST_RANGE:
 			if (ally.current_state == State.IDLE or ally.current_state == State.PATROL) \
 				and ally.combat_node.is_alive():
 				ally.change_state(State.CHASE)
@@ -561,9 +586,17 @@ func get_damage_type() -> String:
 		"undead":   return "blunt"
 		_:          return "generic"
 
+const DEATH_LINE_PATH := "res://Data/humanoid_death_lines.json"
+
 func die(award_xp: bool = true, drop_loot: bool = true) -> void:
 	change_state(State.DEAD)
 	print("💀 %s died! (XP: %d, Coins: %.2f, Category: %s)" % [monster_name, xp_gain, coin_modifier, category])
+
+	if category == "humanoid":
+		var line := NPCFlavorText.new(DEATH_LINE_PATH).get_line("death")
+		if line != "":
+			var desc: String = monster_description if monster_description != "" else get_monster_name()
+			GameLog.log_general("[color=#cc8888]%s says, \"%s\"[/color]" % [desc.capitalize(), line])
 
 	if drop_loot:
 		pending_loot = _auto_process_loot(roll_loot())
@@ -642,15 +675,17 @@ func _auto_process_loot(drops: Array) -> Array:
 		if CURRENCY_MAP.has(item_id):
 			var currency_field: String = CURRENCY_MAP[item_id]
 			Global.grant_currency(currency_field, drop["quantity"])
+			Global.play_coin_sound()
 			GameLog.log_general("[color=#ffd966]You receive %d %s.[/color]" % [drop["quantity"], currency_field.capitalize()])
 			continue
 		match Global.get_loot_preference(item_id):
 			"loot", "sell":
 				if Inventory.get_item_definition(item_id).is_empty():
 					remaining.append(drop)  # not a real item yet — fall back to manual
-				else:
-					Inventory.add_to_basic_inventory(item_id)
+				elif Inventory.add_item(item_id, drop["quantity"]):
 					GameLog.log_general("You automatically loot %s." % item_id.replace("_", " ").capitalize())
+				else:
+					remaining.append(drop)  # inventory full — leave it for the manual loot window instead of vanishing
 			"ignore":
 				pass  # discarded silently
 			_:
@@ -713,6 +748,9 @@ func change_state(new_state: State) -> void:
 	current_state = new_state
 
 	match new_state:
+		State.IDLE:
+			_idle_timer = 0.0
+			_idle_duration = randf_range(IDLE_MIN_DURATION, IDLE_MAX_DURATION)
 		State.PATROL:
 			pick_new_patrol_point()
 		State.CHASE:
@@ -722,9 +760,26 @@ func change_state(new_state: State) -> void:
 		State.ATTACK:
 			velocity = Vector3.ZERO
 
+# Called on every monster when the player is incapacitated/dies (see
+# player3d.gd's die()) — clears aggro and heads straight back to spawn_position
+# instead of picking a random nearby patrol point, so it reads as "giving up
+# and walking home" rather than just wandering off. can_see_player() (below)
+# separately makes sure a monster won't re-aggro the same downed player while
+# they're still incapacitated/dead-pending-respawn.
+func force_disengage() -> void:
+	if current_state == State.DEAD:
+		return
+	aggro_table.clear()
+	if current_state in [State.CHASE, State.ATTACK]:
+		change_state(State.PATROL)
+		patrol_target = spawn_position
+
+
 func can_see_player() -> bool:
 	if not player:
 		return false
+	if "dying" in player and player.dying:
+		return false  # incapacitated or dead-pending-respawn — ignore, per force_disengage() above
 
 	var distance: float = global_position.distance_to(player.global_position)
 	var effective_range: float = minf(aggro_range / AGGRO_RANGE_SCALE, MAX_AGGRO_DISTANCE)
@@ -737,9 +792,12 @@ func can_see_player() -> bool:
 		_:  # aggressive, skitter, etc.
 			return distance <= effective_range
 
+const PATROL_MIN_DISTANCE: float = 5.0   # avoid trivially-short legs that don't read as movement
+const PATROL_MAX_DISTANCE: float = 18.0  # was a flat 10.0 with no minimum — too tight a bubble to look like real wandering
+
 func pick_new_patrol_point() -> void:
 	var random_angle: float = randf() * TAU
-	var random_distance: float = randf() * 10.0
+	var random_distance: float = randf_range(PATROL_MIN_DISTANCE, PATROL_MAX_DISTANCE)
 	patrol_target = spawn_position + Vector3(
 		cos(random_angle) * random_distance,
 		0,

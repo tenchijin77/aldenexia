@@ -10,6 +10,65 @@ signal month_changed(new_month: String)
 signal currency_changed
 #endregion
 
+#region SFX (one-shot, non-positional — UI/feedback sounds, not 3D-positioned combat SFX)
+const COIN_SOUND: AudioStream = preload("res://Assets/yodguard-coin-collect-3-540190.mp3")
+
+# Spawns a short-lived AudioStreamPlayer on the "SFX" bus (respects the
+# Options menu's SFX volume slider) and frees itself when done — a fresh
+# player per call rather than one shared/reused player, so looting several
+# coin drops in quick succession layers the sound instead of each new play
+# cutting the previous one off.
+func play_sfx(stream: AudioStream, volume_db: float = 0.0) -> void:
+	if not stream:
+		return
+	var player := AudioStreamPlayer.new()
+	player.stream = stream
+	player.bus = "SFX"
+	player.volume_db = volume_db
+	add_child(player)
+	player.play()
+	player.finished.connect(player.queue_free)
+
+func play_coin_sound() -> void:
+	play_sfx(COIN_SOUND)
+
+
+# Investigated 2026-09-14: reported "title music takes 5-10s to start on the
+# loading screen, seems to have started after we added the audio buses."
+# Traced the actual GDScript path — Global._ready() -> GlobalBackgroundMusic
+# autoplay/_check_and_play_music() -> main_menu._ready() — and it resolves
+# in ~1.4s from process launch in testing, nowhere near 5-10s, and
+# default_bus_layout.tres has zero effects on any bus (just Master/Music/SFX
+# routing), so the bus graph itself isn't doing anything slow either. The
+# far more likely cause: PulseAudio/PipeWire (and some Windows/macOS audio
+# backends similarly) auto-suspend an idle output device after a few
+# seconds of silence, then take a noticeable moment to wake it back up the
+# next time something actually plays — and the very first sound this game
+# ever plays is the title music itself, right as the loading screen appears,
+# so that wake-up latency shows up as exactly this "music takes a few
+# seconds to start" symptom. It likely only coincides with the bus work
+# timing-wise rather than being caused by it.
+# This can't be fixed from inside the audio graph, but it CAN be hidden: a
+# near-silent one-shot played here, as early as possible (Global is the
+# first autoload), forces the OS audio device to wake up during the
+# engine's own boot/window-creation time — which is already happening
+# regardless — instead of at the moment the title music tries to play,
+# so any such wake-up delay is absorbed before the player ever notices it.
+func _warm_up_audio() -> void:
+	var stream := AudioStreamWAV.new()
+	stream.format = AudioStreamWAV.FORMAT_16_BITS
+	stream.mix_rate = 44100
+	var silence := PackedByteArray()
+	silence.resize(256)  # a few ms of silence — just enough to open the device
+	stream.data = silence
+	var player := AudioStreamPlayer.new()
+	player.stream = stream
+	player.volume_db = -80.0
+	add_child(player)
+	player.play()
+	player.finished.connect(player.queue_free)
+#endregion
+
 #region Chat System
 var is_chat_active = false:
 	set(value):
@@ -136,6 +195,7 @@ var total_playtime_seconds: int = 0
 #endregion
 
 func _ready():
+	_warm_up_audio()
 	load_xp_table()
 	load_character_options()
 	initialize_time_system()
@@ -356,6 +416,16 @@ func load_player_data_from_file(character_name: String) -> Dictionary:
 func save_player_data_to_file() -> void:
 	if player_data.is_empty() or current_character_name.is_empty():
 		return
+	# Every save call site (many, across player3d.gd and pause_menu.gd) goes
+	# through here, so capturing the live position right before writing —
+	# rather than patching each call site — guarantees it's always current
+	# and lets the player log back in exactly where they logged out. Distinct
+	# from "bind_point" (player3d.gd), which is the death-respawn location and
+	# only ever set once on first spawn.
+	var players := get_tree().get_nodes_in_group("player")
+	if not players.is_empty():
+		var p: Node3D = players[0]
+		player_data["last_position"] = [p.global_position.x, p.global_position.y, p.global_position.z]
 	var file_path := "user://saves/%s_character_stats.json" % current_character_name.to_lower()
 	var file := FileAccess.open(file_path, FileAccess.WRITE)
 	if file:

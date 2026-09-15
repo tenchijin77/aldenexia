@@ -128,7 +128,7 @@ func _con_color(diff: int) -> Color:
 static func faction_status(target: Node) -> String:
 	# Ally/Neutral/Enemy — derived from what already exists (group membership,
 	# behavior_type), not a separate faction-standing system. See game_flow.txt.
-	if target.is_in_group("npc_guard"):
+	if target.is_in_group("npc_guard") or target.is_in_group("npc_vendor"):
 		return "Ally"
 	if target.get("behavior_type") == "passive":
 		return "Neutral"

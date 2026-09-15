@@ -1,4 +1,5 @@
 {
+  "_comment": "npc_guard_text.json - guards respond to player hails and also chat among themselves.",
   "hail": [
     "Move along, traveler. Lumora's roads are watched, but not always safe.",
     "Keep your blade close past the outskirts — the dustwalkers have been bold lately.",
@@ -8,7 +9,13 @@
     "Quiet shift, this one. I'd rather be bored than busy, out here.",
     "You look like you've seen some road dust. Lumora's got an inn if you need it.",
     "Stay sharp past dusk. The moon's been strange, and stranger things follow it.",
-    "Nothing gets past this gate without us noticing. Well... mostly nothing."
+    "Nothing gets past this gate without us noticing. Well... mostly nothing.",
+    "If you're heading south, mind the dunes. The wind hides more than tracks.",
+    "Traveling alone? Brave... or foolish. Either way, keep your wits about you.",
+    "If you see smoke on the horizon, report it. Could be raiders testing the border.",
+    "Don't linger near the ridge. Something's been watching from up there.",
+    "You look capable enough. Just remember — Lumora rewards caution.",
+    "If trouble finds you, shout. We’re not as slow as we look."
   ],
   "engage": [
     "Stay back. I'll handle this!",
@@ -17,5 +24,17 @@
     "Not on my watch!",
     "You picked the wrong post to wander into.",
     "Wardens, to arms!"
+  ],
+  "banter": [
+    "Another quiet night. Makes me wonder what we're missing.",
+    "If the dustwalkers push again, we'll be ready. Or so the captain says.",
+    "Saw tracks near the ridge this morning. Fresh ones.",
+    "I swear the dunes shift when no one's looking.",
+    "If I ever get off this post, I'm buying a drink big enough to drown in.",
+    "You hear that? ...No? Exactly. That's what worries me.",
+    "The Sacred Flame burns steady tonight. Good omen, maybe.",
+    "Hope the caravans make it through. Roads haven't been kind lately.",
+    "If something jumps us, aim for the legs. If they can't stand, they can't fight.",
+    "Bet you a week's pay this shift ends without a single incident. Actually... forget I said that."
   ]
 }

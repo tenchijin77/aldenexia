@@ -66,7 +66,7 @@ func _input(event: InputEvent) -> void:
 		_head_turn_held = event.pressed
 		if not Global.mouselook_enabled:
 			if _head_turn_held:
-				Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+				Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
 			else:
 				Global.restore_mouse_mode()
 
@@ -107,9 +107,23 @@ func _handle_head_turn(relative: Vector2) -> void:
 	rotation.y = rotation_y
 	rotation.x = rotation_x
 
+# Zooming all the way in from either third-person mode drops into first-
+# person automatically (amount < 0 = scrolling in); scrolling back out while
+# in first-person pops back out to third-person-behind at MIN_ZOOM, so the
+# transition reads as one continuous zoom rather than a mode-cycle jump.
 func zoom_camera(amount: float) -> void:
+	if current_mode == CameraMode.FIRST_PERSON:
+		if amount > 0.0:
+			current_mode = CameraMode.THIRD_PERSON_BEHIND
+			current_zoom = MIN_ZOOM
+			apply_camera_mode()
+		return
+
 	current_zoom = clamp(current_zoom + amount, MIN_ZOOM, MAX_ZOOM)
-	if current_mode == CameraMode.THIRD_PERSON_BEHIND:
+	if current_zoom <= MIN_ZOOM and (current_mode == CameraMode.THIRD_PERSON_BEHIND or current_mode == CameraMode.THIRD_PERSON_ANGLED):
+		current_mode = CameraMode.FIRST_PERSON
+		apply_camera_mode()
+	elif current_mode == CameraMode.THIRD_PERSON_BEHIND:
 		camera.position.z = current_zoom
 	elif current_mode == CameraMode.THIRD_PERSON_ANGLED:
 		var zoom_factor: float = current_zoom / 6.0
