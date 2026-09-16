@@ -425,7 +425,7 @@ func _on_chat_input_gui_input(event: InputEvent) -> void:
 # too (Linux-style abbreviation) — see _resolve_command() below. e.g. "/loc"
 # and "/location" both resolve to "/location" since no other command starts
 # with "loc"; "/f" would be ambiguous if two commands both started with "f".
-const COMMANDS := ["/location", "/hail", "/appraise", "/time", "/follow", "/camp", "/exit", "/log"]
+const COMMANDS := ["/location", "/hail", "/appraise", "/time", "/follow", "/camp", "/exit", "/log", "/invite", "/disband"]
 
 
 func _handle_slash_command(text: String) -> void:
@@ -453,6 +453,16 @@ func _handle_slash_command(text: String) -> void:
 			_save_and_quit()
 		"/log":
 			_toggle_file_logging()
+		"/invite":
+			if arg.is_empty():
+				player.invite_to_group(player.current_target)
+			else:
+				player.invite_to_group_by_name(arg)
+		"/disband":
+			if arg.is_empty():
+				player.disband_or_kick_from_group(player.current_target)
+			else:
+				player.disband_from_group_by_name(arg)
 		"/time":
 			GameLog.log_general("[color=green]%s[/color]" % Global.format_full_date())
 			var day_night_nodes := get_tree().get_nodes_in_group("day_night_cycle")

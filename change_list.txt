@@ -125,14 +125,14 @@ completed:
 -added EQ-style F1-F6 group targeting: F1 = group member 1 (just yourself for now, until a real party system exists), pressing the same F-key again while already targeting that member toggles to their pet (and back on a third press)
 -fixed targeting yourself showing as "Unknown"/"(Enemy)" in the target frame — same missing-name-field bug as the earlier pet fix, plus a faction-classification gap
 -added /log — toggles writing chat and combat to a plain-text timestamped file (user://logs/, prints the real path when started) for balance/metrics review; captures every combat message regardless of the 10m on-screen distance filter
+-added group Invite/Disband: invite targets a real player only (max 6, no self/duplicate invites), disband kicks the targeted member or clears the whole group if nothing's targeted — buttons on the group frame and /invite, /disband commands both use the same logic
+-/invite <name> and /disband <name> now also work by character name instead of requiring a target, so grouping across zones will work once networking exists (e.g. /invite zozuur)
 
 to do: (in order of importance)
 
 -write spell data for Chaosborn (currently has zero spells at any level)
 
 -finish spiritcaller levels 3-8 (chain heals, remaining totems, ghost wolf, spirit link, hex)
-
--build real party/group system (invite, member list) before networking
 
 -implement nests for rats and bandit camps as spawn locations
 

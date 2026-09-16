@@ -36,7 +36,7 @@ func _build_ui() -> void:
 	panel.offset_left   = 10
 	panel.offset_top    = 185
 	panel.offset_right  = 230
-	panel.offset_bottom = 185 + 96
+	panel.offset_bottom = 185 + 128
 	panel.gui_input.connect(_on_panel_gui_input)
 	_panel = panel
 	add_child(panel)
@@ -117,7 +117,40 @@ func _build_ui() -> void:
 	_style_bar(_pet_mp_bar, Color(0.2, 0.35, 0.9), Color(0.05, 0.06, 0.12))
 	pet_col.add_child(_pet_mp_bar)
 
+	var btn_row := HBoxContainer.new()
+	btn_row.add_theme_constant_override("separation", 6)
+	vbox.add_child(btn_row)
+
+	var invite_btn := Button.new()
+	invite_btn.text = "Invite"
+	invite_btn.custom_minimum_size = Vector2(0, 24)
+	invite_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	invite_btn.pressed.connect(_on_invite_pressed)
+	btn_row.add_child(invite_btn)
+
+	var disband_btn := Button.new()
+	disband_btn.text = "Disband"
+	disband_btn.custom_minimum_size = Vector2(0, 24)
+	disband_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	disband_btn.pressed.connect(_on_disband_pressed)
+	btn_row.add_child(disband_btn)
+
 	WindowPosition.load_position_into(POSITION_KEY, panel)
+
+
+# Invite always targets whoever you currently have selected (same as typing
+# /invite) — targeting is the whole point of these buttons existing rather
+# than, say, a text-entry name field.
+func _on_invite_pressed() -> void:
+	if is_instance_valid(_player) and _player.has_method("invite_to_group"):
+		_player.invite_to_group(_player.current_target)
+
+
+# Disband with a target selected kicks just that member; with nothing
+# selected, disbands the whole group — same rule as /disband.
+func _on_disband_pressed() -> void:
+	if is_instance_valid(_player) and _player.has_method("disband_or_kick_from_group"):
+		_player.disband_or_kick_from_group(_player.current_target)
 
 
 func _style_bar(bar: ProgressBar, fill_color: Color, bg_color: Color) -> void:

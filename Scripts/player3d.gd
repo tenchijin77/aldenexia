@@ -1164,6 +1164,85 @@ func _handle_group_target_key(n: int) -> void:
 	_announce_target(member)
 
 
+const MAX_GROUP_SIZE := 6
+
+# /invite (or the Group frame's Invite button) — targets a real other player
+# only (not NPCs/pets), since group_members is meant to become the actual
+# networked party roster. No invite/accept handshake yet (there's no other
+# client to accept from until networking exists) — this adds them directly,
+# same "build the real mechanism now, wire up the handshake once there's
+# someone on the other end" approach as group_members itself.
+func invite_to_group(target: Node) -> void:
+	if not is_instance_valid(target) or not target.is_in_group("player"):
+		GameLog.log_general("You can only invite another player to your group.")
+		return
+	if target == self:
+		GameLog.log_general("You can't invite yourself.")
+		return
+	if target in group_members:
+		GameLog.log_general("%s is already in your group." % TargetFrame.display_name(target))
+		return
+	if group_members.size() >= MAX_GROUP_SIZE:
+		GameLog.log_general("Your group is full (%d/%d)." % [MAX_GROUP_SIZE, MAX_GROUP_SIZE])
+		return
+	group_members.append(target)
+	GameLog.log_general("[color=#88ccff]You invite %s to your group.[/color]" % TargetFrame.display_name(target))
+
+
+# /disband (or the Group frame's Disband button) — a targeted group member
+# (not yourself) is kicked; no target, or targeting yourself, disbands the
+# whole group back down to just you.
+func disband_or_kick_from_group(target: Node = null) -> void:
+	if is_instance_valid(target) and target != self and target in group_members:
+		group_members.erase(target)
+		GameLog.log_general("[color=#ffaa66]%s has been removed from the group.[/color]" % TargetFrame.display_name(target))
+		return
+
+	if group_members.size() <= 1:
+		GameLog.log_general("You aren't in a group.")
+		return
+	group_members = [self]
+	GameLog.log_general("[color=#ffaa66]The group has been disbanded.[/color]")
+
+
+# Looks up a player by character name instead of by targeting/proximity —
+# for /invite <name> and /disband <name>. Only finds players whose node is
+# actually in the scene tree (this "player" group), which today means only
+# yourself; once networking exists, remote players will register into this
+# same group as they come online, so this lookup needs no changes then.
+func _find_player_by_name(query: String) -> Node:
+	var query_lower := query.strip_edges().to_lower()
+	if query_lower.is_empty():
+		return null
+	for node in get_tree().get_nodes_in_group("player"):
+		if not is_instance_valid(node):
+			continue
+		var pname: String = str(node.get("player_name")) if "player_name" in node else ""
+		if pname.to_lower() == query_lower:
+			return node
+	return null
+
+
+# /invite <name> — resolves a character name (not requiring a target) and
+# hands off to the normal invite_to_group() checks.
+func invite_to_group_by_name(player_name_query: String) -> void:
+	var target := _find_player_by_name(player_name_query)
+	if target == null:
+		GameLog.log_general("No player named '%s' is currently online." % player_name_query)
+		return
+	invite_to_group(target)
+
+
+# /disband <name> — resolves a character name (not requiring a target) and
+# hands off to the normal disband_or_kick_from_group() checks.
+func disband_from_group_by_name(player_name_query: String) -> void:
+	var target := _find_player_by_name(player_name_query)
+	if target == null:
+		GameLog.log_general("No player named '%s' is currently online." % player_name_query)
+		return
+	disband_or_kick_from_group(target)
+
+
 func tab_cycle_target() -> void:
 	var candidates := get_tree().get_nodes_in_group("monsters") + get_tree().get_nodes_in_group("npc_guard") + get_tree().get_nodes_in_group("npc_vendor") + get_tree().get_nodes_in_group("pets")
 	var valid: Array = []
