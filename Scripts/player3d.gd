@@ -31,6 +31,7 @@ var combat_node: CombatNode
 var player_name := "Default Hero"
 var player_class := ""
 var player_race := ""
+var player_sex := "male"
 var known_spells: Array = []
 var known_skills: Array = []
 var skill_levels: Dictionary = {}
@@ -118,11 +119,13 @@ var current_target: Node = null
 var _target_idx: int = -1
 
 # F1-F6 group targeting (EQ/modern-MMO style) — group_members[0] is always
-# "yourself" until a real party system exists (see change_list.txt to-do);
-# members 2-6 are simply absent for now, so those keys are no-ops rather than
-# erroring. Pressing the same F-key again while already targeting that
-# member switches to their pet instead (and back again on a third press) —
-# see _handle_group_target_key() below.
+# "yourself". Stored as multiplayer peer ids (not Node references — Nodes
+# aren't meaningful across the network), resolved to an actual local Node via
+# _peer_id_to_player_node() whenever needed. Pressing the same F-key again
+# while already targeting that member switches to their pet instead (and back
+# again on a third press) — see _handle_group_target_key() below. Kept in
+# sync across a real multiplayer session via Net's invite/roster RPCs — see
+# invite_to_group(), _on_group_invite_response(), _on_group_roster_received().
 var group_members: Array = []
 #endregion
 
@@ -150,7 +153,10 @@ const FOLLOW_WAYPOINT_EPSILON := 1.5
 #region Node references
 @onready var camera_rig: Node3D = $CameraRig
 @onready var collision_shape: CollisionShape3D = $CollisionShape3D
-@onready var animation_player: AnimationPlayer = $Character/AnimationPlayer
+# Not @onready — the "Character" node itself is built dynamically by
+# _build_character_model() (race/sex-dependent), so this is only valid once
+# that has run at least once. See CHARACTER_MODELS below.
+var animation_player: AnimationPlayer = null
 #endregion
 
 #region Loot interaction
@@ -518,7 +524,7 @@ var abilities_book_instance: Node = null
 #region Initialization
 func _ready() -> void:
 	add_to_group("player")
-	_setup_animations()
+	_build_character_model()
 
 	# Multiplayer puppet: every player3d node in the scene whose multiplayer
 	# authority isn't this machine (the host's pre-placed node, from a joining
@@ -531,7 +537,10 @@ func _ready() -> void:
 	if not is_multiplayer_authority():
 		return
 
-	group_members = [self]
+	group_members = [get_multiplayer_authority()]
+	Net.group_invite_response_received.connect(_on_group_invite_response)
+	Net.group_roster_received.connect(_on_group_roster_received)
+	Net.group_removed_received.connect(_on_group_removed)
 
 	combat_node = CombatNode.new()
 	add_child(combat_node)
@@ -563,24 +572,122 @@ func _ready() -> void:
 	])
 
 
-# Mixamo animations are baked into a single shared AnimationLibrary at
-# res://models/player/player_animations.res (idle/walk/run/jump/sit/
-# attack_horizontal/attack_downward/death) rather than kept as separate
-# imported scenes, so the game only loads the lightweight keyframe data
-# instead of instancing the (much heavier) source meshes just to steal their
-# animations.
-func _setup_animations() -> void:
-	if not animation_player:
+# Which race/sex gets which model+animation set. Anything not listed here
+# (every race, and Human males) falls back to DEFAULT_CHARACTER_MODEL — the
+# original shared Mixamo model every class has always used. Mixamo animations
+# are baked into a single shared AnimationLibrary per model (idle/walk/run/
+# jump/sit/attack_horizontal/attack_downward/death) rather than kept as
+# separate imported scenes, so the game only loads the lightweight keyframe
+# data instead of instancing the (much heavier) source meshes just to steal
+# their animations.
+const CHARACTER_MODELS := {
+	"human_female": {
+		"scene":   "res://models/Human Female/Human Female Breathing Idle.fbx",
+		"library": "res://models/Human Female/female_animations.res",
+		# The Mixamo/Blender export chain for these Meshy-sourced models keeps
+		# losing the real texture link (the FBX's own material points at a
+		# file that only ever existed on the machine it was exported from) —
+		# rather than depend on that export step working, apply the known-good
+		# texture directly as a Godot material override. See
+		# _apply_texture_override().
+		"texture_override": "res://models/Human Female/Meshy_AI_Tavern_Maid_Rig_biped_texture_0.png",
+	},
+	"human_male": {
+		"scene":   "res://models/Human Male/Human Male Breathing Idle.fbx",
+		"library": "res://models/Human Male/human_male_animations.res",
+		"texture_override": "res://models/Human Male/Meshy_AI_fantasy_commoner_rigg_biped_texture_0.png",
+	},
+	"troll_male": {
+		"scene":   "res://models/Troll Male/Troll Male Breathing Idle.fbx",
+		"library": "res://models/Troll Male/troll_male_animations.res",
+		"texture_override": "res://models/Troll Male/Meshy_AI_troll_commoner_rig_biped_texture_0.png",
+	},
+}
+const DEFAULT_CHARACTER_MODEL := {
+	"scene":   "res://models/player/character.fbx",
+	"library": "res://models/player/player_animations.res",
+}
+# Same facing correction player3d.tscn originally hardcoded on its static
+# Character node — every Mixamo export shares this convention, so it applies
+# equally regardless of which model gets built here.
+var CHARACTER_MODEL_TRANSFORM := Transform3D(
+	Vector3(-1.0, 0.0, -8.742278e-08),
+	Vector3(0.0, 1.0, 0.0),
+	Vector3(8.742278e-08, 0.0, -1.0),
+	Vector3(0.0, 0.0, 0.0)
+)
+
+var _built_character_model_key: String = ""
+
+
+func _character_model_key() -> String:
+	return "%s_%s" % [player_race.to_lower(), player_sex.to_lower()]
+
+
+# Builds (or rebuilds) the "Character" child to match player_race/player_sex —
+# called once immediately in _ready() with whatever defaults are set at that
+# point (so nobody's ever modelless), and again whenever the real values
+# become known: locally via load_character_data() for the authoritative
+# player, or via replication for a puppet (see _physics_process()'s puppet
+# branch, since player_race/player_sex arrive a frame or two after spawn,
+# not at _ready() time). A no-op if the resulting model wouldn't change.
+func _build_character_model() -> void:
+	var key := _character_model_key()
+	if key == _built_character_model_key and has_node("Character"):
 		return
-	var lib := load("res://models/player/player_animations.res") as AnimationLibrary
-	if not lib:
+
+	if has_node("Character"):
+		var old_character := get_node("Character")
+		remove_child(old_character)
+		old_character.queue_free()
+
+	var model_info: Dictionary = CHARACTER_MODELS.get(key, DEFAULT_CHARACTER_MODEL)
+	var character_scene := load(model_info["scene"])
+	if not character_scene:
 		return
-	# The imported model's AnimationPlayer already owns a "" library (its raw
-	# Mixamo export clips) — replace it so idle/walk/jump can be played
-	# unprefixed instead of needing a distinct library name.
-	if animation_player.has_animation_library(""):
-		animation_player.remove_animation_library("")
-	animation_player.add_animation_library("", lib)
+	var character: Node3D = character_scene.instantiate()
+	character.name = "Character"
+	character.transform = CHARACTER_MODEL_TRANSFORM
+	add_child(character)
+
+	animation_player = character.get_node_or_null("AnimationPlayer")
+	if animation_player:
+		var lib := load(model_info["library"]) as AnimationLibrary
+		if lib:
+			# The imported model's AnimationPlayer already owns a "" library
+			# (its raw Mixamo export clips) — replace it so idle/walk/jump can
+			# be played unprefixed instead of needing a distinct library name.
+			if animation_player.has_animation_library(""):
+				animation_player.remove_animation_library("")
+			animation_player.add_animation_library("", lib)
+
+	if model_info.has("texture_override"):
+		_apply_texture_override(character, model_info["texture_override"])
+
+	_built_character_model_key = key
+
+
+# Overrides every mesh surface under `node` with a fresh StandardMaterial3D
+# using `texture_path` as the albedo — bypasses whatever material data (good
+# or broken) the FBX itself carries.
+func _apply_texture_override(node: Node, texture_path: String) -> void:
+	var tex := load(texture_path) as Texture2D
+	if not tex:
+		push_warning("⚠️ Texture override not found: %s" % texture_path)
+		return
+	var mat := StandardMaterial3D.new()
+	mat.albedo_texture = tex
+	_apply_material_recursive(node, mat)
+
+
+func _apply_material_recursive(node: Node, mat: Material) -> void:
+	if node is MeshInstance3D:
+		var mi: MeshInstance3D = node
+		if mi.mesh:
+			for i in range(mi.mesh.get_surface_count()):
+				mi.set_surface_override_material(i, mat)
+	for child in node.get_children():
+		_apply_material_recursive(child, mat)
 
 
 const ATTACK_ANIMS := ["attack_horizontal", "attack_downward"]
@@ -682,6 +789,18 @@ func _load_spell_cache() -> void:
 func _physics_process(delta: float) -> void:
 	if not is_multiplayer_authority():
 		_play_replicated_animation()
+		# player_name arrives a frame or two after spawn (replicated, not set
+		# locally like the authoritative path's load_character_data() call) —
+		# cheap to just keep the nameplate in sync every tick rather than
+		# reacting to a change signal.
+		if has_node("NameLabel") and $NameLabel.text != player_name:
+			$NameLabel.text = player_name
+			$NameLabel.visible = Global.settings.get("show_name_tags", true)
+		# player_race/player_sex replicate in the same delayed way as
+		# player_name — rebuild the model once they arrive (a no-op once the
+		# key stops changing, see _build_character_model()).
+		if _character_model_key() != _built_character_model_key:
+			_build_character_model()
 		return
 
 	var chat_focused := get_viewport().gui_get_focus_owner() is LineEdit
@@ -1185,8 +1304,8 @@ func _is_targetable_alive(node: Node) -> bool:
 func _handle_group_target_key(n: int) -> void:
 	if n < 1 or n > group_members.size():
 		return
-	var member: Node = group_members[n - 1]
-	if not is_instance_valid(member):
+	var member := _peer_id_to_player_node(group_members[n - 1])
+	if member == null:
 		return
 
 	if current_target == member:
@@ -1205,12 +1324,26 @@ func _handle_group_target_key(n: int) -> void:
 
 const MAX_GROUP_SIZE := 6
 
+# Resolves a group_members entry (a multiplayer peer id) to whatever local
+# Node currently represents that peer — the pre-placed host node, a
+# RemotePlayers-spawned puppet, or this node itself. Returns null if that
+# peer isn't currently in the scene (disconnected, different zone, etc.).
+func _peer_id_to_player_node(peer_id: int) -> Node:
+	for node in get_tree().get_nodes_in_group("player"):
+		if is_instance_valid(node) and node.get_multiplayer_authority() == peer_id:
+			return node
+	return null
+
+
+func _display_name_for_peer(peer_id: int) -> String:
+	var node := _peer_id_to_player_node(peer_id)
+	return TargetFrame.display_name(node) if node else "A player"
+
+
 # /invite (or the Group frame's Invite button) — targets a real other player
-# only (not NPCs/pets), since group_members is meant to become the actual
-# networked party roster. No invite/accept handshake yet (there's no other
-# client to accept from until networking exists) — this adds them directly,
-# same "build the real mechanism now, wire up the handshake once there's
-# someone on the other end" approach as group_members itself.
+# only (not NPCs/pets). Sends a real invite over the network; the target sees
+# an Accept/Decline popup (group_invite_popup.gd) rather than being added
+# instantly. See _on_group_invite_response() for what happens once they answer.
 func invite_to_group(target: Node) -> void:
 	if not is_instance_valid(target) or not target.is_in_group("player"):
 		GameLog.log_general("You can only invite another player to your group.")
@@ -1218,30 +1351,71 @@ func invite_to_group(target: Node) -> void:
 	if target == self:
 		GameLog.log_general("You can't invite yourself.")
 		return
-	if target in group_members:
+	var target_id: int = target.get_multiplayer_authority()
+	if target_id in group_members:
 		GameLog.log_general("%s is already in your group." % TargetFrame.display_name(target))
 		return
 	if group_members.size() >= MAX_GROUP_SIZE:
 		GameLog.log_general("Your group is full (%d/%d)." % [MAX_GROUP_SIZE, MAX_GROUP_SIZE])
 		return
-	group_members.append(target)
+	Net.send_group_invite(target_id, player_name)
 	GameLog.log_general("[color=#88ccff]You invite %s to your group.[/color]" % TargetFrame.display_name(target))
+
+
+# Fires on the INVITER's machine once the invited player answers the popup.
+# On accept, adds them locally and pushes the new full roster out to every
+# member (the new one included) so everyone's local group_members agrees —
+# see Net.broadcast_group_roster().
+func _on_group_invite_response(responder_id: int, accepted: bool) -> void:
+	if not accepted:
+		GameLog.log_general("[color=#ffaa66]%s declined your invite.[/color]" % _display_name_for_peer(responder_id))
+		return
+	if responder_id in group_members:
+		return
+	if group_members.size() >= MAX_GROUP_SIZE:
+		return
+	group_members.append(responder_id)
+	GameLog.log_general("[color=#88ccff]%s has joined your group.[/color]" % _display_name_for_peer(responder_id))
+	Net.broadcast_group_roster(group_members)
+
+
+# Fires on every OTHER member's machine (new joiner included) whenever the
+# roster changes — replaces their local copy wholesale rather than trying to
+# diff it, which is plenty for a group capped at 6.
+func _on_group_roster_received(peer_ids: Array) -> void:
+	group_members = peer_ids.duplicate()
+
+
+# Fires when this player specifically has been kicked or the whole group
+# they were in got disbanded — resets them back to solo.
+func _on_group_removed(reason: String) -> void:
+	group_members = [get_multiplayer_authority()]
+	GameLog.log_general("[color=#ffaa66]%s[/color]" % reason)
 
 
 # /disband (or the Group frame's Disband button) — a targeted group member
 # (not yourself) is kicked; no target, or targeting yourself, disbands the
-# whole group back down to just you.
+# whole group back down to just you. Either way, everyone affected is told
+# over the network so their own group_members stays in sync.
 func disband_or_kick_from_group(target: Node = null) -> void:
-	if is_instance_valid(target) and target != self and target in group_members:
-		group_members.erase(target)
-		GameLog.log_general("[color=#ffaa66]%s has been removed from the group.[/color]" % TargetFrame.display_name(target))
-		return
+	if is_instance_valid(target) and target != self:
+		var target_id: int = target.get_multiplayer_authority()
+		if target_id in group_members:
+			group_members.erase(target_id)
+			GameLog.log_general("[color=#ffaa66]%s has been removed from the group.[/color]" % TargetFrame.display_name(target))
+			Net.send_group_removed(target_id, "You have been removed from the group.")
+			Net.broadcast_group_roster(group_members)
+			return
 
 	if group_members.size() <= 1:
 		GameLog.log_general("You aren't in a group.")
 		return
-	group_members = [self]
+	var old_members := group_members.duplicate()
+	group_members = [get_multiplayer_authority()]
 	GameLog.log_general("[color=#ffaa66]The group has been disbanded.[/color]")
+	for pid in old_members:
+		if pid != get_multiplayer_authority():
+			Net.send_group_removed(pid, "The group has been disbanded.")
 
 
 # Looks up a player by character name instead of by targeting/proximity —
@@ -1282,6 +1456,39 @@ func disband_from_group_by_name(player_name_query: String) -> void:
 	disband_or_kick_from_group(target)
 
 
+# /tell <name> <message> — a private, cross-peer whisper. Only makes sense in
+# an actual multiplayer session (single-player has no one else to hear it).
+func send_tell(target_name: String, message: String) -> void:
+	if not Net.is_multiplayer_game:
+		GameLog.log_general("[color=red]You're not in a multiplayer session.[/color]")
+		return
+	var target := _find_player_by_name(target_name)
+	if target == null:
+		GameLog.log_general("[color=red]No player named '%s' is currently online.[/color]" % target_name)
+		return
+	if target == self:
+		GameLog.log_general("[color=red]You can't tell yourself something... or can you?[/color]")
+		return
+	Net.send_tell(target.get_multiplayer_authority(), player_name, message)
+	GameLog.log_general("[color=#cc88ff]You tell %s, '%s'[/color]" % [TargetFrame.display_name(target), message])
+
+
+# /party <message> — broadcasts to every OTHER real player currently in
+# group_members. Once real cross-zone grouping exists this still works
+# unchanged, since it addresses peers by id, not by scene proximity.
+func send_party_message(message: String) -> void:
+	if not Net.is_multiplayer_game:
+		GameLog.log_general("[color=red]You're not in a multiplayer session.[/color]")
+		return
+	var my_id := get_multiplayer_authority()
+	var peer_ids: Array = group_members.filter(func(pid): return pid != my_id)
+	if peer_ids.is_empty():
+		GameLog.log_general("[color=red]You aren't in a group.[/color]")
+		return
+	Net.send_party_message(peer_ids, player_name, message)
+	GameLog.log_general("[color=#88ccff][Party] You: %s[/color]" % message)
+
+
 func tab_cycle_target() -> void:
 	var candidates := get_tree().get_nodes_in_group("monsters") + get_tree().get_nodes_in_group("npc_guard") + get_tree().get_nodes_in_group("npc_vendor") + get_tree().get_nodes_in_group("pets")
 	var valid: Array = []
@@ -1318,7 +1525,7 @@ func _try_click_target(screen_pos: Vector2) -> void:
 	var query := PhysicsRayQueryParameters3D.create(origin, origin + direction * 150.0)
 	query.exclude = [self]
 	var hit := space.intersect_ray(query)
-	if hit and (hit.collider is Monster or hit.collider is GuardNPC or hit.collider is VendorNPC or hit.collider is PetMinion):
+	if hit and (hit.collider is Monster or hit.collider is GuardNPC or hit.collider is VendorNPC or hit.collider is PetMinion or hit.collider is Player3D):
 		var m: Node = hit.collider
 		if _is_targetable_alive(m):
 			current_target = m
@@ -1788,7 +1995,10 @@ func load_character_data(data: Dictionary) -> void:
 	player_name  = data.get("player_name",  "Unnamed Player")
 	player_class = data.get("player_class", "Blademaster")
 	player_race  = data.get("player_race",  "Human")
+	player_sex   = data.get("player_sex",   "male")
 	stats        = data.get("stats",        {})
+
+	_build_character_model()
 
 	if has_node("NameLabel"):
 		$NameLabel.text = player_name

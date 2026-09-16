@@ -7,7 +7,7 @@ extends CanvasLayer
 
 var panel: Panel
 var status_label: Label
-var name_input: LineEdit
+var character_select: OptionButton
 var ip_input: LineEdit
 var host_btn: Button
 var join_btn: Button
@@ -59,10 +59,10 @@ func _build_ui() -> void:
 	title.add_theme_color_override("font_color", Color(0.85, 0.78, 0.55))
 	vbox.add_child(title)
 
-	vbox.add_child(_make_label_row("Character Name"))
-	name_input = LineEdit.new()
-	name_input.placeholder_text = "Existing character's name..."
-	vbox.add_child(name_input)
+	vbox.add_child(_make_label_row("Character"))
+	character_select = OptionButton.new()
+	vbox.add_child(character_select)
+	_populate_character_dropdown()
 
 	vbox.add_child(HSeparator.new())
 
@@ -107,6 +107,41 @@ func _build_ui() -> void:
 	vbox.add_child(back_btn)
 
 
+# Same save-directory scan as load_game.gd's load_save_files() — a dropdown
+# of every existing single-player character instead of typing the name in by
+# hand (and risking a typo that silently fails to find the save file).
+func _populate_character_dropdown() -> void:
+	character_select.clear()
+	var save_dir_path := ProjectSettings.globalize_path("user://saves/")
+	var dir := DirAccess.open(save_dir_path)
+	if not dir:
+		return
+	dir.list_dir_begin()
+	var file_name := dir.get_next()
+	var stems: Array = []
+	while file_name != "":
+		if file_name.ends_with("_character_stats.json"):
+			stems.append(file_name.replace("_character_stats.json", ""))
+		file_name = dir.get_next()
+	dir.list_dir_end()
+	stems.sort()
+	for stem in stems:
+		character_select.add_item(str(stem).capitalize())
+		character_select.set_item_metadata(character_select.item_count - 1, stem)
+	if character_select.item_count == 0:
+		character_select.add_item("No characters found")
+		character_select.disabled = true
+
+
+func _selected_character_name() -> String:
+	if character_select.item_count == 0 or character_select.disabled:
+		return ""
+	var idx := character_select.selected
+	if idx < 0:
+		idx = 0
+	return str(character_select.get_item_metadata(idx))
+
+
 func _make_label_row(text: String) -> Label:
 	var l := Label.new()
 	l.text = text
@@ -132,7 +167,7 @@ func _make_button(label: String) -> Button:
 
 func _load_named_character(char_name: String) -> bool:
 	if char_name.is_empty():
-		status_label.text = "Enter your character's name first."
+		status_label.text = "No saved characters found — create one first."
 		return false
 	var data := Global.load_player_data_from_file(char_name)
 	if data.is_empty():
@@ -144,7 +179,7 @@ func _load_named_character(char_name: String) -> bool:
 func _on_host_pressed() -> void:
 	if _connecting:
 		return
-	if not _load_named_character(name_input.text.strip_edges()):
+	if not _load_named_character(_selected_character_name()):
 		return
 	if Net.host_game() != OK:
 		status_label.text = "Failed to host — is the port already in use?"
@@ -161,7 +196,7 @@ func _on_join_pressed() -> void:
 	if ip.is_empty():
 		status_label.text = "Enter the host's LAN IP."
 		return
-	if not _load_named_character(name_input.text.strip_edges()):
+	if not _load_named_character(_selected_character_name()):
 		return
 	if Net.join_game(ip) != OK:
 		status_label.text = "Failed to connect."

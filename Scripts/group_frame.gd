@@ -1,27 +1,22 @@
-# group_frame.gd — Party frame: your own name/HP/MP, with your active pet
-# listed slightly smaller beneath. This is the single-player stand-in for
-# what becomes a real multi-member party list once networking exists — same
-# row shape (name + HP + MP), so adding other players later means adding more
-# rows, not a redesign. Also the healer's practice target for group heals/
-# buffs while solo: right-click your own name row or your pet's to target
-# yourself/your pet directly (see _on_row_clicked()).
+# group_frame.gd — Party frame: one row per group member (name + HP + MP),
+# each with their own pet listed slightly smaller beneath if they have one
+# out. Built as a fixed pool of MAX_ROWS row widgets, shown/hidden each frame
+# to match the player's live group_members — cheap and avoids rebuilding the
+# UI every time someone joins/leaves. Click any row (player or pet) to target
+# it directly — the healer's way to heal/buff a specific group member.
 extends CanvasLayer
 class_name GroupFrame
 
 const POSITION_KEY := "group_frame"
+const MAX_ROWS := 6  # matches player3d.gd's MAX_GROUP_SIZE
 
 var _player: Node = null
 var _panel: Panel = null
 var _dragging := false
 
-var _player_name_label: Label
-var _player_hp_bar: ProgressBar
-var _player_mp_bar: ProgressBar
-
-var _pet_wrapper: Control
-var _pet_name_label: Label
-var _pet_hp_bar: ProgressBar
-var _pet_mp_bar: ProgressBar
+# One entry per row: {wrapper, name_label, hp_bar, mp_bar, pet_wrapper,
+# pet_name_label, pet_hp_bar, pet_mp_bar}
+var _member_rows: Array = []
 
 
 func _ready() -> void:
@@ -36,7 +31,10 @@ func _build_ui() -> void:
 	panel.offset_left   = 10
 	panel.offset_top    = 185
 	panel.offset_right  = 230
-	panel.offset_bottom = 185 + 128
+	# Tall enough for a full 6-member group each with a pet out; empty/hidden
+	# rows just leave blank space at the bottom rather than the panel
+	# resizing dynamically (Panel doesn't auto-fit VBoxContainer content).
+	panel.offset_bottom = 185 + 400
 	panel.gui_input.connect(_on_panel_gui_input)
 	_panel = panel
 	add_child(panel)
@@ -54,7 +52,7 @@ func _build_ui() -> void:
 	vbox.offset_top    =  4
 	vbox.offset_right  = -6
 	vbox.offset_bottom = -4
-	vbox.add_theme_constant_override("separation", 3)
+	vbox.add_theme_constant_override("separation", 4)
 	panel.add_child(vbox)
 
 	var title := Label.new()
@@ -63,59 +61,8 @@ func _build_ui() -> void:
 	title.add_theme_color_override("font_color", Color(0.8, 0.7, 0.4))
 	vbox.add_child(title)
 
-	# --- Player row ---
-	_player_name_label = Label.new()
-	_player_name_label.text = "Player"
-	_player_name_label.add_theme_font_size_override("font_size", 11)
-	_player_name_label.clip_text = true
-	_player_name_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-	_player_name_label.mouse_filter = Control.MOUSE_FILTER_STOP
-	_player_name_label.gui_input.connect(func(e): _on_row_clicked(e, "player"))
-	vbox.add_child(_player_name_label)
-
-	_player_hp_bar = ProgressBar.new()
-	_player_hp_bar.custom_minimum_size = Vector2(0, 10)
-	_player_hp_bar.show_percentage = false
-	_style_bar(_player_hp_bar, Color(0.8, 0.15, 0.15), Color(0.12, 0.05, 0.05))
-	vbox.add_child(_player_hp_bar)
-
-	_player_mp_bar = ProgressBar.new()
-	_player_mp_bar.custom_minimum_size = Vector2(0, 8)
-	_player_mp_bar.show_percentage = false
-	_style_bar(_player_mp_bar, Color(0.2, 0.35, 0.9), Color(0.05, 0.06, 0.12))
-	vbox.add_child(_player_mp_bar)
-
-	# --- Pet row (smaller, indented, hidden until a pet actually exists) ---
-	_pet_wrapper = MarginContainer.new()
-	_pet_wrapper.add_theme_constant_override("margin_left", 14)
-	_pet_wrapper.visible = false
-	vbox.add_child(_pet_wrapper)
-
-	var pet_col := VBoxContainer.new()
-	pet_col.add_theme_constant_override("separation", 2)
-	_pet_wrapper.add_child(pet_col)
-
-	_pet_name_label = Label.new()
-	_pet_name_label.text = "Pet"
-	_pet_name_label.add_theme_font_size_override("font_size", 9)
-	_pet_name_label.add_theme_color_override("font_color", Color(0.75, 0.6, 1.0))
-	_pet_name_label.clip_text = true
-	_pet_name_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-	_pet_name_label.mouse_filter = Control.MOUSE_FILTER_STOP
-	_pet_name_label.gui_input.connect(func(e): _on_row_clicked(e, "pet"))
-	pet_col.add_child(_pet_name_label)
-
-	_pet_hp_bar = ProgressBar.new()
-	_pet_hp_bar.custom_minimum_size = Vector2(0, 7)
-	_pet_hp_bar.show_percentage = false
-	_style_bar(_pet_hp_bar, Color(0.65, 0.4, 0.9), Color(0.08, 0.05, 0.12))
-	pet_col.add_child(_pet_hp_bar)
-
-	_pet_mp_bar = ProgressBar.new()
-	_pet_mp_bar.custom_minimum_size = Vector2(0, 6)
-	_pet_mp_bar.show_percentage = false
-	_style_bar(_pet_mp_bar, Color(0.2, 0.35, 0.9), Color(0.05, 0.06, 0.12))
-	pet_col.add_child(_pet_mp_bar)
+	for i in range(MAX_ROWS):
+		_member_rows.append(_build_member_row(vbox))
 
 	var btn_row := HBoxContainer.new()
 	btn_row.add_theme_constant_override("separation", 6)
@@ -136,6 +83,81 @@ func _build_ui() -> void:
 	btn_row.add_child(disband_btn)
 
 	WindowPosition.load_position_into(POSITION_KEY, panel)
+
+
+# Builds one member row (name/hp/mp + a nested, initially-hidden pet
+# sub-row) and appends it to `parent`. Returns the dictionary of refs
+# _process() needs to keep it updated.
+func _build_member_row(parent: VBoxContainer) -> Dictionary:
+	var wrapper := VBoxContainer.new()
+	wrapper.add_theme_constant_override("separation", 2)
+	parent.add_child(wrapper)
+
+	var name_label := Label.new()
+	name_label.text = "Player"
+	name_label.add_theme_font_size_override("font_size", 11)
+	name_label.clip_text = true
+	name_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	name_label.mouse_filter = Control.MOUSE_FILTER_STOP
+	wrapper.add_child(name_label)
+
+	var hp_bar := ProgressBar.new()
+	hp_bar.custom_minimum_size = Vector2(0, 10)
+	hp_bar.show_percentage = false
+	_style_bar(hp_bar, Color(0.8, 0.15, 0.15), Color(0.12, 0.05, 0.05))
+	wrapper.add_child(hp_bar)
+
+	var mp_bar := ProgressBar.new()
+	mp_bar.custom_minimum_size = Vector2(0, 8)
+	mp_bar.show_percentage = false
+	_style_bar(mp_bar, Color(0.2, 0.35, 0.9), Color(0.05, 0.06, 0.12))
+	wrapper.add_child(mp_bar)
+
+	var pet_wrapper := MarginContainer.new()
+	pet_wrapper.add_theme_constant_override("margin_left", 14)
+	pet_wrapper.visible = false
+	wrapper.add_child(pet_wrapper)
+
+	var pet_col := VBoxContainer.new()
+	pet_col.add_theme_constant_override("separation", 2)
+	pet_wrapper.add_child(pet_col)
+
+	var pet_name_label := Label.new()
+	pet_name_label.text = "Pet"
+	pet_name_label.add_theme_font_size_override("font_size", 9)
+	pet_name_label.add_theme_color_override("font_color", Color(0.75, 0.6, 1.0))
+	pet_name_label.clip_text = true
+	pet_name_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	pet_name_label.mouse_filter = Control.MOUSE_FILTER_STOP
+	pet_col.add_child(pet_name_label)
+
+	var pet_hp_bar := ProgressBar.new()
+	pet_hp_bar.custom_minimum_size = Vector2(0, 7)
+	pet_hp_bar.show_percentage = false
+	_style_bar(pet_hp_bar, Color(0.65, 0.4, 0.9), Color(0.08, 0.05, 0.12))
+	pet_col.add_child(pet_hp_bar)
+
+	var pet_mp_bar := ProgressBar.new()
+	pet_mp_bar.custom_minimum_size = Vector2(0, 6)
+	pet_mp_bar.show_percentage = false
+	_style_bar(pet_mp_bar, Color(0.2, 0.35, 0.9), Color(0.05, 0.06, 0.12))
+	pet_col.add_child(pet_mp_bar)
+
+	var row := {
+		"wrapper": wrapper,
+		"name_label": name_label,
+		"hp_bar": hp_bar,
+		"mp_bar": mp_bar,
+		"pet_wrapper": pet_wrapper,
+		"pet_name_label": pet_name_label,
+		"pet_hp_bar": pet_hp_bar,
+		"pet_mp_bar": pet_mp_bar,
+		"member": null,
+		"pet": null,
+	}
+	name_label.gui_input.connect(func(e): _on_row_clicked(e, row, "member"))
+	pet_name_label.gui_input.connect(func(e): _on_row_clicked(e, row, "pet"))
+	return row
 
 
 # Invite always targets whoever you currently have selected (same as typing
@@ -167,22 +189,20 @@ func _style_bar(bar: ProgressBar, fill_color: Color, bg_color: Color) -> void:
 	bar.add_theme_stylebox_override("background", back)
 
 
-# Left-click a row to target yourself or your pet directly — the healer's way
-# to practice single-target heals/buffs on party members before real other
-# players exist to click on.
-func _on_row_clicked(event: InputEvent, who: String) -> void:
+# Left-click a row to target that member or their pet directly — the
+# healer's way to heal/buff a specific group member without needing to find
+# and click their character in the world.
+func _on_row_clicked(event: InputEvent, row: Dictionary, part: String) -> void:
 	if not (event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT):
 		return
 	if not is_instance_valid(_player):
 		return
-	if who == "player":
-		_player.current_target = _player
-	else:
-		var pet = _player.get("active_pet")
-		if is_instance_valid(pet):
-			_player.current_target = pet
+	var target: Node = row["member"] if part == "member" else row["pet"]
+	if not is_instance_valid(target):
+		return
+	_player.current_target = target
 	if _player.has_method("_announce_target"):
-		_player._announce_target(_player.current_target)
+		_player._announce_target(target)
 
 
 func _on_panel_gui_input(event: InputEvent) -> void:
@@ -204,24 +224,59 @@ func _process(_delta: float) -> void:
 			return
 		_player = players[0]
 
-	if not ("combat_node" in _player):
+	if not ("group_members" in _player):
 		return
-	_player_name_label.text = _player.player_name if "player_name" in _player else "Player"
 
-	var cn = _player.combat_node
-	_player_hp_bar.max_value = cn.max_hp
-	_player_hp_bar.value     = cn.current_hp
-	_player_mp_bar.max_value = cn.max_mana
-	_player_mp_bar.value     = cn.current_mana
+	var group_members: Array = _player.group_members
 
-	var pet = _player.get("active_pet")
-	if is_instance_valid(pet):
-		_pet_wrapper.visible = true
-		_pet_name_label.text = pet.pet_name
-		var pcn = pet.combat_node
-		_pet_hp_bar.max_value = pcn.max_hp
-		_pet_hp_bar.value     = pcn.current_hp
-		_pet_mp_bar.max_value = pcn.max_mana
-		_pet_mp_bar.value     = pcn.current_mana
-	else:
-		_pet_wrapper.visible = false
+	for i in range(MAX_ROWS):
+		var row: Dictionary = _member_rows[i]
+		if i >= group_members.size():
+			row["wrapper"].visible = false
+			row["member"] = null
+			row["pet"] = null
+			continue
+
+		var member: Node = _player._peer_id_to_player_node(group_members[i]) if _player.has_method("_peer_id_to_player_node") else null
+		if not is_instance_valid(member):
+			# Grouped but not currently resolvable here (different zone,
+			# not yet connected, etc.) — keep the slot hidden rather than
+			# showing stale/empty bars.
+			row["wrapper"].visible = false
+			row["member"] = null
+			row["pet"] = null
+			continue
+
+		row["wrapper"].visible = true
+		row["member"] = member
+
+		row["name_label"].text = member.player_name if "player_name" in member else "Player"
+		# A remote group member's combat_node isn't networked yet (only
+		# position/rotation/anim/name/race/sex are — see change_list.txt's
+		# netcode to-do) — show them with empty bars rather than hiding the
+		# whole row, so at least their name/presence is visible in the group.
+		var cn = member.get("combat_node") if "combat_node" in member else null
+		if cn != null:
+			row["hp_bar"].max_value = cn.max_hp
+			row["hp_bar"].value     = cn.current_hp
+			row["mp_bar"].max_value = cn.max_mana
+			row["mp_bar"].value     = cn.current_mana
+		else:
+			row["hp_bar"].max_value = 1
+			row["hp_bar"].value     = 0
+			row["mp_bar"].max_value = 1
+			row["mp_bar"].value     = 0
+
+		var pet = member.get("active_pet") if "active_pet" in member else null
+		if is_instance_valid(pet):
+			row["pet"] = pet
+			row["pet_wrapper"].visible = true
+			row["pet_name_label"].text = pet.pet_name
+			var pcn = pet.combat_node
+			row["pet_hp_bar"].max_value = pcn.max_hp
+			row["pet_hp_bar"].value     = pcn.current_hp
+			row["pet_mp_bar"].max_value = pcn.max_mana
+			row["pet_mp_bar"].value     = pcn.current_mana
+		else:
+			row["pet"] = null
+			row["pet_wrapper"].visible = false

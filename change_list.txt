@@ -132,22 +132,42 @@ completed:
 -cleaned up character creation: dark-parchment page background, gold title/section headers, styled Confirm/Begin buttons, tidier bottom row
 -added Sex selection (Male/Female) to character creation, saved as player_sex — portraits in character_options.json are now keyed per race+sex ({"male":..., "female":...}, both still the cat placeholder) so dropping in real per-race/sex art later is just a JSON edit, no code change
 
-9/15/26 (multiplayer, first pass)
+9/15/26 (multiplayer netcode — first working pass)
 ------------
--first working slice of LAN co-op netcode (Godot's built-in ENet high-level multiplayer): host/join over a manual LAN IP, listen-server model (the host's own game doubles as the server), matching the plan in this file's to-do section
--added a Multiplayer button + Host/Join screen off the main menu (character name + host's IP, reuses the existing save-file loader — same character system as single-player, no separate account/login)
--Lumora Outskirts can now be shared: when a second player connects, the host spawns a networked copy of them (multiplayer_player_spawner.gd + a MultiplayerSpawner/RemotePlayers pair in the zone); each player's own character replicates its position/rotation/animation to everyone else via a MultiplayerSynchronizer
--player3d.gd and camera_controller.gd now distinguish "my own character" from "someone else's character on my screen" (multiplayer authority) — other players' characters don't run your input, physics, camera, or HUD; single-player is untouched by this (verified headlessly — HUD, camera, combat_node all still initialize normally offline)
--verified headlessly end-to-end: two real ENet peers (host + client, separate processes over loopback) connect, each gets the correct authoritative character, and position/animation replicate correctly in both directions
--scope for this pass is movement/animation sync ONLY — combat, chat, spells, pets, and party/group are not networked yet (still single-player-local even in a multiplayer session); see to-do for what's next
+-first working slice of LAN co-op netcode (Godot's built-in ENet high-level multiplayer): host/join over a manual LAN IP, listen-server model (the host's own game doubles as the server)
+-added a Multiplayer button + Host/Join screen off the main menu — Character field is a dropdown of your existing saves (same list load_game.gd shows), reuses the normal save-file loader (same character system as single-player, no separate account/login)
+-Lumora Outskirts can now be shared: when a second player connects, the host spawns a networked copy of them (multiplayer_player_spawner.gd + a MultiplayerSpawner/RemotePlayers pair in the zone); each player's own character replicates position/rotation/animation/name/race/sex to everyone else via a MultiplayerSynchronizer
+-player3d.gd and camera_controller.gd now distinguish "my own character" from "someone else's character on my screen" (multiplayer authority) — other players' characters don't run your input, physics, camera, or HUD; single-player is unaffected by any of this
+-other players' nameplates show their real name, and you can click another player to target them (the old click-target raycast only accepted monsters/guards/vendors/pets, never another player)
+-added /tell <name> <message> (private cross-peer whisper) and /party <message> (broadcasts to your group) — both resolve the target by character name over the network, no targeting required
+-verified end-to-end with two real ENet peers (host + client, separate processes over loopback): connect, correct authoritative character each, position/animation/name replicate correctly both ways, tell/party delivered correctly
+-scope for this pass was movement/animation/chat only — combat, spells, and pets are still local-only per machine even inside a multiplayer session; see to-do
+
+9/15/26 (multiplayer — real group invites)
+------------
+-fixed the real reason Invite didn't work across the network: group_members was only ever updated on the inviter's own machine — the invited player's own client never learned about it at all
+-group_members is now peer-id based (not per-machine Node references) and kept in sync across everyone in the group via network broadcasts whenever it changes (invite accepted, kick, disband)
+-Invite now sends a real network request instead of adding someone instantly — the invited player gets an Accept/Decline popup and only joins if they click Accept
+-being kicked or having your group disbanded now actually notifies you and resets you to solo, instead of only updating the other person's view
+-group frame now shows every group member (not just yourself), each with their own pet row beneath if they have one out — click any row to target it. A remote member's HP/mana still shows as empty bars for now since combat stats aren't networked yet (name/presence shows correctly)
+-verified with a real two-peer network test (invite → popup → accept → roster sync → kick) plus direct unit tests of the join/leave/kick state logic
+
+9/15/26 (Human Female, Human Male, Troll Male models)
+------------
+-player3d.tscn's model is now built dynamically at runtime keyed off player_race+player_sex instead of one hardcoded model for everyone — picking a race/sex with a dedicated model in character creation actually shows it in-game; player_race/player_sex replicate over multiplayer too, so this shows correctly on other players' screens as well
+-Human Female, Human Male, and Troll Male are wired in this way (models/Human Female/, models/Human Male/, models/Troll Male/); every other race/sex still falls back to the original shared model, unchanged
+-fixed a real bug while building each model's merged animation library: the "with skin" Mixamo downloads (idle, sit) each secretly contained a throwaway ~1s static reference pose alongside the real ~10s animation — the build now always picks the longer (real) clip automatically
+-textures are applied directly in Godot at runtime (a material override using the real Meshy texture file) instead of depending on the FBX/Blender export carrying it correctly — that export kept losing the texture link no matter what we tried (Path Mode, Embed Textures, repointing the node in Blender), so this sidesteps it entirely. Confirmed with real in-engine screenshots for all three — fully colored, no more white/gray models
+-existing saves that are Human male (dev, tenchijin, test) or Troll male (zozuur) will now show these new models automatically instead of the old generic one
+-known gaps: neither Human Female nor Troll Male has a second/horizontal melee swing (both attack slots just share the one clip that exists); no class has a dedicated spellcasting animation yet at all (casters reuse melee swings) even though some of these downloads include real cast animations sitting unused
 
 to do: (in order of importance)
 
--netcode phase 2: every HUD script that does get_nodes_in_group("player")[0] (player_frame, target_frame, group_frame, action_bar, stance_bar, buff_bar, pet_frame, game_log_window, chat_window, slot_button — grep found 17 files total) needs to find "the player I have authority over" instead of just index 0, or a second player's HUD will show the wrong character's stats
--netcode phase 3: sync combat (attacks, spells, damage) and chat between peers — right now a multiplayer session only shares movement/animation, everything else is still local-only per machine
--netcode phase 4: real party/group sync (group_members, Invite/Disband) tying into connected peers instead of just the local player
--netcode phase 5: pets and monster aggro — decide server-authoritative vs per-client, this is the trickiest one per the original roadmap discussion
--once rigged male/female FBX models exist, wire player_sex (character_creation.gd) into actual model/animation selection in-game — right now it's only saved, nothing reads it yet
+-see "how to rig a new character model" notes below before doing another race/model — same Meshy → Mixamo → drop in models/<Name>/ pipeline as Human Female/Male and Troll Male
+-netcode: network the pet — needs its own MultiplayerSpawner/replication setup (position, rotation, anim, name) so an owner's pet is visible to other players, without touching/risking the existing single-player pet AI code path
+-netcode: every HUD script that does get_nodes_in_group("player")[0] (player_frame, target_frame, action_bar, stance_bar, buff_bar, pet_frame, game_log_window, chat_window, slot_button) needs to find "the player I have authority over" instead of just index 0, or a second player's HUD will show the wrong character's stats
+-netcode: sync combat (attacks, spells, damage) between peers — right now a multiplayer session shares movement/animation/chat/group, but damage and health are still local-only per machine (this is also why the group frame can't show a remote member's real HP/MP yet)
+-netcode: pets and monster aggro — decide server-authoritative vs per-client, this is the trickiest one per the original roadmap discussion
 
 -write spell data for Chaosborn (currently has zero spells at any level)
 
@@ -155,13 +175,24 @@ to do: (in order of importance)
 
 -implement nests for rats and bandit camps as spawn locations
 
--update character sprites, to include animated sprites for 2 character classes, (one caster, one melee)
-
 -create blender models for all lumora outskirts mobs: skeleton, goblins (x2), spider, bandit, snake, slime, dune scarab, and ghost_fire
 
--create blender models for male and female human characters
-
 -test and balance the new voidknight spells (levels 4-8) and taunt in actual play, adjust numbers/mechanics based on feedback
+
+-once a class gets a real spellcasting animation state, wire in the unused Magic Spell Casting / 2H Cast Spell clips already sitting in the Human Female/Male and Troll Male folders
+
+-add a second melee swing for Human Female and Troll Male (and Troll Male's missing horizontal attack) whenever you get around to exporting one — both currently just repeat their one attack clip
+
+how to rig a new character model:
+(see chat for the full walkthrough — short version below)
+-download/build the base mesh (Meshy or similar), export as FBX
+-go to mixamo.com, upload the FBX to auto-rig it (needs a T/A-pose; only accepts .fbx/.obj, not .glb — export as FBX first if needed)
+-download the rigged character itself once "With Skin" — this is the base model file
+-download every other animation you want (idle/walk/run/jump/sit/attack/death/etc.) "Without Skin" (motion-only, much smaller, retargets onto the skin you already have)
+-drop everything for one character into its own folder under models/<Character Name>/ (matches the Human Female / Human Male / Troll Male pattern)
+-tell Claude the folder's ready — it needs one editor import pass (headless, automatic) then builds a merged AnimationLibrary + wires the race/sex into player3d.gd's CHARACTER_MODELS the same way as the last three
+-texture note: don't bother fighting Blender's FBX export to embed the texture — it's been unreliable every time. Just make sure the real texture PNG is sitting in the same folder as the FBX; the game applies it directly as a runtime material override instead of depending on the FBX carrying it
+-if you want a second attack animation, look for something like "Standing Melee Attack Downward" in Mixamo in addition to "Standing Melee Attack Horizontal" (or vice versa) — that's the pair the male model uses for its two random swings
 
 
 
