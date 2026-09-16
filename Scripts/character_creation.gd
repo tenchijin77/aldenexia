@@ -7,6 +7,7 @@ var final_stats: Dictionary = {}
 var stat_pool: int = 4
 var selected_race: String = ""
 var selected_class: String = ""
+var selected_sex: String = "male"
 var class_restrictions: Dictionary = {}
 var racial_resistances: Dictionary = {}
 
@@ -26,6 +27,7 @@ var casting_stats: Dictionary = {
 }
 
 @onready var race_select: OptionButton = $MarginContainer/VBoxContainer/top_row/race_column/race_selection/race_select
+@onready var sex_select: OptionButton = $MarginContainer/VBoxContainer/top_row/race_column/sex_selection/sex_select
 @onready var class_select: OptionButton = $MarginContainer/VBoxContainer/top_row/class_column/class_selection/class_select
 
 @onready var strength_spin: SpinBox = $MarginContainer/VBoxContainer/stats_row/stats_column/GridContainer/strength_section/strength_spinbox
@@ -57,7 +59,16 @@ func _ready() -> void:
 	load_class_restrictions()
 	load_character_options()
 
+	sex_select.clear()
+	sex_select.add_item("Male")
+	sex_select.set_item_metadata(0, "male")
+	sex_select.add_item("Female")
+	sex_select.set_item_metadata(1, "female")
+	sex_select.select(0)
+	selected_sex = "male"
+
 	race_select.item_selected.connect(_on_race_selected)
+	sex_select.item_selected.connect(_on_sex_selected)
 	class_select.item_selected.connect(_on_class_selected)
 	confirm_button.pressed.connect(_on_confirm_pressed)
 
@@ -127,6 +138,11 @@ func _on_race_selected(index: int) -> void:
 	if class_select.item_count > 0:
 		_on_class_selected(0)
 
+func _on_sex_selected(index: int) -> void:
+	var meta: Variant = sex_select.get_item_metadata(index)
+	selected_sex = str(meta)
+	update_portrait(selected_race)
+
 func update_class_options_for_race(race_display_name: String) -> void:
 	class_select.clear()
 	var classes: Dictionary = Global.character_options["classes"]
@@ -147,12 +163,14 @@ func update_race_description(race_key: String) -> void:
 
 func update_portrait(race_key: String) -> void:
 	var race: Dictionary = Global.character_options["races"][race_key]
-	if race.has("portrait") and race["portrait"] != "":
-		var path: String = race["portrait"]
-		if ResourceLoader.exists(path):
-			portrait_texture.texture = load(path)
-		else:
-			portrait_texture.texture = null
+	# portrait is {"male": path, "female": path} — one placeholder image for
+	# every race/sex today, swapped out per-race-per-sex once real art exists.
+	var path: String = ""
+	if race.has("portrait") and typeof(race["portrait"]) == TYPE_DICTIONARY:
+		var portraits: Dictionary = race["portrait"]
+		path = str(portraits.get(selected_sex, portraits.values()[0] if not portraits.is_empty() else ""))
+	if not path.is_empty() and ResourceLoader.exists(path):
+		portrait_texture.texture = load(path)
 	else:
 		portrait_texture.texture = null
 
@@ -272,6 +290,7 @@ func _on_confirm_pressed() -> void:
 		"player_name": name_input.text,
 		"player_class": p_class,
 		"player_race": selected_race,
+		"player_sex": selected_sex,
 		"player_level": 1,
 		"stats": final_stats,
 		"known_spells": get_starting_spells(p_class),

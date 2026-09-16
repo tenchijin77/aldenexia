@@ -20,8 +20,6 @@ func _ready():
 	# investigating a reported music startup delay (see global.gd's
 	# _warm_up_audio() — this wasn't the cause, just dead weight found along
 	# the way).
-	print("Has GlobalBackgroundMusic?", Engine.has_singleton("GlobalBackgroundMusic"))
-	print("Has method?", GlobalBackgroundMusic.has_method("_check_and_play_music"))
 
 
 var flicker_timer_left := 0.0
@@ -56,8 +54,15 @@ func _on_load_game_pressed() -> void:
 	add_child(load_game_scene)
 	print("DEBUG: Load game menu opened")
 	#get_tree().change_scene_to_file("res://Scenes/lumora_outskirts.tscn")
-	
-	
+
+
+# Stub — the button is disabled until real netcode exists (listen-server
+# co-op, per the roadmap in change_list.txt). Left wired up now so enabling
+# it later is a one-line `disabled = false` in main_menu.tscn, not a rewire.
+func _on_multiplayer_pressed() -> void:
+	print("🌐 Multiplayer selected — not implemented yet.")
+
+
 func _on_credits_pressed() -> void:
 	pass # Replace with function body.
 	

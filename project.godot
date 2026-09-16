@@ -15,7 +15,7 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 [application]
 
 config/name="Aldenexia:Lightfall"
-run/main_scene="uid://b8guo66cf6r1f"
+run/main_scene="res://Scenes/splash_screen.tscn"
 config/features=PackedStringArray("4.7", "Mobile")
 config/icon="res://icon.svg"
 

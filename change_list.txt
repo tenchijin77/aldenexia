@@ -127,8 +127,14 @@ completed:
 -added /log — toggles writing chat and combat to a plain-text timestamped file (user://logs/, prints the real path when started) for balance/metrics review; captures every combat message regardless of the 10m on-screen distance filter
 -added group Invite/Disband: invite targets a real player only (max 6, no self/duplicate invites), disband kicks the targeted member or clears the whole group if nothing's targeted — buttons on the group frame and /invite, /disband commands both use the same logic
 -/invite <name> and /disband <name> now also work by character name instead of requiring a target, so grouping across zones will work once networking exists (e.g. /invite zozuur)
+-cleaned up the main menu: dark-parchment panel/button styling to match the rest of the UI, buttons reorganized into a centered vertical list, added a "Multiplayer" button (disabled with a "coming soon" tooltip, wired up and ready for when netcode exists), removed leftover debug prints
+-added a Kuro Neko Sama Games logo splash screen (fades in, holds, fades out, skippable with any key/click) that now runs before the main menu on boot
+-cleaned up character creation: dark-parchment page background, gold title/section headers, styled Confirm/Begin buttons, tidier bottom row
+-added Sex selection (Male/Female) to character creation, saved as player_sex — portraits in character_options.json are now keyed per race+sex ({"male":..., "female":...}, both still the cat placeholder) so dropping in real per-race/sex art later is just a JSON edit, no code change
 
 to do: (in order of importance)
+
+-once rigged male/female FBX models exist, wire player_sex (character_creation.gd) into actual model/animation selection in-game — right now it's only saved, nothing reads it yet
 
 -write spell data for Chaosborn (currently has zero spells at any level)
 

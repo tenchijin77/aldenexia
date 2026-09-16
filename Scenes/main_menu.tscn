@@ -52,12 +52,80 @@ gradient = SubResource("Gradient_16hvj")
 fill = 1
 fill_from = Vector2(0.5, 0.5)
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_menu_bg"]
+bg_color = Color(0.055, 0.048, 0.04, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_menu_btn_normal"]
+bg_color = Color(0.1, 0.085, 0.065, 0.92)
+border_color = Color(0.45, 0.38, 0.25, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+content_margin_left = 10.0
+content_margin_top = 8.0
+content_margin_right = 10.0
+content_margin_bottom = 8.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_menu_btn_hover"]
+bg_color = Color(0.18, 0.15, 0.1, 0.95)
+border_color = Color(0.75, 0.63, 0.35, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+content_margin_left = 10.0
+content_margin_top = 8.0
+content_margin_right = 10.0
+content_margin_bottom = 8.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_menu_btn_pressed"]
+bg_color = Color(0.06, 0.05, 0.035, 0.95)
+border_color = Color(0.85, 0.7, 0.35, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+content_margin_left = 10.0
+content_margin_top = 8.0
+content_margin_right = 10.0
+content_margin_bottom = 8.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_menu_btn_disabled"]
+bg_color = Color(0.08, 0.08, 0.08, 0.6)
+border_color = Color(0.3, 0.3, 0.3, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+content_margin_left = 10.0
+content_margin_top = 8.0
+content_margin_right = 10.0
+content_margin_bottom = 8.0
+
 [node name="main_menu" type="Node" unique_id=391608122]
 script = ExtResource("1_28flt")
 
 [node name="Panel" type="Panel" parent="." unique_id=557130822]
 anchor_right = 1.0
 anchor_bottom = 1.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_menu_bg")
 
 [node name="torch" type="AnimatedSprite2D" parent="Panel" unique_id=2551081]
 position = Vector2(134, 199)
@@ -97,9 +165,24 @@ anchor_right = 1.0
 offset_left = 57.0
 offset_top = 126.0
 offset_right = -76.0
-offset_bottom = 311.0
+offset_bottom = 291.0
+theme_override_colors/font_color = Color(0.85, 0.72, 0.4, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.6)
+theme_override_constants/shadow_offset_x = 3
+theme_override_constants/shadow_offset_y = 3
 theme_override_font_sizes/font_size = 86
-text = "Aldenexia:Lightfall"
+text = "Aldenexia: Lightfall"
+horizontal_alignment = 1
+
+[node name="subtitle" type="Label" parent="." unique_id=335646916]
+anchor_right = 1.0
+offset_left = 57.0
+offset_top = 291.0
+offset_right = -76.0
+offset_bottom = 325.0
+theme_override_colors/font_color = Color(0.65, 0.58, 0.42, 1)
+theme_override_font_sizes/font_size = 18
+text = "Kuro Neko Sama Games"
 horizontal_alignment = 1
 
 [node name="DirectionalLight2D" type="DirectionalLight2D" parent="." unique_id=107326692]
@@ -113,40 +196,75 @@ stream = ExtResource("11_vr1f0")
 volume_db = -4.282
 autoplay = true
 
-[node name="HBoxContainer" type="HBoxContainer" parent="." unique_id=263068394]
+[node name="MenuButtons" type="CenterContainer" parent="." unique_id=263068394]
 anchor_right = 1.0
-offset_left = 51.0
-offset_top = 367.0
-offset_right = -54.0
-offset_bottom = 473.0
-alignment = 1
+anchor_bottom = 1.0
+offset_top = 360.0
 
-[node name="create_character" type="Button" parent="HBoxContainer" unique_id=1675785152]
+[node name="VBoxContainer" type="VBoxContainer" parent="MenuButtons" unique_id=1675785150]
+custom_minimum_size = Vector2(280, 0)
 layout_mode = 2
-size_flags_horizontal = 3
+theme_override_constants/separation = 14
+
+[node name="create_character" type="Button" parent="MenuButtons/VBoxContainer" unique_id=1675785152]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_menu_btn_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_menu_btn_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_menu_btn_pressed")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_menu_btn_disabled")
 text = "Create Character"
 
-[node name="load_game" type="Button" parent="HBoxContainer" unique_id=1616350471]
+[node name="load_game" type="Button" parent="MenuButtons/VBoxContainer" unique_id=1616350471]
+custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
-size_flags_horizontal = 3
-text = "Load"
+theme_override_styles/normal = SubResource("StyleBoxFlat_menu_btn_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_menu_btn_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_menu_btn_pressed")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_menu_btn_disabled")
+text = "Load Game"
 
-[node name="credits" type="Button" parent="HBoxContainer" unique_id=1468378802]
+[node name="multiplayer" type="Button" parent="MenuButtons/VBoxContainer" unique_id=1616350472]
+custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
-text = "Credits
-"
+tooltip_text = "Coming soon — multiplayer needs netcode that hasn't been built yet."
+disabled = true
+theme_override_styles/normal = SubResource("StyleBoxFlat_menu_btn_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_menu_btn_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_menu_btn_pressed")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_menu_btn_disabled")
+text = "Multiplayer (Coming Soon)"
 
-[node name="options" type="Button" parent="HBoxContainer" unique_id=1466915718]
+[node name="options" type="Button" parent="MenuButtons/VBoxContainer" unique_id=1466915718]
+custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
-size_flags_horizontal = 3
+theme_override_styles/normal = SubResource("StyleBoxFlat_menu_btn_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_menu_btn_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_menu_btn_pressed")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_menu_btn_disabled")
 text = "Options"
 
-[node name="quit" type="Button" parent="HBoxContainer" unique_id=2003900354]
+[node name="credits" type="Button" parent="MenuButtons/VBoxContainer" unique_id=1468378802]
+custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_menu_btn_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_menu_btn_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_menu_btn_pressed")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_menu_btn_disabled")
+text = "Credits"
+
+[node name="quit" type="Button" parent="MenuButtons/VBoxContainer" unique_id=2003900354]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_menu_btn_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_menu_btn_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_menu_btn_pressed")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_menu_btn_disabled")
 text = "Run Away"
 
-[connection signal="pressed" from="HBoxContainer/create_character" to="." method="_on_create_character_pressed"]
-[connection signal="pressed" from="HBoxContainer/load_game" to="." method="_on_load_game_pressed"]
-[connection signal="pressed" from="HBoxContainer/credits" to="." method="_on_credits_pressed"]
-[connection signal="pressed" from="HBoxContainer/options" to="." method="_on_options_pressed"]
-[connection signal="pressed" from="HBoxContainer/quit" to="." method="_on_quit_pressed"]
+[connection signal="pressed" from="MenuButtons/VBoxContainer/create_character" to="." method="_on_create_character_pressed"]
+[connection signal="pressed" from="MenuButtons/VBoxContainer/load_game" to="." method="_on_load_game_pressed"]
+[connection signal="pressed" from="MenuButtons/VBoxContainer/multiplayer" to="." method="_on_multiplayer_pressed"]
+[connection signal="pressed" from="MenuButtons/VBoxContainer/options" to="." method="_on_options_pressed"]
+[connection signal="pressed" from="MenuButtons/VBoxContainer/credits" to="." method="_on_credits_pressed"]
+[connection signal="pressed" from="MenuButtons/VBoxContainer/quit" to="." method="_on_quit_pressed"]
