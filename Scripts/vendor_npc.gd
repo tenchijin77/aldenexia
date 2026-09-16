@@ -1,8 +1,10 @@
 # vendor_npc.gd — Stationary general-goods vendor. Player3D's right-click
 # handler (_try_open_shop_or_loot()) opens shop_window.tscn against whichever
 # VendorNPC is nearest when a vendor's within SHOP_RANGE, in preference to the
-# usual loot-corpse behavior. Reuses the player's own Mixamo model/idle
-# animation for its visual, same as monster3d.gd's humanoid mobs — no combat,
+# usual loot-corpse behavior. Builds its own visual dynamically from
+# VENDOR_MODELS (keyed by vendor_model_key, same CHARACTER_MODELS/MOB_MODELS
+# pattern as player3d.gd/monster3d.gd) instead of a static scene node, since
+# different vendor instances now use different dedicated models — no combat,
 # no navigation, just stands in place with a name label like guard_npc.gd.
 extends CharacterBody3D
 class_name VendorNPC
@@ -10,9 +12,30 @@ class_name VendorNPC
 @export var npc_name: String = "Vendor"
 @export var shop_id: String = "lumora_general_goods"  # key into Data/vendor_shop.json
 @export var shop_data_path: String = "res://Data/vendor_shop.json"
+# Key into VENDOR_MODELS — "male"/"female" so far. Anything else (including
+# the default "default") falls back to DEFAULT_VENDOR_MODEL, the original
+# shared player model every vendor used before 2026-09-16.
+@export var vendor_model_key: String = "default"
+
+const VENDOR_MODELS := {
+	"male": {
+		"scene":   "res://models/male vendor/Meshy_AI_Male_Vendor_Blacksmit_biped_Character_output.fbx",
+		"library": "res://models/male vendor/male_vendor_animations.res",
+		"texture_override": "res://models/male vendor/Meshy_AI_Male_Vendor_Blacksmit_biped_texture_0.png",
+	},
+	"female": {
+		"scene":   "res://models/female vendor/Meshy_AI_Female_Vendor_Apothec_biped_Character_output.fbx",
+		"library": "res://models/female vendor/female_vendor_animations.res",
+		"texture_override": "res://models/female vendor/Meshy_AI_Female_Vendor_Apothec_biped_texture_0.png",
+	},
+}
+const DEFAULT_VENDOR_MODEL := {
+	"scene":   "res://models/player/character.fbx",
+	"library": "res://models/player/player_animations.res",
+}
 
 @onready var name_label: Label3D = $NameLabel
-@onready var animation_player: AnimationPlayer = $Character/AnimationPlayer
+var animation_player: AnimationPlayer = null
 
 var _shop_data: Dictionary = {}
 
@@ -22,6 +45,7 @@ func _ready() -> void:
 	if name_label:
 		name_label.text = npc_name
 	_load_shop_data()
+	_build_character_model()
 	_setup_animation()
 
 
@@ -83,10 +107,54 @@ func get_sell_price(item_def: Dictionary) -> int:
 	return maxi(int(round(Global.item_value_in_copper(item_def) * multiplier)), 1)
 
 
+# Builds the "Character" child from VENDOR_MODELS[vendor_model_key] (or
+# DEFAULT_VENDOR_MODEL) — mirrors player3d.gd's _build_character_model() /
+# monster3d.gd's _setup_humanoid_visual(). Same 180°-Y facing fix every
+# Mixamo export in this project needs.
+func _build_character_model() -> void:
+	var model_info: Dictionary = VENDOR_MODELS.get(vendor_model_key, DEFAULT_VENDOR_MODEL)
+	var character_scene := load(model_info["scene"])
+	if not character_scene:
+		return
+	var character: Node3D = character_scene.instantiate()
+	character.name = "Character"
+	character.transform = Transform3D.IDENTITY.rotated(Vector3.UP, PI)
+	add_child(character)
+	animation_player = character.get_node_or_null("AnimationPlayer")
+
+	if model_info.has("texture_override"):
+		_apply_texture_override(character, model_info["texture_override"])
+
+
+# Meshy-sourced FBX exports never carry their real texture through to Godot
+# reliably (confirmed recurring bug across every model built this way), so
+# apply it as a runtime material override instead of trusting the FBX's own
+# material.
+func _apply_texture_override(node: Node, texture_path: String) -> void:
+	var tex := load(texture_path) as Texture2D
+	if not tex:
+		push_warning("⚠️ Vendor texture override not found: %s" % texture_path)
+		return
+	var mat := StandardMaterial3D.new()
+	mat.albedo_texture = tex
+	_apply_material_recursive(node, mat)
+
+
+func _apply_material_recursive(node: Node, mat: Material) -> void:
+	if node is MeshInstance3D:
+		var mi: MeshInstance3D = node
+		if mi.mesh:
+			for i in range(mi.mesh.get_surface_count()):
+				mi.set_surface_override_material(i, mat)
+	for child in node.get_children():
+		_apply_material_recursive(child, mat)
+
+
 func _setup_animation() -> void:
 	if not animation_player:
 		return
-	var lib := load("res://models/player/player_animations.res") as AnimationLibrary
+	var model_info: Dictionary = VENDOR_MODELS.get(vendor_model_key, DEFAULT_VENDOR_MODEL)
+	var lib := load(model_info["library"]) as AnimationLibrary
 	if not lib:
 		return
 	if animation_player.has_animation_library(""):

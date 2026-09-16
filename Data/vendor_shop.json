@@ -36,5 +36,16 @@
       "scroll_of_spirit_strike",
       "scroll_of_ancestral_guidance"
     ]
+  },
+  "lumora_apothecary": {
+    "_comment": "Placeholder stock for the new Apothecary vendor (added 2026-09-16) — no potion/elixir items exist in items.json yet to stock her properly. User said she'll customize this later.",
+    "vendor_name": "the Apothecary",
+    "buy_price_multiplier": 1.0,
+    "sell_price_multiplier": 0.5,
+    "stock": [
+      "trail_rations",
+      "spring_water",
+      "water_flask"
+    ]
   }
 }

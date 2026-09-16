@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://bqefds74sifgt"]
 
 [ext_resource type="Script" uid="uid://c5ppenhisq11q" path="res://Scripts/guard_npc.gd" id="1_guard01"]
-[ext_resource type="PackedScene" path="res://models/guard/character.fbx" id="2_charmdl"]
+[ext_resource type="PackedScene" path="res://models/Lumora Guardsman/Meshy_AI_Lumora_Guardsman_Rig_biped_Character_output.fbx" id="2_charmdl"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_guard01"]
 radius = 0.4

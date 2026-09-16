@@ -20,12 +20,44 @@ const MAX_AGGRO_DISTANCE: float = 5.0   # Hard cap: monsters never *notice* the 
 const CHASE_SPEED_MULTIPLIER: float = 2.0  # only while actively chasing (not patrolling) — see handle_movement()
 const ASSIST_RANGE: float = 5.0  # call_nearby_allies() — real meters, see the fix note there
 
-# Humanoid-shaped mob types get the same Mixamo character model/animations as
-# the player and guards instead of the generic placeholder box, swapped in at
-# runtime by _setup_humanoid_visual() — see monster_template.tscn, which is
-# shared by every mob type and keeps the box as the default/fallback visual.
-const HUMANOID_MOB_TYPES: Array = ["bandit", "skeleton", "goblin"]
+# Humanoid-shaped mob types get a Mixamo character model/animations instead
+# of the generic placeholder box, swapped in at runtime by
+# _setup_humanoid_visual() — see monster_template.tscn, which is shared by
+# every mob type and keeps the box as the default/fallback visual.
+# goblin_scout/goblin_warrior weren't in this list before 2026-09-16 (a
+# pre-existing gap — those monster_names got the plain box even though
+# they've always been "humanoid" in concept); added once they got real
+# dedicated models below. "bandit" and base "goblin" have no dedicated model
+# of their own yet, so they still fall back to DEFAULT_HUMANOID_MOB_MODEL
+# (the shared player model) same as before — see MOB_MODELS.
+const HUMANOID_MOB_TYPES: Array = ["bandit", "skeleton", "goblin", "goblin_scout", "goblin_warrior"]
 const ATTACK_ANIMS := ["attack_horizontal", "attack_downward"]
+
+# Per-species dedicated models (added 2026-09-16) — mirrors player3d.gd's
+# CHARACTER_MODELS/DEFAULT_CHARACTER_MODEL pattern. Anything in
+# HUMANOID_MOB_TYPES but not listed here falls back to
+# DEFAULT_HUMANOID_MOB_MODEL.
+const MOB_MODELS := {
+	"skeleton": {
+		"scene":   "res://models/mobs/fallen scout skeleton/Meshy_AI_Fallen_Scout_Skeleton_biped_Character_output.fbx",
+		"library": "res://models/mobs/fallen scout skeleton/skeleton_animations.res",
+		"texture_override": "res://models/mobs/fallen scout skeleton/Meshy_AI_Fallen_Scout_Skeleton_biped_texture_0.png",
+	},
+	"goblin_warrior": {
+		"scene":   "res://models/mobs/desert goblin/Meshy_AI_Desert_Goblin_Warrior_biped_Character_output.fbx",
+		"library": "res://models/mobs/desert goblin/goblin_warrior_animations.res",
+		"texture_override": "res://models/mobs/desert goblin/Meshy_AI_Desert_Goblin_Warrior_biped_texture_0.png",
+	},
+	"goblin_scout": {
+		"scene":   "res://models/mobs/desert goblin scout/Meshy_AI_Desert_Goblin_Scout_R_biped_Character_output.fbx",
+		"library": "res://models/mobs/desert goblin scout/goblin_scout_animations.res",
+		"texture_override": "res://models/mobs/desert goblin scout/Meshy_AI_Desert_Goblin_Scout_R_biped_texture_0.png",
+	},
+}
+const DEFAULT_HUMANOID_MOB_MODEL := {
+	"scene":   "res://models/player/character.fbx",
+	"library": "res://models/player/player_animations.res",
+}
 
 @export_group("Loot & XP")
 @export var category: String = "animal"  # undead, animal, humanoid, insect, elemental, reptile
@@ -185,7 +217,8 @@ func _ready() -> void:
 		[monster_name, level, max_health, speed, damage, armor_class, faction, category])
 
 
-# ===== HUMANOID VISUAL (reuses the player/guard Mixamo model + shared anim library) =====
+# ===== HUMANOID VISUAL (per-species model if MOB_MODELS has one, else the
+# shared player/guard Mixamo model + anim library — see MOB_MODELS above) =====
 
 func _setup_humanoid_visual() -> void:
 	mesh_instance.visible = false
@@ -196,18 +229,46 @@ func _setup_humanoid_visual() -> void:
 	collision_shape.shape = capsule
 	collision_shape.position = Vector3(0, 0.9, 0)
 
-	var character_scene := load("res://models/player/character.fbx")
+	var model_info: Dictionary = MOB_MODELS.get(monster_name, DEFAULT_HUMANOID_MOB_MODEL)
+	var character_scene := load(model_info["scene"])
 	var character: Node3D = character_scene.instantiate()
 	character.name = "Character"
 	character.transform = Transform3D.IDENTITY.rotated(Vector3.UP, PI)  # same 180°-Y facing fix baked into player3d.tscn/guard_npc.tscn's Character node
 	add_child(character)
 
 	animation_player = character.get_node("AnimationPlayer")
-	var lib := load("res://models/player/player_animations.res") as AnimationLibrary
+	var lib := load(model_info["library"]) as AnimationLibrary
 	if lib and animation_player:
 		if animation_player.has_animation_library(""):
 			animation_player.remove_animation_library("")
 		animation_player.add_animation_library("", lib)
+
+	if model_info.has("texture_override"):
+		_apply_texture_override(character, model_info["texture_override"])
+
+
+# Meshy-sourced FBX exports never carry their real texture through to Godot
+# reliably (confirmed recurring bug across every model built this way), so
+# apply it as a runtime material override instead of trusting the FBX's own
+# material.
+func _apply_texture_override(node: Node, texture_path: String) -> void:
+	var tex := load(texture_path) as Texture2D
+	if not tex:
+		push_warning("⚠️ Mob texture override not found: %s" % texture_path)
+		return
+	var mat := StandardMaterial3D.new()
+	mat.albedo_texture = tex
+	_apply_material_recursive(node, mat)
+
+
+func _apply_material_recursive(node: Node, mat: Material) -> void:
+	if node is MeshInstance3D:
+		var mi: MeshInstance3D = node
+		if mi.mesh:
+			for i in range(mi.mesh.get_surface_count()):
+				mi.set_surface_override_material(i, mat)
+	for child in node.get_children():
+		_apply_material_recursive(child, mat)
 
 
 func _update_animation() -> void:
@@ -497,8 +558,15 @@ func handle_movement(delta: float) -> void:
 # ===== COMBAT =====
 func perform_attack() -> void:
 	can_attack = false
-	attack_timer = attack_cooldown * (1.0 + combat_node.get_modifier("attack_speed_slow"))
 	_play_attack_animation()
+	# Match the actual swing clip length (humanoid mobs only — _attack_anim_timer
+	# stays 0 for the placeholder-box mobs with no AnimationPlayer, so they fall
+	# back to the flat attack_cooldown default) rather than the old flat 1.5s,
+	# so a humanoid mob's attack rate lines up with the player's own
+	# animation-length-matched cooldown instead of drastically outpacing it —
+	# see player3d.gd's _attack_animation_duration().
+	var base_cooldown: float = _attack_anim_timer if _attack_anim_timer > 0.0 else attack_cooldown
+	attack_timer = base_cooldown * (1.0 + combat_node.get_modifier("attack_speed_slow"))
 
 	var target: Node = get_current_target()
 	if not target:

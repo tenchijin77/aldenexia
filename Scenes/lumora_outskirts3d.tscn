@@ -300,6 +300,12 @@ script = ExtResource("11_gdconv1")
 [node name="VendorNPC" parent="." unique_id=59779778 instance=ExtResource("13_vendor1")]
 transform = Transform3D(-0.994645, 0, 0.103347, 0, 1, 0, -0.103347, 0, -0.994645, 45.075, 0, -15.055)
 
+[node name="VendorNPC2" parent="." unique_id=59779779 instance=ExtResource("13_vendor1")]
+transform = Transform3D(-0.994645, 0, 0.103347, 0, 1, 0, -0.103347, 0, -0.994645, 49.575, 0, -15.68)
+npc_name = "the Apothecary"
+shop_id = "lumora_apothecary"
+vendor_model_key = "female"
+
 [node name="Bone Spears" type="Node3D" parent="." unique_id=1575841877]
 
 [node name="Bone Spear2" parent="Bone Spears" unique_id=834988086 instance=ExtResource("9_xcm1m")]

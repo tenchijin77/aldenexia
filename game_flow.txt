@@ -1,5 +1,5 @@
 ## Aldenexia: Lightfall — Game Flow & System Reference
-## Last updated: 2026-09-14
+## Last updated: 2026-09-16
 ## Purpose: Running reference for how all systems connect, for troubleshooting and onboarding.
 
 ================================================================================
@@ -716,6 +716,18 @@ Scene: Scenes/player3d.tscn (contains CameraRig → CameraController + Camera3D)
   guards are effectively invulnerable. Kills call target.die(false, false) —
   no XP, no loot, immediate queue_free() instead of the normal 60s lootable-
   corpse window (see Monster.die() below).
+  Model/animation (updated 2026-09-16, Session 43): guard_npc.tscn's
+  Character node now instances models/Lumora Guardsman/ (own dedicated
+  Meshy model/rig) instead of the earlier models/guard/ "Paladin J
+  Nordstrom" placeholder; guard_npc.gd applies a runtime texture override
+  the same way player3d.gd does (Meshy FBX exports never carry their real
+  texture through reliably). guard_animations.res rebuilt with a "run" clip
+  for the first time. _update_animation() now plays "run" instead of "walk"
+  whenever `moving` while `state == ENGAGE` (mirrors monster3d.gd's
+  CHASE-vs-walk pattern), and _move_toward()'s engage-chase call passes
+  `move_speed * SPRINT_SPEED_MULTIPLIER` (2.0, same constant name/value as
+  monster3d.gd's CHASE_SPEED_MULTIPLIER) only while actively closing
+  distance on an engage target — patrol/idle movement speed is unchanged.
 
 --- Patrol (added 2026-09-14, Session 38; movement rewritten Session 39;
     local obstacle steering + faster aggro scan added Session 41) ---
@@ -858,22 +870,89 @@ Scene: Scenes/player3d.tscn (contains CameraRig → CameraController + Camera3D)
   .rotated(Vector3.UP, PI), used for the runtime-instanced humanoid
   monsters below) everywhere this model/rig shows up.
 
---- Humanoid Monster 3D Models (monster3d.gd, added 2026-09-14) ---
-  HUMANOID_MOB_TYPES = ["bandit", "skeleton", "goblin"] get the player's
-  model/animation system instead of monster_template.tscn's shared
-  placeholder box (every OTHER mob type still renders as that red BoxMesh —
-  no real per-species models exist for animals/insects/etc. yet).
+--- Per-race/sex Character Models (player3d.gd, added 2026-09-15, expanded
+    2026-09-16 Session 43) ---
+  CHARACTER_MODELS dict, keyed "<race_key>_<sex>" (race_key = the lowercase
+  key in character_options.json's "races" dict, e.g. "human"/"half_elf"/
+  "troll"), each entry {scene, library, texture_override}. As of Session 43
+  all 6 combos of human/half_elf/troll x male/female have a real dedicated
+  model+library+texture; the other 8 of 11 races (elf, dwarf, gnome,
+  halfling, ogre, dark_elf, half_orc, lizardkin) still fall back to
+  DEFAULT_CHARACTER_MODEL (the original shared models/player/ model+
+  player_animations.res used above). _build_character_model() (called once
+  in _ready() and again once player_race/player_sex become known) tears
+  down and rebuilds the "Character" child from whichever entry
+  _character_model_key() resolves to, then calls _apply_texture_override()
+  — Meshy-exported FBX materials never carry their real texture through to
+  Godot reliably regardless of Blender export settings tried, so every
+  dedicated model applies its real texture as a StandardMaterial3D runtime
+  override instead of trusting the FBX's own material (confirmed recurring
+  bug, same fix applied to monster3d.gd/guard_npc.gd/vendor_npc.gd's own
+  dedicated models below).
+  Attack animation timing fix (2026-09-15/16): attack_current_target() and
+  perform_melee_attack() used to hold the swing animation for a hardcoded
+  0.3s before letting _update_animation() revert to idle/walk/run, chopping
+  every ~2.3-3.8s swing clip off after a fraction of its length. Both now
+  hold for the real clip length (_attack_animation_duration(), reading
+  animation_player.get_animation(name).length) — and since that's longer
+  than attack_cooldown (also now set to the same real length instead of a
+  flat old constant, per user request "so mobs don't attack much faster
+  than the player"), a new swing can legitimately start before the last
+  one's hold-timer resolves; _attack_generation guards against the earlier
+  timer wrongly clearing `attacking` mid-way through a newer swing.
+  monster3d.gd's perform_attack() got the same cooldown-matches-animation
+  treatment (falls back to the old flat 1.5s only for non-humanoid mobs with
+  no AnimationPlayer).
+  Cast animations (2026-09-16, Session 43): cast_spell() now calls
+  _trigger_cast_animation(spell) right after committing mana/cooldown,
+  which plays "cast_beneficial" or "cast_detrimental" (_is_beneficial_cast()
+  classifies by spell.target: self/group -> beneficial, enemy/pbaoe/chain/
+  cone/line -> detrimental, corpse/none are genuinely mixed in
+  player_spells.json so it falls back to whether damage>0) if the current
+  model's library has that clip. Uses a decrementing _cast_anim_timer
+  (checked in _update_animation(), same pattern monster3d.gd/guard_npc.gd/
+  pet_minion.gd use for their own attack-hold timers) rather than the
+  attacking/_attack_generation await pattern above — cast_spell() has
+  several early returns on invalid targets *after* the point the animation
+  triggers, so a pending await tail would never run to clear the state on
+  those paths. Built from each model's previously-unused Magic Spell
+  Casting/"-buff(s)"/Magic Attack clips. Only the 6 dedicated race/sex
+  models have these two clips so far — DEFAULT_CHARACTER_MODEL's folder has
+  no leftover raw casting downloads to build from, so the 8 un-dedicated
+  races just silently keep playing idle/walk through a cast, same as
+  before.
+
+--- Humanoid Monster 3D Models (monster3d.gd, added 2026-09-14, per-species
+    models added 2026-09-16 Session 43) ---
+  HUMANOID_MOB_TYPES = ["bandit", "skeleton", "goblin", "goblin_scout",
+  "goblin_warrior"] get a Mixamo character model/animation system instead
+  of monster_template.tscn's shared placeholder box (every OTHER mob type
+  still renders as that red BoxMesh — no real per-species models exist for
+  animals/insects/etc. yet, including spider/desert rat, which landed in
+  models/mobs/ Session 43 but are unrigged static meshes with no
+  AnimationPlayer at all).
+  MOB_MODELS dict (mirrors player3d.gd's CHARACTER_MODELS pattern) has
+  dedicated entries for "skeleton" (models/mobs/fallen scout skeleton/),
+  "goblin_warrior" (models/mobs/desert goblin/ — folder name doesn't say
+  "warrior" but the Meshy asset does), and "goblin_scout" (models/mobs/
+  desert goblin scout/); base "goblin" and "bandit" have no dedicated model
+  and fall back to DEFAULT_HUMANOID_MOB_MODEL (models/player/character.fbx
+  + player_animations.res, same as before). goblin_scout/goblin_warrior
+  weren't even in HUMANOID_MOB_TYPES before Session 43 — a pre-existing gap
+  where both types (live in lumora_outskirts_spawns.json's goblin camps)
+  got the plain placeholder box despite being conceptually humanoid.
   _setup_humanoid_visual() (called from _ready() when monster_name is in
-  that list): hides mesh_instance (the box), resizes collision_shape's
-  shape to the same 0.35m/1.8m capsule as the player, instances
-  models/player/character.fbx as a child "Character" with the same 180°-Y
-  facing fix, and points animation_player (a plain var, not @onready — only
-  ever set for these 3 types) at models/player/player_animations.res
-  (verbatim reuse — identical model, no retargeting). _update_animation()
+  HUMANOID_MOB_TYPES): hides mesh_instance (the box), resizes
+  collision_shape's shape to the same 0.35m/1.8m capsule as the player,
+  instances MOB_MODELS.get(monster_name, DEFAULT_HUMANOID_MOB_MODEL)'s
+  scene as a child "Character" with the same 180°-Y facing fix, loads its
+  library onto animation_player (a plain var, not @onready — only ever set
+  for HUMANOID_MOB_TYPES), and applies a texture_override if the entry has
+  one (same Meshy-texture-bug fix as everywhere else). _update_animation()
   mirrors the guard's: idle/walk/run off velocity magnitude and
   current_state==CHASE, mid-attack held via _attack_anim_timer (shared with
   guard's pattern). perform_attack() calls _play_attack_animation() (random
-  swing, like the player); die() now actually plays "death" for these 3
+  swing, like the player); die() now actually plays "death" for these
   types (the long-standing "# TODO: AnimationPlayer death animation" in
   Monster.die() is unresolved for every other mob type).
 
@@ -1569,9 +1648,20 @@ VENDOR / SHOP (Scripts/vendor_npc.gd, Scripts/shop_window.gd — added Session 2
 ================================================================================
 
 Class: VendorNPC extends CharacterBody3D, group "npc_vendor". Stationary —
-no combat, no NavigationAgent3D. Reuses the player's own Mixamo
-model/idle animation for its visual (same convention monster3d.gd's
-HUMANOID_MOB_TYPES uses), with a Label3D name tag like guard_npc.gd.
+no combat, no NavigationAgent3D. With a Label3D name tag like guard_npc.gd.
+Model/animation (reworked 2026-09-16, Session 43): now builds its own
+"Character" child dynamically in _build_character_model() (same
+CHARACTER_MODELS/MOB_MODELS pattern as player3d.gd/monster3d.gd) keyed by
+@export vendor_model_key, instead of a single static Character node baked
+into vendor_npc.tscn — needed once a second vendor with a different visual
+existed. VENDOR_MODELS has "male" (models/male vendor/, a Blacksmith-
+flavored Meshy model) and "female" (models/female vendor/, Apothecary-
+flavored); anything else, including the default "default", falls back to
+DEFAULT_VENDOR_MODEL (the original shared player model every vendor used
+before this). Only "idle" is built into either library — vendor_npc.gd
+never plays anything else. Same runtime texture-override fix as every
+other dedicated model in the project (Meshy FBX materials don't carry
+through to Godot reliably).
 
 --- Stock / pricing ---
   shop_id (@export) selects a table from Data/vendor_shop.json:
@@ -1583,11 +1673,18 @@ HUMANOID_MOB_TYPES uses), with a Label3D name tag like guard_npc.gd.
   spectral_dust, warlord_scimitar), scaled by the vendor's multiplier.
   get_shop_stock() -> [{item_id, item_def, price}] (buy price).
   get_sell_price(item_def) -> int (what the vendor pays the player).
-  First/only vendor so far: "lumora_general_goods" ("Aldric the
-  Provisioner") — trail_rations, iron_rations, spring_water, water_flask,
-  small_bag, traveler_pack (new 8-slot bag, up from small_bag's 4), torch.
-  Placed in lumora_outskirts3d.tscn at (45.075, 0, -15.055) — just in front
-  of and to the right of "Vendor_shape" (a CollisionShape3D under
+  "lumora_general_goods" ("Aldric the Provisioner", vendor_model_key=
+  "male") — trail_rations, iron_rations, spring_water, water_flask,
+  small_bag, traveler_pack (new 8-slot bag, up from small_bag's 4), torch,
+  plus every class scroll.
+  Second vendor added 2026-09-16 (Session 43): "lumora_apothecary" ("the
+  Apothecary", vendor_model_key="female"), instanced in
+  lumora_outskirts3d.tscn ~4.5m from Aldric. Placeholder stock only
+  (trail_rations, spring_water, water_flask) — no potion/elixir items exist
+  in items.json yet to stock her properly, and the user said they'll
+  customize her name/stock themselves later.
+  Aldric placed in lumora_outskirts3d.tscn at (45.075, 0, -15.055) — just in
+  front of and to the right of "Vendor_shape" (a CollisionShape3D under
   NavigationRegion3D/LumoraOutskirts_Collision, origin (45.77, 5.0, -23.22)),
   the marker the user placed to show the intended spot. Started as a
   temporary stand-in near the guards before the marker was saved/named; once

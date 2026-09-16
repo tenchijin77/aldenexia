@@ -29,6 +29,10 @@ const WAYPOINT_ARRIVAL := 1.5      # how close counts as "reached" a patrol wayp
 # actually covers. Stationary guards don't move, so this doesn't change
 # anything for them beyond a slightly earlier reaction — harmless.
 const SCAN_INTERVAL := 0.2
+# Matches monster3d.gd's CHASE_SPEED_MULTIPLIER — same "aggroed = urgent, not
+# a stroll" feel, applied while a guard is closing distance on an engage
+# target (see _process_engage()). Not applied to patrol movement.
+const SPRINT_SPEED_MULTIPLIER := 2.0
 const GRAVITY := 20.0
 const HEAR_RANGE := 5.0     # say() is silent to the log if the player is farther than this
 const BANTER_MIN_INTERVAL := 300.0  # 5 min
@@ -194,27 +198,46 @@ func _load_guard_stats() -> Dictionary:
 
 
 # ── Animation ─────────────────────────────────────────────────────────────────
-# Guards use a different Mixamo model (models/guard/character.fbx, "Paladin J
-# Nordstrom") than the player/humanoid monsters. Its own idle + sword-and-
-# shield-attack downloads are properly calibrated to its rest pose/proportions
-# — reusing the player model's idle/attack clips looked wrong (retargeted mocap
-# across models with different proportions/rest poses doesn't reliably line
-# up). walk/death have no guard-specific replacement, so those two are still
-# pulled from the player's downloads, but with every track's bone path
-# rewritten from "mixamorig1_<Bone>" (the player model's convention) to
-# "mixamorig_<Bone>" (this model's own, unrenamed) at build time — see
-# models/guard/guard_animations.res and the build step that assembled it.
-# All four animations in that library consistently target the guard's actual
-# bone names, so no runtime skeleton renaming is needed here.
+# Guards use their own dedicated Mixamo model (models/Lumora Guardsman/,
+# replacing the earlier models/guard/ "Paladin J Nordstrom" placeholder
+# 2026-09-15). Every clip (idle/walk/run/attack/death) is a native download
+# for this exact character — no cross-model bone retargeting needed this
+# time, unlike the old set's walk/death (see git history if that hack is ever
+# needed again elsewhere).
 func _setup_animations() -> void:
 	if not animation_player:
 		return
-	var lib := load("res://models/guard/guard_animations.res") as AnimationLibrary
+	var lib := load("res://models/Lumora Guardsman/guard_animations.res") as AnimationLibrary
 	if not lib:
 		return
 	if animation_player.has_animation_library(""):
 		animation_player.remove_animation_library("")
 	animation_player.add_animation_library("", lib)
+	_apply_texture_override("res://models/Lumora Guardsman/Meshy_AI_Lumora_Guardsman_Rig_biped_texture_0.png")
+
+
+# Meshy-sourced FBX exports never carry their real texture through to Godot
+# reliably (confirmed recurring bug across every model built this way), so
+# apply it as a runtime material override instead of trusting the FBX's own
+# material.
+func _apply_texture_override(texture_path: String) -> void:
+	var tex := load(texture_path) as Texture2D
+	if not tex:
+		push_warning("⚠️ Guard texture override not found: %s" % texture_path)
+		return
+	var mat := StandardMaterial3D.new()
+	mat.albedo_texture = tex
+	_apply_material_recursive(get_node("Character"), mat)
+
+
+func _apply_material_recursive(node: Node, mat: Material) -> void:
+	if node is MeshInstance3D:
+		var mi: MeshInstance3D = node
+		if mi.mesh:
+			for i in range(mi.mesh.get_surface_count()):
+				mi.set_surface_override_material(i, mat)
+	for child in node.get_children():
+		_apply_material_recursive(child, mat)
 
 
 var _attack_anim_timer: float = 0.0  # counts down while an attack swing should stay visible
@@ -226,7 +249,11 @@ func _update_animation() -> void:
 	if _attack_anim_timer > 0.0:
 		return
 	var moving := Vector2(velocity.x, velocity.z).length() > 0.1
-	var anim_name := "walk" if moving else "idle"
+	var anim_name := "idle"
+	if moving:
+		# Mirrors monster3d.gd's chase-run pattern: sprinting to close on an
+		# engage target plays "run" instead of the patrol/idle "walk".
+		anim_name = "run" if state == GuardState.ENGAGE else "walk"
 	if animation_player.current_animation != anim_name:
 		animation_player.play(anim_name, 0.15)
 
@@ -352,7 +379,7 @@ func _process_engage(delta: float) -> void:
 
 	var distance := global_position.distance_to(attack_target.global_position)
 	if distance > ATTACK_RANGE:
-		_move_toward(attack_target.global_position, ATTACK_RANGE, delta)
+		_move_toward(attack_target.global_position, ATTACK_RANGE, delta, move_speed * SPRINT_SPEED_MULTIPLIER)
 		return
 
 	_apply_gravity(delta)
@@ -401,7 +428,8 @@ var _stuck_timer: float = 0.0
 var _last_stuck_check_pos: Vector3 = Vector3.ZERO
 
 
-func _move_toward(target_pos: Vector3, stop_distance: float, delta: float) -> void:
+func _move_toward(target_pos: Vector3, stop_distance: float, delta: float, speed_override: float = -1.0) -> void:
+	var move_at_speed: float = speed_override if speed_override > 0.0 else move_speed
 	_apply_gravity(delta)
 	_tick_stuck_detector(delta)
 
@@ -438,8 +466,8 @@ func _move_toward(target_pos: Vector3, stop_distance: float, delta: float) -> vo
 	var direction := flat_dir.normalized()
 	direction = _steer_around_obstacles(direction)
 	look_at(global_position + direction, Vector3.UP)
-	velocity.x = direction.x * move_speed
-	velocity.z = direction.z * move_speed
+	velocity.x = direction.x * move_at_speed
+	velocity.z = direction.z * move_at_speed
 
 
 # Local obstacle avoidance, layered on top of the global path-following

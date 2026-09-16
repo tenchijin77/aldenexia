@@ -7,3 +7,13 @@ export/
 *.apk
 *.pck
 *.kate-swp
+
+# Raw Meshy "image-to-3d-texture" exports that bundle their textures directly
+# inside the .fbx instead of as separate files (unlike every other model in
+# this project) — these two blow past GitHub's 100MB file limit (136MB/115MB)
+# and aren't wired into the game yet (spider/desert rat are still unrigged).
+# The matching texture PNGs next to them are small and untouched by this.
+# Remove these two lines once the models are re-exported without embedded
+# textures, or once Git LFS is set up for the project.
+models/mobs/juvenile spider/Meshy_AI_juvenile_spider_monst_0916005348_image-to-3d-texture.fbx
+models/mobs/desert scavenger/Meshy_AI_desert_rodent_monster_0916015343_image-to-3d-texture.fbx

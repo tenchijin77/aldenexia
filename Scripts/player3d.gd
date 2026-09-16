@@ -112,9 +112,30 @@ var _death_flavor: NPCFlavorText = null
 var _food_drink_flavor: NPCFlavorText = null
 var _death_screen: CanvasLayer = null
 var attacking: bool = false
+# attack_cooldown now runs for the real swing clip's length each attack (set
+# in attack_current_target()/perform_melee_attack() via
+# _attack_animation_duration()) instead of a flat constant, so the cooldown
+# always matches whatever's actually playing — this still means a new swing
+# can start right as the previous one's clip finishes, so each attack stamps
+# its own generation here, letting an earlier attack's delayed
+# `attacking = false` avoid stomping a newer swing that's still mid-animation.
+var _attack_generation: int = 0
 var autoattack_enabled: bool = false
 var attack_cooldown: float = 0.0
-var attack_cooldown_duration: float = 1.0
+# Casting plays "cast_beneficial" or "cast_detrimental" (see cast_spell(),
+# _is_beneficial_cast()) for the clip's length, same decrementing-timer
+# pattern monster3d.gd/guard_npc.gd/pet_minion.gd already use for their own
+# attack-hold timers (_attack_anim_timer) — chosen over the await-based
+# pattern attacking/_attack_generation use above because cast_spell() has
+# several early `return`s on invalid targets *after* the animation would
+# already be triggered, and a pending await tail would never run to clear
+# the state on those paths; a per-frame timer decrement doesn't care how
+# cast_spell() exits. Not every model has these clips yet (see
+# CHARACTER_MODELS) — _trigger_cast_animation() only sets the timer when the
+# currently-loaded library actually has the anim, so races without it just
+# keep playing idle/walk as before.
+var _current_cast_anim: String = ""
+var _cast_anim_timer: float = 0.0
 var current_target: Node = null
 var _target_idx: int = -1
 
@@ -590,12 +611,29 @@ const CHARACTER_MODELS := {
 		# rather than depend on that export step working, apply the known-good
 		# texture directly as a Godot material override. See
 		# _apply_texture_override().
-		"texture_override": "res://models/Human Female/Meshy_AI_Tavern_Maid_Rig_biped_texture_0.png",
+		# v2 texture — the model was re-rigged 2026-09-15 (new mesh/rig/anims)
+		# and the original texture file was replaced along with it.
+		"texture_override": "res://models/Human Female/Meshy_AI_Tavern_Maid_Rig_v2_biped_texture_0.png",
 	},
 	"human_male": {
 		"scene":   "res://models/Human Male/Human Male Breathing Idle.fbx",
 		"library": "res://models/Human Male/human_male_animations.res",
 		"texture_override": "res://models/Human Male/Meshy_AI_fantasy_commoner_rigg_biped_texture_0.png",
+	},
+	"half_elf_female": {
+		"scene":   "res://models/Half-Elf Female/Half Elf Female Breathing Idle.fbx",
+		"library": "res://models/Half-Elf Female/half_elf_female_animations.res",
+		"texture_override": "res://models/Half-Elf Female/Meshy_AI_Female_Half_Elf_Wider_biped_texture_0.png",
+	},
+	"half_elf_male": {
+		"scene":   "res://models/Half-Elf Male/Male Half Elf Breathing Idle.fbx",
+		"library": "res://models/Half-Elf Male/half_elf_male_animations.res",
+		"texture_override": "res://models/Half-Elf Male/Meshy_AI_male_half_elf_commone_biped_texture_0.png",
+	},
+	"troll_female": {
+		"scene":   "res://models/Troll Female/Troll Female Breathing Idle.fbx",
+		"library": "res://models/Troll Female/troll_female_animations.res",
+		"texture_override": "res://models/Troll Female/Meshy_AI_female_troll_commoner_biped_texture_0.png",
 	},
 	"troll_male": {
 		"scene":   "res://models/Troll Male/Troll Male Breathing Idle.fbx",
@@ -706,12 +744,54 @@ func _trigger_attack_animation() -> void:
 	_current_attack_anim = ATTACK_ANIMS[randi() % ATTACK_ANIMS.size()]
 
 
+# How long `attacking` should stay true so the swing clip can play out fully
+# instead of getting cut back to idle/walk/run mid-animation — real melee
+# clips run ~2.3-2.4s, well past the old hardcoded 0.3s wait. Falls back to
+# 0.3s if the current model's library doesn't have this clip for some reason.
+# Mirrors the pattern monster3d.gd/guard_npc.gd already use for their own
+# attack timers (animation_player.get_animation(name).length).
+func _attack_animation_duration() -> float:
+	if animation_player and animation_player.has_animation(_current_attack_anim):
+		return animation_player.get_animation(_current_attack_anim).length
+	return 0.3
+
+
+# "self"/"group" targets are always cast on a friendly unit (or yourself) —
+# clearly beneficial. "enemy"/"pbaoe"/"chain"/"cone"/"line" are always aimed
+# at hostiles — clearly detrimental. "corpse"/"none" are genuinely mixed in
+# player_spells.json (e.g. "corpse" covers both a healing corpse-consume and
+# an offensive corpse-detonate), so fall back to whether the spell actually
+# deals damage.
+func _is_beneficial_cast(spell: Dictionary) -> bool:
+	var t: String = spell.get("target", "enemy")
+	if t in ["self", "group"]:
+		return true
+	if t in ["enemy", "pbaoe", "chain", "cone", "line"]:
+		return false
+	return int(spell.get("damage", 0)) <= 0
+
+
+# Only enters the `casting` animation state if the currently-loaded model's
+# library actually has the clip — not every CHARACTER_MODELS entry has
+# cast_beneficial/cast_detrimental yet (see CHARACTER_MODELS comments), and
+# races still on DEFAULT_CHARACTER_MODEL never will until that model gets
+# its own casting clips. Silently no-ops rather than playing nothing/erroring.
+func _trigger_cast_animation(spell: Dictionary) -> void:
+	var anim_name := "cast_beneficial" if _is_beneficial_cast(spell) else "cast_detrimental"
+	if not animation_player or not animation_player.has_animation(anim_name):
+		return
+	_current_cast_anim = anim_name
+	_cast_anim_timer = animation_player.get_animation(anim_name).length
+
+
 func _update_animation() -> void:
 	if not animation_player or animation_player.get_animation_list().is_empty():
 		return
 	var anim_name: String
 	if attacking and _current_attack_anim != "":
 		anim_name = _current_attack_anim
+	elif _cast_anim_timer > 0.0 and _current_cast_anim != "":
+		anim_name = _current_cast_anim
 	elif not is_on_floor():
 		anim_name = "jump"
 	elif is_sitting:
@@ -879,6 +959,8 @@ func _process(delta: float) -> void:
 
 	if attack_cooldown > 0.0:
 		attack_cooldown -= delta
+	if _cast_anim_timer > 0.0:
+		_cast_anim_timer -= delta
 
 	update_vitals_decay(delta)
 #endregion
@@ -1571,8 +1653,11 @@ func attack_current_target() -> void:
 		return
 
 	attacking = true
-	attack_cooldown = attack_cooldown_duration
 	_trigger_attack_animation()
+	var swing_duration := _attack_animation_duration()
+	attack_cooldown = swing_duration
+	_attack_generation += 1
+	var my_attack_generation := _attack_generation
 
 	if "combat_node" in current_target and current_target.combat_node is CombatNode:
 		var result = combat_node.resolve_attack(current_target.combat_node)
@@ -1622,8 +1707,9 @@ func attack_current_target() -> void:
 			autoattack_enabled = false
 			GameLog.set_autoattack(false)
 
-	await get_tree().create_timer(0.3).timeout
-	attacking = false
+	await get_tree().create_timer(swing_duration).timeout
+	if _attack_generation == my_attack_generation:
+		attacking = false
 
 
 func perform_melee_attack() -> void:
@@ -1631,8 +1717,11 @@ func perform_melee_attack() -> void:
 		return
 
 	attacking = true
-	attack_cooldown = attack_cooldown_duration
 	_trigger_attack_animation()
+	var swing_duration := _attack_animation_duration()
+	attack_cooldown = swing_duration
+	_attack_generation += 1
+	var my_attack_generation := _attack_generation
 
 	var attack_range := 3.0
 	var target: Node = null
@@ -1694,8 +1783,9 @@ func perform_melee_attack() -> void:
 	else:
 		GameLog.log_combat("No target in range.")
 
-	await get_tree().create_timer(0.3).timeout
-	attacking = false
+	await get_tree().create_timer(swing_duration).timeout
+	if _attack_generation == my_attack_generation:
+		attacking = false
 
 
 func take_damage(amount: int, attacker: Node = null) -> void:
@@ -2292,6 +2382,8 @@ func cast_spell(spell_name: String) -> void:
 
 	# Tick spell_casting skill
 	_tick_skill("spell_casting")
+
+	_trigger_cast_animation(spell)
 
 	match spell_target:
 		"enemy":

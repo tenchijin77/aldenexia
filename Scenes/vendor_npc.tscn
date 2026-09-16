@@ -1,7 +1,6 @@
 [gd_scene format=3 uid="uid://bvendor01npc"]
 
 [ext_resource type="Script" uid="uid://bn1dg51e2yp7d" path="res://Scripts/vendor_npc.gd" id="1_vendor01"]
-[ext_resource type="PackedScene" uid="uid://jcx8r5oa11m5" path="res://models/player/character.fbx" id="2_charmdl"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_vendor01"]
 radius = 0.4
@@ -10,13 +9,11 @@ height = 1.9
 [node name="VendorNPC" type="CharacterBody3D" unique_id=584097868 groups=["npc_vendor"]]
 script = ExtResource("1_vendor01")
 npc_name = "Aldric the Provisioner"
+vendor_model_key = "male"
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1435448470]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 shape = SubResource("CapsuleShape3D_vendor01")
-
-[node name="Character" parent="." unique_id=1143943082 instance=ExtResource("2_charmdl")]
-transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, 0)
 
 [node name="NameLabel" type="Label3D" parent="." unique_id=1565773768]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.4, 0)

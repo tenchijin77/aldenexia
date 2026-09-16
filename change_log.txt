@@ -117,6 +117,94 @@ candidates instead of guessing; a typo that matches nothing prints "Unknown comm
 
 ---
 
+## 2026-09-16 — Session 43: New race/mob/vendor models, attack/cast animation timing fixes
+
+### Attack animation timing (player3d.gd, monster3d.gd)
+- Fixed a real cutoff bug: `attack_current_target()`/`perform_melee_attack()` used
+  to hold the swing animation for a hardcoded 0.3s before letting movement-based
+  animations take back over — but real swing clips run ~2.3-3.8s, so every attack
+  was visibly chopped off after a fraction of its length. Both now hold for the
+  real clip length instead (`_attack_animation_duration()`).
+- Since that hold is now longer than the 1.0s attack cooldown, a new swing can
+  legitimately start before the previous swing's hold-timer finishes — added an
+  `_attack_generation` counter so an earlier swing's delayed timer can't wrongly
+  cut a newer swing's animation short.
+- Per user request ("make sure the mobs don't have a much faster attack than the
+  player"): `attack_cooldown` itself is now set to the real swing length each
+  attack too (previously a flat 1.0s), and `monster3d.gd`'s `perform_attack()`
+  got the same treatment (previously a flat 1.5s regardless of animation) so
+  humanoid mobs' attack rate stays in line with the player's instead of
+  outpacing it.
+
+### New player race models (Half-Elf Female/Male, Troll Female; Human Female rebuilt)
+- Built animation libraries + wired into `player3d.gd`'s `CHARACTER_MODELS` for
+  Half-Elf Female, Half-Elf Male, and Troll Female — same pipeline as the
+  existing Human Female/Male, Troll Male entries (see `change_list.txt`'s "how
+  to rig a new character model" notes).
+- Human Female's model/rig was replaced by the user (old one had animation
+  issues) — rebuilt `female_animations.res` from the new source clips and
+  repointed her texture override at the new `_v2_` texture file.
+- Half-Elf Male was added in two passes: shipped initially without
+  idle/jump/sit/attack/death (only running/walking/mesh/textures), so left off
+  `CHARACTER_MODELS` for a session rather than wired in half-broken; wired in
+  properly once the user added the rest same day.
+
+### Casting animations for all player classes
+- Per user request: added `cast_beneficial` and `cast_detrimental` animation
+  clips to all 6 dedicated race/sex models, built from each model's
+  previously-unused Magic Spell Casting/"-buff(s)"/Magic Attack source clips.
+- `cast_spell()` now plays the right one automatically — `_is_beneficial_cast()`
+  classifies by the spell's target (self/group = beneficial; enemy/pbaoe/chain/
+  cone/line = detrimental; corpse/none are genuinely mixed in
+  `player_spells.json`, so it falls back to whether the spell deals damage).
+- The 8 races still without a dedicated model (elf, dwarf, gnome, halfling,
+  ogre, dark_elf, half_orc, lizardkin) have no cast clips yet and silently keep
+  playing idle/walk through a cast, same as before — `models/player/`'s
+  default model has no leftover raw casting downloads to build from.
+
+### Guard: new model + sprint-to-combat
+- Swapped the guard's model/animations from the old `models/guard/` placeholder
+  over to the user's new dedicated `models/Lumora Guardsman/` set (also added a
+  texture override — Meshy exports never carry their real texture through to
+  Godot reliably).
+- Per user request: guards now play a "run" animation and move at 2x speed
+  (matching `monster3d.gd`'s existing chase-speed multiplier) while actively
+  closing distance on an engage target — patrol/idle speed is unchanged.
+
+### Dedicated mob models: goblin_scout, goblin_warrior, skeleton
+- Built animation libraries and wired `monster3d.gd`'s `HUMANOID_MOB_TYPES`/new
+  `MOB_MODELS` dict for the user's new `models/mobs/desert goblin scout/`,
+  `models/mobs/desert goblin/` (→ `goblin_warrior`), and `models/mobs/fallen
+  scout skeleton/` (→ `skeleton`) models — same per-species pattern as the
+  player's `CHARACTER_MODELS`.
+- Bonus fix: `goblin_scout`/`goblin_warrior` weren't in `HUMANOID_MOB_TYPES` at
+  all before this — a pre-existing gap where both (live in the goblin camps in
+  `lumora_outskirts_spawns.json`) rendered as the plain placeholder box even
+  before any of today's model work.
+- Base `goblin` and `bandit` still have no dedicated model and keep using the
+  original shared player model, unchanged.
+
+### Skeleton Pet (Voidknight pet)
+- Wired the user's new `models/Skeleton Pet/` model into `pet_minion.gd`
+  (previously reused the generic shared humanoid model) with its own
+  idle/walk/attack/death library and a texture override.
+
+### New vendor: the Apothecary (female vendor)
+- `vendor_npc.gd` now builds its visual dynamically from a `VENDOR_MODELS`
+  dict keyed by a new `vendor_model_key` export (same pattern as
+  `CHARACTER_MODELS`/`MOB_MODELS`) instead of a single static model baked into
+  `vendor_npc.tscn` — needed now that a second vendor has a different visual.
+- Aldric now uses the user's new dedicated "male vendor" (Blacksmith-flavored)
+  model instead of the old shared player model.
+- Added a second vendor, "the Apothecary" (`vendor_model_key="female"`), a few
+  meters from Aldric in `lumora_outskirts3d.tscn`, using the user's new "female
+  vendor" (Apothecary-flavored) model. Placeholder stock only
+  (`lumora_apothecary` in `vendor_shop.json` — trail rations/water, since no
+  potion/elixir items exist in `items.json` yet) — user said they'll customize
+  her name/stock themselves later.
+
+---
+
 ## 2026-09-14 — Session 42: Lumora monster roster, /follow, food auto-consume, position save, minor fixes
 
 ### Monster roster reconciled against `Zone_Spawn_Sheet.xlsx` (`Data/monsters.json`, `Data/lumora_outskirts_spawns.json`)

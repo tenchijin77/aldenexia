@@ -121,12 +121,13 @@ func _ready() -> void:
 	_setup_visual()
 
 
-# Reuses the same Mixamo character.fbx + shared animation library that
-# monster3d.gd's HUMANOID_MOB_TYPES (skeleton/bandit/goblin) use, so the pet
-# looks like the skeletons/bandits already in the zone instead of a generic
-# placeholder box.
+# Uses the Voidknight's dedicated Skeleton Pet model/animations (added
+# 2026-09-15) instead of the generic humanoid mob model skeletons/bandits
+# still share. Only idle/walk/attack_horizontal/attack_downward/death exist
+# for this model (no jump/sit/run — _update_animation() here never plays
+# those).
 func _setup_visual() -> void:
-	var character_scene := load("res://models/player/character.fbx")
+	var character_scene := load("res://models/Skeleton Pet/Meshy_AI_Voidknight_Skeleton_P_biped_Character_output.fbx")
 	if not character_scene:
 		return
 	var character: Node3D = character_scene.instantiate()
@@ -135,11 +136,37 @@ func _setup_visual() -> void:
 	add_child(character)
 
 	animation_player = character.get_node("AnimationPlayer")
-	var lib := load("res://models/player/player_animations.res") as AnimationLibrary
+	var lib := load("res://models/Skeleton Pet/skeleton_pet_animations.res") as AnimationLibrary
 	if lib and animation_player:
 		if animation_player.has_animation_library(""):
 			animation_player.remove_animation_library("")
 		animation_player.add_animation_library("", lib)
+
+	_apply_texture_override(character, "res://models/Skeleton Pet/Meshy_AI_Voidknight_Skeleton_P_biped_texture_0.png")
+
+
+# Meshy-sourced FBX exports never carry their real texture through to Godot
+# reliably (confirmed recurring bug across every model built this way), so
+# apply it as a runtime material override instead of trusting the FBX's own
+# material.
+func _apply_texture_override(node: Node, texture_path: String) -> void:
+	var tex := load(texture_path) as Texture2D
+	if not tex:
+		push_warning("⚠️ Pet texture override not found: %s" % texture_path)
+		return
+	var mat := StandardMaterial3D.new()
+	mat.albedo_texture = tex
+	_apply_material_recursive(node, mat)
+
+
+func _apply_material_recursive(node: Node, mat: Material) -> void:
+	if node is MeshInstance3D:
+		var mi: MeshInstance3D = node
+		if mi.mesh:
+			for i in range(mi.mesh.get_surface_count()):
+				mi.set_surface_override_material(i, mat)
+	for child in node.get_children():
+		_apply_material_recursive(child, mat)
 
 
 func _pick_random_name() -> String:
