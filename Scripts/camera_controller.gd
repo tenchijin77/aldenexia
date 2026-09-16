@@ -50,6 +50,19 @@ var _head_turn_held: bool = false
 #endregion
 
 func _ready() -> void:
+	# In multiplayer, this rig belongs to whichever player3d this is a child
+	# of — for every OTHER peer's character (puppets, see player3d.gd's
+	# _ready()), it must stay fully inert: no camera.current (only one
+	# viewport, would otherwise fight over which peer's view it shows), no
+	# mouselook input, no mouse-mode changes. Offline/single-player is
+	# unaffected since is_multiplayer_authority() is always true with no
+	# active multiplayer peer.
+	if not get_parent().is_multiplayer_authority():
+		set_process_input(false)
+		camera.current = false
+		return
+
+	camera.current = true
 	Global.restore_mouse_mode()
 	apply_camera_mode()
 

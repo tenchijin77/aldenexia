@@ -159,6 +159,8 @@ const LOOT_RANGE := 5.0
 var _pause_menu_instance: Node = null
 
 func _unhandled_input(event: InputEvent) -> void:
+	if not is_multiplayer_authority():
+		return
 	if event is InputEventMouseButton and event.pressed:
 		match event.button_index:
 			MOUSE_BUTTON_RIGHT:
@@ -517,6 +519,18 @@ var abilities_book_instance: Node = null
 func _ready() -> void:
 	add_to_group("player")
 	_setup_animations()
+
+	# Multiplayer puppet: every player3d node in the scene whose multiplayer
+	# authority isn't this machine (the host's pre-placed node, from a joining
+	# client's point of view; another peer's dynamically-spawned node, from
+	# anyone else's) — no local save data, no combat_node, no HUD windows for
+	# it. Offline/single-player is unaffected: with no multiplayer peer active,
+	# is_multiplayer_authority() is always true. See _physics_process(),
+	# _process(), _unhandled_input() for the matching gates, and
+	# camera_controller.gd for why its camera/mouselook are disabled too.
+	if not is_multiplayer_authority():
+		return
+
 	group_members = [self]
 
 	combat_node = CombatNode.new()
@@ -572,6 +586,12 @@ func _setup_animations() -> void:
 const ATTACK_ANIMS := ["attack_horizontal", "attack_downward"]
 var _current_attack_anim: String = ""
 
+# Which animation clip is currently playing — kept as a plain var (rather than
+# reading animation_player.current_animation directly) so it can be listed in
+# player3d.tscn's MultiplayerSynchronizer replication config and mirrored to
+# other peers' view of this character. See _play_replicated_animation().
+var anim_state: String = "idle"
+
 # Picks one of the two melee swings at random for this strike; _update_animation
 # keeps playing it every frame while `attacking` is true (called right where
 # `attacking` is set true, in attack_current_target() and perform_melee_attack()).
@@ -595,8 +615,21 @@ func _update_animation() -> void:
 		anim_name = "walk"
 	else:
 		anim_name = "idle"
+	anim_state = anim_name  # replicated to other peers via MultiplayerSynchronizer — see _play_replicated_animation()
 	if animation_player.current_animation != anim_name:
 		animation_player.play(anim_name, 0.15)
+
+
+# Remote peers' characters ("puppets" — every player3d node whose multiplayer
+# authority isn't this machine's) skip movement/combat entirely and are only
+# ever this: play whatever anim_state the MultiplayerSynchronizer just
+# replicated from the owning peer, at the position/rotation it also
+# replicated. No local physics, no combat_node, no HUD — see _ready().
+func _play_replicated_animation() -> void:
+	if not animation_player or animation_player.get_animation_list().is_empty():
+		return
+	if animation_player.current_animation != anim_state:
+		animation_player.play(anim_state, 0.15)
 
 
 func _spawn_hud() -> void:
@@ -647,6 +680,10 @@ func _load_spell_cache() -> void:
 
 #region Physics process (movement / stamina / combat)
 func _physics_process(delta: float) -> void:
+	if not is_multiplayer_authority():
+		_play_replicated_animation()
+		return
+
 	var chat_focused := get_viewport().gui_get_focus_owner() is LineEdit
 
 	if not chat_focused and Input.is_action_just_pressed("toggle_backpack"):
@@ -690,6 +727,8 @@ func _physics_process(delta: float) -> void:
 
 #region Process (regen / vitals / cooldowns)
 func _process(delta: float) -> void:
+	if not is_multiplayer_authority():
+		return
 	if is_incapacitated:
 		_tick_bleedout(delta)
 	if dying:

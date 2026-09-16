@@ -25,6 +25,7 @@ Global="*res://Scripts/global.gd"
 GlobalBackgroundMusic="*res://Scenes/global_background_music.tscn"
 Inventory="*uid://d47686paj5f8"
 GameLog="*res://Scripts/game_log.gd"
+Net="*res://Scripts/net.gd"
 
 [debug]
 

@@ -14,6 +14,7 @@
 [ext_resource type="NavigationMesh" path="res://Data/lumora_outskirts_navmesh.tres" id="12_navmesh"]
 [ext_resource type="PackedScene" uid="uid://bvendor01npc" path="res://Scenes/vendor_npc.tscn" id="13_vendor1"]
 [ext_resource type="AudioStream" uid="uid://canimf824sbt2" path="res://Assets/wind woosh loop.ogg" id="14_windamb"]
+[ext_resource type="Script" path="res://Scripts/multiplayer_player_spawner.gd" id="15_mpspawn"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_1j15t"]
 sky_top_color = Color(0.22986513, 0.3887299, 0.9202023, 1)
@@ -120,6 +121,12 @@ data = PackedVector3Array(0.6087, 0, 1, 1.142, 0, -1, 1.142, 0, 1, 0.6087, 0, 1,
 backface_collision = true
 
 [node name="Node3D" type="Node3D" unique_id=128215680]
+script = ExtResource("15_mpspawn")
+
+[node name="RemotePlayers" type="Node3D" parent="." unique_id=128215681]
+
+[node name="PlayerSpawner" type="MultiplayerSpawner" parent="." unique_id=128215682]
+spawn_path = NodePath("../RemotePlayers")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1735361617]
 transform = Transform3D(0.9587106, 0.17053917, -0.22757499, 0, 0.80023974, 0.59968024, 0.2843835, -0.5749198, 0.7671983, -0.008641243, 6.2223196, 8.73101)

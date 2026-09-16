@@ -227,13 +227,12 @@ text = "Load Game"
 [node name="multiplayer" type="Button" parent="MenuButtons/VBoxContainer" unique_id=1616350472]
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
-tooltip_text = "Coming soon — multiplayer needs netcode that hasn't been built yet."
-disabled = true
+tooltip_text = "Host or join a LAN co-op game."
 theme_override_styles/normal = SubResource("StyleBoxFlat_menu_btn_normal")
 theme_override_styles/hover = SubResource("StyleBoxFlat_menu_btn_hover")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_menu_btn_pressed")
 theme_override_styles/disabled = SubResource("StyleBoxFlat_menu_btn_disabled")
-text = "Multiplayer (Coming Soon)"
+text = "Multiplayer"
 
 [node name="options" type="Button" parent="MenuButtons/VBoxContainer" unique_id=1466915718]
 custom_minimum_size = Vector2(0, 44)

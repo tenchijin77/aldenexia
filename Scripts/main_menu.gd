@@ -56,11 +56,9 @@ func _on_load_game_pressed() -> void:
 	#get_tree().change_scene_to_file("res://Scenes/lumora_outskirts.tscn")
 
 
-# Stub — the button is disabled until real netcode exists (listen-server
-# co-op, per the roadmap in change_list.txt). Left wired up now so enabling
-# it later is a one-line `disabled = false` in main_menu.tscn, not a rewire.
 func _on_multiplayer_pressed() -> void:
-	print("🌐 Multiplayer selected — not implemented yet.")
+	var menu = preload("res://Scenes/multiplayer_menu.tscn").instantiate()
+	add_child(menu)
 
 
 func _on_credits_pressed() -> void:
