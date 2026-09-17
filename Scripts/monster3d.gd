@@ -85,6 +85,11 @@ enum State { IDLE, PATROL, CHASE, ATTACK, DEAD }
 var current_state: State = State.IDLE
 var can_attack: bool = true
 var combat_node: CombatNode
+# Set alongside every animation_player.play() call below, replicated (see
+# monster_template.tscn's MultiplayerSynchronizer) so a non-authoritative
+# client just mirrors whatever animation the server/single-player simulation
+# decided, instead of running its own (removed) AI to decide independently.
+var anim_state: String = ""
 
 # Kept for backward compat — always mirrors combat_node.current_hp
 var monster_description: String = ""
@@ -193,6 +198,7 @@ func _ready() -> void:
 		_setup_humanoid_visual()
 
 	combat_node = CombatNode.new()
+	combat_node.name = "CombatNode"
 	add_child(combat_node)
 	_configure_combat_node()
 
@@ -280,14 +286,27 @@ func _update_animation() -> void:
 	var anim_name := "idle"
 	if moving:
 		anim_name = "run" if current_state == State.CHASE else "walk"
+	anim_state = anim_name  # replicated to non-authoritative peers — see _play_replicated_animation()
 	if animation_player.current_animation != anim_name:
 		animation_player.play(anim_name, 0.15)
+
+
+# Non-authoritative peers never run _update_animation()/_play_attack_animation()
+# (no local AI to decide with) — they just mirror whatever anim_state the
+# authoritative server/single-player simulation replicated out, same pattern
+# as player3d.gd's own puppet branch.
+func _play_replicated_animation() -> void:
+	if not animation_player or animation_player.get_animation_list().is_empty():
+		return
+	if animation_player.current_animation != anim_state and animation_player.has_animation(anim_state):
+		animation_player.play(anim_state, 0.15)
 
 
 func _play_attack_animation() -> void:
 	if not animation_player or animation_player.get_animation_list().is_empty():
 		return
 	var anim_name: String = ATTACK_ANIMS[randi() % ATTACK_ANIMS.size()]
+	anim_state = anim_name  # replicated — see _play_replicated_animation()
 	animation_player.play(anim_name, 0.1)
 	_attack_anim_timer = animation_player.get_animation(anim_name).length
 
@@ -353,6 +372,27 @@ func get_monster_name() -> String:
 
 # ===== PHYSICS PROCESS =====
 func _physics_process(delta: float) -> void:
+	# Per-viewer, not networked — see TargetFrame.is_hidden_from_local_player().
+	# No monster data actually grants invisibility yet (nothing calls
+	# apply_effect("invisibility", ...) on a monster's own combat_node), so
+	# this is a no-op today; it's here so a future invisible-mob ability just
+	# works without touching rendering code again. Runs regardless of
+	# authority/DEAD state — even a corpse should respect see-invisible.
+	if has_node("Character"):
+		$Character.visible = not TargetFrame.is_hidden_from_local_player(self)
+
+	# Non-authoritative peers (every client but the server, in a multiplayer
+	# game — always true in single-player, see project_multiplayer_netcode
+	# memory's authority-gating pattern) never run any AI/combat/movement
+	# below: they just mirror whatever position/rotation/anim_state/HP the
+	# authoritative side replicates via monster_template.tscn's
+	# MultiplayerSynchronizer. Runs before the DEAD check (not after) so a
+	# puppet still plays the death animation once current_state replicates to
+	# DEAD, instead of freezing on whatever animation was last playing.
+	if not is_multiplayer_authority():
+		_play_replicated_animation()
+		return
+
 	if current_state == State.DEAD:
 		return
 
@@ -374,12 +414,14 @@ func _physics_process(delta: float) -> void:
 	else:
 		_regen_timer = 0.0
 
-	# Find player safely
+	# Find player safely — the local one specifically: monster3d.gd isn't
+	# networked yet (see project_multiplayer_netcode memory), so each client
+	# still runs its own fully independent copy of every monster; picking
+	# index 0 here could grab another connected player's puppet instead of
+	# the one this client's own simulation should actually care about.
 	if not is_instance_valid(player):
-		var players: Array = get_tree().get_nodes_in_group("player")
-		if players.size() > 0:
-			player = players[0]
-		else:
+		player = TargetFrame.local_player()
+		if not is_instance_valid(player):
 			return
 
 
@@ -687,7 +729,7 @@ func get_damage_type() -> String:
 
 const DEATH_LINE_PATH := "res://Data/humanoid_death_lines.json"
 
-func die(award_xp: bool = true, drop_loot: bool = true) -> void:
+func die(award_xp: bool = true, drop_loot: bool = true, credited_peer_id: int = -1) -> void:
 	change_state(State.DEAD)
 	print("💀 %s died! (XP: %d, Coins: %.2f, Category: %s)" % [monster_name, xp_gain, coin_modifier, category])
 
@@ -706,33 +748,24 @@ func die(award_xp: bool = true, drop_loot: bool = true) -> void:
 		pending_loot = []
 		is_lootable = false
 
-	# Award XP to player
+	# Award XP to whoever's credited with the kill — local player by default
+	# (not index 0, see the same note in _physics_process() above), or a
+	# specific peer when called via apply_networked_damage() below (a
+	# non-host client's kill, resolved on the server). If the credited player
+	# is THIS machine's own (single-player, or the host killing something
+	# themselves), apply directly; otherwise Global.player_data is this
+	# process's own save data — there's no way to reach into a remote peer's
+	# save file directly — so relay it via RPC to their own machine instead.
 	if award_xp:
-		var players := get_tree().get_nodes_in_group("player")
-		if not players.is_empty():
-			var p := players[0]
-			var cur_xp: int    = Global.player_data.get("xp", 0)
-			var xp_next: int   = Global.player_data.get("xp_next_level", 100)
-			var new_xp: int    = cur_xp + xp_gain
-			Global.player_data["xp"] = new_xp
-			GameLog.log_general("You gain [b]%d[/b] experience points. (%d / %d)" % [xp_gain, new_xp, xp_next])
-
-			# Level-up loop (handles multiple level-ups from one kill)
-			while Global.player_data.get("xp", 0) >= Global.player_data.get("xp_next_level", 999999):
-				var cur_lvl: int = Global.player_data.get("player_level", 1)
-				if cur_lvl >= Global.xp_table.get("max_level", 20):
-					break
-				var new_lvl: int   = cur_lvl + 1
-				var next_thresh: int = int(Global.xp_table.get(str(new_lvl + 1), 0))
-				Global.player_data["player_level"]   = new_lvl
-				Global.player_data["xp_next_level"]  = next_thresh if next_thresh > 0 else 999999
-				GameLog.log_general("[color=#ffdd44][b]Fortune smiles upon you; your adventures have made you stronger! You are now level %d.[/b][/color]" % new_lvl)
-				if p.has_method("on_level_up"):
-					p.on_level_up(new_lvl)
-
-			Global.save_player_data_to_file()
+		var p: Node = TargetFrame.peer_id_to_player_node(credited_peer_id) if credited_peer_id != -1 else TargetFrame.local_player()
+		if is_instance_valid(p):
+			if p.is_multiplayer_authority():
+				p.grant_xp(xp_gain)
+			elif p.has_method("receive_kill_credit"):
+				p.receive_kill_credit.rpc_id(p.get_multiplayer_authority(), xp_gain)
 
 	if animation_player and animation_player.has_animation("death"):
+		anim_state = "death"  # replicated — see _play_replicated_animation()
 		animation_player.play("death")
 
 	if not drop_loot:
@@ -746,6 +779,28 @@ func die(award_xp: bool = true, drop_loot: bool = true) -> void:
 	if is_instance_valid(loot_window):
 		loot_window.queue_free()
 	queue_free()
+
+
+# ── Networked damage (Phase 3 netcode) ──────────────────────────────────────
+# A client-authoritative-damage / server-authoritative-application split:
+# the attacking player's own client still computes the real hit/miss/damage
+# roll locally (unchanged — see player3d.gd's attack_current_target()), using
+# its own accurate local stats, since replicating a full combat stat kit
+# (strength/weapon_skill/gear bonuses/etc, not just the current_hp/max_hp
+# "bar" values Phase 2 replicated) just to let the server redo that roll
+# itself would be a much larger change for a private LAN co-op game where
+# trusting the attacker's reported damage is an acceptable trade-off. This
+# just makes sure the number actually lands on the monster's REAL (server or
+# single-player-local) combat_node instead of a non-authoritative client's
+# own cosmetic, replicated-over-anyway copy.
+@rpc("any_peer", "call_local", "reliable")
+func apply_networked_damage(amount: int, attacker_peer_id: int) -> void:
+	if not is_multiplayer_authority() or current_state == State.DEAD:
+		return
+	combat_node.current_hp = maxi(combat_node.current_hp - amount, 0)
+	if not combat_node.is_alive():
+		die(true, true, attacker_peer_id)
+
 
 func open_loot_window() -> void:
 	if is_instance_valid(loot_window):

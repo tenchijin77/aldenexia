@@ -1194,7 +1194,7 @@
         "interruptable": true,
         "class_level_requirements": {
             "Lightsworn": 3,
-            "Zenblade": 7
+            "Aetherfist": 7
         },
         "channel": false
     },
@@ -4135,7 +4135,7 @@
         "spell_type": "beneficial",
         "interruptable": true,
         "class_level_requirements": {
-            "Spiritcaller": 1
+            "Spiritweaver": 1
         },
         "effect_type": "heal",
         "channel": false
@@ -4161,7 +4161,7 @@
         "spell_type": "detrimental",
         "interruptable": true,
         "class_level_requirements": {
-            "Spiritcaller": 1
+            "Spiritweaver": 1
         },
         "effect_type": "buff",
         "channel": false
@@ -4187,7 +4187,7 @@
         "spell_type": "detrimental",
         "interruptable": true,
         "class_level_requirements": {
-            "Spiritcaller": 2
+            "Spiritweaver": 2
         },
         "channel": false
     },
@@ -4212,7 +4212,7 @@
         "spell_type": "beneficial",
         "interruptable": true,
         "class_level_requirements": {
-            "Spiritcaller": 2
+            "Spiritweaver": 2
         },
         "effect_type": "buff",
         "channel": false
@@ -4238,7 +4238,7 @@
         "spell_type": "chain",
         "interruptable": true,
         "class_level_requirements": {
-            "Spiritcaller": 3
+            "Spiritweaver": 3
         },
         "effect_type": "heal",
         "channel": false
@@ -4264,7 +4264,7 @@
         "spell_type": "pbaoe",
         "interruptable": true,
         "class_level_requirements": {
-            "Spiritcaller": 3
+            "Spiritweaver": 3
         },
         "effect_type": "dot",
         "channel": true,
@@ -4292,7 +4292,7 @@
         "spell_type": "detrimental",
         "interruptable": true,
         "class_level_requirements": {
-            "Spiritcaller": 4
+            "Spiritweaver": 4
         },
         "channel": false
     },
@@ -4317,7 +4317,7 @@
         "spell_type": "detrimental",
         "interruptable": true,
         "class_level_requirements": {
-            "Spiritcaller": 4
+            "Spiritweaver": 4
         },
         "effect_type": "snare",
         "channel": false
@@ -4343,7 +4343,7 @@
         "spell_type": "beneficial",
         "interruptable": true,
         "class_level_requirements": {
-            "Spiritcaller": 5
+            "Spiritweaver": 5
         },
         "channel": false
     },
@@ -4368,7 +4368,7 @@
         "spell_type": "channel",
         "interruptable": true,
         "class_level_requirements": {
-            "Spiritcaller": 5
+            "Spiritweaver": 5
         },
         "effect_type": "dot",
         "channel": true,
@@ -4395,7 +4395,7 @@
         "spell_type": "beneficial",
         "interruptable": true,
         "class_level_requirements": {
-            "Spiritcaller": 6
+            "Spiritweaver": 6
         },
         "effect_type": "heal",
         "channel": false
@@ -4421,7 +4421,7 @@
         "spell_type": "beneficial",
         "interruptable": true,
         "class_level_requirements": {
-            "Spiritcaller": 6
+            "Spiritweaver": 6
         },
         "effect_type": "buff",
         "channel": false
@@ -4447,7 +4447,7 @@
         "spell_type": "beneficial",
         "interruptable": true,
         "class_level_requirements": {
-            "Spiritcaller": 7
+            "Spiritweaver": 7
         },
         "effect_type": "heal",
         "channel": false
@@ -4473,7 +4473,7 @@
         "spell_type": "detrimental",
         "interruptable": true,
         "class_level_requirements": {
-            "Spiritcaller": 7
+            "Spiritweaver": 7
         },
         "effect_type": "snare",
         "channel": false
@@ -4499,7 +4499,7 @@
         "spell_type": "detrimental",
         "interruptable": true,
         "class_level_requirements": {
-            "Spiritcaller": 8
+            "Spiritweaver": 8
         },
         "effect_type": "buff",
         "channel": false
@@ -4525,7 +4525,7 @@
         "spell_type": "detrimental",
         "interruptable": true,
         "class_level_requirements": {
-            "Spiritcaller": 8
+            "Spiritweaver": 8
         },
         "channel": false
     },
@@ -4550,7 +4550,7 @@
         "spell_type": "beneficial",
         "interruptable": true,
         "class_level_requirements": {
-            "Spiritcaller": 9
+            "Spiritweaver": 9
         },
         "effect_type": "heal",
         "channel": false
@@ -4576,7 +4576,7 @@
         "spell_type": "detrimental",
         "interruptable": true,
         "class_level_requirements": {
-            "Spiritcaller": 9
+            "Spiritweaver": 9
         },
         "channel": false
     },
@@ -4601,7 +4601,7 @@
         "spell_type": "beneficial",
         "interruptable": true,
         "class_level_requirements": {
-            "Spiritcaller": 10
+            "Spiritweaver": 10
         },
         "effect_type": "heal",
         "channel": false
@@ -4627,7 +4627,7 @@
         "spell_type": "detrimental",
         "interruptable": true,
         "class_level_requirements": {
-            "Spiritcaller": 10
+            "Spiritweaver": 10
         },
         "channel": false
     },
@@ -4652,7 +4652,7 @@
         "spell_type": "beneficial",
         "interruptable": true,
         "class_level_requirements": {
-            "Spiritcaller": 11
+            "Spiritweaver": 11
         },
         "effect_type": "hot",
         "channel": true,
@@ -4679,7 +4679,7 @@
         "spell_type": "beneficial",
         "interruptable": true,
         "class_level_requirements": {
-            "Spiritcaller": 11
+            "Spiritweaver": 11
         },
         "effect_type": "heal",
         "channel": false
@@ -4705,7 +4705,7 @@
         "spell_type": "chain",
         "interruptable": true,
         "class_level_requirements": {
-            "Spiritcaller": 12
+            "Spiritweaver": 12
         },
         "effect_type": "heal",
         "channel": false,
@@ -4732,7 +4732,7 @@
         "spell_type": "channel",
         "interruptable": true,
         "class_level_requirements": {
-            "Spiritcaller": 12
+            "Spiritweaver": 12
         },
         "effect_type": "dot",
         "channel": true,
@@ -4759,7 +4759,7 @@
         "spell_type": "detrimental",
         "interruptable": true,
         "class_level_requirements": {
-            "Spiritcaller": 13
+            "Spiritweaver": 13
         },
         "effect_type": "buff",
         "channel": false
@@ -4785,7 +4785,7 @@
         "spell_type": "detrimental",
         "interruptable": true,
         "class_level_requirements": {
-            "Spiritcaller": 13
+            "Spiritweaver": 13
         },
         "effect_type": "debuff",
         "channel": false
@@ -4811,7 +4811,7 @@
         "spell_type": "beneficial",
         "interruptable": true,
         "class_level_requirements": {
-            "Spiritcaller": 14
+            "Spiritweaver": 14
         },
         "effect_type": "heal",
         "channel": false
@@ -4837,7 +4837,7 @@
         "spell_type": "charm",
         "interruptable": true,
         "class_level_requirements": {
-            "Spiritcaller": 14
+            "Spiritweaver": 14
         },
         "effect_type": "dot",
         "channel": true,
@@ -4864,7 +4864,7 @@
         "spell_type": "beneficial",
         "interruptable": true,
         "class_level_requirements": {
-            "Spiritcaller": 15
+            "Spiritweaver": 15
         },
         "effect_type": "heal",
         "channel": false
@@ -4890,7 +4890,7 @@
         "spell_type": "detrimental",
         "interruptable": true,
         "class_level_requirements": {
-            "Spiritcaller": 15
+            "Spiritweaver": 15
         },
         "effect_type": "snare",
         "channel": false
@@ -4916,7 +4916,7 @@
         "spell_type": "beneficial",
         "interruptable": true,
         "class_level_requirements": {
-            "Spiritcaller": 16
+            "Spiritweaver": 16
         },
         "effect_type": "hot",
         "channel": true,
@@ -4943,7 +4943,7 @@
         "spell_type": "beneficial",
         "interruptable": true,
         "class_level_requirements": {
-            "Spiritcaller": 16
+            "Spiritweaver": 16
         },
         "effect_type": "buff",
         "channel": false
@@ -4969,7 +4969,7 @@
         "spell_type": "detrimental",
         "interruptable": true,
         "class_level_requirements": {
-            "Spiritcaller": 17
+            "Spiritweaver": 17
         },
         "channel": false
     },
@@ -4994,7 +4994,7 @@
         "spell_type": "beneficial",
         "interruptable": true,
         "class_level_requirements": {
-            "Spiritcaller": 17
+            "Spiritweaver": 17
         },
         "effect_type": "heal",
         "channel": false
@@ -5020,7 +5020,7 @@
         "spell_type": "charm",
         "interruptable": true,
         "class_level_requirements": {
-            "Spiritcaller": 18
+            "Spiritweaver": 18
         },
         "effect_type": "stun",
         "channel": false
@@ -5046,7 +5046,7 @@
         "spell_type": "beneficial",
         "interruptable": true,
         "class_level_requirements": {
-            "Spiritcaller": 18
+            "Spiritweaver": 18
         },
         "effect_type": "heal",
         "channel": false
@@ -5072,7 +5072,7 @@
         "spell_type": "beneficial",
         "interruptable": true,
         "class_level_requirements": {
-            "Spiritcaller": 19
+            "Spiritweaver": 19
         },
         "effect_type": "hot",
         "channel": true,
@@ -5099,7 +5099,7 @@
         "spell_type": "beneficial",
         "interruptable": true,
         "class_level_requirements": {
-            "Spiritcaller": 19
+            "Spiritweaver": 19
         },
         "channel": false
     },
@@ -5124,7 +5124,7 @@
         "spell_type": "dispel",
         "interruptable": true,
         "class_level_requirements": {
-            "Spiritcaller": 20
+            "Spiritweaver": 20
         },
         "effect_type": "heal",
         "channel": false
@@ -5150,7 +5150,7 @@
         "spell_type": "charm",
         "interruptable": true,
         "class_level_requirements": {
-            "Spiritcaller": 20
+            "Spiritweaver": 20
         },
         "effect_type": "stun",
         "channel": false
@@ -5176,7 +5176,7 @@
         "spell_type": "reactive",
         "interruptable": true,
         "class_level_requirements": {
-            "Spiritcaller": 20
+            "Spiritweaver": 20
         },
         "effect_type": "hot",
         "channel": true,
@@ -6270,7 +6270,7 @@
         "spell_type": "detrimental",
         "interruptable": true,
         "class_level_requirements": {
-            "Zenblade": 1
+            "Aetherfist": 1
         },
         "channel": false
     },
@@ -6295,7 +6295,7 @@
         "spell_type": "detrimental",
         "interruptable": true,
         "class_level_requirements": {
-            "Zenblade": 1
+            "Aetherfist": 1
         },
         "channel": false
     },
@@ -6320,7 +6320,7 @@
         "spell_type": "detrimental",
         "interruptable": true,
         "class_level_requirements": {
-            "Zenblade": 2
+            "Aetherfist": 2
         },
         "channel": false
     },
@@ -6345,7 +6345,7 @@
         "spell_type": "detrimental",
         "interruptable": true,
         "class_level_requirements": {
-            "Zenblade": 2
+            "Aetherfist": 2
         },
         "effect_type": "debuff",
         "channel": false
@@ -6371,7 +6371,7 @@
         "spell_type": "detrimental",
         "interruptable": true,
         "class_level_requirements": {
-            "Zenblade": 3
+            "Aetherfist": 3
         },
         "channel": false
     },
@@ -6396,7 +6396,7 @@
         "spell_type": "channel",
         "interruptable": true,
         "class_level_requirements": {
-            "Zenblade": 3
+            "Aetherfist": 3
         },
         "effect_type": "dot",
         "channel": true,
@@ -6423,7 +6423,7 @@
         "spell_type": "beneficial",
         "interruptable": true,
         "class_level_requirements": {
-            "Zenblade": 4
+            "Aetherfist": 4
         },
         "effect_type": "hot",
         "channel": true,
@@ -6450,7 +6450,7 @@
         "spell_type": "charm",
         "interruptable": true,
         "class_level_requirements": {
-            "Zenblade": 4
+            "Aetherfist": 4
         },
         "effect_type": "stun",
         "channel": false
@@ -6476,7 +6476,7 @@
         "spell_type": "beneficial",
         "interruptable": true,
         "class_level_requirements": {
-            "Zenblade": 5
+            "Aetherfist": 5
         },
         "effect_type": "hot",
         "channel": true,
@@ -6503,7 +6503,7 @@
         "spell_type": "detrimental",
         "interruptable": true,
         "class_level_requirements": {
-            "Zenblade": 5
+            "Aetherfist": 5
         },
         "effect_type": "snare",
         "channel": false
@@ -6529,7 +6529,7 @@
         "spell_type": "detrimental",
         "interruptable": true,
         "class_level_requirements": {
-            "Zenblade": 6
+            "Aetherfist": 6
         },
         "effect_type": "buff",
         "channel": false
@@ -6555,7 +6555,7 @@
         "spell_type": "teleport",
         "interruptable": true,
         "class_level_requirements": {
-            "Zenblade": 6
+            "Aetherfist": 6
         },
         "channel": false
     },
@@ -6580,7 +6580,7 @@
         "spell_type": "detrimental",
         "interruptable": true,
         "class_level_requirements": {
-            "Zenblade": 7
+            "Aetherfist": 7
         },
         "channel": false
     },
@@ -6605,7 +6605,7 @@
         "spell_type": "detrimental",
         "interruptable": true,
         "class_level_requirements": {
-            "Zenblade": 8
+            "Aetherfist": 8
         },
         "channel": false
     },
@@ -6630,7 +6630,7 @@
         "spell_type": "detrimental",
         "interruptable": true,
         "class_level_requirements": {
-            "Zenblade": 8
+            "Aetherfist": 8
         },
         "channel": false
     },
@@ -6655,7 +6655,7 @@
         "spell_type": "dispel",
         "interruptable": true,
         "class_level_requirements": {
-            "Zenblade": 9
+            "Aetherfist": 9
         },
         "effect_type": "heal",
         "channel": false
@@ -6681,7 +6681,7 @@
         "spell_type": "detrimental",
         "interruptable": true,
         "class_level_requirements": {
-            "Zenblade": 9
+            "Aetherfist": 9
         },
         "channel": false
     },
@@ -6706,7 +6706,7 @@
         "spell_type": "chain",
         "interruptable": true,
         "class_level_requirements": {
-            "Zenblade": 10
+            "Aetherfist": 10
         },
         "channel": false,
         "chain_targets": 1
@@ -6732,7 +6732,7 @@
         "spell_type": "detrimental",
         "interruptable": true,
         "class_level_requirements": {
-            "Zenblade": 10
+            "Aetherfist": 10
         },
         "channel": false
     },
@@ -6757,7 +6757,7 @@
         "spell_type": "detrimental",
         "interruptable": true,
         "class_level_requirements": {
-            "Zenblade": 11
+            "Aetherfist": 11
         },
         "effect_type": "buff",
         "channel": false
@@ -6783,7 +6783,7 @@
         "spell_type": "charm",
         "interruptable": true,
         "class_level_requirements": {
-            "Zenblade": 11
+            "Aetherfist": 11
         },
         "effect_type": "stun",
         "channel": false
@@ -6809,7 +6809,7 @@
         "spell_type": "detrimental",
         "interruptable": true,
         "class_level_requirements": {
-            "Zenblade": 12
+            "Aetherfist": 12
         },
         "channel": false
     },
@@ -6834,7 +6834,7 @@
         "spell_type": "detrimental",
         "interruptable": true,
         "class_level_requirements": {
-            "Zenblade": 12
+            "Aetherfist": 12
         },
         "channel": false
     },
@@ -6859,7 +6859,7 @@
         "spell_type": "teleport",
         "interruptable": true,
         "class_level_requirements": {
-            "Zenblade": 13
+            "Aetherfist": 13
         },
         "channel": false
     },
@@ -6884,7 +6884,7 @@
         "spell_type": "detrimental",
         "interruptable": true,
         "class_level_requirements": {
-            "Zenblade": 13
+            "Aetherfist": 13
         },
         "channel": false
     },
@@ -6909,7 +6909,7 @@
         "spell_type": "beneficial",
         "interruptable": true,
         "class_level_requirements": {
-            "Zenblade": 14
+            "Aetherfist": 14
         },
         "effect_type": "heal",
         "channel": false
@@ -6935,7 +6935,7 @@
         "spell_type": "detrimental",
         "interruptable": true,
         "class_level_requirements": {
-            "Zenblade": 14
+            "Aetherfist": 14
         },
         "channel": false
     },
@@ -6960,7 +6960,7 @@
         "spell_type": "detrimental",
         "interruptable": true,
         "class_level_requirements": {
-            "Zenblade": 15
+            "Aetherfist": 15
         },
         "channel": false
     },
@@ -6985,7 +6985,7 @@
         "spell_type": "detrimental",
         "interruptable": true,
         "class_level_requirements": {
-            "Zenblade": 15
+            "Aetherfist": 15
         },
         "channel": false
     },
@@ -7010,7 +7010,7 @@
         "spell_type": "reactive",
         "interruptable": true,
         "class_level_requirements": {
-            "Zenblade": 16
+            "Aetherfist": 16
         },
         "channel": false
     },
@@ -7035,7 +7035,7 @@
         "spell_type": "detrimental",
         "interruptable": true,
         "class_level_requirements": {
-            "Zenblade": 16
+            "Aetherfist": 16
         },
         "effect_type": "buff",
         "channel": false
@@ -7061,7 +7061,7 @@
         "spell_type": "detrimental",
         "interruptable": true,
         "class_level_requirements": {
-            "Zenblade": 17
+            "Aetherfist": 17
         },
         "channel": false
     },
@@ -7086,7 +7086,7 @@
         "spell_type": "detrimental",
         "interruptable": true,
         "class_level_requirements": {
-            "Zenblade": 17
+            "Aetherfist": 17
         },
         "channel": false
     },
@@ -7111,7 +7111,7 @@
         "spell_type": "beneficial",
         "interruptable": true,
         "class_level_requirements": {
-            "Zenblade": 18
+            "Aetherfist": 18
         },
         "effect_type": "heal",
         "channel": false
@@ -7137,7 +7137,7 @@
         "spell_type": "detrimental",
         "interruptable": true,
         "class_level_requirements": {
-            "Zenblade": 18
+            "Aetherfist": 18
         },
         "channel": false
     },
@@ -7162,7 +7162,7 @@
         "spell_type": "detrimental",
         "interruptable": true,
         "class_level_requirements": {
-            "Zenblade": 19
+            "Aetherfist": 19
         },
         "effect_type": "buff",
         "channel": false
@@ -7188,7 +7188,7 @@
         "spell_type": "charm",
         "interruptable": true,
         "class_level_requirements": {
-            "Zenblade": 19
+            "Aetherfist": 19
         },
         "effect_type": "stun",
         "channel": false
@@ -7214,7 +7214,7 @@
         "spell_type": "charm",
         "interruptable": true,
         "class_level_requirements": {
-            "Zenblade": 20
+            "Aetherfist": 20
         },
         "effect_type": "stun",
         "channel": false
@@ -7240,7 +7240,7 @@
         "spell_type": "beneficial",
         "interruptable": true,
         "class_level_requirements": {
-            "Zenblade": 20
+            "Aetherfist": 20
         },
         "effect_type": "heal",
         "channel": false
@@ -7266,7 +7266,7 @@
         "spell_type": "beneficial",
         "interruptable": true,
         "class_level_requirements": {
-            "Zenblade": 20
+            "Aetherfist": 20
         },
         "effect_type": "heal",
         "channel": false
@@ -11377,16 +11377,16 @@
         "recast_time": 10.0,
         "level": 3,
         "spell_school": "physical",
-        "damage": 8,
-        "target": "enemy",
-        "range": "15m",
-        "duration": 5,
+        "damage": 0,
+        "target": "self",
+        "range": "0m",
+        "duration": 8,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
-        "blockable": true,
+        "blockable": false,
         "dispellable": true,
-        "spell_type": "detrimental",
+        "spell_type": "beneficial",
         "interruptable": true,
         "class_level_requirements": {
             "Runecaster": 3
@@ -14460,6 +14460,32 @@
             "Voidknight": 1
         },
         "effect_type": "taunt",
+        "channel": false
+    },
+    {
+        "spell_id": 560,
+        "spell_name": "phantasmal_echo",
+        "description": "Summons a Phantasmal Echo (30% of caster health) that periodically mends the weakest ally in your group and strikes distant foes with spectral bolts, until dispelled or destroyed.",
+        "caster_proficiency": "intelligence",
+        "mana_cost": 20.0,
+        "recast_time": 10.0,
+        "level": 1,
+        "spell_school": "spirit",
+        "damage": 0,
+        "target": "self",
+        "range": "0m",
+        "duration": "unlimited",
+        "casting_time": 2.0,
+        "failure_rate": 0.0,
+        "location": "all",
+        "blockable": false,
+        "dispellable": true,
+        "spell_type": "summon",
+        "interruptable": true,
+        "class_level_requirements": {
+            "Spiritweaver": 1
+        },
+        "effect_type": "summon",
         "channel": false
     }
 ]

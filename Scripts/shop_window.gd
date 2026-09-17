@@ -13,11 +13,13 @@ const MAX_LIST_HEIGHT := 200.0  # each of the two lists, before it scrolls inste
 const POSITION_KEY := "shop_window"
 
 var _vendor: Node = null
+var _player: Node = null
 
 @onready var panel: Panel = $Panel
 @onready var title_label: Label = $Panel/Margin/VBox/TitleBar/TitleLabel
 @onready var vbox: VBoxContainer = $Panel/Margin/VBox
 @onready var coin_label: Label = $Panel/Margin/VBox/CoinLabel
+@onready var usable_only_check: CheckBox = $Panel/Margin/VBox/UsableOnlyCheck
 @onready var buy_scroll: ScrollContainer = $Panel/Margin/VBox/BuyScroll
 @onready var buy_list: VBoxContainer = $Panel/Margin/VBox/BuyScroll/BuyList
 @onready var sell_scroll: ScrollContainer = $Panel/Margin/VBox/SellScroll
@@ -33,6 +35,8 @@ func _ready() -> void:
 	WindowPosition.load_position_into(POSITION_KEY, panel)
 	Global.currency_changed.connect(_refresh_coin_label)
 	Inventory.inventory_changed.connect(_rebuild_sell_list)
+	usable_only_check.toggled.connect(func(_pressed: bool): _rebuild_buy_list())
+	_player = TargetFrame.local_player()
 
 
 func _exit_tree() -> void:
@@ -65,9 +69,38 @@ func _rebuild_buy_list() -> void:
 	if not is_instance_valid(_vendor):
 		return
 
-	for entry in _vendor.get_shop_stock():
-		buy_list.add_child(_make_buy_row(entry))
+	var stock: Array = _vendor.get_shop_stock()
+	if usable_only_check.button_pressed:
+		stock = stock.filter(func(entry): return _is_usable_by_player(entry["item_def"]))
+
+	if stock.is_empty():
+		var empty_lbl := Label.new()
+		empty_lbl.text = "Nothing here you can use."
+		empty_lbl.add_theme_color_override("font_color", Color(0.55, 0.55, 0.55))
+		buy_list.add_child(empty_lbl)
+	else:
+		for entry in stock:
+			buy_list.add_child(_make_buy_row(entry))
 	_resize_to_content()
+
+
+# "Usable" = your class/race is allowed to wear/wield/learn it — items.json's
+# own class/race arrays already carry exactly this (["all"] or a specific
+# list, e.g. a spell scroll's ["voidknight"]), so this reuses that instead of
+# inventing a second eligibility system.
+func _is_usable_by_player(item_def: Dictionary) -> bool:
+	if not is_instance_valid(_player):
+		return true
+	var player_class: String = str(_player.get("player_class")).to_lower() if "player_class" in _player else ""
+	var player_race: String = str(_player.get("player_race")).to_lower() if "player_race" in _player else ""
+
+	var class_list: Array = item_def.get("class", ["all"])
+	var class_ok := "all" in class_list or player_class in class_list.map(func(c): return str(c).to_lower())
+
+	var race_list: Array = item_def.get("race", ["all"])
+	var race_ok := "all" in race_list or player_race in race_list.map(func(r): return str(r).to_lower())
+
+	return class_ok and race_ok
 
 
 func _make_buy_row(entry: Dictionary) -> Control:
@@ -99,29 +132,42 @@ func _make_buy_row(entry: Dictionary) -> Control:
 	price_lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	hbox.add_child(price_lbl)
 
+	# Quantity only really matters for stackable items (buying 1 of a weapon
+	# at a time is the norm), but there's no harm letting it apply generically
+	# — Inventory.add_item() already just adds N separate instances for a
+	# non-stackable item_id if asked to.
+	var qty_spin := SpinBox.new()
+	qty_spin.min_value = 1
+	qty_spin.max_value = 99
+	qty_spin.value = 1
+	qty_spin.custom_minimum_size = Vector2(56, 0)
+	hbox.add_child(qty_spin)
+
 	var buy_btn := Button.new()
 	buy_btn.text = "Buy"
 	buy_btn.custom_minimum_size = Vector2(48, 0)
 	buy_btn.disabled = not Global.can_afford(price)
-	buy_btn.pressed.connect(_buy.bind(entry))
+	buy_btn.pressed.connect(func(): _buy(entry, int(qty_spin.value)))
 	hbox.add_child(buy_btn)
 
 	return row
 
 
-func _buy(entry: Dictionary) -> void:
-	var price: int = entry["price"]
+func _buy(entry: Dictionary, qty: int) -> void:
+	var unit_price: int = entry["price"]
+	var total_price: int = unit_price * qty
 	var item_id: String = entry["item_id"]
 	var item_def: Dictionary = entry["item_def"]
 
-	if not Global.can_afford(price):
+	if not Global.can_afford(total_price):
 		GameLog.log_general("You can't afford that.")
 		return
-	if not Inventory.add_item(item_id):
+	if not Inventory.add_item(item_id, qty):
 		GameLog.log_general("Your inventory is full.")
 		return
-	Global.spend_currency_copper(price)
-	GameLog.log_general("You purchase %s for %d copper." % [item_def.get("name", item_id), price])
+	Global.spend_currency_copper(total_price)
+	var name_str: String = item_def.get("name", item_id) + (" x%d" % qty if qty > 1 else "")
+	GameLog.log_general("You purchase %s for %d copper." % [name_str, total_price])
 	_rebuild_buy_list()  # add_item() emits inventory_changed itself, which refreshes the sell list
 
 
@@ -198,24 +244,37 @@ func _make_sell_row(row_data: Dictionary) -> Control:
 	price_lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	hbox.add_child(price_lbl)
 
+	# Only a stack of more than one actually needs a quantity picker — a
+	# single sword or a lone potion has nothing to pick between.
+	var qty_spin: SpinBox = null
+	if qty > 1:
+		qty_spin = SpinBox.new()
+		qty_spin.min_value = 1
+		qty_spin.max_value = qty
+		qty_spin.value = qty
+		qty_spin.custom_minimum_size = Vector2(56, 0)
+		hbox.add_child(qty_spin)
+
 	var sell_btn := Button.new()
 	sell_btn.text = "Sell"
 	sell_btn.custom_minimum_size = Vector2(48, 0)
-	sell_btn.pressed.connect(_sell.bind(row_data))
+	sell_btn.pressed.connect(func(): _sell(row_data, int(qty_spin.value) if qty_spin else 1))
 	hbox.add_child(sell_btn)
 
 	return row
 
 
-func _sell(row_data: Dictionary) -> void:
+func _sell(row_data: Dictionary, qty: int) -> void:
 	var item: Dictionary = row_data["item"]
-	var price: int = _vendor.get_sell_price(item)
+	var unit_price: int = _vendor.get_sell_price(item)
+	var total_price: int = unit_price * qty
 
-	Inventory.consume_one(row_data["slot_type"], row_data["slot_index"], row_data["bag_slot"], row_data["item_index"])
-	Global.add_currency_copper(price)
+	Inventory.consume_amount(row_data["slot_type"], row_data["slot_index"], row_data["bag_slot"], row_data["item_index"], qty)
+	Global.add_currency_copper(total_price)
 	Global.play_coin_sound()
-	GameLog.log_general("You sell %s for %d copper." % [item.get("name", "an item"), price])
-	# consume_one() emits inventory_changed, which _rebuild_sell_list is
+	var name_str: String = item.get("name", "an item") + (" x%d" % qty if qty > 1 else "")
+	GameLog.log_general("You sell %s for %d copper." % [name_str, total_price])
+	# consume_amount() emits inventory_changed, which _rebuild_sell_list is
 	# connected to — only the buy list (afford-state) needs a manual refresh.
 	_rebuild_buy_list()
 

@@ -146,6 +146,30 @@ func get_modifier(key: String) -> float:
 		total += effect["modifiers"].get(key, 0.0)
 	return total
 
+
+# ── Invisibility / stealth ──────────────────────────────────────────────────
+# "invisible" and "see_invisible" are modifier keys on ordinary timed effects
+# (player3d.gd's "invisibility" spell cast, deathly_visage's see-invisible
+# grant) rather than dedicated fields — reuses the existing effect/expiry
+# system instead of a parallel one. "stealthed" is the same shape, wired up
+# here for TargetFrame's nameplate formatting even though no skill sets it
+# yet (no rogue stealth mechanic exists in this codebase to hook into).
+func is_currently_invisible() -> bool:
+	return get_modifier("invisible") > 0.0
+
+func has_see_invisible() -> bool:
+	return get_modifier("see_invisible") > 0.0
+
+func is_stealthed() -> bool:
+	return get_modifier("stealthed") > 0.0
+
+# Called from resolve_attack() below (melee) and player3d.gd's
+# _resolve_spell_cast() (spell damage) — attacking of any kind reveals you,
+# same rule for players and monsters alike.
+func break_invisibility() -> void:
+	if active_effects.has("invisibility"):
+		remove_effect("invisibility")
+
 func has_passive(spell_name: String) -> bool:
 	"""Check whether this CombatNode's owner (player/pet) knows a non-cast passive spell."""
 	var owner_node: Node = get_parent()
@@ -422,7 +446,7 @@ func set_class(new_class: String):
 			class_riposte_base = 1
 			class_concentration_base = 10
 
-		"Spiritcaller":
+		"Spiritweaver":
 			class_hp_bonus = 0.08
 			class_ac_bonus = 0
 			class_dodge_base = 3
@@ -719,6 +743,7 @@ func resolve_attack(target: CombatNode) -> Dictionary:
 	5. Dodge check (defender)
 	6. Hit - calculate damage
 	"""
+	break_invisibility()
 
 	# 1. MISS CHECK
 	var attack_roll = roll_attack(target)
@@ -800,7 +825,7 @@ func resolve_attack(target: CombatNode) -> Dictionary:
 	var is_crit = roll_crit()
 	var damage = calculate_melee_damage(target, is_crit)
 	damage = apply_ac_mitigation(damage, target)
-	# Generic flat "% less damage taken" modifier — e.g. Spiritcaller's Earth
+	# Generic flat "% less damage taken" modifier — e.g. Spiritweaver's Earth
 	# Totem — distinct from absorb (a depletable shield) and damage_drain_pct
 	# (heal-back): this just reduces the hit outright.
 	damage = int(damage * (1.0 - target.get_modifier("damage_taken_mult")))
@@ -968,17 +993,16 @@ func interrupt_spell(target: CombatNode, mana_cost: int) -> Dictionary:
 	var adjusted_concentration = concentration + int(cast_progress / 2.0)
 	adjusted_concentration = clamp(adjusted_concentration, 0, 95)
 
-	is_casting = false
-
 	if concentration_roll <= adjusted_concentration:
-		# SUCCESS - no mana loss
+		# SUCCESS - cast continues uninterrupted, no mana loss
 		return {
 			"result": "CONCENTRATION_SUCCESS",
 			"mana_lost": 0,
 			"message": "You maintain concentration!"
 		}
 
-	# FAILURE - lose mana based on progress
+	# FAILURE - cast is disrupted, lose mana based on progress
+	is_casting = false
 	var mana_lost = 0
 	var message = ""
 

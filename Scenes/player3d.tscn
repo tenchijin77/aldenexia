@@ -26,6 +26,24 @@ properties/4/replication_mode = 2
 properties/5/path = NodePath(".:player_sex")
 properties/5/spawn = true
 properties/5/replication_mode = 2
+properties/6/path = NodePath(".:is_game_master")
+properties/6/spawn = true
+properties/6/replication_mode = 2
+properties/7/path = NodePath("CombatNode:current_hp")
+properties/7/spawn = true
+properties/7/replication_mode = 2
+properties/8/path = NodePath("CombatNode:max_hp")
+properties/8/spawn = true
+properties/8/replication_mode = 2
+properties/9/path = NodePath("CombatNode:current_mana")
+properties/9/spawn = true
+properties/9/replication_mode = 2
+properties/10/path = NodePath("CombatNode:max_mana")
+properties/10/spawn = true
+properties/10/replication_mode = 2
+properties/11/path = NodePath("CombatNode:level")
+properties/11/spawn = true
+properties/11/replication_mode = 2
 
 [node name="CharacterBody3D" type="CharacterBody3D" unique_id=992623004 groups=["player"]]
 script = ExtResource("1_w11xc")
@@ -49,3 +67,8 @@ script = ExtResource("2_yogew")
 
 [node name="Camera3D" type="Camera3D" parent="CameraRig" unique_id=572376702]
 transform = Transform3D(0.999474, 0.031591065, 0.0073287506, -0.032017857, 0.99715894, 0.0681846, -0.005153905, -0.068383336, 0.997646, 0, 1.320948, 1.3135955)
+
+[node name="PetContainer" type="Node3D" parent="."]
+
+[node name="PetSpawner" type="MultiplayerSpawner" parent="."]
+spawn_path = NodePath("../PetContainer")

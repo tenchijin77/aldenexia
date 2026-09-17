@@ -69,10 +69,10 @@ func get_vendor_display_name() -> String:
 # type. Reuses greet_player()'s line rather than a separate flavor pool;
 # hailing him is just a way to get his greeting without opening the shop.
 func respond_to_hail() -> void:
-	var players := get_tree().get_nodes_in_group("player")
-	if players.is_empty():
+	var player := TargetFrame.local_player()
+	if not is_instance_valid(player):
 		return
-	greet_player(players[0].player_name)
+	greet_player(player.player_name)
 
 
 # Called by player3d.gd's _open_shop() the moment the shop window opens.

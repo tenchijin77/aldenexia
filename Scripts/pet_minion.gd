@@ -31,9 +31,12 @@ const GUARD_SCAN_RADIUS := 5.0
 const GUARD_SCAN_INTERVAL := 1.0
 const REGEN_INTERVAL := 6.0
 # How recently the owner must have taken a hit to count as "under attack right
-# now" for Follow/Guard/Assist's auto-defend reaction, and how often that (and
-# Assist's "join the owner's fight") check runs.
+# now" for Follow/Guard/Assist's auto-defend reaction.
 const DEFEND_REACTION_WINDOW_MS := 1500
+# Same idea for Assist's "join the owner's fight" reaction — how recently the
+# owner must have actually landed an attack (not just have autoattack
+# toggled on) for the pet to jump in on their current target.
+const ASSIST_REACTION_WINDOW_MS := 1500
 const AUTO_ENGAGE_SCAN_INTERVAL := 0.5
 const GRAVITY := 20.0
 const ATTACK_ANIMS := ["attack_horizontal", "attack_downward"]
@@ -70,6 +73,11 @@ var gear_weapon_damage: int = 0
 var gear_armor_class: int = 0
 
 var animation_player: AnimationPlayer = null
+# Set alongside every animation_player.play() call below, replicated (see
+# pet_minion.tscn/phantasmal_echo_pet.tscn's MultiplayerSynchronizer) so a
+# non-authoritative peer just mirrors whatever animation the owning player's
+# own client decided, instead of running its own (removed) AI to decide.
+var anim_state: String = ""
 var _base_stats: Dictionary = {}
 
 # Self-managed NavigationServer3D.query_path() movement — NavigationAgent3D's
@@ -169,6 +177,12 @@ func _apply_material_recursive(node: Node, mat: Material) -> void:
 		_apply_material_recursive(child, mat)
 
 
+# Overridden by phantasmal_echo_pet.gd — the TitleLabel subtitle text is
+# "<OwnerName's %s>" for whatever this returns.
+func _pet_title() -> String:
+	return "risen minion"
+
+
 func _pick_random_name() -> String:
 	var file := FileAccess.open("res://Data/pet_names.json", FileAccess.READ)
 	if not file:
@@ -188,11 +202,15 @@ func setup(p_owner: Node, preset_name: String = "") -> void:
 	pet_name = preset_name if not preset_name.is_empty() else _pick_random_name()
 	if has_node("NameLabel"):
 		$NameLabel.text = pet_name
+	if has_node("TitleLabel"):
+		var owner_name: String = p_owner.player_name if "player_name" in p_owner else "Someone"
+		$TitleLabel.text = "<%s's %s>" % [owner_name, _pet_title()]
 
 	var stats := _load_skeleton_stats()
 	_base_stats = stats
 
 	combat_node = CombatNode.new()
+	combat_node.name = "CombatNode"
 	add_child(combat_node)
 	combat_node.level = p_owner.combat_node.level
 	combat_node.strength     = 0
@@ -249,6 +267,17 @@ func _physics_process(delta: float) -> void:
 		queue_free()
 		return
 
+	# Non-authoritative peers (every client but the pet's own owner, in
+	# multiplayer — always true in single-player, same authority-gating
+	# pattern as player3d.gd/monster3d.gd) never run AI/combat/movement here:
+	# they just mirror replicated position/rotation/anim_state, same as a
+	# replicated monster puppet. queue_free() on the owner's client (death,
+	# dismiss) propagates removal to every peer automatically via the
+	# MultiplayerSpawner this pet was spawned through.
+	if not is_multiplayer_authority():
+		_play_replicated_animation()
+		return
+
 	if not can_attack:
 		attack_timer -= delta
 		if attack_timer <= 0.0:
@@ -261,10 +290,12 @@ func _physics_process(delta: float) -> void:
 
 	match command:
 		PetState.FOLLOW:
-			_move_toward(_follow_spot(), FOLLOW_ARRIVAL, delta)
+			if not _maintain_min_owner_distance(delta):
+				_move_toward(_follow_spot(), FOLLOW_ARRIVAL, delta)
 			_process_auto_engage(delta, false)
 		PetState.ASSIST:
-			_move_toward(_follow_spot(), FOLLOW_ARRIVAL, delta)
+			if not _maintain_min_owner_distance(delta):
+				_move_toward(_follow_spot(), FOLLOW_ARRIVAL, delta)
 			_process_auto_engage(delta, true)
 		PetState.ATTACK:
 			_process_attack(delta)
@@ -273,7 +304,8 @@ func _physics_process(delta: float) -> void:
 			velocity.x = 0.0
 			velocity.z = 0.0
 		PetState.GUARD:
-			_move_toward(guard_position, 0.5, delta)
+			if not _maintain_min_owner_distance(delta):
+				_move_toward(guard_position, 0.5, delta)
 			_process_guard(delta)
 			_process_auto_engage(delta, false)
 
@@ -290,14 +322,27 @@ func _update_animation() -> void:
 		return
 	var moving := Vector2(velocity.x, velocity.z).length() > 0.1
 	var anim_name := "walk" if moving else "idle"
+	anim_state = anim_name  # replicated to non-authoritative peers — see _play_replicated_animation()
 	if animation_player.current_animation != anim_name:
 		animation_player.play(anim_name, 0.15)
+
+
+# Non-authoritative peers never run _update_animation()/_play_attack_animation()
+# (no local AI to decide with) — they just mirror whatever anim_state the
+# owning player's own client replicated out, same pattern as player3d.gd's
+# own puppet branch / monster3d.gd's replicated monsters.
+func _play_replicated_animation() -> void:
+	if not animation_player or animation_player.get_animation_list().is_empty():
+		return
+	if animation_player.current_animation != anim_state and animation_player.has_animation(anim_state):
+		animation_player.play(anim_state, 0.15)
 
 
 func _play_attack_animation() -> void:
 	if not animation_player or animation_player.get_animation_list().is_empty():
 		return
 	var anim_name: String = ATTACK_ANIMS[randi() % ATTACK_ANIMS.size()]
+	anim_state = anim_name  # replicated — see _play_replicated_animation()
 	animation_player.play(anim_name, 0.1)
 	_attack_anim_timer = animation_player.get_animation(anim_name).length
 
@@ -323,14 +368,62 @@ func _apply_gravity(delta: float) -> void:
 # issue), which is exactly why re-issuing Follow didn't help: as long as the
 # player stands in the same spot, the freshly computed "behind" point hits
 # the same wall every time.
+# Only ever 3m behind the player's current facing (_follow_spot() below)
+# arrives via navmesh pathing, which — when the player turns in place — can
+# route the pet in an arc that passes close by or through the player's own
+# collision capsule as it re-routes to the new "behind" point, reading as
+# stuttering. Checked first, every frame, ahead of any pathing: if already
+# closer than this to the owner, just steer straight away from them instead
+# of computing a path at all, taking priority over Follow/Assist/Guard's
+# normal destination until clear. Returns true when it took over movement
+# this frame (caller should skip its own _move_toward() call).
+const MIN_OWNER_DISTANCE := 3.0
+
+func _maintain_min_owner_distance(delta: float) -> bool:
+	if not is_instance_valid(owner_player):
+		return false
+	var away: Vector3 = global_position - owner_player.global_position
+	away.y = 0.0
+	var dist := away.length()
+	if dist >= MIN_OWNER_DISTANCE or dist < 0.001:
+		return false
+
+	_apply_gravity(delta)
+	var dir := away.normalized()
+	velocity.x = dir.x * move_speed
+	velocity.z = dir.z * move_speed
+	look_at(global_position + dir, Vector3.UP)
+	_nav_path.clear()
+	return true
+
+
+# Only recomputed once the owner has actually moved FOLLOW_SPOT_REFRESH_DIST
+# since the last update — recomputing every frame from the owner's current
+# facing meant simply turning in place (no translation at all) swept the
+# "behind them" point in an arc, and the pet would chase it as if the owner
+# had walked somewhere. Standing still and spinning now leaves the pet alone;
+# it only repositions once the owner actually walks away.
+const FOLLOW_SPOT_REFRESH_DIST := 0.5
+var _cached_follow_spot: Vector3 = Vector3.ZERO
+var _follow_spot_owner_pos: Vector3 = Vector3.ZERO
+var _follow_spot_initialized: bool = false
+
 func _follow_spot() -> Vector3:
+	if _follow_spot_initialized and owner_player.global_position.distance_to(_follow_spot_owner_pos) <= FOLLOW_SPOT_REFRESH_DIST:
+		return _cached_follow_spot
+
 	var forward: Vector3 = -owner_player.global_transform.basis.z.normalized()
 	var raw_spot: Vector3 = owner_player.global_position - forward * FOLLOW_DISTANCE
-	if not is_inside_tree():
-		return raw_spot
-	var map_rid: RID = get_world_3d().navigation_map
-	var snapped: Vector3 = NavigationServer3D.map_get_closest_point(map_rid, raw_spot)
-	return snapped if snapped != Vector3.ZERO else raw_spot
+	var snapped: Vector3 = raw_spot
+	if is_inside_tree():
+		var map_rid: RID = get_world_3d().navigation_map
+		var s: Vector3 = NavigationServer3D.map_get_closest_point(map_rid, raw_spot)
+		snapped = s if s != Vector3.ZERO else raw_spot
+
+	_cached_follow_spot = snapped
+	_follow_spot_owner_pos = owner_player.global_position
+	_follow_spot_initialized = true
+	return _cached_follow_spot
 
 
 # Same idea as _follow_spot() but behind whatever the pet is attacking —
@@ -488,8 +581,21 @@ func _process_attack(delta: float) -> void:
 		_perform_attack()
 
 
+# target.State.DEAD (a Monster-only enum) used to crash outright the moment
+# this was ever called with a non-Monster target — e.g. _process_auto_engage()
+# below calls this on owner_player.current_target before confirming it's
+# actually a monster, so simply targeting anything else (the pet itself, to
+# heal it; another player) crashed instantly. combat_node.is_alive() is the
+# same "is this thing actually dead" check every entity type here already
+# supports (Monster, Player3D, PetMinion alike), so it works generically
+# instead of assuming the target's concrete type.
 func _target_alive(target: Node) -> bool:
-	return is_instance_valid(target) and target.get("current_state") != target.State.DEAD
+	if not is_instance_valid(target):
+		return false
+	var cn = target.get("combat_node") if "combat_node" in target else null
+	if cn is CombatNode:
+		return cn.is_alive()
+	return true
 
 
 func _perform_attack() -> void:
@@ -502,6 +608,15 @@ func _perform_attack() -> void:
 
 	var target_cn: CombatNode = attack_target.combat_node
 	var result: Dictionary = combat_node.resolve_attack(target_cn)
+
+	# Multiplayer: relay real damage to whoever actually owns this monster's
+	# authoritative combat_node — same reasoning as player3d.gd's own melee/
+	# spell relays. Credits the KILL (if any) to the pet's owner, not the pet
+	# itself (pets have no save data of their own to grant XP into).
+	var target_is_networked_monster: bool = attack_target is Monster and not attack_target.is_multiplayer_authority()
+	if target_is_networked_monster and result.get("damage", 0) > 0 and is_instance_valid(owner_player):
+		attack_target.apply_networked_damage.rpc_id(1, result["damage"], owner_player.get_multiplayer_authority())
+
 	if attack_target.has_method("add_threat"):
 		attack_target.add_threat(self, combat_node.generate_threat(result.get("damage", 0)))
 	var target_desc: String = attack_target.get("monster_description")
@@ -525,7 +640,9 @@ func _perform_attack() -> void:
 
 	if not target_cn.is_alive():
 		GameLog.log_combat(CombatLogFormatter.death(pet_name, target_desc))
-		if attack_target.has_method("die"):
+		# Networked monster's own death/removal/XP-credit already happens
+		# server-side once the relayed damage above lands.
+		if not target_is_networked_monster and attack_target.has_method("die"):
 			attack_target.die()
 		attack_target = null
 		command = _pre_attack_command
@@ -587,7 +704,16 @@ func _process_auto_engage(delta: float, assist_mode: bool) -> void:
 			_engage(attacker)
 			return
 
-	if assist_mode and owner_player.get("autoattack_enabled"):
+	# Requires the owner to have actually just attacked, not merely that
+	# autoattack_enabled is true — that toggle is sticky across target
+	# changes, so simply clicking a new target while it was already on from a
+	# previous fight used to make the pet jump in before the owner had done
+	# anything to the new target themselves. last_attack_time_ms is set at
+	# every real attack action (autoattack swing, melee_attack key, damaging
+	# spell cast), so this now genuinely means "I just attacked," not "I
+	# have attacking toggled on and something is selected."
+	if assist_mode and "last_attack_time_ms" in owner_player \
+			and Time.get_ticks_msec() - owner_player.last_attack_time_ms < ASSIST_REACTION_WINDOW_MS:
 		var owner_target: Node = owner_player.get("current_target")
 		if is_instance_valid(owner_target) and _target_alive(owner_target) and owner_target.is_in_group("monsters"):
 			_engage(owner_target)

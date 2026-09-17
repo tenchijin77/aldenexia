@@ -24,10 +24,9 @@ func _process(_delta: float) -> void:
 		return  # already built (or determined not to build)
 
 	if not is_instance_valid(_player):
-		var players := get_tree().get_nodes_in_group("player")
-		if players.is_empty():
+		_player = TargetFrame.local_player()
+		if not is_instance_valid(_player):
 			return
-		_player = players[0]
 
 	_stances = _load_stances_for_class(_player.get("player_class") if "player_class" in _player else "")
 	if _stances.is_empty():

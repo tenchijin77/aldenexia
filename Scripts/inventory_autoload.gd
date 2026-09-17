@@ -290,6 +290,15 @@ func remove_from_bag(bag_slot_index: int, item_index: int) -> Dictionary:
 # slot_index) or "bag" (addressed by bag_slot + item_index), matching the
 # addressing already used throughout (slot_button.gd's drag payload, etc.).
 func consume_one(slot_type: String, slot_index: int, bag_slot: int, item_index: int) -> void:
+	consume_amount(slot_type, slot_index, bag_slot, item_index, 1)
+
+
+# Same as consume_one() but removes `amount` units in a single operation
+# (one sync/signal instead of `amount` repeated ones) — needed for the vendor
+# window's sell-a-stack-at-once option.
+func consume_amount(slot_type: String, slot_index: int, bag_slot: int, item_index: int, amount: int) -> void:
+	if amount <= 0:
+		return
 	if slot_type == "bag":
 		var bag_key = str(bag_slot)
 		if not bag_contents.has(bag_key):
@@ -298,20 +307,22 @@ func consume_one(slot_type: String, slot_index: int, bag_slot: int, item_index: 
 		if item_index < 0 or item_index >= bag_items.size():
 			return
 		var item = bag_items[item_index]
-		if item.get("stackable", false) and item.get("quantity", 1) > 1:
-			item.quantity -= 1
+		var current_qty: int = item.get("quantity", 1) if item.get("stackable", false) else 1
+		if amount >= current_qty:
+			remove_from_bag(bag_slot, item_index)
+		else:
+			item.quantity -= amount
 			sync_to_global()
 			inventory_changed.emit()
-		else:
-			remove_from_bag(bag_slot, item_index)
 	else:
 		var item = get_basic_inventory_slot(slot_index)
-		if item.get("stackable", false) and item.get("quantity", 1) > 1:
-			item.quantity -= 1
+		var current_qty: int = item.get("quantity", 1) if item.get("stackable", false) else 1
+		if amount >= current_qty:
+			remove_from_basic_inventory(slot_index)
+		else:
+			item.quantity -= amount
 			sync_to_global()
 			inventory_changed.emit()
-		else:
-			remove_from_basic_inventory(slot_index)
 
 func get_bag_contents(bag_slot_index: int) -> Array:
 	# Returns array of items in a bag

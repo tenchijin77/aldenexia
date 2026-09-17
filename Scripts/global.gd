@@ -423,9 +423,8 @@ func save_player_data_to_file() -> void:
 	# and lets the player log back in exactly where they logged out. Distinct
 	# from "bind_point" (player3d.gd), which is the death-respawn location and
 	# only ever set once on first spawn.
-	var players := get_tree().get_nodes_in_group("player")
-	if not players.is_empty():
-		var p: Node3D = players[0]
+	var p: Node3D = TargetFrame.local_player()
+	if is_instance_valid(p):
 		player_data["last_position"] = [p.global_position.x, p.global_position.y, p.global_position.z]
 	var file_path := "user://saves/%s_character_stats.json" % current_character_name.to_lower()
 	var file := FileAccess.open(file_path, FileAccess.WRITE)

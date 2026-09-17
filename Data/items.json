@@ -2498,7 +2498,7 @@
     "weight": 0.1,
     "size": "small",
     "class": [
-      "spiritcaller"
+      "spiritweaver"
     ],
     "race": [
       "all"
@@ -2508,6 +2508,33 @@
     "stat_modifiers": null,
     "effect": null,
     "teaches_spell": "spirit_mend"
+  },
+  "scroll_of_phantasmal_echo": {
+    "name": "Scroll of Phantasmal Echo",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.2_02.png",
+    "description": "A scroll containing the Phantasmal Echo, summoning a spirit that mends the weakest ally and strikes at range. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "spiritweaver"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "phantasmal_echo"
   },
   "scroll_of_earth_totem": {
     "name": "Scroll of Earth Totem",
@@ -2525,7 +2552,7 @@
     "weight": 0.1,
     "size": "small",
     "class": [
-      "spiritcaller"
+      "spiritweaver"
     ],
     "race": [
       "all"
@@ -2552,7 +2579,7 @@
     "weight": 0.1,
     "size": "small",
     "class": [
-      "spiritcaller"
+      "spiritweaver"
     ],
     "race": [
       "all"
@@ -2579,7 +2606,7 @@
     "weight": 0.1,
     "size": "small",
     "class": [
-      "spiritcaller"
+      "spiritweaver"
     ],
     "race": [
       "all"

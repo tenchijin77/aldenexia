@@ -370,16 +370,34 @@ func _on_save() -> void:
 	_on_resume()
 
 
+# Routes through the same 15-second camp channel as /camp and /exit
+# (game_log_window.gd's start_camp_sequence()) rather than saving and tearing
+# down instantly — otherwise this button is a free escape from a fight gone
+# wrong that bypasses the very channel /camp exists to enforce. Fires that
+# channel without awaiting it here: it's a multi-second coroutine, and this
+# node queue_free()s itself (via _on_resume()) right after this returns, which
+# would kill an awaited coroutine mid-flight if it lived on self instead of on
+# the long-lived game_log_window. Closes this menu right away (not paused —
+# the world keeps running underneath) so the player can see themselves sit
+# down and can still be interrupted by damage, same as typing /camp directly.
 func _on_save_and_exit() -> void:
-	Global.save_player_data_to_file()
-	# Free every CanvasLayer on the root — covers HUD, character sheet, backpack,
-	# abilities book, loot window, inspect popup, and this pause menu itself.
-	# Autoloads (Global, GameLog, Inventory, GlobalBackgroundMusic) are not
-	# CanvasLayers so they are unaffected.
-	for node in get_tree().root.get_children():
-		if node is CanvasLayer:
-			node.queue_free()
-	get_tree().change_scene_to_file("res://Scenes/main_menu.tscn")
+	var log_window: Node = null
+	for node in get_tree().get_nodes_in_group("game_hud"):
+		if node is GameLogWindow:
+			log_window = node
+			break
+
+	if log_window == null:
+		# Shouldn't happen mid-game, but don't just silently do nothing.
+		Global.save_player_data_to_file()
+		for node in get_tree().root.get_children():
+			if node is CanvasLayer:
+				node.queue_free()
+		get_tree().change_scene_to_file("res://Scenes/main_menu.tscn")
+		return
+
+	log_window.start_camp_sequence()
+	_on_resume()
 
 
 func _on_resume() -> void:

@@ -134,7 +134,7 @@ func _build_member_row(parent: VBoxContainer) -> Dictionary:
 	var pet_hp_bar := ProgressBar.new()
 	pet_hp_bar.custom_minimum_size = Vector2(0, 7)
 	pet_hp_bar.show_percentage = false
-	_style_bar(pet_hp_bar, Color(0.65, 0.4, 0.9), Color(0.08, 0.05, 0.12))
+	_style_bar(pet_hp_bar, Color(0.8, 0.15, 0.15), Color(0.12, 0.05, 0.05))
 	pet_col.add_child(pet_hp_bar)
 
 	var pet_mp_bar := ProgressBar.new()
@@ -219,10 +219,9 @@ func _on_panel_gui_input(event: InputEvent) -> void:
 
 func _process(_delta: float) -> void:
 	if not is_instance_valid(_player):
-		var players := get_tree().get_nodes_in_group("player")
-		if players.is_empty():
+		_player = TargetFrame.local_player()
+		if not is_instance_valid(_player):
 			return
-		_player = players[0]
 
 	if not ("group_members" in _player):
 		return
@@ -251,10 +250,11 @@ func _process(_delta: float) -> void:
 		row["member"] = member
 
 		row["name_label"].text = member.player_name if "player_name" in member else "Player"
-		# A remote group member's combat_node isn't networked yet (only
-		# position/rotation/anim/name/race/sex are — see change_list.txt's
-		# netcode to-do) — show them with empty bars rather than hiding the
-		# whole row, so at least their name/presence is visible in the group.
+		# current_hp/max_hp/current_mana/max_mana now replicate for every
+		# player (see player3d.tscn's SceneReplicationConfig) — cn should
+		# never actually be null for a real player anymore, but the empty-bars
+		# fallback stays as a harmless guard (e.g. a frame before a freshly
+		# spawned puppet's _ready() has run).
 		var cn = member.get("combat_node") if "combat_node" in member else null
 		if cn != null:
 			row["hp_bar"].max_value = cn.max_hp

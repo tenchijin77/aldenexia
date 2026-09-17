@@ -30,10 +30,9 @@ func _learn_from_scroll() -> void:
 	if spell_name.is_empty():
 		return
 
-	var players := get_tree().get_nodes_in_group("player")
-	if players.is_empty():
+	var player := TargetFrame.local_player()
+	if not is_instance_valid(player):
 		return
-	var player := players[0]
 
 	var known: Array = player.get("known_spells") if "known_spells" in player else []
 	if spell_name in known:
@@ -62,10 +61,9 @@ func _learn_from_scroll() -> void:
 			break
 
 func _consume_item() -> void:
-	var players := get_tree().get_nodes_in_group("player")
-	if players.is_empty():
+	var player := TargetFrame.local_player()
+	if not is_instance_valid(player):
 		return
-	var player := players[0]
 	if not player.has_method("consume_food_or_drink"):
 		return
 	player.consume_food_or_drink(item_data)
@@ -156,8 +154,7 @@ func _show_inspect_popup() -> void:
 		btn_row.add_child(equip_btn)
 
 	# Equip to Pet button (weapon/armor items only, and only while a pet is out)
-	var players := get_tree().get_nodes_in_group("player")
-	var player := players[0] if not players.is_empty() else null
+	var player := TargetFrame.local_player()
 	if player and slot_type != "pet_equipment" and player.has_method("pet_can_equip_slot") \
 			and player.pet_can_equip_slot(equip_slot) and is_instance_valid(player.get("active_pet")):
 		var pet_equip_btn := Button.new()

@@ -1,5 +1,5 @@
 ## Aldenexia: Lightfall — Game Flow & System Reference
-## Last updated: 2026-09-16
+## Last updated: 2026-09-17
 ## Purpose: Running reference for how all systems connect, for troubleshooting and onboarding.
 
 ================================================================================
@@ -2204,6 +2204,280 @@ GROUPS
 
 
 ================================================================================
+SPELL CASTING — CAST TIME / INTERRUPT / CAST BAR (added 2026-09-17, Session 44)
+================================================================================
+
+- `combatnode.gd` had unused scaffolding for real cast times since well before
+  this session (`is_casting`, `current_cast_time`, `total_cast_time`,
+  `start_spell_cast()`, `interrupt_spell()`) and every spell in
+  `player_spells.json` already carries a `casting_time` field — none of it was
+  actually wired up. `cast_spell()` used to resolve every spell's effect
+  instantly, with the "begin cast" log line as pure flavor text.
+- Now real: `player3d.gd`'s `cast_spell()` validates the cast (target/mana/
+  cooldown), commits mana+cooldown, then either resolves immediately
+  (`casting_time <= 0`) or stores the pending spell/target and calls
+  `combat_node.start_spell_cast(cast_time)`. `_tick_spell_cast()` (called every
+  physics frame alongside `_tick_cooldowns()`) counts the cast down and calls
+  `_resolve_spell_cast(spell_name, spell, target_node)` once it completes —
+  the actual spell-effect logic (the old cast_spell() body) now lives in that
+  function. Guards against the target having died/been freed mid-cast by
+  checking `is_instance_valid()` before passing it in (a freed object in a
+  typed Node parameter crashes outright otherwise — this was a real bug found
+  via a pet dying mid-heal).
+- Interrupt: taking damage while `is_casting` (player3d.gd's `take_damage()`/
+  `on_combat_node_hit()`) calls `_check_spell_interrupt()`, which uses
+  `combat_node.interrupt_spell()`'s concentration-roll (boosted by cast
+  progress) to decide whether the cast survives. Fixed a real bug in
+  `interrupt_spell()` while wiring it up: it used to set `is_casting = false`
+  unconditionally before checking success/failure, so even a successful
+  concentration check silently canceled the cast — success now just logs and
+  lets the cast continue.
+- UI: new `Scenes/cast_bar.tscn` / `Scripts/cast_bar.gd` — spell name, a
+  filling ProgressBar (yellow), time remaining, only visible while
+  `combat_node.is_casting`. Draggable, position-persisted via `WindowPosition`
+  like every other HUD frame (only draggable while actually visible, i.e.
+  mid-cast).
+- Applies to every caster class uniformly — this isn't a per-class feature.
+
+
+PETS (pet_minion.gd + subclasses; added/expanded 2026-09-15 through 2026-09-17)
+================================================================================
+
+- Base class `pet_minion.gd` (`class_name PetMinion`) — Voidknight's Morthan's
+  Call skeleton warrior. Deliberately NOT a Monster subclass (monster3d.gd's
+  state machine hardcodes chasing "the player"); reuses the same CombatNode +
+  self-managed `NavigationServer3D.query_path()` movement pattern
+  (`NAVIGATION PATTERN` elsewhere in this doc) instead.
+- Commands: Attack, Back, Follow, Sit, Guard, Assist, Dismiss — set via
+  `pet_frame.gd`'s buttons, persisted across login (`pet_mode` in save data).
+  Assist mode only engages the owner's current target once the owner has
+  actually landed a real attack within the last 1.5s (`last_attack_time_ms`,
+  a `player3d.gd` field set at every real attack action) — it used to be
+  gated on `autoattack_enabled` alone, which is sticky across target changes,
+  so simply re-targeting a new mob while autoattack was still on from a
+  previous fight made the pet jump in before the owner had done anything to
+  the new target.
+- Follow behavior: holds a cached "3m behind wherever the owner is facing"
+  spot, only recomputed once the owner has moved >0.5m — recomputing every
+  frame purely from facing direction meant the owner turning in place with
+  zero actual movement swept that point in an arc and dragged the pet along
+  (fixed 2026-09-17). Also hard-backs off to a 3m minimum distance from the
+  owner every frame (`_maintain_min_owner_distance()`), overriding normal
+  pathing, to stop it stuttering into/overlapping the owner at close range.
+- `_target_alive(target)` works generically off `target.combat_node.is_alive()`
+  now — it used to assume every target was a `Monster` (`target.State.DEAD`,
+  a Monster-only enum) and crashed instantly if called on anything else (e.g.
+  simply targeting your own pet to heal it).
+- Second pet type: `phantasmal_echo_pet.gd` (`PhantasmalEchoPet extends
+  PetMinion`) — Spiritweaver's level-1 pet (`phantasmal_echo` spell). Overrides
+  combat behavior only: holds at 14m range and fires a real homing projectile
+  (`Scripts/spectral_bolt.gd`/`Scenes/spectral_bolt.tscn`) instead of closing
+  to melee, and every 20 seconds heals whichever of {owner, resolvable group
+  members} is both alive and furthest below full HP (`_heal_lowest_ally()`,
+  with a green ring-pulse VFX on the caster). Visual is the user's "Spirit
+  Pet" model (Meshy image-to-3D, no rig/animation — a static mesh) with a
+  full PBR texture override (normal/roughness/metallic, unlike the skeleton
+  pet's albedo-only override).
+- Both pet types show a second, smaller white nameplate line under their name
+  reading `<OwnerName's risen minion>` / `<OwnerName's phantasmal echo>`
+  (`_pet_title()`, overridden per subclass).
+- Multiple pet types are tracked via `Global.player_data["pet_type"]`
+  (`"spectral_minion"` / `"phantasmal_echo"`) so `_restore_pet_if_saved()`
+  brings back the right one on login — `player3d.gd`'s `PET_SCENES` dict
+  keys into the right `.tscn` per type; `_summon_pet(pet_type, preset_name)`
+  is the single shared entry point both `_summon_spectral_minion()` and
+  `_summon_phantasmal_echo()` call into.
+- Networked (added later in Session 44) — see MULTIPLAYER / NETCODE section
+  below. Spawns through `player3d.tscn`'s `PetSpawner`/`PetContainer`, so
+  every peer gets a real, replicated copy instead of it being invisible to
+  everyone but the owner.
+
+
+INVISIBILITY / STEALTH / GAME-MASTER NAMEPLATES (added 2026-09-17, Session 44)
+================================================================================
+
+- `CombatNode`: `is_currently_invisible()` / `has_see_invisible()` /
+  `is_stealthed()` read the existing generic `active_effects` modifier system
+  (`get_modifier("invisible")` etc.) rather than dedicated fields — the
+  `invisibility` spell (Runecaster) applies `{"invisible": 1.0}`,
+  `deathly_visage` (Voidknight) applies `{"see_invisible": 1.0}`.
+  `break_invisibility()` clears the effect and is called from
+  `CombatNode.resolve_attack()` (covers all melee — player, monster, pets)
+  and from `player3d.gd`'s spell-damage branches — attacking of any kind
+  always reveals you.
+- `TargetFrame.is_hidden_from_local_player(entity)` / `nameplate_name(entity)`
+  — shared, static, per-viewer logic (NOT networked — each client
+  independently checks its own local player's see-invisible against whatever
+  combat_node state it has for `entity`) used identically for players and
+  monsters: hides the 3D model (`$Character.visible`) and blocks
+  click-targeting unless the viewer has see-invisible; when perceived but not
+  fully identified, the nameplate shows a vague parenthesized name
+  ("(a shadowy figure)" for a player, a monster's own flavor description for
+  a mob) instead of the real one.
+- `[stealth]` / `<game master>` tags are wired into `nameplate_name()`'s
+  formatting but nothing sets them yet — no rogue stealth mechanic exists to
+  set `is_stealthed`, and `is_game_master` (a new player3d.gd field/save key,
+  replicated) has no in-game way to grant it (hand-edit the save file for
+  now).
+- Known gap: no monster data actually grants invisibility to any mob yet —
+  the pipeline (model/nameplate hiding, targeting block) is built and wired
+  into `monster3d.gd`'s `_physics_process()`, just unused until a monster
+  ability sets it.
+
+
+PLAYER SKILLS (Data/player_skills.json + player3d.gd; corrected 2026-09-17)
+================================================================================
+
+- `player_skills.json`: `physical` (28 skills — weapon types, parry/dodge/
+  block/riposte, taunt, backstab, etc.), `magic` (19 — D&D-style schools plus
+  spell_casting/concentration/channeling/meditation), `crafting` (13 — no
+  crafting system exists to use these yet), `class_skills` (starting
+  skill→level per class, all 15 present), `skill_max` (275),
+  `skill_gain_base_chance` (0.15).
+- `character_creation.gd`'s `build_starting_skill_levels(p_class)` already
+  correctly reads `class_skills` for every class (a hardcoded
+  Blademaster-only block in `player3d.gd` is an unrelated dev/debug fallback,
+  not the real character-creation path).
+- `player3d.gd`'s `_tick_skill(skill_name)` — called on melee HIT/PARRY/
+  DODGE/BLOCK/RIPOSTE (`attack_current_target()`/`perform_melee_attack()`)
+  and on every spell cast (`spell_casting`) — has a chance
+  (`0.15 * (1 - current/skill_max)`) to increment the skill, syncing
+  `combat_node.weapon_skill` via `_sync_weapon_skill()` when a weapon skill
+  changes. FIXED 2026-09-17: previously required the skill to already exist
+  in `skill_levels` (i.e. only your class's starting skills could ever level,
+  forever locking out e.g. a weapon type your class didn't start with) —
+  now any skill name recognized in `player_skills.json` (`_valid_skill_names`,
+  loaded alongside `_skill_data`) auto-initializes at 0 on first real use and
+  is added to `known_skills` so it shows up in the UI. Cap was also hardcoded
+  to 252 in two places; now reads the real `skill_max` (275).
+- UI: `abilities_book.gd`'s "General Skills" tab (K to open) lists every
+  `known_skills` entry with its live `skill_levels` value and a progress bar
+  — this already worked generically, so newly-auto-added skills just appear
+  automatically.
+- Deliberately NOT implemented: magic school skills (abjuration/evocation/
+  etc.) — audited `player_spells.json` and found 516/559 spells still tagged
+  with the placeholder `spell_school: "physical"`, no real mapping to this
+  school list exists yet. User is updating the spell data directly; revisit
+  once that's done. Crafting skills likewise dormant — no crafting system
+  exists at all.
+
+
+VENDOR / SHOP — QUANTITY + USABLE-ONLY FILTER (added 2026-09-17, Session 44)
+================================================================================
+
+- `shop_window.gd`'s Buy rows now have a `SpinBox` quantity picker (1-99);
+  Sell rows get one too, only when the stack has more than 1. Buying/selling
+  N at once uses `Inventory.add_item(item_id, qty)` (already supported a
+  quantity) and a new `Inventory.consume_amount(..., amount)` (removes N in
+  one operation instead of N separate `consume_one()` calls — `consume_one()`
+  is now just `consume_amount(..., 1)`).
+- New "Only show items I can use" checkbox filters the For Sale list via
+  `_is_usable_by_player(item_def)`, checking the item's own `class`/`race`
+  restriction arrays (`items.json`) against the player's `player_class`/
+  `player_race` — reuses data every scroll and piece of equipment already
+  carries (`"all"` or a specific list), no new eligibility system.
+
+
+TRACKING WINDOW (T key; added 2026-09-17, Session 44)
+================================================================================
+
+- Granted by race (Elf, Half-Elf) or class (Woodstalker, Wildspeaker,
+  Troubadour) — `player3d.gd`'s `has_tracking_skill()`, a plain check, not a
+  learned spell/skill entry. `toggle_tracking_window()` (bound to a new
+  `toggle_tracking` input action, T key) logs "You haven't learned to track."
+  instead of opening anything if the check fails.
+- `Scenes/tracking_window.tscn` / `Scripts/tracking_window.gd` — draggable,
+  resizable, position/size persisted via `WindowPosition` (same
+  drag-bar-strip + bottom-right-corner-resize pattern as
+  `character_sheet.gd`, not `game_log_window.gd`'s older separate-node
+  version). Lists everything within 50m (`TRACK_RANGE`) in the "monsters",
+  "npc_guard", and "npc_vendor" groups alike — not just threats, tracking is
+  about knowing what's nearby — sorted by distance, refreshed twice a second
+  (`REFRESH_INTERVAL`). Each row is name + level + distance, con-colored via
+  `TargetFrame.con_color()` (made static this session so this window could
+  reuse it instead of duplicating
+  the color scale) — and correctly skips monsters hidden by the invisibility
+  system above.
+
+
+MULTIPLAYER / NETCODE — CURRENT STATE (as of 2026-09-17, Session 44)
+================================================================================
+
+See also `[[project_multiplayer_netcode]]`-style notes in Claude's memory and
+`change_list.txt`'s netcode to-do entries for a narrative history. This
+section is the current-state snapshot.
+
+Working (real LAN co-op via Godot's built-in ENet high-level multiplayer,
+listen-server — the host's own game doubles as the server):
+- Movement/animation/chat/grouping (from the original 2026-09-15 pass) —
+  each player replicates position/rotation/anim_state/player_name/
+  player_race/player_sex/is_game_master via `player3d.tscn`'s
+  `MultiplayerSynchronizer`.
+- Every HUD script now finds "my own local player" via
+  `TargetFrame.local_player()` (`is_multiplayer_authority()` match against
+  the "player" group) instead of `get_nodes_in_group("player")[0]` — fixed
+  2026-09-17 across `player_frame`, `target_frame`, `action_bar`,
+  `stance_bar`, `buff_bar`, `pet_frame`, `group_frame`, `game_log_window`,
+  `slot_button`, `cast_bar`, plus `global.gd`'s save-position write and
+  `monster3d.gd`'s XP-award/player-lookup. This was the single biggest
+  documented "wrong player" crash/data risk with 2+ real players.
+- Player combat stats: every player (puppets included) now gets a real
+  `combat_node` at `_ready()`, with `current_hp`/`max_hp`/`current_mana`/
+  `max_mana`/`level` added to `player3d.tscn`'s replication config — a
+  remote player's HP/MP bars actually show real numbers now instead of
+  staying empty. A puppet's combat_node is never locally simulated, purely a
+  receiver for the authoritative owner's replicated values.
+- Monsters are now server-authoritative: `monster3d.gd`'s
+  `_physics_process()` only runs full AI/combat simulation on
+  `is_multiplayer_authority()` (the server in multiplayer, always true in
+  single-player) — every other peer just mirrors replicated position/
+  rotation/`anim_state`/`current_state`/HP via `monster_template.tscn`'s new
+  `MultiplayerSynchronizer` (applies to every instance, including hand-placed
+  zone monsters). Spawning goes through a real `MultiplayerSpawner`
+  (`mob_spawner3d.gd`'s `MobSpawner`/`SpawnedMobs` pair, mirroring
+  `multiplayer_player_spawner.gd`'s existing pattern) — spawn *decisions*
+  are server-only, node-building runs identically on every peer.
+- Pets are networked: `player3d.tscn`'s `PetSpawner`/`PetContainer`
+  (`MultiplayerSpawner`) replicate a summoned pet to every peer instead of
+  it only existing on the owner's machine. Authority is the OWNER's own peer
+  id (not the server, unlike monsters — inherited automatically since the
+  spawner/container are static children of that specific player's own node).
+  Both pet scenes use `top_level = true` so they move independently in world
+  space rather than inheriting the owner's transform.
+- Real damage sync: client-authoritative-damage / server-authoritative-
+  application. The attacking player's own client still computes the real
+  hit/miss/damage roll locally (using its own accurate stats, unchanged) —
+  full server-side recomputation would need a much larger stat-replication
+  expansion (Phase 2 only replicated `current_hp`/`max_hp`/`current_mana`/
+  `max_mana`/`level`, not strength/weapon_skill/gear bonuses/etc). The
+  resulting number relays to the monster's real (server-side) `combat_node`
+  via `apply_networked_damage(amount, attacker_peer_id)`
+  (`@rpc("any_peer", "call_local", "reliable")`) whenever the target isn't
+  already locally authoritative — wired into both player melee call sites,
+  both spell-damage branches (enemy/cone), and both pet attack paths.
+  Trusting the attacker's reported number instead of re-verifying it
+  server-side is an accepted trade-off for a private LAN co-op game, not a
+  competitive one.
+- Kill/XP attribution: `monster3d.gd`'s `die()` takes a `credited_peer_id`
+  parameter now — `apply_networked_damage()` passes through whichever
+  attacker's hit actually finished it off, instead of always crediting
+  `TargetFrame.local_player()` (which, run on the server for a non-host
+  client's kill, would have wrongly credited the host's own character).
+  Since `Global.player_data` is only ever the current process's own save
+  data, crediting a different peer goes through a new `player3d.gd`
+  `grant_xp(amount)` method (called directly when the credited player is
+  the local machine's own) or a `receive_kill_credit(xp_gain)` RPC
+  targeted at that specific peer otherwise.
+
+NOT yet working / known gaps:
+- No server-side re-verification of reported damage (see the trade-off
+  above) — not a concern for a trusted-peers private game, would matter for
+  a public/competitive one.
+- A real player healing/buffing another real player still only updates the
+  caster's own local view, not the actual target's — needs its own RPC per
+  beneficial spell type, not yet attempted.
+
+
 KNOWN GAPS / TODOs (as of 2026-08-23)
 ================================================================================
 
@@ -2223,7 +2497,8 @@ KNOWN GAPS / TODOs (as of 2026-08-23)
   (CombatNode.active_effects), which has been live since that session and
   now also has a visible buff bar (2026-09-13). Left here only as a marker
   that this gaps list itself isn't fully audited/current.
-- Cast times (channeled spells) not implemented
+- Cast times (channeled spells) — IMPLEMENTED 2026-09-17, Session 44. See new
+  "SPELL CASTING — CAST TIME / INTERRUPT / CAST BAR" section below.
 - HIGH PRIORITY BUG (found 2026-08-23): "tab_target" input action is bound to
   Escape instead of Tab (and an unused "target_closest" action holds the Tab
   binding instead) — Tab currently does nothing, Escape does double duty as

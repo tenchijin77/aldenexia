@@ -1,0 +1,45 @@
+[gd_scene format=3 uid="uid://tracking_win01"]
+
+[ext_resource type="Script" path="res://Scripts/tracking_window.gd" id="1_trackwin"]
+
+[node name="TrackingWindow" type="CanvasLayer"]
+script = ExtResource("1_trackwin")
+
+[node name="Panel" type="Panel" parent="."]
+offset_left = 240.0
+offset_top = 140.0
+offset_right = 480.0
+offset_bottom = 380.0
+
+[node name="TitleLabel" type="Label" parent="Panel"]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 3.0
+offset_right = -28.0
+offset_bottom = 21.0
+text = "Tracking"
+theme_override_font_sizes/font_size = 13
+
+[node name="CloseBtn" type="Button" parent="Panel"]
+layout_mode = 0
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -24.0
+offset_top = 2.0
+offset_right = -4.0
+offset_bottom = 22.0
+text = "✕"
+
+[node name="Scroll" type="ScrollContainer" parent="Panel"]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 6.0
+offset_top = 26.0
+offset_right = -6.0
+offset_bottom = -6.0
+
+[node name="List" type="VBoxContainer" parent="Panel/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 3

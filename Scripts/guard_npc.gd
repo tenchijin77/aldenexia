@@ -105,10 +105,9 @@ func respond_to_hail() -> void:
 
 
 func _face_player() -> void:
-	var players := get_tree().get_nodes_in_group("player")
-	if players.is_empty():
+	var player: Node3D = TargetFrame.local_player()
+	if not is_instance_valid(player):
 		return
-	var player: Node3D = players[0]
 	var target_pos := player.global_position
 	target_pos.y = global_position.y  # stay upright, don't tilt up/down toward the player
 	if target_pos.distance_to(global_position) > 0.01:
@@ -136,10 +135,10 @@ func say(line: String) -> void:
 
 
 func _player_in_hear_range() -> bool:
-	var players := get_tree().get_nodes_in_group("player")
-	if players.is_empty():
+	var player := TargetFrame.local_player()
+	if not is_instance_valid(player):
 		return false
-	return global_position.distance_to(players[0].global_position) <= HEAR_RANGE
+	return global_position.distance_to(player.global_position) <= HEAR_RANGE
 
 
 # ── Combat setup ──────────────────────────────────────────────────────────────

@@ -7,7 +7,11 @@ class_name GameLogWindow
 @onready var combat_tab:  Control = $Panel/VBox/Tabs/Combat
 @onready var tabs: TabContainer = $Panel/VBox/Tabs
 @onready var chat_input:  LineEdit = $Panel/VBox/ChatInput
-@onready var player := get_tree().get_nodes_in_group("player")[0]
+# Not index 0 — with a remote puppet already in the "player" group by the
+# time this HUD spawns (it's spawned by the LOCAL player's own _ready(), so
+# that player already exists, but so might an earlier-joined remote one),
+# index 0 can silently grab someone else's character instead of mine.
+@onready var player := TargetFrame.local_player()
 
 const MAX_LINES  := 200
 const DRAG_BAR_H := 22.0
@@ -425,7 +429,7 @@ func _on_chat_input_gui_input(event: InputEvent) -> void:
 # too (Linux-style abbreviation) — see _resolve_command() below. e.g. "/loc"
 # and "/location" both resolve to "/location" since no other command starts
 # with "loc"; "/f" would be ambiguous if two commands both started with "f".
-const COMMANDS := ["/location", "/hail", "/appraise", "/time", "/follow", "/camp", "/exit", "/log", "/invite", "/disband", "/tell", "/party"]
+const COMMANDS := ["/location", "/hail", "/appraise", "/time", "/follow", "/camp", "/exit", "/log", "/invite", "/disband", "/tell", "/party", "/resetui"]
 
 
 func _handle_slash_command(text: String) -> void:
@@ -448,7 +452,7 @@ func _handle_slash_command(text: String) -> void:
 		"/follow":
 			player.try_follow(arg)
 		"/camp":
-			_start_camp_sequence()
+			start_camp_sequence()
 		"/exit":
 			_save_and_quit()
 		"/log":
@@ -474,6 +478,8 @@ func _handle_slash_command(text: String) -> void:
 				GameLog.log_general("[color=red]Usage: /party <message>[/color]")
 			else:
 				player.send_party_message(arg)
+		"/resetui":
+			player.reset_ui()
 		"/time":
 			GameLog.log_general("[color=green]%s[/color]" % Global.format_full_date())
 			var day_night_nodes := get_tree().get_nodes_in_group("day_night_cycle")
@@ -491,19 +497,24 @@ func _handle_slash_command(text: String) -> void:
 			GameLog.log_general("[color=green]Real time: %d:%02d %s[/color]" % [hour12, d.minute, ampm])
 
 
-# 15-second channel before /camp actually saves and exits to the main menu —
-# without this, /camp is a free instant escape from a bad pull or a fight
-# gone wrong. Interrupted (not just delayed) by taking any damage during the
-# channel, same idea as EQ's camp timer resetting on a hit.
+# 15-second channel shared by /camp, /exit, and the pause menu's "Save and
+# Exit" button alike — without it, any of the three is a free instant escape
+# from a bad pull or a fight gone wrong. Interrupted (not just delayed) by
+# taking any damage during the channel, same idea as EQ's camp timer
+# resetting on a hit. Public (no leading underscore) since pause_menu.gd
+# calls this cross-script — see its _on_save_and_exit().
 var _camping := false
 const CAMP_CHANNEL_MS := 15000
 
-func _start_camp_sequence() -> void:
+# Returns true once the channel completes undisturbed, false if interrupted
+# (damage) or the player node disappears out from under it — callers only
+# proceed with their own save/quit/return-to-menu step on true.
+func start_camp_channel() -> bool:
 	if _camping:
 		GameLog.log_general("[color=#ffaa66]You are already trying to camp.[/color]")
-		return
+		return false
 	if not is_instance_valid(player):
-		return
+		return false
 	_camping = true
 	var start_ms := Time.get_ticks_msec()
 	var start_damage_ms: int = player.last_damage_time_ms
@@ -515,23 +526,38 @@ func _start_camp_sequence() -> void:
 		await get_tree().create_timer(0.25).timeout
 		if not is_instance_valid(player):
 			_camping = false
-			return
+			return false
 		if player.last_damage_time_ms > start_damage_ms:
 			GameLog.log_general("[color=#ff6666]Your camping attempt is interrupted — you've taken damage![/color]")
 			player.is_sitting = was_sitting
 			_camping = false
-			return
+			return false
 
 	_camping = false
 	GameLog.log_general("[color=#88cc88]You finish breaking camp.[/color]")
-	_save_and_return_to_menu()
+	return true
+
+
+# Public (no leading underscore) since pause_menu.gd's "Save and Exit" button
+# fires this too, the same fire-and-forget way "/camp" does here — the await
+# needs to live on this long-lived HUD node, not on the pause menu, which
+# queue_free()s itself right after triggering this.
+func start_camp_sequence() -> void:
+	if await start_camp_channel():
+		save_and_return_to_menu()
 
 
 # Same save-and-tear-down sequence as pause_menu.gd's "Save and Exit" button —
 # frees every CanvasLayer on root (HUD, character sheet, backpack, pet frame,
 # etc.) before switching scenes, since none of those free themselves on their
-# own when the zone scene changes out from under them.
-func _save_and_return_to_menu() -> void:
+# own when the zone scene changes out from under them. Public since
+# pause_menu.gd calls this too, once its own start_camp_channel() succeeds.
+func save_and_return_to_menu() -> void:
+	# Gameplay can leave the mouse captured/hidden for mouselook (see
+	# global.gd/camera_controller.gd) — switching to main_menu.tscn without
+	# resetting this left the cursor unusable on the menu (invisible and/or
+	# locked in place), with no way to click anything short of force-quitting.
+	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 	Global.save_player_data_to_file()
 	for node in get_tree().root.get_children():
 		if node is CanvasLayer:
@@ -540,8 +566,9 @@ func _save_and_return_to_menu() -> void:
 
 
 func _save_and_quit() -> void:
-	Global.save_player_data_to_file()
-	get_tree().quit()
+	if await start_camp_channel():
+		Global.save_player_data_to_file()
+		get_tree().quit()
 
 
 # Resolves a typed command to a canonical one from COMMANDS, allowing any

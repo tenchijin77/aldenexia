@@ -37,10 +37,9 @@ func _ready() -> void:
 
 func _process(_delta: float) -> void:
 	if not is_instance_valid(_player):
-		var players := get_tree().get_nodes_in_group("player")
-		if players.is_empty():
+		_player = TargetFrame.local_player()
+		if not is_instance_valid(_player):
 			return
-		_player = players[0]
 
 	if not ("combat_node" in _player) or not (_player.combat_node is CombatNode):
 		return

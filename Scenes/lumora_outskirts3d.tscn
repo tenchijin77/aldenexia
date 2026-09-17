@@ -270,6 +270,11 @@ monster_name = "skeleton"
 [node name="monster_spawner" type="Node3D" parent="." unique_id=1015832831]
 script = ExtResource("3_u020j")
 
+[node name="SpawnedMobs" type="Node3D" parent="monster_spawner"]
+
+[node name="MobSpawner" type="MultiplayerSpawner" parent="monster_spawner"]
+spawn_path = NodePath("../SpawnedMobs")
+
 [node name="Campfires" type="Node3D" parent="." unique_id=1493082187]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.503235, -10.436493, -341.31915)
 

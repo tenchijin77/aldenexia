@@ -32,6 +32,10 @@ var player_name := "Default Hero"
 var player_class := ""
 var player_race := ""
 var player_sex := "male"
+# Dev/staff flag shown as a "<game master>" nameplate tag (TargetFrame.
+# nameplate_name()) — no in-game way to grant this yet, it's set by editing
+# the save file's "is_game_master" key directly.
+var is_game_master := false
 var known_spells: Array = []
 var known_skills: Array = []
 var skill_levels: Dictionary = {}
@@ -40,13 +44,25 @@ var action_bar_slots: Array = []  # Array of {type, name} dicts, 12 elements
 var _spell_cache: Dictionary = {}
 var _spell_by_name: Dictionary = {}
 var _skill_data: Dictionary = {}   # flat skill_name -> description
+var _valid_skill_names: Dictionary = {}  # set-like (skill_name -> true) — every real physical/magic/crafting skill, used by _tick_skill() to allow leveling a skill a class wasn't seeded with at creation
+var _skill_max: int = 275  # overwritten from player_skills.json's own skill_max once loaded
 var _spell_cooldowns: Dictionary = {}
 var _skill_cooldowns: Dictionary = {}
+# Set at cast start, consumed once combat_node.is_casting finishes (or cleared
+# on interrupt) — see cast_spell()/_resolve_spell_cast()/_check_spell_interrupt()
+# below. casting_spell_name is public so cast_bar.gd can read it without
+# duplicating the spell-name lookup.
+var casting_spell_name: String = ""
+var _pending_cast_spell: String = ""
+var _pending_cast_spell_data: Dictionary = {}
+var _pending_cast_target: Node = null
 var _appraisal_cooldowns: Dictionary = {}  # target instance ID -> remaining seconds
 var active_pet: Node = null
 var active_pet_frame: Node = null
 var _deathly_visage_light: OmniLight3D = null
+var _shadowlight_light: OmniLight3D = null
 var last_damage_time_ms: int = 0  # Time.get_ticks_msec() of the last hit taken — used to interrupt /camp
+var last_attack_time_ms: int = 0  # Time.get_ticks_msec() of the last attack THIS player actually made — see pet_minion.gd's assist-mode engage check
 var current_stance: String = ""
 
 # Pet's own gear, kept separate from Inventory.equipped (the player's 25-slot
@@ -77,7 +93,7 @@ var backpack_instance: Node = null
 
 var caster_classes := [
 	"voidknight", "gravecaller", "runecaster", "arcanist", "chaosborn",
-	"lightsworn", "lightmender", "spiritcaller", "wildspeaker",
+	"lightsworn", "lightmender", "spiritweaver", "wildspeaker",
 	"woodstalker", "aetherfist", "troubadour"
 ]
 #endregion
@@ -547,14 +563,36 @@ func _ready() -> void:
 	add_to_group("player")
 	_build_character_model()
 
+	# Every player gets a combat_node now, puppets included — named "CombatNode"
+	# so player3d.tscn's SceneReplicationConfig can target its current_hp/
+	# max_hp/current_mana/max_mana/level by NodePath ("CombatNode:current_hp"
+	# etc). A puppet's copy is never locally simulated (no regen ticks, no
+	# stat recalculation from gear) — it just sits there as a receiver for
+	# whatever the authoritative owner's real combat_node replicates out,
+	# which is what lets group_frame/target_frame show a remote member's real
+	# HP/MP instead of an empty bar or a Nil-property crash on a missing
+	# combat_node. See project_multiplayer_netcode memory: this was the
+	# single biggest documented netcode gap before this change.
+	combat_node = CombatNode.new()
+	combat_node.name = "CombatNode"
+	add_child(combat_node)
+
+	# Every peer's own local copy of this player needs to know how to build a
+	# replicated pet spawn locally (mirrors multiplayer_player_spawner.gd's
+	# spawn_function assignment happening before ITS OWN authority gate) — a
+	# puppet representation of another player still needs this so their pet
+	# actually appears on my screen too.
+	$PetSpawner.spawn_function = _build_pet
+
 	# Multiplayer puppet: every player3d node in the scene whose multiplayer
 	# authority isn't this machine (the host's pre-placed node, from a joining
 	# client's point of view; another peer's dynamically-spawned node, from
-	# anyone else's) — no local save data, no combat_node, no HUD windows for
-	# it. Offline/single-player is unaffected: with no multiplayer peer active,
-	# is_multiplayer_authority() is always true. See _physics_process(),
-	# _process(), _unhandled_input() for the matching gates, and
-	# camera_controller.gd for why its camera/mouselook are disabled too.
+	# anyone else's) — no local save data, no full combat_node simulation, no
+	# HUD windows for it. Offline/single-player is unaffected: with no
+	# multiplayer peer active, is_multiplayer_authority() is always true. See
+	# _physics_process(), _process(), _unhandled_input() for the matching
+	# gates, and camera_controller.gd for why its camera/mouselook are
+	# disabled too.
 	if not is_multiplayer_authority():
 		return
 
@@ -562,9 +600,6 @@ func _ready() -> void:
 	Net.group_invite_response_received.connect(_on_group_invite_response)
 	Net.group_roster_received.connect(_on_group_roster_received)
 	Net.group_removed_received.connect(_on_group_removed)
-
-	combat_node = CombatNode.new()
-	add_child(combat_node)
 
 	Inventory.equipment_changed.connect(_on_equipment_changed)
 
@@ -640,6 +675,36 @@ const CHARACTER_MODELS := {
 		"library": "res://models/Troll Male/troll_male_animations.res",
 		"texture_override": "res://models/Troll Male/Meshy_AI_troll_commoner_rig_biped_texture_0.png",
 	},
+	"elf_male": {
+		"scene":   "res://models/Elf Male/Male Elf Breathing Idle.fbx",
+		"library": "res://models/Elf Male/elf_male_animations.res",
+		"texture_override": "res://models/Elf Male/Meshy_AI_Male_Elf_Commoner_Rig_biped_texture_0.png",
+	},
+	"elf_female": {
+		"scene":   "res://models/Elf Female/Female Elf Breathing Idle.fbx",
+		"library": "res://models/Elf Female/elf_female_animations.res",
+		"texture_override": "res://models/Elf Female/Meshy_AI_Female_Elf_Commoner_R_biped_texture_0.png",
+		# The 2026-09-16 re-rig exported this mesh at a much smaller scale than
+		# every other model. AABB-based math (both raw get_aabb() comparison
+		# against Elf Male, and a composed-transform calculation) proved
+		# unreliable for this skinned/rigged asset — skinning most likely
+		# doesn't compose through node transforms the simple way a static
+		# mesh does, so this value is interpolated from two actual in-game
+		# results instead: scale=47 measured ~1/3 of Guard Reyna's ~1.8m,
+		# scale=157 measured ~2x his height. Still an estimate — verify
+		# in-game and adjust if a future re-export changes this mesh.
+		"scale": 98.0,
+	},
+	"dark_elf_male": {
+		"scene":   "res://models/Dark Elf Male/Male Dark Elf Breathing Idle.fbx",
+		"library": "res://models/Dark Elf Male/dark_elf_male_animations.res",
+		"texture_override": "res://models/Dark Elf Male/Meshy_AI_Male_Dark_Elf_Commone_biped_texture_0.png",
+	},
+	"dark_elf_female": {
+		"scene":   "res://models/Dark Elf Female/Female Dark Elf Breathing Idle.fbx",
+		"library": "res://models/Dark Elf Female/dark_elf_female_animations.res",
+		"texture_override": "res://models/Dark Elf Female/Meshy_AI_Female_Dark_Elf_Commo_biped_texture_0.png",
+	},
 }
 const DEFAULT_CHARACTER_MODEL := {
 	"scene":   "res://models/player/character.fbx",
@@ -686,6 +751,12 @@ func _build_character_model() -> void:
 	var character: Node3D = character_scene.instantiate()
 	character.name = "Character"
 	character.transform = CHARACTER_MODEL_TRANSFORM
+	# Per-model scale correction for a source mesh exported at the wrong unit
+	# scale (see elf_female's entry above) — most models don't need this and
+	# just fall back to 1.0, i.e. no change to CHARACTER_MODEL_TRANSFORM.
+	var model_scale: float = model_info.get("scale", 1.0)
+	if model_scale != 1.0:
+		character.transform = character.transform.scaled(Vector3.ONE * model_scale)
 	add_child(character)
 
 	animation_player = character.get_node_or_null("AnimationPlayer")
@@ -820,20 +891,58 @@ func _play_replicated_animation() -> void:
 
 
 func _spawn_hud() -> void:
+	_spawn_hud_frames()
+	GameLog.log_general("Welcome, [b]%s[/b]." % player_name)
+
+
+const HUD_FRAME_SCENES := [
+	"res://Scenes/player_frame.tscn",
+	"res://Scenes/cast_bar.tscn",
+	"res://Scenes/target_frame.tscn",
+	"res://Scenes/group_frame.tscn",
+	"res://Scenes/game_log_window.tscn",
+	"res://Scenes/action_bar.tscn",
+	"res://Scenes/stance_bar.tscn",
+	"res://Scenes/buff_bar.tscn",
+]
+
+func _spawn_hud_frames() -> void:
 	var root = get_tree().root
-	for scene_path in [
-		"res://Scenes/player_frame.tscn",
-		"res://Scenes/target_frame.tscn",
-		"res://Scenes/group_frame.tscn",
-		"res://Scenes/game_log_window.tscn",
-		"res://Scenes/action_bar.tscn",
-		"res://Scenes/stance_bar.tscn",
-		"res://Scenes/buff_bar.tscn",
-	]:
+	for scene_path in HUD_FRAME_SCENES:
 		var node: Node = load(scene_path).instantiate()
 		node.add_to_group("game_hud")
 		root.add_child(node)
-	GameLog.log_general("Welcome, [b]%s[/b]." % player_name)
+
+
+# /resetui — for when a panel gets dragged off-screen and there's no way to
+# reach it again to drag it back. Clears every saved HUD position and
+# respawns the whole HUD fresh via the same _spawn_hud_frames() login already
+# uses, so anything off-screen (including the game_log_window this command
+# was typed into — queue_free() doesn't actually free until the frame ends,
+# so finishing this call first is safe) comes back at its normal default
+# spot. pet_frame.tscn isn't in HUD_FRAME_SCENES (it only exists while a pet
+# is active) so it's respawned separately here, same as _summon_pet() does.
+# One visible side effect: the chat log's on-screen scrollback resets, since
+# GameLog itself keeps no history buffer to replay — same as a normal
+# relaunch would do.
+func reset_ui() -> void:
+	Global.player_data["ui_positions"] = {}
+	Global.save_player_data_to_file()
+
+	for node in get_tree().get_nodes_in_group("game_hud"):
+		node.queue_free()
+	active_pet_frame = null
+
+	_spawn_hud_frames()
+
+	if is_instance_valid(active_pet):
+		var frame: Node = load("res://Scenes/pet_frame.tscn").instantiate()
+		frame.add_to_group("game_hud")
+		get_tree().root.add_child(frame)
+		frame.set_pet(active_pet)
+		active_pet_frame = frame
+
+	GameLog.log_general("[color=#88ccff]UI windows reset to their default positions.[/color]")
 #endregion
 
 #region Spell cache
@@ -852,30 +961,46 @@ func _load_spell_cache() -> void:
 		_spell_by_name[spell.get("spell_name", "")] = spell
 	print("✅ Loaded %d spell definitions" % _spell_cache.size())
 
-	# Load skill descriptions — flatten {category: {name: desc}} into {name: desc}
+	# Load skill descriptions — flatten {category: {name: desc}} into {name: desc}.
+	# Restricted to these three category keys specifically (not "every
+	# top-level key") — a bare `for category in sd` used to also walk
+	# class_skills, whose values are {skill_name: starting_level} dicts, not
+	# descriptions, silently stuffing entries like _skill_data["Blademaster"]
+	# = {...} into what's supposed to be a flat skill-name-to-description map.
 	var sf := FileAccess.open("res://Data/player_skills.json", FileAccess.READ)
 	if sf:
 		var sd = JSON.parse_string(sf.get_as_text())
 		sf.close()
 		if typeof(sd) == TYPE_DICTIONARY:
-			for category in sd:
-				var cat = sd[category]
+			for category in ["physical", "magic", "crafting"]:
+				var cat = sd.get(category, {})
 				if typeof(cat) == TYPE_DICTIONARY:
 					for skill_name in cat:
 						_skill_data[skill_name] = cat[skill_name]
+						_valid_skill_names[skill_name] = true
+			_skill_max = int(sd.get("skill_max", _skill_max))
 #endregion
 
 #region Physics process (movement / stamina / combat)
 func _physics_process(delta: float) -> void:
 	if not is_multiplayer_authority():
 		_play_replicated_animation()
+		# Invisibility is evaluated fresh every tick against the LOCAL viewer's
+		# own see-invisible status (not networked — each client independently
+		# decides whether it can perceive this puppet), same reasoning as
+		# show_name_tags below already being a per-viewer setting, not synced.
+		var hidden := TargetFrame.is_hidden_from_local_player(self)
+		if has_node("Character"):
+			$Character.visible = not hidden
 		# player_name arrives a frame or two after spawn (replicated, not set
 		# locally like the authoritative path's load_character_data() call) —
 		# cheap to just keep the nameplate in sync every tick rather than
-		# reacting to a change signal.
-		if has_node("NameLabel") and $NameLabel.text != player_name:
-			$NameLabel.text = player_name
-			$NameLabel.visible = Global.settings.get("show_name_tags", true)
+		# reacting to a change signal. Recomputed every tick (not just on
+		# player_name change) since the invisible/GM/stealth flags it can fold
+		# in can change independently of the name itself.
+		if has_node("NameLabel"):
+			$NameLabel.text = TargetFrame.nameplate_name(self)
+			$NameLabel.visible = Global.settings.get("show_name_tags", true) and not hidden
 		# player_race/player_sex replicate in the same delayed way as
 		# player_name — rebuild the model once they arrive (a no-op once the
 		# key stops changing, see _build_character_model()).
@@ -919,6 +1044,7 @@ func _physics_process(delta: float) -> void:
 	update_stamina(delta)
 	_tick_cooldowns(delta)
 	_tick_active_spell_effects(delta)
+	_tick_spell_cast(delta)
 
 	move_and_slide()
 	_update_animation()
@@ -1342,7 +1468,15 @@ func handle_combat() -> void:
 			print("⚔️ Autoattack ON")
 		else:
 			print("⚔️ Autoattack OFF")
-	if autoattack_enabled and current_target and attack_cooldown <= 0.0:
+	# Ally targets (your own pet, a group member) never resolve attack_cooldown
+	# forward once attack_current_target()'s own ally-check bails out early —
+	# meaning attack_cooldown <= 0.0 stays true forever, and without this
+	# guard autoattack would call attack_current_target() again next frame,
+	# spamming "You can't attack an ally." every single frame for as long as
+	# an ally stayed targeted (e.g. targeting your own pet to heal it mid-fight
+	# while autoattack was still on from the last target).
+	if autoattack_enabled and current_target and attack_cooldown <= 0.0 \
+			and TargetFrame.faction_status(current_target) != "Ally":
 		attack_current_target()
 	if Input.is_action_just_pressed("melee_attack") and attack_cooldown <= 0.0:
 		perform_melee_attack()
@@ -1352,8 +1486,12 @@ func handle_combat() -> void:
 		toggle_abilities_book()
 	if Input.is_action_just_pressed("toggle_pet_gear"):
 		toggle_pet_gear_window()
+	if Input.is_action_just_pressed("toggle_tracking"):
+		toggle_tracking_window()
 	if is_instance_valid(_deathly_visage_light):
 		_deathly_visage_light.visible = combat_node.has_effect("deathly_visage")
+	if is_instance_valid(_shadowlight_light):
+		_shadowlight_light.visible = combat_node.has_effect("shadowlight")
 	if has_node("NameLabel"):
 		$NameLabel.visible = Global.settings.get("show_name_tags", true)
 
@@ -1609,6 +1747,12 @@ func _try_click_target(screen_pos: Vector2) -> void:
 	var hit := space.intersect_ray(query)
 	if hit and (hit.collider is Monster or hit.collider is GuardNPC or hit.collider is VendorNPC or hit.collider is PetMinion or hit.collider is Player3D):
 		var m: Node = hit.collider
+		# Its collider still physically exists (that's how the raycast found
+		# it at all) even though its model/nameplate are hidden — this is what
+		# actually makes an invisible entity untargetable rather than just
+		# invisible-looking.
+		if TargetFrame.is_hidden_from_local_player(m):
+			return
 		if _is_targetable_alive(m):
 			current_target = m
 			_announce_target(current_target)
@@ -1653,6 +1797,7 @@ func attack_current_target() -> void:
 		return
 
 	attacking = true
+	last_attack_time_ms = Time.get_ticks_msec()
 	_trigger_attack_animation()
 	var swing_duration := _attack_animation_duration()
 	attack_cooldown = swing_duration
@@ -1664,6 +1809,18 @@ func attack_current_target() -> void:
 		if not combat_node.is_alive():
 			die(current_target)
 			return
+
+		# Multiplayer: relay the real damage to whoever actually owns this
+		# monster's authoritative combat_node (the server) instead of only
+		# trusting our own local mutation just above, which is a cosmetic,
+		# replicated-over-anyway copy on any non-host client. Single-player
+		# and the host attacking their own monster are already correct
+		# locally (is_multiplayer_authority() is true there), so no relay
+		# needed in either case. See monster3d.gd's apply_networked_damage().
+		var target_is_networked_monster: bool = current_target is Monster and not current_target.is_multiplayer_authority()
+		if target_is_networked_monster and result.get("damage", 0) > 0:
+			current_target.apply_networked_damage.rpc_id(1, result["damage"], multiplayer.get_unique_id())
+
 		if current_target.has_method("add_threat"):
 			current_target.add_threat(self, combat_node.generate_threat(result.get("damage", 0)))
 		var target_desc: String = current_target.get("monster_description") if current_target.get("monster_description") != "" else current_target.get_monster_name()
@@ -1680,6 +1837,8 @@ func attack_current_target() -> void:
 			_tick_skill("parry")
 		elif result["result"] == "DODGE":
 			_tick_skill("dodge")
+		elif result["result"] == "BLOCK":
+			_tick_skill("block")
 		elif result["result"] == "RIPOSTE":
 			_tick_skill("riposte")
 		if not current_target.combat_node.is_alive():
@@ -1690,7 +1849,12 @@ func attack_current_target() -> void:
 			current_target = null
 			autoattack_enabled = false
 			GameLog.set_autoattack(false)
-			if dead.has_method("die"):
+			# Networked monster's own real death/removal/XP-credit already
+			# happens server-side via apply_networked_damage() above once the
+			# relayed damage lands — calling die() again here would be a
+			# second, wrongly-attributed (to whoever's running this code)
+			# kill on top of that.
+			if not target_is_networked_monster and dead.has_method("die"):
 				dead.die()
 	else:
 		var penalty := get_stat_penalty()
@@ -1717,6 +1881,7 @@ func perform_melee_attack() -> void:
 		return
 
 	attacking = true
+	last_attack_time_ms = Time.get_ticks_msec()
 	_trigger_attack_animation()
 	var swing_duration := _attack_animation_duration()
 	attack_cooldown = swing_duration
@@ -1750,6 +1915,14 @@ func perform_melee_attack() -> void:
 			if not combat_node.is_alive():
 				die(target)
 				return
+
+			# See attack_current_target()'s identical comment — relays real
+			# damage to whoever actually owns this monster's authoritative
+			# combat_node instead of only trusting our own local mutation.
+			var target_is_networked_monster: bool = target is Monster and not target.is_multiplayer_authority()
+			if target_is_networked_monster and result.get("damage", 0) > 0:
+				target.apply_networked_damage.rpc_id(1, result["damage"], multiplayer.get_unique_id())
+
 			var target_desc: String = TargetFrame.display_name(target)
 			var weapon := Inventory.get_equipped_weapon()
 			var weapon_name: String = weapon.get("name", "")
@@ -1764,15 +1937,21 @@ func perform_melee_attack() -> void:
 				_tick_skill("parry")
 			elif result["result"] == "DODGE":
 				_tick_skill("dodge")
+			elif result["result"] == "BLOCK":
+				_tick_skill("block")
 			elif result["result"] == "RIPOSTE":
 				_tick_skill("riposte")
-			if not target.combat_node.is_alive() and target.has_method("die"):
+			if not target.combat_node.is_alive():
 				combat_node.notify_kill()
 				GameLog.log_combat(CombatLogFormatter.death("You", target_desc))
 				if target == current_target:
 					_set_target_frame(null)
 					current_target = null
-				target.die()
+				# Same reasoning as attack_current_target(): a networked
+				# monster's own death/removal/XP-credit already happens
+				# server-side once the relayed damage above lands.
+				if not target_is_networked_monster and target.has_method("die"):
+					target.die()
 		else:
 			var penalty := get_stat_penalty()
 			var total_damage := int(combat_node.calculate_melee_damage(null, combat_node.roll_crit()) * penalty)
@@ -1795,6 +1974,7 @@ func take_damage(amount: int, attacker: Node = null) -> void:
 	combat_node.take_damage(amount)
 	GameLog.log_combat("💔 You take %d damage. [HP: %d/%d]" % [amount, combat_node.current_hp, combat_node.max_hp])
 	_register_attacker(attacker)
+	_check_spell_interrupt(attacker)
 	if not combat_node.is_alive():
 		die(attacker)
 
@@ -1812,6 +1992,7 @@ func on_combat_node_hit(attacker: Node) -> void:
 		return
 	last_damage_time_ms = Time.get_ticks_msec()
 	_register_attacker(attacker)
+	_check_spell_interrupt(attacker)
 	if not combat_node.is_alive():
 		die(attacker)
 
@@ -2087,6 +2268,7 @@ func load_character_data(data: Dictionary) -> void:
 	player_race  = data.get("player_race",  "Human")
 	player_sex   = data.get("player_sex",   "male")
 	stats        = data.get("stats",        {})
+	is_game_master = data.get("is_game_master", false)
 
 	_build_character_model()
 
@@ -2338,6 +2520,7 @@ func _apply_pet_gear_bonus() -> void:
 const SPELL_DISPLAY_NAMES := {
 	"shadow_aura": "Aura of the Shadow",
 	"spectral_minion": "Morthan's Call",
+	"phantasmal_echo": "Phantasmal Echo",
 	"campfire_warmth": "Warmth of the Campfire",
 	"curse_of_weakness": "Curse of Weakness",
 	"deaths_echo": "Death's Echo",
@@ -2367,11 +2550,27 @@ func cast_spell(spell_name: String) -> void:
 		GameLog.log_general("Insufficient mana to use [b]%s[/b]!" % spell_display_name(spell_name))
 		return
 
+	if combat_node.is_casting:
+		GameLog.log_general("You are already casting a spell.")
+		return
+
 	var display_name    := spell_display_name(spell_name)
-	var school: String   = spell.get("spell_school", "arcane")
 	var spell_target    := spell.get("target", "enemy") as String
-	var base_damage: int = spell.get("damage", 0)
 	var target_node: Node = current_target if (current_target and is_instance_valid(current_target)) else null
+
+	# Enemy/cone spells need a valid, hostile target to even begin casting —
+	# checked again in _resolve_spell_cast() too, since a multi-second cast can
+	# outlive the target (it can die, or you can lose target lock, mid-cast).
+	if spell_target in ["enemy", "cone"]:
+		if target_node == null:
+			GameLog.log_general("No target selected for [b]%s[/b]." % display_name)
+			return
+		if not _is_targetable_alive(target_node):
+			GameLog.log_general("Your target is already dead.")
+			return
+		if TargetFrame.faction_status(target_node) == "Ally":
+			GameLog.log_general("You can't target an ally with [b]%s[/b]." % display_name)
+			return
 
 	# Begin cast message
 	GameLog.log_general(CombatLogFormatter.begin_cast("You"))
@@ -2384,6 +2583,28 @@ func cast_spell(spell_name: String) -> void:
 	_tick_skill("spell_casting")
 
 	_trigger_cast_animation(spell)
+
+	var cast_time: float = float(spell.get("casting_time", 0.0))
+	if cast_time <= 0.0:
+		_resolve_spell_cast(spell_name, spell, target_node)
+		return
+
+	_pending_cast_spell = spell_name
+	_pending_cast_spell_data = spell
+	_pending_cast_target = target_node
+	casting_spell_name = display_name
+	combat_node.start_spell_cast(cast_time)
+
+
+# Runs the actual spell effect — either immediately (instant-cast spells) or
+# once _tick_spell_cast() finishes counting down a real cast time. target_node
+# is whatever was locked in when the cast began, not necessarily current_target
+# anymore (see cast_spell() above).
+func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Node) -> void:
+	var display_name    := spell_display_name(spell_name)
+	var school: String   = spell.get("spell_school", "arcane")
+	var spell_target    := spell.get("target", "enemy") as String
+	var base_damage: int = spell.get("damage", 0)
 
 	match spell_target:
 		"enemy":
@@ -2398,6 +2619,9 @@ func cast_spell(spell_name: String) -> void:
 				return
 			if not target_node.has_method("apply_damage"):
 				return
+
+			combat_node.break_invisibility()
+			last_attack_time_ms = Time.get_ticks_msec()
 
 			var target_cn = target_node.get("combat_node")
 			var target_desc: String = target_node.get("monster_description") \
@@ -2416,6 +2640,16 @@ func cast_spell(spell_name: String) -> void:
 				var is_arcane := school in ["arcane", "fire", "cold", "poison", "shadow", "void"]
 				final_dmg = combat_node.calculate_spell_damage(base_damage, is_arcane, target_cn)
 				target_node.apply_damage(final_dmg, "magic")
+
+			# Multiplayer: relay real damage to whoever actually owns this
+			# monster's authoritative combat_node — same reasoning as
+			# attack_current_target()'s melee relay. No stat-replication
+			# needed since the caster's own local stats (used above) are
+			# already accurate; only the resulting number needs to land on
+			# the real target.
+			var target_is_networked_monster: bool = target_node is Monster and not target_node.is_multiplayer_authority()
+			if target_is_networked_monster and final_dmg > 0:
+				target_node.apply_networked_damage.rpc_id(1, final_dmg, multiplayer.get_unique_id())
 
 			GameLog.log_combat(CombatLogFormatter.spell_damage("You", spell_name, target_desc, final_dmg))
 
@@ -2470,6 +2704,14 @@ func cast_spell(spell_name: String) -> void:
 				current_target = null
 				autoattack_enabled = false
 				GameLog.set_autoattack(false)
+				# Pre-existing bug found while adding the networking relay
+				# above: this branch never actually called .die() on a
+				# killing blow — no loot roll, no XP, no despawn timer, ever,
+				# for a kill via single-target enemy spell damage. Fixed
+				# alongside the same "don't double-kill a networked monster
+				# server already handles" guard the melee paths use.
+				if not target_is_networked_monster and target_node.has_method("die"):
+					target_node.die()
 
 		"self":
 			match spell_name:
@@ -2483,9 +2725,12 @@ func cast_spell(spell_name: String) -> void:
 					GameLog.log_combat("[color=#ff4444]You sacrifice %d health, empowering your attacks![/color]" % cost_hp)
 				"shadowlight":
 					combat_node.apply_effect("shadowlight", 3600.0, {})
+					_enable_shadowlight()
 					GameLog.log_combat("[color=#8855cc]A dim violet light kindles across your weapon.[/color]")
 				"spectral_minion":
 					_summon_spectral_minion()
+				"phantasmal_echo":
+					_summon_phantasmal_echo()
 				"dark_pact":
 					var mana_cost_extra: int = int(combat_node.max_mana * 0.05)
 					combat_node.current_mana = maxf(0.0, combat_node.current_mana - mana_cost_extra)
@@ -2508,6 +2753,9 @@ func cast_spell(spell_name: String) -> void:
 					combat_node.apply_effect("deathly_visage", 900.0, {"see_invisible": 1.0})
 					_enable_deathly_visage_light()
 					GameLog.log_combat("[color=#88bbcc]A pale, deathly light fills your eyes — the unseen becomes visible.[/color]")
+				"invisibility":
+					combat_node.apply_effect("invisibility", 8.0, {"invisible": 1.0})
+					GameLog.log_general("[color=#aaaaaa]You fade from sight...[/color]")
 				_:
 					GameLog.log_combat("You use [b]%s[/b] on yourself." % display_name)
 
@@ -2524,6 +2772,9 @@ func cast_spell(spell_name: String) -> void:
 			if TargetFrame.faction_status(target_node) == "Ally":
 				GameLog.log_general("You can't target an ally with [b]%s[/b]." % display_name)
 				return
+
+			combat_node.break_invisibility()
+			last_attack_time_ms = Time.get_ticks_msec()
 
 			var cone_targets: Array = [target_node]
 			for monster in get_tree().get_nodes_in_group("monsters"):
@@ -2545,6 +2796,14 @@ func cast_spell(spell_name: String) -> void:
 					cone_dmg = combat_node.apply_ac_mitigation(cone_dmg, hit_cn)
 				cone_dmg = max(1, cone_dmg)
 				hit_target.apply_damage(cone_dmg, "physical")
+
+				# Same networking relay as the "enemy" branch above — each
+				# cone target needs its own check/relay since they're
+				# independent monsters.
+				var hit_is_networked_monster: bool = hit_target is Monster and not hit_target.is_multiplayer_authority()
+				if hit_is_networked_monster and cone_dmg > 0:
+					hit_target.apply_networked_damage.rpc_id(1, cone_dmg, multiplayer.get_unique_id())
+
 				GameLog.log_combat(CombatLogFormatter.spell_damage("You", spell_name, hit_desc, cone_dmg))
 				if hit_target.has_method("add_threat"):
 					hit_target.add_threat(self, combat_node.generate_threat(cone_dmg))
@@ -2558,6 +2817,10 @@ func cast_spell(spell_name: String) -> void:
 							current_target = null
 							autoattack_enabled = false
 							GameLog.set_autoattack(false)
+						# Same pre-existing missing-.die() bug as the "enemy"
+						# branch, fixed here too.
+						if not hit_is_networked_monster and hit_target.has_method("die"):
+							hit_target.die()
 
 		# "group" is used for both single-ally heals/buffs (Spirit Mend,
 		# Ancestral Guidance) and true small-radius group buffs (Earth Totem) —
@@ -2612,33 +2875,96 @@ func _enable_deathly_visage_light() -> void:
 	_deathly_visage_light.visible = true
 
 
-func _summon_spectral_minion(preset_name: String = "") -> void:
+# Same "real light, toggled off the active_effect rather than freed on
+# expiry" pattern as _enable_deathly_visage_light() above — dimmer and
+# shorter-range, matching shadowlight's own flavor ("a dim violet light...
+# on your weapon or hand") rather than deathly_visage's room-illuminating
+# night vision.
+func _enable_shadowlight() -> void:
+	if not is_instance_valid(_shadowlight_light):
+		_shadowlight_light = OmniLight3D.new()
+		_shadowlight_light.light_color = Color(0.6, 0.4, 0.9)
+		_shadowlight_light.light_energy = 0.6
+		_shadowlight_light.omni_range = 4.0
+		_shadowlight_light.position = Vector3(0, 1.3, 0)
+		add_child(_shadowlight_light)
+	_shadowlight_light.visible = true
+
+
+# pet_type keys into PET_SCENES and is saved to Global.player_data so
+# _restore_pet_if_saved() knows which scene to bring back on next login —
+# before phantasmal_echo, only one pet type ever existed so this field didn't
+# need to exist yet.
+const PET_SCENES := {
+	"spectral_minion": "res://Scenes/pet_minion.tscn",
+	"phantasmal_echo": "res://Scenes/phantasmal_echo_pet.tscn",
+}
+
+# Spawns through $PetSpawner (a MultiplayerSpawner) instead of directly
+# instantiating, so every connected peer gets an identical, replicated copy
+# of the pet — previously a remote player's pet was invisible to everyone
+# else. _build_pet() below (the spawn_function) does the actual node
+# construction, running on every peer alike.
+func _summon_pet(pet_type: String, preset_name: String = "") -> void:
 	if is_instance_valid(active_pet):
 		active_pet.queue_free()
 	if is_instance_valid(active_pet_frame):
 		active_pet_frame.queue_free()
 
-	var pet: Node = load("res://Scenes/pet_minion.tscn").instantiate()
-	get_tree().current_scene.add_child(pet)
+	$PetSpawner.spawn({"pet_type": pet_type, "preset_name": preset_name})
+
+
+func _summon_spectral_minion(preset_name: String = "") -> void:
+	_summon_pet("spectral_minion", preset_name)
+
+
+func _summon_phantasmal_echo(preset_name: String = "") -> void:
+	_summon_pet("phantasmal_echo", preset_name)
+
+
+# Runs on every peer as part of $PetSpawner's replication (mirrors
+# multiplayer_player_spawner.gd's _spawn_player()) — builds an identical
+# local pet node everywhere. Authority matches the OWNING PLAYER's own peer
+# id (every peer independently sets the same value here, the same way
+# _spawn_player() does for players) rather than always the server like
+# monsters — a pet belongs to a specific player, not the world. HUD frame /
+# save data / the "You..." flavor message only happen for the owner's own
+# client (is_multiplayer_authority()) — other peers get the replicated pet
+# itself (visible, fighting, healing) but not the owner-only UI/state.
+func _build_pet(data: Dictionary) -> Node:
+	var pet_type: String = str(data.get("pet_type", ""))
+	var preset_name: String = str(data.get("preset_name", ""))
+
+	var pet: Node = load(PET_SCENES[pet_type]).instantiate()
+	pet.set_multiplayer_authority(get_multiplayer_authority())
 	pet.setup(self, preset_name)
 	active_pet = pet
-	_apply_pet_gear_bonus()
 	pet.dismissed.connect(_on_pet_gone)
 	pet.died.connect(_on_pet_gone)
 	pet.died.connect(_on_pet_died)
 
-	Global.player_data["pet_active"] = true
-	Global.player_data["pet_name"] = pet.pet_name
-	Global.save_player_data_to_file()
-	_apply_saved_pet_mode(pet)
+	if is_multiplayer_authority():
+		_apply_pet_gear_bonus()
 
-	var frame: Node = load("res://Scenes/pet_frame.tscn").instantiate()
-	frame.add_to_group("game_hud")
-	get_tree().root.add_child(frame)
-	frame.set_pet(pet)
-	active_pet_frame = frame
+		Global.player_data["pet_active"] = true
+		Global.player_data["pet_type"] = pet_type
+		Global.player_data["pet_name"] = pet.pet_name
+		Global.save_player_data_to_file()
+		_apply_saved_pet_mode(pet)
 
-	GameLog.log_general("[color=#aa88ff]You invoke Morthan's Call — %s rises to fight at your side.[/color]" % pet.pet_name)
+		var frame: Node = load("res://Scenes/pet_frame.tscn").instantiate()
+		frame.add_to_group("game_hud")
+		get_tree().root.add_child(frame)
+		frame.set_pet(pet)
+		active_pet_frame = frame
+
+		match pet_type:
+			"phantasmal_echo":
+				GameLog.log_general("[color=#aa88ff]You call forth a Phantasmal Echo — %s drifts to your side, ready to mend and strike.[/color]" % pet.pet_name)
+			_:
+				GameLog.log_general("[color=#aa88ff]You invoke Morthan's Call — %s rises to fight at your side.[/color]" % pet.pet_name)
+
+	return pet
 
 
 # Re-applies whichever of Follow/Guard/Assist/Sit was last commanded (see
@@ -2688,7 +3014,7 @@ func _on_pet_died() -> void:
 # whatever it was at logout — pets aren't saved mid-fight, only "had one out."
 func _restore_pet_if_saved() -> void:
 	if Global.player_data.get("pet_active", false):
-		_summon_spectral_minion(Global.player_data.get("pet_name", ""))
+		_summon_pet(Global.player_data.get("pet_type", "spectral_minion"), Global.player_data.get("pet_name", ""))
 
 
 func _default_action_bar_slots() -> Array:
@@ -2711,6 +3037,52 @@ func use_skill(skill_name: String) -> void:
 	# Placeholder — active effects implemented per-skill later
 	_skill_cooldowns[skill_name] = 6.0
 	GameLog.log_combat("You use [b]%s[/b]!" % skill_name.replace("_", " ").capitalize())
+
+
+# Advances the real cast-time delay started by cast_spell() below. Runs every
+# physics frame rather than a signal/timer node so cast_bar.gd can just read
+# combat_node.is_casting/current_cast_time/total_cast_time directly, same
+# pattern as every other HUD bar polling player state.
+func _tick_spell_cast(delta: float) -> void:
+	if not combat_node.is_casting:
+		return
+	combat_node.current_cast_time += delta
+	if combat_node.current_cast_time < combat_node.total_cast_time:
+		return
+	combat_node.is_casting = false
+	var spell_name := _pending_cast_spell
+	var spell: Dictionary = _pending_cast_spell_data
+	# The target (a pet, a monster) can die/be freed during the cast — passing
+	# a freed object into _resolve_spell_cast()'s typed Node parameter crashes
+	# outright ("previously freed" error) rather than failing gracefully, so
+	# it has to be caught here, before the call, not inside it.
+	var target_node: Node = _pending_cast_target if is_instance_valid(_pending_cast_target) else null
+	_pending_cast_spell = ""
+	_pending_cast_spell_data = {}
+	_pending_cast_target = null
+	casting_spell_name = ""
+	_resolve_spell_cast(spell_name, spell, target_node)
+
+
+# Called from take_damage()/on_combat_node_hit() whenever this player is hit
+# while mid-cast. Reuses combat_node.interrupt_spell()'s concentration-check
+# scaffolding (previously wired up nowhere) rather than inventing a second
+# interrupt system.
+func _check_spell_interrupt(attacker: Node) -> void:
+	if not combat_node.is_casting:
+		return
+	var mana_cost: int = int(_pending_cast_spell_data.get("mana_cost", 0.0))
+	var attacker_cn: CombatNode = attacker.get("combat_node") if (attacker and is_instance_valid(attacker)) else null
+	var result: Dictionary = combat_node.interrupt_spell(attacker_cn, mana_cost)
+	match result.get("result", ""):
+		"CONCENTRATION_SUCCESS":
+			GameLog.log_general("[color=#88ccff]%s[/color]" % result.get("message", ""))
+		"CONCENTRATION_FAILURE":
+			GameLog.log_general("[color=#ff8866]%s[/color]" % result.get("message", ""))
+			_pending_cast_spell = ""
+			_pending_cast_spell_data = {}
+			_pending_cast_target = null
+			casting_spell_name = ""
 
 
 func _tick_cooldowns(delta: float) -> void:
@@ -2737,10 +3109,22 @@ func _tick_active_spell_effects(_delta: float) -> void:
 func _tick_skill(skill_name: String) -> void:
 	if skill_name.is_empty() or skill_name == "none":
 		return
+	# Previously required the skill to already be in skill_levels — meaning a
+	# class could only ever level the handful of skills it happened to start
+	# with (build_starting_skill_levels()), so e.g. a Blademaster who picked
+	# up a 2h weapon their class never started with would stay stuck at 0
+	# skill in it forever, regardless of how much they used it. Any
+	# recognized physical/magic/crafting skill (see _valid_skill_names,
+	# loaded from player_skills.json) can now start accruing from 0 the first
+	# time it's actually used, same as real EQ-style "use it to raise it."
 	if not skill_levels.has(skill_name):
-		return
+		if not _valid_skill_names.get(skill_name, false):
+			return
+		skill_levels[skill_name] = 0
+		if not known_skills.has(skill_name):
+			known_skills.append(skill_name)  # so abilities_book.gd's skill list actually shows it
 	var current: int = skill_levels[skill_name]
-	var cap: int = 252
+	var cap: int = _skill_max
 	if current >= cap:
 		return
 	var chance: float = 0.15 * (1.0 - float(current) / float(cap))
@@ -2772,12 +3156,73 @@ func on_level_up(new_level: int) -> void:
 	Global.player_data["player_level"] = new_level
 
 
+# Only ever meaningful when called on/for the LOCAL machine's own player —
+# Global.player_data is this one process's own save data, there's no way to
+# reach into a remote peer's save file directly. monster3d.gd's die() calls
+# this directly when the credited killer IS this machine (single-player, or
+# the host killing something themselves); for a remote peer's kill, it calls
+# receive_kill_credit.rpc_id() instead, which lands here on THEIR machine.
+func grant_xp(amount: int) -> void:
+	var cur_xp: int = Global.player_data.get("xp", 0)
+	var xp_next: int = Global.player_data.get("xp_next_level", 100)
+	var new_xp: int = cur_xp + amount
+	Global.player_data["xp"] = new_xp
+	GameLog.log_general("You gain [b]%d[/b] experience points. (%d / %d)" % [amount, new_xp, xp_next])
+
+	# Level-up loop (handles multiple level-ups from one kill)
+	while Global.player_data.get("xp", 0) >= Global.player_data.get("xp_next_level", 999999):
+		var cur_lvl: int = Global.player_data.get("player_level", 1)
+		if cur_lvl >= Global.xp_table.get("max_level", 20):
+			break
+		var new_lvl: int = cur_lvl + 1
+		var next_thresh: int = int(Global.xp_table.get(str(new_lvl + 1), 0))
+		Global.player_data["player_level"]  = new_lvl
+		Global.player_data["xp_next_level"] = next_thresh if next_thresh > 0 else 999999
+		GameLog.log_general("[color=#ffdd44][b]Fortune smiles upon you; your adventures have made you stronger! You are now level %d.[/b][/color]" % new_lvl)
+		on_level_up(new_lvl)
+
+	Global.save_player_data_to_file()
+
+
+# any_peer: the SERVER calls this targeting the credited player's own peer id
+# via .rpc_id() — it is never that player's own authority doing the calling
+# (monster3d.gd's die() already takes the direct grant_xp() path when it is),
+# so "authority"-mode (sender must own this node) would wrongly block it.
+@rpc("any_peer", "call_remote", "reliable")
+func receive_kill_credit(xp_gain: int) -> void:
+	grant_xp(xp_gain)
+
+
 func toggle_pet_gear_window() -> void:
 	var existing := get_tree().root.get_node_or_null("PetGearWindow")
 	if existing:
 		existing.queue_free()
 		return
 	var window: Node = load("res://Scenes/pet_gear_window.tscn").instantiate()
+	get_tree().root.add_child(window)
+	window.set_player(self)
+
+
+# Tracking (T key) — granted by race (Elf, Half-Elf) or class (Woodstalker,
+# Wildspeaker, Troubadour), not something you learn/cast, so it's a plain
+# race/class check rather than a known_spells/known_skills entry.
+const TRACKING_RACES := ["Elf", "Half-Elf"]
+const TRACKING_CLASSES := ["Woodstalker", "Wildspeaker", "Troubadour"]
+
+func has_tracking_skill() -> bool:
+	return player_race in TRACKING_RACES or player_class in TRACKING_CLASSES
+
+
+func toggle_tracking_window() -> void:
+	var existing := get_tree().root.get_node_or_null("TrackingWindow")
+	if existing:
+		existing.queue_free()
+		return
+	if not has_tracking_skill():
+		GameLog.log_general("You haven't learned to track.")
+		return
+	var window: Node = load("res://Scenes/tracking_window.tscn").instantiate()
+	window.name = "TrackingWindow"
 	get_tree().root.add_child(window)
 	window.set_player(self)
 

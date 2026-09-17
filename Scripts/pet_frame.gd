@@ -205,9 +205,7 @@ func _style_bar(bar: ProgressBar, fill_color: Color, bg_color: Color) -> void:
 
 func _get_player() -> Node:
 	if not is_instance_valid(_player):
-		var players := get_tree().get_nodes_in_group("player")
-		if not players.is_empty():
-			_player = players[0]
+		_player = TargetFrame.local_player()
 	return _player
 
 

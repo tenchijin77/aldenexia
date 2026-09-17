@@ -19,7 +19,7 @@ var casting_stats: Dictionary = {
 	"chaosborn": ["intelligence", "charisma"],
 	"lightsworn": ["wisdom"],
 	"lightmender": ["wisdom"],
-	"spiritcaller": ["wisdom"],
+	"spiritweaver": ["wisdom"],
 	"wildspeaker": ["wisdom"],
 	"woodstalker": ["wisdom"],
 	"aetherfist": ["wisdom"],
@@ -360,7 +360,7 @@ func get_starting_skills(p_class: String) -> Array:
 			return ["archery", "dodge", "throwing"]
 		"Arcanist", "Runecaster", "Chaosborn":
 			return ["spell_casting", "evocation", "concentration"]
-		"Lightmender", "Spiritcaller":
+		"Lightmender", "Spiritweaver":
 			return ["spell_casting", "concentration", "channeling"]
 		"Gravecaller":
 			return ["spell_casting", "necromancy", "concentration"]
@@ -398,7 +398,7 @@ const STARTING_SPELLS := {
 	"Blademaster":  ["power_strike", "battle_shout"],
 	"Lightsworn":   ["holy_strike", "blessing_of_light"],
 	"Voidknight":   ["life_siphon", "shadow_aura"],
-	"Spiritcaller": ["spirit_mend", "earth_totem"],
+	"Spiritweaver": ["spirit_mend", "earth_totem", "phantasmal_echo"],
 	"Lightmender":  ["cure_wounds", "bless"],
 	"Wildspeaker":  ["regrowth", "entangle"],
 	"Woodstalker":  ["aimed_shot", "hunters_mark"],

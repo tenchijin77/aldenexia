@@ -1,90 +1,176 @@
 {
-  "_comment": "player_skills.json - All skill definitions and class starting skill levels.",
-
+  "_comment": "Optimized player_skills.json - Skills-based progression system. Use-it-to-level-it design inspired by EverQuest + D&D schools. Transmutation merged into Alteration. No separate specialize skills (Option A). Wild Magic retained for Chaosborn. Weapon skills collapsed into type-based categories (blunt / slashing / piercing) for modern design.",
   "physical": {
-    "athletics": "Increases performance in climbing, jumping, and sustained movement.",
+    "athletics": "Increases performance in climbing, jumping, swimming, and sustained movement.",
     "dodge": "Improves evasion from melee and ranged attacks.",
     "parry": "Enables deflection of melee attacks with weapons.",
     "riposte": "Allows counterattacks after a successful parry.",
-    "block": "Raises passive defense when using weapons or fists.",
-    "dual_wield": "Allows use of two one-handed weapons simultaneously.",
-    "double_attack": "Grants chance to strike twice in a single action.",
-    "triple_attack": "Grants chance to strike three times in a single action.",
-    "round_kick": "Delivers a wide-sweeping melee kick.",
-    "mantis_fist": "Slashes with speed and precision.",
-    "bash": "Stuns the enemy with a shield or blunt weapon.",
-    "shield_defense": "Improves blocking and damage reduction when wielding a shield.",
-    "taunt": "Increases likelihood of drawing enemy attention.",
-    "backstab": "Delivers high damage from behind using piercing weapons.",
-    "hand_to_hand": "Improves combat ability without weapons.",
-    "1h_blunt": "Increases proficiency with one-handed blunt weapons.",
-    "1h_piercing": "Increases proficiency with one-handed piercing weapons.",
-    "1h_slashing": "Increases proficiency with one-handed slashing weapons.",
-    "2h_blunt": "Increases proficiency with two-handed blunt weapons.",
-    "2h_piercing": "Increases proficiency with two-handed piercing weapons.",
-    "2h_slashing": "Increases proficiency with two-handed slashing weapons.",
-    "weapon_mastery": "General skill improving melee weapon damage and accuracy.",
-    "archery": "Boosts effectiveness with bows and arrows.",
-    "leopard_strike": "Attacks the enemy and has a chance to stun.",
-    "throwing": "Improves accuracy and range when throwing weapons."
+    "block": "Raises passive defense and damage absorption when using weapons, fists, or shields.",
+    "shield_defense": "Improves blocking effectiveness and damage reduction specifically when wielding a shield.",
+    "dual_wield": "Allows effective use of two one-handed weapons simultaneously.",
+    "double_attack": "Grants a chance to strike twice in a single action.",
+    "triple_attack": "Grants a chance to strike three times in a single action.",
+    "mantis_fist": "Precision unarmed strikes with speed and accuracy (martial arts).",
+    "leopard_strike": "Aggressive unarmed attack with a chance to stun (martial arts).",
+    "bash": "Stuns or interrupts the enemy with a shield or blunt weapon.",
+    "taunt": "Increases likelihood of drawing and holding enemy attention.",
+    "backstab": "Delivers high damage from behind or while stealthed using piercing weapons.",
+    "hand_to_hand": "Improves combat ability and damage when fighting unarmed, includes kicks.",
+    "blunt_weapons": "Increases proficiency with all blunt weapons (maces, hammers, clubs, staves — both one-handed and two-handed).",
+    "slashing_weapons": "Increases proficiency with all slashing weapons (swords, axes, glaives — both one-handed and two-handed).",
+    "piercing_weapons": "Increases proficiency with all piercing weapons (daggers, spears, rapiers, picks — both one-handed and two-handed).",
+    "offense": "Offensive fighting proficiency used by weapons and physical skills",
+    "defense": "Defensive proficiency used by blocking, parrying, dodging, etc. and avoiding or mitigating physical attacks",
+    "weapon_mastery": "General skill improving melee weapon damage, accuracy, and critical chance across all weapon types.",
+    "archery": "Boosts effectiveness, range, and accuracy with bows and crossbows.",
+    "throwing": "Improves accuracy, range, and damage when throwing weapons.",
+    "offense": "Broad combat skill raised by landing melee attacks. Improves overall attack power and accuracy.",
+    "defense": "Broad defensive skill raised by being attacked in melee. Improves blocking, dodging, and parrying.",
+    "stealth": "Ability to move unseen, reduce detection chance, and enable ambush attacks.",
+    "tracking": "Ability to follow trails, locate creatures, and read signs in the environment.",
+    "bind_wound": "Non-magical first aid. Stops bleeding and restores a small amount of health outside of combat.",
+    "safe_fall": "Reduces or negates falling damage.",
+    "perception": "Ability to notice hidden enemies, traps, secrets, and environmental details.",
+    "lockpicking": "Ability to open locks and disarm simple mechanical traps.",
+    "trapping": "Ability to both set and use, and detect and safely disable traps.",
+    "legerdermain": "Skillful trickery or deception, often involving quick, clever hands, such as in magic tricks or sleight of hand. Includes pickpocketing"
   },
-
   "magic": {
-    "abjuration": "Enhances protective and warding spells.",
-    "conjuration": "Focuses on summoning creatures or items.",
-    "divination": "Reveals hidden information or detects magic.",
-    "enchantment": "Manipulates emotions or imbues magical effects.",
-    "evocation": "Casts elemental and destructive spells.",
-    "illusion": "Creates deceptive images or sounds.",
-    "necromancy": "Manipulates life and death, raising the dead.",
-    "transmutation": "Alters the properties of creatures or objects.",
-    "wild_magic": "Adds random and chaotic effects to spellcasting.",
-    "alteration": "Modifies physical aspects such as movement or weight.",
-    "concentration": "Improves casting stability when under pressure.",
-    "channeling": "Helps direct magical energy without interruption.",
-    "meditation": "Passively restores mana faster during rest.",
-    "spell_casting": "General skill improving overall casting success.",
-    "specialize_abjuration": "Deepens mastery of abjuration spells.",
-    "specialize_alteration": "Deepens mastery of alteration spells.",
-    "specialize_conjuration": "Deepens mastery of conjuration spells.",
-    "specialize_divination": "Deepens mastery of divination spells.",
-    "specialize_evocation": "Deepens mastery of evocation spells."
-  },
+    "abjuration": "Protective and warding magic. Barriers, shields, banishing, damage absorption, and defense against magical effects.",
+    "conjuration": "Summoning creatures, objects, temporary constructs, and calling allies from other realms.",
+    "divination": "Revealing hidden information, detection, scrying, insight, and seeing the unseen.",
+    "enchantment": "Mind-affecting magic, charms, emotional influence, pacify, dominate, and magical imbuing of creatures or objects.",
+    "evocation": "Elemental and raw energy magic. Direct damage, force effects, radiant/holy bursts, and destructive power.",
+    "illusion": "Deceptive sensory effects, invisibility, glamers, mirror images, and figments that mislead the senses.",
+    "necromancy": "Manipulation of life force, death, undead, draining, soul magic, plagues, and blood rites.",
+    "alteration": "Changing the physical properties, form, movement, size, weight, state, or shape of creatures and objects (includes former Transmutation effects).",
+    "wild_magic": "Chaotic and unpredictable magic that can produce random elemental effects, surges, or reality-warping results. High risk and reward.",
 
+    "spell_casting": "General magical proficiency. Improves overall success rate, potency, and reduces fizzle chance across all schools.",
+    "concentration": "Ability to maintain focus and complete spells while under pressure, taking damage, or in chaotic conditions.",
+    "channeling": "Skill at directing and sustaining magical energy without interruption. Helps with channeled and continuous effects.",
+    "meditation": "Improves mana recovery rate, especially while resting or out of combat."
+  },
   "crafting": {
-    "alchemy": "Creates potions and magical brews from ingredients.",
+    "alchemy": "Creates potions, elixirs, and magical brews from ingredients.",
     "blacksmithing": "Crafts weapons, armor, and metal tools.",
     "brewing": "Makes drinks and simple potions using organic ingredients.",
-    "cooking": "Prepares food to restore health and apply buffs.",
-    "fletching": "Crafts arrows, bows, and ranged implements.",
+    "cooking": "Prepares food that restores health and can apply temporary buffs.",
+    "fletching": "Crafts arrows, bolts, bows, and ranged implements.",
     "fishing": "Retrieves fish and aquatic resources from water.",
-    "forage": "Gathers herbs, roots, and natural ingredients from terrain.",
+    "forage": "Gathers herbs, roots, and natural ingredients from the terrain.",
     "jewelcrafting": "Crafts rings, amulets, and gem-set accessories.",
     "leatherworking": "Crafts leather armor and accessories from hides.",
     "prospecting": "Locates ore deposits and mines raw materials.",
     "tailoring": "Crafts cloth armor and garments.",
     "tinkering": "Builds mechanical gadgets and clockwork devices.",
-    "woodworking": "Crafts bows, staves, and wooden implements."
+    "woodworking": "Crafts bows, staves, shields, and wooden implements."
   },
-
   "class_skills": {
-    "Blademaster":  { "1h_slashing": 10, "parry": 5, "dodge": 5, "weapon_mastery": 5 },
-    "Shadowblade":  { "1h_piercing": 10, "backstab": 5, "dodge": 8, "dual_wield": 5 },
-    "Voidknight":   { "1h_slashing": 8, "parry": 5, "dodge": 3, "weapon_mastery": 5 },
-    "Lightsworn":   { "1h_slashing": 8, "block": 5, "shield_defense": 5, "weapon_mastery": 5 },
-    "Aetherfist":   { "hand_to_hand": 10, "dodge": 8, "mantis_fist": 5 },
-    "Zenblade":     { "hand_to_hand": 8, "dodge": 8, "mantis_fist": 5 },
-    "Woodstalker":  { "archery": 10, "dodge": 5, "throwing": 5 },
-    "Arcanist":     { "spell_casting": 10, "evocation": 5, "concentration": 5 },
-    "Runecaster":   { "spell_casting": 10, "evocation": 5, "concentration": 5 },
-    "Chaosborn":    { "spell_casting": 8, "evocation": 5, "concentration": 5 },
-    "Lightmender":  { "spell_casting": 10, "concentration": 5, "channeling": 5 },
-    "Spiritcaller": { "spell_casting": 10, "concentration": 5, "channeling": 5 },
-    "Gravecaller":  { "spell_casting": 10, "necromancy": 5, "concentration": 5 },
-    "Troubadour":   { "spell_casting": 8, "enchantment": 5, "concentration": 5 },
-    "Wildspeaker":  { "spell_casting": 8, "alteration": 5, "concentration": 5 }
+    "Voidknight": {
+      "slashing_weapons": 8,
+      "necromancy": 10,
+      "abjuration": 5,
+      "concentration": 5,
+      "spell_casting": 5,
+      "defense": 5,
+      "taunt": 5
+    },
+    "Lightsworn": {
+      "slashing_weapons": 8,
+      "block": 5,
+      "shield_defense": 5,
+      "abjuration": 8,
+      "evocation": 5,
+      "concentration": 5,
+      "taunt": 5
+    },
+    "Blademaster": {
+      "slashing_weapons": 10,
+      "weapon_mastery": 8,
+      "parry": 5,
+      "dodge": 5,
+      "offense": 5,
+      "defense": 5,
+      "taunt": 5
+    },
+    "Lightmender": {
+      "spell_casting": 10,
+      "abjuration": 8,
+      "concentration": 8,
+      "channeling": 5,
+      "meditation": 5
+    },
+    "Spiritweaver": {
+      "spell_casting": 10,
+      "conjuration": 8,
+      "alteration": 5,
+      "concentration": 5,
+      "channeling": 5
+    },
+    "Wildspeaker": {
+      "spell_casting": 8,
+      "alteration": 8,
+      "conjuration": 5,
+      "concentration": 5,
+      "forage": 5
+    },
+    "Aetherfist": {
+      "hand_to_hand": 12,
+      "dodge": 8,
+      "mantis_fist": 5,
+      "leopard_strike": 5,
+      "athletics": 5
+    },
+    "Woodstalker": {
+      "archery": 10,
+      "dodge": 5,
+      "tracking": 5,
+      "stealth": 5,
+      "alteration": 5
+    },
+    "Shadowblade": {
+      "piercing_weapons": 10,
+      "backstab": 8,
+      "stealth": 8,
+      "dual_wield": 5,
+      "dodge": 5,
+      "lockpicking": 3
+    },
+    "Troubadour": {
+      "spell_casting": 8,
+      "enchantment": 8,
+      "illusion": 5,
+      "concentration": 5,
+      "dodge": 3
+    },
+    "Gravecaller": {
+      "spell_casting": 10,
+      "necromancy": 12,
+      "concentration": 5,
+      "channeling": 5,
+      "meditation": 5
+    },
+    "Runecaster": {
+      "spell_casting": 10,
+      "enchantment": 8,
+      "illusion": 8,
+      "concentration": 5
+    },
+    "Arcanist": {
+      "spell_casting": 10,
+      "evocation": 10,
+      "concentration": 5,
+      "channeling": 5,
+      "meditation": 5
+    },
+    "Chaosborn": {
+      "spell_casting": 8,
+      "wild_magic": 12,
+      "evocation": 5,
+      "concentration": 5
+    }
   },
-
   "skill_max": 275,
   "skill_gain_base_chance": 0.15
 }

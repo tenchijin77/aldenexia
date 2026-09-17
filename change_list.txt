@@ -161,13 +161,34 @@ completed:
 -existing saves that are Human male (dev, tenchijin, test) or Troll male (zozuur) will now show these new models automatically instead of the old generic one
 -known gaps: neither Human Female nor Troll Male has a second/horizontal melee swing (both attack slots just share the one clip that exists); no class has a dedicated spellcasting animation yet at all (casters reuse melee swings) even though some of these downloads include real cast animations sitting unused
 
+9/16-17/26 (Spiritweaver rename, real cast bar, new pet, invisibility, new races, skills fixes, vendor UI, tracking, netcode phase 1-3)
+------------
+-renamed Spiritcaller to Spiritweaver everywhere (scripts, spell data, class restrictions, character options) — sounded too close to Gravecaller
+-added a real cast bar (spell name, fill animation, time remaining) and wired real interruptible cast-time gameplay for every caster class — spells used to resolve instantly with no actual cast time despite the UI implying one
+-added Spiritweaver's level-1 pet, Phantasmal Echo — heals the lowest-HP group member periodically and attacks at range with a real homing projectile; fixed her sinking into the ground/facing backward (mesh axis/pivot issue, not a scene transform problem) and her nameplate overlapping her head
+-added an invisibility/see-invisible/stealth/game-master nameplate system — hides the model + name unless the viewer can see invisible, shows a vague name if perceived, ready for [stealth]/<game master> tags once those mechanics exist
+-fixed pets stuttering/chasing when the owner just turns in place instead of actually moving, and standing too close to (stuttering into) their owner
+-fixed pet assist attacking the moment a mob was targeted instead of waiting for the player to actually attack; fixed pet HP bar showing pink instead of red in the group window
+-fixed a crash when a spell's cast finished after its target (e.g. a pet) had already died
+-fixed autoattack spamming "You can't attack an ally" every frame when your pet/an ally was targeted
+-fixed losing the mouse cursor after /camp or Save & Exit; made both (and /exit) route through the same 15-second camp channel, closing an instant-escape-from-combat exploit
+-added dedicated Elf Male/Female and Dark Elf Male/Female models + character-creation portraits; fixed Elf Female's scale (re-rig exported her ~150x too small) through a couple of correction passes, and wired her new sit animation once added
+-fixed Shadowlight (Voidknight) never actually creating a light, just a buff message
+-fixed the character sheet's General Skills list capping at 252 instead of the real 275; fixed a class only ever being able to level the handful of skills it started with, even after hours on a different weapon/ability
+-added vendor quantity buy/sell and an "only show items I can use" filter checkbox (reuses items.json's existing class/race restriction fields)
+-added a tracking window (T key) for Elf/Half-Elf/Woodstalker/Wildspeaker/Troubadour — draggable, resizable, persistent position, shows nearby monsters/guards/vendors within 50m color-coded by level like targeting does
+-netcode phase 1: fixed every HUD script (player frame, target frame, action bar, stance bar, buff bar, pet frame, group frame, chat log, slot buttons) picking the wrong player in multiplayer instead of your own
+-netcode phase 2: every player now gets a real, replicated combat_node, so a grouped ally's HP/MP actually shows in multiplayer instead of empty bars
+-netcode phase 3: monsters are now server-authoritative — position/animation/HP/state replicate to every client instead of each client simulating its own independent copy, and mob spawning goes through a real MultiplayerSpawner instead of spawning independently per client
+-netcode phase 3: pets are now networked too — a summoned pet replicates to every peer (owner-authoritative, not server) instead of only existing on the owner's machine
+-netcode phase 3: real damage sync — melee, spell damage (enemy + cone), and pet attacks all relay the attacker's computed damage to a monster's real server-side HP instead of a non-host client mutating its own cosmetic copy; kills are now credited to the actual attacking player, not whoever happens to run the code
+-fixed a pre-existing bug found while wiring the above: killing a monster via a single-target or AOE damage spell never actually called .die() — no loot, no XP, no despawn, regardless of multiplayer
+-known netcode gap: no server-side re-verification of reported damage (trusting the attacker's client — fine for a private game, not a competitive one); healing/buffing another real player still only updates your own view, not theirs
+
 to do: (in order of importance)
 
 -see "how to rig a new character model" notes below before doing another race/model — same Meshy → Mixamo → drop in models/<Name>/ pipeline as Human Female/Male and Troll Male
--netcode: network the pet — needs its own MultiplayerSpawner/replication setup (position, rotation, anim, name) so an owner's pet is visible to other players, without touching/risking the existing single-player pet AI code path
--netcode: every HUD script that does get_nodes_in_group("player")[0] (player_frame, target_frame, action_bar, stance_bar, buff_bar, pet_frame, game_log_window, chat_window, slot_button) needs to find "the player I have authority over" instead of just index 0, or a second player's HUD will show the wrong character's stats
--netcode: sync combat (attacks, spells, damage) between peers — right now a multiplayer session shares movement/animation/chat/group, but damage and health are still local-only per machine (this is also why the group frame can't show a remote member's real HP/MP yet)
--netcode: pets and monster aggro — decide server-authoritative vs per-client, this is the trickiest one per the original roadmap discussion
+-netcode: pets and monster aggro — DONE, see 9/16-17 notes above (server-authoritative monsters, owner-authoritative pets). Remaining netcode work: real player-to-player heal/buff sync, and deciding whether reported-damage trust is good enough long-term or needs server-side re-verification later.
 
 -write spell data for Chaosborn (currently has zero spells at any level)
 

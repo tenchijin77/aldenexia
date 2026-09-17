@@ -242,6 +242,7 @@ func _fill_general_skills() -> void:
 	var skills: Array        = _player.get("known_skills")  if "known_skills"  in _player else []
 	var skill_db: Dictionary = _player.get("_skill_data")   if "_skill_data"   in _player else {}
 	var levels: Dictionary   = _player.get("skill_levels")  if "skill_levels"  in _player else {}
+	var skill_max: int       = _player.get("_skill_max")    if "_skill_max"    in _player else 275
 
 	if skills.is_empty():
 		vbox.add_child(_empty_label("No general skills known."))
@@ -250,12 +251,10 @@ func _fill_general_skills() -> void:
 	for skill_name in skills:
 		var desc: String  = skill_db.get(skill_name, "")
 		var level: int    = levels.get(skill_name, 0)
-		vbox.add_child(_make_skill_row(skill_name, desc, level))
+		vbox.add_child(_make_skill_row(skill_name, desc, level, skill_max))
 
 
-func _make_skill_row(skill_name: String, desc: String, level: int) -> Control:
-	const SKILL_MAX := 252
-
+func _make_skill_row(skill_name: String, desc: String, level: int, skill_max: int) -> Control:
 	var row := Panel.new()
 	row.custom_minimum_size = Vector2(0, 62)
 	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -279,7 +278,7 @@ func _make_skill_row(skill_name: String, desc: String, level: int) -> Control:
 
 	# Level display (top-right)
 	var level_lbl := Label.new()
-	level_lbl.text = "%d / %d" % [level, SKILL_MAX]
+	level_lbl.text = "%d / %d" % [level, skill_max]
 	level_lbl.anchor_right  = 1.0
 	level_lbl.offset_right  = -8.0
 	level_lbl.offset_top    = 4.0
@@ -303,7 +302,7 @@ func _make_skill_row(skill_name: String, desc: String, level: int) -> Control:
 	# Progress bar
 	var bar := ProgressBar.new()
 	bar.min_value = 0
-	bar.max_value = SKILL_MAX
+	bar.max_value = skill_max
 	bar.value     = level
 	bar.show_percentage = false
 	bar.position = Vector2(8, 44)
