@@ -126,6 +126,81 @@ candidates instead of guessing; a typo that matches nothing prints "Unknown comm
 
 ---
 
+## 2026-09-17 — Session 46: Charm command relay + kill-credit/DoT/Shadow-Aura/campfire relay fixes, full items.json icon sweep, spell level-gating, bard song toggle system
+
+### Multiplayer — closed out the charm gap flagged at the end of Session 45
+- Charm's control-window commands (Follow/Attack/Sit/Guard/Assist/Dismiss) now relay to
+  whichever machine is actually authoritative for the monster, not just the initial
+  charm itself. Each `cmd_*()` applies locally first (`command`/`charm_attack_target`
+  aren't replicated fields, so this is what keeps the caster's own control window
+  responsive) and relays via a new `apply_networked_charm_command` RPC when the caster
+  isn't the real authority. `cmd_attack`'s target crosses the wire as a NodePath string
+  (a Node reference means nothing cross-machine — same rule as `apply_charm`'s owner
+  param) and resolves back to a real node with `get_node_or_null()` on the server.
+- Found and fixed while closing that out: a charmed monster's kill of another monster
+  didn't pass `credited_peer_id`, so it would have wrongly credited the host instead of
+  whoever actually cast the charm; the `dot` effect type was missed in the original
+  relay pass (copy-paste gap) and still mutated a monster's `combat_node` directly for
+  non-host casters; Shadow Aura's continuous per-tick nearby-enemy debuff had the same
+  unrelayed mutation.
+- Separate but related bug in `campfire.gd`: its warmth-buff Area3D is a static,
+  hand-placed node that exists identically on every peer, so it was detecting ANY
+  replicated body (including a remote player's puppet) entering its trigger on every
+  single peer's own local physics — a non-owning peer could apply the warmth buff
+  directly to someone else's `combat_node` and print "you feel invigorated" on the
+  wrong screen entirely. Fixed with an `is_multiplayer_authority()` gate on the body
+  itself rather than a relay — a player is always authoritative over themselves
+  (unlike a monster), so no RPC was needed, just the right check.
+
+### Items.json — full icon sweep (not just Lumora Outskirts drops this time)
+- User reported items still showing as invisible/iconless in the inventory. The
+  earlier pass only fixed the 21 items that actually drop in Lumora Outskirts;
+  39 more broken icon paths existed elsewhere in the file (quest/lore items, crafting
+  reagents, a few weapons/armor from zones not live yet, plus `scroll_case` which had
+  no icon path at all) — all now use the placeholder icon. Zero broken icons remain
+  anywhere in `items.json`, verified by checking every entry's icon path against the
+  actual filesystem.
+
+### Spell casting — real level-gating (found via a fresh level-1 Troubadour able to
+### cast a level-2 spell)
+- `cast_spell()` previously had no level check of any kind. Now checks
+  `class_level_requirements[player_class]` against `combat_node.level` — deliberately
+  NOT the flat top-level `level` field, which only reflects one class's requirement
+  when a spell is shared across several at different levels (e.g. Improved Block is
+  Voidknight:3 but Blademaster:7).
+
+### Status Effects window — descriptions on hover only
+- Per user feedback, the always-visible description text under each buff/debuff row
+  is gone; the same `player_spells.json` description now shows as a tooltip on hover
+  instead, so the window reads as a compact list rather than a wall of text.
+
+### Bard songs — real toggle-and-auto-recast system (the actual mechanic, replacing
+### an earlier documented design that was never built)
+- Casting a Troubadour spell toggles it on/off instead of one-shot casting
+  (`player3d.gd`'s new `_active_songs` dict, gated on `player_class == "Troubadour"` —
+  applies to any of their spells, not a per-spell flag). While "on," `_tick_cooldowns()`'s
+  new `_tick_active_songs()` auto-recasts the spell the instant its own cooldown clears,
+  checked every frame rather than edge-triggered so a transient block (still animating
+  the previous cast) naturally retries next frame instead of getting stuck. A genuine
+  failure (dead target, out of mana) removes it from `_active_songs` and logs why the
+  song stopped, rather than retrying forever.
+- Multiple songs stack independently and correctly: turning one off only stops ITS OWN
+  auto-recast loop — a buff it already applied keeps counting down and showing in the
+  Status Effects window on its own schedule, completely unaffected by starting or
+  stopping any other song. Verified end-to-end with a real test (cast A, let its buff
+  land, cast B without touching A, confirm both show simultaneously, stop A, confirm
+  its buff persists until its own duration naturally elapses while B keeps playing).
+- Charm Melody (a song) additionally gets a periodic break-early roll while charmed
+  (`monster3d.gd`'s `state_charmed()`: every 5s, 15% chance — placeholder values, not
+  balanced) — since the song keeps recasting itself, a broken charm gets automatically
+  re-attempted the moment the bard's own cooldown allows, with no extra code needed;
+  this falls straight out of the toggle/auto-recast system.
+- Most songs are intentionally mana-free (the user's own design: "it's a song they're
+  singing... only a few will cost mana") — `song_of_courage`'s `mana_cost: 0` is
+  correct, not a bug, confirmed with the user directly after a test caught it.
+
+---
+
 ## 2026-09-17 — Session 45: Generic spell-effect engine, 7 more classes brought to parity, tradeskills (cooking/alchemy), Wildspeaker pet, fear/charm mechanics, multiplayer CC/heal relay, UI theme + resize pass, 5 new mob models, network widget
 
 ### Generic, data-driven spell-effect engine (the foundation for everything else this session)
@@ -222,11 +297,18 @@ candidates instead of guessing; a typo that matches nothing prints "Unknown comm
   relay pattern — retrofitted onto the pre-existing hardcoded Voidknight cases
   (Necrotic Grasp, Curse of Weakness, Plague Strike, Improved Disarm) too, not just
   new spells.
-- Known remaining gap, flagged rather than silently shipped: Charm's control-window
-  *commands* (the Follow/Attack/Sit/Guard buttons) still act on the caster's local
-  copy with no RPC of their own — the charm itself now takes correctly for any
-  caster, but a non-host player's command clicks won't reliably drive the monster's
-  real behavior yet. Bigger, separate fix for next time.
+- Charm's control-window commands now relay too (applies locally first for instant
+  UI feedback, then via a new RPC when the caster isn't the real authority) — closes
+  the gap flagged earlier in this same session. `cmd_attack`'s target crosses the
+  wire as a NodePath string, same reasoning as the owner param above.
+- Also found and fixed while closing that out: a charmed monster's kill didn't credit
+  the actual charm owner (would have wrongly credited the host); the `dot` effect
+  type was missed in the original relay pass and still bypassed it; Shadow Aura's
+  continuous nearby-enemy debuff tick had the same unrelayed mutation; and a related
+  bug in `campfire.gd` — its warmth trigger runs identically on every peer and could
+  apply the warmth buff to a remote player's puppet from a non-owning machine (fixed
+  with an authority check, not a relay, since a player is always authoritative over
+  themselves).
 
 ### UI — theme consistency, resizable windows, and several reported bugs
 - Backpack: fixed a solid-vs-semitransparent inconsistency across windows (new shared

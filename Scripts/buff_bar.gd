@@ -76,6 +76,12 @@ func _rebuild_rows(effect_names: Array, active_effects: Dictionary) -> void:
 func _build_row(effect_name: String, display_name: String, description: String, remaining: float, is_debuff: bool = false) -> void:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 6)
+	# Full description only on hover (was always shown inline, cluttering the
+	# window per the user's feedback 2026-09-17) — needs MOUSE_FILTER_STOP,
+	# since a Container's default filter (IGNORE) never receives the hover
+	# events a tooltip needs.
+	row.tooltip_text = description
+	row.mouse_filter = Control.MOUSE_FILTER_STOP
 
 	var icon_box := Panel.new()
 	icon_box.custom_minimum_size = Vector2(ICON_SIZE, ICON_SIZE)
@@ -118,14 +124,6 @@ func _build_row(effect_name: String, display_name: String, description: String, 
 	time_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.75))
 	name_row.add_child(time_label)
 	_row_time_labels[effect_name] = time_label
-
-	if not description.is_empty():
-		var desc_label := Label.new()
-		desc_label.text = description
-		desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		desc_label.add_theme_font_size_override("font_size", 9)
-		desc_label.add_theme_color_override("font_color", Color(0.75, 0.75, 0.8))
-		text_col.add_child(desc_label)
 
 	buff_list.add_child(row)
 

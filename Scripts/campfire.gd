@@ -40,6 +40,19 @@ func _ready() -> void:
 
 
 func _on_body_entered(body: Node3D) -> void:
+	# This node is a static, hand-placed part of the zone scene — identical
+	# on every peer, not something spawned/owned by one player — so its
+	# Area3D detects ANY replicated body walking through it, including a
+	# remote player's puppet, on every single peer's own local physics.
+	# Without this gate, a non-authoritative peer would (a) mutate a remote
+	# player's combat_node directly, same relay problem as everywhere else
+	# this session, and (b) show a spurious "You feel invigorated..." message
+	# on the wrong player's screen entirely. Gating on the body's own
+	# authority means only that player's own client ever reacts to their own
+	# arrival — a player is always authoritative over themselves (unlike a
+	# monster), so no RPC relay is needed once this check is in place.
+	if not body.is_multiplayer_authority():
+		return
 	if _player_near or not body.is_in_group("player"):
 		return
 	_player_near = true
@@ -49,6 +62,8 @@ func _on_body_entered(body: Node3D) -> void:
 
 
 func _on_body_exited(body: Node3D) -> void:
+	if not body.is_multiplayer_authority():
+		return
 	if not body.is_in_group("player"):
 		return
 	_player_near = false

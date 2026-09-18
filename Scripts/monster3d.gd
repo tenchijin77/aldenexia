@@ -141,6 +141,15 @@ var charm_attack_target: Node = null
 var guard_position: Vector3 = Vector3.ZERO
 var _charm_time_remaining: float = 0.0
 const CHARM_GUARD_SCAN_RADIUS := 8.0
+
+# Break-early chance (2026-09-17, per the user's spec for Troubadour's
+# toggled/repeated charm song): rolled periodically rather than once, so a
+# charm that's re-cast every recast_time (10s for Charm Melody) genuinely
+# risks not making it to the next refresh, not just to its own 30s cap.
+# Values are a starting placeholder — tune once played.
+const CHARM_BREAK_CHECK_INTERVAL := 5.0
+const CHARM_BREAK_CHANCE := 0.15
+var _charm_break_timer: float = 0.0
 # Set alongside every animation_player.play() call below, replicated (see
 # monster_template.tscn's MultiplayerSynchronizer) so a non-authoritative
 # client just mirrors whatever animation the server/single-player simulation
@@ -757,6 +766,7 @@ func apply_charm(duration: float, owner: Node) -> void:
 	pet_name = monster_description if monster_description != "" else get_monster_name()
 	command = 0  # PetMinion.PetState.FOLLOW
 	_charm_time_remaining = duration
+	_charm_break_timer = 0.0
 	change_state(State.CHARMED)
 
 
@@ -784,6 +794,14 @@ func state_charmed(delta: float) -> void:
 		GameLog.log_general("[color=#ffcc66]%s shakes off your charm.[/color]" % pet_name.capitalize())
 		_end_charm()
 		return
+
+	_charm_break_timer += delta
+	if _charm_break_timer >= CHARM_BREAK_CHECK_INTERVAL:
+		_charm_break_timer = 0.0
+		if randf() < CHARM_BREAK_CHANCE:
+			GameLog.log_general("[color=#ffcc66]%s breaks free of the charm early![/color]" % pet_name.capitalize())
+			_end_charm()
+			return
 
 	match command:
 		0:  # FOLLOW
@@ -864,48 +882,101 @@ func _perform_charmed_attack(target: Node) -> void:
 		desc = target.get_monster_name()
 	_log_attack_on_other(result, pet_name, desc)
 	if not target.combat_node.is_alive() and target.has_method("die"):
-		target.die()
+		# Credits the charm owner, not whoever happens to be running this code
+		# (the server, per state_charmed()'s authority-gated call chain) —
+		# same fix apply_networked_damage() already needed for ordinary kills.
+		var credited_peer_id: int = charm_owner.get_multiplayer_authority() if is_instance_valid(charm_owner) else -1
+		target.die(true, true, credited_peer_id)
 		charm_attack_target = null
 
 
 # ── Commands (pet_frame.gd's exact interface — see PetMinion's cmd_*()) ────
+#
+# Fixed 2026-09-17: these used to just mutate fields directly, which only
+# actually controlled the monster's real behavior when the caster WAS the
+# authoritative machine (the server) — a non-host player's charm would take
+# (see apply_networked_charm() above), but their Follow/Attack/Sit/Guard
+# clicks silently did nothing to the monster's real, server-simulated
+# behavior; only the host's own clicks worked. Each cmd_*() now applies
+# LOCALLY first (so the caster's own pet_frame.gd ring-highlight updates
+# instantly regardless of who's authoritative — command/charm_attack_target
+# aren't replicated fields, so this optimistic local update is the only
+# thing that makes the control window feel responsive for a non-host caster)
+# and ALSO relays to the server via RPC when this machine isn't the real
+# authority, so the actual behavior change takes effect for everyone.
+
 func cmd_attack(target: Node) -> void:
 	if not is_instance_valid(target):
 		GameLog.log_general("%s has no target to attack." % pet_name.capitalize())
 		return
-	charm_attack_target = target
-	command = 1
+	_apply_charm_command("attack", target)
 
 
 func cmd_follow() -> void:
-	charm_attack_target = null
-	command = 0
+	_apply_charm_command("follow", null)
 
 
 func cmd_sit() -> void:
-	charm_attack_target = null
-	command = 2
+	_apply_charm_command("sit", null)
 
 
 func cmd_guard() -> void:
-	charm_attack_target = null
-	guard_position = global_position
-	command = 3
+	_apply_charm_command("guard", null)
 
 
 func cmd_assist() -> void:
-	charm_attack_target = null
-	command = 4
+	_apply_charm_command("assist", null)
 
 
 func cmd_back() -> void:
-	charm_attack_target = null
-	command = 0
+	_apply_charm_command("back", null)
 
 
 func cmd_dismiss() -> void:
-	GameLog.log_general("[color=#ffcc66]You release %s from your charm.[/color]" % pet_name.capitalize())
-	_end_charm()
+	_apply_charm_command("dismiss", null)
+
+
+func _apply_charm_command(cmd: String, target: Node) -> void:
+	match cmd:
+		"attack":
+			charm_attack_target = target
+			command = 1
+		"follow":
+			charm_attack_target = null
+			command = 0
+		"sit":
+			charm_attack_target = null
+			command = 2
+		"guard":
+			charm_attack_target = null
+			guard_position = global_position
+			command = 3
+		"assist":
+			charm_attack_target = null
+			command = 4
+		"back":
+			charm_attack_target = null
+			command = 0
+		"dismiss":
+			GameLog.log_general("[color=#ffcc66]You release %s from your charm.[/color]" % pet_name.capitalize())
+			_end_charm()
+
+	if not is_multiplayer_authority():
+		var target_path: String = str(target.get_path()) if is_instance_valid(target) else ""
+		apply_networked_charm_command.rpc_id(1, cmd, target_path)
+
+
+# Node references mean nothing across machines (same rule as apply_charm()'s
+# owner param above), so cmd_attack's target crosses the wire as a NodePath
+# string instead — safe here since both the hand-placed zone monsters and
+# MultiplayerSpawner-spawned ones replicate matching node identities/paths
+# across every peer already (the whole system depends on that being true).
+@rpc("any_peer", "call_remote", "reliable")
+func apply_networked_charm_command(cmd: String, target_path: String) -> void:
+	if not is_multiplayer_authority():
+		return
+	var target: Node = get_node_or_null(NodePath(target_path)) if not target_path.is_empty() else null
+	_apply_charm_command(cmd, target)
 
 
 # ===== MOVEMENT =====

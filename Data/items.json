@@ -112,7 +112,7 @@
   },
   "venom_sac": {
     "name": "Venom Sac",
-    "icon": "res://Assets/Items/venom_sac.png",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
     "description": "A swollen sac of venom, still faintly warm.",
     "stackable": true,
     "currency_type": "copper",
@@ -134,7 +134,7 @@
   },
   "spider_fang": {
     "name": "Spider Fang",
-    "icon": "res://Assets/Items/spider_fang.png",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
     "description": "A curved, venom-slick fang torn from a giant spider.",
     "stackable": true,
     "currency_type": "copper",
@@ -156,7 +156,7 @@
   },
   "embalming_salve": {
     "name": "Embalming Salve",
-    "icon": "res://Assets/Items/embalming_salve.png",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
     "description": "A jar of preserving unguent used in ancient burial rites.",
     "stackable": true,
     "currency_type": "copper",
@@ -200,7 +200,7 @@
   },
   "rotten_linen": {
     "name": "Rotten Linen",
-    "icon": "res://Assets/Items/rotten_linen.png",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
     "description": "Decayed wrappings, crumbling with age.",
     "stackable": true,
     "currency_type": "copper",
@@ -222,7 +222,7 @@
   },
   "acidic_fluid": {
     "name": "Acidic Fluid",
-    "icon": "res://Assets/Items/acidic_fluid.png",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
     "description": "Corrosive fluid harvested from a beetle. Handle with care.",
     "stackable": true,
     "currency_type": "copper",
@@ -248,7 +248,7 @@
   },
   "alchemy_reagent": {
     "name": "Alchemy Reagent",
-    "icon": "res://Assets/Items/reagent.png",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
     "description": "A volatile liquid used in the creation of potions.",
     "stackable": true,
     "currency_type": "copper",
@@ -274,7 +274,7 @@
   },
   "ancient_bandage": {
     "name": "Ancient Bandage",
-    "icon": "res://Assets/Items/ancient_bandage.png",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
     "description": "Tattered, ancient linen used to wrap the dead.",
     "stackable": true,
     "currency_type": "copper",
@@ -300,7 +300,7 @@
   },
   "ancient_coin": {
     "name": "Ancient Coin",
-    "icon": "res://Assets/Items/ancient_coin.png",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
     "description": "A weathered coin from a forgotten era.",
     "stackable": true,
     "currency_type": "silver",
@@ -326,7 +326,7 @@
   },
   "animal_sinew": {
     "name": "Animal Sinew",
-    "icon": "res://Assets/Items/animal_sinew.png",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
     "description": "Tough sinew useful for crafting bowstrings or bindings.",
     "stackable": true,
     "currency_type": "copper",
@@ -406,7 +406,7 @@
   },
   "beetle_horn": {
     "name": "Beetle Horn",
-    "icon": "res://Assets/Items/beetle_horn.png",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
     "description": "A sharp horn from a Khepri Beetle.",
     "stackable": false,
     "currency_type": "copper",
@@ -486,7 +486,7 @@
   },
   "bone_totem": {
     "name": "Bone Totem",
-    "icon": "res://Assets/Items/bone_totem.png",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
     "description": "A crude totem used by Bonegnawers.",
     "stackable": false,
     "currency_type": "copper",
@@ -512,7 +512,7 @@
   },
   "canopic_jar_fragment": {
     "name": "Canopic Jar Fragment",
-    "icon": "res://Assets/Items/canopic_jar.png",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
     "description": "A ceramic shard from a funerary jar.",
     "stackable": true,
     "currency_type": "copper",
@@ -564,7 +564,7 @@
   },
   "cloth_bandage": {
     "name": "Cloth Bandage",
-    "icon": "res://Assets/Items/cloth_bandage.png",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
     "description": "A cloth bandage used to treat minor wounds.",
     "stackable": true,
     "currency_type": "copper",
@@ -618,7 +618,7 @@
   },
   "cloth_slippers": {
     "name": "Cloth Slippers",
-    "icon": "res://Assets/Items/cloth_slippers.png",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
     "description": "Basic slippers providing minimal protection.",
     "stackable": false,
     "currency_type": "copper",
@@ -646,7 +646,7 @@
   },
   "coarse_bandage": {
     "name": "Coarse Bandage",
-    "icon": "res://Assets/Items/coarse_bandage.png",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
     "description": "A rough bandage carried by Dustwalkers.",
     "stackable": true,
     "currency_type": "copper",
@@ -672,7 +672,7 @@
   },
   "command_sigil": {
     "name": "Command Sigil",
-    "icon": "res://Assets/Items/sigil.png",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
     "description": "A heavy iron sigil carried by Dustwalker leaders.",
     "stackable": false,
     "currency_type": "silver",
@@ -724,7 +724,7 @@
   },
   "crystal_sand": {
     "name": "Crystal Sand",
-    "icon": "res://Assets/Items/crystal_sand.png",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
     "description": "Glistening sand grains with elemental properties.",
     "stackable": true,
     "currency_type": "copper",
@@ -778,7 +778,7 @@
   },
   "delusional_scrawl": {
     "name": "Delusional Scrawl",
-    "icon": "res://Assets/Items/scrawl.png",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
     "description": "Nonsensical writing on a piece of parchment.",
     "stackable": false,
     "currency_type": "copper",
@@ -804,7 +804,7 @@
   },
   "dog_pelt": {
     "name": "Dog Pelt",
-    "icon": "res://Assets/Items/dog_pelt.png",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
     "description": "The rough pelt of a wild dog.",
     "stackable": true,
     "currency_type": "copper",
@@ -856,7 +856,7 @@
   },
   "empty_waterskin": {
     "name": "Empty Waterskin",
-    "icon": "res://Assets/Items/waterskin_empty.png",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
     "description": "A dry leather pouch that once held water.",
     "stackable": false,
     "currency_type": "copper",
@@ -936,7 +936,7 @@
   },
   "gnawed_femur": {
     "name": "Gnawed Femur",
-    "icon": "res://Assets/Items/femur.png",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
     "description": "A large bone covered in deep teeth marks.",
     "stackable": false,
     "currency_type": "copper",
@@ -962,7 +962,7 @@
   },
   "gnoll_pelt": {
     "name": "Gnoll Pelt",
-    "icon": "res://Assets/Items/gnoll_pelt.png",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
     "description": "A thick, mangy pelt from a gnoll.",
     "stackable": true,
     "currency_type": "copper",
@@ -988,7 +988,7 @@
   },
   "gnoll_war_token": {
     "name": "Gnoll War Token",
-    "icon": "res://Assets/Items/token.png",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
     "description": "A crude metal disk showing allegiance to the Kragthar tribe.",
     "stackable": true,
     "currency_type": "copper",
@@ -1014,7 +1014,7 @@
   },
   "goblin_ear": {
     "name": "Goblin Ear",
-    "icon": "res://Assets/Items/goblin_ear.png",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
     "description": "A grim trophy from a goblin.",
     "stackable": true,
     "currency_type": "copper",
@@ -1094,7 +1094,7 @@
   },
   "linen_cloth": {
     "name": "Linen Cloth",
-    "icon": "res://Assets/Items/linen_cloth.png",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
     "description": "Scraps of linen cloth for tailoring.",
     "stackable": true,
     "currency_type": "copper",
@@ -1120,7 +1120,7 @@
   },
   "moribund_order_notes": {
     "name": "Moribund Order Notes",
-    "icon": "res://Assets/Items/notes.png",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
     "description": "Coded messages regarding the awakening of the Kragthar.",
     "stackable": false,
     "currency_type": "silver",
@@ -1146,7 +1146,7 @@
   },
   "patrol_orders": {
     "name": "Patrol Orders",
-    "icon": "res://Assets/Items/orders.png",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
     "description": "Written orders for Lumora Outriders.",
     "stackable": false,
     "currency_type": "copper",
@@ -1302,7 +1302,7 @@
   },
   "rotting_cloth": {
     "name": "Rotting Cloth",
-    "icon": "res://Assets/Items/rotting_cloth.png",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
     "description": "Tattered cloth that smells of decay. Often dropped by undead.",
     "stackable": true,
     "currency_type": "copper",
@@ -1328,7 +1328,7 @@
   },
   "rusty_cleaver": {
     "name": "Rusty Cleaver",
-    "icon": "res://Assets/Items/cleaver.png",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
     "description": "A heavy, notched blade used by Bonegnawers.",
     "stackable": false,
     "currency_type": "copper",
@@ -1385,7 +1385,7 @@
   },
   "scavenged_ring": {
     "name": "Scavenged Ring",
-    "icon": "res://Assets/Items/ring.png",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
     "description": "A simple iron band recovered from a corpse.",
     "stackable": false,
     "currency_type": "copper",
@@ -1543,7 +1543,7 @@
   },
   "spider_silk": {
     "name": "Spider Silk",
-    "icon": "res://Assets/Items/spider_silk.png",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
     "description": "Fine silk used for ropes or clothing.",
     "stackable": true,
     "currency_type": "copper",
@@ -1595,7 +1595,7 @@
   },
   "tomb_dust": {
     "name": "Tomb Dust",
-    "icon": "res://Assets/Items/tomb_dust.png",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
     "description": "The fine, choking dust found in ancient burial chambers.",
     "stackable": true,
     "currency_type": "copper",
@@ -1621,7 +1621,7 @@
   },
   "torch": {
     "name": "Torch",
-    "icon": "res://Assets/Items/torch.png",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
     "description": "A low quality torch, it's better than nothing.",
     "stackable": true,
     "currency_type": "copper",
@@ -1673,7 +1673,7 @@
   },
   "tribal_charm": {
     "name": "Tribal Charm",
-    "icon": "res://Assets/Items/charm.png",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
     "description": "A fetish made of feathers and bone, used by desert tribes.",
     "stackable": false,
     "currency_type": "copper",
@@ -1756,7 +1756,7 @@
   },
   "trail_rations": {
     "name": "Trail Rations",
-    "icon": "res://Assets/Items/trail_rations.png",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
     "description": "A modest packet of dried food. Filling enough for a short while.",
     "stackable": true,
     "currency_type": "copper",
@@ -1780,7 +1780,7 @@
   },
   "spring_water": {
     "name": "Spring Water",
-    "icon": "res://Assets/Items/spring_water.png",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
     "description": "A cupful of fresh spring water. Better than nothing.",
     "stackable": true,
     "currency_type": "copper",
@@ -1804,7 +1804,7 @@
   },
   "traveler_pack": {
     "name": "Traveler's Pack",
-    "icon": "res://Assets/Items/traveler_pack.png",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
     "description": "A sturdy pack with room for a great deal more than a small bag.",
     "stackable": false,
     "currency_type": "copper",
@@ -1827,7 +1827,7 @@
   },
   "warlord_scimitar": {
     "name": "Warlord Scimitar",
-    "icon": "res://Assets/Items/scimitar_warlord.png",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
     "description": "A masterfully crafted curved blade, gleaming with a desert heat.",
     "stackable": false,
     "currency_type": "silver",
@@ -1941,7 +1941,7 @@
   },
   "scroll_case": {
     "name": "Scroll Case",
-    "icon": "",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
     "description": "A sturdy leather case for storing scrolls and documents.",
     "stackable": false,
     "currency_type": "copper",

@@ -2486,18 +2486,33 @@ listen-server — the host's own game doubles as the server):
   Weakness, Plague Strike, Improved Disarm) as well as every spell using the
   new generic effect engine (see below).
 
+- Charm's control-window commands (Follow/Attack/Sit/Guard/Assist/Dismiss)
+  now relay too (`monster3d.gd`'s `cmd_*()` apply locally first for instant
+  UI feedback in `pet_frame.gd` — `command`/`charm_attack_target` aren't
+  replicated fields — then relay via the new `apply_networked_charm_command`
+  RPC when the caster isn't the real authority). `cmd_attack`'s target
+  crosses the wire as a `NodePath` string (a Node reference means nothing
+  cross-machine, same rule as `apply_charm`'s owner param), resolved back to
+  a real node via `get_node_or_null()` on the receiving end.
+- Also found and fixed while closing out the above: a charmed monster's kill
+  of another monster didn't pass `credited_peer_id`, so it would have
+  wrongly credited the host instead of whoever actually cast the charm;
+  DoT effect_type spells cast on a monster weren't routed through the relay
+  helper at all (copy-paste miss, same fix as its siblings); and Shadow
+  Aura's continuous per-tick nearby-enemy debuff (`_tick_active_spell_effects()`)
+  had the same non-relayed mutation. Also fixed a related but distinct bug in
+  `campfire.gd`: its warmth Area3D runs identically on every peer and
+  detects ANY replicated body (including a remote player's puppet) entering
+  it, so a non-owning peer could apply the warmth buff directly to someone
+  else's combat_node and print the "you feel invigorated" message on the
+  wrong screen — fixed with an `is_multiplayer_authority()` gate on the body
+  itself (a player is always self-authoritative, so no RPC relay was needed
+  here, just the right gate).
+
 NOT yet working / known gaps:
 - No server-side re-verification of reported damage (see the trade-off
   above) — not a concern for a trusted-peers private game, would matter for
   a public/competitive one.
-- Charm's control-window commands (Follow/Attack/Sit/Guard/Assist —
-  `pet_frame.gd`'s cmd_*() calls) still act on the caster's own local copy
-  of the charmed monster with no RPC of their own, unlike the initial
-  `apply_charm()` call itself (which does relay correctly now). A non-host
-  player can successfully charm a monster and it'll visually take for
-  everyone, but their button clicks won't reliably drive its real
-  server-side behavior — only the host's clicks will. Each cmd_* needs its
-  own relay to fully close this; bigger job, deliberately deferred.
 
 
 GENERIC SPELL-EFFECT ENGINE (added 2026-09-17, Session 45)
@@ -2566,6 +2581,73 @@ station (a stove, a forge) is pure data, no new window/script code needed.
   Apply to Weapon → pick equipped weapon slot if dual-wielding → sets
   `poison_bonus_damage` on that equipped item instance, read in
   `_apply_equipment_from_inventory()`'s weapon-damage calc).
+
+
+SPELL LEVEL GATING (added 2026-09-17, Session 46)
+================================================================================
+
+`cast_spell()` had no level check at all before this — found via a fresh level-1
+Troubadour able to cast a level-2 spell. Now checks
+`spell.class_level_requirements[player_class]` against `combat_node.level`, falling
+back to the spell's flat top-level `level` field only if this class genuinely has no
+entry in `class_level_requirements` (shouldn't normally happen). Deliberately not
+just the flat field — the same spell can require a different level for different
+classes sharing it (e.g. Improved Block is Voidknight:3 but Blademaster:7), and the
+flat field only ever reflects one of them.
+
+
+BARD SONGS — TOGGLE / AUTO-RECAST SYSTEM (added 2026-09-17, Session 46)
+================================================================================
+
+The real, implemented Troubadour mechanic — see [[project_class_rollout]] in Claude's
+memory for why an earlier design note (delayed-effect-on-deactivation) is wrong/stale.
+
+- Casting a Troubadour spell toggles it on/off rather than one-shot casting. Gated on
+  `player_class == "Troubadour"` in `cast_spell()` — applies to any of their spells
+  uniformly, not a per-spell data flag. `player3d.gd`'s `_active_songs: Dictionary`
+  (spell_name -> true) tracks which are currently "playing."
+- While on, `_tick_cooldowns()`'s new `_tick_active_songs()` checks every active song
+  every frame and auto-recasts it (`cast_spell(spell_name, true)`, the new
+  `is_auto_recast` param) the instant its own `_spell_cooldowns` entry clears. Checked
+  every frame rather than edge-triggered on purpose — a transient block (still mid-
+  cast-animation from the previous trigger) naturally retries next frame instead of
+  getting permanently stuck. `is_auto_recast=true` also suppresses "not ready"/
+  "already casting" log spam and skips the toggle-on/off decision itself (so the
+  automatic re-trigger never turns the song off).
+- A genuine failure during an auto-recast attempt (target died, ran out of mana)
+  removes the spell from `_active_songs` and logs why the song stopped, instead of
+  retrying forever.
+- Multiple songs stack correctly and independently: `_active_songs` and each song's
+  actual applied buff (`CombatNode.active_effects`, keyed by spell_name) are separate
+  — turning one song off only removes it from the auto-recast loop, it does NOT touch
+  a buff that's already been applied. That buff keeps counting down and showing in
+  the buff bar on its own schedule regardless of whether the song that cast it is
+  still playing. Verified directly: cast A, let its buff land, cast B without
+  touching A, both show simultaneously; stop A; A's buff persists until its own
+  duration naturally elapses while B keeps auto-recasting.
+- Most songs are intentionally mana-free by design (only a few cost mana) —
+  `song_of_courage`'s `mana_cost: 0` is correct data, not a bug.
+- Charm Melody (a song, `effect_type: charm`) gets a periodic break-early roll while
+  charmed — see monster3d.gd's `state_charmed()` `CHARM_BREAK_CHECK_INTERVAL`/
+  `CHARM_BREAK_CHANCE` constants (currently 5s / 15%, placeholder values, not
+  balanced). Since the song keeps re-casting itself, a broken charm gets
+  automatically re-attempted the moment the bard's own cooldown allows — falls
+  straight out of the toggle/auto-recast system with no extra code. This break-chance
+  currently applies to ANY charm reaching `state_charmed()`, not gated to
+  song-sourced charms specifically (Runecaster's Charm/Mass Charm would get it too) —
+  simpler and more consistent than tracking provenance; revisit if that's ever
+  undesired for a non-song charm source.
+
+
+STATUS EFFECTS WINDOW — DESCRIPTION ON HOVER (added 2026-09-17, Session 46)
+================================================================================
+
+`buff_bar.gd`'s rows used to always show the full `player_spells.json` description
+inline under the name — per user feedback this cluttered the window. Now the
+description only shows as a tooltip on hover (`row.tooltip_text`, with
+`row.mouse_filter = Control.MOUSE_FILTER_STOP` since a Container's default filter
+never receives the hover events a tooltip needs) — the row itself is just icon/name/
+time-remaining now.
 
 
 KNOWN GAPS / TODOs (as of 2026-08-23)

@@ -47,6 +47,7 @@ var _skill_data: Dictionary = {}   # flat skill_name -> description
 var _valid_skill_names: Dictionary = {}  # set-like (skill_name -> true) — every real physical/magic/crafting skill, used by _tick_skill() to allow leveling a skill a class wasn't seeded with at creation
 var _skill_max: int = 275  # overwritten from player_skills.json's own skill_max once loaded
 var _spell_cooldowns: Dictionary = {}
+var _active_songs: Dictionary = {}  # spell_name -> true — Troubadour's toggled/playing songs
 var _skill_cooldowns: Dictionary = {}
 # Set at cast start, consumed once combat_node.is_casting finishes (or cleared
 # on interrupt) — see cast_spell()/_resolve_spell_cast()/_check_spell_interrupt()
@@ -2572,29 +2573,67 @@ static func spell_display_name(spell_name: String) -> String:
 	return SPELL_DISPLAY_NAMES.get(spell_name, spell_name.replace("_", " ").capitalize())
 
 
-func cast_spell(spell_name: String) -> void:
+# Troubadour spells are songs, toggled rather than one-shot (2026-09-17,
+# per the user's spec) — clicking one starts it "playing," auto-recasting
+# itself every time its own cooldown expires (refreshing a buff
+# indefinitely, or re-attempting a charm the instant it's allowed to if the
+# target broke free early — see monster3d.gd's state_charmed() break-chance)
+# until clicked again to stop it. `is_auto_recast` distinguishes a fresh
+# user click (which toggles on/off) from the automatic re-trigger
+# (_tick_cooldowns() below) so the auto-recast path never toggles itself
+# off. Returns whether the cast actually went through, so the auto-recast
+# loop can tell a real failure (dead target, out of mana) from "still on
+# cooldown" and stop trying rather than spam every frame.
+func cast_spell(spell_name: String, is_auto_recast: bool = false) -> bool:
 	if spell_name == "improved_block":
 		GameLog.log_general("[b]Improved Block[/b] is passive — no need to cast it.")
-		return
+		return false
 
 	var spell: Dictionary = _spell_by_name.get(spell_name, {})
 	if spell.is_empty():
 		GameLog.log_general("Unknown spell or ability: [b]%s[/b]." % spell_display_name(spell_name))
-		return
+		return false
+
+	if player_class == "Troubadour" and not is_auto_recast:
+		if _active_songs.has(spell_name):
+			_active_songs.erase(spell_name)
+			GameLog.log_general("You stop playing [b]%s[/b]." % spell_display_name(spell_name))
+			return false
+		_active_songs[spell_name] = true
+
+	# Per-class level requirement, not the flat top-level "level" field — the
+	# same spell can require a different level for different classes (e.g.
+	# Improved Block is Voidknight:3 but Blademaster:7), and the flat field
+	# only ever reflects one of them. Falls back to the flat field only if
+	# this class genuinely has no entry for it (shouldn't normally happen —
+	# every learnable spell is gated to a class via this same dict already).
+	var required_level: int = int(spell.get("class_level_requirements", {}).get(
+		player_class, spell.get("level", 1)
+	))
+	if combat_node.level < required_level:
+		GameLog.log_general("You must be level %d to cast [b]%s[/b]." % [required_level, spell_display_name(spell_name)])
+		_active_songs.erase(spell_name)
+		return false
 
 	var cd_remaining: float = _spell_cooldowns.get(spell_name, 0.0)
 	if cd_remaining > 0.0:
-		GameLog.log_general("[b]%s[/b] is not ready. (%.1fs remaining)" % [spell_display_name(spell_name), cd_remaining])
-		return
+		if not is_auto_recast:
+			GameLog.log_general("[b]%s[/b] is not ready. (%.1fs remaining)" % [spell_display_name(spell_name), cd_remaining])
+		return false
 
 	var cost: int = int(spell.get("mana_cost", 0.0))
 	if combat_node.current_mana < cost:
-		GameLog.log_general("Insufficient mana to use [b]%s[/b]!" % spell_display_name(spell_name))
-		return
+		if is_auto_recast:
+			GameLog.log_general("[color=#ff8866]You don't have enough mana to keep playing [b]%s[/b] — the song fades.[/color]" % spell_display_name(spell_name))
+			_active_songs.erase(spell_name)
+		else:
+			GameLog.log_general("Insufficient mana to use [b]%s[/b]!" % spell_display_name(spell_name))
+		return false
 
 	if combat_node.is_casting:
-		GameLog.log_general("You are already casting a spell.")
-		return
+		if not is_auto_recast:
+			GameLog.log_general("You are already casting a spell.")
+		return false
 
 	var display_name    := spell_display_name(spell_name)
 	var spell_target    := spell.get("target", "enemy") as String
@@ -2605,14 +2644,20 @@ func cast_spell(spell_name: String) -> void:
 	# outlive the target (it can die, or you can lose target lock, mid-cast).
 	if spell_target in ["enemy", "cone"]:
 		if target_node == null:
-			GameLog.log_general("No target selected for [b]%s[/b]." % display_name)
-			return
+			if not is_auto_recast:
+				GameLog.log_general("No target selected for [b]%s[/b]." % display_name)
+			return false
 		if not _is_targetable_alive(target_node):
-			GameLog.log_general("Your target is already dead.")
-			return
+			if is_auto_recast:
+				GameLog.log_general("[color=#ff8866]Your target for [b]%s[/b] is gone — the song fades.[/color]" % display_name)
+				_active_songs.erase(spell_name)
+			else:
+				GameLog.log_general("Your target is already dead.")
+			return false
 		if TargetFrame.faction_status(target_node) == "Ally":
-			GameLog.log_general("You can't target an ally with [b]%s[/b]." % display_name)
-			return
+			if not is_auto_recast:
+				GameLog.log_general("You can't target an ally with [b]%s[/b]." % display_name)
+			return false
 
 	# Begin cast message
 	GameLog.log_general(CombatLogFormatter.begin_cast("You"))
@@ -2636,13 +2681,14 @@ func cast_spell(spell_name: String) -> void:
 	var cast_time: float = float(spell.get("casting_time", 0.0))
 	if cast_time <= 0.0:
 		_resolve_spell_cast(spell_name, spell, target_node)
-		return
+		return true
 
 	_pending_cast_spell = spell_name
 	_pending_cast_spell_data = spell
 	_pending_cast_target = target_node
 	casting_spell_name = display_name
 	combat_node.start_spell_cast(cast_time)
+	return true
 
 
 # Runs the actual spell effect — either immediately (instant-cast spells) or
@@ -3092,7 +3138,7 @@ func _apply_generic_spell_effect(effect_type: String, spell: Dictionary, caster_
 				return false
 			var ticks := maxi(1, int(round(duration)))
 			var per_tick := maxi(1, int(round(float(magnitude) / ticks)))
-			target_cn.apply_effect(effect_name, duration, {}, per_tick, 1.0)
+			_buff_target(target_node, target_cn, effect_name, duration, {}, per_tick, 1.0)
 			GameLog.log_combat("[color=#77aa44]%s is afflicted with a lingering effect.[/color]" % target_desc.capitalize())
 			return true
 		"buff":
@@ -3570,6 +3616,21 @@ func _tick_cooldowns(delta: float) -> void:
 	for target_id in _appraisal_cooldowns.keys():
 		_appraisal_cooldowns[target_id] = maxf(_appraisal_cooldowns[target_id] - delta, 0.0)
 
+	if not _active_songs.is_empty():
+		_tick_active_songs()
+
+
+# Auto-recasts any toggled-on song the instant its own cooldown clears —
+# checked every frame (not edge-triggered) so a transient failure (still
+# mid-cast-animation from a just-fired recast) naturally retries next frame
+# instead of getting stuck forever; a genuine failure (dead target, no mana)
+# removes the spell from _active_songs inside cast_spell() itself, so this
+# loop stops retrying on its own once that happens.
+func _tick_active_songs() -> void:
+	for spell_name in _active_songs.keys().duplicate():
+		if _spell_cooldowns.get(spell_name, 0.0) <= 0.0:
+			cast_spell(spell_name, true)
+
 
 func _tick_active_spell_effects(_delta: float) -> void:
 	# shadow_aura: continuously debuff accuracy of nearby monsters while active
@@ -3580,7 +3641,7 @@ func _tick_active_spell_effects(_delta: float) -> void:
 			if global_position.distance_to(monster.global_position) <= 10.0:
 				var mob_cn = monster.get("combat_node")
 				if mob_cn is CombatNode:
-					mob_cn.apply_effect("shadow_aura_debuff", 1.5, {"hit_chance": -5.0})
+					_buff_target(monster, mob_cn, "shadow_aura_debuff", 1.5, {"hit_chance": -5.0})
 
 
 func _tick_skill(skill_name: String) -> void:
