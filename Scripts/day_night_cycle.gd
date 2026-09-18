@@ -26,7 +26,7 @@ signal phase_changed(is_day: bool)
 
 @export_group("Moon (night)")
 @export var moon_rotation_degrees: Vector3 = Vector3(-55.0, 200.0, 0.0)
-@export var moon_energy: float = 0.25  # was 0.04 — too dim to see anything by; still a fraction of sun_peak_energy
+@export var moon_energy: float = 0.16  # was 0.04 (too dim to see by), then 0.25 (too bright per user 2026-09-17) — still a fraction of sun_peak_energy
 @export var moon_color: Color = Color(0.55, 0.65, 0.95)
 
 @export_group("Sky / Ambient")
@@ -35,7 +35,7 @@ signal phase_changed(is_day: bool)
 @export var night_sky_top_color: Color = Color(0.01, 0.015, 0.04)
 @export var night_sky_horizon_color: Color = Color(0.03, 0.035, 0.07)
 @export var day_ambient_energy: float = 1.0
-@export var night_ambient_energy: float = 0.18  # was 0.05 — same reasoning as moon_energy
+@export var night_ambient_energy: float = 0.11  # was 0.05 (too dim), then 0.18 (too bright per user 2026-09-17) — same reasoning as moon_energy
 
 enum Phase { DAY, NIGHT }
 

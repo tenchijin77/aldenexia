@@ -13,6 +13,7 @@
 [ext_resource type="Script" uid="uid://dlymcplumwpqu" path="res://Scripts/npc_scripted_conversation.gd" id="11_gdconv1"]
 [ext_resource type="NavigationMesh" path="res://Data/lumora_outskirts_navmesh.tres" id="12_navmesh"]
 [ext_resource type="PackedScene" uid="uid://bvendor01npc" path="res://Scenes/vendor_npc.tscn" id="13_vendor1"]
+[ext_resource type="PackedScene" uid="uid://network_widget_hud" path="res://Scenes/network_widget.tscn" id="14_netwidget"]
 [ext_resource type="AudioStream" uid="uid://canimf824sbt2" path="res://Assets/wind woosh loop.ogg" id="14_windamb"]
 [ext_resource type="Script" path="res://Scripts/multiplayer_player_spawner.gd" id="15_mpspawn"]
 
@@ -373,3 +374,5 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -313.709, 0, 635.21643)
 
 [node name="Wagon Crash Site" type="Marker3D" parent="Markers" unique_id=788774885]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -592.9677, 0, -570.0188)
+
+[node name="NetworkWidget" parent="." instance=ExtResource("14_netwidget")]

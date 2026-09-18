@@ -13,9 +13,13 @@ var _dragging := false
 
 const TITLE_H := 24.0
 const POSITION_KEY := "backpack"
+const RESIZE_MARGIN := 16.0
+var _resizing := false
 
 func _ready():
+	$Panel.add_theme_stylebox_override("panel", Global.window_bg_style())
 	$Panel.gui_input.connect(_on_panel_gui_input)
+	$Panel.resized.connect(_on_panel_resized)
 	WindowPosition.load_full_into(POSITION_KEY, $Panel)
 
 	# Title bar
@@ -52,6 +56,7 @@ func _ready():
 	if Inventory.inventory_changed.is_connected(_on_inventory_changed) == false:
 		Inventory.inventory_changed.connect(_on_inventory_changed)
 	refresh_backpack()
+	call_deferred("_on_panel_resized")
 
 func refresh_backpack():
 	clear_slots()
@@ -75,12 +80,8 @@ func create_slots(count: int):
 		slot_button.stretch_mode = TextureButton.STRETCH_KEEP_ASPECT_CENTERED
 		slot_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 		slot_button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-
-		var style = StyleBoxFlat.new()
-		style.bg_color = Color(0.2, 0.2, 0.2, 0.8)
-		style.border_color = Color(0.5, 0.5, 0.5, 1.0)
-		style.set_border_width_all(1)
-		slot_button.add_theme_stylebox_override("normal", style)
+		# (slot_button.gd draws its own background/border in _draw() —
+		# a "normal" stylebox override here has no visible effect.)
 
 		slot_button.slot_type = "bag"
 		slot_button.slot_index = i
@@ -149,13 +150,39 @@ func _on_inventory_changed():
 	refresh_backpack()
 	
 func _on_panel_gui_input(event: InputEvent) -> void:
+	var panel := $Panel
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
-		_dragging = event.pressed
-		if not _dragging:
-			WindowPosition.save(POSITION_KEY, $Panel)
-	elif event is InputEventMouseMotion and _dragging:
-		var p = $Panel
-		p.offset_left += event.relative.x
-		p.offset_top += event.relative.y
-		p.offset_right += event.relative.x
-		p.offset_bottom += event.relative.y
+		if event.pressed:
+			var pos = event.position
+			if pos.x > panel.size.x - RESIZE_MARGIN and pos.y > panel.size.y - RESIZE_MARGIN:
+				_resizing = true
+			elif pos.y < TITLE_H:
+				_dragging = true
+		else:
+			if _dragging or _resizing:
+				WindowPosition.save(POSITION_KEY, panel)
+			_dragging = false
+			_resizing = false
+	elif event is InputEventMouseMotion:
+		if _dragging:
+			panel.offset_left += event.relative.x
+			panel.offset_top += event.relative.y
+			panel.offset_right += event.relative.x
+			panel.offset_bottom += event.relative.y
+		elif _resizing:
+			panel.offset_right = max(panel.offset_left + 300, panel.offset_right + event.relative.x)
+			panel.offset_bottom = max(panel.offset_top + 260, panel.offset_bottom + event.relative.y)
+
+
+# Recomputes the slot grid's column count from the panel's current width so
+# the grid actually fills the available space (was previously a hardcoded 4
+# columns regardless of window size — the "only using half the window"
+# report) and keeps filling it correctly as the player resizes the window.
+func _on_panel_resized() -> void:
+	if not slot_container:
+		return
+	var available_width: float = $Panel.size.x - 24.0  # rough margin/scrollbar allowance
+	var cell_width: float = SLOT_SIZE.x + slot_container.get_theme_constant("h_separation")
+	var columns: int = max(1, int(available_width / cell_width))
+	if slot_container.columns != columns:
+		slot_container.columns = columns

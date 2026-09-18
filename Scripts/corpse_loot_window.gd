@@ -23,11 +23,17 @@ const CURRENCY_LABELS: Dictionary = {
 
 const MIN_PANEL_WIDTH := 220.0
 const MAX_PANEL_WIDTH := 420.0
+const MIN_PANEL_HEIGHT := 150.0
 const MAX_LIST_HEIGHT := 260.0  # beyond this many px of rows, the list scrolls instead of the window growing further
 const POSITION_KEY := "corpse_loot_window"
+const RESIZE_MARGIN := 16.0
 
 var pending_loot: Array = []
 var _dragging := false
+var _resizing := false
+# See shop_window.gd's identical flag — once anything's been saved for this
+# window (drag or resize), stop auto-fitting to content on every rebuild.
+var _user_resized := false
 
 @onready var panel: Panel = $Panel
 @onready var title_label: Label = $Panel/Margin/VBox/TitleBar/TitleLabel
@@ -41,7 +47,8 @@ func _ready() -> void:
 	$Panel/Margin/VBox/TitleBar/CloseBtn.pressed.connect(queue_free)
 	loot_all_btn.pressed.connect(_loot_all)
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
-	WindowPosition.load_position_into(POSITION_KEY, panel)
+	_user_resized = Global.player_data.get("ui_positions", {}).get(POSITION_KEY, []).size() == 4
+	WindowPosition.load_full_into(POSITION_KEY, panel)
 
 func _exit_tree() -> void:
 	Global.restore_mouse_mode()
@@ -86,11 +93,14 @@ func _rebuild_list() -> void:
 # frame delay needed.
 func _resize_to_content() -> void:
 	var list_min: Vector2 = loot_list.get_combined_minimum_size()
+	scroll.custom_minimum_size.y = minf(list_min.y, MAX_LIST_HEIGHT)
+
+	if _user_resized:
+		return
 
 	var target_width: float = clamp(list_min.x + 32.0, MIN_PANEL_WIDTH, MAX_PANEL_WIDTH)
 	panel.offset_right = panel.offset_left + target_width
 
-	scroll.custom_minimum_size.y = minf(list_min.y, MAX_LIST_HEIGHT)
 	var vbox_min: Vector2 = vbox.get_combined_minimum_size()
 	panel.offset_bottom = panel.offset_top + vbox_min.y + 16.0  # + top/bottom margin
 
@@ -271,11 +281,25 @@ func _apply_drop(drop: Dictionary) -> bool:
 
 func _on_panel_gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
-		_dragging = event.pressed
-		if not _dragging:
-			WindowPosition.save(POSITION_KEY, panel)
-	elif event is InputEventMouseMotion and _dragging:
-		panel.offset_left  += event.relative.x
-		panel.offset_top   += event.relative.y
-		panel.offset_right += event.relative.x
-		panel.offset_bottom += event.relative.y
+		if event.pressed:
+			var pos: Vector2 = event.position
+			if pos.x > panel.size.x - RESIZE_MARGIN and pos.y > panel.size.y - RESIZE_MARGIN:
+				_resizing = true
+			else:
+				_dragging = true
+		else:
+			if _dragging or _resizing:
+				WindowPosition.save(POSITION_KEY, panel)
+			if _resizing:
+				_user_resized = true
+			_dragging = false
+			_resizing = false
+	elif event is InputEventMouseMotion:
+		if _resizing:
+			panel.offset_right  = max(panel.offset_left + MIN_PANEL_WIDTH, panel.offset_right + event.relative.x)
+			panel.offset_bottom = max(panel.offset_top + MIN_PANEL_HEIGHT, panel.offset_bottom + event.relative.y)
+		elif _dragging:
+			panel.offset_left  += event.relative.x
+			panel.offset_top   += event.relative.y
+			panel.offset_right += event.relative.x
+			panel.offset_bottom += event.relative.y

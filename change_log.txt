@@ -2,6 +2,12 @@
 
 *Living section — update this whenever a command or keybind is added, removed, or rebound.*
 
+This is now also shown in-game (Escape → Controls & Commands, added 2026-09-17,
+Session 45) as a read-only new-player reference — keybind remapping is planned but
+not built yet, so `pause_menu.gd`'s `KEYBIND_GROUPS`/`CHAT_COMMANDS` tables are a
+second copy of this list rather than reading it from here. Keep both in sync when
+either changes until remapping unifies them.
+
 ### Chat Commands (type in the chat box at the bottom of the log window, or the NPC dialogue box)
 Commands work Linux-shell-style: type any unambiguous prefix and it resolves to the
 full command (added 2026-09-14, Session 42) — e.g. `/fol` or `/foll` both run `/follow`,
@@ -117,6 +123,157 @@ candidates instead of guessing; a typo that matches nothing prints "Unknown comm
   out (added 2026-09-14, Session 42) — previously you always woke up at the zone's fixed
   spawn point regardless of where you'd actually been. Separate from your bind point
   (death-respawn location), which is unaffected.
+
+---
+
+## 2026-09-17 — Session 45: Generic spell-effect engine, 7 more classes brought to parity, tradeskills (cooking/alchemy), Wildspeaker pet, fear/charm mechanics, multiplayer CC/heal relay, UI theme + resize pass, 5 new mob models, network widget
+
+### Generic, data-driven spell-effect engine (the foundation for everything else this session)
+- Before this session, only Voidknight/Spiritweaver's spells had any real behavior
+  beyond damage — every other class's spells either dealt generic damage only or did
+  nothing at all, despite having real `effect_type`/`duration`/`damage` data.
+- `player3d.gd`'s `_apply_generic_spell_effect()` now drives real behavior off each
+  spell's own data for `heal`/`hot`/`dot`/`buff`/`debuff`/`snare`/`root`/`blind`/
+  `silence`/`absorb`/`stun`/`fear`/`charm`/`mesmerize`/`confuse`/`cure`, for any class,
+  present or future — named per-spell special cases (Voidknight/Spiritweaver's
+  hand-tuned spells) still take priority and are untouched.
+- Fixed a real pre-existing bug found while building this: every cone-target spell
+  (any class) was unconditionally applying Voidknight's Gravechill slow to whatever it
+  hit, instead of its own effect.
+- Added the missing `pbaoe`, `chain`, and `none` (teleport) spell target types —
+  previously silent no-ops that still consumed mana/cooldown.
+- Fixed 8 spells across several classes mis-tagged as `target: enemy` despite being
+  self-buffs/shields by description (`arcane_armor`, `ki_barrier`,
+  `wholeness_of_body`, `detect_magic`, `unstable_ward`, `wild_barrier`, `chaos_weave`,
+  `chaos_shield`).
+- "Cures" (`remove_curse`, `purify`) previously had `effect_type: null` — pure flavor
+  text with zero effect, even single-player. New `cure` effect type actually removes a
+  debuff (picks the first active effect whose originating spell was enemy-targeted —
+  data-driven, no per-spell wiring needed for future cure spells).
+- stun/fear/charm/mesmerize/confuse (Aetherfist/Blademaster/Gravecaller/Runecaster/
+  etc.) share one honest approximation for now (target can't attack for the duration)
+  since real flee/allegiance-flip/confuse-movement behavior doesn't exist yet — Fear
+  and Charm got upgraded past this later in the session (see below).
+
+### Player_spells.json classification import + Chaosborn fix
+- Imported the user's "Player Spells Classifications.xlsx" spreadsheet: added a new
+  `skill_category` field (separate from `spell_school`, which still drives physical-
+  vs-magic damage math and would have broken if overwritten) to 559 of 560 spells, so
+  every spell now raises the correct skill on use via the existing skill-xp system.
+- Fixed a class-name mismatch the user found and corrected mid-session: Chaosborn's
+  41 spells were keyed under the old name "Wildmage" in `class_level_requirements`.
+
+### 7 more classes brought to full parity (spell data + scrolls + starting kit)
+- **Arcanist, Aetherfist** — first two classes done. Aetherfist also got: its
+  previously-dead `resolve_aetherfist_attack()` (Double/Triple Attack at L10+/15+)
+  wired into the real attack path; a real starting `worn_hand_wraps` weapon (found and
+  fixed a pre-existing bug in the process — every class silently got a default
+  `rusty_sword`, and melee classes got a *second*, duplicate one); `STARTING_SPELLS`
+  fixed (a stale comment claimed Aetherfist had zero spell data at all — it has 16).
+- **Blademaster, Lightsworn, Lightmender, Woodstalker, Gravecaller, Runecaster** —
+  same full-parity pass.
+- **Chaosborn** — same pass, once its class-name mismatch (above) was fixed.
+- Authored 130+ new scroll items + vendor stock entries across all of the above
+  (placeholder icon, per the user's direction, on every new item lacking real art).
+- Fixed a pre-existing town-wide bug while auditing item icons: 21 of the 22 items
+  that actually drop in Lumora Outskirts pointed to icon files that were never
+  created (`Assets/Items/*.png`) — all now use the placeholder icon instead of
+  rendering as a blank/black block.
+- Shadowblade, Troubadour, Wildspeaker got the same spell-data/scroll treatment, but
+  their signature mechanics (real stealth/pickpocketing, a toggle-song-with-delayed-
+  effect system) are still not built — flagged, not silently skipped.
+
+### Tradeskills — cooking and alchemy (proof of concept)
+- New generic `TradeskillWindow` (draggable, persistent, resizable) shared by every
+  station — recipes live in `Data/tradeskill_recipes.json`, so a future stove/forge is
+  just new data, no new code.
+- Right-click a campfire (range-based, not raycast — it has no collision body) to
+  cook; right-click a new Basic Alchemy Kit item to mix.
+- Dragging in a full stack (e.g. 4 raw meat) crafts all 4 at once instead of requiring
+  an exact 1-for-1 match — fixed after the user reported it only working for 1.
+- Fixed the ingredient slot's icon not rendering at all (had used a custom `_draw()`
+  call instead of `texture_normal`, the pattern the backpack actually uses) and added
+  a hover tooltip showing the item name.
+- New items: Cooked Meat (eatable, +25 satiety), Basic Poison (right-click an
+  equipped weapon to apply +2 damage on hit), Basic Alchemy Kit.
+
+### Fear and Charm — real mechanics, not the generic CC placeholder
+- Fear: the monster now actually flees in a random direction, picking a new one every
+  4 seconds, for the spell's duration — running within ~1.5m of another social
+  monster aggros it onto the player (reuses the existing threat-table system).
+- Charm: casting it pops the *same* pet-control window used for a real summoned pet
+  (`pet_frame.gd`, reused verbatim) against the charmed monster — Follow/Attack/Sit/
+  Guard/Assist/Dismiss all work, with Guard/Assist targeting other monsters instead of
+  the player.
+- Wildspeaker's pet, "Spirit of the Woods" (new starting spell): a simple placeholder
+  visual (translucent green glow, matching how Phantasmal Echo's own code describes
+  its pre-art placeholder) that does ranged damage and casts a real heal-over-time
+  (5/sec for 15s, every 30s) on whichever group member is most damaged.
+
+### Multiplayer — CC/debuff/heal/cure relay to the real authoritative copy
+- Found and fixed the same class of bug twice: mutating a target's `combat_node`/
+  state directly only works when you're the machine authoritative for that target.
+  Player-to-player heals/buffs were silently no-ops for anyone but the host; the same
+  was true in the other direction for every debuff/snare/stun/fear/charm cast on a
+  monster by a non-host player (monsters are server-authoritative).
+- Added `apply_networked_heal`/`apply_networked_buff` (player-to-player) and
+  `apply_networked_effect`/`apply_networked_fear`/`apply_networked_charm`/
+  `apply_networked_disable` (player-to-monster) RPCs, mirroring the existing damage-
+  relay pattern — retrofitted onto the pre-existing hardcoded Voidknight cases
+  (Necrotic Grasp, Curse of Weakness, Plague Strike, Improved Disarm) too, not just
+  new spells.
+- Known remaining gap, flagged rather than silently shipped: Charm's control-window
+  *commands* (the Follow/Attack/Sit/Guard buttons) still act on the caster's local
+  copy with no RPC of their own — the charm itself now takes correctly for any
+  caster, but a non-host player's command clicks won't reliably drive the monster's
+  real behavior yet. Bigger, separate fix for next time.
+
+### UI — theme consistency, resizable windows, and several reported bugs
+- Backpack: fixed a solid-vs-semitransparent inconsistency across windows (new shared
+  `Global.window_bg_style()`, with a live player-adjustable transparency slider in
+  Options), and fixed its item grid only filling about a quarter of the window
+  (hardcoded 4-column grid regardless of window width).
+- Every window (Abilities Book, Shop, Tracking, Corpse Loot, Character Sheet, Group
+  Frame, Pet Frame/Gear, Target/Player Frame, Buff Bar, Cast Bar, the new Tradeskill
+  window, the new Network widget, etc.) is now resizable by dragging its bottom-right
+  corner, matching the backpack. Root cause of the reported Abilities window text
+  truncation: skill/spell rows used fixed-size manual layout regardless of window
+  size — fixed at the row level (autowrapping instead of clipping), not just made the
+  window bigger around the same broken rows.
+- Fixed the buff bar flagging "Aura of the Shadow" (and by extension every spell like
+  it — a self-buff that debuffs *enemies*) as a red debuff on the player's own bar. It
+  was keying off `effect_type` (the spell's own mechanical shape) instead of `target`
+  (whether it was cast at an enemy) — also found ~20 other spells with unreliable
+  `spell_type` data that would have caused the same false positive.
+- Both town vendor NPCs (Aldric the Provisioner, the Apothecary) had no `combat_node`
+  at all — showed as 0/0 HP wherever anything expected one. Now 100/100.
+
+### 5 new mob models wired up
+- `goblin` (base type), `rat` → Desert Scavenger, `spiderling` → Juvenile Spider (the
+  latter two mapped by an exact description match against the zone's own mob-list
+  sheet: "a rat" = "A Desert Scavenger"). `goblin_scout`/`skeleton` were already wired
+  from a prior session — reverified, not re-done.
+- Built a new visual pipeline for non-humanoid critters with a real but unrigged
+  model (single static mesh, no skeleton/animations) — didn't exist before, since the
+  only prior model-swapping path was for Mixamo-rigged humanoids.
+- Orientation/scale for the two brand-new critter meshes hasn't been visually
+  confirmed in-engine yet (file loading verified headless, not the same as seeing it)
+  — flagged as the first thing to check if either looks wrong on sight.
+
+### Misc
+- New F11-toggled network diagnostics widget (draggable, persistent, EverQuest-style)
+  — latency/packet-loss/bandwidth are real ENet statistics, not approximated,
+  color-coded green/yellow/red at the user's specified thresholds.
+- Night is a bit darker again (moon/ambient energy dialed back ~35-40% from an
+  earlier "too dark" fix that had overshot into "too bright"); Shadowlight is more
+  than 2x brighter and reaches its full stated 5m radius.
+- Main menu: copyright line moved from under the title to the bottom of the screen
+  and reworded to "Copyright 2026 Kuro Neko Sama Games"; the Load Character screen
+  (previously a small box at a hardcoded pixel position left over from an older menu
+  layout) is now a proper centered, styled, closeable window.
+- New "Controls & Commands" panel in the Escape menu — a read-only new-player
+  reference (keybinds + chat commands); remapping is a planned follow-up, not built
+  yet.
 
 ---
 

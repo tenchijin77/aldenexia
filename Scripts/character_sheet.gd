@@ -42,6 +42,7 @@ var _active_tab: String = "stats"
 
 
 func _ready() -> void:
+	main_panel.add_theme_stylebox_override("panel", Global.window_bg_style())
 	main_panel.gui_input.connect(_on_panel_gui_input)
 	WindowPosition.load_full_into(POSITION_KEY, main_panel)
 

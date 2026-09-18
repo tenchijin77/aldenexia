@@ -2400,7 +2400,7 @@ TRACKING WINDOW (T key; added 2026-09-17, Session 44)
   system above.
 
 
-MULTIPLAYER / NETCODE — CURRENT STATE (as of 2026-09-17, Session 44)
+MULTIPLAYER / NETCODE — CURRENT STATE (as of 2026-09-17, Session 45)
 ================================================================================
 
 See also `[[project_multiplayer_netcode]]`-style notes in Claude's memory and
@@ -2469,13 +2469,103 @@ listen-server — the host's own game doubles as the server):
   the local machine's own) or a `receive_kill_credit(xp_gain)` RPC
   targeted at that specific peer otherwise.
 
+- Effect/heal/cure relay (Session 45): the same "only the authoritative
+  machine's mutation is real" problem existed for everything non-damage
+  too — a non-host player healing/buffing an ally, or debuffing/stunning/
+  fearing/charming a monster, was a silent no-op for everyone but the
+  caster's own screen (monsters are server-authoritative; each player is
+  self-authoritative). Fixed with the same relay shape as damage:
+  `player3d.gd`'s `apply_networked_heal`/`apply_networked_buff` (player
+  target) and `monster3d.gd`'s `apply_networked_effect`/
+  `apply_networked_fear`/`apply_networked_charm`/`apply_networked_disable`
+  (monster target), called through `_heal_target()`/`_buff_target()`/
+  `_fear_target()`/`_charm_target()`/`_disable_target()` wrapper functions
+  that check `is_multiplayer_authority()` first and apply directly with zero
+  behavior change for the always-true single-player case. Retrofitted onto
+  the pre-existing hardcoded Voidknight cases (Necrotic Grasp, Curse of
+  Weakness, Plague Strike, Improved Disarm) as well as every spell using the
+  new generic effect engine (see below).
+
 NOT yet working / known gaps:
 - No server-side re-verification of reported damage (see the trade-off
   above) — not a concern for a trusted-peers private game, would matter for
   a public/competitive one.
-- A real player healing/buffing another real player still only updates the
-  caster's own local view, not the actual target's — needs its own RPC per
-  beneficial spell type, not yet attempted.
+- Charm's control-window commands (Follow/Attack/Sit/Guard/Assist —
+  `pet_frame.gd`'s cmd_*() calls) still act on the caster's own local copy
+  of the charmed monster with no RPC of their own, unlike the initial
+  `apply_charm()` call itself (which does relay correctly now). A non-host
+  player can successfully charm a monster and it'll visually take for
+  everyone, but their button clicks won't reliably drive its real
+  server-side behavior — only the host's clicks will. Each cmd_* needs its
+  own relay to fully close this; bigger job, deliberately deferred.
+
+
+GENERIC SPELL-EFFECT ENGINE (added 2026-09-17, Session 45)
+================================================================================
+
+`player3d.gd`'s `_apply_generic_spell_effect()` (called from every `_resolve_spell_cast()`
+target branch's `_:` fallthrough — enemy/self/group/cone/pbaoe/chain) drives real
+behavior off a spell's own `effect_type`/`duration`/`damage` fields, for any class,
+without per-spell code. Named per-spell special cases (Voidknight/Spiritweaver's
+original hand-tuned spells) still take priority and run first.
+
+Effect types handled: `heal`, `hot`/`dot` (via `CombatNode.apply_effect()`'s
+`tick_heal`/`tick_dmg` params), `buff`/`debuff` (flat `damage_mult`), `snare`/`root`
+(`speed_slow`), `blind` (`hit_chance`), `silence` (a modifier flag only — no monster
+casting exists yet to consult it), `absorb` (flat damage-absorption pool, self-target
+only in current data), `cure` (removes the first active effect whose *originating
+spell* was enemy-targeted — see below), and `stun`/`fear`/`charm`/`mesmerize`/
+`confuse`.
+
+stun/mesmerize/confuse (and fear as a fallback if `apply_fear()` doesn't exist on the
+target) all share one placeholder behavior: target can't attack for the duration,
+same mechanism as the pre-existing Improved Disarm stagger. Real flee/allegiance-
+flip/randomized-action behavior doesn't exist for those three yet. Fear and Charm got
+upgraded past this placeholder later in the same session — see their own sections.
+
+Debuff-vs-buff for the buff bar's red highlight (`buff_bar.gd`) is decided by the
+spell's `target` field (`enemy` = harmful to whoever it lands on), NOT `effect_type`
+or `spell_type` — both of those describe the spell's own mechanical shape/authored
+polarity, not whether landing on a given active_effects owner is harmful (e.g. Aura
+of the Shadow is `effect_type: debuff` because it debuffs nearby enemies, but is a
+self-buff for the caster; dozens of clearly-beneficial group spells are mis-tagged
+`spell_type: detrimental` in the source data).
+
+Known data-authoring pattern to watch for when adding new spells: `target`/
+`spell_type`/`effect_type` are three separate, sometimes-inconsistent fields.
+`target` is the most reliable (load-bearing for actual spell resolution); several
+self-buffs have been found mis-tagged `target: enemy` and fixed as they turned up
+(`arcane_armor`, `ki_barrier`, `wholeness_of_body`, `unstable_ward`, `wild_barrier`,
+`chaos_weave`, `chaos_shield`) — there may be more not yet found.
+
+
+TRADESKILLS — COOKING / ALCHEMY (added 2026-09-17, Session 45)
+================================================================================
+
+New generic `Scripts/tradeskill_window.gd` + `Scenes/tradeskill_window.tscn`,
+draggable/resizable/persistent like every other window, shared by every station.
+Recipes live in `Data/tradeskill_recipes.json`, keyed by `station_id` — adding a new
+station (a stove, a forge) is pure data, no new window/script code needed.
+
+- `Scripts/tradeskill_slot.gd`: one of 4 ingredient slots. Accepts the same drag
+  payload shape `slot_button.gd` uses; takes the WHOLE dragged stack (not always 1),
+  removing it from the real inventory via `Inventory.consume_amount()` immediately —
+  it's a staging slot, not a real inventory slot. Closing the window without crafting
+  refunds whatever's staged. Icon uses `texture_normal` (the same property
+  `backpack_ui.gd` actually uses) and `tooltip_text` for the hover-name.
+- Recipe matching (`_find_best_recipe()`/`_compute_multiplier()`) computes how many
+  times a recipe divides evenly into what's staged, so a stack of 4 raw meat against
+  a 1-raw-meat recipe crafts all 4 at once — not an exact 1-for-1 requirement.
+- Campfire cooking: `campfire.gd` added a `cooking_station` group + `COOK_RANGE`/
+  `STATION_ID`/`display_name` — right-click dispatch in `player3d.gd`'s
+  `_try_open_shop_or_loot()` is range-based, not raycast (no collision body to hit),
+  checked before falling through to corpse-looting.
+- Alchemy: new `basic_alchemy_kit` item (right-click → Open, via a new
+  `tradeskill_station` item field `slot_button.gd`'s inspect popup checks for).
+- New items: `cooked_meat` (food, +25 satiety), `basic_poison` (right-click →
+  Apply to Weapon → pick equipped weapon slot if dual-wielding → sets
+  `poison_bonus_damage` on that equipped item instance, read in
+  `_apply_equipment_from_inventory()`'s weapon-damage calc).
 
 
 KNOWN GAPS / TODOs (as of 2026-08-23)

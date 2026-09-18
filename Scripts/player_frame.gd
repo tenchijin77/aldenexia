@@ -3,6 +3,9 @@ extends CanvasLayer
 class_name PlayerFrame
 
 const POSITION_KEY := "player_frame"
+const RESIZE_MARGIN := 16.0
+const MIN_WIDTH := 160.0
+const MIN_HEIGHT := 120.0
 
 @onready var panel:      Panel      = $Panel
 @onready var name_label: Label      = $Panel/VBox/name_label
@@ -19,6 +22,7 @@ const POSITION_KEY := "player_frame"
 
 var _player: Node = null
 var _dragging := false
+var _resizing := false
 
 
 func _ready() -> void:
@@ -33,18 +37,11 @@ func _ready() -> void:
 	name_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 
 	panel.gui_input.connect(_on_panel_gui_input)
-	WindowPosition.load_position_into(POSITION_KEY, panel)
+	WindowPosition.load_full_into(POSITION_KEY, panel)
 
 
-# Same dark parchment-bordered look as target_frame.gd/pet_frame.gd — see
-# target_frame.gd's _style_panel()/_style_bar() for why this isn't shared.
 func _style_panel() -> void:
-	var bg := StyleBoxFlat.new()
-	bg.bg_color = Color(0.08, 0.07, 0.06, 0.92)
-	bg.border_color = Color(0.45, 0.38, 0.25)
-	bg.set_border_width_all(2)
-	bg.set_corner_radius_all(5)
-	panel.add_theme_stylebox_override("panel", bg)
+	panel.add_theme_stylebox_override("panel", Global.window_bg_style())
 
 
 func _style_bar(bar: ProgressBar, fill_color: Color, bg_color: Color) -> void:
@@ -63,14 +60,26 @@ func _style_bar(bar: ProgressBar, fill_color: Color, bg_color: Color) -> void:
 
 func _on_panel_gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
-		_dragging = event.pressed
-		if not _dragging:
-			WindowPosition.save(POSITION_KEY, panel)
-	elif event is InputEventMouseMotion and _dragging:
-		panel.offset_left   += event.relative.x
-		panel.offset_top    += event.relative.y
-		panel.offset_right  += event.relative.x
-		panel.offset_bottom += event.relative.y
+		if event.pressed:
+			var pos: Vector2 = event.position
+			if pos.x > panel.size.x - RESIZE_MARGIN and pos.y > panel.size.y - RESIZE_MARGIN:
+				_resizing = true
+			else:
+				_dragging = true
+		else:
+			if _dragging or _resizing:
+				WindowPosition.save(POSITION_KEY, panel)
+			_dragging = false
+			_resizing = false
+	elif event is InputEventMouseMotion:
+		if _resizing:
+			panel.offset_right  = max(panel.offset_left + MIN_WIDTH, panel.offset_right + event.relative.x)
+			panel.offset_bottom = max(panel.offset_top + MIN_HEIGHT, panel.offset_bottom + event.relative.y)
+		elif _dragging:
+			panel.offset_left   += event.relative.x
+			panel.offset_top    += event.relative.y
+			panel.offset_right  += event.relative.x
+			panel.offset_bottom += event.relative.y
 
 
 func _process(_delta: float) -> void:

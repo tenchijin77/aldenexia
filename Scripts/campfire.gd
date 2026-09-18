@@ -2,7 +2,17 @@
 # and grants "Warmth of the Campfire" (+2 HP/Mana/Stamina regen for 15 minutes)
 # after they've lingered nearby for 30 continuous seconds. Leaving early
 # cancels the countdown — you have to actually sit through it.
+#
+# Also a cooking tradeskill station: right-clicking within COOK_RANGE opens
+# the generic TradeskillWindow (player3d.gd's _try_open_campfire(), part of
+# _try_open_shop_or_loot()'s dispatch chain). Range-based rather than a
+# raycast (like the vendor shop check) since this node has no real collision
+# body to hit — just its particle/light/audio children.
 extends Node3D
+
+const COOK_RANGE := 5.0
+const STATION_ID := "campfire"
+@export var display_name: String = "Campfire"  # future fire types (stove, forge) override this
 
 const WARMTH_LINGER_SECONDS := 30.0
 const BUFF_DURATION_SECONDS := 900.0  # 15 minutes
@@ -20,6 +30,7 @@ var _warming_player: Node3D = null
 
 
 func _ready() -> void:
+	add_to_group("cooking_station")
 	warmth_area.body_entered.connect(_on_body_entered)
 	warmth_area.body_exited.connect(_on_body_exited)
 	_warmth_timer.one_shot = true

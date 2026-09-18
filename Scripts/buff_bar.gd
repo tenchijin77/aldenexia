@@ -13,12 +13,16 @@ class_name BuffBar
 
 const ICON_SIZE := 28
 const POSITION_KEY := "buff_bar"
+const RESIZE_MARGIN := 16.0
+const MIN_WIDTH := 160.0
+const MIN_HEIGHT := 100.0
 
 var _player: Node = null
 var _class_stances: Dictionary = {}
 var _last_effect_names: Array = []
 var _row_time_labels: Dictionary = {}  # effect_name -> Label
 var _dragging := false
+var _resizing := false
 
 @onready var panel: Panel = $Panel
 @onready var buff_list: VBoxContainer = $Panel/Margin/VBox/BuffList
@@ -26,7 +30,7 @@ var _dragging := false
 
 func _ready() -> void:
 	panel.gui_input.connect(_on_panel_gui_input)
-	WindowPosition.load_position_into(POSITION_KEY, panel)
+	WindowPosition.load_full_into(POSITION_KEY, panel)
 	var file := FileAccess.open("res://Data/class_stances.json", FileAccess.READ)
 	if file:
 		var data = JSON.parse_string(file.get_as_text())
@@ -66,19 +70,27 @@ func _rebuild_rows(effect_names: Array, active_effects: Dictionary) -> void:
 	for effect_name in effect_names:
 		var display := _resolve_effect_display(effect_name)
 		var remaining: float = active_effects[effect_name].get("remaining", 0.0)
-		_build_row(effect_name, display.name, display.description, remaining)
+		_build_row(effect_name, display.name, display.description, remaining, display.is_debuff)
 
 
-func _build_row(effect_name: String, display_name: String, description: String, remaining: float) -> void:
+func _build_row(effect_name: String, display_name: String, description: String, remaining: float, is_debuff: bool = false) -> void:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 6)
 
 	var icon_box := Panel.new()
 	icon_box.custom_minimum_size = Vector2(ICON_SIZE, ICON_SIZE)
 	var icon_style := StyleBoxFlat.new()
-	icon_style.bg_color = Color(0.12, 0.12, 0.16)
-	icon_style.border_color = Color(0.4, 0.4, 0.5)
-	icon_style.set_border_width_all(1)
+	# Debuffs/negative effects get a red-highlighted box so the player has an
+	# immediate visual cue something harmful is active, separate from reading
+	# each row's name/description.
+	if is_debuff:
+		icon_style.bg_color = Color(0.35, 0.08, 0.08)
+		icon_style.border_color = Color(0.95, 0.25, 0.25)
+		icon_style.set_border_width_all(2)
+	else:
+		icon_style.bg_color = Color(0.12, 0.12, 0.16)
+		icon_style.border_color = Color(0.4, 0.4, 0.5)
+		icon_style.set_border_width_all(1)
 	icon_style.set_corner_radius_all(3)
 	icon_box.add_theme_stylebox_override("panel", icon_style)
 	row.add_child(icon_box)
@@ -95,7 +107,7 @@ func _build_row(effect_name: String, display_name: String, description: String, 
 	name_label.text = display_name
 	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	name_label.add_theme_font_size_override("font_size", 11)
-	name_label.add_theme_color_override("font_color", Color(0.95, 0.85, 0.55))
+	name_label.add_theme_color_override("font_color", Color(0.95, 0.4, 0.4) if is_debuff else Color(0.95, 0.85, 0.55))
 	name_label.clip_text = true
 	name_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	name_row.add_child(name_label)
@@ -132,38 +144,62 @@ const ENVIRONMENTAL_EFFECT_DESCRIPTIONS := {
 	"well_fed": "Well fed and hydrated. +2 HP/Mana/Stamina regeneration.",
 }
 
-# Resolves an active_effects key to a display name + description by checking,
-# in order: stance data (effect names are "stance_<stance_id>"), the player's
-# own spell cache (apply_effect's effect_name matches spell_name for every
-# spell-driven buff/debuff in player3d.gd), then the environmental-effects
-# table above, falling back to a titled version of the raw effect name if
-# nothing matches.
+# Resolves an active_effects key to a display name + description + is_debuff
+# flag by checking, in order: stance data (effect names are
+# "stance_<stance_id>", never debuffs), the FULL spell table (_spell_by_name
+# is loaded from every spell in player_spells.json, not just known ones — see
+# player3d.gd _load_spell_cache() — so this also correctly flags a debuff an
+# enemy/other source casts on the player, not just the player's own spells),
+# then the environmental-effects table above, falling back to a titled
+# version of the raw effect name if nothing matches.
 func _resolve_effect_display(effect_name: String) -> Dictionary:
 	if effect_name.begins_with("stance_"):
 		var stance_id := effect_name.substr(len("stance_"))
 		for class_stances in _class_stances.values():
 			for stance in class_stances:
 				if stance.get("stance_id", "") == stance_id:
-					return {"name": stance.get("name", stance_id), "description": stance.get("description", "")}
+					return {"name": stance.get("name", stance_id), "description": stance.get("description", ""), "is_debuff": false}
 
 	if "_spell_by_name" in _player:
 		var spell: Dictionary = _player._spell_by_name.get(effect_name, {})
 		if not spell.is_empty():
-			return {"name": Player3D.spell_display_name(effect_name), "description": spell.get("description", "")}
+			# target, not spell_type/effect_type, decides red — those two
+			# describe the spell's own mechanical shape/polarity (e.g. Aura of
+			# the Shadow is effect_type "debuff" because it debuffs nearby
+			# ENEMIES, and dozens of clearly-beneficial group buffs are
+			# mis-tagged spell_type "detrimental" in the source data) rather
+			# than whether landing on the PLAYER specifically is harmful. An
+			# effect only ever ends up in the player's own active_effects
+			# because they cast a self/group spell on themselves (never
+			# harmful by construction) or a hostile "enemy"-target spell
+			# resolved onto them (always harmful) — target says which.
+			var is_debuff: bool = spell.get("target", "") == "enemy"
+			return {"name": Player3D.spell_display_name(effect_name), "description": spell.get("description", ""), "is_debuff": is_debuff}
 
 	if ENVIRONMENTAL_EFFECT_DESCRIPTIONS.has(effect_name):
-		return {"name": Player3D.spell_display_name(effect_name), "description": ENVIRONMENTAL_EFFECT_DESCRIPTIONS[effect_name]}
+		return {"name": Player3D.spell_display_name(effect_name), "description": ENVIRONMENTAL_EFFECT_DESCRIPTIONS[effect_name], "is_debuff": false}
 
-	return {"name": Player3D.spell_display_name(effect_name), "description": ""}
+	return {"name": Player3D.spell_display_name(effect_name), "description": "", "is_debuff": false}
 
 
 # ===== DRAGGABLE PANEL =====
 
 func _on_panel_gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
-		_dragging = event.pressed
-		if not _dragging:
-			WindowPosition.save(POSITION_KEY, panel)
+		if event.pressed:
+			var pos: Vector2 = event.position
+			if pos.x > panel.size.x - RESIZE_MARGIN and pos.y > panel.size.y - RESIZE_MARGIN:
+				_resizing = true
+			else:
+				_dragging = true
+		else:
+			if _dragging or _resizing:
+				WindowPosition.save(POSITION_KEY, panel)
+			_dragging = false
+			_resizing = false
+	elif event is InputEventMouseMotion and _resizing:
+		panel.offset_right  = max(panel.offset_left + MIN_WIDTH, panel.offset_right + event.relative.x)
+		panel.offset_bottom = max(panel.offset_top + MIN_HEIGHT, panel.offset_bottom + event.relative.y)
 	elif event is InputEventMouseMotion and _dragging:
 		panel.offset_left   += event.relative.x
 		panel.offset_top    += event.relative.y

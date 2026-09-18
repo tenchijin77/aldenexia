@@ -6,6 +6,12 @@ var _player: Node = null
 
 const WIN_W := 360
 const WIN_H := 440
+const POSITION_KEY := "abilities_book"
+const RESIZE_MARGIN := 16.0
+const MIN_WIDTH := 300.0
+const MIN_HEIGHT := 260.0
+var _resizing := false
+var _panel: Control = null
 
 
 func _ready() -> void:
@@ -30,6 +36,9 @@ func _build_ui() -> void:
 	panel.offset_bottom =  WIN_H / 2.0
 	panel.name = "BookPanel"
 	add_child(panel)
+	_panel = panel
+	panel.gui_input.connect(_on_panel_gui_input)
+	WindowPosition.load_full_into(POSITION_KEY, panel)
 
 	# Title bar
 	var title_bar := Panel.new()
@@ -103,9 +112,30 @@ var _dragging_window := false
 func _on_title_gui_input(event: InputEvent, panel: Control) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		_dragging_window = event.pressed
-		_drag_offset = panel.get_global_rect().position - get_viewport().get_mouse_position()
+		if event.pressed:
+			_drag_offset = panel.get_global_rect().position - get_viewport().get_mouse_position()
+		else:
+			WindowPosition.save(POSITION_KEY, panel)
 	elif event is InputEventMouseMotion and _dragging_window:
 		panel.set_global_position(get_viewport().get_mouse_position() + _drag_offset)
+
+
+# Bottom-right corner resize, same pattern as backpack_ui.gd — separate from
+# the title-bar drag above since the hot-zone lives on the panel's own edge,
+# not the title bar.
+func _on_panel_gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+		if event.pressed:
+			var pos: Vector2 = event.position
+			if pos.x > _panel.size.x - RESIZE_MARGIN and pos.y > _panel.size.y - RESIZE_MARGIN:
+				_resizing = true
+		else:
+			if _resizing:
+				WindowPosition.save(POSITION_KEY, _panel)
+			_resizing = false
+	elif event is InputEventMouseMotion and _resizing:
+		_panel.offset_right  = max(_panel.offset_left + MIN_WIDTH, _panel.offset_right + event.relative.x)
+		_panel.offset_bottom = max(_panel.offset_top + MIN_HEIGHT, _panel.offset_bottom + event.relative.y)
 
 
 func _populate() -> void:
@@ -137,8 +167,15 @@ func _fill_class_skills() -> void:
 
 
 func _make_spell_row(spell_name: String, info: Dictionary) -> Control:
-	var row := Panel.new()
-	row.custom_minimum_size = Vector2(0, 58)
+	# PanelContainer + an inner VBoxContainer instead of the old
+	# fixed-position/fixed-size layout — that hardcoded every label's size
+	# (including the description's, clip_text = true) to a fixed row height
+	# regardless of how long the text actually was or how wide the window
+	# got, which is exactly why long descriptions clipped mid-sentence no
+	# matter how the window was resized. This way the description autowraps
+	# to the row's real (window-following) width and the row's height grows
+	# to fit it, so making the window taller/wider actually helps.
+	var row := PanelContainer.new()
 	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 
 	var bg := StyleBoxFlat.new()
@@ -146,66 +183,69 @@ func _make_spell_row(spell_name: String, info: Dictionary) -> Control:
 	bg.border_color = Color(0.35, 0.30, 0.50)
 	bg.set_border_width_all(1)
 	bg.set_corner_radius_all(2)
+	bg.content_margin_left   = 8
+	bg.content_margin_right  = 8
+	bg.content_margin_top    = 4
+	bg.content_margin_bottom = 4
 	row.add_theme_stylebox_override("panel", bg)
+
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 2)
+	row.add_child(vbox)
+
+	var header := HBoxContainer.new()
+	vbox.add_child(header)
 
 	# Name
 	var name_lbl := Label.new()
 	name_lbl.text = spell_name.replace("_", " ").capitalize()
-	name_lbl.position = Vector2(8, 4)
+	name_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	name_lbl.add_theme_font_size_override("font_size", 12)
 	name_lbl.add_theme_color_override("font_color", Color(1.0, 0.85, 0.5))
 	name_lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	row.add_child(name_lbl)
+	header.add_child(name_lbl)
 
 	# School badge (top-right)
 	var school: String = info.get("spell_school", "")
 	if not school.is_empty():
 		var school_lbl := Label.new()
 		school_lbl.text = school.capitalize()
-		school_lbl.anchor_right  = 1.0
-		school_lbl.offset_right  = -8.0
-		school_lbl.offset_top    = 4.0
-		school_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 		school_lbl.add_theme_font_size_override("font_size", 10)
 		school_lbl.add_theme_color_override("font_color", Color(0.55, 0.75, 0.55))
 		school_lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		row.add_child(school_lbl)
+		header.add_child(school_lbl)
 
-	# Description
+	# Description — autowraps and takes whatever height it needs, instead of
+	# a fixed 20px with clip_text.
 	var desc_lbl := Label.new()
 	desc_lbl.text = info.get("description", "")
-	desc_lbl.position = Vector2(8, 22)
-	desc_lbl.size = Vector2(WIN_W - 32, 20)
+	desc_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	desc_lbl.add_theme_font_size_override("font_size", 10)
 	desc_lbl.add_theme_color_override("font_color", Color(0.75, 0.75, 0.75))
-	desc_lbl.clip_text = true
 	desc_lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	row.add_child(desc_lbl)
+	vbox.add_child(desc_lbl)
 
-	# Mana cost + recast (bottom row)
+	var meta_row := HBoxContainer.new()
+	vbox.add_child(meta_row)
+
+	# Mana cost + recast
 	var cost: float = info.get("mana_cost", 0.0)
 	var recast: float = info.get("recast_time", 0.0)
 	var meta_lbl := Label.new()
 	meta_lbl.text = "%d mp  ·  %.0fs recast" % [int(cost), recast] if cost > 0 else ""
-	meta_lbl.position = Vector2(8, 40)
+	meta_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	meta_lbl.add_theme_font_size_override("font_size", 10)
 	meta_lbl.add_theme_color_override("font_color", Color(0.45, 0.65, 1.0))
 	meta_lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	row.add_child(meta_lbl)
+	meta_row.add_child(meta_lbl)
 
-	# Drag hint label (right-bottom)
+	# Drag hint label (right-aligned via the meta_row's own HBox layout)
 	var hint := Label.new()
 	hint.text = "drag to bar"
-	hint.anchor_right  = 1.0
-	hint.anchor_bottom = 1.0
-	hint.offset_right  = -6.0
-	hint.offset_bottom = -4.0
-	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	hint.vertical_alignment   = VERTICAL_ALIGNMENT_BOTTOM
 	hint.add_theme_font_size_override("font_size", 9)
 	hint.add_theme_color_override("font_color", Color(0.45, 0.45, 0.55))
 	hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	row.add_child(hint)
+	meta_row.add_child(hint)
 
 	# Drag to action bar via set_drag_forwarding (correct Godot 4 drag API)
 	row.mouse_filter = Control.MOUSE_FILTER_STOP
@@ -255,8 +295,12 @@ func _fill_general_skills() -> void:
 
 
 func _make_skill_row(skill_name: String, desc: String, level: int, skill_max: int) -> Control:
-	var row := Panel.new()
-	row.custom_minimum_size = Vector2(0, 62)
+	# Same fixed-position/fixed-size-to-container fix as _make_spell_row()
+	# above — this was the exact row type shown clipped in the bug report
+	# ("General skill improving melee weapon damage, accuracy, and critical
+	# ch..."), since desc_lbl.size was hardcoded to (WIN_W - 32, 20) with
+	# clip_text = true regardless of the actual window size.
+	var row := PanelContainer.new()
 	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.mouse_filter = Control.MOUSE_FILTER_PASS
 
@@ -265,39 +309,44 @@ func _make_skill_row(skill_name: String, desc: String, level: int, skill_max: in
 	bg.border_color = Color(0.30, 0.40, 0.30)
 	bg.set_border_width_all(1)
 	bg.set_corner_radius_all(2)
+	bg.content_margin_left   = 8
+	bg.content_margin_right  = 8
+	bg.content_margin_top    = 4
+	bg.content_margin_bottom = 4
 	row.add_theme_stylebox_override("panel", bg)
+
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 2)
+	row.add_child(vbox)
+
+	var header := HBoxContainer.new()
+	vbox.add_child(header)
 
 	# Name
 	var name_lbl := Label.new()
 	name_lbl.text = skill_name.replace("_", " ").capitalize()
-	name_lbl.position = Vector2(8, 4)
+	name_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	name_lbl.add_theme_font_size_override("font_size", 12)
 	name_lbl.add_theme_color_override("font_color", Color(0.7, 1.0, 0.65))
 	name_lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	row.add_child(name_lbl)
+	header.add_child(name_lbl)
 
 	# Level display (top-right)
 	var level_lbl := Label.new()
 	level_lbl.text = "%d / %d" % [level, skill_max]
-	level_lbl.anchor_right  = 1.0
-	level_lbl.offset_right  = -8.0
-	level_lbl.offset_top    = 4.0
-	level_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	level_lbl.add_theme_font_size_override("font_size", 11)
 	level_lbl.add_theme_color_override("font_color", Color(0.9, 0.85, 0.5))
 	level_lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	row.add_child(level_lbl)
+	header.add_child(level_lbl)
 
-	# Description
+	# Description — autowraps and takes whatever height it needs.
 	var desc_lbl := Label.new()
 	desc_lbl.text = desc
-	desc_lbl.position = Vector2(8, 22)
-	desc_lbl.size = Vector2(WIN_W - 32, 20)
+	desc_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	desc_lbl.add_theme_font_size_override("font_size", 10)
 	desc_lbl.add_theme_color_override("font_color", Color(0.70, 0.70, 0.70))
-	desc_lbl.clip_text = true
 	desc_lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	row.add_child(desc_lbl)
+	vbox.add_child(desc_lbl)
 
 	# Progress bar
 	var bar := ProgressBar.new()
@@ -305,8 +354,7 @@ func _make_skill_row(skill_name: String, desc: String, level: int, skill_max: in
 	bar.max_value = skill_max
 	bar.value     = level
 	bar.show_percentage = false
-	bar.position = Vector2(8, 44)
-	bar.size     = Vector2(WIN_W - 32, 10)
+	bar.custom_minimum_size = Vector2(0, 10)
 	bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var fill := StyleBoxFlat.new()
 	fill.bg_color = Color(0.30, 0.65, 0.30)
@@ -314,7 +362,7 @@ func _make_skill_row(skill_name: String, desc: String, level: int, skill_max: in
 	var bar_bg := StyleBoxFlat.new()
 	bar_bg.bg_color = Color(0.12, 0.18, 0.12)
 	bar.add_theme_stylebox_override("background", bar_bg)
-	row.add_child(bar)
+	vbox.add_child(bar)
 
 	return row
 

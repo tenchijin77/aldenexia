@@ -195,6 +195,29 @@ func _show_inspect_popup() -> void:
 		)
 		btn_row.add_child(consume_btn)
 
+	# Open button (tradeskill stations, e.g. Basic Alchemy Kit — see
+	# tradeskill_window.gd for the shared crafting window)
+	if item_data.has("tradeskill_station"):
+		var open_btn := Button.new()
+		open_btn.text = "Open"
+		open_btn.pressed.connect(func():
+			layer.queue_free()
+			var p := TargetFrame.local_player()
+			if is_instance_valid(p) and p.has_method("_open_tradeskill_window"):
+				p._open_tradeskill_window(item_data["tradeskill_station"], item_data.get("name", "Tool"), "Mix")
+		)
+		btn_row.add_child(open_btn)
+
+	# Apply to Weapon button (weapon poisons, e.g. Basic Poison)
+	if item_data.has("weapon_poison_bonus_damage"):
+		var poison_btn := Button.new()
+		poison_btn.text = "Apply to Weapon"
+		poison_btn.pressed.connect(func():
+			layer.queue_free()
+			_show_weapon_choice_popup()
+		)
+		btn_row.add_child(poison_btn)
+
 	# Close button
 	var close_btn := Button.new()
 	close_btn.text = "Close"
@@ -205,6 +228,77 @@ func _show_inspect_popup() -> void:
 	popup.position = get_global_mouse_position() + Vector2(10, 10)
 	layer.add_child(popup)
 	root.add_child(layer)
+
+# Small popup listing whichever weapon slot(s) (primary/secondary) currently
+# have a weapon equipped, so the player picks which one gets poisoned when
+# dual-wielding — rather than silently guessing "primary".
+func _show_weapon_choice_popup() -> void:
+	var weapon_slots: Array = ["primary", "secondary"].filter(func(slot_key):
+		var equipped: Variant = Inventory.equipped.get(slot_key, null)
+		return equipped != null and typeof(equipped) == TYPE_DICTIONARY and equipped.get("type", "") == "weapon"
+	)
+	if weapon_slots.is_empty():
+		GameLog.log_general("[color=#ff8866]You have no weapon equipped to apply this to.[/color]")
+		return
+
+	var root = get_tree().root
+	var existing = root.get_node_or_null("WeaponChoiceLayer")
+	if existing:
+		existing.queue_free()
+
+	var layer := CanvasLayer.new()
+	layer.name = "WeaponChoiceLayer"
+	layer.layer = 15
+
+	var popup := Panel.new()
+	popup.custom_minimum_size = Vector2(220, 30 + 30 * weapon_slots.size())
+	var bg := StyleBoxFlat.new()
+	bg.bg_color     = Color(0.08, 0.07, 0.06, 0.97)
+	bg.border_color = Color(0.45, 0.38, 0.25)
+	bg.set_border_width_all(2)
+	bg.set_corner_radius_all(4)
+	popup.add_theme_stylebox_override("panel", bg)
+
+	var vbox := VBoxContainer.new()
+	vbox.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT, Control.PRESET_MODE_MINSIZE, 8)
+	vbox.add_theme_constant_override("separation", 4)
+
+	var title := Label.new()
+	title.text = "Apply to which weapon?"
+	title.add_theme_color_override("font_color", Color(1.0, 0.85, 0.4))
+	vbox.add_child(title)
+
+	for slot_key in weapon_slots:
+		var weapon: Dictionary = Inventory.equipped[slot_key]
+		var btn := Button.new()
+		btn.text = weapon.get("name", slot_key.capitalize())
+		btn.pressed.connect(func():
+			layer.queue_free()
+			_apply_weapon_poison(slot_key)
+		)
+		vbox.add_child(btn)
+
+	popup.add_child(vbox)
+	popup.position = get_global_mouse_position() + Vector2(10, 10)
+	layer.add_child(popup)
+	root.add_child(layer)
+
+
+func _apply_weapon_poison(equip_slot: String) -> void:
+	var bonus: int = int(item_data.get("weapon_poison_bonus_damage", 0))
+	var weapon: Dictionary = Inventory.equipped.get(equip_slot, {})
+	if weapon.is_empty():
+		return
+	weapon["poison_bonus_damage"] = bonus
+	Inventory.equipped[equip_slot] = weapon
+
+	var player := TargetFrame.local_player()
+	if is_instance_valid(player) and player.has_method("_apply_equipment_from_inventory"):
+		player._apply_equipment_from_inventory()
+
+	Inventory.consume_one(slot_type, slot_index, bag_slot, item_index)
+	GameLog.log_general("[color=#88ffaa]You coat %s with poison (+%d damage).[/color]" % [weapon.get("name", "your weapon"), bonus])
+
 
 func _get_drag_data(at_position: Vector2) -> Variant:
 	if item_data.is_empty():

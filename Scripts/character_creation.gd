@@ -400,18 +400,15 @@ const STARTING_SPELLS := {
 	"Voidknight":   ["life_siphon", "shadow_aura"],
 	"Spiritweaver": ["spirit_mend", "earth_totem", "phantasmal_echo"],
 	"Lightmender":  ["cure_wounds", "bless"],
-	"Wildspeaker":  ["regrowth", "entangle"],
+	"Wildspeaker":  ["regrowth", "entangle", "summon_spirit_of_the_woods"],
 	"Woodstalker":  ["aimed_shot", "hunters_mark"],
 	"Shadowblade":  ["backstab", "shadowstep"],
 	"Troubadour":   ["song_of_courage", "dissonant_chord"],
 	"Gravecaller":  ["shadow_bolt", "raise_skeleton"],
 	"Runecaster":   ["charm", "illusionary_bolt"],
 	"Arcanist":     ["magic_missile", "arcane_armor"],
-	# Aetherfist has no player_spells.json entries at any level — a Monk-style
-	# martial class, presumably meant to run entirely on known_skills/
-	# use_skill() instead of spells. Chaosborn also has none, but as a Caster
-	# DPS (Sorcerer) that reads like a real content gap rather than by design
-	# — flagging rather than inventing spells for it here.
+	"Aetherfist":   ["flurry_of_blows", "wind_stance"],
+	"Chaosborn":    ["chaos_bolt", "wild_surge"],
 }
 
 func get_starting_spells(p_class: String) -> Array:
@@ -435,12 +432,17 @@ func build_starting_inventory(p_class: String) -> Dictionary:
 	]
 
 	# Slots 1+: starting gear placed directly so player can drag to equipment slots
-	var gear: Array[String] = ["ragged_hood", "ragged_tunic", "ragged_leggings", "torn_boots", "cloth_cape", "rusty_sword"]
+	# ("rusty_sword" used to be hardcoded into this base array itself, so every
+	# class — including casters — got a sword by default, and the melee cases
+	# below actually granted a *second*, duplicate one via push_front.)
+	var gear: Array[String] = ["ragged_hood", "ragged_tunic", "ragged_leggings", "torn_boots", "cloth_cape"]
 	match p_class:
 		"Blademaster", "Voidknight", "Lightsworn":
 			gear.push_front("rusty_sword")
 		"Shadowblade", "Woodstalker":
 			gear.push_front("dagger")
+		"Aetherfist":
+			gear.push_front("worn_hand_wraps")
 
 	# No starting scroll case anymore — the class's first two spells are now
 	# granted directly via known_spells (get_starting_spells() above), and

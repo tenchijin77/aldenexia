@@ -6,6 +6,7 @@ signal closed
 
 var main_panel: Panel
 var options_panel: Panel
+var controls_panel: Panel
 
 
 func _ready() -> void:
@@ -23,7 +24,9 @@ func _build_ui() -> void:
 
 	_build_main_panel()
 	_build_options_panel()
+	_build_controls_panel()
 	options_panel.visible = false
+	controls_panel.visible = false
 
 
 # ===== Main panel (Save / Save & Exit / Options / Resume) =====
@@ -31,15 +34,15 @@ func _build_ui() -> void:
 func _build_main_panel() -> void:
 	var panel := Panel.new()
 	main_panel = panel
-	panel.custom_minimum_size = Vector2(260, 190)
+	panel.custom_minimum_size = Vector2(260, 236)
 	panel.anchor_left   = 0.5
 	panel.anchor_top    = 0.5
 	panel.anchor_right  = 0.5
 	panel.anchor_bottom = 0.5
 	panel.offset_left   = -130.0
-	panel.offset_top    = -95.0
+	panel.offset_top    = -118.0
 	panel.offset_right  =  130.0
-	panel.offset_bottom =  95.0
+	panel.offset_bottom =  118.0
 	panel.add_theme_stylebox_override("panel", _panel_style())
 	add_child(panel)
 
@@ -67,6 +70,10 @@ func _build_main_panel() -> void:
 	options_btn.pressed.connect(_show_options)
 	vbox.add_child(options_btn)
 
+	var controls_btn := _make_button("Controls & Commands")
+	controls_btn.pressed.connect(_show_controls)
+	vbox.add_child(controls_btn)
+
 	var exit_btn := _make_button("Save and Exit")
 	exit_btn.pressed.connect(_on_save_and_exit)
 	vbox.add_child(exit_btn)
@@ -77,12 +84,7 @@ func _build_main_panel() -> void:
 
 
 func _panel_style() -> StyleBoxFlat:
-	var bg := StyleBoxFlat.new()
-	bg.bg_color     = Color(0.08, 0.07, 0.06, 0.97)
-	bg.border_color = Color(0.45, 0.38, 0.25)
-	bg.set_border_width_all(2)
-	bg.set_corner_radius_all(5)
-	return bg
+	return Global.window_bg_style()
 
 
 func _make_button(label: String) -> Button:
@@ -129,6 +131,7 @@ func _build_options_panel() -> void:
 	vbox.add_child(_make_slider_row("Sound Volume", "sfx_volume"))
 	vbox.add_child(_make_invert_y_row())
 	vbox.add_child(_make_toggle_row("Show Name Tags", "show_name_tags"))
+	vbox.add_child(_make_ui_transparency_row())
 
 	vbox.add_child(HSeparator.new())
 
@@ -160,6 +163,180 @@ func _build_options_panel() -> void:
 	vbox.add_child(back_btn)
 
 
+# ===== Controls & Commands panel (read-only reference for now — see the
+# comment above KEYBIND_GROUPS below for the remapping plan) =====
+
+# Grouped for readability rather than a flat list — matches how a new player
+# actually thinks about the game ("how do I move," "how do I fight," "how do
+# I open my bags"), not how InputMap happens to store them. Kept as plain
+# data (not read from InputMap) since a few real bindings aren't named
+# InputMap actions at all (F12 mouselook, Escape, the 1-9/0/-/= action bar
+# slots) — see camera_controller.gd/player3d.gd's _unhandled_input() for
+# where those are actually handled. When real keybind remapping is built
+# later, this table (or InputMap directly, for the actions that have one)
+# becomes the source of truth to edit instead of hardcoding a new one.
+const KEYBIND_GROUPS := [
+	["Movement", [
+		["W / Up", "Move forward"],
+		["S / Down", "Move backward"],
+		["A / Left", "Turn left"],
+		["D / Right", "Turn right"],
+		["Q", "Strafe left"],
+		["E", "Strafe right"],
+		["Space", "Jump"],
+		["Shift", "Toggle run"],
+		["R", "Toggle autorun"],
+		["X", "Sit"],
+		["Ctrl", "Crouch"],
+		["F12", "Toggle mouselook"],
+		["Home", "Cycle camera mode"],
+	]],
+	["Combat & Targeting", [
+		["Tab", "Target closest / cycle target"],
+		["` (backtick)", "Attack current target"],
+		["Right Mouse", "Ranged attack (or interact — see below)"],
+		["1-9, 0, -, =", "Use action bar slot"],
+		["Escape", "Clear target, close windows, or open this menu"],
+		["F1-F6", "Target group member 1-6"],
+	]],
+	["Windows", [
+		["K", "Abilities Book"],
+		["B", "Backpack"],
+		["C", "Character Sheet"],
+		["P", "Pet Gear"],
+		["T", "Tracking Window"],
+		["F11", "Network diagnostics widget"],
+	]],
+	["Interacting with the World", [
+		["H", "Hail the nearest NPC"],
+		["I", "Appraise your current target"],
+		["Right-click", "Open a vendor's shop, loot a corpse, or open a campfire/tradeskill window — whichever's under your cursor or nearest in range"],
+	]],
+]
+
+# COMMANDS in game_log_window.gd is the real source of truth for which
+# commands exist; descriptions here are just this help screen's own summary
+# of what each one does. Abbreviations work like Linux shell tab-completion —
+# "/fol" resolves to "/follow" as long as no other command also starts with
+# "fol".
+const CHAT_COMMANDS := [
+	["/location", "Show your current coordinates"],
+	["/hail", "Hail the nearest NPC"],
+	["/appraise", "Appraise your current target"],
+	["/follow <name>", "Follow a named player"],
+	["/camp", "Begin a 15-second camp-out (interrupted by taking damage)"],
+	["/exit", "Save and exit to the main menu (via the camp channel)"],
+	["/log", "Toggle saving chat to a log file"],
+	["/invite [name]", "Invite your target, or a named player, to your group"],
+	["/disband [name]", "Leave your group, or kick a named member"],
+	["/tell <name> <message>", "Send a private message to a player"],
+	["/party <message>", "Send a message to your group"],
+	["/resetui", "Reset every UI window back to its default position"],
+	["/time", "Show the current in-game date/time"],
+]
+
+
+func _build_controls_panel() -> void:
+	var panel := Panel.new()
+	controls_panel = panel
+	panel.custom_minimum_size = Vector2(460, 480)
+	panel.anchor_left   = 0.5
+	panel.anchor_top    = 0.5
+	panel.anchor_right  = 0.5
+	panel.anchor_bottom = 0.5
+	panel.offset_left   = -230.0
+	panel.offset_top    = -240.0
+	panel.offset_right  =  230.0
+	panel.offset_bottom =  240.0
+	panel.add_theme_stylebox_override("panel", _panel_style())
+	add_child(panel)
+
+	var vbox := VBoxContainer.new()
+	vbox.set_anchors_preset(Control.PRESET_FULL_RECT)
+	vbox.offset_left   =  20.0
+	vbox.offset_top    =  16.0
+	vbox.offset_right  = -20.0
+	vbox.offset_bottom = -16.0
+	vbox.add_theme_constant_override("separation", 8)
+	panel.add_child(vbox)
+
+	var title := Label.new()
+	title.text = "— Controls & Commands —"
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.add_theme_font_size_override("font_size", 15)
+	title.add_theme_color_override("font_color", Color(0.85, 0.78, 0.55))
+	vbox.add_child(title)
+
+	var hint := Label.new()
+	hint.text = "Reference only for now — remapping keys is coming later."
+	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	hint.add_theme_font_size_override("font_size", 10)
+	hint.add_theme_color_override("font_color", Color(0.7, 0.7, 0.75))
+	vbox.add_child(hint)
+
+	var scroll := ScrollContainer.new()
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	vbox.add_child(scroll)
+
+	var content := VBoxContainer.new()
+	content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	content.add_theme_constant_override("separation", 12)
+	scroll.add_child(content)
+
+	for group in KEYBIND_GROUPS:
+		content.add_child(_make_control_section(group[0], group[1]))
+
+	content.add_child(_make_control_section("Chat Commands", CHAT_COMMANDS))
+
+	var back_btn2 := _make_button("Back")
+	back_btn2.pressed.connect(_hide_controls)
+	vbox.add_child(back_btn2)
+
+
+func _make_control_section(title_text: String, rows: Array) -> Control:
+	var section := VBoxContainer.new()
+	section.add_theme_constant_override("separation", 3)
+
+	var heading := Label.new()
+	heading.text = title_text
+	heading.add_theme_font_size_override("font_size", 12)
+	heading.add_theme_color_override("font_color", Color(0.85, 0.78, 0.55))
+	section.add_child(heading)
+
+	for row in rows:
+		var hbox := HBoxContainer.new()
+		hbox.add_theme_constant_override("separation", 10)
+
+		var key_label := Label.new()
+		key_label.text = row[0]
+		key_label.custom_minimum_size = Vector2(140, 0)
+		key_label.add_theme_font_size_override("font_size", 11)
+		key_label.add_theme_color_override("font_color", Color(0.75, 0.9, 1.0))
+		hbox.add_child(key_label)
+
+		var desc_label := Label.new()
+		desc_label.text = row[1]
+		desc_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		desc_label.add_theme_font_size_override("font_size", 11)
+		desc_label.add_theme_color_override("font_color", Color(0.85, 0.85, 0.85))
+		hbox.add_child(desc_label)
+
+		section.add_child(hbox)
+
+	return section
+
+
+func _show_controls() -> void:
+	main_panel.visible = false
+	controls_panel.visible = true
+
+
+func _hide_controls() -> void:
+	controls_panel.visible = false
+	main_panel.visible = true
+
+
 func _make_slider_row(label_text: String, settings_key: String) -> Control:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 8)
@@ -186,6 +363,43 @@ func _make_slider_row(label_text: String, settings_key: String) -> Control:
 		value_label.text = "%d%%" % int(v)
 		Global.settings[settings_key] = v / 100.0
 		Global.apply_audio_settings()
+	)
+	slider.drag_ended.connect(func(_changed: bool) -> void:
+		Global.save_settings()
+	)
+
+	return row
+
+
+# Adjusts Global.window_bg_style()'s shared alpha live — every open HUD
+# window updates immediately since they all reference the same StyleBoxFlat
+# resource instance (see global.gd's window_bg_style()). Floored at 30% so a
+# window's text/contents never become fully unreadable.
+func _make_ui_transparency_row() -> Control:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 8)
+
+	var label := Label.new()
+	label.text = "UI Transparency"
+	label.custom_minimum_size = Vector2(100, 0)
+	row.add_child(label)
+
+	var slider := HSlider.new()
+	slider.min_value = 30
+	slider.max_value = 100
+	slider.step = 1
+	slider.value = Global.settings.get("ui_bg_alpha", 0.92) * 100.0
+	slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(slider)
+
+	var value_label := Label.new()
+	value_label.text = "%d%%" % int(slider.value)
+	value_label.custom_minimum_size = Vector2(40, 0)
+	row.add_child(value_label)
+
+	slider.value_changed.connect(func(v: float) -> void:
+		value_label.text = "%d%%" % int(v)
+		Global.set_ui_bg_alpha(v / 100.0)
 	)
 	slider.drag_ended.connect(func(_changed: bool) -> void:
 		Global.save_settings()

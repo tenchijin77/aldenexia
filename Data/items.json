@@ -2,7 +2,7 @@
   "_comment": "items.json - Defines all items in the game. Ratio is damage/delay for weapons.",
   "scarab_eye": {
     "name": "Scarab Eye",
-    "icon": "res://Assets/Items/scarab_eye.png",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
     "description": "A glassy, faceted eye plucked from a dune scarab. Prized by alchemists.",
     "stackable": true,
     "currency_type": "copper",
@@ -24,7 +24,7 @@
   },
   "scarab_shell": {
     "name": "Scarab Shell",
-    "icon": "res://Assets/Items/scarab_shell.png",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
     "description": "The iridescent shell of a dune scarab.",
     "stackable": true,
     "currency_type": "copper",
@@ -46,7 +46,7 @@
   },
   "beetle_wing": {
     "name": "Beetle Wing",
-    "icon": "res://Assets/Items/beetle_wing.png",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
     "description": "A thin, papery wing case from a desert beetle.",
     "stackable": true,
     "currency_type": "copper",
@@ -68,7 +68,7 @@
   },
   "sand_shimmer": {
     "name": "Sand Shimmer",
-    "icon": "res://Assets/Items/sand_shimmer.png",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
     "description": "A vial of fine sand that glitters with faint magic. A useful reagent.",
     "stackable": true,
     "currency_type": "copper",
@@ -90,7 +90,7 @@
   },
   "shiny_pebble": {
     "name": "Shiny Pebble",
-    "icon": "res://Assets/Items/shiny_pebble.png",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
     "description": "A smooth, oddly shiny pebble. Scarabs seem to collect these.",
     "stackable": true,
     "currency_type": "copper",
@@ -360,7 +360,7 @@
     "type": "weapon",
     "armor_class": 0,
     "slot": "primary",
-    "skill": "1h piercing",
+    "skill": "piercing_weapons",
     "damage": 5,
     "delay": 20,
     "weight": 2.2,
@@ -380,7 +380,7 @@
   },
   "bat_wing": {
     "name": "Bat Wing",
-    "icon": "res://Assets/Items/bat_wing.png",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
     "description": "A leathery wing from a bat. Useful for alchemy.",
     "stackable": true,
     "currency_type": "copper",
@@ -432,7 +432,7 @@
   },
   "bone_fragment": {
     "name": "Bone Fragment",
-    "icon": "res://Assets/Items/bone_fragment.png",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
     "description": "A fragment of bone from an undead creature. Commonly found on skeletons.",
     "stackable": true,
     "currency_type": "copper",
@@ -538,7 +538,7 @@
   },
   "chitin_scrap": {
     "name": "Chitin Scrap",
-    "icon": "res://Assets/Items/chitin_scrap.png",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
     "description": "A piece of insect chitin. Useful for crafting.",
     "stackable": true,
     "currency_type": "copper",
@@ -698,7 +698,7 @@
   },
   "copper_coin": {
     "name": "Copper Coin",
-    "icon": "res://Assets/Items/copper_coin.png",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
     "description": "Small copper currency.",
     "stackable": true,
     "currency_type": "copper",
@@ -758,7 +758,7 @@
     "type": "weapon",
     "armor_class": 0,
     "slot": "primary",
-    "skill": "1h piercing",
+    "skill": "piercing_weapons",
     "damage": 5,
     "delay": 22,
     "weight": 2.5,
@@ -830,7 +830,7 @@
   },
   "echolocation_gland": {
     "name": "Echolocation Gland",
-    "icon": "res://Assets/Items/gland.png",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
     "description": "A sensory organ from a bat.",
     "stackable": true,
     "currency_type": "copper",
@@ -882,7 +882,7 @@
   },
   "fur_pelt": {
     "name": "Fur Pelt",
-    "icon": "res://Assets/Items/fur_pelt.png",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
     "description": "A soft pelt useful for crafting.",
     "stackable": true,
     "currency_type": "copper",
@@ -908,7 +908,7 @@
   },
   "ghostly_cloak": {
     "name": "Ghostly Cloak",
-    "icon": "res://Assets/Items/ghostly_cloak.png",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
     "description": "A translucent cloak that flickers in moonlight. Reduces detection.",
     "stackable": false,
     "currency_type": "silver",
@@ -1068,7 +1068,7 @@
   },
   "leather_scrap": {
     "name": "Leather Scrap",
-    "icon": "res://Assets/Items/leather_scrap.png",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
     "description": "Scraps of leather useful for crafting.",
     "stackable": true,
     "currency_type": "copper",
@@ -1250,7 +1250,7 @@
   },
   "rat_tail": {
     "name": "Rat Tail",
-    "icon": "res://Assets/Items/rat_tail.png",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
     "description": "A tail from a rat. Alchemy ingredient.",
     "stackable": true,
     "currency_type": "copper",
@@ -1276,7 +1276,7 @@
   },
   "raw_meat": {
     "name": "Raw Meat",
-    "icon": "res://Assets/Items/raw_meat.png",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
     "description": "Uncooked meat harvested from animals.",
     "stackable": true,
     "currency_type": "copper",
@@ -1336,7 +1336,7 @@
     "type": "weapon",
     "armor_class": 0,
     "slot": "primary",
-    "skill": "1h slashing",
+    "skill": "slashing_weapons",
     "damage": 10,
     "delay": 35,
     "weight": 5.0,
@@ -1365,7 +1365,7 @@
     "type": "weapon",
     "armor_class": 0,
     "slot": "primary",
-    "skill": "1h slashing",
+    "skill": "slashing_weapons",
     "damage": 6,
     "delay": 28,
     "weight": 4.0,
@@ -1413,7 +1413,7 @@
   },
   "silver_coin": {
     "name": "Silver Coin",
-    "icon": "res://Assets/Items/silver_coin.png",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
     "description": "A polished silver coin used as currency.",
     "stackable": true,
     "currency_type": "silver",
@@ -1439,7 +1439,7 @@
   },
   "slime_gel": {
     "name": "Slime Gel",
-    "icon": "res://Assets/Items/slime_gel.png",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
     "description": "A viscous gel from a slime.",
     "stackable": true,
     "currency_type": "copper",
@@ -1465,7 +1465,7 @@
   },
   "snake_scale": {
     "name": "Snake Scale",
-    "icon": "res://Assets/Items/snake_scale.png",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
     "description": "A shimmering scale from a snake.",
     "stackable": true,
     "currency_type": "copper",
@@ -1491,7 +1491,7 @@
   },
   "snake_venom": {
     "name": "Snake Venom",
-    "icon": "res://Assets/Items/snake_venom.png",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
     "description": "Extracted venom for poisons or alchemy.",
     "stackable": true,
     "currency_type": "copper",
@@ -1517,7 +1517,7 @@
   },
   "spectral_dust": {
     "name": "Spectral Dust",
-    "icon": "res://Assets/Items/spectral_dust.png",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
     "description": "Faintly glowing particles from lost spirits.",
     "stackable": true,
     "currency_type": "silver",
@@ -1569,7 +1569,7 @@
   },
   "sticky_residue": {
     "name": "Sticky Residue",
-    "icon": "res://Assets/Items/sticky_residue.png",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
     "description": "A sticky substance left by slimes.",
     "stackable": true,
     "currency_type": "copper",
@@ -1835,7 +1835,7 @@
     "type": "weapon",
     "armor_class": 0,
     "slot": "primary",
-    "skill": "1h slashing",
+    "skill": "slashing_weapons",
     "damage": 18,
     "delay": 28,
     "weight": 6.0,
@@ -2616,5 +2616,4703 @@
     "stat_modifiers": null,
     "effect": null,
     "teaches_spell": "ancestral_guidance"
+  },
+  "scroll_of_inner_focus": {
+    "name": "Scroll of Inner Focus",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Inner Focus technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "aetherfist"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "inner_focus"
+  },
+  "scroll_of_pressure_point": {
+    "name": "Scroll of Pressure Point",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Pressure Point technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "aetherfist"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "pressure_point"
+  },
+  "scroll_of_fire_strike": {
+    "name": "Scroll of Fire Strike",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Fire Strike technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "aetherfist"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "fire_strike"
+  },
+  "scroll_of_improved_ki_strike": {
+    "name": "Scroll of Improved Ki Strike",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Improved Ki Strike technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "aetherfist"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "improved_ki_strike"
+  },
+  "scroll_of_meditation": {
+    "name": "Scroll of Meditation",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Meditation technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "aetherfist"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "meditation"
+  },
+  "scroll_of_stunning_fist": {
+    "name": "Scroll of Stunning Fist",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Stunning Fist technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "aetherfist"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "stunning_fist"
+  },
+  "scroll_of_enhanced_mend_wounds": {
+    "name": "Scroll of Enhanced Mend Wounds",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Enhanced Mend Wounds technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "aetherfist"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "enhanced_mend_wounds"
+  },
+  "scroll_of_water_strike": {
+    "name": "Scroll of Water Strike",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Water Strike technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "aetherfist"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "water_strike"
+  },
+  "scroll_of_swift_step": {
+    "name": "Scroll of Swift Step",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Swift Step technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "aetherfist"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "swift_step"
+  },
+  "scroll_of_wholeness_of_body": {
+    "name": "Scroll of Wholeness Of Body",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Wholeness Of Body technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "aetherfist"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "wholeness_of_body"
+  },
+  "scroll_of_earth_strike": {
+    "name": "Scroll of Earth Strike",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Earth Strike technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "aetherfist"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "earth_strike"
+  },
+  "scroll_of_improved_parry": {
+    "name": "Scroll of Improved Parry",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Improved Parry technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "aetherfist"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "improved_parry"
+  },
+  "scroll_of_flying_kick": {
+    "name": "Scroll of Flying Kick",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Flying Kick technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "aetherfist"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "flying_kick"
+  },
+  "scroll_of_ki_barrier": {
+    "name": "Scroll of Ki Barrier",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Ki Barrier technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "aetherfist"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "ki_barrier"
+  },
+  "scroll_of_detect_magic": {
+    "name": "Scroll of Detect Magic",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Detect Magic technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "arcanist"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "detect_magic"
+  },
+  "scroll_of_frost_bolt": {
+    "name": "Scroll of Frost Bolt",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Frost Bolt technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "arcanist"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "frost_bolt"
+  },
+  "scroll_of_blink": {
+    "name": "Scroll of Blink",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Blink technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "arcanist"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "blink"
+  },
+  "scroll_of_fireball": {
+    "name": "Scroll of Fireball",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Fireball technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "arcanist"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "fireball"
+  },
+  "scroll_of_arcane_intellect": {
+    "name": "Scroll of Arcane Intellect",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Arcane Intellect technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "arcanist"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "arcane_intellect"
+  },
+  "scroll_of_counterspell": {
+    "name": "Scroll of Counterspell",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Counterspell technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "arcanist"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "counterspell"
+  },
+  "scroll_of_arcane_barrage": {
+    "name": "Scroll of Arcane Barrage",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Arcane Barrage technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "arcanist"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "arcane_barrage"
+  },
+  "scroll_of_ice_lance": {
+    "name": "Scroll of Ice Lance",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Ice Lance technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "arcanist"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "ice_lance"
+  },
+  "scroll_of_mana_barrier": {
+    "name": "Scroll of Mana Barrier",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Mana Barrier technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "arcanist"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "mana_barrier"
+  },
+  "scroll_of_slow": {
+    "name": "Scroll of Slow",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Slow technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "arcanist"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "slow"
+  },
+  "scroll_of_chain_lightning": {
+    "name": "Scroll of Chain Lightning",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Chain Lightning technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "arcanist"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "chain_lightning"
+  },
+  "scroll_of_polymorph": {
+    "name": "Scroll of Polymorph",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Polymorph technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "arcanist"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "polymorph"
+  },
+  "scroll_of_arcane_explosion": {
+    "name": "Scroll of Arcane Explosion",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Arcane Explosion technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "arcanist"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "arcane_explosion"
+  },
+  "scroll_of_spell_ward": {
+    "name": "Scroll of Spell Ward",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Spell Ward technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "arcanist"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "spell_ward"
+  },
+  "scroll_of_flame_totem": {
+    "name": "Scroll of Flame Totem",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Flame Totem technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "spiritweaver"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "flame_totem"
+  },
+  "scroll_of_healing_wave": {
+    "name": "Scroll of Healing Wave",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Healing Wave technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "spiritweaver"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "healing_wave"
+  },
+  "scroll_of_curse_of_sloth": {
+    "name": "Scroll of Curse Of Sloth",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Curse Of Sloth technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "spiritweaver"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "curse_of_sloth"
+  },
+  "scroll_of_ghost_wolf": {
+    "name": "Scroll of Ghost Wolf",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Ghost Wolf technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "spiritweaver"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "ghost_wolf"
+  },
+  "scroll_of_spirit_link": {
+    "name": "Scroll of Spirit Link",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Spirit Link technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "spiritweaver"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "spirit_link"
+  },
+  "scroll_of_storm_totem": {
+    "name": "Scroll of Storm Totem",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Storm Totem technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "spiritweaver"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "storm_totem"
+  },
+  "scroll_of_ancestral_shield": {
+    "name": "Scroll of Ancestral Shield",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Ancestral Shield technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "spiritweaver"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "ancestral_shield"
+  },
+  "scroll_of_windfury": {
+    "name": "Scroll of Windfury",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Windfury technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "spiritweaver"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "windfury"
+  },
+  "scroll_of_frost_totem": {
+    "name": "Scroll of Frost Totem",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Frost Totem technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "spiritweaver"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "frost_totem"
+  },
+  "scroll_of_mass_healing_wave": {
+    "name": "Scroll of Mass Healing Wave",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Mass Healing Wave technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "spiritweaver"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "mass_healing_wave"
+  },
+  "scroll_of_hex": {
+    "name": "Scroll of Hex",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Hex technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "spiritweaver"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "hex"
+  },
+  "scroll_of_spirit_walk": {
+    "name": "Scroll of Spirit Walk",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Spirit Walk technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "spiritweaver"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "spirit_walk"
+  },
+  "worn_hand_wraps": {
+    "name": "Worn Hand Wraps",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "Simple cloth wraps binding the hands and knuckles for unarmed combat.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 3,
+    "type": "weapon",
+    "armor_class": 0,
+    "slot": "primary",
+    "skill": "hand_to_hand",
+    "damage": 4,
+    "delay": 18,
+    "weight": 0.5,
+    "size": "small",
+    "class": [
+      "aetherfist"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0.2,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "cooked_meat": {
+    "name": "Cooked Meat",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "Meat cooked over a campfire until well done.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 4,
+    "type": "food",
+    "restores": "satiety",
+    "restore_amount": 25,
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.5,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": "Restores 25 Hunger"
+  },
+  "basic_poison": {
+    "name": "Basic Poison",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A crude venom-based poison. Right-click to apply to an equipped weapon, adding +2 damage on hit.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 8,
+    "type": "consumable",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.2,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "weapon_poison_bonus_damage": 2
+  },
+  "basic_alchemy_kit": {
+    "name": "Basic Alchemy Kit",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A simple set of vials and tools for basic alchemy. Right-click to open and mix reagents.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 25,
+    "type": "tool",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "alchemy",
+    "damage": 0,
+    "delay": 0,
+    "weight": 3.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "tradeskill_station": "basic_alchemy_kit"
+  },
+  "scroll_of_shield_bash": {
+    "name": "Scroll of Shield Bash",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Shield Bash technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "blademaster"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "shield_bash"
+  },
+  "scroll_of_tactical_stance": {
+    "name": "Scroll of Tactical Stance",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Tactical Stance technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "blademaster"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "tactical_stance"
+  },
+  "scroll_of_sunder_armor": {
+    "name": "Scroll of Sunder Armor",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Sunder Armor technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "blademaster"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "sunder_armor"
+  },
+  "scroll_of_rallying_cry": {
+    "name": "Scroll of Rallying Cry",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Rallying Cry technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "blademaster"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "rallying_cry"
+  },
+  "scroll_of_weapon_mastery": {
+    "name": "Scroll of Weapon Mastery",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Weapon Mastery technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "blademaster"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "weapon_mastery"
+  },
+  "scroll_of_enhanced_parry": {
+    "name": "Scroll of Enhanced Parry",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Enhanced Parry technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "blademaster"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "enhanced_parry"
+  },
+  "scroll_of_cleave": {
+    "name": "Scroll of Cleave",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Cleave technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "blademaster"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "cleave"
+  },
+  "scroll_of_iron_resolve": {
+    "name": "Scroll of Iron Resolve",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Iron Resolve technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "blademaster"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "iron_resolve"
+  },
+  "scroll_of_commanding_presence": {
+    "name": "Scroll of Commanding Presence",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Commanding Presence technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "blademaster"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "commanding_presence"
+  },
+  "scroll_of_whirlwind": {
+    "name": "Scroll of Whirlwind",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Whirlwind technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "blademaster"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "whirlwind"
+  },
+  "scroll_of_battle_focus": {
+    "name": "Scroll of Battle Focus",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Battle Focus technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "blademaster"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "battle_focus"
+  },
+  "scroll_of_defensive_strike": {
+    "name": "Scroll of Defensive Strike",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Defensive Strike technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "blademaster"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "defensive_strike"
+  },
+  "scroll_of_lay_on_hands": {
+    "name": "Scroll of Lay On Hands",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Lay On Hands technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "lightsworn"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "lay_on_hands"
+  },
+  "scroll_of_divine_ward": {
+    "name": "Scroll of Divine Ward",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Divine Ward technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "lightsworn"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "divine_ward"
+  },
+  "scroll_of_smite_evil": {
+    "name": "Scroll of Smite Evil",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Smite Evil technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "lightsworn"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "smite_evil"
+  },
+  "scroll_of_aura_of_courage": {
+    "name": "Scroll of Aura Of Courage",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Aura Of Courage technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "lightsworn"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "aura_of_courage"
+  },
+  "scroll_of_purify": {
+    "name": "Scroll of Purify",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Purify technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "lightsworn"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "purify"
+  },
+  "scroll_of_enhanced_block": {
+    "name": "Scroll of Enhanced Block",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Enhanced Block technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "lightsworn"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "enhanced_block"
+  },
+  "scroll_of_radiant_burst": {
+    "name": "Scroll of Radiant Burst",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Radiant Burst technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "lightsworn"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "radiant_burst"
+  },
+  "scroll_of_sacred_oath": {
+    "name": "Scroll of Sacred Oath",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Sacred Oath technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "lightsworn"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "sacred_oath"
+  },
+  "scroll_of_lights_grace": {
+    "name": "Scroll of Lights Grace",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Lights Grace technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "lightsworn"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "lights_grace"
+  },
+  "scroll_of_improved_riposte": {
+    "name": "Scroll of Improved Riposte",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Improved Riposte technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "lightsworn"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "improved_riposte"
+  },
+  "scroll_of_hammer_of_justice": {
+    "name": "Scroll of Hammer Of Justice",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Hammer Of Justice technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "lightsworn"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "hammer_of_justice"
+  },
+  "scroll_of_holy_aegis": {
+    "name": "Scroll of Holy Aegis",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Holy Aegis technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "lightsworn"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "holy_aegis"
+  },
+  "scroll_of_beacon_of_hope": {
+    "name": "Scroll of Beacon Of Hope",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Beacon Of Hope technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "lightsworn"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "beacon_of_hope"
+  },
+  "scroll_of_holy_light": {
+    "name": "Scroll of Holy Light",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Holy Light technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "lightmender"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "holy_light"
+  },
+  "scroll_of_turn_undead": {
+    "name": "Scroll of Turn Undead",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Turn Undead technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "lightmender"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "turn_undead"
+  },
+  "scroll_of_prayer_of_healing": {
+    "name": "Scroll of Prayer Of Healing",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Prayer Of Healing technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "lightmender"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "prayer_of_healing"
+  },
+  "scroll_of_sacred_flame": {
+    "name": "Scroll of Sacred Flame",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Sacred Flame technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "lightmender"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "sacred_flame"
+  },
+  "scroll_of_shield_of_faith": {
+    "name": "Scroll of Shield Of Faith",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Shield Of Faith technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "lightmender"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "shield_of_faith"
+  },
+  "scroll_of_remove_curse": {
+    "name": "Scroll of Remove Curse",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Remove Curse technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "lightmender"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "remove_curse"
+  },
+  "scroll_of_greater_cure": {
+    "name": "Scroll of Greater Cure",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Greater Cure technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "lightmender"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "greater_cure"
+  },
+  "scroll_of_divine_favor": {
+    "name": "Scroll of Divine Favor",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Divine Favor technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "lightmender"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "divine_favor"
+  },
+  "scroll_of_radiant_ward": {
+    "name": "Scroll of Radiant Ward",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Radiant Ward technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "lightmender"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "radiant_ward"
+  },
+  "scroll_of_smite": {
+    "name": "Scroll of Smite",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Smite technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "lightmender"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "smite"
+  },
+  "scroll_of_mass_cure_wounds": {
+    "name": "Scroll of Mass Cure Wounds",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Mass Cure Wounds technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "lightmender"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "mass_cure_wounds"
+  },
+  "scroll_of_spiritual_weapon": {
+    "name": "Scroll of Spiritual Weapon",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Spiritual Weapon technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "lightmender"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "spiritual_weapon"
+  },
+  "scroll_of_guardian_spirit": {
+    "name": "Scroll of Guardian Spirit",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Guardian Spirit technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "lightmender"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "guardian_spirit"
+  },
+  "scroll_of_purge_evil": {
+    "name": "Scroll of Purge Evil",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Purge Evil technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "lightmender"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "purge_evil"
+  },
+  "scroll_of_call_companion": {
+    "name": "Scroll of Call Companion",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Call Companion technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "woodstalker"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "call_companion"
+  },
+  "scroll_of_ensnaring_trap": {
+    "name": "Scroll of Ensnaring Trap",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Ensnaring Trap technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "woodstalker"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "ensnaring_trap"
+  },
+  "scroll_of_improved_stealth": {
+    "name": "Scroll of Improved Stealth",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Improved Stealth technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "woodstalker"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "improved_stealth"
+  },
+  "scroll_of_rapid_shot": {
+    "name": "Scroll of Rapid Shot",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Rapid Shot technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "woodstalker"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "rapid_shot"
+  },
+  "scroll_of_beast_bond": {
+    "name": "Scroll of Beast Bond",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Beast Bond technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "woodstalker"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "beast_bond"
+  },
+  "scroll_of_poison_arrow": {
+    "name": "Scroll of Poison Arrow",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Poison Arrow technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "woodstalker"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "poison_arrow"
+  },
+  "scroll_of_enhanced_poison_making": {
+    "name": "Scroll of Enhanced Poison Making",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Enhanced Poison Making technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "woodstalker"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "enhanced_poison_making"
+  },
+  "scroll_of_barrage": {
+    "name": "Scroll of Barrage",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Barrage technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "woodstalker"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "barrage"
+  },
+  "scroll_of_hawk_companion": {
+    "name": "Scroll of Hawk Companion",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Hawk Companion technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "woodstalker"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "hawk_companion"
+  },
+  "scroll_of_camouflage": {
+    "name": "Scroll of Camouflage",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Camouflage technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "woodstalker"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "camouflage"
+  },
+  "scroll_of_improved_pickpocket": {
+    "name": "Scroll of Improved Pickpocket",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Improved Pickpocket technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "woodstalker"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "improved_pickpocket"
+  },
+  "scroll_of_entangling_shot": {
+    "name": "Scroll of Entangling Shot",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Entangling Shot technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "woodstalker"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "entangling_shot"
+  },
+  "scroll_of_bear_companion": {
+    "name": "Scroll of Bear Companion",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Bear Companion technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "woodstalker"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "bear_companion"
+  },
+  "scroll_of_natures_precision": {
+    "name": "Scroll of Natures Precision",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Natures Precision technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "woodstalker"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "natures_precision"
+  },
+  "scroll_of_life_drain": {
+    "name": "Scroll of Life Drain",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Life Drain technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "gravecaller"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "life_drain"
+  },
+  "scroll_of_curse_of_frailty": {
+    "name": "Scroll of Curse Of Frailty",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Curse Of Frailty technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "gravecaller"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "curse_of_frailty"
+  },
+  "scroll_of_corpse_explosion": {
+    "name": "Scroll of Corpse Explosion",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Corpse Explosion technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "gravecaller"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "corpse_explosion"
+  },
+  "scroll_of_fear": {
+    "name": "Scroll of Fear",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Fear technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "gravecaller"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "fear"
+  },
+  "scroll_of_siphon_mana": {
+    "name": "Scroll of Siphon Mana",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Siphon Mana technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "gravecaller"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "siphon_mana"
+  },
+  "scroll_of_bone_shield": {
+    "name": "Scroll of Bone Shield",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Bone Shield technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "gravecaller"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "bone_shield"
+  },
+  "scroll_of_death_coil": {
+    "name": "Scroll of Death Coil",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Death Coil technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "gravecaller"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "death_coil"
+  },
+  "scroll_of_summon_ghoul": {
+    "name": "Scroll of Summon Ghoul",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Summon Ghoul technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "gravecaller"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "summon_ghoul"
+  },
+  "scroll_of_plague_cloud": {
+    "name": "Scroll of Plague Cloud",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Plague Cloud technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "gravecaller"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "plague_cloud"
+  },
+  "scroll_of_curse_of_agony": {
+    "name": "Scroll of Curse Of Agony",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Curse Of Agony technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "gravecaller"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "curse_of_agony"
+  },
+  "scroll_of_soul_shard": {
+    "name": "Scroll of Soul Shard",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Soul Shard technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "gravecaller"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "soul_shard"
+  },
+  "scroll_of_blight": {
+    "name": "Scroll of Blight",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Blight technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "gravecaller"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "blight"
+  },
+  "scroll_of_death_pact": {
+    "name": "Scroll of Death Pact",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Death Pact technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "gravecaller"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "death_pact"
+  },
+  "scroll_of_mesmerize": {
+    "name": "Scroll of Mesmerize",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Mesmerize technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "runecaster"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "mesmerize"
+  },
+  "scroll_of_mana_shield": {
+    "name": "Scroll of Mana Shield",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Mana Shield technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "runecaster"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "mana_shield"
+  },
+  "scroll_of_invisibility": {
+    "name": "Scroll of Invisibility",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Invisibility technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "runecaster"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "invisibility"
+  },
+  "scroll_of_mind_blast": {
+    "name": "Scroll of Mind Blast",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Mind Blast technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "runecaster"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "mind_blast"
+  },
+  "scroll_of_disorient": {
+    "name": "Scroll of Disorient",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Disorient technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "runecaster"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "disorient"
+  },
+  "scroll_of_mirror_image": {
+    "name": "Scroll of Mirror Image",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Mirror Image technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "runecaster"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "mirror_image"
+  },
+  "scroll_of_mass_charm": {
+    "name": "Scroll of Mass Charm",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Mass Charm technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "runecaster"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "mass_charm"
+  },
+  "scroll_of_psychic_scream": {
+    "name": "Scroll of Psychic Scream",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Psychic Scream technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "runecaster"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "psychic_scream"
+  },
+  "scroll_of_arcane_veil": {
+    "name": "Scroll of Arcane Veil",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Arcane Veil technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "runecaster"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "arcane_veil"
+  },
+  "scroll_of_spellbreak": {
+    "name": "Scroll of Spellbreak",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Spellbreak technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "runecaster"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "spellbreak"
+  },
+  "scroll_of_illusory_terrain": {
+    "name": "Scroll of Illusory Terrain",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Illusory Terrain technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "runecaster"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "illusory_terrain"
+  },
+  "scroll_of_mind_flay": {
+    "name": "Scroll of Mind Flay",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Mind Flay technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "runecaster"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "mind_flay"
+  },
+  "scroll_of_enchanted_ward": {
+    "name": "Scroll of Enchanted Ward",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Enchanted Ward technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "runecaster"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "enchanted_ward"
+  },
+  "scroll_of_pacify": {
+    "name": "Scroll of Pacify",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Pacify technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "runecaster"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "pacify"
+  },
+  "scroll_of_crippling_poison": {
+    "name": "Scroll of Crippling Poison",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Crippling Poison technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "shadowblade"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "crippling_poison"
+  },
+  "scroll_of_evasion": {
+    "name": "Scroll of Evasion",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Evasion technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "shadowblade"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "evasion"
+  },
+  "scroll_of_ambush": {
+    "name": "Scroll of Ambush",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Ambush technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "shadowblade"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "ambush"
+  },
+  "scroll_of_toxic_blade": {
+    "name": "Scroll of Toxic Blade",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Toxic Blade technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "shadowblade"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "toxic_blade"
+  },
+  "scroll_of_smoke_bomb": {
+    "name": "Scroll of Smoke Bomb",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Smoke Bomb technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "shadowblade"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "smoke_bomb"
+  },
+  "scroll_of_garrote": {
+    "name": "Scroll of Garrote",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Garrote technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "shadowblade"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "garrote"
+  },
+  "scroll_of_shadow_cloak": {
+    "name": "Scroll of Shadow Cloak",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Shadow Cloak technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "shadowblade"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "shadow_cloak"
+  },
+  "scroll_of_disabling_trap": {
+    "name": "Scroll of Disabling Trap",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Disabling Trap technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "shadowblade"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "disabling_trap"
+  },
+  "scroll_of_fan_of_knives": {
+    "name": "Scroll of Fan Of Knives",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Fan Of Knives technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "shadowblade"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "fan_of_knives"
+  },
+  "scroll_of_deadly_poison": {
+    "name": "Scroll of Deadly Poison",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Deadly Poison technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "shadowblade"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "deadly_poison"
+  },
+  "scroll_of_vanish": {
+    "name": "Scroll of Vanish",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Vanish technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "shadowblade"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "vanish"
+  },
+  "scroll_of_blade_dance": {
+    "name": "Scroll of Blade Dance",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Blade Dance technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "troubadour"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "blade_dance"
+  },
+  "scroll_of_charm_melody": {
+    "name": "Scroll of Charm Melody",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Charm Melody technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "troubadour"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "charm_melody"
+  },
+  "scroll_of_ballad_of_vigor": {
+    "name": "Scroll of Ballad Of Vigor",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Ballad Of Vigor technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "troubadour"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "ballad_of_vigor"
+  },
+  "scroll_of_piercing_note": {
+    "name": "Scroll of Piercing Note",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Piercing Note technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "troubadour"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "piercing_note"
+  },
+  "scroll_of_illusory_mask": {
+    "name": "Scroll of Illusory Mask",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Illusory Mask technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "troubadour"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "illusory_mask"
+  },
+  "scroll_of_song_of_haste": {
+    "name": "Scroll of Song Of Haste",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Song Of Haste technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "troubadour"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "song_of_haste"
+  },
+  "scroll_of_sonic_blast": {
+    "name": "Scroll of Sonic Blast",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Sonic Blast technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "troubadour"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "sonic_blast"
+  },
+  "scroll_of_enchanted_refrain": {
+    "name": "Scroll of Enchanted Refrain",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Enchanted Refrain technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "troubadour"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "enchanted_refrain"
+  },
+  "scroll_of_dirge_of_doom": {
+    "name": "Scroll of Dirge Of Doom",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Dirge Of Doom technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "troubadour"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "dirge_of_doom"
+  },
+  "scroll_of_harmony_blade": {
+    "name": "Scroll of Harmony Blade",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Harmony Blade technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "troubadour"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "harmony_blade"
+  },
+  "scroll_of_mesmerizing_tune": {
+    "name": "Scroll of Mesmerizing Tune",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Mesmerizing Tune technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "troubadour"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "mesmerizing_tune"
+  },
+  "scroll_of_barkskin": {
+    "name": "Scroll of Barkskin",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Barkskin technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "wildspeaker"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "barkskin"
+  },
+  "scroll_of_moonfire": {
+    "name": "Scroll of Moonfire",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Moonfire technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "wildspeaker"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "moonfire"
+  },
+  "scroll_of_wild_growth": {
+    "name": "Scroll of Wild Growth",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Wild Growth technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "wildspeaker"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "wild_growth"
+  },
+  "scroll_of_thorn_whip": {
+    "name": "Scroll of Thorn Whip",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Thorn Whip technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "wildspeaker"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "thorn_whip"
+  },
+  "scroll_of_bear_form": {
+    "name": "Scroll of Bear Form",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Bear Form technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "wildspeaker"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "bear_form"
+  },
+  "scroll_of_natures_grasp": {
+    "name": "Scroll of Natures Grasp",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Natures Grasp technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "wildspeaker"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "natures_grasp"
+  },
+  "scroll_of_rejuvenation": {
+    "name": "Scroll of Rejuvenation",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Rejuvenation technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "wildspeaker"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "rejuvenation"
+  },
+  "scroll_of_cat_form": {
+    "name": "Scroll of Cat Form",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Cat Form technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "wildspeaker"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "cat_form"
+  },
+  "scroll_of_starfire": {
+    "name": "Scroll of Starfire",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Starfire technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "wildspeaker"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "starfire"
+  },
+  "scroll_of_natures_ward": {
+    "name": "Scroll of Natures Ward",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Natures Ward technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "wildspeaker"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "natures_ward"
+  },
+  "scroll_of_tranquility": {
+    "name": "Scroll of Tranquility",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Tranquility technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "wildspeaker"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "tranquility"
+  },
+  "scroll_of_hawk_form": {
+    "name": "Scroll of Hawk Form",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Hawk Form technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "wildspeaker"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "hawk_form"
+  },
+  "scroll_of_hurricane": {
+    "name": "Scroll of Hurricane",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Hurricane technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "wildspeaker"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "hurricane"
+  },
+  "scroll_of_thorns": {
+    "name": "Scroll of Thorns",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Thorns technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "wildspeaker"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "thorns"
+  },
+  "scroll_of_unstable_ward": {
+    "name": "Scroll of Unstable Ward",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Unstable Ward technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "chaosborn"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "unstable_ward"
+  },
+  "scroll_of_entropic_blast": {
+    "name": "Scroll of Entropic Blast",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Entropic Blast technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "chaosborn"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "entropic_blast"
+  },
+  "scroll_of_arcane_flux": {
+    "name": "Scroll of Arcane Flux",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Arcane Flux technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "chaosborn"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "arcane_flux"
+  },
+  "scroll_of_prismatic_spray": {
+    "name": "Scroll of Prismatic Spray",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Prismatic Spray technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "chaosborn"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "prismatic_spray"
+  },
+  "scroll_of_chaos_rift": {
+    "name": "Scroll of Chaos Rift",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Chaos Rift technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "chaosborn"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "chaos_rift"
+  },
+  "scroll_of_volatile_spark": {
+    "name": "Scroll of Volatile Spark",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Volatile Spark technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "chaosborn"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "volatile_spark"
+  },
+  "scroll_of_wild_barrier": {
+    "name": "Scroll of Wild Barrier",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Wild Barrier technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "chaosborn"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "wild_barrier"
+  },
+  "scroll_of_surge_of_entropy": {
+    "name": "Scroll of Surge Of Entropy",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Surge Of Entropy technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "chaosborn"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "surge_of_entropy"
+  },
+  "scroll_of_chaos_weave": {
+    "name": "Scroll of Chaos Weave",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Chaos Weave technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "chaosborn"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "chaos_weave"
+  },
+  "scroll_of_unstable_missile": {
+    "name": "Scroll of Unstable Missile",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Unstable Missile technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "chaosborn"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "unstable_missile"
+  },
+  "scroll_of_polymorphic_surge": {
+    "name": "Scroll of Polymorphic Surge",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Polymorphic Surge technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "chaosborn"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "polymorphic_surge"
+  },
+  "scroll_of_elemental_burst": {
+    "name": "Scroll of Elemental Burst",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Elemental Burst technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "chaosborn"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "elemental_burst"
+  },
+  "scroll_of_chaos_shield": {
+    "name": "Scroll of Chaos Shield",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Chaos Shield technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "chaosborn"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "chaos_shield"
+  },
+  "scroll_of_entropic_strike": {
+    "name": "Scroll of Entropic Strike",
+    "icon": "res://Assets/789_Lorc_RPG_icons/Icon.5_21.png",
+    "description": "A scroll bearing the Entropic Strike technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "chaosborn"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "entropic_strike"
   }
 }

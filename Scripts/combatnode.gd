@@ -121,14 +121,17 @@ func _ready():
 # ⭐ BUFF / DEBUFF EFFECTS (generic timed modifiers, shared by player + monsters)
 # ================================================================================
 
-var active_effects: Dictionary = {}  # name -> {remaining, modifiers, tick_dmg, tick_interval, tick_accum}
+var active_effects: Dictionary = {}  # name -> {remaining, modifiers, tick_dmg, tick_heal, tick_interval, tick_accum}
 
-func apply_effect(effect_name: String, duration: float, modifiers: Dictionary, tick_dmg: int = 0, tick_interval: float = 1.0) -> void:
-	"""Apply (or refresh) a named timed effect with a dict of additive modifiers."""
+func apply_effect(effect_name: String, duration: float, modifiers: Dictionary, tick_dmg: int = 0, tick_interval: float = 1.0, tick_heal: int = 0) -> void:
+	"""Apply (or refresh) a named timed effect with a dict of additive modifiers.
+	tick_dmg/tick_heal are mutually-exclusive per-tick amounts (DoT/HoT) — heal
+	goes through heal() so it respects max_hp, unlike take_damage()."""
 	active_effects[effect_name] = {
 		"remaining": duration,
 		"modifiers": modifiers,
 		"tick_dmg": tick_dmg,
+		"tick_heal": tick_heal,
 		"tick_interval": tick_interval,
 		"tick_accum": 0.0,
 	}
@@ -208,11 +211,14 @@ func _process(delta: float) -> void:
 	var expired: Array = []
 	for effect_name in active_effects:
 		var effect: Dictionary = active_effects[effect_name]
-		if effect["tick_dmg"] > 0:
+		if effect["tick_dmg"] > 0 or effect.get("tick_heal", 0) > 0:
 			effect["tick_accum"] += delta
 			if effect["tick_accum"] >= effect["tick_interval"]:
 				effect["tick_accum"] -= effect["tick_interval"]
-				take_damage(effect["tick_dmg"])
+				if effect["tick_dmg"] > 0:
+					take_damage(effect["tick_dmg"])
+				if effect.get("tick_heal", 0) > 0:
+					heal(effect["tick_heal"])
 		if effect["remaining"] != INF:
 			effect["remaining"] -= delta
 			if effect["remaining"] <= 0.0:

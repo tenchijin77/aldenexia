@@ -46,13 +46,7 @@ func _build_ui() -> void:
 	add_child(_panel)
 	_panel.gui_input.connect(_on_panel_gui_input)
 
-	# Same dark parchment-bordered look as player_frame.gd/stance_bar.gd.
-	var bg := StyleBoxFlat.new()
-	bg.bg_color = Color(0.08, 0.07, 0.06, 0.92)
-	bg.border_color = Color(0.45, 0.38, 0.25)
-	bg.set_border_width_all(2)
-	bg.set_corner_radius_all(5)
-	_panel.add_theme_stylebox_override("panel", bg)
+	_panel.add_theme_stylebox_override("panel", Global.window_bg_style())
 
 	var vbox := VBoxContainer.new()
 	vbox.set_anchors_preset(Control.PRESET_FULL_RECT)

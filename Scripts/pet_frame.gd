@@ -48,12 +48,7 @@ func _build_ui() -> void:
 	_panel = panel
 	add_child(panel)
 
-	var bg := StyleBoxFlat.new()
-	bg.bg_color = Color(0.08, 0.07, 0.06, 0.92)
-	bg.border_color = Color(0.45, 0.38, 0.25)
-	bg.set_border_width_all(2)
-	bg.set_corner_radius_all(5)
-	panel.add_theme_stylebox_override("panel", bg)
+	panel.add_theme_stylebox_override("panel", Global.window_bg_style())
 
 	var vbox := VBoxContainer.new()
 	vbox.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -231,7 +226,11 @@ func _on_gear_pressed() -> void:
 
 
 func _process(_delta: float) -> void:
-	if not is_instance_valid(_pet):
+	# A charmed monster (monster3d.gd's apply_charm()) reverts is_charmed to
+	# false on its own when the spell ends or is dismissed, rather than
+	# freeing itself — a real PetMinion has no such property, so this is a
+	# no-op for every normal pet.
+	if not is_instance_valid(_pet) or ("is_charmed" in _pet and not _pet.is_charmed):
 		queue_free()
 		return
 

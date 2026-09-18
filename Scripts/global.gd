@@ -99,7 +99,31 @@ var settings: Dictionary = {
 	"sfx_volume": 1.0,     # linear 0..1, applied to the "SFX" audio bus
 	"invert_look_y": false,  # flips vertical mouse input for both mouselook and head-turn (camera_controller.gd)
 	"show_name_tags": true,  # floating Label3D above the player's and pet's heads (player3d.gd, pet_minion.gd)
+	"ui_bg_alpha": 0.92,   # 0..1, shared alpha for every HUD window's background — see window_bg_style()
 }
+
+# Single shared StyleBoxFlat used for every HUD window's outer panel
+# background (character sheet, backpack, target/player/pet frames, tracking
+# window, cast bar, group frame, pause menu, etc.) instead of each script
+# building its own near-identical-but-not-quite copy. Every window calls
+# window_bg_style() once in _ready() and gets back THE SAME resource
+# instance, so adjusting ui_bg_alpha (the Options-panel transparency slider)
+# updates every open window live with no signals/listeners needed — mutating
+# a shared Resource's property is visible to every Control referencing it.
+var _window_bg_style: StyleBoxFlat = null
+
+func window_bg_style() -> StyleBoxFlat:
+	if _window_bg_style == null:
+		_window_bg_style = StyleBoxFlat.new()
+		_window_bg_style.bg_color = Color(0.08, 0.07, 0.06, settings.get("ui_bg_alpha", 0.92))
+		_window_bg_style.border_color = Color(0.45, 0.38, 0.25)
+		_window_bg_style.set_border_width_all(2)
+		_window_bg_style.set_corner_radius_all(5)
+	return _window_bg_style
+
+func set_ui_bg_alpha(alpha: float) -> void:
+	settings["ui_bg_alpha"] = alpha
+	window_bg_style().bg_color.a = alpha
 
 func load_settings() -> void:
 	if not FileAccess.file_exists(SETTINGS_PATH):

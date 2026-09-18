@@ -9,10 +9,14 @@ class_name GroupFrame
 
 const POSITION_KEY := "group_frame"
 const MAX_ROWS := 6  # matches player3d.gd's MAX_GROUP_SIZE
+const RESIZE_MARGIN := 16.0
+const MIN_WIDTH := 180.0
+const MIN_HEIGHT := 150.0
 
 var _player: Node = null
 var _panel: Panel = null
 var _dragging := false
+var _resizing := false
 
 # One entry per row: {wrapper, name_label, hp_bar, mp_bar, pet_wrapper,
 # pet_name_label, pet_hp_bar, pet_mp_bar}
@@ -39,12 +43,7 @@ func _build_ui() -> void:
 	_panel = panel
 	add_child(panel)
 
-	var bg := StyleBoxFlat.new()
-	bg.bg_color = Color(0.08, 0.07, 0.06, 0.92)
-	bg.border_color = Color(0.45, 0.38, 0.25)
-	bg.set_border_width_all(2)
-	bg.set_corner_radius_all(5)
-	panel.add_theme_stylebox_override("panel", bg)
+	panel.add_theme_stylebox_override("panel", Global.window_bg_style())
 
 	var vbox := VBoxContainer.new()
 	vbox.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -82,7 +81,7 @@ func _build_ui() -> void:
 	disband_btn.pressed.connect(_on_disband_pressed)
 	btn_row.add_child(disband_btn)
 
-	WindowPosition.load_position_into(POSITION_KEY, panel)
+	WindowPosition.load_full_into(POSITION_KEY, panel)
 
 
 # Builds one member row (name/hp/mp + a nested, initially-hidden pet
@@ -207,14 +206,26 @@ func _on_row_clicked(event: InputEvent, row: Dictionary, part: String) -> void:
 
 func _on_panel_gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
-		_dragging = event.pressed
-		if not _dragging:
-			WindowPosition.save(POSITION_KEY, _panel)
-	elif event is InputEventMouseMotion and _dragging:
-		_panel.offset_left   += event.relative.x
-		_panel.offset_top    += event.relative.y
-		_panel.offset_right  += event.relative.x
-		_panel.offset_bottom += event.relative.y
+		if event.pressed:
+			var pos: Vector2 = event.position
+			if pos.x > _panel.size.x - RESIZE_MARGIN and pos.y > _panel.size.y - RESIZE_MARGIN:
+				_resizing = true
+			else:
+				_dragging = true
+		else:
+			if _dragging or _resizing:
+				WindowPosition.save(POSITION_KEY, _panel)
+			_dragging = false
+			_resizing = false
+	elif event is InputEventMouseMotion:
+		if _resizing:
+			_panel.offset_right  = max(_panel.offset_left + MIN_WIDTH, _panel.offset_right + event.relative.x)
+			_panel.offset_bottom = max(_panel.offset_top + MIN_HEIGHT, _panel.offset_bottom + event.relative.y)
+		elif _dragging:
+			_panel.offset_left   += event.relative.x
+			_panel.offset_top    += event.relative.y
+			_panel.offset_right  += event.relative.x
+			_panel.offset_bottom += event.relative.y
 
 
 func _process(_delta: float) -> void:

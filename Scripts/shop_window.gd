@@ -9,8 +9,18 @@ extends CanvasLayer
 
 const MIN_PANEL_WIDTH := 260.0
 const MAX_PANEL_WIDTH := 420.0
+const MIN_PANEL_HEIGHT := 200.0
 const MAX_LIST_HEIGHT := 200.0  # each of the two lists, before it scrolls instead of growing the window
 const POSITION_KEY := "shop_window"
+const RESIZE_MARGIN := 16.0
+var _resizing := false
+# Once anything's been saved for this window (a drag OR a resize), stop
+# auto-fitting the panel to content on every rebuild — otherwise
+# _resize_to_content() (called every time the buy/sell list rebuilds: stock
+# change, "usable only" toggle, inventory change) would snap a manually
+# resized window straight back to its auto-fit size the next time the player
+# so much as picks up an item.
+var _user_resized := false
 
 var _vendor: Node = null
 var _player: Node = null
@@ -32,7 +42,8 @@ func _ready() -> void:
 	panel.gui_input.connect(_on_panel_gui_input)
 	$Panel/Margin/VBox/TitleBar/CloseBtn.pressed.connect(queue_free)
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
-	WindowPosition.load_position_into(POSITION_KEY, panel)
+	_user_resized = Global.player_data.get("ui_positions", {}).get(POSITION_KEY, []).size() == 4
+	WindowPosition.load_full_into(POSITION_KEY, panel)
 	Global.currency_changed.connect(_refresh_coin_label)
 	Inventory.inventory_changed.connect(_rebuild_sell_list)
 	usable_only_check.toggled.connect(func(_pressed: bool): _rebuild_buy_list())
@@ -284,27 +295,51 @@ func _sell(row_data: Dictionary, qty: int) -> void:
 func _resize_to_content() -> void:
 	var buy_min: Vector2 = buy_list.get_combined_minimum_size()
 	var sell_min: Vector2 = sell_list.get_combined_minimum_size()
-	var widest: float = maxf(buy_min.x, sell_min.x)
-
-	var target_width: float = clamp(widest + 32.0, MIN_PANEL_WIDTH, MAX_PANEL_WIDTH)
-	panel.offset_right = panel.offset_left + target_width
 
 	buy_scroll.custom_minimum_size.y = minf(buy_min.y, MAX_LIST_HEIGHT)
 	sell_scroll.custom_minimum_size.y = minf(sell_min.y, MAX_LIST_HEIGHT)
+
+	# Once the player's dragged or resized this window, respect that instead
+	# of snapping the panel back to its auto-fit size on every list rebuild
+	# (stock change, "usable only" toggle, inventory change) — see
+	# _user_resized's declaration for why. The scroll min-sizes above still
+	# update regardless; they only set each LIST's own floor, which the
+	# window's real size (possibly now bigger, via manual resize) simply
+	# has room for.
+	if _user_resized:
+		return
+
+	var widest: float = maxf(buy_min.x, sell_min.x)
+	var target_width: float = clamp(widest + 32.0, MIN_PANEL_WIDTH, MAX_PANEL_WIDTH)
+	panel.offset_right = panel.offset_left + target_width
 
 	var vbox_min: Vector2 = vbox.get_combined_minimum_size()
 	panel.offset_bottom = panel.offset_top + vbox_min.y + 16.0
 
 
-# ===== DRAGGABLE PANEL =====
+# ===== DRAGGABLE / RESIZABLE PANEL =====
 
 func _on_panel_gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
-		_dragging = event.pressed
-		if not _dragging:
-			WindowPosition.save(POSITION_KEY, panel)
-	elif event is InputEventMouseMotion and _dragging:
-		panel.offset_left += event.relative.x
-		panel.offset_top += event.relative.y
-		panel.offset_right += event.relative.x
-		panel.offset_bottom += event.relative.y
+		if event.pressed:
+			var pos: Vector2 = event.position
+			if pos.x > panel.size.x - RESIZE_MARGIN and pos.y > panel.size.y - RESIZE_MARGIN:
+				_resizing = true
+			else:
+				_dragging = true
+		else:
+			if _dragging or _resizing:
+				WindowPosition.save(POSITION_KEY, panel)
+			if _resizing:
+				_user_resized = true
+			_dragging = false
+			_resizing = false
+	elif event is InputEventMouseMotion:
+		if _resizing:
+			panel.offset_right  = max(panel.offset_left + MIN_PANEL_WIDTH, panel.offset_right + event.relative.x)
+			panel.offset_bottom = max(panel.offset_top + MIN_PANEL_HEIGHT, panel.offset_bottom + event.relative.y)
+		elif _dragging:
+			panel.offset_left += event.relative.x
+			panel.offset_top += event.relative.y
+			panel.offset_right += event.relative.x
+			panel.offset_bottom += event.relative.y

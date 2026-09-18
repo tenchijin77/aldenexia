@@ -36,6 +36,7 @@ const DEFAULT_VENDOR_MODEL := {
 
 @onready var name_label: Label3D = $NameLabel
 var animation_player: AnimationPlayer = null
+var combat_node: CombatNode
 
 var _shop_data: Dictionary = {}
 
@@ -47,6 +48,29 @@ func _ready() -> void:
 	_load_shop_data()
 	_build_character_model()
 	_setup_animation()
+	_setup_combat()
+
+
+# Had no combat_node at all before this — showed as 0/0 HP wherever
+# something expects one (target frame, appraisal), same "no life" bug
+# guard_npc.gd doesn't have since it already sets one up. Vendors don't
+# fight, so this exists purely so they read as a real, alive NPC (100 HP
+# flat, per the user's request) rather than for any actual combat use.
+func _setup_combat() -> void:
+	combat_node = CombatNode.new()
+	add_child(combat_node)
+	combat_node.level        = 1
+	combat_node.strength     = 0
+	combat_node.constitution = 0
+	combat_node.dexterity    = 0
+	combat_node.intelligence = 0
+	combat_node.wisdom       = 0
+	combat_node.charisma     = 0
+	combat_node.luck         = 0
+	combat_node.gear_hp = 50  # base_hp (50) + gear_hp (50) = 100 max_hp
+	combat_node._stats_dirty = true
+	combat_node.recalculate_derived_stats()
+	combat_node.current_hp = combat_node.max_hp
 
 
 func _load_shop_data() -> void:

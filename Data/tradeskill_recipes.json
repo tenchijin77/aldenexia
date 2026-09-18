@@ -1,0 +1,19 @@
+{
+  "_comment": "tradeskill_recipes.json - keyed by station_id (campfire, basic_alchemy_kit, etc). Each recipe's 'ingredients' dict (item_id -> quantity) must exactly match everything placed in the crafting window's slots (order doesn't matter, extra/missing items don't match). Proof-of-concept content - a real recipe sheet will replace/expand this later.",
+  "campfire": [
+    {
+      "ingredients": { "raw_meat": 1 },
+      "output": "cooked_meat",
+      "output_quantity": 1,
+      "craft_time": 4.0
+    }
+  ],
+  "basic_alchemy_kit": [
+    {
+      "ingredients": { "snake_venom": 1 },
+      "output": "basic_poison",
+      "output_quantity": 1,
+      "craft_time": 4.0
+    }
+  ]
+}

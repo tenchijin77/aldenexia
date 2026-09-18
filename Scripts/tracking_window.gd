@@ -37,14 +37,8 @@ func _ready() -> void:
 	WindowPosition.load_full_into(POSITION_KEY, panel)
 
 
-# Same dark parchment-bordered look as target_frame.gd/pet_frame.gd/player_frame.gd.
 func _style_panel() -> void:
-	var bg := StyleBoxFlat.new()
-	bg.bg_color = Color(0.08, 0.07, 0.06, 0.92)
-	bg.border_color = Color(0.45, 0.38, 0.25)
-	bg.set_border_width_all(2)
-	bg.set_corner_radius_all(5)
-	panel.add_theme_stylebox_override("panel", bg)
+	panel.add_theme_stylebox_override("panel", Global.window_bg_style())
 
 
 func set_player(p: Node) -> void:

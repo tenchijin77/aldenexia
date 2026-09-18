@@ -53,10 +53,41 @@ const MOB_MODELS := {
 		"library": "res://models/mobs/desert goblin scout/goblin_scout_animations.res",
 		"texture_override": "res://models/mobs/desert goblin scout/Meshy_AI_Desert_Goblin_Scout_R_biped_texture_0.png",
 	},
+	# "goblin" (the base type, distinct from goblin_warrior/goblin_scout) has
+	# no dedicated asset of its own — reuses the Desert Goblin Warrior model,
+	# closing the gap the comment below used to describe.
+	"goblin": {
+		"scene":   "res://models/mobs/desert goblin/Meshy_AI_Desert_Goblin_Warrior_biped_Character_output.fbx",
+		"library": "res://models/mobs/desert goblin/goblin_warrior_animations.res",
+		"texture_override": "res://models/mobs/desert goblin/Meshy_AI_Desert_Goblin_Warrior_biped_texture_0.png",
+	},
 }
 const DEFAULT_HUMANOID_MOB_MODEL := {
 	"scene":   "res://models/player/character.fbx",
 	"library": "res://models/player/player_animations.res",
+}
+
+# Non-humanoid critters with a real (but unrigged — single static mesh, no
+# skeleton/animations, same Meshy image-to-3D pipeline as the Wildspeaker
+# pet's placeholder) model now available — added 2026-09-17. Mapped by the
+# exact monster-description match confirmed against the zone's own mob list:
+# "rat" = "A Desert Scavenger", "spiderling" = "A Spiderling Swarmer" (this
+# folder is literally named "juvenile spider").
+const CRITTER_MODELS := {
+	"rat": {
+		"scene": "res://models/mobs/desert scavenger/Meshy_AI_desert_rodent_monster_0916015343_image-to-3d-texture.fbx",
+		"albedo": "res://models/mobs/desert scavenger/Meshy_AI_desert_rodent_monster_0916015343_image-to-3d-texture.png",
+		"normal": "res://models/mobs/desert scavenger/Meshy_AI_desert_rodent_monster_0916015343_image-to-3d-texture_normal.png",
+		"roughness": "res://models/mobs/desert scavenger/Meshy_AI_desert_rodent_monster_0916015343_image-to-3d-texture_roughness.png",
+		"metallic": "res://models/mobs/desert scavenger/Meshy_AI_desert_rodent_monster_0916015343_image-to-3d-texture_metallic.png",
+	},
+	"spiderling": {
+		"scene": "res://models/mobs/juvenile spider/Meshy_AI_juvenile_spider_monst_0916005348_image-to-3d-texture.fbx",
+		"albedo": "res://models/mobs/juvenile spider/Meshy_AI_juvenile_spider_monst_0916005348_image-to-3d-texture.png",
+		"normal": "res://models/mobs/juvenile spider/Meshy_AI_juvenile_spider_monst_0916005348_image-to-3d-texture_normal.png",
+		"roughness": "res://models/mobs/juvenile spider/Meshy_AI_juvenile_spider_monst_0916005348_image-to-3d-texture_roughness.png",
+		"metallic": "res://models/mobs/juvenile spider/Meshy_AI_juvenile_spider_monst_0916005348_image-to-3d-texture_metallic.png",
+	},
 }
 
 @export_group("Loot & XP")
@@ -81,10 +112,35 @@ const DEFAULT_HUMANOID_MOB_MODEL := {
 @export var corruption: String = ""
 
 # ===== STATE =====
-enum State { IDLE, PATROL, CHASE, ATTACK, DEAD }
+enum State { IDLE, PATROL, CHASE, ATTACK, DEAD, FLEEING, CHARMED }
 var current_state: State = State.IDLE
 var can_attack: bool = true
 var combat_node: CombatNode
+
+# ===== FEAR (2026-09-17) =====
+const FLEE_DIRECTION_INTERVAL := 4.0
+const FLEE_COLLISION_RADIUS := 1.5  # "runs into another social enemy" proximity check
+var _flee_time_remaining: float = 0.0
+var _flee_direction_timer: float = 0.0
+var _flee_direction: Vector3 = Vector3.ZERO
+var _pre_flee_state: State = State.IDLE
+
+# ===== CHARM (2026-09-17) =====
+# Charm hands the player a temporary "pet" out of a hostile monster, using
+# the exact same command interface/UI as a real PetMinion (pet_frame.gd) —
+# see player3d.gd's "charm" effect_type case, which opens that window against
+# this monster instead of building a new one. `command`/`pet_name` and the
+# cmd_*() methods below exist purely to satisfy that shared interface
+# (PetMinion.PetState's int values: FOLLOW=0, ATTACK=1, SIT=2, GUARD=3,
+# ASSIST=4) — pet_frame.gd has no idea it isn't a real PetMinion.
+var is_charmed: bool = false
+var pet_name: String = ""
+var command: int = 0
+var charm_owner: Node = null
+var charm_attack_target: Node = null
+var guard_position: Vector3 = Vector3.ZERO
+var _charm_time_remaining: float = 0.0
+const CHARM_GUARD_SCAN_RADIUS := 8.0
 # Set alongside every animation_player.play() call below, replicated (see
 # monster_template.tscn's MultiplayerSynchronizer) so a non-authoritative
 # client just mirrors whatever animation the server/single-player simulation
@@ -196,6 +252,8 @@ func _ready() -> void:
 
 	if monster_name in HUMANOID_MOB_TYPES:
 		_setup_humanoid_visual()
+	elif monster_name in CRITTER_MODELS:
+		_setup_critter_visual()
 
 	combat_node = CombatNode.new()
 	combat_node.name = "CombatNode"
@@ -264,6 +322,65 @@ func _apply_texture_override(node: Node, texture_path: String) -> void:
 		return
 	var mat := StandardMaterial3D.new()
 	mat.albedo_texture = tex
+	_apply_material_recursive(node, mat)
+
+
+# Non-humanoid critter with a real but unrigged model (single static mesh,
+# no AnimationPlayer) — same shape as wildspeaker_pet.gd's model handling.
+# No animation swapping needed since there's nothing to swap; _update_animation()
+# below already no-ops harmlessly when animation_player is null.
+func _setup_critter_visual() -> void:
+	mesh_instance.visible = false
+
+	var capsule := CapsuleShape3D.new()
+	capsule.radius = 0.4
+	capsule.height = 1.0
+	collision_shape.shape = capsule
+	collision_shape.position = Vector3(0, 0.5, 0)
+
+	var model_info: Dictionary = CRITTER_MODELS[monster_name]
+	var character_scene := load(model_info["scene"])
+	if not character_scene:
+		return
+	var character: Node3D = character_scene.instantiate()
+	character.name = "Character"
+	# Same 180°-Y facing fix every Meshy/Mixamo model in this codebase needs —
+	# unverified for these two specific meshes' pivot/scale yet (see
+	# phantasmal_echo_pet.gd's comment on how that one needed a couple of
+	# correction passes); adjust here first if either critter turns out
+	# sunk into the ground or oddly scaled once seen in-game.
+	character.transform = Transform3D.IDENTITY.rotated(Vector3.UP, PI)
+	add_child(character)
+
+	_apply_critter_material(character, model_info)
+
+
+# Same texture-never-survives-FBX-export issue as every other Meshy model
+# here — applied as a runtime material override using all of this asset
+# type's real PBR maps (normal/roughness/metallic), same as
+# phantasmal_echo_pet.gd's _apply_spirit_pet_material().
+func _apply_critter_material(node: Node, model_info: Dictionary) -> void:
+	var albedo := load(model_info.get("albedo", "")) as Texture2D
+	if not albedo:
+		push_warning("⚠️ Critter texture override not found for %s" % monster_name)
+		return
+	var mat := StandardMaterial3D.new()
+	mat.albedo_texture = albedo
+
+	var normal := load(model_info.get("normal", "")) as Texture2D
+	if normal:
+		mat.normal_enabled = true
+		mat.normal_texture = normal
+
+	var roughness := load(model_info.get("roughness", "")) as Texture2D
+	if roughness:
+		mat.roughness_texture = roughness
+
+	var metallic := load(model_info.get("metallic", "")) as Texture2D
+	if metallic:
+		mat.metallic_texture = metallic
+		mat.metallic = 1.0  # metallic_texture modulates this scalar — 1.0 lets the map through unscaled
+
 	_apply_material_recursive(node, mat)
 
 
@@ -435,10 +552,16 @@ func _physics_process(delta: float) -> void:
 			state_chase(delta)
 		State.ATTACK:
 			state_attack(delta)
+		State.FLEEING:
+			state_fleeing(delta)
+		State.CHARMED:
+			state_charmed(delta)
 
 	# Movement and gravity
-	if current_state in [State.PATROL, State.CHASE]:
+	if current_state in [State.PATROL, State.CHASE, State.CHARMED]:
 		handle_movement(delta)
+	elif current_state == State.FLEEING:
+		pass  # state_fleeing() above already moved it this frame
 	else:
 		# Always apply gravity so monsters don't float when idle or attacking
 		if not is_on_floor():
@@ -555,6 +678,236 @@ func state_attack(delta: float) -> void:
 	if can_attack:
 		perform_attack()
 
+
+# Called by the generic spell-effect system (player3d.gd's
+# _apply_generic_spell_effect(), "fear" case) instead of the old
+# can't-attack-for-a-bit approximation every other CC effect still uses —
+# fear gets its own real behavior per the user's spec: run in a random
+# direction, picking a new one every FLEE_DIRECTION_INTERVAL seconds, for the
+# spell's full duration, then resume whatever it was doing before.
+func apply_fear(duration: float) -> void:
+	if current_state == State.DEAD:
+		return
+	if current_state != State.FLEEING:
+		_pre_flee_state = current_state
+	_flee_time_remaining = duration
+	_flee_direction_timer = 0.0  # forces an immediate direction pick this frame
+	change_state(State.FLEEING)
+
+
+func state_fleeing(delta: float) -> void:
+	_flee_time_remaining -= delta
+	if _flee_time_remaining <= 0.0:
+		change_state(State.CHASE if not aggro_table.is_empty() else _pre_flee_state)
+		return
+
+	_flee_direction_timer -= delta
+	if _flee_direction_timer <= 0.0:
+		_flee_direction_timer = FLEE_DIRECTION_INTERVAL
+		var angle := randf() * TAU
+		_flee_direction = Vector3(cos(angle), 0, sin(angle))
+
+	# Direct movement, not nav_agent pathing — fleeing has no destination, just
+	# a heading, and doesn't need to be graceful about it (same reasoning
+	# guard_npc.gd's/pet_minion.gd's "stuck" direct-fallback movement uses:
+	# straight-line movement plus a short obstacle check is good enough when
+	# real pathing isn't the point).
+	if _flee_direction != Vector3.ZERO:
+		look_at_target(global_position + _flee_direction)
+		var speed_3d: float = (speed / 10.0) * (1.0 - combat_node.get_modifier("speed_slow"))
+		velocity.x = _flee_direction.x * speed_3d
+		velocity.z = _flee_direction.z * speed_3d
+	if not is_on_floor():
+		velocity.y -= 20.0 * delta
+	else:
+		velocity.y = 0.0
+	move_and_slide()
+
+	_check_flee_collision_aggro()
+
+
+# "If the monster runs into another social enemy, the enemy will become
+# aggressive and attack the player" — proximity-based rather than a real
+# physics collision callback, same trade-off pet_minion.gd's obstacle check
+# makes for "good enough, not physically exact."
+func _check_flee_collision_aggro() -> void:
+	if not is_instance_valid(player):
+		return
+	for other in get_tree().get_nodes_in_group("monsters"):
+		if other == self or not is_instance_valid(other) or not (other is Monster):
+			continue
+		var m: Monster = other
+		if not m.is_social or m.current_state == State.DEAD or m.current_state == State.FLEEING:
+			continue
+		if global_position.distance_to(m.global_position) <= FLEE_COLLISION_RADIUS:
+			m.add_threat(player, 1.0)
+
+
+# Called by player3d.gd's "charm" effect_type case. Clears any existing
+# aggro (a charmed monster fighting the player makes no sense) and hands
+# control to whoever cast it, via the same command set pet_frame.gd already
+# knows how to drive.
+func apply_charm(duration: float, owner: Node) -> void:
+	if current_state == State.DEAD:
+		return
+	is_charmed = true
+	charm_owner = owner
+	charm_attack_target = null
+	aggro_table.clear()
+	pet_name = monster_description if monster_description != "" else get_monster_name()
+	command = 0  # PetMinion.PetState.FOLLOW
+	_charm_time_remaining = duration
+	change_state(State.CHARMED)
+
+
+# Reverts to a normal hostile monster — on duration expiry, cmd_dismiss(), or
+# the charmer no longer being valid. Re-aggros on the player rather than
+# resetting to IDLE, matching the "it was hostile a moment ago" expectation
+# (an un-charmed monster shouldn't just wander off).
+func _end_charm() -> void:
+	is_charmed = false
+	charm_owner = null
+	charm_attack_target = null
+	aggro_table.clear()
+	if is_instance_valid(player):
+		add_threat(player, 1.0)
+	else:
+		change_state(State.IDLE)
+
+
+func state_charmed(delta: float) -> void:
+	if not is_instance_valid(charm_owner):
+		_end_charm()
+		return
+	_charm_time_remaining -= delta
+	if _charm_time_remaining <= 0.0:
+		GameLog.log_general("[color=#ffcc66]%s shakes off your charm.[/color]" % pet_name.capitalize())
+		_end_charm()
+		return
+
+	match command:
+		0:  # FOLLOW
+			if nav_agent:
+				nav_agent.target_position = charm_owner.global_position
+		1:  # ATTACK
+			_charm_pursue_and_attack(charm_attack_target, delta)
+		2:  # SIT
+			if nav_agent:
+				nav_agent.target_position = global_position
+		3:  # GUARD
+			if not (is_instance_valid(charm_attack_target) and _target_alive_generic(charm_attack_target)):
+				charm_attack_target = _find_nearest_hostile_to(charm_owner, CHARM_GUARD_SCAN_RADIUS)
+			if is_instance_valid(charm_attack_target):
+				_charm_pursue_and_attack(charm_attack_target, delta)
+			elif nav_agent:
+				nav_agent.target_position = guard_position
+		4:  # ASSIST
+			if "current_target" in charm_owner and is_instance_valid(charm_owner.current_target):
+				charm_attack_target = charm_owner.current_target
+			_charm_pursue_and_attack(charm_attack_target, delta)
+
+
+func _charm_pursue_and_attack(target: Node, _delta: float) -> void:
+	if not is_instance_valid(target) or not _target_alive_generic(target):
+		charm_attack_target = null
+		return
+	var distance := global_position.distance_to(target.global_position)
+	if distance <= attack_range:
+		if nav_agent:
+			nav_agent.target_position = global_position
+		look_at_target(target.global_position)
+		if can_attack:
+			_perform_charmed_attack(target)
+	elif nav_agent:
+		nav_agent.target_position = target.global_position
+
+
+func _target_alive_generic(target: Node) -> bool:
+	var cn = target.get("combat_node")
+	return cn is CombatNode and cn.is_alive()
+
+
+# Finds the nearest hostile-to-the-player monster within radius of `origin`
+# for Guard mode — mirrors pet_minion.gd's own guard-scan idea, adapted since
+# a charmed monster's "hostiles" are other monsters, not the player.
+func _find_nearest_hostile_to(origin: Node3D, radius: float) -> Node:
+	var nearest: Node = null
+	var nearest_dist: float = radius
+	for other in get_tree().get_nodes_in_group("monsters"):
+		if other == self or not (other is Monster) or not is_instance_valid(other):
+			continue
+		var m: Monster = other
+		if m.current_state == State.DEAD or m.is_charmed:
+			continue
+		var dist: float = origin.global_position.distance_to(m.global_position)
+		if dist < nearest_dist:
+			nearest_dist = dist
+			nearest = m
+	return nearest
+
+
+# Attacks another Monster on the charmer's behalf — deliberately separate
+# from perform_attack() (which resolves against get_current_target(), an
+# aggro-table lookup keyed on attacking the player) since a charmed monster's
+# target is an explicit charm_attack_target instead.
+func _perform_charmed_attack(target: Node) -> void:
+	can_attack = false
+	_play_attack_animation()
+	var base_cooldown: float = _attack_anim_timer if _attack_anim_timer > 0.0 else attack_cooldown
+	attack_timer = base_cooldown * (1.0 + combat_node.get_modifier("attack_speed_slow"))
+
+	if not (target.get("combat_node") is CombatNode):
+		return
+	var result: Dictionary = combat_node.resolve_attack(target.combat_node)
+	var desc: String = target.get("monster_description")
+	if desc == "" and target.has_method("get_monster_name"):
+		desc = target.get_monster_name()
+	_log_attack_on_other(result, pet_name, desc)
+	if not target.combat_node.is_alive() and target.has_method("die"):
+		target.die()
+		charm_attack_target = null
+
+
+# ── Commands (pet_frame.gd's exact interface — see PetMinion's cmd_*()) ────
+func cmd_attack(target: Node) -> void:
+	if not is_instance_valid(target):
+		GameLog.log_general("%s has no target to attack." % pet_name.capitalize())
+		return
+	charm_attack_target = target
+	command = 1
+
+
+func cmd_follow() -> void:
+	charm_attack_target = null
+	command = 0
+
+
+func cmd_sit() -> void:
+	charm_attack_target = null
+	command = 2
+
+
+func cmd_guard() -> void:
+	charm_attack_target = null
+	guard_position = global_position
+	command = 3
+
+
+func cmd_assist() -> void:
+	charm_attack_target = null
+	command = 4
+
+
+func cmd_back() -> void:
+	charm_attack_target = null
+	command = 0
+
+
+func cmd_dismiss() -> void:
+	GameLog.log_general("[color=#ffcc66]You release %s from your charm.[/color]" % pet_name.capitalize())
+	_end_charm()
+
+
 # ===== MOVEMENT =====
 # Gravity/move_and_slide() must run every call regardless of whether there's
 # horizontal nav movement to do this frame — a monster can be legitimately
@@ -635,6 +988,8 @@ func perform_attack() -> void:
 			var msg: String = CombatLogFormatter.monster_attack(result, desc, get_damage_type())
 			if not msg.is_empty():
 				GameLog.log_combat(msg)
+			if target.has_method("_tick_defense_skill"):
+				target._tick_defense_skill(result.get("result", ""))
 			if result.get("damage", 0) > 0 and target.has_method("on_combat_node_hit"):
 				target.on_combat_node_hit(self)
 		else:
@@ -800,6 +1155,65 @@ func apply_networked_damage(amount: int, attacker_peer_id: int) -> void:
 	combat_node.current_hp = maxi(combat_node.current_hp - amount, 0)
 	if not combat_node.is_alive():
 		die(true, true, attacker_peer_id)
+
+
+# Same reasoning/pattern as apply_networked_damage() above, for the
+# non-damage side of a spell — debuffs, snares, DoTs, etc. Monsters are
+# server-authoritative, so a non-host caster's own local, replicated puppet
+# of a monster is not the real one; mutating combat_node.apply_effect()
+# directly there (what player3d.gd's _buff_target() used to always do) was a
+# no-op from every other peer's perspective, identical in shape to the
+# player-to-player heal/buff bug fixed the same day. See player3d.gd's
+# _buff_target() for the caller side.
+@rpc("any_peer", "call_remote", "reliable")
+func apply_networked_effect(effect_name: String, duration: float, modifiers: Dictionary, tick_dmg: int, tick_interval: float) -> void:
+	if not is_multiplayer_authority() or current_state == State.DEAD:
+		return
+	combat_node.apply_effect(effect_name, duration, modifiers, tick_dmg, tick_interval)
+
+
+# Relays the plain can_attack/attack_timer stagger (stun/mesmerize/confuse's
+# shared _apply_disable_effect() fallback, and Improved Disarm) the same way
+# as the effect-based relays above. can_attack/attack_timer aren't in this
+# scene's SceneReplicationConfig, so a non-host caster's relay only affects
+# the SERVER's own decision of whether this monster attacks (what actually
+# matters for gameplay) — it won't visually update other clients' copies of
+# the flag, which is a cosmetic gap only, not a functional one.
+@rpc("any_peer", "call_remote", "reliable")
+func apply_networked_disable(duration: float) -> void:
+	if not is_multiplayer_authority():
+		return
+	can_attack = false
+	attack_timer = duration
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func apply_networked_fear(duration: float) -> void:
+	if not is_multiplayer_authority():
+		return
+	apply_fear(duration)
+
+
+# charm_owner is a Node reference and, per this project's own established
+# rule (see project_multiplayer_netcode memory), a Node reference is never
+# meaningful across machines — so the caster's peer id crosses the wire
+# instead, and gets resolved back into a real local Node on whichever
+# machine actually authoritative for this monster (the server).
+@rpc("any_peer", "call_remote", "reliable")
+func apply_networked_charm(duration: float, caster_peer_id: int) -> void:
+	if not is_multiplayer_authority():
+		return
+	var owner_node: Node = _resolve_peer_to_player(caster_peer_id)
+	if not is_instance_valid(owner_node):
+		return
+	apply_charm(duration, owner_node)
+
+
+func _resolve_peer_to_player(peer_id: int) -> Node:
+	for node in get_tree().get_nodes_in_group("player"):
+		if is_instance_valid(node) and node.get_multiplayer_authority() == peer_id:
+			return node
+	return null
 
 
 func open_loot_window() -> void:

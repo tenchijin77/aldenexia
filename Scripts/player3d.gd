@@ -301,7 +301,58 @@ func _try_open_shop_or_loot() -> void:
 		if vendor:
 			_open_shop(vendor)
 			return
+	if _try_open_campfire():
+		return
 	_try_loot_corpse()
+
+
+var _tradeskill_window_instance: Node = null
+
+# Opens the generic crafting window against whichever campfire/cooking
+# station is nearest, if one is in range — range-based rather than a raycast
+# (see campfire.gd's comment) since these are static decorations with no
+# collision body worth hit-testing. Returns whether one was opened, so
+# _try_open_shop_or_loot() can fall through to corpse-looting otherwise.
+func _try_open_campfire() -> bool:
+	var nearest: Node = null
+	var nearest_dist: float = INF
+	for node in get_tree().get_nodes_in_group("cooking_station"):
+		if not is_instance_valid(node):
+			continue
+		var dist := global_position.distance_to(node.global_position)
+		if dist <= node.COOK_RANGE and dist < nearest_dist:
+			nearest_dist = dist
+			nearest = node
+	if nearest == null:
+		return false
+	_open_tradeskill_window(nearest.STATION_ID, nearest.display_name, "Cook")
+	return true
+
+
+var _charm_control_frame: Node = null
+
+# Reuses pet_frame.gd verbatim for a charmed monster's temporary control
+# window, per the user's explicit request (2026-09-17) — that scene only
+# needs `pet_name`/`combat_node`/`command` and the cmd_*() methods, all of
+# which monster3d.gd's charm support (apply_charm()) now provides, so it has
+# no idea the "pet" here isn't a real PetMinion. Tracked separately from
+# active_pet_frame so a real summoned pet and a charmed monster can coexist.
+func _open_charm_control_window(charmed: Node) -> void:
+	if is_instance_valid(_charm_control_frame):
+		_charm_control_frame.queue_free()
+	var frame: Node = load("res://Scenes/pet_frame.tscn").instantiate()
+	frame.add_to_group("game_hud")
+	get_tree().root.add_child(frame)
+	frame.set_pet(charmed)
+	_charm_control_frame = frame
+
+
+func _open_tradeskill_window(station_id: String, title: String, action_label: String) -> void:
+	if is_instance_valid(_tradeskill_window_instance):
+		_tradeskill_window_instance.queue_free()
+	_tradeskill_window_instance = load("res://Scenes/tradeskill_window.tscn").instantiate()
+	get_tree().root.add_child(_tradeskill_window_instance)
+	_tradeskill_window_instance.setup(station_id, title, action_label)
 
 
 func _raycast_vendor(screen_pos: Vector2) -> Node:
@@ -1805,7 +1856,7 @@ func attack_current_target() -> void:
 	var my_attack_generation := _attack_generation
 
 	if "combat_node" in current_target and current_target.combat_node is CombatNode:
-		var result = combat_node.resolve_attack(current_target.combat_node)
+		var result = _resolve_melee_attack(current_target.combat_node)
 		if not combat_node.is_alive():
 			die(current_target)
 			return
@@ -1833,14 +1884,11 @@ func attack_current_target() -> void:
 		if result["result"] == "HIT":
 			var skey: String = weapon.get("skill", "").to_lower().replace(" ", "_")
 			_tick_skill(skey)
-		elif result["result"] == "PARRY":
-			_tick_skill("parry")
-		elif result["result"] == "DODGE":
-			_tick_skill("dodge")
-		elif result["result"] == "BLOCK":
-			_tick_skill("block")
-		elif result["result"] == "RIPOSTE":
-			_tick_skill("riposte")
+		# PARRY/DODGE/BLOCK/RIPOSTE here mean the *target* defended against our
+		# attack, not that we defended anything — ticking our own defensive
+		# skills on these results was crediting us for the monster's save. Our
+		# own parry/dodge/block/riposte now tick from _tick_defense_skill(),
+		# called when a monster attacks us and we're the one defending.
 		if not current_target.combat_node.is_alive():
 			var dead := current_target
 			combat_node.notify_kill()
@@ -1911,7 +1959,7 @@ func perform_melee_attack() -> void:
 
 	if target:
 		if "combat_node" in target and target.combat_node is CombatNode:
-			var result = combat_node.resolve_attack(target.combat_node)
+			var result = _resolve_melee_attack(target.combat_node)
 			if not combat_node.is_alive():
 				die(target)
 				return
@@ -1933,14 +1981,8 @@ func perform_melee_attack() -> void:
 			if result["result"] == "HIT":
 				var skey: String = weapon.get("skill", "").to_lower().replace(" ", "_")
 				_tick_skill(skey)
-			elif result["result"] == "PARRY":
-				_tick_skill("parry")
-			elif result["result"] == "DODGE":
-				_tick_skill("dodge")
-			elif result["result"] == "BLOCK":
-				_tick_skill("block")
-			elif result["result"] == "RIPOSTE":
-				_tick_skill("riposte")
+			# See attack_current_target()'s identical comment: PARRY/DODGE/
+			# BLOCK/RIPOSTE here are the target's own defense, not ours.
 			if not target.combat_node.is_alive():
 				combat_node.notify_kill()
 				GameLog.log_combat(CombatLogFormatter.death("You", target_desc))
@@ -2426,7 +2468,7 @@ func _apply_equipment_from_inventory() -> void:
 		if item == null or typeof(item) != TYPE_DICTIONARY:
 			continue
 		if slot == "primary":
-			weapon_dmg = item.get("damage", 0)
+			weapon_dmg = item.get("damage", 0) + item.get("poison_bonus_damage", 0)
 		else:
 			bonus_ac += item.get("armor_class", 0)
 
@@ -2582,6 +2624,13 @@ func cast_spell(spell_name: String) -> void:
 	# Tick spell_casting skill
 	_tick_skill("spell_casting")
 
+	# Also tick the spell's own governing skill (e.g. necromancy, evocation,
+	# mantis_fist), so schools/classifications level individually, not just
+	# the broad spell_casting skill.
+	var skill_category: String = spell.get("skill_category", "")
+	if not skill_category.is_empty():
+		_tick_skill(skill_category)
+
 	_trigger_cast_animation(spell)
 
 	var cast_time: float = float(spell.get("casting_time", 0.0))
@@ -2605,9 +2654,18 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 	var school: String   = spell.get("spell_school", "arcane")
 	var spell_target    := spell.get("target", "enemy") as String
 	var base_damage: int = spell.get("damage", 0)
+	var effect_type_raw  = spell.get("effect_type", "")
+	var effect_type: String = effect_type_raw if effect_type_raw is String else ""
+
+	# "reactive" spells (e.g. Improved Parry, Spell Ward) are defensive
+	# self-effects by design — some have a mis-authored "enemy" target in the
+	# data, so force self-targeting here rather than trusting that field for
+	# this spell_type.
+	if spell.get("spell_type", "") == "reactive":
+		spell_target = "self"
 
 	match spell_target:
-		"enemy":
+		"enemy", "corpse", "line":
 			if target_node == null:
 				GameLog.log_general("No target selected for [b]%s[/b]." % display_name)
 				return
@@ -2667,15 +2725,15 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 							target_node.add_threat(self, combat_node.generate_threat(0, healed))
 				"necrotic_grasp":
 					if target_cn is CombatNode:
-						target_cn.apply_effect("necrotic_grasp", 6.0, {"speed_slow": 0.15, "attack_speed_slow": 0.15})
+						_buff_target(target_node, target_cn, "necrotic_grasp", 6.0, {"speed_slow": 0.15, "attack_speed_slow": 0.15})
 						GameLog.log_general("[color=#8866ff]%s is gripped by necrotic energy, slowing them.[/color]" % target_desc.capitalize())
 				"curse_of_weakness":
 					if target_cn is CombatNode:
-						target_cn.apply_effect("curse_of_weakness", 10.0, {"damage_mult": -0.05})
+						_buff_target(target_node, target_cn, "curse_of_weakness", 10.0, {"damage_mult": -0.05})
 						GameLog.log_general("[color=#8866ff]%s is weakened, their attacks feeble.[/color]" % target_desc.capitalize())
 				"plague_strike":
 					if target_cn is CombatNode:
-						target_cn.apply_effect("plague_strike", 8.0, {}, 5, 1.0)
+						_buff_target(target_node, target_cn, "plague_strike", 8.0, {}, 5, 1.0)
 						GameLog.log_general("[color=#77aa44]%s is wracked with plague.[/color]" % target_desc.capitalize())
 				"soul_leech":
 					if target_cn is CombatNode:
@@ -2687,8 +2745,7 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 				"improved_disarm":
 					if randf() < 0.40:
 						if "attack_timer" in target_node and "attack_cooldown" in target_node:
-							target_node.can_attack = false
-							target_node.attack_timer = 2.0
+							_disable_target(target_node, 2.0)
 						GameLog.log_general("[color=#ffcc66]You disarm %s, disrupting their attack![/color]" % target_desc)
 					else:
 						GameLog.log_general("Your disarm attempt on %s fails." % target_desc)
@@ -2696,6 +2753,11 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 					if target_node.has_method("taunt"):
 						target_node.taunt(self)
 						GameLog.log_general("[color=#ffcc66]You bellow a challenge — %s's fury turns on you![/color]" % target_desc)
+				_:
+					# Generic, data-driven fallback for every other spell (any
+					# class) — see _apply_generic_spell_effect().
+					if not _apply_generic_spell_effect(effect_type, spell, combat_node, target_cn, target_node, target_desc):
+						GameLog.log_combat("You use [b]%s[/b] on %s." % [display_name, target_desc])
 
 			if not target_node.combat_node.is_alive():
 				combat_node.notify_kill()
@@ -2731,6 +2793,8 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 					_summon_spectral_minion()
 				"phantasmal_echo":
 					_summon_phantasmal_echo()
+				"summon_spirit_of_the_woods":
+					_summon_spirit_of_the_woods()
 				"dark_pact":
 					var mana_cost_extra: int = int(combat_node.max_mana * 0.05)
 					combat_node.current_mana = maxf(0.0, combat_node.current_mana - mana_cost_extra)
@@ -2757,7 +2821,8 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 					combat_node.apply_effect("invisibility", 8.0, {"invisible": 1.0})
 					GameLog.log_general("[color=#aaaaaa]You fade from sight...[/color]")
 				_:
-					GameLog.log_combat("You use [b]%s[/b] on yourself." % display_name)
+					if not _apply_generic_spell_effect(effect_type, spell, combat_node, combat_node, self, "yourself"):
+						GameLog.log_combat("You use [b]%s[/b] on yourself." % display_name)
 
 		# "cone" (Gravechill) — no real directional cone geometry in this codebase yet,
 		# so approximated as the primary target plus any other hostile monster within
@@ -2808,7 +2873,10 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 				if hit_target.has_method("add_threat"):
 					hit_target.add_threat(self, combat_node.generate_threat(cone_dmg))
 				if hit_cn is CombatNode:
-					hit_cn.apply_effect("gravechill", 6.0, {"speed_slow": 0.15, "attack_speed_slow": 0.15})
+					# Data-driven per the spell's own effect_type — was
+					# previously hardcoded to always apply Gravechill's slow
+					# to every cone spell regardless of caster's class/spell.
+					_apply_generic_spell_effect(effect_type, spell, combat_node, hit_cn, hit_target, hit_desc)
 					if not hit_cn.is_alive():
 						combat_node.notify_kill()
 						GameLog.log_combat(CombatLogFormatter.death("You", hit_desc))
@@ -2839,11 +2907,11 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 			match spell_name:
 				"spirit_mend":
 					if ally_cn is CombatNode:
-						var healed: int = ally_cn.heal(base_damage)
+						var healed: int = _heal_target(ally_target, ally_cn, base_damage)
 						GameLog.log_combat("[color=#66ff99]You mend %s, restoring [b]%d[/b] health.[/color]" % [ally_desc, healed])
 				"ancestral_guidance":
 					if ally_cn is CombatNode:
-						ally_cn.apply_effect("ancestral_guidance", 8.0, {"damage_mult": 0.05})
+						_buff_target(ally_target, ally_cn, "ancestral_guidance", 8.0, {"damage_mult": 0.05})
 						GameLog.log_general("[color=#88ffcc]Ancestral spirits quicken %s.[/color]" % ally_desc)
 				"earth_totem":
 					# True small-radius group buff: caster + any non-Enemy within 8m.
@@ -2857,7 +2925,407 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 							cn.apply_effect("earth_totem", 15.0, {"damage_taken_mult": 0.05})
 					GameLog.log_general("[color=#88cc66]You plant an Earth Totem, warding %d nearby allies.[/color]" % protected.size())
 				_:
-					GameLog.log_combat("[color=#ffdd88]You use [b]%s[/b]! Your battle cry fills the air.[/color]" % display_name)
+					if not _apply_generic_spell_effect(effect_type, spell, combat_node, ally_cn, ally_target, ally_desc):
+						GameLog.log_combat("[color=#ffdd88]You use [b]%s[/b]! Your battle cry fills the air.[/color]" % display_name)
+
+		# Point-blank AoE centered on the caster (e.g. Arcane Explosion) —
+		# hits every hostile monster within radius, generic damage + effect.
+		"pbaoe":
+			combat_node.break_invisibility()
+			last_attack_time_ms = Time.get_ticks_msec()
+			var pbaoe_targets: Array = []
+			for monster in get_tree().get_nodes_in_group("monsters"):
+				if not is_instance_valid(monster):
+					continue
+				if TargetFrame.faction_status(monster) == "Ally":
+					continue
+				if global_position.distance_to(monster.global_position) <= 8.0:
+					pbaoe_targets.append(monster)
+			if pbaoe_targets.is_empty():
+				GameLog.log_general("Nothing is close enough to hit with [b]%s[/b]." % display_name)
+				return
+			for hit_target in pbaoe_targets:
+				if not hit_target.has_method("apply_damage"):
+					continue
+				var hit_cn = hit_target.get("combat_node")
+				var hit_desc: String = hit_target.get("monster_description") \
+					if hit_target.get("monster_description") != "" else hit_target.get_monster_name()
+				var pbaoe_dmg: int = _compute_spell_damage(base_damage, school, hit_cn)
+				hit_target.apply_damage(pbaoe_dmg, "physical" if school == "physical" else "magic")
+				var hit_is_networked_monster: bool = hit_target is Monster and not hit_target.is_multiplayer_authority()
+				if hit_is_networked_monster and pbaoe_dmg > 0:
+					hit_target.apply_networked_damage.rpc_id(1, pbaoe_dmg, multiplayer.get_unique_id())
+				GameLog.log_combat(CombatLogFormatter.spell_damage("You", spell_name, hit_desc, pbaoe_dmg))
+				if hit_target.has_method("add_threat"):
+					hit_target.add_threat(self, combat_node.generate_threat(pbaoe_dmg))
+				if hit_cn is CombatNode:
+					_apply_generic_spell_effect(effect_type, spell, combat_node, hit_cn, hit_target, hit_desc)
+					if not hit_cn.is_alive():
+						combat_node.notify_kill()
+						GameLog.log_combat(CombatLogFormatter.death("You", hit_desc))
+						if hit_target == current_target:
+							_set_target_frame(null)
+							current_target = null
+							autoattack_enabled = false
+							GameLog.set_autoattack(false)
+						if not hit_is_networked_monster and hit_target.has_method("die"):
+							hit_target.die()
+
+		# Chain spells (e.g. Chain Lightning) — primary target plus up to 2
+		# nearby hostiles, each successive jump doing less damage.
+		"chain":
+			if target_node == null:
+				GameLog.log_general("No target selected for [b]%s[/b]." % display_name)
+				return
+			if not _is_targetable_alive(target_node):
+				GameLog.log_general("Your target is already dead.")
+				return
+			if TargetFrame.faction_status(target_node) == "Ally":
+				GameLog.log_general("You can't target an ally with [b]%s[/b]." % display_name)
+				return
+
+			combat_node.break_invisibility()
+			last_attack_time_ms = Time.get_ticks_msec()
+
+			var chain_targets: Array = [target_node]
+			for monster in get_tree().get_nodes_in_group("monsters"):
+				if chain_targets.size() >= 3:
+					break
+				if monster in chain_targets or not is_instance_valid(monster):
+					continue
+				if TargetFrame.faction_status(monster) == "Ally":
+					continue
+				if monster.global_position.distance_to(target_node.global_position) <= 10.0:
+					chain_targets.append(monster)
+
+			var falloff: float = 1.0
+			for hit_target in chain_targets:
+				if not hit_target.has_method("apply_damage"):
+					continue
+				var hit_cn = hit_target.get("combat_node")
+				var hit_desc: String = hit_target.get("monster_description") \
+					if hit_target.get("monster_description") != "" else hit_target.get_monster_name()
+				var chain_dmg: int = max(1, int(_compute_spell_damage(base_damage, school, hit_cn) * falloff))
+				hit_target.apply_damage(chain_dmg, "physical" if school == "physical" else "magic")
+				var hit_is_networked_monster: bool = hit_target is Monster and not hit_target.is_multiplayer_authority()
+				if hit_is_networked_monster and chain_dmg > 0:
+					hit_target.apply_networked_damage.rpc_id(1, chain_dmg, multiplayer.get_unique_id())
+				GameLog.log_combat(CombatLogFormatter.spell_damage("You", spell_name, hit_desc, chain_dmg))
+				if hit_target.has_method("add_threat"):
+					hit_target.add_threat(self, combat_node.generate_threat(chain_dmg))
+				if hit_cn is CombatNode:
+					_apply_generic_spell_effect(effect_type, spell, combat_node, hit_cn, hit_target, hit_desc)
+					if not hit_cn.is_alive():
+						combat_node.notify_kill()
+						GameLog.log_combat(CombatLogFormatter.death("You", hit_desc))
+						if hit_target == current_target:
+							_set_target_frame(null)
+							current_target = null
+							autoattack_enabled = false
+							GameLog.set_autoattack(false)
+						if not hit_is_networked_monster and hit_target.has_method("die"):
+							hit_target.die()
+				falloff *= 0.7
+
+		# No real target at all — utility spells like a short teleport
+		# (Blink, Swift Step). Distance comes from the spell's own "range"
+		# field (e.g. "15m") so it stays data-driven per spell.
+		"none":
+			if spell.get("spell_type", "") == "teleport":
+				var blink_distance: float = 10.0
+				var range_str: String = str(spell.get("range", ""))
+				if range_str.ends_with("m"):
+					blink_distance = range_str.trim_suffix("m").to_float()
+				var forward: Vector3 = -global_transform.basis.z
+				global_position += forward * blink_distance
+				GameLog.log_general("[color=#8888ff]You blink forward in a flash.[/color]")
+			else:
+				GameLog.log_combat("You use [b]%s[/b]." % display_name)
+
+
+# Shared physical/magic damage math, factored out of the "enemy" branch above
+# so the newer "pbaoe"/"chain" branches don't duplicate it a third/fourth time.
+func _compute_spell_damage(base_damage: int, school: String, target_cn) -> int:
+	if school == "physical":
+		var dmg: int = base_damage + int(combat_node.strength / 2.0)
+		if target_cn is CombatNode:
+			dmg = combat_node.apply_ac_mitigation(dmg, target_cn)
+		return max(1, dmg)
+	var is_arcane := school in ["arcane", "fire", "cold", "poison", "shadow", "void"]
+	return combat_node.calculate_spell_damage(base_damage, is_arcane, target_cn)
+
+
+# Generic, data-driven fallback for any spell whose effect_type isn't covered
+# by one of the per-spell-name special cases in _resolve_spell_cast() above.
+# This is what makes a newly-added class's spells (or any future one) do
+# something sensible immediately, instead of being a silent damage-only/no-op
+# until someone hand-writes bespoke code for it — named special cases above
+# always take priority and are untouched by this. Returns true if it
+# recognized and applied the effect_type, false if the caller should fall
+# back to a generic flavor-text message.
+func _apply_generic_spell_effect(effect_type: String, spell: Dictionary, caster_cn: CombatNode, target_cn, target_node: Node, target_desc: String) -> bool:
+	if not (target_cn is CombatNode):
+		return false
+
+	var effect_name: String = spell.get("spell_name", "spell_effect")
+	var duration_raw = spell.get("duration", 0)
+	var duration: float = 0.0 if duration_raw is String else float(duration_raw)
+	var magnitude: int = int(spell.get("damage", 0))
+
+	match effect_type:
+		"heal":
+			var healed: int = _heal_target(target_node, target_cn, magnitude)
+			if healed <= 0:
+				return false
+			GameLog.log_combat("[color=#66ff99]%s healed for [b]%d[/b].[/color]" % [target_desc.capitalize(), healed])
+			return true
+		"hot":
+			if duration <= 0.0:
+				return false
+			var ticks := maxi(1, int(round(duration)))
+			var per_tick := maxi(1, int(round(float(magnitude) / ticks)))
+			_buff_target(target_node, target_cn, effect_name, duration, {}, 0, 1.0, per_tick)
+			GameLog.log_combat("[color=#66ff99]%s begins regenerating health.[/color]" % target_desc.capitalize())
+			return true
+		"dot":
+			if duration <= 0.0:
+				return false
+			var ticks := maxi(1, int(round(duration)))
+			var per_tick := maxi(1, int(round(float(magnitude) / ticks)))
+			target_cn.apply_effect(effect_name, duration, {}, per_tick, 1.0)
+			GameLog.log_combat("[color=#77aa44]%s is afflicted with a lingering effect.[/color]" % target_desc.capitalize())
+			return true
+		"buff":
+			if duration <= 0.0:
+				return false
+			_buff_target(target_node, target_cn, effect_name, duration, {"damage_mult": 0.05})
+			GameLog.log_general("[color=#88ffcc]%s is empowered.[/color]" % target_desc.capitalize())
+			return true
+		"debuff":
+			if duration <= 0.0:
+				return false
+			_buff_target(target_node, target_cn, effect_name, duration, {"damage_mult": -0.05})
+			GameLog.log_general("[color=#8866ff]%s is weakened.[/color]" % target_desc.capitalize())
+			return true
+		"snare":
+			if duration <= 0.0:
+				return false
+			_buff_target(target_node, target_cn, effect_name, duration, {"speed_slow": 0.15, "attack_speed_slow": 0.15})
+			GameLog.log_general("[color=#8866ff]%s is slowed.[/color]" % target_desc.capitalize())
+			return true
+		"stun":
+			return _apply_disable_effect(duration, target_node, target_desc, "is stunned!")
+		"fear":
+			if duration <= 0.0:
+				return false
+			if target_node.has_method("apply_fear"):
+				_fear_target(target_node, duration)
+				GameLog.log_general("[color=#ffcc66]%s flees in terror![/color]" % target_desc.capitalize())
+				return true
+			return _apply_disable_effect(duration, target_node, target_desc, "flees in terror!")
+		"charm":
+			if duration <= 0.0:
+				return false
+			if target_node.has_method("apply_charm"):
+				_charm_target(target_node, duration)
+				_open_charm_control_window(target_node)
+				GameLog.log_general("[color=#ffcc66]%s is charmed![/color]" % target_desc.capitalize())
+				return true
+			return _apply_disable_effect(duration, target_node, target_desc, "is charmed!")
+		"mesmerize":
+			return _apply_disable_effect(duration, target_node, target_desc, "is mesmerized!")
+		"confuse":
+			return _apply_disable_effect(duration, target_node, target_desc, "is confused!")
+		"root":
+			if duration <= 0.0:
+				return false
+			_buff_target(target_node, target_cn, effect_name, duration, {"speed_slow": 1.0})
+			GameLog.log_general("[color=#8866ff]%s is rooted in place.[/color]" % target_desc.capitalize())
+			return true
+		"blind":
+			if duration <= 0.0:
+				return false
+			_buff_target(target_node, target_cn, effect_name, duration, {"hit_chance": -25.0})
+			GameLog.log_general("[color=#8866ff]%s is blinded.[/color]" % target_desc.capitalize())
+			return true
+		"silence":
+			if duration <= 0.0:
+				return false
+			# "silenced" is a modifier flag only, same pattern as "stealthed"/
+			# "see_invisible" elsewhere — no monster spellcasting exists yet
+			# to consult it, but any future caster (monster or class) that
+			# checks it before casting will work with zero extra wiring here.
+			_buff_target(target_node, target_cn, effect_name, duration, {"silenced": 1.0})
+			GameLog.log_general("[color=#8888ff]%s is silenced.[/color]" % target_desc.capitalize())
+			return true
+		"cure":
+			var to_remove: String = _find_debuff_to_cure(target_cn)
+			if to_remove.is_empty():
+				return false
+			_remove_effect_from_target(target_node, target_cn, to_remove)
+			GameLog.log_general("[color=#88ffaa]%s is cleansed of %s.[/color]" % [
+				target_desc.capitalize(), spell_display_name(to_remove)
+			])
+			return true
+		"absorb":
+			if duration <= 0.0:
+				return false
+			# Flat damage-absorption shield, same mechanic as the hardcoded
+			# Shadow Ward case above — consumed via absorb_incoming_damage().
+			# Only ever self-targeted in current data (arcane_armor/ki_barrier/
+			# wholeness_of_body), so no remote-player relay case exists yet;
+			# the absorb_remaining pool write below would need its own RPC
+			# field if a group-target absorb spell is ever added.
+			target_cn.apply_effect(effect_name, duration, {})
+			target_cn.active_effects[effect_name]["absorb_remaining"] = magnitude
+			GameLog.log_general("[color=#8866ff]%s is shielded, absorbing damage.[/color]" % target_desc.capitalize())
+			return true
+	return false
+
+
+# Heals/buffs targeting a REMOTE player need to land on THAT player's own
+# authoritative combat_node — each player owns their own (unlike monsters,
+# which are server-authoritative and relay to peer 1 via
+# apply_networked_damage()). Previously this just mutated the caster's local,
+# replicated *copy* of the target's combat_node, which looked right on the
+# healer's own screen for a moment and then got silently overwritten by the
+# next replication update from the target's real, unchanged state — the
+# healed/buffed player never actually saw anything happen. Self and monster
+# targets (no apply_networked_heal/_buff method) fall through to the direct
+# path unchanged, so this is a no-op behavior change for every existing case.
+# Known limitation, same as the damage relay: no server-side re-verification,
+# and for a remote target the caster's own log line reports the requested
+# amount rather than the real post-clamp result (which arrives async).
+func _heal_target(target_node: Node, target_cn, amount: int) -> int:
+	if not (target_cn is CombatNode):
+		return 0
+	if target_node == self or target_node.is_multiplayer_authority() \
+			or not target_node.has_method("apply_networked_heal"):
+		return target_cn.heal(amount)
+	target_node.apply_networked_heal.rpc_id(target_node.get_multiplayer_authority(), amount)
+	return amount
+
+
+func _buff_target(target_node: Node, target_cn, effect_name: String, duration: float,
+		modifiers: Dictionary, tick_dmg: int = 0, tick_interval: float = 1.0, tick_heal: int = 0) -> void:
+	if not (target_cn is CombatNode):
+		return
+	if target_node == self or target_node.is_multiplayer_authority():
+		target_cn.apply_effect(effect_name, duration, modifiers, tick_dmg, tick_interval, tick_heal)
+		return
+	if target_node.has_method("apply_networked_buff"):
+		# A remote PLAYER — each player is self-authoritative, so relay to
+		# their own peer specifically.
+		target_node.apply_networked_buff.rpc_id(
+			target_node.get_multiplayer_authority(), effect_name, duration, modifiers, tick_dmg, tick_interval, tick_heal
+		)
+	elif target_node.has_method("apply_networked_effect"):
+		# A server-authoritative MONSTER — relay to the server (peer 1)
+		# regardless of who's casting. tick_heal has no monster equivalent
+		# today (no spell pairs a HoT with an enemy target), so it's dropped
+		# here rather than plumbed through a signature nothing uses yet.
+		target_node.apply_networked_effect.rpc_id(1, effect_name, duration, modifiers, tick_dmg, tick_interval)
+	else:
+		target_cn.apply_effect(effect_name, duration, modifiers, tick_dmg, tick_interval, tick_heal)
+
+
+# fear/charm use their own dedicated apply_fear()/apply_charm() methods on
+# Monster (not the generic apply_effect() apply_networked_buff()/
+# apply_networked_effect() route) — same relay reasoning, own RPCs
+# (monster3d.gd's apply_networked_fear()/apply_networked_charm()).
+func _fear_target(target_node: Node, duration: float) -> void:
+	if target_node.is_multiplayer_authority() or not target_node.has_method("apply_networked_fear"):
+		target_node.apply_fear(duration)
+		return
+	target_node.apply_networked_fear.rpc_id(1, duration)
+
+
+# apply_charm() takes an owner Node, which (per this project's own rule —
+# a Node reference means nothing across machines) can't cross the wire as-is,
+# so the RPC carries this caster's own peer id instead and the server
+# resolves it back to a real local player Node — see
+# monster3d.gd's apply_networked_charm()/_resolve_peer_to_player().
+func _charm_target(target_node: Node, duration: float) -> void:
+	if target_node.is_multiplayer_authority() or not target_node.has_method("apply_networked_charm"):
+		target_node.apply_charm(duration, self)
+		return
+	target_node.apply_networked_charm.rpc_id(1, duration, multiplayer.get_unique_id())
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func apply_networked_heal(amount: int) -> void:
+	if not is_multiplayer_authority():
+		return
+	var healed := combat_node.heal(amount)
+	if healed > 0:
+		GameLog.log_general("[color=#66ff99]You are healed for [b]%d[/b].[/color]" % healed)
+
+
+# "cure"/dispel spells (Remove Curse, Purify) — previously effect_type: null
+# in the data, so they were pure flavor text with no actual behavior at all,
+# even single-player. Picks the first active_effects entry whose *originating
+# spell* was enemy-targeted (same "target says whether it's harmful" signal
+# buff_bar.gd's debuff-highlight uses) rather than trying to name specific
+# curse effects — works for any current or future debuff without per-spell
+# wiring, matching this whole engine's approach.
+func _find_debuff_to_cure(target_cn) -> String:
+	if not (target_cn is CombatNode):
+		return ""
+	for effect_name in target_cn.active_effects.keys():
+		var spell: Dictionary = _spell_by_name.get(effect_name, {})
+		if not spell.is_empty() and spell.get("target", "") == "enemy":
+			return effect_name
+	return ""
+
+
+func _remove_effect_from_target(target_node: Node, target_cn, effect_name: String) -> void:
+	if not (target_cn is CombatNode):
+		return
+	if target_node == self or target_node.is_multiplayer_authority():
+		target_cn.remove_effect(effect_name)
+		return
+	if target_node.has_method("apply_networked_remove_effect"):
+		target_node.apply_networked_remove_effect.rpc_id(target_node.get_multiplayer_authority(), effect_name)
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func apply_networked_remove_effect(effect_name: String) -> void:
+	if not is_multiplayer_authority():
+		return
+	combat_node.remove_effect(effect_name)
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func apply_networked_buff(effect_name: String, duration: float, modifiers: Dictionary,
+		tick_dmg: int, tick_interval: float, tick_heal: int) -> void:
+	if not is_multiplayer_authority():
+		return
+	combat_node.apply_effect(effect_name, duration, modifiers, tick_dmg, tick_interval, tick_heal)
+
+
+# stun/fear/charm/mesmerize/confuse are mechanically distinct in a full CC
+# system (fear should make the target flee rather than just freeze, charm
+# should temporarily flip its allegiance, mesmerize should break on damage,
+# confuse should randomize its actions) — none of that machinery exists yet,
+# so all five share this one honest approximation for now: the target simply
+# can't attack for the duration, same mechanism as the existing Improved
+# Disarm stagger. Flavor text still differs per effect_type so it reads
+# correctly in the log even though the underlying behavior is identical.
+# Upgrade candidate once real CC-specific behavior is worth building.
+func _apply_disable_effect(duration: float, target_node: Node, target_desc: String, verb: String) -> bool:
+	if duration <= 0.0 or not ("can_attack" in target_node and "attack_timer" in target_node):
+		return false
+	_disable_target(target_node, duration)
+	GameLog.log_general("[color=#ffcc66]%s %s[/color]" % [target_desc.capitalize(), verb])
+	return true
+
+
+func _disable_target(target_node: Node, duration: float) -> void:
+	if target_node.is_multiplayer_authority() or not target_node.has_method("apply_networked_disable"):
+		target_node.can_attack = false
+		target_node.attack_timer = duration
+		return
+	target_node.apply_networked_disable.rpc_id(1, duration)
 
 
 # Actual point light (not just a "see invisible" flag) so it doubles as real
@@ -2883,9 +3351,13 @@ func _enable_deathly_visage_light() -> void:
 func _enable_shadowlight() -> void:
 	if not is_instance_valid(_shadowlight_light):
 		_shadowlight_light = OmniLight3D.new()
-		_shadowlight_light.light_color = Color(0.6, 0.4, 0.9)
-		_shadowlight_light.light_energy = 0.6
-		_shadowlight_light.omni_range = 4.0
+		# Bumped 2026-09-17 (was energy 0.6 / range 4.0 — barely noticeable,
+		# especially now that night is darker overall) — noticeable violet
+		# glow across ~5m without reading as a full light source.
+		_shadowlight_light.light_color = Color(0.62, 0.35, 0.95)
+		_shadowlight_light.light_energy = 1.4
+		_shadowlight_light.omni_range = 5.0
+		_shadowlight_light.omni_attenuation = 1.4  # falls off a bit faster than default so it stays a "glow," not a floodlight
 		_shadowlight_light.position = Vector3(0, 1.3, 0)
 		add_child(_shadowlight_light)
 	_shadowlight_light.visible = true
@@ -2898,6 +3370,7 @@ func _enable_shadowlight() -> void:
 const PET_SCENES := {
 	"spectral_minion": "res://Scenes/pet_minion.tscn",
 	"phantasmal_echo": "res://Scenes/phantasmal_echo_pet.tscn",
+	"spirit_of_the_woods": "res://Scenes/wildspeaker_pet.tscn",
 }
 
 # Spawns through $PetSpawner (a MultiplayerSpawner) instead of directly
@@ -2920,6 +3393,10 @@ func _summon_spectral_minion(preset_name: String = "") -> void:
 
 func _summon_phantasmal_echo(preset_name: String = "") -> void:
 	_summon_pet("phantasmal_echo", preset_name)
+
+
+func _summon_spirit_of_the_woods(preset_name: String = "") -> void:
+	_summon_pet("spirit_of_the_woods", preset_name)
 
 
 # Runs on every peer as part of $PetSpawner's replication (mirrors
@@ -3135,6 +3612,48 @@ func _tick_skill(skill_name: String) -> void:
 		])
 		_sync_weapon_skill()
 		Global.player_data["skill_levels"] = skill_levels
+
+
+# Dispatches to Aetherfist's multi-attack flurry (resolve_aetherfist_attack())
+# instead of a plain resolve_attack() for that class specifically, and
+# normalizes its differently-shaped "AETHERFIST_FLURRY" result (total_damage/
+# attack_count instead of a single damage) back into an ordinary HIT-shaped
+# dict so every caller downstream (weapon-skill tick, damage relay, threat,
+# kill check, combat log) keeps working unchanged for every class. Was
+# previously fully dead code — Aetherfist got a single plain swing like every
+# other melee class and never got its Double/Triple Attack at level 10+/15+.
+func _resolve_melee_attack(target_cn: CombatNode) -> Dictionary:
+	if player_class != "Aetherfist":
+		return combat_node.resolve_attack(target_cn)
+
+	var result: Dictionary = combat_node.resolve_aetherfist_attack(target_cn)
+	if result["result"] != "AETHERFIST_FLURRY":
+		return result  # MISS/PARRY/DODGE/BLOCK/RIPOSTE — same shape as normal
+
+	if result["attack_count"] > 1:
+		GameLog.log_combat("[color=#ffdd88]%s[/color]" % result["message"])
+	return {
+		"result": "HIT",
+		"damage": result["total_damage"],
+		"is_crit": false,
+		"message": "You strike for " + str(result["total_damage"]) + " damage!",
+	}
+
+
+# Called when a monster's attack against us resolves to PARRY/DODGE/BLOCK/
+# RIPOSTE — i.e. when *we* successfully defended, as opposed to the ticks in
+# attack_current_target()/perform_melee_attack() which are about a monster
+# defending against our own swing.
+func _tick_defense_skill(result: String) -> void:
+	match result:
+		"PARRY":
+			_tick_skill("parry")
+		"DODGE":
+			_tick_skill("dodge")
+		"BLOCK":
+			_tick_skill("block")
+		"RIPOSTE":
+			_tick_skill("riposte")
 
 
 func _sync_weapon_skill() -> void:

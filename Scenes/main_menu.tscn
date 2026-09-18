@@ -175,14 +175,17 @@ text = "Aldenexia: Lightfall"
 horizontal_alignment = 1
 
 [node name="subtitle" type="Label" parent="." unique_id=335646916]
+anchor_left = 0.0
+anchor_top = 1.0
 anchor_right = 1.0
+anchor_bottom = 1.0
 offset_left = 57.0
-offset_top = 291.0
+offset_top = -34.0
 offset_right = -76.0
-offset_bottom = 325.0
-theme_override_colors/font_color = Color(0.65, 0.58, 0.42, 1)
-theme_override_font_sizes/font_size = 18
-text = "Kuro Neko Sama Games"
+offset_bottom = -8.0
+theme_override_colors/font_color = Color(0.55, 0.48, 0.36, 1)
+theme_override_font_sizes/font_size = 14
+text = "Copyright 2026 Kuro Neko Sama Games"
 horizontal_alignment = 1
 
 [node name="DirectionalLight2D" type="DirectionalLight2D" parent="." unique_id=107326692]

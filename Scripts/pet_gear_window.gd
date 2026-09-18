@@ -12,10 +12,16 @@ const SLOT_LABELS := {
 	"arms": "Arms", "hands": "Hands", "legs": "Legs", "feet": "Feet",
 }
 
+const POSITION_KEY := "pet_gear_window"
+const RESIZE_MARGIN := 16.0
+const MIN_WIDTH := 200.0
+const MIN_HEIGHT := 140.0
+
 var _player: Node = null
 var _panel: Panel = null
 var _slots: Dictionary = {}  # slot name -> slot_button instance
 var _dragging := false
+var _resizing := false
 
 
 func _ready() -> void:
@@ -78,37 +84,34 @@ func _build_ui() -> void:
 
 		grid.add_child(col)
 
-	_load_position()
+	WindowPosition.load_full_into(POSITION_KEY, _panel)
 
 
+# Migrated to the shared WindowPosition helper (was a local, position-only
+# _save_position()/_load_position() pair predating that class) so this window
+# persists its size too, consistent with every other resizable window.
 func _on_panel_gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
-		_dragging = event.pressed
-		if not _dragging:
-			_save_position()
-	elif event is InputEventMouseMotion and _dragging:
-		_panel.offset_left   += event.relative.x
-		_panel.offset_top    += event.relative.y
-		_panel.offset_right  += event.relative.x
-		_panel.offset_bottom += event.relative.y
-
-
-func _save_position() -> void:
-	if Global.player_data.is_empty():
-		return
-	var ui: Dictionary = Global.player_data.get("ui_positions", {})
-	ui["pet_gear_window"] = [_panel.offset_left, _panel.offset_top, _panel.offset_right, _panel.offset_bottom]
-	Global.player_data["ui_positions"] = ui
-	Global.save_player_data_to_file()
-
-
-func _load_position() -> void:
-	var pos: Array = Global.player_data.get("ui_positions", {}).get("pet_gear_window", [])
-	if pos.size() == 4:
-		_panel.offset_left   = pos[0]
-		_panel.offset_top    = pos[1]
-		_panel.offset_right  = pos[2]
-		_panel.offset_bottom = pos[3]
+		if event.pressed:
+			var pos: Vector2 = event.position
+			if pos.x > _panel.size.x - RESIZE_MARGIN and pos.y > _panel.size.y - RESIZE_MARGIN:
+				_resizing = true
+			else:
+				_dragging = true
+		else:
+			if _dragging or _resizing:
+				WindowPosition.save(POSITION_KEY, _panel)
+			_dragging = false
+			_resizing = false
+	elif event is InputEventMouseMotion:
+		if _resizing:
+			_panel.offset_right  = max(_panel.offset_left + MIN_WIDTH, _panel.offset_right + event.relative.x)
+			_panel.offset_bottom = max(_panel.offset_top + MIN_HEIGHT, _panel.offset_bottom + event.relative.y)
+		elif _dragging:
+			_panel.offset_left   += event.relative.x
+			_panel.offset_top    += event.relative.y
+			_panel.offset_right  += event.relative.x
+			_panel.offset_bottom += event.relative.y
 
 
 func set_player(p: Node) -> void:
