@@ -2509,10 +2509,110 @@ listen-server — the host's own game doubles as the server):
   itself (a player is always self-authoritative, so no RPC relay was needed
   here, just the right gate).
 
+- Personal/instanced loot (Session 46, 2026-09-17): `monster3d.gd`'s
+  `pending_loot`/`is_lootable` were non-replicated fields only ever set
+  inside `die()`, which only ever runs on the authoritative/host machine —
+  so a non-host player could not loot a corpse AT ALL, not just "the same
+  drops as everyone else" as first reported. Fixed by rolling loot lazily,
+  per-peer, the first time each peer opens the window (`_personal_loot:
+  Dictionary` keyed by peer id, populated inside `open_loot_window()`
+  instead of `die()`) — a script field not listed in a node's
+  `SceneReplicationConfig` is already implicitly per-peer, so this one
+  redesign fixes both "shared loot" and "non-host can't loot" at once. The
+  corpse itself no longer frees on the first player's last item — it rides
+  out its normal 60s despawn timer so every player gets a fair window; an
+  empty personal loot window auto-closes 5s after the last item is taken.
+- Combat log now crosses the network (Session 46, 2026-09-17): `GameLog`
+  (`game_log.gd`) is a purely local signal bus with no networking of its
+  own, so a second player never saw the first player's attacks/spells/buffs
+  land, even standing right next to them. `net.gd` gained a combat-message
+  relay (`broadcast_combat_message()` / `_rpc_receive_combat_message`,
+  same shape as the existing `/tell`/`/party` RPCs) that every other
+  connected peer feeds into their own `GameLog.log_combat()`, tagged with
+  the acting player's position so the receiver's existing 10m
+  `COMBAT_VISIBILITY_RANGE` filter (`game_log_window.gd`, already used to
+  hide distant NPC fight noise) applies automatically — no separate
+  proximity system needed. `player3d.gd`'s `_broadcast_combat()` helper
+  fires this alongside every local melee/spell/buff/death message. Most of
+  `_apply_generic_spell_effect()`'s messages ("Target is weakened.", etc.)
+  were already caster-agnostic (never say "You") and broadcast verbatim,
+  except when the target is the caster's own "yourself" placeholder, which
+  swaps to the caster's real name (`bcast_desc`) so it doesn't read as
+  nonsense on someone else's screen. `CombatLogFormatter` gained third-
+  person variants (`player_attack_broadcast()`, `spell_cast()`) for the
+  handful of messages that do hardcode "You".
+
+- Monster targeting fixed to actually consider every player (Session 46,
+  2026-09-17): `monster3d.gd`'s entire AI ran off one `player` reference set
+  once via `TargetFrame.local_player()` — fine for a HUD script wanting "my
+  own player," but monster AI only ever runs on the server, where "the local
+  player" IS the host's own character. A monster could never notice or
+  attack any other connected player at all — this was THE reason a second
+  test player took zero damage and was never chased. Replaced with
+  `_nearest_player()`, re-resolved every frame, scanning every node in the
+  "player" group and picking whichever is physically closest; once real
+  threat exists, `get_current_target()` already correctly overrides this
+  with the highest-aggro attacker, so this only governs who gets
+  noticed/chased before combat starts.
+- Threat relay (found while fixing the above): `add_threat()` was never
+  reaching the real server-side monster for a non-host player's damage —
+  player3d.gd's own `add_threat()` call only mutates whichever machine is
+  running it, which for a non-host attacker is their own throwaway puppet
+  copy of the monster, not the authoritative one. Fixed by calling
+  `add_threat()` directly inside `apply_networked_damage()` (already runs
+  authoritatively on the server for every relayed hit, including pets),
+  resolving the attacker's peer id via the existing `_resolve_peer_to_player()`.
+  Uses the plain damage amount rather than the attacker's own
+  `combat_node.generate_threat()` — `active_effects` (stance threat_mult)
+  isn't a replicated field, so the server can't compute that bonus for a
+  remote player's combat_node accurately; same trust-the-reported-number
+  trade-off the damage amount itself already makes.
+- Bleed-out revival (Session 46): another player healing (a real heal spell)
+  or bandaging (right-click a downed ally in the 3D world — see BANDAGES
+  below) a bled-out ally now brings them back up if it raises their HP above
+  0, before their bleed-out timer expires. `player3d.gd`'s
+  `_check_bleedout_revival()` is called from both `apply_networked_heal()`
+  (the remote-heal-received path) and `_heal_target()`'s direct-heal branch;
+  logs/broadcasts "PlayerName comes back to life!" via the existing combat
+  message relay.
+
 NOT yet working / known gaps:
 - No server-side re-verification of reported damage (see the trade-off
   above) — not a concern for a trusted-peers private game, would matter for
   a public/competitive one.
+
+
+BANDAGES (added 2026-09-17, Session 46)
+================================================================================
+Cloth Bandage/Coarse Bandage (items.json, type: "consumable") had a pure
+flavor-text "effect" field ("Heals 5 HP") and no functional Use button
+anywhere — completely inert. Added a real `heal_amount` field and:
+- Self-use: a "Use" button in the inventory item right-click popup
+  (slot_button.gd's `_use_bandage()`), heals the local player directly.
+- Bandaging an ally: right-click a DOWNED player in the 3D world
+  (player3d.gd's `_try_open_shop_or_loot()` → `_try_bandage()`, same raycast
+  dispatch vendor/loot already use) to use the first qualifying bandage
+  found in inventory on them. Goes through `_heal_target()`, so it's
+  multiplayer-relay-safe and triggers bleed-out revival exactly like a heal
+  spell would.
+Ancient Bandage/Rotten Linen are lore-only (`type: "misc"`, no effect) —
+correctly excluded from the Use button and the bandage-search.
+
+
+ULTRAVISION (added 2026-09-17, Session 46)
+================================================================================
+Per-race trait (`character_options.json`'s per-race `traits.ultravision`,
+everyone except Human per the user's call — "most elves, trolls, etc have
+it") checked via `player3d.gd`'s `has_ultravision()`. day_night_cycle.gd
+dims one shared WorldEnvironment/DirectionalLight for the whole zone, so
+there's no such thing as "this one player's world is brighter" at that
+level in multiplayer — the effect instead lives on that specific player's
+own `Camera3D.environment` (camera_controller.gd), which overrides the
+WorldEnvironment for only what that camera renders: an ultravision race
+gets a duplicated Environment with `adjustment_enabled`/
+`adjustment_brightness` boosted at night, applied/cleared on
+day_night_cycle.gd's `phase_changed` signal. Not yet visually verified
+in-game — brightness/adjustment values are a first guess to tune.
 
 
 GENERIC SPELL-EFFECT ENGINE (added 2026-09-17, Session 45)

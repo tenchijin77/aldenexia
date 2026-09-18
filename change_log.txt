@@ -199,6 +199,128 @@ candidates instead of guessing; a typo that matches nothing prints "Unknown comm
   singing... only a few will cost mana") — `song_of_courage`'s `mana_cost: 0` is
   correct, not a bug, confirmed with the user directly after a test caught it.
 
+### Multiplayer loot testing round — personal loot, auto-close, cross-player combat log
+- **Personal/instanced loot.** Root cause was worse than "shared loot pool": `monster3d.gd`'s
+  `pending_loot`/`is_lootable` were non-replicated fields only ever set inside `die()`,
+  which itself only ever runs on the authoritative/host machine — so a non-host player
+  could not loot anything at all, not just "the same drops as everyone else." Fixed by
+  rolling loot lazily, per-peer, inside `open_loot_window()` itself (`_personal_loot:
+  Dictionary`, keyed by peer id) instead of once in `die()` — since a script field not
+  listed in a node's `SceneReplicationConfig` is already implicitly per-peer, this one
+  redesign fixes both problems at once with no networking code needed.
+- The corpse no longer frees itself the instant one player finishes looting — it waits
+  out its normal 60s despawn timer so every player gets a fair loot window. An empty
+  loot window (nothing left for that peer) now auto-closes 5s after the last item is
+  taken, and `_try_loot_corpse()` no longer gates on a shared `is_lootable` flag that
+  doesn't exist anymore — `open_loot_window()` handles "nothing here" itself.
+- **Wild Surge fix + a much bigger bug found while chasing it.** The user's own data
+  edit (target: enemy → group) had only landed in the description text, not the actual
+  `target`/`spell_type` fields — fixed directly. While verifying, found the real reason
+  it "didn't work" at all: 7 pairs of spells across `player_spells.json` shared identical
+  `spell_name` values, which silently shadows one spell entirely via `_spell_by_name`'s
+  last-write-wins dictionary construction (Gravecaller/Voidknight, Aetherfist/Lightsworn,
+  Wildspeaker/Chaosborn, Runecaster/Troubadour pairs). Renamed the shadowed copy in each
+  pair, keeping whichever name was already hardcoded or already had a scroll item.
+  Verified zero duplicate spell names remain anywhere in the file.
+- **Cross-player combat log visibility.** `GameLog` (game_log.gd) is a purely local
+  signal bus with zero networking — a second player never saw the first player's
+  attacks, spells, or buffs land at all, even standing right next to them. Added a
+  combat-message relay to `net.gd` (`broadcast_combat_message()` /
+  `_rpc_receive_combat_message` RPC, same pattern as the existing `/tell` and `/party`
+  relays) that every other connected peer receives and feeds into their own
+  `GameLog.log_combat()` — tagged with the acting player's position so each receiver's
+  existing 10m `COMBAT_VISIBILITY_RANGE` filter (already used to hide distant NPC combat
+  noise in `game_log_window.gd`) applies automatically, no separate proximity system
+  needed. `player3d.gd`'s new `_broadcast_combat()` helper fires this alongside every
+  local combat/spell/buff message: melee hits and death (`CombatLogFormatter`'s new
+  third-person `player_attack_broadcast()`), spell damage and death (reusing the
+  existing caster-parameterized `spell_damage()`/`death()`), and every buff/debuff/heal/
+  CC message from `_apply_generic_spell_effect()` — those were already written
+  target-referential ("Target is weakened.") with no "You" in them, so they broadcast
+  verbatim except when the target is the caster themself (a "yourself" placeholder,
+  swapped for the caster's real name so it doesn't read as nonsense on someone else's
+  screen). Self-cast spells (buffs, wards, summons) get one generic "PlayerName casts
+  Spell Name." broadcast rather than a bespoke third-person line for every flavor text
+  variant.
+- Also found and fixed a genuine, unrelated data bug while doing the headless compile
+  check for the above: `Data/player_skills.json` was missing a comma after
+  `musicianship`, which failed to parse at all and would have silently dropped the
+  entire skills list on load.
+
+### Multiplayer core bug: monsters only ever noticed/attacked the HOST
+- Root cause of "remote player isn't losing any life when hit, monsters run right to
+  the host's player": `monster3d.gd`'s AI ran entirely off a single `player` reference
+  set once via `TargetFrame.local_player()` — correct for a HUD script (which wants
+  "my own player"), but monster AI only ever *runs* on the server, where "the local
+  player" means the HOST's own character specifically. A monster could never so much
+  as glance at any other connected player. Fixed with a new `_nearest_player()` that
+  scans every real player in the "player" group and picks whichever is physically
+  closest, re-resolved every frame (once real aggro exists, `get_current_target()`
+  already correctly overrides this with the highest-threat attacker — this only
+  governs who gets noticed/chased before that).
+- Second, compounding bug found while fixing the above: even once a monster *did*
+  fight a non-host player, `add_threat()` was never actually reaching the real
+  (server-side) monster for their damage — player3d.gd's own `add_threat()` call only
+  ever mutates the ATTACKING player's own non-authoritative puppet copy of the
+  monster when they're not the host, silently discarded. Fixed by registering threat
+  directly inside `apply_networked_damage()` (the RPC that already runs
+  authoritatively on the server for every non-host attack, including pet attacks),
+  resolving the attacker's peer id back to their real player node.
+
+### Multiplayer testing round 2 fixes (per 2026-09-17 test notes)
+- Target level: targeting or tracking another PLAYER always showed "Lv 1" — `target_frame.gd`/
+  `tracking_window.gd`/the Appraisal check all read a flat `"level"` property that only
+  exists on Monster (a Player3D node has none, only `combat_node.level`). New shared
+  `TargetFrame.entity_level()` helper prefers `combat_node.level` (correct for both
+  monsters and players) and fixes all three call sites at once.
+- Tracking window now includes other real players in its list (candidates previously
+  covered monsters/guards/vendors only).
+- Personal loot MLW auto-close and the wild_surge/duplicate-spell-name fixes (Session
+  46, first half) are unrelated pre-existing completions — the "both people are seeing
+  loot now" test report describes the pre-fix build.
+- Inventory fill order: `Inventory.add_item()` filled bags first and only fell back to
+  free basic-inventory (non-bag) slots as a last resort — the opposite of what's
+  expected. Now free basic slots fill first, then bags in slot order. Also fixed a
+  latent stacking gap this reorder would have made worse: stackable items sitting
+  directly in a basic slot were never checked for an existing stack to merge into
+  (only bags were), so pickups would create duplicate stacks there instead of merging.
+- Bleed-out revival: another player healing (spell) or bandaging (right-click a downed
+  ally in the 3D world) can now bring them back before their bleed-out timer expires —
+  previously nothing checked for this at all. Logs/broadcasts "PlayerName comes back to
+  life!" to nearby players. Bandaging required actually wiring up bandage items for the
+  first time: Cloth/Coarse Bandage had a pure-flavor-text "effect" field and no Use
+  button anywhere, completely inert — added a real `heal_amount` field and a "Use"
+  button in the inventory item popup for self-use, plus the new right-click-a-downed-
+  ally flow for bandaging someone else.
+- Ultravision: added a per-race `"ultravision": true` trait (everyone except Human,
+  per the user's own call — "most elves, trolls, etc have it") and a per-viewer
+  brightness boost on that player's own camera at night (`Camera3D.environment`
+  override with `adjustment_brightness`), since day_night_cycle.gd's darkness is one
+  shared WorldEnvironment for the whole zone — there's no such thing as "this one
+  player's world is brighter" at that level in multiplayer. Not yet visually verified
+  in-game; brightness/adjustment values are a first guess to tune.
+- Buffs/debuffs are now right-click-cancellable from the Status Effects window
+  (stances excluded — they toggle through stance_bar.gd's own state, not a plain
+  removable active_effects entry).
+- Mobs now show a nameplate above their head, same as players (`monster_template.tscn`
+  gained a `NameLabel` Label3D, reusing `TargetFrame.nameplate_name()`).
+- Desert Scavenger's mesh was clipping through the floor (pivot sits above its feet) —
+  raised 0.4m; Juvenile Spider's pivot was already correct.
+- Troubadour songs: fixed one stray mis-tagged self-buff (Improved Stealth had
+  `target: enemy`/`spell_type: detrimental`/a leftover nonzero `damage` despite being
+  a pure self movement-speed buff) — every actual song (359-394) already matched the
+  user's own stated defaults (duration 8, mana 0, cast 1.5, recast 5, damage 0 unless
+  a real damaging song) with no further stray damage values found. Added a real
+  `musicianship` skill: all 36 Troubadour-exclusive songs now tick it via the existing
+  `skill_category` mechanism (was pointing at generic arcane schools like evocation/
+  enchantment instead) — the 5 stealth/pickpocket abilities Troubadour shares with
+  Woodstalker/Shadowblade were left alone since they're not musical performances.
+- Could not reproduce "Coarse/Ancient Bandage, Rotten Linen, Torch have no inventory
+  icon" — all four already point to a valid, loadable icon file (the same placeholder
+  ~235 other items use) via every icon-rendering code path checked (backpack,
+  character sheet equipment slots, vendor sell list). Needs a screenshot to
+  investigate further.
+
 ---
 
 ## 2026-09-17 — Session 45: Generic spell-effect engine, 7 more classes brought to parity, tradeskills (cooking/alchemy), Wildspeaker pet, fear/charm mechanics, multiplayer CC/heal relay, UI theme + resize pass, 5 new mob models, network widget

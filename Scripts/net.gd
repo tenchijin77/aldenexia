@@ -95,6 +95,23 @@ func send_party_message(peer_ids: Array, sender_name: String, message: String) -
 		_rpc_receive_party_message.rpc_id(pid, sender_name, message)
 
 
+# Combat log relay — GameLog is purely local (see game_log.gd), so without
+# this a second player never sees the first player's attacks/spells/buffs at
+# all. Broadcast (not targeted) since there's no real party requirement to
+# see combat, unlike /tell or /party; the source position rides along so each
+# receiver's own game_log_window.gd applies the exact same 10m
+# COMBAT_VISIBILITY_RANGE filter it already uses to hide distant NPC combat
+# noise — no separate proximity system needed here.
+@rpc("any_peer", "call_remote", "reliable")
+func _rpc_receive_combat_message(text: String, position: Vector3) -> void:
+	GameLog.log_combat(text, position)
+
+
+func broadcast_combat_message(text: String, source_position: Vector3) -> void:
+	for pid in multiplayer.get_peers():
+		_rpc_receive_combat_message.rpc_id(pid, text, source_position)
+
+
 # ── Group invite / roster ────────────────────────────────────────────────
 # An invite pops a real accept/decline popup on the target's screen (see
 # group_invite_popup.gd) rather than joining them instantly. Once they

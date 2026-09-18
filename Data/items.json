@@ -586,6 +586,7 @@
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
+    "heal_amount": 5,
     "effect": "Heals 5 HP"
   },
   "cloth_cape": {
@@ -668,6 +669,7 @@
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
+    "heal_amount": 8,
     "effect": "Heals 8 HP"
   },
   "command_sigil": {

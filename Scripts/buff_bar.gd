@@ -82,6 +82,12 @@ func _build_row(effect_name: String, display_name: String, description: String, 
 	# events a tooltip needs.
 	row.tooltip_text = description
 	row.mouse_filter = Control.MOUSE_FILTER_STOP
+	# Right-click cancels the effect, EQ-style — stances excluded since they
+	# toggle through stance_bar.gd's own current-stance state, not a plain
+	# active_effects entry; erasing just the buff-bar side of it here would
+	# desync the two.
+	if not effect_name.begins_with("stance_"):
+		row.gui_input.connect(func(event: InputEvent): _on_row_gui_input(event, effect_name))
 
 	var icon_box := Panel.new()
 	icon_box.custom_minimum_size = Vector2(ICON_SIZE, ICON_SIZE)
@@ -126,6 +132,17 @@ func _build_row(effect_name: String, display_name: String, description: String, 
 	_row_time_labels[effect_name] = time_label
 
 	buff_list.add_child(row)
+
+
+# Cancelling only ever touches the LOCAL player's own combat_node — buff_bar.gd
+# only ever displays TargetFrame.local_player()'s active_effects (see
+# _process() above), so there's no remote target to relay to, unlike
+# player3d.gd's cast-a-spell-on-someone-else relay helpers.
+func _on_row_gui_input(event: InputEvent, effect_name: String) -> void:
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
+		if is_instance_valid(_player) and "combat_node" in _player and _player.combat_node is CombatNode:
+			_player.combat_node.remove_effect(effect_name)
+			GameLog.log_general("You cancel [b]%s[/b]." % Player3D.spell_display_name(effect_name))
 
 
 func _format_remaining(remaining: float) -> String:

@@ -70,6 +70,23 @@ func _consume_item() -> void:
 	Inventory.consume_one(slot_type, slot_index, bag_slot, item_index)
 
 
+# Bandages (Cloth/Coarse Bandage) previously had a "heal_amount"-less "effect"
+# flavor-text field only, with no Use button anywhere — a fully inert item.
+# Self-use only; bandaging a DOWNED ALLY goes through a separate right-click-
+# in-the-3D-world flow (player3d.gd's _try_bandage()), not this inventory
+# popup, since there's no "target" concept here.
+func _use_bandage() -> void:
+	var player := TargetFrame.local_player()
+	if not is_instance_valid(player) or not ("combat_node" in player):
+		return
+	var healed: int = player.combat_node.heal(int(item_data.get("heal_amount", 0)))
+	if healed > 0:
+		GameLog.log_general("[color=#88ffaa]You bandage your wounds, healing [b]%d[/b].[/color]" % healed)
+	else:
+		GameLog.log_general("You are already at full health.")
+	Inventory.consume_one(slot_type, slot_index, bag_slot, item_index)
+
+
 func _show_inspect_popup() -> void:
 	var root = get_tree().root
 	var existing = root.get_node_or_null("ItemInspectLayer")
@@ -194,6 +211,17 @@ func _show_inspect_popup() -> void:
 			_consume_item()
 		)
 		btn_row.add_child(consume_btn)
+
+	# Use button (bandage-style consumables with a heal_amount — see
+	# _use_bandage(); food/drink already have their own Eat/Drink button above)
+	if item_data.get("type") == "consumable" and int(item_data.get("heal_amount", 0)) > 0:
+		var use_btn := Button.new()
+		use_btn.text = "Use"
+		use_btn.pressed.connect(func():
+			layer.queue_free()
+			_use_bandage()
+		)
+		btn_row.add_child(use_btn)
 
 	# Open button (tradeskill stations, e.g. Basic Alchemy Kit — see
 	# tradeskill_window.gd for the shared crafting window)

@@ -68,6 +68,32 @@ const PLAYER_RIPOSTE := [
 	"You exploit an opening in %s's attack and counter for [b]%d[/b] damage!",
 ]
 
+# Used when a monster defends against ANOTHER player's attack, broadcast to
+# every other client so they see it too (%s = monster name, %s = attacker name)
+const ENEMY_PARRY_OTHER := [
+	"%s parries %s's attack!",
+	"%s deflects %s's strike!",
+	"%s turns %s's blow aside!",
+	"%s catches %s's attack on their blade!",
+]
+const ENEMY_BLOCK_OTHER := [
+	"%s blocks %s's attack with their shield!",
+	"%s raises their guard, stopping %s's blow!",
+	"%s absorbs %s's strike behind their shield!",
+]
+const ENEMY_DODGE_OTHER := [
+	"%s dodges %s's attack!",
+	"%s sidesteps %s's strike!",
+	"%s narrowly avoids %s's blow!",
+	"%s evades %s's swing!",
+]
+const ENEMY_RIPOSTE_OTHER := [
+	"%s ripostes %s's attack and counterattacks for [b]%d[/b] damage!",
+	"%s turns %s's strike aside and retaliates for [b]%d[/b] damage!",
+	"%s exploits an opening in %s's attack and counters for [b]%d[/b] damage!",
+	"%s deflects and instantly strikes back at %s for [b]%d[/b] damage!",
+]
+
 # Maps item "skill" field → damage_type string
 const SKILL_TO_DAMAGE_TYPE: Dictionary = {
 	"1h slashing": "slashing", "1h_slashing": "slashing",
@@ -129,6 +155,35 @@ static func player_attack(result: Dictionary, target_desc: String, weapon_name: 
 			return "%sYou %s %s with %s for [b]%d[/b] damage!" % [crit, verb, cap, weapon_name, result.get("damage", 0)]
 	return ""
 
+# ── Another player attacks a monster (broadcast to other clients) ─────────────
+# Mirrors player_attack() but in third person, for relaying to every other
+# connected peer so multiplayer combat isn't silent to everyone but the
+# attacker — see net.gd's broadcast_combat_message().
+
+static func player_attack_broadcast(actor_name: String, result: Dictionary, target_desc: String, weapon_name: String, damage_type: String) -> String:
+	var cap: String = target_desc.capitalize()
+	match result.get("result", ""):
+		"MISS":
+			if weapon_name.is_empty():
+				return "%s misses %s!" % [actor_name, cap]
+			return "%s swings at %s with %s, but misses!" % [actor_name, cap, weapon_name]
+		"PARRY":
+			return _pick(ENEMY_PARRY_OTHER) % [cap, actor_name]
+		"BLOCK":
+			return _pick(ENEMY_BLOCK_OTHER) % [cap, actor_name]
+		"DODGE":
+			return _pick(ENEMY_DODGE_OTHER) % [cap, actor_name]
+		"RIPOSTE":
+			return _pick(ENEMY_RIPOSTE_OTHER) % [cap, actor_name, result.get("damage", 0)]
+		"HIT":
+			var verb: String = _verb3(damage_type)
+			var crit: String = "[color=#ffaa00]Critical! [/color]" if result.get("is_crit", false) else ""
+			if weapon_name.is_empty():
+				return "%s%s %s %s for [b]%d[/b] damage!" % [crit, actor_name, verb, cap, result.get("damage", 0)]
+			return "%s%s %s %s with %s for [b]%d[/b] damage!" % [crit, actor_name, verb, cap, weapon_name, result.get("damage", 0)]
+	return ""
+
+
 # ── Monster attacks player ────────────────────────────────────────────────────
 
 static func monster_attack(result: Dictionary, monster_desc: String, damage_type: String) -> String:
@@ -169,6 +224,10 @@ static func spell_debuff(caster: String, spell_name: String, target_desc: String
 	return "%s %s [b]%s[/b] on %s, reducing its %s by %d!" % [
 		caster, verb, spell_name.replace("_", " ").capitalize(), target_desc, stat, amount
 	]
+
+static func spell_cast(caster: String, spell_name: String) -> String:
+	var verb := "cast" if caster == "You" else "casts"
+	return "%s %s [b]%s[/b]." % [caster, verb, spell_name.replace("_", " ").capitalize()]
 
 static func begin_cast(caster: String) -> String:
 	if caster == "You":

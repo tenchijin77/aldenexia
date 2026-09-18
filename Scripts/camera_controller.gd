@@ -49,6 +49,18 @@ var _head_turn_held: bool = false
 @onready var camera: Camera3D = $Camera3D
 #endregion
 
+#region Ultravision (per user request 2026-09-17)
+# day_night_cycle.gd dims the whole ZONE's shared WorldEnvironment/sun for
+# everyone identically — there's no such thing as "this one player's world is
+# brighter" at that level, since it's one shared scene in multiplayer. A
+# per-viewer effect instead has to live on that viewer's own Camera3D:
+# Camera3D.environment, when set, overrides the WorldEnvironment for
+# whatever that specific camera renders, so an ultravision race gets a
+# boosted-ambient/adjustment override on their own camera only, while every
+# other player's camera (environment left null) still sees the normal night.
+var _night_vision_env: Environment = null
+#endregion
+
 func _ready() -> void:
 	# In multiplayer, this rig belongs to whichever player3d this is a child
 	# of — for every OTHER peer's character (puppets, see player3d.gd's
@@ -65,6 +77,7 @@ func _ready() -> void:
 	camera.current = true
 	Global.restore_mouse_mode()
 	apply_camera_mode()
+	_setup_ultravision()
 
 func _input(event: InputEvent) -> void:
 	# F12 toggles free-look mouselook on/off
@@ -161,3 +174,36 @@ func apply_camera_mode() -> void:
 
 func _process(_delta: float) -> void:
 	pass
+
+
+func _setup_ultravision() -> void:
+	var player := get_parent()
+	if not (player.has_method("has_ultravision") and player.has_ultravision()):
+		return
+	var cycle: Node = get_tree().get_first_node_in_group("day_night_cycle")
+	if cycle == null:
+		return
+	cycle.phase_changed.connect(_on_day_night_phase_changed)
+	_on_day_night_phase_changed(cycle.is_day())
+
+
+# Only ever connected for a local, ultravision-race player (see
+# _setup_ultravision()) — no per-call race/day-night-cycle-existence checks
+# needed here.
+func _on_day_night_phase_changed(is_day: bool) -> void:
+	if is_day:
+		camera.environment = null
+		return
+	if _night_vision_env == null:
+		_night_vision_env = Environment.new()
+		var cycle: Node = get_tree().get_first_node_in_group("day_night_cycle")
+		var world_env: WorldEnvironment = cycle.get_node_or_null(cycle.world_environment_path) if cycle else null
+		if world_env and world_env.environment:
+			# Copy the real sky/fog/tonemap setup so ultravision still looks
+			# like "the same night, just clearer" rather than a flat wash —
+			# only the two properties below actually deviate from it.
+			_night_vision_env = world_env.environment.duplicate()
+		_night_vision_env.adjustment_enabled = true
+		_night_vision_env.adjustment_brightness = 1.8
+		_night_vision_env.ambient_light_energy = 1.0
+	camera.environment = _night_vision_env

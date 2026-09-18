@@ -65,12 +65,14 @@ func _refresh() -> void:
 	var player_level: int = _player.combat_node.level if "combat_node" in _player else 1
 
 	var nearby: Array = []
-	# Monsters, guards, and vendors alike — tracking is about knowing what's
-	# nearby, not just threats. Per user request (2026-09-17): guards/vendors
-	# included the same way monsters always were.
+	# Monsters, guards, vendors, and other players alike — tracking is about
+	# knowing what's nearby, not just threats. Per user request (2026-09-17):
+	# guards/vendors included the same way monsters always were; other real
+	# players (multiplayer) were missing entirely until now.
 	var candidates := get_tree().get_nodes_in_group("monsters") \
 		+ get_tree().get_nodes_in_group("npc_guard") \
-		+ get_tree().get_nodes_in_group("npc_vendor")
+		+ get_tree().get_nodes_in_group("npc_vendor") \
+		+ get_tree().get_nodes_in_group("player")
 	for m in candidates:
 		if not is_instance_valid(m) or m == _player:
 			continue
@@ -101,7 +103,7 @@ func _make_row(mob: Node, dist: float, player_level: int) -> Control:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 8)
 
-	var mob_level: int = int(mob.get("level")) if "level" in mob else 1
+	var mob_level: int = TargetFrame.entity_level(mob)
 	var color: Color = TargetFrame.con_color(mob_level - player_level)
 
 	var name_lbl := Label.new()

@@ -26,6 +26,7 @@
     "throwing": "Improves accuracy, range, and damage when throwing weapons.",
     "offense": "Broad combat skill raised by landing melee attacks. Improves overall attack power and accuracy.",
     "defense": "Broad defensive skill raised by being attacked in melee. Improves blocking, dodging, and parrying.",
+    "musicianship": "The ability to sing and play various musical instruments. Improves Troubadour songs.",
     "stealth": "Ability to move unseen, reduce detection chance, and enable ambush attacks.",
     "tracking": "Ability to follow trails, locate creatures, and read signs in the environment.",
     "bind_wound": "Non-magical first aid. Stops bleeding and restores a small amount of health outside of combat.",

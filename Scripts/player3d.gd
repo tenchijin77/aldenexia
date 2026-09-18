@@ -298,9 +298,12 @@ var _shop_window_instance: Node = null
 # whether the player is in normal cursor-visible play.
 func _try_open_shop_or_loot() -> void:
 	if not Global.mouselook_enabled:
-		var vendor := _raycast_vendor(get_viewport().get_mouse_position())
-		if vendor:
-			_open_shop(vendor)
+		var hit := _raycast_world_hit(get_viewport().get_mouse_position())
+		if hit is VendorNPC:
+			_open_shop(hit)
+			return
+		if hit is Player3D and hit != self and hit.dying:
+			_try_bandage(hit)
 			return
 	if _try_open_campfire():
 		return
@@ -356,7 +359,7 @@ func _open_tradeskill_window(station_id: String, title: String, action_label: St
 	_tradeskill_window_instance.setup(station_id, title, action_label)
 
 
-func _raycast_vendor(screen_pos: Vector2) -> Node:
+func _raycast_world_hit(screen_pos: Vector2) -> Node:
 	var camera := get_viewport().get_camera_3d()
 	if not camera:
 		return null
@@ -366,9 +369,42 @@ func _raycast_vendor(screen_pos: Vector2) -> Node:
 	var query := PhysicsRayQueryParameters3D.create(origin, origin + direction * 100.0)
 	query.exclude = [self]
 	var hit := space.intersect_ray(query)
-	if hit and hit.collider is VendorNPC:
-		return hit.collider
-	return null
+	return hit.get("collider") if hit else null
+
+
+# Right-click a downed ally to bandage them back up — an alternative to
+# healing them with a spell, using whichever bandage-type consumable
+# (heal_amount > 0, see items.json/slot_button.gd's Use button) is found
+# first in inventory. Reuses _heal_target() so the actual heal/revival logic
+# (relay to the target's own machine, bleed-out check) is identical to a
+# real heal spell landing on them — a bandage is just another heal source.
+func _try_bandage(target: Node) -> void:
+	var bandage := _find_bandage_in_inventory()
+	if bandage.is_empty():
+		GameLog.log_general("You don't have a bandage to use.")
+		return
+	var heal_amount: int = int(bandage["item"].get("heal_amount", 0))
+	_heal_target(target, target.combat_node, heal_amount)
+	Inventory.consume_one(bandage["slot_type"], bandage["slot_index"], bandage["bag_slot"], bandage["item_index"])
+	GameLog.log_general("[color=#88ffaa]You bandage %s's wounds.[/color]" % TargetFrame.display_name(target))
+
+
+func _find_bandage_in_inventory() -> Dictionary:
+	for i in range(Inventory.BASIC_INVENTORY_SIZE):
+		var item: Dictionary = Inventory.get_basic_inventory_slot(i)
+		if not item.is_empty() and not Inventory.is_bag(item) \
+				and item.get("type", "") == "consumable" and int(item.get("heal_amount", 0)) > 0:
+			return {"item": item, "slot_type": "basic", "slot_index": i, "bag_slot": -1, "item_index": -1}
+	for bag_slot in range(Inventory.BASIC_INVENTORY_SIZE):
+		var bag: Dictionary = Inventory.get_basic_inventory_slot(bag_slot)
+		if not Inventory.is_bag(bag):
+			continue
+		var contents: Array = Inventory.get_bag_contents(bag_slot)
+		for item_index in range(contents.size()):
+			var item: Dictionary = contents[item_index]
+			if item.get("type", "") == "consumable" and int(item.get("heal_amount", 0)) > 0:
+				return {"item": item, "slot_type": "bag", "slot_index": -1, "bag_slot": bag_slot, "item_index": item_index}
+	return {}
 
 
 func _open_shop(vendor: Node) -> void:
@@ -400,10 +436,10 @@ func _try_loot_corpse() -> void:
 		print("⚠️ No lootable corpse within range.")
 		return
 
-	if nearest.is_lootable:
-		nearest.open_loot_window()
-	else:
-		GameLog.log_general("You search the corpse but find nothing upon it.")
+	# open_loot_window() now handles "nothing here" itself (personal loot is
+	# rolled lazily per-peer, so there's no shared is_lootable flag to check
+	# beforehand — see monster3d.gd).
+	nearest.open_loot_window()
 
 
 const HAIL_RANGE := 5.0
@@ -530,7 +566,7 @@ func try_appraise_target() -> void:
 		return
 	_appraisal_cooldowns[target_id] = APPRAISAL_COOLDOWN
 
-	var target_level := int(current_target.get("level") if "level" in current_target else 1)
+	var target_level := TargetFrame.entity_level(current_target)
 	var diff := target_level - combat_node.level
 	var tier: Dictionary = _appraisal_tier(diff)
 	var faction: String = TargetFrame.faction_status(current_target)
@@ -1882,6 +1918,7 @@ func attack_current_target() -> void:
 		var msg: String = CombatLogFormatter.player_attack(result, target_desc, weapon_name, dmg_type)
 		if not msg.is_empty():
 			GameLog.log_combat(msg)
+			_broadcast_combat(CombatLogFormatter.player_attack_broadcast(player_name, result, target_desc, weapon_name, dmg_type))
 		if result["result"] == "HIT":
 			var skey: String = weapon.get("skill", "").to_lower().replace(" ", "_")
 			_tick_skill(skey)
@@ -1894,6 +1931,7 @@ func attack_current_target() -> void:
 			var dead := current_target
 			combat_node.notify_kill()
 			GameLog.log_combat(CombatLogFormatter.death("You", target_desc))
+			_broadcast_combat(CombatLogFormatter.death(player_name, target_desc))
 			_set_target_frame(null)
 			current_target = null
 			autoattack_enabled = false
@@ -1912,9 +1950,11 @@ func attack_current_target() -> void:
 			current_target.apply_damage(total_damage, "physical")
 			var target_desc: String = current_target.get("monster_description") if current_target.get("monster_description") != "" else current_target.get_monster_name()
 			GameLog.log_combat("You hit %s for [b]%d[/b] damage." % [target_desc, total_damage])
+			_broadcast_combat("%s hits %s for [b]%d[/b] damage." % [player_name, target_desc, total_damage])
 		if not is_instance_valid(current_target) or current_target.current_health <= 0:
 			var target_desc: String = current_target.get("monster_description") if current_target.get("monster_description") != "" else current_target.get_monster_name()
 			GameLog.log_combat("%s has been defeated!" % target_desc.capitalize())
+			_broadcast_combat("%s has been defeated!" % target_desc.capitalize())
 			_set_target_frame(null)
 			current_target = null
 			autoattack_enabled = false
@@ -1979,6 +2019,7 @@ func perform_melee_attack() -> void:
 			var msg: String = CombatLogFormatter.player_attack(result, target_desc, weapon_name, dmg_type)
 			if not msg.is_empty():
 				GameLog.log_combat(msg)
+				_broadcast_combat(CombatLogFormatter.player_attack_broadcast(player_name, result, target_desc, weapon_name, dmg_type))
 			if result["result"] == "HIT":
 				var skey: String = weapon.get("skill", "").to_lower().replace(" ", "_")
 				_tick_skill(skey)
@@ -1987,6 +2028,7 @@ func perform_melee_attack() -> void:
 			if not target.combat_node.is_alive():
 				combat_node.notify_kill()
 				GameLog.log_combat(CombatLogFormatter.death("You", target_desc))
+				_broadcast_combat(CombatLogFormatter.death(player_name, target_desc))
 				if target == current_target:
 					_set_target_frame(null)
 					current_target = null
@@ -2002,6 +2044,7 @@ func perform_melee_attack() -> void:
 				target.apply_damage(total_damage, "physical")
 				var tname = target.get_monster_name() if target.has_method("get_monster_name") else "enemy"
 				GameLog.log_combat("You hit %s for %d damage." % [tname, total_damage])
+				_broadcast_combat("%s hits %s for %d damage." % [player_name, tname, total_damage])
 	else:
 		GameLog.log_combat("No target in range.")
 
@@ -2756,6 +2799,7 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 				target_node.apply_networked_damage.rpc_id(1, final_dmg, multiplayer.get_unique_id())
 
 			GameLog.log_combat(CombatLogFormatter.spell_damage("You", spell_name, target_desc, final_dmg))
+			_broadcast_combat(CombatLogFormatter.spell_damage(player_name, spell_name, target_desc, final_dmg))
 
 			if target_node.has_method("add_threat"):
 				target_node.add_threat(self, combat_node.generate_threat(final_dmg))
@@ -2767,20 +2811,24 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 					var healed := combat_node.heal(heal_amount)
 					if healed > 0:
 						GameLog.log_general("[color=#66ff99]You siphon life, healing yourself for [b]%d[/b].[/color]" % healed)
+						_broadcast_combat("[color=#66ff99]%s siphons life, healing themself for [b]%d[/b].[/color]" % [player_name, healed])
 						if target_node.has_method("add_threat"):
 							target_node.add_threat(self, combat_node.generate_threat(0, healed))
 				"necrotic_grasp":
 					if target_cn is CombatNode:
 						_buff_target(target_node, target_cn, "necrotic_grasp", 6.0, {"speed_slow": 0.15, "attack_speed_slow": 0.15})
 						GameLog.log_general("[color=#8866ff]%s is gripped by necrotic energy, slowing them.[/color]" % target_desc.capitalize())
+						_broadcast_combat("[color=#8866ff]%s is gripped by necrotic energy, slowing them.[/color]" % target_desc.capitalize())
 				"curse_of_weakness":
 					if target_cn is CombatNode:
 						_buff_target(target_node, target_cn, "curse_of_weakness", 10.0, {"damage_mult": -0.05})
 						GameLog.log_general("[color=#8866ff]%s is weakened, their attacks feeble.[/color]" % target_desc.capitalize())
+						_broadcast_combat("[color=#8866ff]%s is weakened, their attacks feeble.[/color]" % target_desc.capitalize())
 				"plague_strike":
 					if target_cn is CombatNode:
 						_buff_target(target_node, target_cn, "plague_strike", 8.0, {}, 5, 1.0)
 						GameLog.log_general("[color=#77aa44]%s is wracked with plague.[/color]" % target_desc.capitalize())
+						_broadcast_combat("[color=#77aa44]%s is wracked with plague.[/color]" % target_desc.capitalize())
 				"soul_leech":
 					if target_cn is CombatNode:
 						var drained := int(target_cn.max_mana * 0.03)
@@ -2788,26 +2836,31 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 						var healed := combat_node.heal(int(drained * 0.30))
 						if healed > 0:
 							GameLog.log_general("[color=#66ff99]You leech %d mana from %s, healing yourself for [b]%d[/b].[/color]" % [drained, target_desc, healed])
+							_broadcast_combat("[color=#66ff99]%s leeches %d mana from %s, healing themself for [b]%d[/b].[/color]" % [player_name, drained, target_desc, healed])
 				"improved_disarm":
 					if randf() < 0.40:
 						if "attack_timer" in target_node and "attack_cooldown" in target_node:
 							_disable_target(target_node, 2.0)
 						GameLog.log_general("[color=#ffcc66]You disarm %s, disrupting their attack![/color]" % target_desc)
+						_broadcast_combat("[color=#ffcc66]%s disarms %s, disrupting their attack![/color]" % [player_name, target_desc])
 					else:
 						GameLog.log_general("Your disarm attempt on %s fails." % target_desc)
 				"taunt":
 					if target_node.has_method("taunt"):
 						target_node.taunt(self)
 						GameLog.log_general("[color=#ffcc66]You bellow a challenge — %s's fury turns on you![/color]" % target_desc)
+						_broadcast_combat("[color=#ffcc66]%s bellows a challenge — %s's fury turns to them![/color]" % [player_name, target_desc])
 				_:
 					# Generic, data-driven fallback for every other spell (any
 					# class) — see _apply_generic_spell_effect().
 					if not _apply_generic_spell_effect(effect_type, spell, combat_node, target_cn, target_node, target_desc):
 						GameLog.log_combat("You use [b]%s[/b] on %s." % [display_name, target_desc])
+						_broadcast_combat("%s uses [b]%s[/b] on %s." % [player_name, display_name, target_desc])
 
 			if not target_node.combat_node.is_alive():
 				combat_node.notify_kill()
 				GameLog.log_combat(CombatLogFormatter.death("You", target_desc))
+				_broadcast_combat(CombatLogFormatter.death(player_name, target_desc))
 				_set_target_frame(null)
 				current_target = null
 				autoattack_enabled = false
@@ -2822,6 +2875,14 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 					target_node.die()
 
 		"self":
+			# One generic broadcast covers every self-cast spell (buffs,
+			# wards, summons) uniformly, rather than duplicating the dozens
+			# of flavor-specific "You..." lines below into third-person
+			# variants one at a time — other players at least see that the
+			# spell was cast; the effect-specific messages inside
+			# _apply_generic_spell_effect (for spells that fall through to
+			# it) broadcast their own detail on top of this.
+			_broadcast_combat(CombatLogFormatter.spell_cast(player_name, spell_name))
 			match spell_name:
 				"shadow_aura":
 					combat_node.apply_effect("shadow_aura", 900.0, {})
@@ -2916,6 +2977,7 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 					hit_target.apply_networked_damage.rpc_id(1, cone_dmg, multiplayer.get_unique_id())
 
 				GameLog.log_combat(CombatLogFormatter.spell_damage("You", spell_name, hit_desc, cone_dmg))
+				_broadcast_combat(CombatLogFormatter.spell_damage(player_name, spell_name, hit_desc, cone_dmg))
 				if hit_target.has_method("add_threat"):
 					hit_target.add_threat(self, combat_node.generate_threat(cone_dmg))
 				if hit_cn is CombatNode:
@@ -2926,6 +2988,7 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 					if not hit_cn.is_alive():
 						combat_node.notify_kill()
 						GameLog.log_combat(CombatLogFormatter.death("You", hit_desc))
+						_broadcast_combat(CombatLogFormatter.death(player_name, hit_desc))
 						if hit_target == current_target:
 							_set_target_frame(null)
 							current_target = null
@@ -2949,16 +3012,23 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 				ally_target = target_node
 			var ally_cn = ally_target.get("combat_node")
 			var ally_desc: String = "yourself" if ally_target == self else TargetFrame.display_name(ally_target)
+			# Same "yourself" swap as _apply_generic_spell_effect's bcast_desc
+			# — an ally-target broadcast naming this caster's real name when
+			# the target is themself, otherwise the same name every observer
+			# already sees.
+			var ally_bcast_desc: String = player_name if ally_target == self else ally_desc
 
 			match spell_name:
 				"spirit_mend":
 					if ally_cn is CombatNode:
 						var healed: int = _heal_target(ally_target, ally_cn, base_damage)
 						GameLog.log_combat("[color=#66ff99]You mend %s, restoring [b]%d[/b] health.[/color]" % [ally_desc, healed])
+						_broadcast_combat(CombatLogFormatter.spell_heal(player_name, spell_name, ally_bcast_desc, healed))
 				"ancestral_guidance":
 					if ally_cn is CombatNode:
 						_buff_target(ally_target, ally_cn, "ancestral_guidance", 8.0, {"damage_mult": 0.05})
 						GameLog.log_general("[color=#88ffcc]Ancestral spirits quicken %s.[/color]" % ally_desc)
+						_broadcast_combat("[color=#88ffcc]Ancestral spirits quicken %s.[/color]" % ally_bcast_desc)
 				"earth_totem":
 					# True small-radius group buff: caster + any non-Enemy within 8m.
 					var protected: Array = [self]
@@ -2970,9 +3040,11 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 						if cn is CombatNode:
 							cn.apply_effect("earth_totem", 15.0, {"damage_taken_mult": 0.05})
 					GameLog.log_general("[color=#88cc66]You plant an Earth Totem, warding %d nearby allies.[/color]" % protected.size())
+					_broadcast_combat("[color=#88cc66]%s plants an Earth Totem, warding %d nearby allies.[/color]" % [player_name, protected.size()])
 				_:
 					if not _apply_generic_spell_effect(effect_type, spell, combat_node, ally_cn, ally_target, ally_desc):
 						GameLog.log_combat("[color=#ffdd88]You use [b]%s[/b]! Your battle cry fills the air.[/color]" % display_name)
+						_broadcast_combat("[color=#ffdd88]%s uses [b]%s[/b]! Their battle cry fills the air.[/color]" % [player_name, display_name])
 
 		# Point-blank AoE centered on the caster (e.g. Arcane Explosion) —
 		# hits every hostile monster within radius, generic damage + effect.
@@ -3002,6 +3074,7 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 				if hit_is_networked_monster and pbaoe_dmg > 0:
 					hit_target.apply_networked_damage.rpc_id(1, pbaoe_dmg, multiplayer.get_unique_id())
 				GameLog.log_combat(CombatLogFormatter.spell_damage("You", spell_name, hit_desc, pbaoe_dmg))
+				_broadcast_combat(CombatLogFormatter.spell_damage(player_name, spell_name, hit_desc, pbaoe_dmg))
 				if hit_target.has_method("add_threat"):
 					hit_target.add_threat(self, combat_node.generate_threat(pbaoe_dmg))
 				if hit_cn is CombatNode:
@@ -3009,6 +3082,7 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 					if not hit_cn.is_alive():
 						combat_node.notify_kill()
 						GameLog.log_combat(CombatLogFormatter.death("You", hit_desc))
+						_broadcast_combat(CombatLogFormatter.death(player_name, hit_desc))
 						if hit_target == current_target:
 							_set_target_frame(null)
 							current_target = null
@@ -3057,6 +3131,7 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 				if hit_is_networked_monster and chain_dmg > 0:
 					hit_target.apply_networked_damage.rpc_id(1, chain_dmg, multiplayer.get_unique_id())
 				GameLog.log_combat(CombatLogFormatter.spell_damage("You", spell_name, hit_desc, chain_dmg))
+				_broadcast_combat(CombatLogFormatter.spell_damage(player_name, spell_name, hit_desc, chain_dmg))
 				if hit_target.has_method("add_threat"):
 					hit_target.add_threat(self, combat_node.generate_threat(chain_dmg))
 				if hit_cn is CombatNode:
@@ -3064,6 +3139,7 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 					if not hit_cn.is_alive():
 						combat_node.notify_kill()
 						GameLog.log_combat(CombatLogFormatter.death("You", hit_desc))
+						_broadcast_combat(CombatLogFormatter.death(player_name, hit_desc))
 						if hit_target == current_target:
 							_set_target_frame(null)
 							current_target = null
@@ -3118,12 +3194,22 @@ func _apply_generic_spell_effect(effect_type: String, spell: Dictionary, caster_
 	var duration: float = 0.0 if duration_raw is String else float(duration_raw)
 	var magnitude: int = int(spell.get("damage", 0))
 
+	# These messages are all target-referential ("Target is empowered.") with
+	# no "You"/"your" anywhere, so they're already safe to broadcast verbatim
+	# to other players — except when target_desc is the caster's own local
+	# "yourself" placeholder (self-cast spells), which would read as nonsense
+	# ("Yourself is empowered.") on someone else's screen. bcast_desc swaps
+	# that one case for this caster's real name; every other target already
+	# names itself correctly for a third-person observer.
+	var bcast_desc: String = player_name if target_desc == "yourself" else target_desc
+
 	match effect_type:
 		"heal":
 			var healed: int = _heal_target(target_node, target_cn, magnitude)
 			if healed <= 0:
 				return false
 			GameLog.log_combat("[color=#66ff99]%s healed for [b]%d[/b].[/color]" % [target_desc.capitalize(), healed])
+			_broadcast_combat("[color=#66ff99]%s healed for [b]%d[/b].[/color]" % [bcast_desc.capitalize(), healed])
 			return true
 		"hot":
 			if duration <= 0.0:
@@ -3132,6 +3218,7 @@ func _apply_generic_spell_effect(effect_type: String, spell: Dictionary, caster_
 			var per_tick := maxi(1, int(round(float(magnitude) / ticks)))
 			_buff_target(target_node, target_cn, effect_name, duration, {}, 0, 1.0, per_tick)
 			GameLog.log_combat("[color=#66ff99]%s begins regenerating health.[/color]" % target_desc.capitalize())
+			_broadcast_combat("[color=#66ff99]%s begins regenerating health.[/color]" % bcast_desc.capitalize())
 			return true
 		"dot":
 			if duration <= 0.0:
@@ -3140,35 +3227,46 @@ func _apply_generic_spell_effect(effect_type: String, spell: Dictionary, caster_
 			var per_tick := maxi(1, int(round(float(magnitude) / ticks)))
 			_buff_target(target_node, target_cn, effect_name, duration, {}, per_tick, 1.0)
 			GameLog.log_combat("[color=#77aa44]%s is afflicted with a lingering effect.[/color]" % target_desc.capitalize())
+			_broadcast_combat("[color=#77aa44]%s is afflicted with a lingering effect.[/color]" % bcast_desc.capitalize())
 			return true
 		"buff":
 			if duration <= 0.0:
 				return false
 			_buff_target(target_node, target_cn, effect_name, duration, {"damage_mult": 0.05})
 			GameLog.log_general("[color=#88ffcc]%s is empowered.[/color]" % target_desc.capitalize())
+			_broadcast_combat("[color=#88ffcc]%s is empowered.[/color]" % bcast_desc.capitalize())
 			return true
 		"debuff":
 			if duration <= 0.0:
 				return false
 			_buff_target(target_node, target_cn, effect_name, duration, {"damage_mult": -0.05})
 			GameLog.log_general("[color=#8866ff]%s is weakened.[/color]" % target_desc.capitalize())
+			_broadcast_combat("[color=#8866ff]%s is weakened.[/color]" % bcast_desc.capitalize())
 			return true
 		"snare":
 			if duration <= 0.0:
 				return false
 			_buff_target(target_node, target_cn, effect_name, duration, {"speed_slow": 0.15, "attack_speed_slow": 0.15})
 			GameLog.log_general("[color=#8866ff]%s is slowed.[/color]" % target_desc.capitalize())
+			_broadcast_combat("[color=#8866ff]%s is slowed.[/color]" % bcast_desc.capitalize())
 			return true
 		"stun":
-			return _apply_disable_effect(duration, target_node, target_desc, "is stunned!")
+			var stunned := _apply_disable_effect(duration, target_node, target_desc, "is stunned!")
+			if stunned:
+				_broadcast_combat("%s is stunned!" % bcast_desc.capitalize())
+			return stunned
 		"fear":
 			if duration <= 0.0:
 				return false
 			if target_node.has_method("apply_fear"):
 				_fear_target(target_node, duration)
 				GameLog.log_general("[color=#ffcc66]%s flees in terror![/color]" % target_desc.capitalize())
+				_broadcast_combat("[color=#ffcc66]%s flees in terror![/color]" % bcast_desc.capitalize())
 				return true
-			return _apply_disable_effect(duration, target_node, target_desc, "flees in terror!")
+			var feared := _apply_disable_effect(duration, target_node, target_desc, "flees in terror!")
+			if feared:
+				_broadcast_combat("%s flees in terror!" % bcast_desc.capitalize())
+			return feared
 		"charm":
 			if duration <= 0.0:
 				return false
@@ -3176,23 +3274,35 @@ func _apply_generic_spell_effect(effect_type: String, spell: Dictionary, caster_
 				_charm_target(target_node, duration)
 				_open_charm_control_window(target_node)
 				GameLog.log_general("[color=#ffcc66]%s is charmed![/color]" % target_desc.capitalize())
+				_broadcast_combat("[color=#ffcc66]%s is charmed![/color]" % bcast_desc.capitalize())
 				return true
-			return _apply_disable_effect(duration, target_node, target_desc, "is charmed!")
+			var charmed := _apply_disable_effect(duration, target_node, target_desc, "is charmed!")
+			if charmed:
+				_broadcast_combat("%s is charmed!" % bcast_desc.capitalize())
+			return charmed
 		"mesmerize":
-			return _apply_disable_effect(duration, target_node, target_desc, "is mesmerized!")
+			var mesmerized := _apply_disable_effect(duration, target_node, target_desc, "is mesmerized!")
+			if mesmerized:
+				_broadcast_combat("%s is mesmerized!" % bcast_desc.capitalize())
+			return mesmerized
 		"confuse":
-			return _apply_disable_effect(duration, target_node, target_desc, "is confused!")
+			var confused := _apply_disable_effect(duration, target_node, target_desc, "is confused!")
+			if confused:
+				_broadcast_combat("%s is confused!" % bcast_desc.capitalize())
+			return confused
 		"root":
 			if duration <= 0.0:
 				return false
 			_buff_target(target_node, target_cn, effect_name, duration, {"speed_slow": 1.0})
 			GameLog.log_general("[color=#8866ff]%s is rooted in place.[/color]" % target_desc.capitalize())
+			_broadcast_combat("[color=#8866ff]%s is rooted in place.[/color]" % bcast_desc.capitalize())
 			return true
 		"blind":
 			if duration <= 0.0:
 				return false
 			_buff_target(target_node, target_cn, effect_name, duration, {"hit_chance": -25.0})
 			GameLog.log_general("[color=#8866ff]%s is blinded.[/color]" % target_desc.capitalize())
+			_broadcast_combat("[color=#8866ff]%s is blinded.[/color]" % bcast_desc.capitalize())
 			return true
 		"silence":
 			if duration <= 0.0:
@@ -3203,6 +3313,7 @@ func _apply_generic_spell_effect(effect_type: String, spell: Dictionary, caster_
 			# checks it before casting will work with zero extra wiring here.
 			_buff_target(target_node, target_cn, effect_name, duration, {"silenced": 1.0})
 			GameLog.log_general("[color=#8888ff]%s is silenced.[/color]" % target_desc.capitalize())
+			_broadcast_combat("[color=#8888ff]%s is silenced.[/color]" % bcast_desc.capitalize())
 			return true
 		"cure":
 			var to_remove: String = _find_debuff_to_cure(target_cn)
@@ -3211,6 +3322,9 @@ func _apply_generic_spell_effect(effect_type: String, spell: Dictionary, caster_
 			_remove_effect_from_target(target_node, target_cn, to_remove)
 			GameLog.log_general("[color=#88ffaa]%s is cleansed of %s.[/color]" % [
 				target_desc.capitalize(), spell_display_name(to_remove)
+			])
+			_broadcast_combat("[color=#88ffaa]%s is cleansed of %s.[/color]" % [
+				bcast_desc.capitalize(), spell_display_name(to_remove)
 			])
 			return true
 		"absorb":
@@ -3225,8 +3339,25 @@ func _apply_generic_spell_effect(effect_type: String, spell: Dictionary, caster_
 			target_cn.apply_effect(effect_name, duration, {})
 			target_cn.active_effects[effect_name]["absorb_remaining"] = magnitude
 			GameLog.log_general("[color=#8866ff]%s is shielded, absorbing damage.[/color]" % target_desc.capitalize())
+			_broadcast_combat("[color=#8866ff]%s is shielded, absorbing damage.[/color]" % bcast_desc.capitalize())
 			return true
 	return false
+
+
+# Mirrors a just-logged local combat/spell message into every other connected
+# peer's own combat log via Net's RPC relay (net.gd) — GameLog itself is
+# purely local, so without this a second player never sees the first
+# player's attacks/spells/buffs at all. Tagged with this caster's own
+# position so the receiver's existing 10m combat-visibility range
+# (game_log_window.gd) applies the same as it already does for distant NPC
+# fights. Callers pass an already-third-person string (actor named by
+# player_name, not "You") — see CombatLogFormatter's *_broadcast/spell_cast*
+# variants and _apply_generic_spell_effect's target-referential messages,
+# which need no rewording since they never say "You" to begin with.
+func _broadcast_combat(text: String) -> void:
+	if not Net.is_multiplayer_game or text.is_empty():
+		return
+	Net.broadcast_combat_message(text, global_position)
 
 
 # Heals/buffs targeting a REMOTE player need to land on THAT player's own
@@ -3247,7 +3378,10 @@ func _heal_target(target_node: Node, target_cn, amount: int) -> int:
 		return 0
 	if target_node == self or target_node.is_multiplayer_authority() \
 			or not target_node.has_method("apply_networked_heal"):
-		return target_cn.heal(amount)
+		var healed: int = target_cn.heal(amount)
+		if target_node.has_method("_check_bleedout_revival"):
+			target_node._check_bleedout_revival()
+		return healed
 	target_node.apply_networked_heal.rpc_id(target_node.get_multiplayer_authority(), amount)
 	return amount
 
@@ -3305,6 +3439,27 @@ func apply_networked_heal(amount: int) -> void:
 	var healed := combat_node.heal(amount)
 	if healed > 0:
 		GameLog.log_general("[color=#66ff99]You are healed for [b]%d[/b].[/color]" % healed)
+	_check_bleedout_revival()
+
+
+# Per user request (2026-09-17): another player healing (spell or bandage) a
+# downed ally should be able to bring them back before their bleed-out timer
+# expires, not just watch it run out. Only ever meaningful here — a
+# single-player game has no one else to heal you, and a player can't act
+# (including casting a heal on themselves) while dying is true, so this is
+# only ever reached via someone ELSE'S heal landing, whether relayed here via
+# apply_networked_heal() or applied directly in _heal_target() (single
+# authority/testing edge case).
+func _check_bleedout_revival() -> void:
+	if not dying or combat_node.current_hp <= 0:
+		return
+	dying = false
+	is_incapacitated = false
+	if animation_player and animation_player.has_animation("death") and animation_player.is_playing():
+		animation_player.stop()
+	var msg := "[color=#88ff88][b]%s[/b] comes back to life![/color]" % player_name
+	GameLog.log_combat(msg)
+	_broadcast_combat(msg)
 
 
 # "cure"/dispel spells (Remove Curse, Purify) — previously effect_type: null
@@ -3791,6 +3946,18 @@ const TRACKING_CLASSES := ["Woodstalker", "Wildspeaker", "Troubadour"]
 
 func has_tracking_skill() -> bool:
 	return player_race in TRACKING_RACES or player_class in TRACKING_CLASSES
+
+
+# Ultravision — per user request (2026-09-17): "most elves, trolls, etc have
+# it," mirroring character_options.json's per-race "ultravision" trait
+# (everyone except Human). Kept as its own const/func here rather than
+# reading character_options.json at call time, matching TRACKING_RACES'
+# existing pattern — camera_controller.gd (the only caller) checks this every
+# time the day/night phase flips, so it needs to be cheap.
+const ULTRAVISION_RACES := ["Elf", "Half-Elf", "Dwarf", "Gnome", "Halfling", "Ogre", "Troll", "Dark Elf", "Half-Orc", "Lizardkin"]
+
+func has_ultravision() -> bool:
+	return player_race in ULTRAVISION_RACES
 
 
 func toggle_tracking_window() -> void:

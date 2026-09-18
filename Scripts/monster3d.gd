@@ -169,8 +169,16 @@ var attack_cooldown: float = 1.5
 # _physics_process below).
 const REGEN_INTERVAL := 6.0
 var _regen_timer: float = 0.0
-var is_lootable: bool = false
-var pending_loot: Array = []
+# Personal/instanced loot (2026-09-17) — each player gets their own
+# independently-rolled loot from the same corpse, rather than one shared
+# roll everyone fights over. Keyed by peer id so re-opening the window shows
+# the same roll rather than re-rolling every click, and so one player
+# emptying their own loot has zero effect on anyone else's.
+# `_drop_loot_allowed` is set once from die()'s own `drop_loot` param — false
+# for e.g. a guard's kill (guard_npc.gd calls die(false, false)), meaning
+# nobody gets loot from this corpse at all, not just "nothing rolled yet."
+var _drop_loot_allowed: bool = true
+var _personal_loot: Dictionary = {}  # peer_id (int) -> Array of that peer's remaining drops
 var loot_window: Node = null
 
 # ===== CURRENCY =====
@@ -353,12 +361,13 @@ func _setup_critter_visual() -> void:
 		return
 	var character: Node3D = character_scene.instantiate()
 	character.name = "Character"
-	# Same 180°-Y facing fix every Meshy/Mixamo model in this codebase needs —
-	# unverified for these two specific meshes' pivot/scale yet (see
-	# phantasmal_echo_pet.gd's comment on how that one needed a couple of
-	# correction passes); adjust here first if either critter turns out
-	# sunk into the ground or oddly scaled once seen in-game.
+	# Same 180°-Y facing fix every Meshy/Mixamo model in this codebase needs.
+	# Desert Scavenger's mesh pivot sits above its feet (clipped through the
+	# floor at Transform3D.IDENTITY) — raised 0.4m to sit on the ground plane;
+	# Juvenile Spider's pivot was already correct, so it gets no extra offset.
 	character.transform = Transform3D.IDENTITY.rotated(Vector3.UP, PI)
+	if monster_name == "rat":
+		character.position.y += 0.4
 	add_child(character)
 
 	_apply_critter_material(character, model_info)
@@ -507,6 +516,14 @@ func _physics_process(delta: float) -> void:
 	if has_node("Character"):
 		$Character.visible = not TargetFrame.is_hidden_from_local_player(self)
 
+	# Nameplate above the mob's head, same pattern as player3d.gd's own
+	# $NameLabel — reuses TargetFrame.nameplate_name() so stealth/invisibility
+	# text formatting ("(a shadowy figure)") stays in one place instead of
+	# being duplicated per entity type.
+	if has_node("NameLabel"):
+		$NameLabel.visible = not TargetFrame.is_hidden_from_local_player(self)
+		$NameLabel.text = TargetFrame.nameplate_name(self)
+
 	# Non-authoritative peers (every client but the server, in a multiplayer
 	# game — always true in single-player, see project_multiplayer_netcode
 	# memory's authority-gating pattern) never run any AI/combat/movement
@@ -540,15 +557,21 @@ func _physics_process(delta: float) -> void:
 	else:
 		_regen_timer = 0.0
 
-	# Find player safely — the local one specifically: monster3d.gd isn't
-	# networked yet (see project_multiplayer_netcode memory), so each client
-	# still runs its own fully independent copy of every monster; picking
-	# index 0 here could grab another connected player's puppet instead of
-	# the one this client's own simulation should actually care about.
+	# Re-resolved every frame to the NEAREST real player, not a single fixed
+	# one. This used to be `TargetFrame.local_player()` — correct for a HUD
+	# script (which wants "my own" player) but wrong here: monster AI only
+	# ever runs on the server (see the is_multiplayer_authority() gate
+	# above), where "the local player" means the HOST's own character, so a
+	# monster would only ever notice/attack the host and never so much as
+	# glance at any other connected player (2026-09-17 bug report: "monsters
+	# don't seem to attack her; they run right to the host's player"). Once
+	# aggro_table has real entries (from actual damage — see
+	# apply_networked_damage()'s add_threat() call), get_current_target()
+	# already correctly picks the highest-threat attacker over this default;
+	# this only governs who gets noticed/chased before that.
+	player = _nearest_player()
 	if not is_instance_valid(player):
-		player = TargetFrame.local_player()
-		if not is_instance_valid(player):
-			return
+		return
 
 
 	# State machine
@@ -1165,14 +1188,11 @@ func die(award_xp: bool = true, drop_loot: bool = true, credited_peer_id: int = 
 			var desc: String = monster_description if monster_description != "" else get_monster_name()
 			GameLog.log_general("[color=#cc8888]%s says, \"%s\"[/color]" % [desc.capitalize(), line])
 
-	if drop_loot:
-		pending_loot = _auto_process_loot(roll_loot())
-		is_lootable = not pending_loot.is_empty()
-		if is_lootable:
-			print("  → Right-click corpse to loot")
-	else:
-		pending_loot = []
-		is_lootable = false
+	# No shared roll here anymore — each player who actually right-clicks the
+	# corpse gets their own independent roll, lazily, in open_loot_window().
+	# _drop_loot_allowed just gates whether that's allowed to happen at all
+	# (false for e.g. a guard's kill).
+	_drop_loot_allowed = drop_loot
 
 	# Award XP to whoever's credited with the kill — local player by default
 	# (not index 0, see the same note in _physics_process() above), or a
@@ -1200,8 +1220,7 @@ func die(award_xp: bool = true, drop_loot: bool = true, credited_peer_id: int = 
 
 	await get_tree().create_timer(60.0).timeout
 	if not is_inside_tree():
-		return  # already despawned via _on_fully_looted
-	is_lootable = false
+		return
 	if is_instance_valid(loot_window):
 		loot_window.queue_free()
 	queue_free()
@@ -1224,6 +1243,25 @@ func apply_networked_damage(amount: int, attacker_peer_id: int) -> void:
 	if not is_multiplayer_authority() or current_state == State.DEAD:
 		return
 	combat_node.current_hp = maxi(combat_node.current_hp - amount, 0)
+	# Threat registration was missing entirely for every non-host attacker —
+	# player3d.gd's own add_threat() call (right next to this RPC on the
+	# caller's side) only ever mutates that CALLER's own non-authoritative
+	# puppet copy of this monster when they're not the host, so the real
+	# (server-side) aggro_table never learned about their damage at all. That
+	# combined with _nearest_player() replacing a host-only player reference
+	# is the other half of the 2026-09-17 "she never gets attacked" report —
+	# without this, even a monster that finally notices/chases a non-host
+	# player would still credit all the actual fight to the host and keep
+	# switching back to them, since threat never really updates on the real
+	# monster. Uses the plain damage amount rather than
+	# attacker.combat_node.generate_threat(amount) — active_effects (stance
+	# threat_mult) isn't a replicated field, so the server's copy of a remote
+	# player's combat_node can't compute that bonus accurately; this is the
+	# same "trust the attacker's own reported number" trade-off the damage
+	# amount itself already makes.
+	var attacker: Node = _resolve_peer_to_player(attacker_peer_id)
+	if attacker:
+		add_threat(attacker, float(amount))
 	if not combat_node.is_alive():
 		die(true, true, attacker_peer_id)
 
@@ -1287,21 +1325,44 @@ func _resolve_peer_to_player(peer_id: int) -> Node:
 	return null
 
 
+# Called locally by whichever player right-clicks this corpse
+# (player3d.gd's _try_loot_corpse(), never an RPC) — everything here reads/
+# writes only THIS calling peer's own view of the shared Monster node's
+# script fields, which Godot never replicates unless explicitly listed in a
+# SceneReplicationConfig (loot_window/_personal_loot aren't), so this is
+# implicitly already per-peer with no extra plumbing needed. Rolls this
+# peer's own personal loot the first time they open it; reopening shows the
+# same roll (rather than re-rolling) until it's fully looted or the corpse
+# despawns.
 func open_loot_window() -> void:
 	if is_instance_valid(loot_window):
 		return
+
+	var peer_id: int = multiplayer.get_unique_id()
+	if not _personal_loot.has(peer_id):
+		_personal_loot[peer_id] = _auto_process_loot(roll_loot()) if _drop_loot_allowed else []
+
+	var my_loot: Array = _personal_loot[peer_id]
+	if my_loot.is_empty():
+		GameLog.log_general("You search the corpse but find nothing upon it.")
+		return
+
 	loot_window = load("res://Scenes/corpse_loot_window.tscn").instantiate()
 	get_tree().root.add_child(loot_window)
-	loot_window.setup(monster_name.capitalize(), pending_loot)
+	loot_window.setup(monster_name.capitalize(), my_loot)
 	loot_window.all_looted.connect(_on_fully_looted)
 
 
+# Only closes THIS peer's own loot window — the corpse itself is never freed
+# here anymore (that used to run unconditionally, so the first player to
+# finish looting despawned the corpse out from under everyone else's
+# personal loot). The corpse's actual lifecycle is solely die()'s own
+# 60-second timer now, giving every player in the group the same fair
+# window to loot their own roll.
 func _on_fully_looted() -> void:
-	is_lootable = false
 	await get_tree().create_timer(5.0).timeout
 	if is_instance_valid(loot_window):
 		loot_window.queue_free()
-	queue_free()
 
 # Currency is always auto-collected (no reason to ever manually click for
 # coins). Everything else is resolved against the player's saved loot
@@ -1412,6 +1473,26 @@ func force_disengage() -> void:
 	if current_state in [State.CHASE, State.ATTACK]:
 		change_state(State.PATROL)
 		patrol_target = spawn_position
+
+
+# Multiplayer-aware replacement for "the one player this client happens to
+# be" — scans every real player in the "player" group (both the host's own
+# character and every connected peer's puppet exist there identically on the
+# server) and returns whichever is physically closest, ignoring anyone
+# currently bled-out/dead (same as the old can_see_player() dying check).
+func _nearest_player() -> Node:
+	var best: Node = null
+	var best_dist: float = INF
+	for node in get_tree().get_nodes_in_group("player"):
+		if not is_instance_valid(node):
+			continue
+		if "dying" in node and node.dying:
+			continue
+		var dist: float = global_position.distance_to(node.global_position)
+		if dist < best_dist:
+			best_dist = dist
+			best = node
+	return best
 
 
 func can_see_player() -> bool:

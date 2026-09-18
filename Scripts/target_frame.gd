@@ -219,7 +219,7 @@ func _refresh_name_and_con() -> void:
 	if not is_instance_valid(_target):
 		return
 
-	var target_level := int(_target.get("level") if "level" in _target else 1)
+	var target_level := entity_level(_target)
 	var player_level := 1
 	if is_instance_valid(_player) and "combat_node" in _player:
 		player_level = _player.combat_node.level
@@ -239,6 +239,21 @@ func _refresh_name_and_con() -> void:
 	var faction := faction_status(_target)
 	faction_label.text = "(%s)" % faction
 	faction_label.add_theme_color_override("font_color", _faction_color(faction))
+
+
+# Prefers combat_node.level (the real, replicated value for a player —
+# monsters mirror the same number into their own combat_node in
+# _configure_combat_node(), so this is correct for both) over a flat "level"
+# property, which only exists on Monster at all — a Player3D node has no such
+# property, so `"level" in entity` used to silently default to 1 for any
+# player target/tracked-player row, no matter their real level.
+static func entity_level(entity: Node) -> int:
+	var cn = entity.get("combat_node") if "combat_node" in entity else null
+	if cn is CombatNode:
+		return cn.level
+	if "level" in entity:
+		return int(entity.get("level"))
+	return 1
 
 
 static func con_color(diff: int) -> Color:

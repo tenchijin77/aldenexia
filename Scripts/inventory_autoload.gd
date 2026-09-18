@@ -202,6 +202,12 @@ func add_item(item_id: String, quantity: int = 1) -> bool:
 	var def: Dictionary = item_data[item_id]
 
 	if def.get("stackable", false):
+		for slot in basic_inventory:
+			if slot != null and not is_bag(slot) and slot.get("item_id") == item_id:
+				slot.quantity += quantity
+				sync_to_global()
+				inventory_changed.emit()
+				return true
 		for bag_slot in range(BASIC_INVENTORY_SIZE):
 			for existing in bag_contents.get(str(bag_slot), []):
 				if existing.get("item_id") == item_id:
@@ -209,6 +215,13 @@ func add_item(item_id: String, quantity: int = 1) -> bool:
 					sync_to_global()
 					inventory_changed.emit()
 					return true
+
+	# Per user feedback (2026-09-17): free basic-inventory slots (not bags)
+	# fill first, THEN bags in order — previously bags were filled first and
+	# basic slots were only a last resort, the opposite of what's expected.
+	if add_to_basic_inventory(item_id, -1, quantity):
+		inventory_changed.emit()
+		return true
 
 	for bag_slot in range(BASIC_INVENTORY_SIZE):
 		var bag = basic_inventory[bag_slot]
@@ -219,10 +232,6 @@ func add_item(item_id: String, quantity: int = 1) -> bool:
 		if add_to_bag(bag_slot, item_id, quantity):
 			inventory_changed.emit()
 			return true
-
-	if add_to_basic_inventory(item_id, -1, quantity):
-		inventory_changed.emit()
-		return true
 
 	return false
 #endregion
