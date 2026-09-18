@@ -321,6 +321,103 @@ candidates instead of guessing; a typo that matches nothing prints "Unknown comm
   character sheet equipment slots, vendor sell list). Needs a screenshot to
   investigate further.
 
+### Human Female re-rig, "Version 2" (new outfit/mesh/texture/animations)
+- User dropped a full new Mixamo/Meshy asset set into `models/Human Female/Version 2/`
+  (new outfit mesh + texture, and a fresh animation set including — for the first time
+  for this model — a proper "-buff"-suffixed cast clip). Rebuilt `female_animations.res`
+  from these source files following the established pipeline (pick each source FBX's
+  longest clip to dodge Mixamo's ~1s throwaway bind-pose clip, same bug that recurs
+  every re-rig): idle/walk/run/jump/sit/attack_horizontal/attack_downward/death/
+  cast_beneficial/cast_detrimental, both attack slots sharing the one available melee
+  clip (Standing Torch Melee Attack). `player3d.gd`'s `CHARACTER_MODELS["human_female"]`
+  now points entirely at the new Version 2 folder (scene/library/texture_override).
+  Verified headless: Character node builds, AnimationPlayer has all 10 expected keys,
+  texture override loads without a "not found" warning. Not yet seen in-game with a
+  real screenshot.
+
+### Arcanist/Chaosborn multi-bolt spells — real bug, real fix
+- Magic Missile (and the same authoring mistake on Arcane Barrage, Unstable Missile,
+  Chaos Barrage) had "damage" set to the BOLT COUNT from its own description ("fires 3
+  bolts") instead of the actual per-bolt damage, and two of them were tagged `target:
+  "cone"` (hits every enemy in an area) instead of `"enemy"` (single target, multiple
+  hits). Fixed all four properly rather than just bumping Magic Missile's number: added
+  a data-driven `bolt_count` field (+ optional `extra_bolt_chance` for the two spells
+  with a "chance for extra bolt" line) and a new `_cast_multi_bolt_spell()` engine
+  function that fires that many separate damage instances at one target, each with its
+  own resist roll/combat log line/threat, stopping the instant the target dies. Any
+  future multi-hit spell just needs the two fields, no new code.
+
+### Troubadour: message editing, real AoE, single-song exclusivity
+- Song of Courage (and every self-cast buff generally) was showing "Yourself is
+  empowered." — the generic effect engine's message, which was never meant to be
+  user-facing wording. Added a `cast_message` spell-data field (2nd person, e.g. "You
+  feel courageous.") the user can edit/add per spell directly in player_spells.json;
+  falls back to the old generic text when absent, so nothing else needed updating.
+- Confirmed and fixed the deeper report: Troubadour's "group"-targeted songs were only
+  ever landing on ONE ally (defaulting to self) despite every song's own description
+  saying "allies in Xm"/"grants party". `target: "group"` is shared by 150+ spells
+  across every healer/support class in the game (Lightmender's whole kit, Lightsworn,
+  Spiritweaver, etc.) where it genuinely does mean "your one chosen ally" — so this is
+  gated specifically on `player_class == "Troubadour"`, not a blanket engine change:
+  their songs now hit the caster plus everyone non-Enemy within 8m (tunable per-spell
+  via a new `aoe_radius` field), reusing Earth Totem's existing radius-scan pattern.
+- Reversed the "multiple songs stack independently" design from Session 45 per direct
+  user correction — that was explicitly wrong, not a feature. Starting a new song now
+  stops every other one from auto-recasting (only the most recent stays running); the
+  one it replaces isn't ripped away, its already-applied buff just runs its course.
+
+### Tradeskills — cooking/alchemy now actually raise their skill
+- A successful craft never ticked anything in the skill book for either station. Added
+  the same use-it-to-level-it `_tick_skill()` call every combat/spell skill already
+  gets, mapped per station_id (`campfire` → cooking, `basic_alchemy_kit` → alchemy).
+
+### Loot window auto-close
+- Was waiting 5 real seconds after the last item before closing (my own addition, not
+  requested) — per feedback this just read as "it doesn't auto-close at all" since the
+  player had already moved on by the time it fired. Now closes the instant nothing's
+  left.
+
+---
+
+## 2026-09-18 — Session 47: Pet dialogue by class, Shadowblade Backstab/Shadowstep/Stealth stance
+
+### Spiritweaver/Wildspeaker pets no longer talk like a Voidknight's undead thrall
+- `phantasmal_echo_pet.gd` (Spiritweaver) and `wildspeaker_pet.gd` (Wildspeaker) both
+  `extends PetMinion`, so they inherited every "dark lord"/"master"/"m'lord" flavor
+  line from the Voidknight's skeleton pet verbatim — thematically wrong for a
+  benevolent spirit ally. Refactored `pet_minion.gd`'s `cmd_*()` methods to call a new
+  set of overridable `_phrase_*()` functions (same pattern as the existing
+  `_pet_title()`/`_pick_random_name()` hooks) instead of hardcoding the line inline, so
+  a subclass only needs to override the text, not duplicate the state-management
+  logic. Both pets now have their own appropriately-toned lines.
+
+### Shadowblade: Backstab, Shadowstep, and a real Stealth mechanic
+- **Backstab** did its full 100 damage from any angle — no positional check existed at
+  all. Now requires actually being behind the target (dot product of the target's
+  facing vs. the direction to the caster, threshold ~120° rear arc) OR being
+  stealthed/invisible, matching the spell's own description ("from stealth/behind
+  target" — either condition, not both).
+- **Shadowstep** did nothing at all before this — `target: "none"` isn't a case the
+  spell-resolution match statement has ever handled (same true of 4 other classes'
+  unbuilt teleport spells: Aetherfist's swift_step/wind_dash, Arcanist's blink,
+  Chaosborn's chaos_rift — casting any of them just spends mana/cooldown silently;
+  only Shadowstep is built now, per this specific request). Now teleports the caster
+  2m behind the target, faces them afterward, and applies the same "invisibility"
+  effect (`{"invisible": 1.0}`) the existing Invisibility spell uses — which means the
+  nameplate change onto "(a shadowy figure)" the user asked about needed zero extra
+  code, since `TargetFrame.nameplate_name()` already handles that generically for any
+  invisible entity, player or monster.
+- Found and fixed a sign error of my own while building Shadowstep: Godot's forward
+  convention is -Z, so "behind" a node is its raw +Z basis vector, not the negated one
+  — caught by a headless test before it shipped (teleported IN FRONT of the target
+  instead of behind).
+- **Stealth is now a real Stance**, per user request ("similar to the stances that the
+  tanking classes have") — added a `Shadowblade` entry to `class_stances.json`
+  (previously Voidknight-only) with a `stealthed: 1.0` modifier, using the exact same
+  toggle-on-the-stance-bar mechanism the tank stances already have. This is also what
+  makes Backstab's "from stealth" condition actually reachable for the first time —
+  nothing previously ever set the `stealthed` modifier at all.
+
 ---
 
 ## 2026-09-17 — Session 45: Generic spell-effect engine, 7 more classes brought to parity, tradeskills (cooking/alchemy), Wildspeaker pet, fear/charm mechanics, multiplayer CC/heal relay, UI theme + resize pass, 5 new mob models, network widget

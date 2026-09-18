@@ -35,6 +35,30 @@ func _pet_title() -> String:
 	return "phantasmal echo"
 
 
+# A Spiritweaver's Phantasmal Echo is a benevolent spirit ally, not an
+# undead thrall bound to an evil master — per user request (2026-09-17), it
+# shouldn't share pet_minion.gd's Voidknight-flavored "dark lord"/"master"
+# lines. Overrides every _phrase_*() hook the base class calls from its
+# cmd_*() state logic (unchanged, only the words differ here).
+func _phrase_attack(target_desc: String) -> String:
+	return "I answer the call — %s shall fall." % target_desc
+
+func _phrase_follow() -> String:
+	return "I drift beside you."
+
+func _phrase_sit() -> String:
+	return "I rest here a while..."
+
+func _phrase_guard() -> String:
+	return "I shall watch over this place."
+
+func _phrase_assist() -> String:
+	return "Your battle is my battle."
+
+func _phrase_dismiss() -> String:
+	return "Until you call upon me again..."
+
+
 func _pick_random_name() -> String:
 	# Same names.json pool as pet_minion.gd's skeletons reads from — no
 	# dedicated "spirit name" list exists yet, and re-rolling from the shared

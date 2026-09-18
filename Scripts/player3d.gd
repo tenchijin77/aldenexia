@@ -726,17 +726,22 @@ func _ready() -> void:
 # their animations.
 const CHARACTER_MODELS := {
 	"human_female": {
-		"scene":   "res://models/Human Female/Human Female Breathing Idle.fbx",
-		"library": "res://models/Human Female/female_animations.res",
+		# Re-rigged again 2026-09-17 ("Version 2" — new outfit/mesh/texture and
+		# a full new Mixamo animation set, including a proper "-buff"-suffixed
+		# cast clip this model never had before, see
+		# [[reference_character_model_pipeline]] point 10). female_animations.res
+		# was rebuilt from this folder's source FBX files, same
+		# idle/walk/run/jump/sit/attack_horizontal/attack_downward/death/
+		# cast_beneficial/cast_detrimental key shape as every other model.
+		"scene":   "res://models/Human Female/Version 2/Female Human Breathing Idle.fbx",
+		"library": "res://models/Human Female/Version 2/female_animations.res",
 		# The Mixamo/Blender export chain for these Meshy-sourced models keeps
 		# losing the real texture link (the FBX's own material points at a
 		# file that only ever existed on the machine it was exported from) —
 		# rather than depend on that export step working, apply the known-good
 		# texture directly as a Godot material override. See
 		# _apply_texture_override().
-		# v2 texture — the model was re-rigged 2026-09-15 (new mesh/rig/anims)
-		# and the original texture file was replaced along with it.
-		"texture_override": "res://models/Human Female/Meshy_AI_Tavern_Maid_Rig_v2_biped_texture_0.png",
+		"texture_override": "res://models/Human Female/Version 2/Meshy_AI_tavern_maid_new_outfi_biped_texture_0.png",
 	},
 	"human_male": {
 		"scene":   "res://models/Human Male/Human Male Breathing Idle.fbx",
@@ -2642,6 +2647,15 @@ func cast_spell(spell_name: String, is_auto_recast: bool = false) -> bool:
 			_active_songs.erase(spell_name)
 			GameLog.log_general("You stop playing [b]%s[/b]." % spell_display_name(spell_name))
 			return false
+		# Only one song plays at a time (per user correction 2026-09-17 — the
+		# earlier "multiple songs stack independently" design was explicitly
+		# wrong): starting a new song stops every other one from
+		# auto-recasting. Whatever it replaces isn't ripped away instantly —
+		# its already-applied buff just runs out on its own over its
+		# remaining duration, same as toggling a song off normally does.
+		for other_song in _active_songs.keys():
+			GameLog.log_general("[b]%s[/b] fades as you begin a new song." % spell_display_name(other_song))
+		_active_songs.clear()
 		_active_songs[spell_name] = true
 
 	# Per-class level requirement, not the flat top-level "level" field — the
@@ -2754,6 +2768,47 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 		spell_target = "self"
 
 	match spell_target:
+		# Teleport-style spells with no real target field wired up yet —
+		# swift_step/wind_dash (Aetherfist), blink (Arcanist), chaos_rift
+		# (Chaosborn) all share this "none" target and are still unbuilt
+		# (casting them currently just spends mana/cooldown and does
+		# nothing, same bug Shadowstep had); only Shadowstep is implemented
+		# so far, per the user's specific request.
+		"none":
+			if spell_name == "shadowstep":
+				if target_node == null:
+					GameLog.log_general("No target selected for [b]%s[/b]." % display_name)
+					return
+				if not _is_targetable_alive(target_node):
+					GameLog.log_general("Your target is already dead.")
+					return
+				if TargetFrame.faction_status(target_node) == "Ally":
+					GameLog.log_general("You can't target an ally with [b]%s[/b]." % display_name)
+					return
+
+				# Godot's forward convention is -Z, so the direction BEHIND a
+				# node is its raw (un-negated) +Z basis vector.
+				var behind_dir: Vector3 = target_node.global_transform.basis.z
+				behind_dir.y = 0.0
+				if behind_dir.length() < 0.01:
+					behind_dir = Vector3.FORWARD
+				behind_dir = behind_dir.normalized()
+				var dest: Vector3 = target_node.global_position + behind_dir * 2.0
+				dest.y = global_position.y
+				global_position = dest
+
+				# Face the target after teleporting, per user request — flattened
+				# to horizontal only so a height difference doesn't pitch the
+				# player up/down (same reasoning as monster3d.gd's look_at_target()).
+				var face_pos: Vector3 = target_node.global_position
+				face_pos.y = global_position.y
+				look_at(face_pos, Vector3.UP)
+
+				var stealth_duration: float = float(spell.get("duration", 30.0))
+				combat_node.apply_effect("invisibility", stealth_duration, {"invisible": 1.0})
+				GameLog.log_general("[color=#8866ff]You vanish into the shadows behind %s.[/color]" % TargetFrame.display_name(target_node))
+			return
+
 		"enemy", "corpse", "line":
 			if target_node == null:
 				GameLog.log_general("No target selected for [b]%s[/b]." % display_name)
@@ -2773,6 +2828,38 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 			var target_cn = target_node.get("combat_node")
 			var target_desc: String = target_node.get("monster_description") \
 				if target_node.get("monster_description") != "" else target_node.get_monster_name()
+
+			# Multi-bolt spells (Magic Missile, Arcane Barrage, Unstable
+			# Missile, Chaos Barrage) — data-driven via "bolt_count" (and
+			# optional "extra_bolt_chance") rather than one hardcoded case
+			# per spell, so any future multi-hit spell just needs these two
+			# fields. "damage" means PER-BOLT damage here, same as every
+			# other spell's "damage" field means "the number this spell
+			# actually hits for" — found via a user report that Magic
+			# Missile's "damage" had been set to 3 (the bolt COUNT from its
+			# own description) instead of 6 (the actual per-bolt damage),
+			# the same authoring mix-up on all four of these spells.
+			var bolt_count: int = int(spell.get("bolt_count", 1))
+			if bolt_count > 1:
+				_cast_multi_bolt_spell(spell_name, target_node, target_cn, target_desc,
+					base_damage, bolt_count, float(spell.get("extra_bolt_chance", 0.0)), school)
+				return
+
+			# Backstab requires actually being behind the target (or stealthed —
+			# its own description is "from stealth/behind target", either
+			# condition works) — previously it just did its full 100 damage
+			# from any angle, same as a plain nuke. Bails out entirely (no
+			# damage at all) rather than a reduced "failed backstab" hit, since
+			# nothing in the spell's own data describes a fallback amount.
+			if spell_name == "backstab" and not (combat_node.is_stealthed() or combat_node.is_currently_invisible()):
+				var to_caster: Vector3 = global_position - target_node.global_position
+				to_caster.y = 0.0
+				var target_forward: Vector3 = -target_node.global_transform.basis.z
+				target_forward.y = 0.0
+				if to_caster.length() > 0.01 and target_forward.length() > 0.01 \
+						and target_forward.normalized().dot(to_caster.normalized()) > -0.5:
+					GameLog.log_general("[color=#ff8866]You must be behind %s to backstab![/color]" % target_desc)
+					return
 
 			var final_dmg: int
 			if school == "physical":
@@ -3007,6 +3094,22 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 		# there's no real party system yet, and letting healers test on any
 		# friendly NPC is the point until one exists.
 		"group":
+			# All Troubadour songs are true area-effect (per user request
+			# 2026-09-17: "All Troubadour buff spells are area of effect
+			# spells") — every one of their "group"-targeted songs already
+			# says so in its own description ("allies in 8m", "grants
+			# party", etc.), unlike every OTHER class's "group"-targeted
+			# spells below (Spiritweaver's spirit_mend/ancestral_guidance,
+			# and 150+ single-ally heals across Lightmender/Lightsworn/
+			# Blademaster/etc.), which really do mean "cast on whichever one
+			# ally you have selected" despite sharing the same `target`
+			# value — that's why this is gated on player_class rather than
+			# changing the generic fallback everyone else also falls
+			# through below.
+			if player_class == "Troubadour":
+				_cast_troubadour_group_song(spell_name, spell, effect_type, base_damage, display_name)
+				return
+
 			var ally_target: Node = self
 			if target_node != null and is_instance_valid(target_node) and TargetFrame.faction_status(target_node) != "Enemy":
 				ally_target = target_node
@@ -3167,6 +3270,80 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 
 # Shared physical/magic damage math, factored out of the "enemy" branch above
 # so the newer "pbaoe"/"chain" branches don't duplicate it a third/fourth time.
+# Troubadour's real "group" behavior: every song hits the caster plus every
+# non-Enemy within radius (default 8m, matching most songs' own description
+# text — tune per-spell via an "aoe_radius" field, same spirit as
+# "cast_message", for the couple of songs whose description states a
+# different number, e.g. Master Anthem's "affects 15m"). Mirrors
+# earth_totem's existing radius-scan exactly, just generalized to run
+# through _apply_generic_spell_effect() per recipient instead of one
+# hardcoded modifier.
+func _cast_troubadour_group_song(spell_name: String, spell: Dictionary, effect_type: String, base_damage: int, display_name: String) -> void:
+	var radius: float = float(spell.get("aoe_radius", 8.0))
+	var recipients: Array = [self]
+	for node in get_tree().get_nodes_in_group("player") + get_tree().get_nodes_in_group("pets") + get_tree().get_nodes_in_group("npc_guard"):
+		if is_instance_valid(node) and node != self and global_position.distance_to(node.global_position) <= radius:
+			recipients.append(node)
+
+	var applied_any := false
+	for recipient in recipients:
+		var recipient_cn = recipient.get("combat_node")
+		if not (recipient_cn is CombatNode):
+			continue
+		var recipient_desc: String = "yourself" if recipient == self else TargetFrame.display_name(recipient)
+		if _apply_generic_spell_effect(effect_type, spell, combat_node, recipient_cn, recipient, recipient_desc):
+			applied_any = true
+
+	if not applied_any:
+		GameLog.log_combat("[color=#ffdd88]You use [b]%s[/b]! Your battle cry fills the air.[/color]" % display_name)
+	# One cast announcement for observers regardless of how many allies were
+	# actually in range — each recipient's own "you feel..." message (see
+	# _apply_generic_spell_effect's self_cast_message) already covers their
+	# own screen; this just tells everyone else a song was played at all.
+	_broadcast_combat(CombatLogFormatter.spell_cast(player_name, spell_name))
+
+
+# Fires `bolt_count` separate damage instances at one target (plus a chance
+# at one more, for spells like Unstable Missile/Chaos Barrage) — each bolt
+# rolls its own resist/mitigation via _compute_spell_damage() (called fresh
+# per bolt, same as a real multi-hit spell should), gets its own combat log
+# line/threat/relay, and the loop stops the instant the target dies so a
+# lucky early bolt doesn't also log damage against a corpse.
+func _cast_multi_bolt_spell(spell_name: String, target_node: Node, target_cn, target_desc: String,
+		per_bolt_damage: int, bolt_count: int, extra_bolt_chance: float, school: String) -> void:
+	combat_node.break_invisibility()
+	last_attack_time_ms = Time.get_ticks_msec()
+	var target_is_networked_monster: bool = target_node is Monster and not target_node.is_multiplayer_authority()
+
+	var bolts := bolt_count
+	if extra_bolt_chance > 0.0 and randf() < extra_bolt_chance:
+		bolts += 1
+
+	for i in range(bolts):
+		if not _is_targetable_alive(target_node):
+			return
+		var bolt_dmg: int = _compute_spell_damage(per_bolt_damage, school, target_cn)
+		target_node.apply_damage(bolt_dmg, "physical" if school == "physical" else "magic")
+		if target_is_networked_monster and bolt_dmg > 0:
+			target_node.apply_networked_damage.rpc_id(1, bolt_dmg, multiplayer.get_unique_id())
+		GameLog.log_combat(CombatLogFormatter.spell_damage("You", spell_name, target_desc, bolt_dmg))
+		_broadcast_combat(CombatLogFormatter.spell_damage(player_name, spell_name, target_desc, bolt_dmg))
+		if target_node.has_method("add_threat"):
+			target_node.add_threat(self, combat_node.generate_threat(bolt_dmg))
+
+		if not target_cn.is_alive():
+			combat_node.notify_kill()
+			GameLog.log_combat(CombatLogFormatter.death("You", target_desc))
+			_broadcast_combat(CombatLogFormatter.death(player_name, target_desc))
+			_set_target_frame(null)
+			current_target = null
+			autoattack_enabled = false
+			GameLog.set_autoattack(false)
+			if not target_is_networked_monster and target_node.has_method("die"):
+				target_node.die()
+			return
+
+
 func _compute_spell_damage(base_damage: int, school: String, target_cn) -> int:
 	if school == "physical":
 		var dmg: int = base_damage + int(combat_node.strength / 2.0)
@@ -3203,12 +3380,25 @@ func _apply_generic_spell_effect(effect_type: String, spell: Dictionary, caster_
 	# names itself correctly for a third-person observer.
 	var bcast_desc: String = player_name if target_desc == "yourself" else target_desc
 
+	# Optional per-spell override for the SELF-cast case specifically (see
+	# player_spells.json's "cast_message" field, e.g. Song of Courage's "You
+	# feel courageous."). Written in 2nd person, so it only ever makes
+	# grammatical sense on the actual recipient's own screen — only used when
+	# target_desc=="yourself" (the caster IS the recipient here, so "you" is
+	# correct); every other recipient in a multi-target cast, and every
+	# broadcast to third-party observers, still uses the existing 3rd-person
+	# "Target is empowered."-style text instead, since 2nd person wouldn't
+	# make sense describing what happened to someone else.
+	var self_cast_message: String = spell.get("cast_message", "") if target_desc == "yourself" else ""
+
 	match effect_type:
 		"heal":
 			var healed: int = _heal_target(target_node, target_cn, magnitude)
 			if healed <= 0:
 				return false
-			GameLog.log_combat("[color=#66ff99]%s healed for [b]%d[/b].[/color]" % [target_desc.capitalize(), healed])
+			var heal_msg: String = self_cast_message if not self_cast_message.is_empty() \
+				else "[color=#66ff99]%s healed for [b]%d[/b].[/color]" % [target_desc.capitalize(), healed]
+			GameLog.log_combat(heal_msg)
 			_broadcast_combat("[color=#66ff99]%s healed for [b]%d[/b].[/color]" % [bcast_desc.capitalize(), healed])
 			return true
 		"hot":
@@ -3217,7 +3407,9 @@ func _apply_generic_spell_effect(effect_type: String, spell: Dictionary, caster_
 			var ticks := maxi(1, int(round(duration)))
 			var per_tick := maxi(1, int(round(float(magnitude) / ticks)))
 			_buff_target(target_node, target_cn, effect_name, duration, {}, 0, 1.0, per_tick)
-			GameLog.log_combat("[color=#66ff99]%s begins regenerating health.[/color]" % target_desc.capitalize())
+			var hot_msg: String = self_cast_message if not self_cast_message.is_empty() \
+				else "[color=#66ff99]%s begins regenerating health.[/color]" % target_desc.capitalize()
+			GameLog.log_combat(hot_msg)
 			_broadcast_combat("[color=#66ff99]%s begins regenerating health.[/color]" % bcast_desc.capitalize())
 			return true
 		"dot":
@@ -3233,7 +3425,9 @@ func _apply_generic_spell_effect(effect_type: String, spell: Dictionary, caster_
 			if duration <= 0.0:
 				return false
 			_buff_target(target_node, target_cn, effect_name, duration, {"damage_mult": 0.05})
-			GameLog.log_general("[color=#88ffcc]%s is empowered.[/color]" % target_desc.capitalize())
+			var buff_msg: String = self_cast_message if not self_cast_message.is_empty() \
+				else "[color=#88ffcc]%s is empowered.[/color]" % target_desc.capitalize()
+			GameLog.log_general(buff_msg)
 			_broadcast_combat("[color=#88ffcc]%s is empowered.[/color]" % bcast_desc.capitalize())
 			return true
 		"debuff":

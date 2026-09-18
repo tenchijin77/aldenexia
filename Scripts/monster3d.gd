@@ -1358,9 +1358,11 @@ func open_loot_window() -> void:
 # finish looting despawned the corpse out from under everyone else's
 # personal loot). The corpse's actual lifecycle is solely die()'s own
 # 60-second timer now, giving every player in the group the same fair
-# window to loot their own roll.
+# window to loot their own roll. Closes immediately rather than after a
+# delay — per user feedback (2026-09-18) a 5s grace period just read as "it
+# doesn't auto-close at all" since they'd already moved on by the time it
+# fired.
 func _on_fully_looted() -> void:
-	await get_tree().create_timer(5.0).timeout
 	if is_instance_valid(loot_window):
 		loot_window.queue_free()
 

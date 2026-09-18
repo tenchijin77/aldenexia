@@ -36,6 +36,29 @@ func _pet_title() -> String:
 	return "spirit of the woods"
 
 
+# A nature spirit answering a Wildspeaker's call shouldn't call them "dark
+# lord"/"master" any more than Spiritweaver's Phantasmal Echo should — see
+# phantasmal_echo_pet.gd's identical override for why (pet_minion.gd's base
+# text is written for the Voidknight's undead thrall specifically).
+func _phrase_attack(target_desc: String) -> String:
+	return "The wild answers — %s will fall." % target_desc
+
+func _phrase_follow() -> String:
+	return "I walk with you."
+
+func _phrase_sit() -> String:
+	return "I take root here for a while..."
+
+func _phrase_guard() -> String:
+	return "I will guard this ground."
+
+func _phrase_assist() -> String:
+	return "The wild fights beside you."
+
+func _phrase_dismiss() -> String:
+	return "Back to the wild, until you call again."
+
+
 func _pick_random_name() -> String:
 	var picked := super._pick_random_name()
 	return "Spirit of %s" % picked if picked != "Skeleton Warrior" else "Spirit of the Woods"

@@ -2615,6 +2615,70 @@ day_night_cycle.gd's `phase_changed` signal. Not yet visually verified
 in-game — brightness/adjustment values are a first guess to tune.
 
 
+MULTI-BOLT SPELLS (added 2026-09-18, Session 47)
+================================================================================
+Data-driven alternative to hardcoding a per-spell case for a "fires N bolts"
+spell — `player3d.gd`'s `_resolve_spell_cast()` checks a spell's `bolt_count`
+field (default 1) right where the "enemy" branch would otherwise compute a
+single hit, and if >1, hands off to `_cast_multi_bolt_spell()` instead:
+fires that many separate damage instances at the one target, each with its
+own `_compute_spell_damage()` resist roll, combat log line, threat
+generation, and relay — stops immediately if the target dies mid-volley. An
+optional `extra_bolt_chance` field (0.0-1.0) adds a chance at one more bolt
+beyond `bolt_count`, for spells like Unstable Missile/Chaos Barrage whose own
+description promises it. Currently used by Magic Missile (3×6), Arcane
+Barrage (3×50), Unstable Missile (3×30, 10% extra), Chaos Barrage (4×40, 15%
+extra) — all four originally had `damage` set to the bolt COUNT instead of
+the per-bolt amount (an authoring mix-up, not a game bug) before this. Any
+future multi-hit spell just needs the two data fields, no new code.
+
+
+PET DIALOGUE — PER-CLASS OVERRIDES (added 2026-09-18, Session 47)
+================================================================================
+`pet_minion.gd`'s `cmd_attack/follow/sit/guard/assist/dismiss()` each call an
+overridable `_phrase_*()` function (`_phrase_attack(target_desc)`,
+`_phrase_follow()`, `_phrase_sit()`, `_phrase_guard()`, `_phrase_assist()`,
+`_phrase_dismiss()`) instead of hardcoding a `_say()` line inline — same
+override pattern `_pet_title()`/`_pick_random_name()` already used. Base
+class text is the Voidknight skeleton thrall's voice ("dark lord"/"master");
+`phantasmal_echo_pet.gd` (Spiritweaver) and `wildspeaker_pet.gd`
+(Wildspeaker) both override every one of these with their own tone, having
+previously inherited the Voidknight lines verbatim via `extends PetMinion`.
+Any new pet subclass should override these too.
+
+
+SHADOWBLADE — Backstab / Shadowstep / Stealth stance (added 2026-09-18, Session 47)
+================================================================================
+Closes the last documented class-parity gap (see [[project_class_rollout]]) —
+all 13 classes now have real, working mechanics.
+- **Stealth** is a real Stance now (`class_stances.json`'s new `Shadowblade`
+  entry, `stealthed: 1.0` modifier), toggled on the stance bar exactly like
+  the tank stances (`stance_bar.gd` needed zero changes — it was already
+  fully generic). Nothing previously ever set the `stealthed` modifier at
+  all, so this is also what makes Backstab's stealth condition reachable.
+- **Backstab** (`player3d.gd`'s `_resolve_spell_cast()`, hardcoded case
+  right where multi-bolt spells are checked) now requires the caster be
+  behind the target — dot product of the target's facing vector against the
+  direction to the caster, `> -0.5` rejects (roughly a 120° rear arc counts
+  as "behind") — UNLESS `combat_node.is_stealthed()` or
+  `is_currently_invisible()`, matching the spell's own "from stealth/behind
+  target" description (either condition, not both required).
+- **Shadowstep** (a new `"none":` case in the `match spell_target:`
+  statement — that target value was never handled at all before this, so
+  casting it silently did nothing) teleports the caster 2m behind the
+  target (target's raw +Z basis vector — Godot's forward is -Z, so "behind"
+  is the un-negated Z axis), faces them at the target afterward
+  (`look_at()`, flattened to horizontal), and applies the same
+  `"invisibility"`/`{"invisible": 1.0}` effect the pre-existing Invisibility
+  spell uses. The nameplate change to "(a shadowy figure)" needed zero new
+  code — `TargetFrame.nameplate_name()` already handles any invisible
+  entity generically, player or monster.
+- Four other classes' teleport spells share Shadowstep's old "does nothing"
+  bug and are still unbuilt: Aetherfist's swift_step/wind_dash, Arcanist's
+  blink, Chaosborn's chaos_rift (all `target: "none"`) — only Shadowstep was
+  requested/built this session.
+
+
 GENERIC SPELL-EFFECT ENGINE (added 2026-09-17, Session 45)
 ================================================================================
 
@@ -2677,6 +2741,11 @@ station (a stove, a forge) is pure data, no new window/script code needed.
   checked before falling through to corpse-looting.
 - Alchemy: new `basic_alchemy_kit` item (right-click → Open, via a new
   `tradeskill_station` item field `slot_button.gd`'s inspect popup checks for).
+- A successful craft raises the matching skill (Session 47, 2026-09-18) — was never
+  wired up at all before this. `_finish_craft()` calls a new `_tick_tradeskill()`,
+  mapping `station_id` straight to a `player_skills.json` crafting skill via a
+  `STATION_SKILLS` const (`campfire` → cooking, `basic_alchemy_kit` → alchemy); a new
+  station just needs an entry added there.
 - New items: `cooked_meat` (food, +25 satiety), `basic_poison` (right-click →
   Apply to Weapon → pick equipped weapon slot if dual-wielding → sets
   `poison_bonus_damage` on that equipped item instance, read in
@@ -2717,14 +2786,36 @@ memory for why an earlier design note (delayed-effect-on-deactivation) is wrong/
 - A genuine failure during an auto-recast attempt (target died, ran out of mana)
   removes the spell from `_active_songs` and logs why the song stopped, instead of
   retrying forever.
-- Multiple songs stack correctly and independently: `_active_songs` and each song's
-  actual applied buff (`CombatNode.active_effects`, keyed by spell_name) are separate
-  — turning one song off only removes it from the auto-recast loop, it does NOT touch
-  a buff that's already been applied. That buff keeps counting down and showing in
-  the buff bar on its own schedule regardless of whether the song that cast it is
-  still playing. Verified directly: cast A, let its buff land, cast B without
-  touching A, both show simultaneously; stop A; A's buff persists until its own
-  duration naturally elapses while B keeps auto-recasting.
+- **REVERSED 2026-09-18 (Session 47), per explicit user correction — only ONE song
+  plays at a time now.** The original design let multiple songs stack/auto-recast
+  independently forever; the user reported that as a bug ("it appears like it's
+  trying to keep two songs running simultaneously... only the last song should stay
+  running"). `cast_spell()`'s toggle-on branch now clears every other entry out of
+  `_active_songs` before adding the new one (logging "[Song] fades as you begin a new
+  song." for each one it replaces) — whatever it replaces isn't ripped away
+  instantly, its already-applied buff (`CombatNode.active_effects`) just runs out on
+  its own remaining duration, same as a normal toggle-off. Do not re-introduce
+  multi-song stacking if asked to revisit this again.
+- **All Troubadour "group"-targeted songs are true area-effect now (Session 47)** —
+  per user correction: they were only ever landing on ONE ally (defaulting to self),
+  despite every song's own description saying "allies in Xm"/"grants party". Gated
+  specifically on `player_class == "Troubadour"` in the `"group"` branch of
+  `_resolve_spell_cast()` (`_cast_troubadour_group_song()`) — NOT a blanket engine
+  change, since `target: "group"` is shared by 150+ single-ally-target spells across
+  every other healer/support class (Lightmender's entire kit, Lightsworn,
+  Spiritweaver, etc.), which really do mean "cast on whichever one ally you have
+  selected." Troubadour's songs now hit the caster plus every non-Enemy within radius
+  (default 8m, matching most songs' own description text; tunable per-spell via a new
+  `aoe_radius` field for outliers like Master Anthem's stated "affects 15m").
+- **`cast_message` spell-data field (Session 47)** — lets a self-cast buff's message
+  be edited directly in `player_spells.json` instead of the generic engine's default
+  "Target is empowered."-style text (which read as "Yourself is empowered." for a
+  self-cast, per a user bug report on Song of Courage). Written in 2nd person (e.g.
+  "You feel courageous.") since it's only ever shown to the actual recipient's own
+  screen — only applies when `target_desc == "yourself"` inside
+  `_apply_generic_spell_effect()`; every other recipient in a multi-target AoE, and
+  every broadcast to third-party observers, still uses the existing 3rd-person text
+  (2nd person wouldn't make sense describing what happened to someone else).
 - Most songs are intentionally mana-free by design (only a few cost mana) —
   `song_of_courage`'s `mana_cost: 0` is correct data, not a bug.
 - Charm Melody (a song, `effect_type: charm`) gets a periodic break-early roll while

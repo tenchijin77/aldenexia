@@ -172,6 +172,7 @@ func _finish_craft() -> void:
 		if Inventory.add_item(output, output_qty):
 			var display_name: String = Inventory.get_item_definition(output).get("name", output)
 			GameLog.log_general("[color=#88ffaa]You create [b]%d %s[/b].[/color]" % [output_qty, display_name])
+			_tick_tradeskill()
 		else:
 			GameLog.log_general("[color=#ff8866]Your inventory is full — the result is lost![/color]")
 	_crafting = false
@@ -180,6 +181,25 @@ func _finish_craft() -> void:
 	close_btn.disabled = false
 	progress_bar.visible = false
 	_refresh_status()
+
+
+# A successful craft previously never raised anything in the skill book —
+# same "use it to level it" mechanic every combat/spell skill already has
+# (player3d.gd's _tick_skill()), just never wired up for tradeskills. Maps
+# this station's id directly to the matching player_skills.json crafting
+# skill; any future station just needs an entry added here.
+const STATION_SKILLS := {
+	"campfire": "cooking",
+	"basic_alchemy_kit": "alchemy",
+}
+
+func _tick_tradeskill() -> void:
+	var skill_name: String = STATION_SKILLS.get(_station_id, "")
+	if skill_name.is_empty():
+		return
+	var player := TargetFrame.local_player()
+	if is_instance_valid(player) and player.has_method("_tick_skill"):
+		player._tick_skill(skill_name)
 
 
 func _on_close_pressed() -> void:

@@ -733,6 +733,31 @@ func _say(line: String) -> void:
 	GameLog.log_general("[color=#aa88ff]%s says, \"%s\"[/color]" % [pet_name, line])
 
 
+# Command flavor lines, one overridable function per command — same override
+# pattern as _pet_title()/_pick_random_name() above. Base text here is the
+# original Voidknight skeleton thrall's voice ("dark lord"/"master"); a
+# subclass for a different class's pet (e.g. phantasmal_echo_pet.gd's
+# benevolent spirit guardian) overrides whichever lines don't fit instead of
+# duplicating the cmd_*() state-management logic below just to change text.
+func _phrase_attack(target_desc: String) -> String:
+	return "I will destroy %s master!" % target_desc
+
+func _phrase_follow() -> String:
+	return "Following your lead, dark lord."
+
+func _phrase_sit() -> String:
+	return "Retiring for a bit..."
+
+func _phrase_guard() -> String:
+	return "I will protect this area from your enemies, m'lord"
+
+func _phrase_assist() -> String:
+	return "I will join your fight, master."
+
+func _phrase_dismiss() -> String:
+	return "Until I can be of assistance again. Farewell, master."
+
+
 func cmd_attack(target: Node) -> void:
 	if target == null or not is_instance_valid(target):
 		GameLog.log_general("%s has no target to attack." % pet_name)
@@ -741,7 +766,7 @@ func cmd_attack(target: Node) -> void:
 	if target_desc == "":
 		target_desc = target.get_monster_name() if target.has_method("get_monster_name") else str(target.name)
 	_engage(target)
-	_say("I will destroy %s master!" % target_desc)
+	_say(_phrase_attack(target_desc))
 
 
 # Immediately breaks off combat and returns to whichever of Follow/Guard/
@@ -750,7 +775,7 @@ func cmd_attack(target: Node) -> void:
 func cmd_back() -> void:
 	attack_target = null
 	command = _standing_command
-	_say("Following your lead, dark lord.")
+	_say(_phrase_follow())
 
 
 func cmd_follow() -> void:
@@ -758,14 +783,14 @@ func cmd_follow() -> void:
 	command = PetState.FOLLOW
 	_standing_command = PetState.FOLLOW
 	_persist_mode()
-	_say("Following your lead, dark lord.")
+	_say(_phrase_follow())
 
 
 func cmd_sit() -> void:
 	attack_target = null
 	command = PetState.SIT
 	_persist_mode()
-	_say("Retiring for a bit...")
+	_say(_phrase_sit())
 
 
 func cmd_guard() -> void:
@@ -774,7 +799,7 @@ func cmd_guard() -> void:
 	command = PetState.GUARD
 	_standing_command = PetState.GUARD
 	_persist_mode()
-	_say("I will protect this area from your enemies, m'lord")
+	_say(_phrase_guard())
 
 
 # Replaces the old Stop button — rather than just standing down, the pet now
@@ -784,7 +809,7 @@ func cmd_assist() -> void:
 	command = PetState.ASSIST
 	_standing_command = PetState.ASSIST
 	_persist_mode()
-	_say("I will join your fight, master.")
+	_say(_phrase_assist())
 
 
 # Saves whichever of Follow/Guard/Assist/Sit was last picked (never ATTACK —
@@ -798,7 +823,7 @@ func _persist_mode() -> void:
 
 # Voluntary desummon — distinct from die() (no combat, no "dissipates" line).
 func cmd_dismiss() -> void:
-	_say("Until I can be of assistance again. Farewell, master.")
+	_say(_phrase_dismiss())
 	dismissed.emit()
 	queue_free()
 
