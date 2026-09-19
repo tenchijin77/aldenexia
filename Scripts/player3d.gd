@@ -733,15 +733,15 @@ const CHARACTER_MODELS := {
 		# was rebuilt from this folder's source FBX files, same
 		# idle/walk/run/jump/sit/attack_horizontal/attack_downward/death/
 		# cast_beneficial/cast_detrimental key shape as every other model.
-		"scene":   "res://models/Human Female/Version 2/Female Human Breathing Idle.fbx",
-		"library": "res://models/Human Female/Version 2/female_animations.res",
+		"scene":   "res://models/Human Female/Human Female Breathing Idle.fbx",
+		"library": "res://models/Human Female/female_animations.res",
 		# The Mixamo/Blender export chain for these Meshy-sourced models keeps
 		# losing the real texture link (the FBX's own material points at a
 		# file that only ever existed on the machine it was exported from) —
 		# rather than depend on that export step working, apply the known-good
 		# texture directly as a Godot material override. See
 		# _apply_texture_override().
-		"texture_override": "res://models/Human Female/Version 2/Meshy_AI_tavern_maid_new_outfi_biped_texture_0.png",
+		"texture_override": "res://models/Human Female/Meshy_AI_tavern_maid_new_outfi_biped_texture_0.png",
 	},
 	"human_male": {
 		"scene":   "res://models/Human Male/Human Male Breathing Idle.fbx",
@@ -753,12 +753,12 @@ const CHARACTER_MODELS := {
 		# same pipeline as Human Female's Version 2 — see
 		# [[reference_character_model_pipeline]]). Measures the same 1.7m
 		# baseline every correctly-exported model does, so no scale correction.
-		"scene":   "res://models/Half-Elf Female/Version 2/Breathing Idle.fbx",
-		"library": "res://models/Half-Elf Female/Version 2/animations.res",
-		"texture_override": "res://models/Half-Elf Female/Version 2/Meshy_AI_female_half_elf_hero__biped_texture_0.png",
+		"scene":   "res://models/Half-Elf Female/Half-Elf Female Breathing Idle.fbx",
+		"library": "res://models/Half-Elf Female/half_elf_female_animations.res",
+		"texture_override": "res://models/Half-Elf Female/Meshy_AI_female_half_elf_hero__biped_texture_0.png",
 	},
 	"half_elf_male": {
-		"scene":   "res://models/Half-Elf Male/Male Half Elf Breathing Idle.fbx",
+		"scene":   "res://models/Half-Elf Male/Half-Elf Male Breathing Idle.fbx",
 		"library": "res://models/Half-Elf Male/half_elf_male_animations.res",
 		"texture_override": "res://models/Half-Elf Male/Meshy_AI_male_half_elf_commone_biped_texture_0.png",
 	},
@@ -773,7 +773,7 @@ const CHARACTER_MODELS := {
 		"texture_override": "res://models/Troll Male/Meshy_AI_troll_commoner_rig_biped_texture_0.png",
 	},
 	"elf_male": {
-		"scene":   "res://models/Elf Male/Male Elf Breathing Idle.fbx",
+		"scene":   "res://models/Elf Male/Elf Male Breathing Idle.fbx",
 		"library": "res://models/Elf Male/elf_male_animations.res",
 		"texture_override": "res://models/Elf Male/Meshy_AI_Male_Elf_Commoner_Rig_biped_texture_0.png",
 	},
@@ -786,21 +786,84 @@ const CHARACTER_MODELS := {
 		# undersized; this replacement doesn't need it at all — don't carry
 		# that value forward if this model is ever re-rigged again without
 		# re-measuring first.
-		"scene":   "res://models/Elf Female/Version 2/Breathing Idle.fbx",
-		"library": "res://models/Elf Female/Version 2/animations.res",
-		"texture_override": "res://models/Elf Female/Version 2/Meshy_AI_female_elf_hero_rig_biped_texture_0.png",
+		"scene":   "res://models/Elf Female/Elf Female Breathing Idle.fbx",
+		"library": "res://models/Elf Female/elf_female_animations.res",
+		"texture_override": "res://models/Elf Female/Meshy_AI_female_elf_hero_rig_biped_texture_0.png",
 	},
 	"dark_elf_male": {
-		"scene":   "res://models/Dark Elf Male/Male Dark Elf Breathing Idle.fbx",
+		"scene":   "res://models/Dark Elf Male/Dark Elf Male Breathing Idle.fbx",
 		"library": "res://models/Dark Elf Male/dark_elf_male_animations.res",
 		"texture_override": "res://models/Dark Elf Male/Meshy_AI_Male_Dark_Elf_Commone_biped_texture_0.png",
 	},
 	"dark_elf_female": {
 		# Re-rigged 2026-09-18 ("Version 2") — same standard 1.7m baseline,
 		# no scale correction needed (see elf_female's comment above).
-		"scene":   "res://models/Dark Elf Female/Version 2/Breathing Idle.fbx",
-		"library": "res://models/Dark Elf Female/Version 2/animations.res",
-		"texture_override": "res://models/Dark Elf Female/Version 2/Meshy_AI_female_dark_elf_hero__biped_texture_0.png",
+		"scene":   "res://models/Dark Elf Female/Dark Elf Female Breathing Idle.fbx",
+		"library": "res://models/Dark Elf Female/dark_elf_female_animations.res",
+		"texture_override": "res://models/Dark Elf Female/Meshy_AI_female_dark_elf_hero__biped_texture_0.png",
+	},
+	# Added 2026-09-18 — first wiring for these 6 races (Dwarf/Gnome/Halfling/
+	# Half-Orc/Lizardkin/Ogre), same pipeline as every other model here. See
+	# [[reference_character_model_pipeline]].
+	"dwarf_female": {
+		"scene":   "res://models/Dwarf Female/Dwarf Female Breathing Idle.fbx",
+		"library": "res://models/Dwarf Female/dwarf_female_animations.res",
+		"texture_override": "res://models/Dwarf Female/Meshy_AI_female_dwarf_commoner_biped_texture_0.png",
+	},
+	"dwarf_male": {
+		"scene":   "res://models/Dwarf Male/Dwarf Male Breathing Idle.fbx",
+		"library": "res://models/Dwarf Male/dwarf_male_animations.res",
+		"texture_override": "res://models/Dwarf Male/Meshy_AI_male_dwarf_commoner_r_biped_texture_0.png",
+	},
+	"gnome_female": {
+		"scene":   "res://models/Gnome Female/Gnome Female Breathing Idle.fbx",
+		"library": "res://models/Gnome Female/gnome_female_animations.res",
+		"texture_override": "res://models/Gnome Female/Meshy_AI_female_gnome_commoner_biped_texture_0.png",
+	},
+	"gnome_male": {
+		"scene":   "res://models/Gnome Male/Gnome Male Breathing Idle.fbx",
+		"library": "res://models/Gnome Male/gnome_male_animations.res",
+		"texture_override": "res://models/Gnome Male/Meshy_AI_male_gnome_commoner_r_biped_texture_0.png",
+	},
+	"halfling_female": {
+		"scene":   "res://models/Halfling Female/Halfling Female Breathing Idle.fbx",
+		"library": "res://models/Halfling Female/halfling_female_animations.res",
+		"texture_override": "res://models/Halfling Female/Meshy_AI_female_halfling_commo_biped_texture_0.png",
+	},
+	"halfling_male": {
+		"scene":   "res://models/Halfling Male/Halfling Male Breathing Idle.fbx",
+		"library": "res://models/Halfling Male/halfling_male_animations.res",
+		"texture_override": "res://models/Halfling Male/Meshy_AI_male_halfling_commone_biped_texture_0.png",
+	},
+	"half_orc_female": {
+		"scene":   "res://models/Half-Orc Female/Half-Orc Female Breathing Idle.fbx",
+		"library": "res://models/Half-Orc Female/half_orc_female_animations.res",
+		"texture_override": "res://models/Half-Orc Female/Meshy_AI_female_half_orc_commo_biped_texture_0.png",
+	},
+	"half_orc_male": {
+		"scene":   "res://models/Half-Orc Male/Half-Orc Male Breathing Idle.fbx",
+		"library": "res://models/Half-Orc Male/half_orc_male_animations.res",
+		"texture_override": "res://models/Half-Orc Male/Meshy_AI_male_half_orc_commone_biped_texture_0.png",
+	},
+	"lizardkin_female": {
+		"scene":   "res://models/Lizardkin Female/Lizardkin Female Breathing Idle.fbx",
+		"library": "res://models/Lizardkin Female/lizardkin_female_animations.res",
+		"texture_override": "res://models/Lizardkin Female/Meshy_AI_female_lizardkin_comm_biped_texture_0.png",
+	},
+	"lizardkin_male": {
+		"scene":   "res://models/Lizardkin Male/Lizardkin Male Breathing Idle.fbx",
+		"library": "res://models/Lizardkin Male/lizardkin_male_animations.res",
+		"texture_override": "res://models/Lizardkin Male/Meshy_AI_male_lizardkin_common_biped_texture_0.png",
+	},
+	"ogre_female": {
+		"scene":   "res://models/Ogre Female/Ogre Female Breathing Idle.fbx",
+		"library": "res://models/Ogre Female/ogre_female_animations.res",
+		"texture_override": "res://models/Ogre Female/Meshy_AI_female_ogre_commoner__biped_texture_0.png",
+	},
+	"ogre_male": {
+		"scene":   "res://models/Ogre Male/Ogre Male Breathing Idle.fbx",
+		"library": "res://models/Ogre Male/ogre_male_animations.res",
+		"texture_override": "res://models/Ogre Male/Meshy_AI_male_ogre_commoner_ri_biped_texture_0.png",
 	},
 }
 const DEFAULT_CHARACTER_MODEL := {

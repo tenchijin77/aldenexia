@@ -75,7 +75,7 @@ func _pick_random_name() -> String:
 # [[reference_character_model_pipeline]]. Measures the same standard 1.7m
 # baseline every correctly-exported model does, no scale correction needed.
 func _setup_visual() -> void:
-	var character_scene := load("res://models/Spirit Pet/Version 2/Warrior Idle.fbx")
+	var character_scene := load("res://models/Spirit Pet/phantasmal echo pet idle.fbx")
 	if not character_scene:
 		return
 	var character: Node3D = character_scene.instantiate()
@@ -84,13 +84,13 @@ func _setup_visual() -> void:
 	add_child(character)
 
 	animation_player = character.get_node_or_null("AnimationPlayer")
-	var lib := load("res://models/Spirit Pet/Version 2/spirit_pet_animations.res") as AnimationLibrary
+	var lib := load("res://models/Spirit Pet/spirit_pet_animations.res") as AnimationLibrary
 	if lib and animation_player:
 		if animation_player.has_animation_library(""):
 			animation_player.remove_animation_library("")
 		animation_player.add_animation_library("", lib)
 
-	_apply_texture_override(character, "res://models/Spirit Pet/Version 2/Meshy_AI_spirit_elder_rig_biped_texture_0.png")
+	_apply_texture_override(character, "res://models/Spirit Pet/Meshy_AI_spirit_elder_rig_biped_texture_0.png")
 
 	var glow := OmniLight3D.new()
 	glow.light_color = Color(0.6, 0.5, 1.0)

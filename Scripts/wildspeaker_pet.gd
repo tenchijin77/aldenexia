@@ -75,7 +75,7 @@ func _pick_random_name() -> String:
 # Keeps the soft green glow light for continuity with the old placeholder's
 # "nature spirit" read, now as an accent rather than the entire visual.
 func _setup_visual() -> void:
-	var character_scene := load("res://models/Wildspeaker Pet/Offensive Idle.fbx")
+	var character_scene := load("res://models/Wildspeaker Pet/wildspeaker pet idle.fbx")
 	if not character_scene:
 		return
 	var character: Node3D = character_scene.instantiate()

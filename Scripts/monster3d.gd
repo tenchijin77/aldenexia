@@ -30,7 +30,7 @@ const ASSIST_RANGE: float = 5.0  # call_nearby_allies() — real meters, see the
 # dedicated models below. "bandit" and base "goblin" have no dedicated model
 # of their own yet, so they still fall back to DEFAULT_HUMANOID_MOB_MODEL
 # (the shared player model) same as before — see MOB_MODELS.
-const HUMANOID_MOB_TYPES: Array = ["bandit", "skeleton", "goblin", "goblin_scout", "goblin_warrior"]
+const HUMANOID_MOB_TYPES: Array = ["bandit", "skeleton", "goblin", "goblin_scout", "goblin_warrior", "ghost"]
 const ATTACK_ANIMS := ["attack_horizontal", "attack_downward"]
 
 # Per-species dedicated models (added 2026-09-16) — mirrors player3d.gd's
@@ -44,9 +44,22 @@ const MOB_MODELS := {
 		"texture_override": "res://models/mobs/fallen scout skeleton/Meshy_AI_Fallen_Scout_Skeleton_biped_texture_0.png",
 	},
 	"goblin_warrior": {
-		"scene":   "res://models/mobs/desert goblin/Meshy_AI_Desert_Goblin_Warrior_biped_Character_output.fbx",
-		"library": "res://models/mobs/desert goblin/goblin_warrior_animations.res",
-		"texture_override": "res://models/mobs/desert goblin/Meshy_AI_Desert_Goblin_Warrior_biped_texture_0.png",
+		# Swapped to the dedicated 2026-09-18 "desert goblin warrior" model —
+		# the old "desert goblin" folder (still used by plain "goblin" below)
+		# was only ever a placeholder shared between the two.
+		"scene":   "res://models/mobs/desert goblin warrior/Meshy_AI_desert_goblin_warrior_biped_Character_output.fbx",
+		"library": "res://models/mobs/desert goblin warrior/desert_goblin_warrior_animations.res",
+		"texture_override": "res://models/mobs/desert goblin warrior/Meshy_AI_desert_goblin_warrior_biped_texture_0.png",
+	},
+	"bandit": {
+		"scene":   "res://models/mobs/sand brigand/Meshy_AI_sand_brigand_v2_biped_Character_output.fbx",
+		"library": "res://models/mobs/sand brigand/sand_brigand_animations.res",
+		"texture_override": "res://models/mobs/sand brigand/Meshy_AI_sand_brigand_v2_biped_texture_0.png",
+	},
+	"ghost": {
+		"scene":   "res://models/mobs/tormented spirit/Meshy_AI_tormented_spirit_rig_biped_Character_output.fbx",
+		"library": "res://models/mobs/tormented spirit/tormented_spirit_animations.res",
+		"texture_override": "res://models/mobs/tormented spirit/Meshy_AI_tormented_spirit_rig_biped_texture_0.png",
 	},
 	"goblin_scout": {
 		"scene":   "res://models/mobs/desert goblin scout/Meshy_AI_Desert_Goblin_Scout_R_biped_Character_output.fbx",
@@ -87,6 +100,41 @@ const CRITTER_MODELS := {
 		"normal": "res://models/mobs/juvenile spider/Meshy_AI_juvenile_spider_monst_0916005348_image-to-3d-texture_normal.png",
 		"roughness": "res://models/mobs/juvenile spider/Meshy_AI_juvenile_spider_monst_0916005348_image-to-3d-texture_roughness.png",
 		"metallic": "res://models/mobs/juvenile spider/Meshy_AI_juvenile_spider_monst_0916005348_image-to-3d-texture_metallic.png",
+	},
+	# Added 2026-09-18 — these 5 ship with albedo/roughness/metallic maps only
+	# (no separate normal map), unlike rat/spiderling above; "normal" is left
+	# out of each entry rather than pointed at a nonexistent file (see
+	# _apply_critter_material()'s model_info.get("normal", "") — a missing key
+	# just skips the normal map, which is the correct behavior here).
+	"slime": {
+		"scene": "res://models/mobs/acidic slime/Meshy_AI_acidic_slime_remesh_0919003424_texture.fbx",
+		"albedo": "res://models/mobs/acidic slime/Meshy_AI_acidic_slime_remesh_0919003424_texture.png",
+		"roughness": "res://models/mobs/acidic slime/Meshy_AI_acidic_slime_remesh_0919003424_texture_roughness.png",
+		"metallic": "res://models/mobs/acidic slime/Meshy_AI_acidic_slime_remesh_0919003424_texture_metallic.png",
+	},
+	"bat": {
+		"scene": "res://models/mobs/dusk bat/Meshy_AI_dusk_bat_remesh_0919003344_texture.fbx",
+		"albedo": "res://models/mobs/dusk bat/Meshy_AI_dusk_bat_remesh_0919003344_texture.png",
+		"roughness": "res://models/mobs/dusk bat/Meshy_AI_dusk_bat_remesh_0919003344_texture_roughness.png",
+		"metallic": "res://models/mobs/dusk bat/Meshy_AI_dusk_bat_remesh_0919003344_texture_metallic.png",
+	},
+	"spider": {
+		"scene": "res://models/mobs/giant desert spider/Meshy_AI_giant_desert_spider_r_0919003352_texture.fbx",
+		"albedo": "res://models/mobs/giant desert spider/Meshy_AI_giant_desert_spider_r_0919003352_texture.png",
+		"roughness": "res://models/mobs/giant desert spider/Meshy_AI_giant_desert_spider_r_0919003352_texture_roughness.png",
+		"metallic": "res://models/mobs/giant desert spider/Meshy_AI_giant_desert_spider_r_0919003352_texture_metallic.png",
+	},
+	"snake": {
+		"scene": "res://models/mobs/sand viper/Meshy_AI_sand_viper_remesh_0919003420_texture.fbx",
+		"albedo": "res://models/mobs/sand viper/Meshy_AI_sand_viper_remesh_0919003420_texture.png",
+		"roughness": "res://models/mobs/sand viper/Meshy_AI_sand_viper_remesh_0919003420_texture_roughness.png",
+		"metallic": "res://models/mobs/sand viper/Meshy_AI_sand_viper_remesh_0919003420_texture_metallic.png",
+	},
+	"dune_scarab": {
+		"scene": "res://models/mobs/dune scarab/Meshy_AI_dune_scarab_remesh_0919003047_texture.fbx",
+		"albedo": "res://models/mobs/dune scarab/Meshy_AI_dune_scarab_remesh_0919003047_texture.png",
+		"roughness": "res://models/mobs/dune scarab/Meshy_AI_dune_scarab_remesh_0919003047_texture_roughness.png",
+		"metallic": "res://models/mobs/dune scarab/Meshy_AI_dune_scarab_remesh_0919003047_texture_metallic.png",
 	},
 }
 
@@ -378,23 +426,32 @@ func _setup_critter_visual() -> void:
 # type's real PBR maps (normal/roughness/metallic), same as
 # phantasmal_echo_pet.gd's _apply_spirit_pet_material().
 func _apply_critter_material(node: Node, model_info: Dictionary) -> void:
-	var albedo := load(model_info.get("albedo", "")) as Texture2D
+	var albedo_path: String = model_info.get("albedo", "")
+	var albedo := (load(albedo_path) as Texture2D) if not albedo_path.is_empty() else null
 	if not albedo:
 		push_warning("⚠️ Critter texture override not found for %s" % monster_name)
 		return
 	var mat := StandardMaterial3D.new()
 	mat.albedo_texture = albedo
 
-	var normal := load(model_info.get("normal", "")) as Texture2D
+	# Not every critter ships a normal/roughness/metallic map (e.g. the 2026-
+	# 09-18 desert critters have only albedo/roughness/metallic) — an empty
+	# key is left out of model_info entirely rather than pointed at a
+	# nonexistent file, since load("") logs a scary-looking (but otherwise
+	# harmless) engine error instead of just returning null.
+	var normal_path: String = model_info.get("normal", "")
+	var normal := (load(normal_path) as Texture2D) if not normal_path.is_empty() else null
 	if normal:
 		mat.normal_enabled = true
 		mat.normal_texture = normal
 
-	var roughness := load(model_info.get("roughness", "")) as Texture2D
+	var roughness_path: String = model_info.get("roughness", "")
+	var roughness := (load(roughness_path) as Texture2D) if not roughness_path.is_empty() else null
 	if roughness:
 		mat.roughness_texture = roughness
 
-	var metallic := load(model_info.get("metallic", "")) as Texture2D
+	var metallic_path: String = model_info.get("metallic", "")
+	var metallic := (load(metallic_path) as Texture2D) if not metallic_path.is_empty() else null
 	if metallic:
 		mat.metallic_texture = metallic
 		mat.metallic = 1.0  # metallic_texture modulates this scalar — 1.0 lets the map through unscaled
