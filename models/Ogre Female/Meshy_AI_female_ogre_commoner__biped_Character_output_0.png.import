@@ -2,13 +2,10 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://1oqh7w187ngr"
+uid="uid://c7my6hq571fdn"
 path="res://.godot/imported/Meshy_AI_female_ogre_commoner__biped_Character_output_0.png-a792011f880b6d2187d0ad8b1780e478.ctex"
 metadata={
 "vram_texture": false
-}
-generator_parameters={
-"md5": "2c13ec5564d1790bee7ab109c57807c9"
 }
 
 [deps]
@@ -26,7 +23,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""

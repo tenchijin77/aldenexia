@@ -2,13 +2,10 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cir2165jqbkn4"
+uid="uid://vkvc304yw3ru"
 path="res://.godot/imported/jump_0.png-a15ad95bc750a04c1ad42b1c9def01f8.ctex"
 metadata={
 "vram_texture": false
-}
-generator_parameters={
-"md5": "d9c94c76dd797c213321f89289510df2"
 }
 
 [deps]
@@ -26,7 +23,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""

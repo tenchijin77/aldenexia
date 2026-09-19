@@ -2,14 +2,11 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bxpqu3bnln4ir"
+uid="uid://caddqofuuyace"
 path.s3tc="res://.godot/imported/Meshy_AI_Lumora_Guardsman_Rig_biped_Character_output_0.png-70d2ddbd5fe71b9ac8abc626652f244d.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
-}
-generator_parameters={
-"md5": "f29a151f46e00908af959acc73d6cc51"
 }
 
 [deps]

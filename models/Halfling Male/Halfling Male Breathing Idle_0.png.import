@@ -2,13 +2,10 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b81pn8dchdfxl"
+uid="uid://cs4yoo7rgq2w2"
 path="res://.godot/imported/Halfling Male Breathing Idle_0.png-1f3fb6ee5fc7b702bdd8839499a043b5.ctex"
 metadata={
 "vram_texture": false
-}
-generator_parameters={
-"md5": "2c4010695824a2e6c6e9289874a9723d"
 }
 
 [deps]
@@ -26,7 +23,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""

@@ -2,13 +2,10 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dc3xfprte8cq"
+uid="uid://dilshqdxmmc36"
 path="res://.godot/imported/voidknight pet idle_0.png-e2b6def82f37ac85d69fa7d40a9bf903.ctex"
 metadata={
 "vram_texture": false
-}
-generator_parameters={
-"md5": "c2789f51d333221499e8b8ea39d4ebdb"
 }
 
 [deps]
@@ -26,7 +23,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""

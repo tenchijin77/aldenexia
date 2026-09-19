@@ -252,12 +252,23 @@ func _build_stats_panel() -> void:
 			["spell_power", "Spell Power"], ["weight", "Carry Weight"]]:
 		_make_kv_row(combat_list, key_label[0], key_label[1])
 
-	var resist_row := HBoxContainer.new()
-	resist_row.add_theme_constant_override("separation", 6)
+	# HFlowContainer instead of HBoxContainer — 10 badges (up from 5) won't
+	# reliably fit on one line at every window width, so this wraps onto a
+	# second row instead of clipping/overflowing.
+	var resist_row := HFlowContainer.new()
+	resist_row.add_theme_constant_override("h_separation", 6)
+	resist_row.add_theme_constant_override("v_separation", 4)
+	resist_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	stats_panel.add_child(_make_section("Resistances", resist_row))
-	for key_label_color in [["acid", "Acid", Color(0.56, 0.68, 0.29)], ["cold", "Cold", Color(0.37, 0.72, 0.85)],
-			["fire", "Fire", Color(0.85, 0.44, 0.24)], ["magic", "Magic", Color(0.54, 0.32, 0.85)],
-			["psychic", "Psychic", Color(0.79, 0.37, 0.68)]]:
+	# All 10 finalized damage types — see game_flow.txt's "Spell
+	# Classification" section (2026-09-19) for why Psychic/Spirit stay
+	# separate despite similar surface flavor.
+	for key_label_color in [
+			["fire", "Fire", Color(0.85, 0.44, 0.24)], ["cold", "Cold", Color(0.37, 0.72, 0.85)],
+			["acid", "Acid", Color(0.56, 0.68, 0.29)], ["lightning", "Lightning", Color(0.92, 0.85, 0.35)],
+			["poison", "Poison", Color(0.42, 0.62, 0.32)], ["disease", "Disease", Color(0.55, 0.50, 0.30)],
+			["magic", "Magic", Color(0.54, 0.32, 0.85)], ["divine", "Divine", Color(0.90, 0.82, 0.55)],
+			["psychic", "Psychic", Color(0.79, 0.37, 0.68)], ["spirit", "Spirit", Color(0.60, 0.60, 0.95)]]:
 		_make_badge(resist_row, key_label_color[0], key_label_color[1], key_label_color[2])
 
 	var xp_row := HBoxContainer.new()
@@ -357,7 +368,7 @@ func _make_kv_row(parent: VBoxContainer, key: String, label: String) -> void:
 	_stat_labels[key] = v
 
 
-func _make_badge(parent: HBoxContainer, key: String, label: String, dot_color: Color) -> void:
+func _make_badge(parent: Container, key: String, label: String, dot_color: Color) -> void:
 	var box := PanelContainer.new()
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(0.13, 0.13, 0.13, 0.92)
@@ -684,7 +695,7 @@ func set_character_data(data: Dictionary) -> void:
 	_stat_labels["xp"].text = "%d / %d" % [xp_cur, xp_next]
 
 	var res: Dictionary = data.get("resistances", {})
-	for key in ["acid", "cold", "fire", "magic", "psychic"]:
+	for key in ["fire", "cold", "acid", "lightning", "poison", "disease", "magic", "divine", "psychic", "spirit"]:
 		_stat_labels[key].text = str(res.get(key, 0))
 
 	_stat_labels["platinum_coin"].text = str(data.get("platinum", 0))

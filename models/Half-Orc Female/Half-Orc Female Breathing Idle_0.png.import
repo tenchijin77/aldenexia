@@ -2,13 +2,10 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dewo7u6f1wg7g"
+uid="uid://blby0cgwoh3gc"
 path="res://.godot/imported/Half-Orc Female Breathing Idle_0.png-d26f00290b518abc024e4ef1945e9b2f.ctex"
 metadata={
 "vram_texture": false
-}
-generator_parameters={
-"md5": "e44c2e7c460700118032d98cdc8022c6"
 }
 
 [deps]
@@ -26,7 +23,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""

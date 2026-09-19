@@ -18,7 +18,7 @@ signal dismissed
 
 enum PetState { FOLLOW, ATTACK, SIT, GUARD, ASSIST }
 
-const FOLLOW_DISTANCE := 3.0  # how far behind the player's facing to trail
+const FOLLOW_DISTANCE := 4.5  # how far behind the player's facing to trail
 const FOLLOW_ARRIVAL := 1.0   # tolerance around that spot before it's "close enough"
 const ATTACK_RANGE := 2.5
 # Faster than the player's own RUN_SPEED (8.0, player3d.gd) — the skeleton's
@@ -79,6 +79,15 @@ var animation_player: AnimationPlayer = null
 # own client decided, instead of running its own (removed) AI to decide.
 var anim_state: String = ""
 var _base_stats: Dictionary = {}
+
+# Fraction of the owner's max_hp this pet spawns with — set by player3d.gd's
+# _build_pet() (PET_HP_PERCENT_OVERRIDES) before setup() runs, for a stronger
+# variant that reuses this same scene/model (e.g. Gravecaller's raise_skeleton
+# vs. Voidknight's spectral_minion — same skeleton thrall, just tankier per
+# its own spell description). Left as a plain default rather than an
+# overridden method since every use so far is "the same pet, different
+# number," not different construction logic.
+var hp_percent_of_caster: float = 0.4
 
 # Self-managed NavigationServer3D.query_path() movement — NavigationAgent3D's
 # get_next_path_position() was found to go stale over distance/after external
@@ -225,8 +234,10 @@ func setup(p_owner: Node, preset_name: String = "") -> void:
 	combat_node.charisma     = 0
 	combat_node.luck         = 0
 
-	# "40% of caster's health" per the spectral_minion spell description
-	var pet_max_hp: int = max(1, int(p_owner.combat_node.max_hp * 0.4))
+	# Default 40% of caster's health per the spectral_minion spell description
+	# — see hp_percent_of_caster's doc comment for how a stronger variant
+	# (e.g. Gravecaller's raise_skeleton at 80%) overrides this.
+	var pet_max_hp: int = max(1, int(p_owner.combat_node.max_hp * hp_percent_of_caster))
 	combat_node.gear_hp = pet_max_hp - 50
 	combat_node.gear_atk = 15 + combat_node.level * 5
 	_recalculate_stats()
@@ -314,6 +325,8 @@ func _physics_process(delta: float) -> void:
 			_process_auto_engage(delta, false)
 
 	move_and_slide()
+	if command != PetState.ATTACK and command != PetState.SIT:
+		_face_nearest_enemy_if_idle()
 	_update_animation()
 	if has_node("NameLabel"):
 		$NameLabel.visible = Global.settings.get("show_name_tags", true)
@@ -363,7 +376,7 @@ func _apply_gravity(delta: float) -> void:
 # old approach let the pet approach from any angle and could end up nose-to-
 # nose with (or clipped into) the player before the radius check kicked in.
 #
-# Snapped onto the navmesh before returning: the raw "3m behind" point is a
+# Snapped onto the navmesh before returning: the raw "behind" point is a
 # free-floating offset that can easily land inside a wall, off a ledge, or
 # past a doorway edge in dense town geometry. Pathing to an off-navmesh point
 # ends at the nearest reachable spot to it, which can still be farther than
@@ -372,16 +385,21 @@ func _apply_gravity(delta: float) -> void:
 # issue), which is exactly why re-issuing Follow didn't help: as long as the
 # player stands in the same spot, the freshly computed "behind" point hits
 # the same wall every time.
-# Only ever 3m behind the player's current facing (_follow_spot() below)
-# arrives via navmesh pathing, which — when the player turns in place — can
-# route the pet in an arc that passes close by or through the player's own
-# collision capsule as it re-routes to the new "behind" point, reading as
+# Arriving at the follow spot (FOLLOW_DISTANCE behind the player's facing)
+# via navmesh pathing can route the pet in an arc that passes close by or
+# through the player's own collision capsule while re-routing, reading as
 # stuttering. Checked first, every frame, ahead of any pathing: if already
 # closer than this to the owner, just steer straight away from them instead
 # of computing a path at all, taking priority over Follow/Assist/Guard's
 # normal destination until clear. Returns true when it took over movement
 # this frame (caller should skip its own _move_toward() call).
-const MIN_OWNER_DISTANCE := 3.0
+# Kept well below FOLLOW_DISTANCE minus FOLLOW_ARRIVAL (its old value equaled
+# FOLLOW_DISTANCE exactly) — the pet's normal resting zone around the follow
+# spot used to straddle this exact threshold, so ordinary navmesh-snap slop
+# made it flicker between "arrived, stop" and "too close, push away" every
+# few frames — the real cause of the reported stutter, not turning-in-place
+# (that was a separate, already-fixed issue — see _follow_spot()'s caching).
+const MIN_OWNER_DISTANCE := 2.0
 
 func _maintain_min_owner_distance(delta: float) -> bool:
 	if not is_instance_valid(owner_player):
@@ -399,6 +417,33 @@ func _maintain_min_owner_distance(delta: float) -> bool:
 	look_at(global_position + dir, Vector3.UP)
 	_nav_path.clear()
 	return true
+
+
+# Cosmetic only — a pet standing around in Follow/Assist/Guard (not actively
+# moving this frame) turns to face whatever living monster is nearest, within
+# AWARENESS_RADIUS, so it visibly reacts to a threat wandering close instead
+# of staring at whatever direction it happened to stop facing. Never called
+# while Attack (already faces its real target) or Sit (should just sit).
+const AWARENESS_RADIUS := 15.0
+
+func _face_nearest_enemy_if_idle() -> void:
+	if Vector2(velocity.x, velocity.z).length() >= 0.1:
+		return
+	var nearest: Node = null
+	var nearest_dist := AWARENESS_RADIUS
+	for monster in get_tree().get_nodes_in_group("monsters"):
+		if not _target_alive(monster):
+			continue
+		var d := global_position.distance_to(monster.global_position)
+		if d < nearest_dist:
+			nearest_dist = d
+			nearest = monster
+	if not nearest:
+		return
+	var to_target: Vector3 = nearest.global_position - global_position
+	to_target.y = 0.0
+	if to_target.length() > 0.1:
+		look_at(global_position + to_target.normalized(), Vector3.UP)
 
 
 # Only recomputed once the owner has actually moved FOLLOW_SPOT_REFRESH_DIST

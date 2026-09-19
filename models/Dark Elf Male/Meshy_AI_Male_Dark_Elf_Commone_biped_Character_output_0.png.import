@@ -2,13 +2,10 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://d31p0abexgxuw"
+uid="uid://lq6t4lnh84yu"
 path="res://.godot/imported/Meshy_AI_Male_Dark_Elf_Commone_biped_Character_output_0.png-ed5a46bc0662717eba6784d7752737c9.ctex"
 metadata={
 "vram_texture": false
-}
-generator_parameters={
-"md5": "66ddcec3a3646c54d88a30fabcd9583e"
 }
 
 [deps]
@@ -26,7 +23,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""

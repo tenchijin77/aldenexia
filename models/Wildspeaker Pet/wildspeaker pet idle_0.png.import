@@ -2,13 +2,10 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://vb1vrm54kyh4"
+uid="uid://fti4rokyvynf"
 path="res://.godot/imported/wildspeaker pet idle_0.png-0df6b944524a545f2cd10bc6c416ad08.ctex"
 metadata={
 "vram_texture": false
-}
-generator_parameters={
-"md5": "3d0c8a40503c2d2b5e86cd8047720146"
 }
 
 [deps]
@@ -26,7 +23,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""

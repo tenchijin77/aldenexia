@@ -496,6 +496,137 @@ candidates instead of guessing; a typo that matches nothing prints "Unknown comm
 
 ---
 
+## 2026-09-19 — Session 48: Asset folder standardization, texture resize (load-lag fix), pet follow/idle-facing fixes, character creation Back button, Gravecaller pet, full spell_school/skill_category reclassification + 10-type resistance system
+
+### Asset consolidation & naming standardization
+- Consolidated all 6 "Version 2" re-rig folders (Dark Elf/Elf/Half-Elf Female, Human
+  Female, Skeleton Pet, Spirit Pet) — deleted superseded originals, moved Version 2's
+  contents up to be the folder's only content, deleted the now-empty Version 2
+  subfolders, updated every code reference in player3d.gd/pet_minion.gd/
+  phantasmal_echo_pet.gd. Fixed a mislabeled file caught along the way (Half-Elf
+  Female's Version 2 had a "Female Elf Sitting Idle.fbx" — wrong race in the name).
+- Standardized animation filenames to `<Race> <Sex> <Animation>.fbx` (character
+  models) / lowercase `<name> <animation>.fbx` (pets/mobs) across those 6 folders,
+  the 12 new race folders, 3 newly-wired animated mobs, and 3 previously-inconsistent
+  male race folders (Elf/Half-Elf/Dark Elf Male were "Male Race X", now "Race Male X").
+  Deleted genuinely-unused duplicate Meshy "Animation_Running/Walking_withSkin"
+  byproduct clips wherever a dedicated named clip already covered the same motion.
+  Deleted `models/guard/` entirely — a confirmed-dead placeholder folder, replaced by
+  Lumora Guardsman and no longer referenced anywhere in code.
+- Wired 12 new player races into CHARACTER_MODELS (Dwarf/Gnome/Halfling/Half-Orc/
+  Lizardkin/Ogre × Female/Male) — built fresh animation libraries for each, all
+  measure the standard 1.7m height baseline, no scale corrections needed.
+- Wired 8 new mob visuals to their correct existing monster entries, confirmed against
+  the user's Zone Spawn Sheet (exact 1:1 match, 13 mob folders to 13 Lumora Outskirts
+  spawn-sheet rows, zero leftover assets): bandit→Sand Brigand, ghost→Tormented Spirit,
+  goblin_warrior→new Desert Goblin Warrior model (replacing the old shared "desert
+  goblin" placeholder), plus slime/bat/spider/snake/dune_scarab as static critter
+  meshes. Fixed a bug found while wiring these: `_apply_critter_material()` called
+  `load("")` for critters with no normal map, throwing a harmless-but-noisy engine
+  error every spawn — now guards empty texture paths before calling load().
+
+### Texture resize — root cause of the reported 5-7s load-in lag + music stutter
+- Every Meshy-exported model (226 files project-wide, old and new alike) shipped a
+  full 4096×4096 texture (~20-24MB each), each taking ~450-500ms to synchronously
+  load the first time it's needed — this session roughly doubled how many distinct
+  mob types with these textures are active in Lumora Outskirts (6→13), pushing the
+  cumulative first-load cost into multiple seconds of blocked main thread (which is
+  also why the music stuttered — audio can't process while the thread is blocked).
+  Resized all 226 to 2048×2048 (LANCZOS resample) — models/ dropped from 4.8GB to
+  3.2GB, and the same 9-texture timing sample dropped from ~4.0s to ~1.1s (3.6x).
+- Checked "Sands of Lumora.ogg" itself for a baked-in defect per a follow-up report
+  that it stutters even played standalone — ffprobe/ffmpeg found a clean Vorbis
+  stream with zero decode warnings, and a sample-level scan (clicks, mid-track
+  silence dropouts) found nothing wrong with the file's actual audio data. Points to
+  the export/render process rather than something fixable in the current file —
+  user re-exporting from their DAW.
+
+### Pet AI fixes
+- Fixed pet stutter: `MIN_OWNER_DISTANCE` (the "too close, back off" threshold) was
+  set to the exact same value as `FOLLOW_DISTANCE` (the pet's normal resting spot
+  behind the owner), so ordinary navmesh-snap slop made the pet flicker between
+  "arrived" and "too close" every few frames. Increased `FOLLOW_DISTANCE` 3.0→4.5
+  (pets trail further back, as requested) and dropped `MIN_OWNER_DISTANCE` to 2.0,
+  giving real breathing room between the two so they stop fighting each other.
+- Added `_face_nearest_enemy_if_idle()` — a pet standing in Follow/Assist/Guard (not
+  moving, not already fighting) now turns to face the nearest living monster within
+  15m, so it looks alert/reactive instead of frozen facing its last movement
+  direction. Never overrides Attack (already faces its real target) or Sit.
+
+### Character creation Back button + multiplayer "Create New Character" flow
+- Added a Back button to character creation, returning to wherever it was reached
+  from (main menu, or the multiplayer screen if that's where the player came from).
+- Added a "+ Create New Character" button to the multiplayer host/join menu. Sets
+  `Global.return_to_multiplayer_menu`, sends the player through the normal character
+  creation flow, then automatically reopens the multiplayer overlay (dropdown
+  refreshed, new character selectable) once they land back on the main menu — the
+  multiplayer menu is an overlay added as a child of main_menu.tscn, not its own
+  scene, so a plain scene change would otherwise strand the player on a bare main menu.
+
+### Gravecaller's raise_skeleton
+- Found already defined in player_spells.json at exactly 80% caster health (matching
+  the user's own guess) but completely unwired, and carrying two data bugs
+  (`target: "group"` and `duration: 5` instead of `"self"`/`"unlimited"` — copied from
+  a template row, not intentional). Fixed both, wired the spell to summon the exact
+  same skeleton model/pet as Voidknight's spectral_minion via a new
+  `hp_percent_of_caster` field on pet_minion.gd (default 0.4, overridden to 0.8 for
+  Gravecaller's variant via `PET_HP_PERCENT_OVERRIDES` in player3d.gd). Verified:
+  177 HP caster → 141 HP Gravecaller pet vs. 70 HP Voidknight pet, same visual model.
+
+### Spell classification overhaul — skill_category synced to spreadsheet, spell_school fully reclassified, unified 10-type resistance system
+- `skill_category` (which skill levels up when a spell is cast — confirmed via
+  `_tick_skill(skill_category)`, `player3d.gd` ~line 2859, feeding the K-book) synced
+  against the user's Player Spells Classifications.xlsx: 41 mismatches found and
+  fixed (mostly Troubadour's placeholder "musicianship" replaced with real schools,
+  plus a few trap/defense mismatches). ~560 of 561 spells covered by the spreadsheet;
+  the gap is content added after its snapshot (mainly Chaosborn's kit and Voidknight's
+  levels 4-8).
+- `spell_school` (what damage type a spell deals, for resistance — confirmed via
+  `_resolve_spell_cast()`'s damage branch, `player3d.gd` ~line 2997) was essentially
+  never properly set: 334-457 of 561 spells were still on the default "physical"
+  regardless of class. Finalized a 10-value vocabulary through discussion (fire, cold,
+  acid, lightning, poison, disease, magic, divine, psychic, spirit — psychic and
+  spirit deliberately kept separate despite similar surface flavor, since they protect
+  two different class identities: Runecaster's mind-affecting kit vs. Gravecaller/
+  Voidknight's life-force/death-drain kit) and reclassified all 561 spells: keyword-
+  detected damage type in the description takes priority (so a physically-delivered
+  attack with an elemental/status effect — Aetherfist's fire_strike, Shadowblade's
+  venom_strike — correctly gets its real damage type instead of "physical", per
+  direct discussion of this exact case), with a cure-context guard so a spell that
+  merely mentions curing/removing an ailment isn't misread as dealing it (Lightsworn's
+  purify no longer reads as "poison"), then skill_category-based defaults, then
+  class-wide overrides for Lightsworn/Lightmender→divine, Gravecaller/Voidknight→
+  spirit, Runecaster→psychic where nothing more specific was detected. Final spread:
+  magic 172, physical 104, psychic 104, spirit 82, divine 62, fire 12, lightning 8,
+  poison 7, cold 6, disease 4, acid 0 (no acid-flavored spell exists yet at the
+  current level-1-20 content).
+- Found and fixed a real architecture gap while designing this: two disconnected
+  resistance systems existed — CombatNode computed 8 resist stats dynamically from
+  CON/WIS/gear but ALL used the identical formula (pure duplicates), and damage calc
+  only ever consulted arcane-or-divine via a crude is_arcane bool; the character sheet
+  UI's Resistances badges only showed 5 of the 10 types with two silently-wrong key
+  mappings ("acid" was reading poison_resist, "magic" was reading arcane_resist).
+  Unified into one system: CombatNode now has real fields for all 10 types (added
+  acid_resist/lightning_resist, renamed arcane_resist→magic_resist),
+  `calculate_spell_damage()`/`calculate_resist_chance()` take the spell's own
+  spell_school as a resist_type String directly instead of an is_arcane bool, and the
+  character sheet shows all 10 with correct mappings (now an HFlowContainer since 10
+  badges don't reliably fit one row).
+- Also found and wired in `Data/racial_stats.json`'s per-race elemental resistance
+  data (e.g. Dwarf: acid/cold/magic +5, psychic -5; Troll: acid +10, cold/fire -5) —
+  real authored content that was never read anywhere before this pass. Added
+  `race_fire_resist`/`race_cold_resist`/`race_acid_resist`/`race_magic_resist`/
+  `race_psychic_resist` to CombatNode, applied per-race in `apply_racial_modifiers()`.
+  Verified: Dwarf shows +5 acid/cold/magic and -5 psychic vs. Human's flat baseline.
+- Full design documented in game_flow.txt's new "Spell Classification" section for
+  reference — not duplicated here.
+- Not done this pass: monster-side magic resistances (monsters.json's existing
+  "resistances" field is a different concept — physical weapon-type tags for
+  appraisal, not magic damage-type resistance), and no acid-flavored spell exists yet
+  to verify that resist type end-to-end in real gameplay.
+
+---
+
 ## 2026-09-17 — Session 45: Generic spell-effect engine, 7 more classes brought to parity, tradeskills (cooking/alchemy), Wildspeaker pet, fear/charm mechanics, multiplayer CC/heal relay, UI theme + resize pass, 5 new mob models, network widget
 
 ### Generic, data-driven spell-effect engine (the foundation for everything else this session)

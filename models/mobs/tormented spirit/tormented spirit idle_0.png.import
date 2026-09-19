@@ -2,13 +2,10 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bccluf88wwujo"
+uid="uid://d23vpy0pxkd6d"
 path="res://.godot/imported/tormented spirit idle_0.png-f28de25e43617018955fcf3b533ef8a7.ctex"
 metadata={
 "vram_texture": false
-}
-generator_parameters={
-"md5": "a0a6ce360f1312fcbfa0a963d8cd315d"
 }
 
 [deps]
@@ -26,7 +23,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""

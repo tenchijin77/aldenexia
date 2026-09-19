@@ -2,13 +2,10 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dirktks4qoc41"
+uid="uid://4tvbnsbxvdk7"
 path="res://.godot/imported/Ogre Female Breathing Idle_0.png-7984582bc8b25f8833796d48d0a8214e.ctex"
 metadata={
 "vram_texture": false
-}
-generator_parameters={
-"md5": "2c13ec5564d1790bee7ab109c57807c9"
 }
 
 [deps]
@@ -26,7 +23,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""

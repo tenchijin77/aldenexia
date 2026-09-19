@@ -2,13 +2,10 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dwvp54x2sqsb4"
+uid="uid://b0nnepa0bsnhs"
 path="res://.godot/imported/Meshy_AI_female_halfling_commo_biped_Character_output_0.png-c8e22a7fd047711b99b8d9c155862e67.ctex"
 metadata={
 "vram_texture": false
-}
-generator_parameters={
-"md5": "85b0ef690d4f167d350def41ebc4a0e5"
 }
 
 [deps]
@@ -26,7 +23,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""

@@ -2,13 +2,10 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b6krm7iol51se"
+uid="uid://cbbbjrnwxubxb"
 path="res://.godot/imported/Meshy_AI_troll_commoner_rig_biped_Character_output_0.png-810bdb9894f723d6d73ad98c4b94c544.ctex"
 metadata={
 "vram_texture": false
-}
-generator_parameters={
-"md5": "1f2eb8324d2d1aaaf2e8cc928b6d4890"
 }
 
 [deps]
@@ -26,7 +23,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""

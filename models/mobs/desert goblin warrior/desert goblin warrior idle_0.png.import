@@ -2,13 +2,10 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://5scvgqqof2n4"
+uid="uid://cndbp336un5vx"
 path="res://.godot/imported/desert goblin warrior idle_0.png-b167a041f4a40ea161704ad2634a605c.ctex"
 metadata={
 "vram_texture": false
-}
-generator_parameters={
-"md5": "45f87882c7ee01dee254724f7a59e4ae"
 }
 
 [deps]
@@ -26,7 +23,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""

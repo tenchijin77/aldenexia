@@ -2,13 +2,10 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://d2utqv26e84by"
+uid="uid://dnhrp15opt2iq"
 path="res://.godot/imported/Meshy_AI_male_dwarf_commoner_r_biped_Character_output_0.png-1715876c7e3ef4c0f8bfa2b7b2ec53b0.ctex"
 metadata={
 "vram_texture": false
-}
-generator_parameters={
-"md5": "8ed52db381cecf5a710fe045f8b881be"
 }
 
 [deps]
@@ -26,7 +23,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""

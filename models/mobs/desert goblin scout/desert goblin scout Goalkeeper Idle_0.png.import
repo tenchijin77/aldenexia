@@ -2,13 +2,10 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://clqk2dotx2ms8"
+uid="uid://b010maxx382gn"
 path="res://.godot/imported/desert goblin scout Goalkeeper Idle_0.png-05a1ca8936f3dfce4383d7aeb5dac2d1.ctex"
 metadata={
 "vram_texture": false
-}
-generator_parameters={
-"md5": "78cb30a95394abf90b7de9fca8866da2"
 }
 
 [deps]
@@ -26,7 +23,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""

@@ -2,13 +2,10 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://xv8w15kaea3f"
+uid="uid://dr78k04alpitw"
 path="res://.godot/imported/Meshy_AI_juvenile_spider_monst_0916005348_image-to-3d-texture_3.png-fa3f1159d9bea9292d595e5017d56c38.ctex"
 metadata={
 "vram_texture": false
-}
-generator_parameters={
-"md5": "c9f594746100a60c59451c9b0a27b007"
 }
 
 [deps]
@@ -26,7 +23,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""

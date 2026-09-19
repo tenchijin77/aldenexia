@@ -2,13 +2,10 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ccf6j83fjo6js"
+uid="uid://byr2rvj3mf3rc"
 path="res://.godot/imported/Meshy_AI_desert_rodent_monster_0916015343_image-to-3d-texture_3.png-f13ea1e401c0d2d7bf9813fd65f2827d.ctex"
 metadata={
 "vram_texture": false
-}
-generator_parameters={
-"md5": "df335b03e5018b7e5d163739f511e711"
 }
 
 [deps]
@@ -26,7 +23,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""

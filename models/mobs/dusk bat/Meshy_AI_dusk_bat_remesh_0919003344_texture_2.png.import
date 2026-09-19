@@ -2,13 +2,10 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://byskpub4vtmrk"
+uid="uid://dqru72etq2evg"
 path="res://.godot/imported/Meshy_AI_dusk_bat_remesh_0919003344_texture_2.png-4d7ccf5cc504481007d56482ba0a8abd.ctex"
 metadata={
 "vram_texture": false
-}
-generator_parameters={
-"md5": "3261cb032440ddbc724e0f32d0155423"
 }
 
 [deps]
@@ -26,7 +23,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""

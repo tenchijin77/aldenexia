@@ -107,6 +107,19 @@ var race_negative_effect_resist: float = 0.0  # Chance [0-1] to shrug off an inc
 var race_immune_to_root: bool = false
 var race_immune_to_blind: bool = false
 
+# Flat point bonuses/penalties added to the matching resist stat in
+# recalculate_derived_stats() — sourced from Data/racial_stats.json's
+# authored per-race "resistances" data, which existed but was never actually
+# read anywhere before 2026-09-19 (see game_flow.txt's "Spell
+# Classification" section). Only 5 of the 10 finalized damage types have
+# racial data authored so far; the other 5 (lightning/lightning/disease/
+# poison/disease/divine/spirit) default to 0 for every race until that data exists.
+var race_fire_resist: int = 0
+var race_cold_resist: int = 0
+var race_acid_resist: int = 0
+var race_magic_resist: int = 0
+var race_psychic_resist: int = 0
+
 func rolls_resist_negative_effect() -> bool:
 	return race_negative_effect_resist > 0.0 and randf() < race_negative_effect_resist
 
@@ -382,15 +395,21 @@ func recalculate_derived_stats():
 	block = clamp(block, 0, 50)  # Soft cap at 50%
 	_cached_stats["block_chance"] = block
 
-	# Resistances (all types)
+	# Resistances — the 10 finalized spell_school damage types (see
+	# game_flow.txt's "Spell Classification" section, 2026-09-19). All still
+	# share the same base formula for now (no per-type balancing pass yet,
+	# this is the infrastructure/plumbing step) except spirit, which keeps
+	# its existing dedicated gear_spirit_resist bonus.
 	var base_resist = int(con_eff / 2.0) + int(wis_eff / 2.0)
-	_cached_stats["fire_resist"] = clamp(base_resist + gear_ac, 0, 200)
-	_cached_stats["cold_resist"] = clamp(base_resist + gear_ac, 0, 200)
+	_cached_stats["fire_resist"] = clamp(base_resist + gear_ac + race_fire_resist, 0, 200)
+	_cached_stats["cold_resist"] = clamp(base_resist + gear_ac + race_cold_resist, 0, 200)
+	_cached_stats["acid_resist"] = clamp(base_resist + gear_ac + race_acid_resist, 0, 200)
+	_cached_stats["lightning_resist"] = clamp(base_resist + gear_ac, 0, 200)
 	_cached_stats["poison_resist"] = clamp(base_resist + gear_ac, 0, 200)
 	_cached_stats["disease_resist"] = clamp(base_resist + gear_ac, 0, 200)
-	_cached_stats["arcane_resist"] = clamp(base_resist + gear_ac, 0, 200)
+	_cached_stats["magic_resist"] = clamp(base_resist + gear_ac + race_magic_resist, 0, 200)
 	_cached_stats["divine_resist"] = clamp(base_resist + gear_ac, 0, 200)
-	_cached_stats["psychic_resist"] = clamp(base_resist + gear_ac, 0, 200)
+	_cached_stats["psychic_resist"] = clamp(base_resist + gear_ac + race_psychic_resist, 0, 200)
 	_cached_stats["spirit_resist"] = clamp(int((con_eff + wis_eff) / 2.0) + gear_spirit_resist, 0, 200)
 
 	# Health Regeneration (per 6-second tick). Sitting multiplier applied in player3d.
@@ -636,9 +655,19 @@ func apply_ac_mitigation(raw_damage: int, target: CombatNode) -> int:
 		final_damage = int(final_damage * (1.0 - target.race_physical_resist))
 	return max(1, final_damage)
 
-func calculate_spell_damage(base_spell_damage: int, is_arcane: bool = true, target: CombatNode = null, is_crit: bool = false) -> int:
-	"""Calculate spell damage with resist checks"""
-	var spell_power = get_arcane_power() if is_arcane else get_divine_power()
+func calculate_spell_damage(base_spell_damage: int, resist_type: String = "magic", target: CombatNode = null, is_crit: bool = false) -> int:
+	"""Calculate spell damage with resist checks. resist_type is one of the
+	10 finalized spell_school damage types (see game_flow.txt's "Spell
+	Classification" section, 2026-09-19) — physical/fire/cold/acid/
+	lightning/poison/disease/magic/divine/psychic/spirit. Power source is
+	divine for "divine"-school spells (Lightsworn/Lightmender), arcane for
+	everything else — this used to be a bare is_arcane bool covering only
+	two resist pools (arcane/divine); every other school silently fell into
+	whichever one the caller picked, since there was no way to express a
+	third option. Replaced 2026-09-19 so damage is actually resisted by the
+	specific type it deals, not just lumped into arcane or divine."""
+	var use_divine_power := resist_type == "divine"
+	var spell_power = get_divine_power() if use_divine_power else get_arcane_power()
 	var damage = base_spell_damage + spell_power
 
 	# Apply crit if applicable
@@ -652,7 +681,6 @@ func calculate_spell_damage(base_spell_damage: int, is_arcane: bool = true, targ
 	# never actually been resisted by ANY target, player or monster. Found
 	# during the 2026-09-14 monster balance pass.
 	if target:
-		var resist_type := "arcane" if is_arcane else "divine"
 		var target_resist := target.get_resistance(resist_type) + int(target.get_modifier("magic_resist_bonus"))
 		damage = int(damage * (1.0 - (target_resist / 100.0)))
 
@@ -696,11 +724,11 @@ func calculate_hit_chance(target: CombatNode) -> int:
 
 	return hit_chance
 
-func calculate_resist_chance(target: CombatNode, is_arcane: bool = true) -> int:
+func calculate_resist_chance(target: CombatNode, resist_type: String = "magic") -> int:
 	"""Calculate spell resist chance"""
 	var level_modifier = (target.level - level) * 10
-	var my_power = get_arcane_power() if is_arcane else get_divine_power()
-	var target_resist = target.get_resistance("arcane" if is_arcane else "divine")
+	var my_power = get_divine_power() if resist_type == "divine" else get_arcane_power()
+	var target_resist = target.get_resistance(resist_type)
 
 	var resist_chance = int((target_resist - my_power + level_modifier) / 2.0)
 	resist_chance = clamp(resist_chance, 0, 200)

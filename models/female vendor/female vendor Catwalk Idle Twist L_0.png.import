@@ -2,13 +2,10 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bbk7fbhjkfn8m"
+uid="uid://6ktksl1fmca0"
 path="res://.godot/imported/female vendor Catwalk Idle Twist L_0.png-d9b594459382b87ad976accd295eb355.ctex"
 metadata={
 "vram_texture": false
-}
-generator_parameters={
-"md5": "5adfbb53848e9dda965f279346a8c636"
 }
 
 [deps]
@@ -26,7 +23,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""

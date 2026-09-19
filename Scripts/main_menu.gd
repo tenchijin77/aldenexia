@@ -21,6 +21,15 @@ func _ready():
 	# _warm_up_audio() — this wasn't the cause, just dead weight found along
 	# the way).
 
+	# Coming back from character_creation.tscn's "Create New Character"
+	# shortcut off the multiplayer menu — reopen that overlay (its dropdown
+	# repopulates from disk in _ready(), so the new character shows up) rather
+	# than stranding the player on a bare main menu. See global.gd's
+	# return_to_multiplayer_menu doc comment.
+	if Global.return_to_multiplayer_menu:
+		Global.return_to_multiplayer_menu = false
+		_on_multiplayer_pressed()
+
 
 var flicker_timer_left := 0.0
 var flicker_timer_right := 0.0

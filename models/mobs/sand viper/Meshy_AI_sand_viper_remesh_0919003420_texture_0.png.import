@@ -2,13 +2,10 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ixeq144fl2a7"
+uid="uid://dqa5n5rrwry85"
 path="res://.godot/imported/Meshy_AI_sand_viper_remesh_0919003420_texture_0.png-22ddc769383d3773e35fb2219b13c30c.ctex"
 metadata={
 "vram_texture": false
-}
-generator_parameters={
-"md5": "83c9c7f6eec566fe1a9d6a11892c8561"
 }
 
 [deps]
@@ -26,7 +23,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""

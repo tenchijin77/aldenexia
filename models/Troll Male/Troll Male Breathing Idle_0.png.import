@@ -2,13 +2,10 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ddycu05472it2"
+uid="uid://c1bj71vdkr5xm"
 path="res://.godot/imported/Troll Male Breathing Idle_0.png-697c83b282b5ef15007f3f392c9b0d9b.ctex"
 metadata={
 "vram_texture": false
-}
-generator_parameters={
-"md5": "1f2eb8324d2d1aaaf2e8cc928b6d4890"
 }
 
 [deps]
@@ -26,7 +23,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""

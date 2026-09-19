@@ -2,13 +2,10 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cqh4e3gt2na2w"
+uid="uid://bkk4w16g1wvfi"
 path="res://.godot/imported/Ogre Male Breathing Idle_0.png-889de6fa68827188dd95edd10253a50c.ctex"
 metadata={
 "vram_texture": false
-}
-generator_parameters={
-"md5": "c8a0068278156ca52eb545bc835ebd93"
 }
 
 [deps]
@@ -26,7 +23,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""

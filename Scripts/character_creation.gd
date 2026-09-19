@@ -53,6 +53,7 @@ var casting_stats: Dictionary = {
 @onready var name_input: LineEdit = $MarginContainer/VBoxContainer/bottom_row/name_section/name_input
 @onready var confirm_button: Button = $MarginContainer/VBoxContainer/bottom_row/confirm_button
 @onready var begin_button: Button = $MarginContainer/VBoxContainer/bottom_row/begin_button
+@onready var back_button: Button = $MarginContainer/VBoxContainer/bottom_row/back_button
 @onready var portrait_texture: TextureRect = $MarginContainer/VBoxContainer/top_row/portrait_panel/portrait_texture
 
 func _ready() -> void:
@@ -71,6 +72,13 @@ func _ready() -> void:
 	sex_select.item_selected.connect(_on_sex_selected)
 	class_select.item_selected.connect(_on_class_selected)
 	confirm_button.pressed.connect(_on_confirm_pressed)
+	back_button.pressed.connect(_on_back_button_pressed)
+
+	# Reached via the multiplayer menu's "Create New Character" shortcut —
+	# relabel Begin so it's clear this returns to Multiplayer instead of
+	# launching a single-player game. See global.gd's return_to_multiplayer_menu.
+	if Global.return_to_multiplayer_menu:
+		begin_button.text = "Done — Return to Multiplayer"
 
 	var spinboxes: Array[SpinBox] = [
 		strength_spin, constitution_spin, dexterity_spin,
@@ -522,4 +530,16 @@ func _on_begin_button_pressed() -> void:
 		push_error("❌ Could not load character save.")
 		return
 
+	if Global.return_to_multiplayer_menu:
+		get_tree().change_scene_to_file("res://Scenes/main_menu.tscn")
+		return
+
 	get_tree().change_scene_to_file("res://Scenes/lumora_outskirts3d.tscn")
+
+
+# ---------------------------------------------------------
+# BACK BUTTON — cancel out of character creation. Returns to wherever this
+# screen was reached from: the multiplayer menu (if flagged) or the main menu.
+# ---------------------------------------------------------
+func _on_back_button_pressed() -> void:
+	get_tree().change_scene_to_file("res://Scenes/main_menu.tscn")

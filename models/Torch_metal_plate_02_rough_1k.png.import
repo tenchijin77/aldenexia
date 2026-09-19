@@ -2,14 +2,11 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cions4h13y4tt"
+uid="uid://qmmjijev53xo"
 path.s3tc="res://.godot/imported/Torch_metal_plate_02_rough_1k.png-ea5113c8694c372bfcfc641df57aa524.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
-}
-generator_parameters={
-"md5": "445e34c775d5c76290b617701a2dff84"
 }
 
 [deps]

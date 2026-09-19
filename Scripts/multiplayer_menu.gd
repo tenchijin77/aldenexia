@@ -64,6 +64,10 @@ func _build_ui() -> void:
 	vbox.add_child(character_select)
 	_populate_character_dropdown()
 
+	var create_char_btn := _make_button("+ Create New Character")
+	create_char_btn.pressed.connect(_on_create_character_pressed)
+	vbox.add_child(create_char_btn)
+
 	vbox.add_child(HSeparator.new())
 
 	var host_label := Label.new()
@@ -228,3 +232,12 @@ func _on_server_disconnected() -> void:
 func _on_back_pressed() -> void:
 	Net.disconnect_game()
 	get_tree().change_scene_to_file("res://Scenes/main_menu.tscn")
+
+
+# Sends the player to the normal character creation flow, flagged to return
+# here (with the dropdown refreshed to include the new character) instead of
+# launching straight into a single-player game — see global.gd's
+# return_to_multiplayer_menu doc comment.
+func _on_create_character_pressed() -> void:
+	Global.return_to_multiplayer_menu = true
+	get_tree().change_scene_to_file("res://Scenes/character_creation.tscn")

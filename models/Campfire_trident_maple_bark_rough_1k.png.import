@@ -2,14 +2,11 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dcq2v2avhj73c"
+uid="uid://dtkdtbm0cvjhj"
 path.s3tc="res://.godot/imported/Campfire_trident_maple_bark_rough_1k.png-abbf08f9cd1ae757cf7021457bd8a90a.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
-}
-generator_parameters={
-"md5": "79383466057b0c4d4360f00329edf00b"
 }
 
 [deps]

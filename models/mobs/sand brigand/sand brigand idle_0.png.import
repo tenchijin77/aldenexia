@@ -2,13 +2,10 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cc0dt6c07q3m6"
+uid="uid://hnncnrbmyvwj"
 path="res://.godot/imported/sand brigand idle_0.png-9ef180dd0c9a5c1f0e209a1766b0bed6.ctex"
 metadata={
 "vram_texture": false
-}
-generator_parameters={
-"md5": "467703eef9c9beec0abb5293e1e2f3be"
 }
 
 [deps]
@@ -26,7 +23,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""

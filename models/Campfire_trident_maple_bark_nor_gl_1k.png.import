@@ -2,14 +2,11 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://baf4lnmmijy0g"
+uid="uid://b31qx2xco1p2n"
 path.s3tc="res://.godot/imported/Campfire_trident_maple_bark_nor_gl_1k.png-94c219e48a38fee369e6956729c93782.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
-}
-generator_parameters={
-"md5": "67dce4197807ef744513221877d9771f"
 }
 
 [deps]
@@ -29,8 +26,8 @@ compress/normal_map=1
 compress/channel_pack=0
 mipmaps/generate=true
 mipmaps/limit=-1
-roughness/mode=1
-roughness/src_normal="res://models/Campfire_trident_maple_bark_nor_gl_1k.png"
+roughness/mode=0
+roughness/src_normal=""
 process/channel_remap/red=0
 process/channel_remap/green=1
 process/channel_remap/blue=2

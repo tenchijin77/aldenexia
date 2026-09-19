@@ -2,13 +2,10 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bjwcr11dhyfu"
+uid="uid://d0t02v1dvf3tq"
 path="res://.godot/imported/Meshy_AI_sand_brigand_v2_biped_Character_output_0.png-c4a8a21b4411f834348fc0342622bc9f.ctex"
 metadata={
 "vram_texture": false
-}
-generator_parameters={
-"md5": "467703eef9c9beec0abb5293e1e2f3be"
 }
 
 [deps]
@@ -26,7 +23,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""

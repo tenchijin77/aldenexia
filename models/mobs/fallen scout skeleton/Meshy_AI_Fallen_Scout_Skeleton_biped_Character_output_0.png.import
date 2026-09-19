@@ -2,13 +2,10 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bwmtfwjq8m54e"
+uid="uid://bvnwkk85742ok"
 path="res://.godot/imported/Meshy_AI_Fallen_Scout_Skeleton_biped_Character_output_0.png-fabc70b1381da09f04bc7db427e2ad57.ctex"
 metadata={
 "vram_texture": false
-}
-generator_parameters={
-"md5": "559c9f90d281dd4b7594783c6323240e"
 }
 
 [deps]
@@ -26,7 +23,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""

@@ -2,13 +2,10 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b5h2qb3lm5f66"
+uid="uid://s1q1jpicxsbr"
 path="res://.godot/imported/desert goblin warrior running_0.png-fed297ce83277072ed330e0452631226.ctex"
 metadata={
 "vram_texture": false
-}
-generator_parameters={
-"md5": "45f87882c7ee01dee254724f7a59e4ae"
 }
 
 [deps]
@@ -26,7 +23,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""

@@ -2,13 +2,10 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dhdbs03i0kwd8"
+uid="uid://bchpycgnw8tyy"
 path="res://.godot/imported/tormented spirit running_0.png-931fbe42c3bc4883ed121fac2ab0baa3.ctex"
 metadata={
 "vram_texture": false
-}
-generator_parameters={
-"md5": "a0a6ce360f1312fcbfa0a963d8cd315d"
 }
 
 [deps]
@@ -26,7 +23,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""

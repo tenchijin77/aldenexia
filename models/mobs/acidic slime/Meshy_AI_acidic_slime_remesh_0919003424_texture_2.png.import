@@ -2,13 +2,10 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dedtvogw735gk"
+uid="uid://bs45fr8cntp4m"
 path="res://.godot/imported/Meshy_AI_acidic_slime_remesh_0919003424_texture_2.png-d1f9fab8d48c4f91e3423c9413e6a30e.ctex"
 metadata={
 "vram_texture": false
-}
-generator_parameters={
-"md5": "35ea9ce3358f3268bb4c7a7685fabbd3"
 }
 
 [deps]
@@ -26,7 +23,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""

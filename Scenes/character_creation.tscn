@@ -350,6 +350,14 @@ layout_mode = 2
 layout_mode = 2
 theme_override_constants/separation = 12
 
+[node name="back_button" type="Button" parent="MarginContainer/VBoxContainer/bottom_row" unique_id=1628277556]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_cc_btn_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_cc_btn_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_cc_btn_pressed")
+text = "Back"
+
 [node name="name_section" type="HBoxContainer" parent="MarginContainer/VBoxContainer/bottom_row" unique_id=1316386823]
 layout_mode = 2
 size_flags_horizontal = 3

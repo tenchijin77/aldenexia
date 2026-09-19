@@ -2,13 +2,10 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c7w7tnd628kaf"
+uid="uid://bg6xiakku6fet"
 path="res://.godot/imported/Lizardkin Male Breathing Idle_0.png-e1eaa81a706960cb01df3a2689744144.ctex"
 metadata={
 "vram_texture": false
-}
-generator_parameters={
-"md5": "7b49770381346b97b552bec9b6f82521"
 }
 
 [deps]
@@ -26,7 +23,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""

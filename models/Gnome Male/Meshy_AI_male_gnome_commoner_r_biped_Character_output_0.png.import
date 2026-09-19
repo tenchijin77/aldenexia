@@ -2,13 +2,10 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cas7c1hikv7vd"
+uid="uid://b7g2khplciy2c"
 path="res://.godot/imported/Meshy_AI_male_gnome_commoner_r_biped_Character_output_0.png-515c5fe3d61e8b72d7e95ee346e74554.ctex"
 metadata={
 "vram_texture": false
-}
-generator_parameters={
-"md5": "8313b1bace1cefa93443cdfbde1cc59b"
 }
 
 [deps]
@@ -26,7 +23,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""

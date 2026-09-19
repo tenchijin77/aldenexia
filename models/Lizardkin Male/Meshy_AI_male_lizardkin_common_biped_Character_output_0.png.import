@@ -2,13 +2,10 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://drdj5yoeuh2yx"
+uid="uid://ckns6cvx0ik1q"
 path="res://.godot/imported/Meshy_AI_male_lizardkin_common_biped_Character_output_0.png-896db68cce595c7803642ec57075137e.ctex"
 metadata={
 "vram_texture": false
-}
-generator_parameters={
-"md5": "7b49770381346b97b552bec9b6f82521"
 }
 
 [deps]
@@ -26,7 +23,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""

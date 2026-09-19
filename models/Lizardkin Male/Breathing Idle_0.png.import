@@ -2,13 +2,10 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c681cvc4vj8df"
+uid="uid://bqsyb21uakho0"
 path="res://.godot/imported/Breathing Idle_0.png-acc9551722c16b0fa491009d00e983d7.ctex"
 metadata={
 "vram_texture": false
-}
-generator_parameters={
-"md5": "7b49770381346b97b552bec9b6f82521"
 }
 
 [deps]
@@ -26,7 +23,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""

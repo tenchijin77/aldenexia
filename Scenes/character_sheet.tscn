@@ -14,7 +14,7 @@ custom_minimum_size = Vector2(420, 460)
 offset_left = 300.0
 offset_top = 60.0
 offset_right = 880.0
-offset_bottom = 560.0
+offset_bottom = 600.0
 
 [node name="identity_strip" type="VBoxContainer" parent="main_panel"]
 layout_mode = 0

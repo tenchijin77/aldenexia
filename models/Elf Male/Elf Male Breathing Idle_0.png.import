@@ -2,13 +2,10 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cbirpd0ffe7pu"
+uid="uid://5fhkdl38bp7y"
 path="res://.godot/imported/Elf Male Breathing Idle_0.png-75b187a8fcd1e625e23f21f140277f75.ctex"
 metadata={
 "vram_texture": false
-}
-generator_parameters={
-"md5": "623cf6a61d236902f560251d78fe62bb"
 }
 
 [deps]
@@ -26,7 +23,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""

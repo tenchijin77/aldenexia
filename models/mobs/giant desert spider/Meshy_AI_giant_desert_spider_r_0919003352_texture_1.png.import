@@ -2,13 +2,10 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dnke3thtt4gpu"
+uid="uid://bp8hx10nu0hvl"
 path="res://.godot/imported/Meshy_AI_giant_desert_spider_r_0919003352_texture_1.png-42868551b9ecb7c9dddd380de1de60c4.ctex"
 metadata={
 "vram_texture": false
-}
-generator_parameters={
-"md5": "265c5cdcffd7c774c374850516dc6938"
 }
 
 [deps]
@@ -26,7 +23,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""

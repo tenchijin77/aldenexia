@@ -159,6 +159,16 @@ var current_character_data: Dictionary = {}
 var current_character_name: String = ""
 var character_options: Dictionary = {}
 var player_data: Dictionary = {}  # Active player data (matches current_character_data)
+
+# Set by multiplayer_menu.gd's "Create New Character" button before sending
+# the player to character_creation.tscn — the multiplayer menu is an overlay
+# added as a child of main_menu.tscn (see main_menu.gd::_on_multiplayer_pressed),
+# not its own scene, so change_scene_to_file() to character creation destroys
+# it; this flag tells main_menu.gd to reopen it (with a freshly repopulated
+# character dropdown) once the player lands back on the main menu, and tells
+# character_creation.gd's Back/Begin buttons to return there instead of
+# launching straight into a single-player game.
+var return_to_multiplayer_menu: bool = false
 #endregion
 
 #region XP System

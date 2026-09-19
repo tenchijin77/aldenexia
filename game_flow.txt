@@ -1038,6 +1038,146 @@ Scene: Scenes/player3d.tscn (contains CameraRig → CameraController + Camera3D)
     combat_node.weapon_skill to match.
   Melee hits tick the equipped weapon skill (1h_slashing, 1h_piercing, etc.).
   Successful parry/dodge/riposte also tick their respective defensive skills.
+  _tick_skill() allows ANY valid skill name (validated against
+    _valid_skill_names, loaded from player_skills.json) to start accruing
+    from 0 the first time it's actually used — a class's starting known_skills
+    list (character_options.json's class_skills) is a STARTING SET ONLY, not
+    a lock. Confirmed 2026-09-19 this was already fixed in an earlier session
+    (previously a class could only ever level skills it started with).
+
+--- Spell Classification: skill_category vs. spell_school (finalized 2026-09-19,
+    NOT YET IMPLEMENTED past skill_category — see status note at the end) ---
+  Two fields on every player_spells.json entry that look redundant but answer
+  different questions, per direct discussion this session:
+
+  skill_category — WHICH SKILL levels up when this spell is cast (see Skill
+    System above; _tick_skill(skill_category) is called on every cast,
+    player3d.gd ~line 2859). Values are drawn from player_skills.json's real
+    skill list: the 9 magic schools (abjuration, alteration, conjuration,
+    divination, enchantment, evocation, illusion, necromancy, wild_magic),
+    the 4 general magic meta-skills (spell_casting, concentration,
+    channeling, meditation — always ticked alongside via the unconditional
+    spell_casting tick), or a physical/martial skill (hand_to_hand, archery,
+    parry, taunt, block, stealth, mantis_fist, etc.) for non-magic abilities.
+    Source of truth: Data/Player Spells Classifications.xlsx (user-maintained
+    spreadsheet, ~560 of 561 spells covered — gaps are content added after
+    the spreadsheet snapshot, mainly Chaosborn's full kit and Voidknight's
+    levels 4-8). Synced 2026-09-19: 41 mismatches found and fixed (mostly
+    Troubadour's placeholder "musicianship" value replaced with real schools,
+    plus a few trap/defense mismatches). One unresolved case:
+    improved_pickpocket is shared by 3 classes (Shadowblade/Troubadour/
+    Woodstalker) with conflicting spreadsheet categories (legerdermain vs.
+    stealth) — needs a tiebreaker before it can be synced.
+
+  spell_school — WHAT DAMAGE TYPE the spell's effect actually deals, for
+    resistance purposes. Independent of skill_category: a spell can be
+    trained via one skill but deal a differently-flavored effect (example
+    discussed: Aetherfist's fire_strike trains "evocation" (skill_category)
+    via a physical strike, but deals fire damage that mobs resist as magic,
+    not via armor class — skill_category and spell_school genuinely diverge
+    here). Finalized 10-value vocabulary (expanded from a D&D 3.5/5e-inspired
+    list, refined in discussion — Psychic and Spirit deliberately kept
+    separate despite similar surface flavor, since they protect two
+    different class identities: Runecaster's mind-affecting kit (charm,
+    mesmerize, dominate_mind) is genuinely mental/Psychic, while Gravecaller/
+    Voidknight's kit (life_siphon, soul_harvest, wraith_call) is life-force/
+    death drain/Spirit — merging them would make a mindless-undead-style
+    "immune to mind effects" monster incorrectly also resist necrotic drain):
+      physical  — melee/martial delivery, STR-scaled + AC-mitigated (existing
+                  behavior, unchanged)
+      fire, cold, acid, lightning — classic elemental damage types
+      poison    — venom/toxin damage (distinct from disease)
+      disease   — plague/infection/biological corruption (distinct from poison)
+      magic     — generic/untyped magical force; the catch-all for spells
+                  that aren't specifically elemental, mental, or death-flavored
+      divine    — holy/radiant/sacred power (Lightsworn, Lightmender)
+      psychic   — mind-affecting: charm, fear, domination, mental attacks
+                  (Runecaster's core kit; Enchantment/Illusion schools)
+      spirit    — soul/life-force/necrotic/undead/death magic (Gravecaller,
+                  Voidknight; Necromancy school)
+    Rough school→spell_school starting point (Evocation/Necromancy/Alteration
+    need PER-SPELL judgment since they span multiple damage types depending
+    on the specific spell's description, not a fixed 1:1 mapping):
+      Abjuration   → magic (barriers/wards; divine if explicitly holy)
+      Alteration   → magic (shape/form change; per-spell if it deals damage)
+      Conjuration  → physical or magic (mostly about the summon, not a damage
+                     type of its own — see summon_* spells)
+      Divination   → n/a (utility, rarely deals damage; psychic if offensive)
+      Enchantment  → psychic
+      Evocation    → fire/cold/acid/lightning/magic/divine — PER-SPELL, this
+                     is the school that spans every element; read each
+                     spell's own description for its actual damage type
+      Illusion     → psychic
+      Necromancy   → spirit (primary), poison/disease (per-spell, e.g. plague
+                     spells), magic (generic drain effects)
+      Wild Magic   → magic + random elemental (Chaosborn; intentionally
+                     chaotic, no fixed mapping)
+
+  IMPLEMENTED 2026-09-19 — skill_category fix applied and verified (see
+  above). spell_school fully reclassified: 457 of 561 spells' spell_school
+  updated via a script matching keyword-detected damage type in the
+  description FIRST (so a physically-delivered attack with an elemental/
+  status effect — Aetherfist's fire_strike, Shadowblade's venom_strike —
+  correctly gets its real damage type instead of "physical"; a CURE_PATTERN
+  guard prevents false positives on spells that merely mention curing/
+  removing an ailment, e.g. Lightsworn's purify no longer misreads "poison"
+  as its damage type), then skill_category-based defaults, then class-wide
+  overrides for Lightsworn/Lightmender→divine, Gravecaller/Voidknight→
+  spirit, Runecaster→psychic (only when nothing more specific was already
+  detected). Final distribution: magic 172, physical 104, psychic 104,
+  spirit 82, divine 62, fire 12, lightning 8, poison 7, cold 6, disease 4,
+  acid 0 (no acid-flavored spell exists yet in the current level-1-20
+  content — expected to appear as more levels are added).
+
+  Resistance architecture gap found while designing the above, now fixed:
+  TWO disconnected resistance systems used to exist and didn't talk to each
+  other —
+    (1) CombatNode's derived stats (fire_resist, cold_resist, poison_resist,
+        disease_resist, arcane_resist, divine_resist, psychic_resist,
+        spirit_resist — combatnode.gd ~line 386) were computed dynamically
+        from CON/WIS/gear_ac, but ALL EIGHT used the exact same formula
+        (pure duplicates), and calculate_spell_damage() only ever read
+        arcane or divine via a crude is_arcane bool (word-list check against
+        ["arcane","fire","cold","poison","shadow","void"] — itself a
+        leftover from before skill_category's real school vocabulary
+        existed).
+    (2) The character sheet UI's "Resistances" badges (character_sheet.gd
+        ~line 686) actually DID already read live combat_node values each
+        time the sheet opens (via player3d.gd's toggle_character_sheet()
+        rebuilding the dict fresh, not a static seed as first suspected —
+        correcting that earlier assumption here), but only exposed 5 of the
+        10 finalized types with two wrong key mappings ("acid" was actually
+        reading poison_resist, "magic" was reading arcane_resist).
+  NOW: combatnode.gd has real fields for all 10 types (acid_resist added,
+  lightning_resist added, arcane_resist renamed to magic_resist — divine/
+  psychic/spirit/fire/cold/poison/disease kept their existing names).
+  calculate_spell_damage()/calculate_resist_chance() take a resist_type
+  String directly (the spell's own spell_school value) instead of an
+  is_arcane bool — power source is divine_power only for "divine", arcane_
+  power for the other 9 types. player3d.gd's _resolve_spell_cast() and
+  _compute_spell_damage() (both call sites) pass `school` straight through.
+  character_sheet.gd's resist row is now an HFlowContainer (wraps onto a
+  second line — 10 badges no longer fit one row) showing all 10 with correct
+  key mappings; toggle_character_sheet()'s "resistances" dict now maps all
+  10 combat_node.get_resistance() calls with matching key names.
+
+  Racial resistance data (Data/racial_stats.json's per-race "resistances"
+  dict — e.g. dwarf: acid+5/cold+5/magic+5/psychic-5, troll: acid+10/cold-5/
+  fire-5) existed but was NEVER READ anywhere before this pass — found while
+  building the above. Wired in: CombatNode gained race_fire_resist/
+  race_cold_resist/race_acid_resist/race_magic_resist/race_psychic_resist
+  (flat point bonuses, only 5 of 10 types have authored racial data so far),
+  applied in recalculate_derived_stats() and set per-race in player3d.gd's
+  apply_racial_modifiers() match block. Verified: Dwarf shows acid/cold/
+  magic resist at base+5 and psychic at base-5 vs. Human's unmodified
+  baseline.
+
+  Monster-side (NOT done this pass): monsters.json's existing "resistances"
+  field (e.g. skeleton: ["piercing"]) is a SEPARATE concept — physical weapon-type
+  resist tags for appraisal display, not magic damage-type resistance; needs
+  its own decision on whether/how mobs get the same 10-type magic resistance
+  CombatNode fields (mobs already get a real CombatNode via Monster._ready(),
+  so the plumbing exists, just needs monsters.json data + a display spot).
 
 --- Equipment → CombatNode sync ---
   Inventory.equipment_changed → _on_equipment_changed()

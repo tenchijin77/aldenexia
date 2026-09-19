@@ -2,13 +2,10 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://d2rcvs0ybk24k"
+uid="uid://dw5bmtvcsp0oo"
 path="res://.godot/imported/Dwarf Male Breathing Idle_0.png-076a713a99f62848c4c73d7c4a4e9127.ctex"
 metadata={
 "vram_texture": false
-}
-generator_parameters={
-"md5": "8ed52db381cecf5a710fe045f8b881be"
 }
 
 [deps]
@@ -26,7 +23,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""

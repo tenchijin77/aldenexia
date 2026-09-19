@@ -2,13 +2,10 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cborcwmybolqg"
+uid="uid://c5r0cgni1jhjw"
 path="res://.godot/imported/Troll Female Breathing Idle_0.png-3de10a0e62b6fe2e1dd5f196146488fe.ctex"
 metadata={
 "vram_texture": false
-}
-generator_parameters={
-"md5": "fdb1cd7044aeecfb800755021e575d0a"
 }
 
 [deps]
@@ -26,7 +23,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""

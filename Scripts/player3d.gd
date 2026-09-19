@@ -2329,11 +2329,16 @@ func toggle_character_sheet() -> void:
 				"max_weight":      combat_node.get_derived_stat("carry_weight"),
 				"spell_power":     combat_node.get_arcane_power() if is_caster else 0,
 				"resistances": {
-					"acid":    combat_node.get_resistance("poison"),
-					"cold":    combat_node.get_resistance("cold"),
-					"fire":    combat_node.get_resistance("fire"),
-					"magic":   combat_node.get_resistance("arcane"),
-					"psychic": combat_node.get_resistance("psychic")
+					"acid":      combat_node.get_resistance("acid"),
+					"cold":      combat_node.get_resistance("cold"),
+					"fire":      combat_node.get_resistance("fire"),
+					"lightning": combat_node.get_resistance("lightning"),
+					"poison":    combat_node.get_resistance("poison"),
+					"disease":   combat_node.get_resistance("disease"),
+					"magic":     combat_node.get_resistance("magic"),
+					"divine":    combat_node.get_resistance("divine"),
+					"psychic":   combat_node.get_resistance("psychic"),
+					"spirit":    combat_node.get_resistance("spirit"),
 				},
 				# Pass-through fields
 				"satiety":           satiety,
@@ -2528,21 +2533,33 @@ func apply_racial_modifiers(race_name: String) -> void:
 			combat_node.race_spell_damage_mult = 0.05
 			combat_node.race_immune_to_root = true
 			combat_node.race_hp_mult = -0.10
+			combat_node.race_cold_resist = 5
+			combat_node.race_magic_resist = 5
 		"dwarf":
 			combat_node.race_hp_mult = 0.15
 			combat_node.race_physical_resist = 0.05
 			combat_node.race_movement_speed_mult = -0.10
 			combat_node.race_mana_mult = -0.10
+			combat_node.race_acid_resist = 5
+			combat_node.race_cold_resist = 5
+			combat_node.race_magic_resist = 5
+			combat_node.race_psychic_resist = -5
 		"gnome":
 			combat_node.race_dodge_bonus = 10
 			combat_node.race_crit_bonus = 5
 			combat_node.race_melee_damage_mult = -0.15
+			combat_node.race_magic_resist = 10
+			combat_node.race_psychic_resist = 5
 		"halfling":
 			combat_node.race_negative_effect_resist = 0.10
 			combat_node.race_hp_mult = -0.10
 			combat_node.race_melee_damage_mult = -0.05
+			combat_node.race_magic_resist = 5
+			combat_node.race_psychic_resist = 5
 		"half_elf":
 			combat_node.race_all_stats_mult = 0.05
+			combat_node.race_magic_resist = 5
+			combat_node.race_psychic_resist = 5
 		"ogre":
 			combat_node.race_melee_damage_mult = 0.20
 			combat_node.race_hp_mult = 0.10
@@ -2550,21 +2567,35 @@ func apply_racial_modifiers(race_name: String) -> void:
 			combat_node.race_movement_speed_mult = -0.15
 			combat_node.race_dodge_bonus = -10
 			combat_node.race_mana_mult = -0.20
+			combat_node.race_acid_resist = 10
+			combat_node.race_magic_resist = -10
+			combat_node.race_psychic_resist = -5
 		"troll":
 			regen_bonus = 4  # Troll regeneration trait: +4 HP per regen tick (stacks with sitting bonus)
 			combat_node.race_crit_bonus = 10
 			combat_node.race_dodge_bonus = -10
 			combat_node.race_parry_bonus = -10
+			combat_node.race_acid_resist = 10
+			combat_node.race_cold_resist = -5
+			combat_node.race_fire_resist = -5
 		"dark_elf":
 			combat_node.race_immune_to_blind = true
+			combat_node.race_fire_resist = -5
+			combat_node.race_magic_resist = 10
+			combat_node.race_psychic_resist = 10
 		"half_orc":
 			combat_node.race_melee_damage_mult = 0.15
 			combat_node.race_hp_mult = 0.05
 			combat_node.race_mana_mult = -0.10
 			combat_node.race_spell_damage_mult = -0.05
+			combat_node.race_acid_resist = 5
+			combat_node.race_magic_resist = -5
 		"lizardkin":
 			combat_node.gear_ac += 2
 			combat_node.set_base_stat("charisma", maxi(1, combat_node.charisma - 2))
+			combat_node.race_acid_resist = 5
+			combat_node.race_cold_resist = -10
+			combat_node.race_psychic_resist = 5
 	combat_node._stats_dirty = true
 	combat_node.recalculate_derived_stats()
 #endregion
@@ -2881,7 +2912,7 @@ func cast_spell(spell_name: String, is_auto_recast: bool = false) -> bool:
 # anymore (see cast_spell() above).
 func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Node) -> void:
 	var display_name    := spell_display_name(spell_name)
-	var school: String   = spell.get("spell_school", "arcane")
+	var school: String   = spell.get("spell_school", "magic")
 	var spell_target    := spell.get("target", "enemy") as String
 	var base_damage: int = spell.get("damage", 0)
 	var effect_type_raw  = spell.get("effect_type", "")
@@ -2997,9 +3028,10 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 				final_dmg = max(1, final_dmg)
 				target_node.apply_damage(final_dmg, "physical")
 			else:
-				# Magical spells scale with arcane/divine power and are resisted
-				var is_arcane := school in ["arcane", "fire", "cold", "poison", "shadow", "void"]
-				final_dmg = combat_node.calculate_spell_damage(base_damage, is_arcane, target_cn)
+				# Magical spells scale with arcane/divine power and are
+				# resisted by the specific damage type they deal (school
+				# directly IS the resist_type — see calculate_spell_damage()).
+				final_dmg = combat_node.calculate_spell_damage(base_damage, school, target_cn)
 				target_node.apply_damage(final_dmg, "magic")
 
 			# Multiplayer: relay real damage to whoever actually owns this
@@ -3112,6 +3144,8 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 					GameLog.log_combat("[color=#8855cc]A dim violet light kindles across your weapon.[/color]")
 				"spectral_minion":
 					_summon_spectral_minion()
+				"raise_skeleton":
+					_summon_raised_skeleton()
 				"phantasmal_echo":
 					_summon_phantasmal_echo()
 				"summon_spirit_of_the_woods":
@@ -3477,8 +3511,7 @@ func _compute_spell_damage(base_damage: int, school: String, target_cn) -> int:
 		if target_cn is CombatNode:
 			dmg = combat_node.apply_ac_mitigation(dmg, target_cn)
 		return max(1, dmg)
-	var is_arcane := school in ["arcane", "fire", "cold", "poison", "shadow", "void"]
-	return combat_node.calculate_spell_damage(base_damage, is_arcane, target_cn)
+	return combat_node.calculate_spell_damage(base_damage, school, target_cn)
 
 
 # Generic, data-driven fallback for any spell whose effect_type isn't covered
@@ -3909,8 +3942,19 @@ func _enable_shadowlight() -> void:
 # need to exist yet.
 const PET_SCENES := {
 	"spectral_minion": "res://Scenes/pet_minion.tscn",
+	"raised_skeleton": "res://Scenes/pet_minion.tscn",
 	"phantasmal_echo": "res://Scenes/phantasmal_echo_pet.tscn",
 	"spirit_of_the_woods": "res://Scenes/wildspeaker_pet.tscn",
+}
+
+# Gravecaller's raise_skeleton spell is explicitly the same skeleton thrall
+# as Voidknight's spectral_minion (same scene/model/voice — see PET_SCENES
+# above), just tankier per its own spell description ("80% caster's
+# health" vs. spectral_minion's base PetMinion default of 40% — see
+# pet_minion.gd's hp_percent_of_caster). Applied in _build_pet() before
+# setup() runs, since setup() is what actually reads the percentage.
+const PET_HP_PERCENT_OVERRIDES := {
+	"raised_skeleton": 0.8,
 }
 
 # Spawns through $PetSpawner (a MultiplayerSpawner) instead of directly
@@ -3929,6 +3973,10 @@ func _summon_pet(pet_type: String, preset_name: String = "") -> void:
 
 func _summon_spectral_minion(preset_name: String = "") -> void:
 	_summon_pet("spectral_minion", preset_name)
+
+
+func _summon_raised_skeleton(preset_name: String = "") -> void:
+	_summon_pet("raised_skeleton", preset_name)
 
 
 func _summon_phantasmal_echo(preset_name: String = "") -> void:
@@ -3954,6 +4002,8 @@ func _build_pet(data: Dictionary) -> Node:
 
 	var pet: Node = load(PET_SCENES[pet_type]).instantiate()
 	pet.set_multiplayer_authority(get_multiplayer_authority())
+	if PET_HP_PERCENT_OVERRIDES.has(pet_type):
+		pet.hp_percent_of_caster = PET_HP_PERCENT_OVERRIDES[pet_type]
 	pet.setup(self, preset_name)
 	active_pet = pet
 	pet.dismissed.connect(_on_pet_gone)
@@ -3978,6 +4028,8 @@ func _build_pet(data: Dictionary) -> Node:
 		match pet_type:
 			"phantasmal_echo":
 				GameLog.log_general("[color=#aa88ff]You call forth a Phantasmal Echo — %s drifts to your side, ready to mend and strike.[/color]" % pet.pet_name)
+			"raised_skeleton":
+				GameLog.log_general("[color=#aa88ff]You tear %s from the grave to fight at your side.[/color]" % pet.pet_name)
 			_:
 				GameLog.log_general("[color=#aa88ff]You invoke Morthan's Call — %s rises to fight at your side.[/color]" % pet.pet_name)
 

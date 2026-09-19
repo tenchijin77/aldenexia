@@ -2,13 +2,10 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://diindp7q7iflu"
+uid="uid://bxc8uiiukuec0"
 path="res://.godot/imported/Human Female Breathing Idle_0.png-313f05239f9de0349ad300e55f999c9b.ctex"
 metadata={
 "vram_texture": false
-}
-generator_parameters={
-"md5": "d525541491c27abf4300b28e64ed256f"
 }
 
 [deps]
@@ -26,7 +23,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""

@@ -2,13 +2,10 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bdehw24y5x14k"
+uid="uid://cfdpuk8gfn4se"
 path="res://.godot/imported/Meshy_AI_male_half_orc_commone_biped_Character_output_0.png-4697c9bec375d4c731f583008c059ac6.ctex"
 metadata={
 "vram_texture": false
-}
-generator_parameters={
-"md5": "ef2fb8767c721190deb11de3f2e207a9"
 }
 
 [deps]
@@ -26,7 +23,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""

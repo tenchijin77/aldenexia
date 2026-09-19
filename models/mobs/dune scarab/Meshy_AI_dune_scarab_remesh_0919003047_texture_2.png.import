@@ -2,13 +2,10 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://x8nwj30lr874"
+uid="uid://5imexuhr4xq0"
 path="res://.godot/imported/Meshy_AI_dune_scarab_remesh_0919003047_texture_2.png-d31aacd9806493717bf74955cbc22051.ctex"
 metadata={
 "vram_texture": false
-}
-generator_parameters={
-"md5": "707f9dada959e5ff7f11609d862dc37a"
 }
 
 [deps]
@@ -26,7 +23,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""
