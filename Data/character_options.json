@@ -62,8 +62,8 @@
       "name": "Dwarf",
       "alignment": "good",
       "portrait": {
-        "male": "res://Assets/angry_cat.png",
-        "female": "res://Assets/angry_cat.png"
+        "male": "res://Assets/character creation/Male Dwarf.png",
+        "female": "res://Assets/character creation/Female Dwarf.png"
       },
       "description": "Stout and hardy, Dwarves hail from Aldenexia's mountains, excelling as Lightsword or Lightmenders. Their craftsmanship and devotion to honor align them closely with the Luminar Covenant.",
       "lore": "Dwarves forge weapons for the Luminar Covenant, believing the Solstice Aegis is a divine artifact.",
@@ -93,8 +93,8 @@
       "name": "Gnome",
       "alignment": "neutral",
       "portrait": {
-        "male": "res://Assets/angry_cat.png",
-        "female": "res://Assets/angry_cat.png"
+        "male": "res://Assets/character creation/Male Gnome.png",
+        "female": "res://Assets/character creation/Female Gnome.png"
       },
       "description": "Clever and inventive, Gnomes are tinkerers and scholars who thrive in creating gadgets or studying the Void's mysteries. They often align with Arcanists or Runecasters.",
       "lore": "Gnomes experiment with Void-tainted relics, drawing scrutiny from both the Luminar Covenant and The Moribund Order.",
@@ -123,12 +123,13 @@
       "name": "Halfling",
       "alignment": "good",
       "portrait": {
-        "male": "res://Assets/angry_cat.png",
-        "female": "res://Assets/angry_cat.png"
+        "male": "res://Assets/character creation/Male Halfling.png",
+        "female": "res://Assets/character creation/Female Halfling.png"
       },
       "description": "Nimble and cheerful, Halflings are agrarian folk from Lumora's outskirts, excelling as Woodstalkers or Shadowblades. Their luck and stealth make them adept at exploration.",
       "lore": "Halflings are beloved by Lumora's villagers but often avoid the larger conflicts surrounding the Solstice Aegis.",
       "traits": {
+        "ultravision": true,
         "negative_effect_resistance_chance": 0.10,
         "hide_skill_bonus": 15,
         "sneak_skill_bonus": 15,
@@ -182,8 +183,8 @@
       "name": "Ogre",
       "alignment": "evil",
       "portrait": {
-        "male": "res://Assets/angry_cat.png",
-        "female": "res://Assets/angry_cat.png"
+        "male": "res://Assets/character creation/Male Ogre.png",
+        "female": "res://Assets/character creation/Female Ogre.png"
       },
       "description": "Towering and brutal, Ogres are fearsome warriors from Aldenexia's wilds, often serving as Voidknights or Blademasters. Their strength and toughness make them formidable in combat.",
       "lore": "Ogres are often recruited by The Moribund Order for their raw power, though some seek redemption with the Luminar Covenant.",
@@ -275,8 +276,8 @@
       "name": "Half-Orc",
       "alignment": "neutral",
       "portrait": {
-        "male": "res://Assets/angry_cat.png",
-        "female": "res://Assets/angry_cat.png"
+        "male": "res://Assets/character creation/Male Half-Orc.png",
+        "female": "res://Assets/character creation/Female Half-Orc.png"
       },
       "description": "Fierce and resilient, Half-Orcs combine Orcish strength with Human adaptability, excelling as Blademasters or Aetherfist. They are often mercenaries in Aldenexia's wars.",
       "lore": "Half-Orcs roam Aldenexia as outcasts, often hired by The Moribund Order or seeking honor with the Luminar Covenant to overcome prejudice.",
@@ -307,12 +308,13 @@
   "name": "Lizardkin",
   "alignment": "evil",
   "portrait": {
-    "male": "res://Assets/angry_cat.png",
-    "female": "res://Assets/angry_cat.png"
+    "male": "res://Assets/character creation/Male Lizardkin.png",
+    "female": "res://Assets/character creation/Female Lizardkin.png"
   },
   "description": "Lizardkin are reptilian humanoids adapted to swamps and marshes. They possess natural armor, can breathe underwater, and have a powerful bite. They are formidable Aetherfists, Spiritweavers, and Gravecallers",
   "lore": "Born from the primal essence of Kaerox, they thrive in Aldenexia's swamps while maintaining deep mistrust of the Luminar Covenant.",
   "traits": {
+    "ultravision": true,
     "armor_class_bonus": 2,
     "amphibious": true,
     "unarmed_bite_damage": {

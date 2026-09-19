@@ -4,21 +4,21 @@
 [ext_resource type="PackedScene" path="res://models/Lumora Guardsman/Meshy_AI_Lumora_Guardsman_Rig_biped_Character_output.fbx" id="2_charmdl"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_guard01"]
-radius = 0.4
-height = 1.9
+radius = 0.48
+height = 2.28
 
 [node name="GuardNPC" type="CharacterBody3D" unique_id=1928338450 groups=["npc_guard"]]
 script = ExtResource("1_guard01")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1102588072]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 0)
 shape = SubResource("CapsuleShape3D_guard01")
 
 [node name="Character" parent="." unique_id=753948823 instance=ExtResource("2_charmdl")]
-transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, 0)
+transform = Transform3D(-1.2, 0, -1.0490733e-07, 0, 1.2, 0, 1.0490733e-07, 0, -1.2, 0, 0, 0)
 
 [node name="NameLabel" type="Label3D" parent="." unique_id=2050523738]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.4, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.85, 0)
 billboard = 1
 no_depth_test = true
 text = "Lumora Guard"

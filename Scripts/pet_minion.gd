@@ -135,7 +135,11 @@ func _ready() -> void:
 # for this model (no jump/sit/run — _update_animation() here never plays
 # those).
 func _setup_visual() -> void:
-	var character_scene := load("res://models/Skeleton Pet/Meshy_AI_Voidknight_Skeleton_P_biped_Character_output.fbx")
+	# Re-rigged 2026-09-18 ("Version 2" — new mesh/texture/animation set).
+	# No new death clip was provided this time, so skeleton_pet_animations.res
+	# reuses the original folder's "Skeleton Pet Standing Death Forward 01.fbx"
+	# alongside the new idle/walk/attack clips.
+	var character_scene := load("res://models/Skeleton Pet/Version 2/Meshy_AI_voidknight_skeleton_h_biped_Character_output.fbx")
 	if not character_scene:
 		return
 	var character: Node3D = character_scene.instantiate()
@@ -144,13 +148,13 @@ func _setup_visual() -> void:
 	add_child(character)
 
 	animation_player = character.get_node("AnimationPlayer")
-	var lib := load("res://models/Skeleton Pet/skeleton_pet_animations.res") as AnimationLibrary
+	var lib := load("res://models/Skeleton Pet/Version 2/skeleton_pet_animations.res") as AnimationLibrary
 	if lib and animation_player:
 		if animation_player.has_animation_library(""):
 			animation_player.remove_animation_library("")
 		animation_player.add_animation_library("", lib)
 
-	_apply_texture_override(character, "res://models/Skeleton Pet/Meshy_AI_Voidknight_Skeleton_P_biped_texture_0.png")
+	_apply_texture_override(character, "res://models/Skeleton Pet/Version 2/Meshy_AI_voidknight_skeleton_h_biped_texture_0.png")
 
 
 # Meshy-sourced FBX exports never carry their real texture through to Godot

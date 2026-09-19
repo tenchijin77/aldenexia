@@ -749,9 +749,13 @@ const CHARACTER_MODELS := {
 		"texture_override": "res://models/Human Male/Meshy_AI_fantasy_commoner_rigg_biped_texture_0.png",
 	},
 	"half_elf_female": {
-		"scene":   "res://models/Half-Elf Female/Half Elf Female Breathing Idle.fbx",
-		"library": "res://models/Half-Elf Female/half_elf_female_animations.res",
-		"texture_override": "res://models/Half-Elf Female/Meshy_AI_Female_Half_Elf_Wider_biped_texture_0.png",
+		# Re-rigged 2026-09-18 ("Version 2" — new mesh/texture/animation set,
+		# same pipeline as Human Female's Version 2 — see
+		# [[reference_character_model_pipeline]]). Measures the same 1.7m
+		# baseline every correctly-exported model does, so no scale correction.
+		"scene":   "res://models/Half-Elf Female/Version 2/Breathing Idle.fbx",
+		"library": "res://models/Half-Elf Female/Version 2/animations.res",
+		"texture_override": "res://models/Half-Elf Female/Version 2/Meshy_AI_female_half_elf_hero__biped_texture_0.png",
 	},
 	"half_elf_male": {
 		"scene":   "res://models/Half-Elf Male/Male Half Elf Breathing Idle.fbx",
@@ -774,19 +778,17 @@ const CHARACTER_MODELS := {
 		"texture_override": "res://models/Elf Male/Meshy_AI_Male_Elf_Commoner_Rig_biped_texture_0.png",
 	},
 	"elf_female": {
-		"scene":   "res://models/Elf Female/Female Elf Breathing Idle.fbx",
-		"library": "res://models/Elf Female/elf_female_animations.res",
-		"texture_override": "res://models/Elf Female/Meshy_AI_Female_Elf_Commoner_R_biped_texture_0.png",
-		# The 2026-09-16 re-rig exported this mesh at a much smaller scale than
-		# every other model. AABB-based math (both raw get_aabb() comparison
-		# against Elf Male, and a composed-transform calculation) proved
-		# unreliable for this skinned/rigged asset — skinning most likely
-		# doesn't compose through node transforms the simple way a static
-		# mesh does, so this value is interpolated from two actual in-game
-		# results instead: scale=47 measured ~1/3 of Guard Reyna's ~1.8m,
-		# scale=157 measured ~2x his height. Still an estimate — verify
-		# in-game and adjust if a future re-export changes this mesh.
-		"scale": 98.0,
+		# Re-rigged again 2026-09-18 ("Version 2") — a fresh export at the
+		# same standard 1.7m baseline every other correctly-exported model
+		# uses, confirmed via a headless AABB measurement (identical to Guard
+		# Reyna's own raw mesh height). The old 2026-09-16 mesh needed a huge
+		# "scale": 98.0 hack because THAT specific export was badly
+		# undersized; this replacement doesn't need it at all — don't carry
+		# that value forward if this model is ever re-rigged again without
+		# re-measuring first.
+		"scene":   "res://models/Elf Female/Version 2/Breathing Idle.fbx",
+		"library": "res://models/Elf Female/Version 2/animations.res",
+		"texture_override": "res://models/Elf Female/Version 2/Meshy_AI_female_elf_hero_rig_biped_texture_0.png",
 	},
 	"dark_elf_male": {
 		"scene":   "res://models/Dark Elf Male/Male Dark Elf Breathing Idle.fbx",
@@ -794,9 +796,11 @@ const CHARACTER_MODELS := {
 		"texture_override": "res://models/Dark Elf Male/Meshy_AI_Male_Dark_Elf_Commone_biped_texture_0.png",
 	},
 	"dark_elf_female": {
-		"scene":   "res://models/Dark Elf Female/Female Dark Elf Breathing Idle.fbx",
-		"library": "res://models/Dark Elf Female/dark_elf_female_animations.res",
-		"texture_override": "res://models/Dark Elf Female/Meshy_AI_Female_Dark_Elf_Commo_biped_texture_0.png",
+		# Re-rigged 2026-09-18 ("Version 2") — same standard 1.7m baseline,
+		# no scale correction needed (see elf_female's comment above).
+		"scene":   "res://models/Dark Elf Female/Version 2/Breathing Idle.fbx",
+		"library": "res://models/Dark Elf Female/Version 2/animations.res",
+		"texture_override": "res://models/Dark Elf Female/Version 2/Meshy_AI_female_dark_elf_hero__biped_texture_0.png",
 	},
 }
 const DEFAULT_CHARACTER_MODEL := {
@@ -1377,6 +1381,8 @@ func handle_movement(delta: float) -> void:
 		target_speed *= BACKWARD_SPEED_MULT
 	if not is_on_floor():
 		target_speed *= AIR_CONTROL_MULT
+	if combat_node.race_movement_speed_mult != 0.0:
+		target_speed *= (1.0 + combat_node.race_movement_speed_mult)
 
 	var forward_dir: Vector3 = -transform.basis.z.normalized()
 	var right_dir: Vector3 = transform.basis.x.normalized()
@@ -2433,13 +2439,71 @@ func load_character_data(data: Dictionary) -> void:
 	])
 
 
+# Racial bonuses/penalties from character_options.json's traits/penalties —
+# per user request (2026-09-18), this covers the "core combat stats" subset
+# only (health/mana/damage/resistance/dodge/parry/crit/movement speed/
+# all-stats/negative-effect-resist/root-and-blind immunity). Deliberately NOT
+# covered here (see [[project_racial_traits]] in memory for the full list and
+# why): skill-specific bonuses (blacksmithing, hide, tracking, etc. — a
+# dozen+ different skill names, no clean single hook), faction standing
+# offsets (a separate system), environmental/conditional traits (Dark Elf's
+# daylight regen penalty, Lizardkin's cold penalties, Troll's swamp bonus,
+# Elf's "outdoors" qualifier on movement speed — all need zone/time-of-day
+# awareness this doesn't have yet), XP-gain-rate bonuses (a leveling-system
+# hook, not combat), and Lizardkin's unarmed bite/amphibious (full abilities,
+# not passive stats).
 func apply_racial_modifiers(race_name: String) -> void:
 	match race_name.to_lower():
-		"lizardkin":
-			combat_node.gear_ac += 2
-			combat_node._stats_dirty = true
+		"human":
+			# health/mana regen bonuses ride on the SAME flat regen_bonus var
+			# Troll's trait already uses below, rather than a new field —
+			# Human's own bonus is a percentage of a per-tick amount too small
+			# to meaningfully separate from Troll's flat approach.
+			pass
+		"elf":
+			combat_node.race_mana_mult = 0.10
+			combat_node.race_spell_damage_mult = 0.05
+			combat_node.race_immune_to_root = true
+			combat_node.race_hp_mult = -0.10
+		"dwarf":
+			combat_node.race_hp_mult = 0.15
+			combat_node.race_physical_resist = 0.05
+			combat_node.race_movement_speed_mult = -0.10
+			combat_node.race_mana_mult = -0.10
+		"gnome":
+			combat_node.race_dodge_bonus = 10
+			combat_node.race_crit_bonus = 5
+			combat_node.race_melee_damage_mult = -0.15
+		"halfling":
+			combat_node.race_negative_effect_resist = 0.10
+			combat_node.race_hp_mult = -0.10
+			combat_node.race_melee_damage_mult = -0.05
+		"half_elf":
+			combat_node.race_all_stats_mult = 0.05
+		"ogre":
+			combat_node.race_melee_damage_mult = 0.20
+			combat_node.race_hp_mult = 0.10
+			combat_node.race_physical_resist = 0.05
+			combat_node.race_movement_speed_mult = -0.15
+			combat_node.race_dodge_bonus = -10
+			combat_node.race_mana_mult = -0.20
 		"troll":
 			regen_bonus = 4  # Troll regeneration trait: +4 HP per regen tick (stacks with sitting bonus)
+			combat_node.race_crit_bonus = 10
+			combat_node.race_dodge_bonus = -10
+			combat_node.race_parry_bonus = -10
+		"dark_elf":
+			combat_node.race_immune_to_blind = true
+		"half_orc":
+			combat_node.race_melee_damage_mult = 0.15
+			combat_node.race_hp_mult = 0.05
+			combat_node.race_mana_mult = -0.10
+			combat_node.race_spell_damage_mult = -0.05
+		"lizardkin":
+			combat_node.gear_ac += 2
+			combat_node.set_base_stat("charisma", maxi(1, combat_node.charisma - 2))
+	combat_node._stats_dirty = true
+	combat_node.recalculate_derived_stats()
 #endregion
 
 #region Faction
@@ -3371,6 +3435,24 @@ func _apply_generic_spell_effect(effect_type: String, spell: Dictionary, caster_
 	var duration: float = 0.0 if duration_raw is String else float(duration_raw)
 	var magnitude: int = int(spell.get("damage", 0))
 
+	# Racial resistance/immunity to harmful effects (Halfling's general
+	# negative_effect_resist chance, Elf's root immunity, Dark Elf's blind
+	# immunity) — checked against whichever entity is ON THE RECEIVING END
+	# (target_cn), before any of it actually applies. "heal"/"hot"/"buff"/
+	# "cure"/"absorb" are beneficial-or-neutral and never resistable this way.
+	const NEGATIVE_EFFECT_TYPES := ["debuff", "dot", "snare", "stun", "fear",
+		"charm", "mesmerize", "confuse", "root", "blind", "silence"]
+	if effect_type in NEGATIVE_EFFECT_TYPES:
+		if effect_type == "root" and target_cn.race_immune_to_root:
+			GameLog.log_general("[color=#88ccff]%s is immune to being rooted.[/color]" % target_desc.capitalize())
+			return false
+		if effect_type == "blind" and target_cn.race_immune_to_blind:
+			GameLog.log_general("[color=#88ccff]%s is immune to blindness.[/color]" % target_desc.capitalize())
+			return false
+		if target_cn.rolls_resist_negative_effect():
+			GameLog.log_general("[color=#88ccff]%s resists the effect![/color]" % target_desc.capitalize())
+			return false
+
 	# These messages are all target-referential ("Target is empowered.") with
 	# no "You"/"your" anywhere, so they're already safe to broadcast verbatim
 	# to other players — except when target_desc is the caster's own local
@@ -4135,7 +4217,19 @@ func toggle_pet_gear_window() -> void:
 # Tracking (T key) — granted by race (Elf, Half-Elf) or class (Woodstalker,
 # Wildspeaker, Troubadour), not something you learn/cast, so it's a plain
 # race/class check rather than a known_spells/known_skills entry.
-const TRACKING_RACES := ["Elf", "Half-Elf"]
+#
+# Real bug, found 2026-09-18 while chasing an unrelated animation-library
+# issue: player_race is saved/loaded as character_options.json's raw lowercase
+# key ("half_elf", "dark_elf", "elf" — see character_creation.gd's
+# `"player_race": selected_race`, which is never .capitalize()'d the way
+# player_class explicitly is before saving). Both this list and
+# ULTRAVISION_RACES below were written with the CAPITALIZED DISPLAY names
+# ("Elf", "Half-Elf") instead, so neither ever actually matched anything —
+# race-based tracking has silently never worked for any race, and
+# ultravision never worked for ANY race at all (not even the single-word
+# ones, since "elf" != "Elf"). Class-based tracking (TRACKING_CLASSES) was
+# unaffected since player_class genuinely is capitalized before saving.
+const TRACKING_RACES := ["elf", "half_elf"]
 const TRACKING_CLASSES := ["Woodstalker", "Wildspeaker", "Troubadour"]
 
 func has_tracking_skill() -> bool:
@@ -4147,8 +4241,9 @@ func has_tracking_skill() -> bool:
 # (everyone except Human). Kept as its own const/func here rather than
 # reading character_options.json at call time, matching TRACKING_RACES'
 # existing pattern — camera_controller.gd (the only caller) checks this every
-# time the day/night phase flips, so it needs to be cheap.
-const ULTRAVISION_RACES := ["Elf", "Half-Elf", "Dwarf", "Gnome", "Halfling", "Ogre", "Troll", "Dark Elf", "Half-Orc", "Lizardkin"]
+# time the day/night phase flips, so it needs to be cheap. See TRACKING_RACES'
+# comment above for why these are the lowercase-key form, not display names.
+const ULTRAVISION_RACES := ["elf", "half_elf", "dwarf", "gnome", "halfling", "ogre", "troll", "dark_elf", "half_orc", "lizardkin"]
 
 func has_ultravision() -> bool:
 	return player_race in ULTRAVISION_RACES

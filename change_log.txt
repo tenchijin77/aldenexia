@@ -418,6 +418,82 @@ candidates instead of guessing; a typo that matches nothing prints "Unknown comm
   makes Backstab's "from stealth" condition actually reachable for the first time —
   nothing previously ever set the `stealthed` modifier at all.
 
+### Guard height + five more Version 2 model re-rigs
+- **Guard height.** Guards measured a genuine 1.7m (same standard baseline every
+  correctly-exported model in this game uses — verified via a headless AABB
+  measurement, cross-checked against Human Male's identical raw height), visibly
+  shorter than intended. Scaled `guard_npc.tscn`'s Character node + collision capsule +
+  nameplate height by 1.2x, landing at 2.04m — "approximately 2m or a bit taller" as
+  requested. Verified the final in-world height directly rather than guessing at a
+  scale multiplier.
+- **Elf Female, Half-Elf Female, Dark Elf Female** all got a second re-rig ("Version
+  2" — new mesh/texture/animation set, same pipeline as Human Female's Version 2 from
+  earlier this session). All three measure the same standard 1.7m baseline, so the old
+  Elf Female's `"scale": 98.0` hack (needed only because THAT specific 2026-09-16 export
+  was badly undersized) is gone — don't carry it forward if this model is ever re-rigged
+  again without re-measuring first.
+- **Skeleton Pet (Voidknight's Morthan's Call)** also got a Version 2 re-rig. No new
+  death clip was provided this time, so its rebuilt animation library mixes the new
+  idle/walk/attack clips with the original folder's existing death animation.
+- **Spirit Pet is now Spiritweaver's Phantasmal Echo**, with a real animated Mixamo
+  model for the first time (previously a translucent placeholder sphere — see this
+  session's earlier pet-dialogue work). **Wildspeaker's Spirit of the Woods pet now
+  has its own real model too**, from a newly-provided `models/Wildspeaker Pet/`
+  folder — these are two SEPARATE dedicated folders for two different pets, and an
+  initial pass wired them backwards (Wildspeaker → Spirit Pet folder) before catching
+  and correcting the mix-up.
+- **Found and fixed a separate, unrelated, real bug while re-measuring these models
+  for scale correction:** `player_race` is saved/loaded as character_options.json's
+  raw lowercase key (`"half_elf"`, `"dark_elf"`, `"elf"` — `character_creation.gd`
+  never `.capitalize()`s it the way it explicitly does for `player_class`), but both
+  `TRACKING_RACES` (pre-existing) and this session's own new `ULTRAVISION_RACES` were
+  written with the capitalized display names (`"Elf"`, `"Half-Elf"`). Neither ever
+  matched anything — race-granted tracking has silently never worked for Elf/Half-Elf,
+  and ultravision never worked for ANY race at all. Both lists now use the correct
+  lowercase-key form.
+
+### Lumora Outskirts background music
+- `global_background_music.gd` only ever supported one shared menu-screen music loop,
+  hard-stopping for every other scene (including live zones). Generalized it to a
+  `SCENE_MUSIC` dict keyed by scene path — Lumora Outskirts now plays "Sands of
+  Lumora.ogg" (new asset) while the menu scenes keep using the original `.tscn`-assigned
+  stream. Adding another zone's ambient track going forward is a one-line dict entry,
+  no script changes.
+
+### Character creation — the last 5 races have real portraits
+- Dwarf, Gnome, Halfling, Ogre, Half-Orc, and Lizardkin were all still showing
+  `angry_cat.png` (a placeholder) for both sexes in the character creation screen.
+  New portrait art dropped into `Assets/character creation/` for all 6 races — wired
+  up in `character_options.json`, verified every one of all 22 race/sex portraits in
+  the game now loads as a real texture (no more placeholders anywhere).
+
+### Racial traits now actually do something (core combat stats)
+- Every race's `traits`/`penalties` in `character_options.json` were pure flavor text —
+  only Lizardkin's AC bonus and Troll's flat regen bonus ever did anything mechanically.
+  Added a parallel `race_*` field family to `combatnode.gd` (mirroring the existing
+  `class_*` bonus pattern exactly: `race_hp_mult`, `race_mana_mult`,
+  `race_melee_damage_mult`, `race_spell_damage_mult`, `race_physical_resist`,
+  `race_dodge_bonus`, `race_parry_bonus`, `race_crit_bonus`,
+  `race_movement_speed_mult`, `race_all_stats_mult`, `race_negative_effect_resist`,
+  `race_immune_to_root`, `race_immune_to_blind`) and wired all 11 races' `apply_racial_modifiers()`
+  entries in `player3d.gd` to set them: Dwarf (+15% HP, +5% physical resist, -10%
+  move speed, -10% mana), Elf (+10% mana, +5% spell damage, root immunity, -10% HP),
+  Gnome (+10 dodge, +5 crit, -15% melee damage), Halfling (10% negative-effect resist,
+  -10% HP, -5% melee damage), Half-Elf (+5% all stats), Ogre (+20% melee damage, +10%
+  HP, +5% physical resist, -15% move speed, -10 dodge, -20% mana), Troll (+10 crit,
+  -10 dodge, -10 parry, keeps its existing flat regen bonus), Dark Elf (blind
+  immunity), Half-Orc (+15% melee damage, +5% HP, -10% mana, -5% spell damage),
+  Lizardkin (existing AC bonus, plus -2 charisma).
+- Scoped to "core combat stats" only, per discussion — explicitly NOT covered this
+  pass: skill-specific bonuses (blacksmithing, hide, tracking, and a dozen+ other named
+  skills — no single clean hook), faction standing offsets (a separate system),
+  environmental/conditional traits (Dark Elf's daylight regen penalty, Lizardkin's cold
+  penalties, Troll's swamp bonus, Elf's "outdoors"-only movement bonus — all need
+  zone/time-of-day awareness that doesn't exist yet), XP-gain-rate bonuses (a leveling
+  hook, not combat), and Lizardkin's unarmed bite/amphibious (full abilities, not
+  passive stats). See `project_racial_traits` in Claude's memory for the complete
+  breakdown of what's done vs. deferred.
+
 ---
 
 ## 2026-09-17 — Session 45: Generic spell-effect engine, 7 more classes brought to parity, tradeskills (cooking/alchemy), Wildspeaker pet, fear/charm mechanics, multiplayer CC/heal relay, UI theme + resize pass, 5 new mob models, network widget

@@ -67,74 +67,38 @@ func _pick_random_name() -> String:
 	return "Echo of %s" % picked if picked != "Skeleton Warrior" else "Phantasmal Echo"
 
 
-# "Spirit Pet" model (added 2026-09-16, models/Spirit Pet/) — a Meshy
-# image-to-3D asset: a single static mesh, no rig/skeleton/animations (unlike
-# the Mixamo-based humanoid pipeline every other model here uses), so
-# animation_player stays null and _update_animation()/_play_attack_animation()
-# (inherited from pet_minion.gd) are harmless no-ops, same as the Skeleton
-# Pet's missing jump/sit/run states.
-const SPIRIT_PET_BASE := "res://models/Spirit Pet/Meshy_AI_Spirit_Elder_Companio_0916232413_image-to-3d-texture"
-
+# Real Mixamo-rigged model as of 2026-09-18 ("Version 2" — replaces the
+# original static-mesh placeholder described in this file's header comment;
+# models/Spirit Pet/ is this pet's own dedicated folder, distinct from
+# models/Wildspeaker Pet/ which wildspeaker_pet.gd uses). Same pipeline as
+# every humanoid character/pet model in this codebase — see
+# [[reference_character_model_pipeline]]. Measures the same standard 1.7m
+# baseline every correctly-exported model does, no scale correction needed.
 func _setup_visual() -> void:
-	var character_scene := load(SPIRIT_PET_BASE + ".fbx")
+	var character_scene := load("res://models/Spirit Pet/Version 2/Warrior Idle.fbx")
 	if not character_scene:
 		return
 	var character: Node3D = character_scene.instantiate()
 	character.name = "Character"
-	# This asset's own Mesh_0 node already bakes in a correct Meshy/Blender
-	# axis-conversion (Y really is its tall axis, confirmed via get_aabb() —
-	# a first attempt here mistakenly concluded otherwise and added a bogus
-	# -90°-about-X correction, which took a correctly-oriented model and
-	# knocked it onto its side instead). The two real problems were: it faces
-	# backward (same 180°-yaw fix every other Meshy model in this codebase
-	# needs — see pet_minion.gd's skeleton) and its pivot sits at the mesh's
-	# vertical center instead of its base, sinking half of it into the ground.
-	character.transform = Transform3D(Basis(Vector3.UP, PI), Vector3(0, 0.95, 0))
+	character.transform = Transform3D.IDENTITY.rotated(Vector3.UP, PI)
 	add_child(character)
 
-	_apply_spirit_pet_material(character)
+	animation_player = character.get_node_or_null("AnimationPlayer")
+	var lib := load("res://models/Spirit Pet/Version 2/spirit_pet_animations.res") as AnimationLibrary
+	if lib and animation_player:
+		if animation_player.has_animation_library(""):
+			animation_player.remove_animation_library("")
+		animation_player.add_animation_library("", lib)
+
+	_apply_texture_override(character, "res://models/Spirit Pet/Version 2/Meshy_AI_spirit_elder_rig_biped_texture_0.png")
 
 	var glow := OmniLight3D.new()
 	glow.light_color = Color(0.6, 0.5, 1.0)
-	glow.light_energy = 0.6
-	glow.omni_range = 3.0
-	glow.position = Vector3(0, 1.1, 0)
+	glow.light_energy = 0.4
+	glow.omni_range = 2.5
+	glow.position = Vector3(0, 1.0, 0)
 	add_child(glow)
 
-
-# Same texture-never-survives-FBX-export bug as every other Meshy model here
-# (see reference_character_model_pipeline memory) — applied as a runtime
-# material override instead of trusting the FBX's own material. This asset
-# ships real normal/roughness/metallic maps too (unlike the Skeleton Pet's
-# plain albedo-only override), so it uses all of them for a proper PBR look.
-func _apply_spirit_pet_material(node: Node) -> void:
-	var albedo := load(SPIRIT_PET_BASE + ".png") as Texture2D
-	if not albedo:
-		push_warning("⚠️ Phantasmal Echo texture override not found: %s.png" % SPIRIT_PET_BASE)
-		return
-	var mat := StandardMaterial3D.new()
-	mat.albedo_texture = albedo
-
-	var normal := load(SPIRIT_PET_BASE + "_normal.png") as Texture2D
-	if normal:
-		mat.normal_enabled = true
-		mat.normal_texture = normal
-
-	var roughness := load(SPIRIT_PET_BASE + "_roughness.png") as Texture2D
-	if roughness:
-		mat.roughness_texture = roughness
-
-	var metallic := load(SPIRIT_PET_BASE + "_metallic.png") as Texture2D
-	if metallic:
-		mat.metallic_texture = metallic
-		mat.metallic = 1.0  # metallic_texture modulates this scalar — 1.0 lets the map through unscaled
-
-	_apply_material_recursive(node, mat)
-
-
-# No skeleton_pet-style attack/walk animations on the placeholder visual, so
-# base's _update_animation()/_play_attack_animation() are harmless no-ops
-# (both bail out immediately when animation_player is null).
 
 func _load_skeleton_stats() -> Dictionary:
 	# Squishier and less physically threatening than the melee skeleton pet —

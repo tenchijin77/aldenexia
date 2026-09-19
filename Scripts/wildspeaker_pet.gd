@@ -64,32 +64,38 @@ func _pick_random_name() -> String:
 	return "Spirit of %s" % picked if picked != "Skeleton Warrior" else "Spirit of the Woods"
 
 
-# Simple translucent glow (a soft green sphere) instead of a real character
-# mesh — matches how Phantasmal Echo originally looked before it got a real
-# model (see phantasmal_echo_pet.gd's own doc comment).
+# Real Mixamo-rigged model as of 2026-09-18 — replaces the translucent-sphere
+# placeholder described above (kept working exactly the same way up to this
+# point: no real Meshy/Mixamo model existed yet). models/Wildspeaker Pet/ is
+# this pet's own dedicated folder, distinct from models/Spirit Pet/ which
+# phantasmal_echo_pet.gd (Spiritweaver's pet) uses. Same pipeline as every
+# humanoid character/pet model in this codebase — see
+# [[reference_character_model_pipeline]]. Measures the same standard 1.7m
+# baseline every correctly-exported model does, no scale correction needed.
+# Keeps the soft green glow light for continuity with the old placeholder's
+# "nature spirit" read, now as an accent rather than the entire visual.
 func _setup_visual() -> void:
-	var body := MeshInstance3D.new()
-	body.name = "Character"
-	var sphere := SphereMesh.new()
-	sphere.radius = 0.4
-	sphere.height = 0.8
-	body.mesh = sphere
-	body.position = Vector3(0, 1.0, 0)
+	var character_scene := load("res://models/Wildspeaker Pet/Offensive Idle.fbx")
+	if not character_scene:
+		return
+	var character: Node3D = character_scene.instantiate()
+	character.name = "Character"
+	character.transform = Transform3D.IDENTITY.rotated(Vector3.UP, PI)
+	add_child(character)
 
-	var mat := StandardMaterial3D.new()
-	mat.albedo_color = Color(0.4, 0.9, 0.4, 0.55)
-	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	mat.emission_enabled = true
-	mat.emission = Color(0.4, 0.9, 0.4)
-	mat.emission_energy_multiplier = 1.5
-	body.material_override = mat
-	add_child(body)
+	animation_player = character.get_node_or_null("AnimationPlayer")
+	var lib := load("res://models/Wildspeaker Pet/wildspeaker_pet_animations.res") as AnimationLibrary
+	if lib and animation_player:
+		if animation_player.has_animation_library(""):
+			animation_player.remove_animation_library("")
+		animation_player.add_animation_library("", lib)
+
+	_apply_texture_override(character, "res://models/Wildspeaker Pet/Meshy_AI_wildspeaker_spirit_ri_biped_texture_0.png")
 
 	var glow := OmniLight3D.new()
 	glow.light_color = Color(0.5, 1.0, 0.5)
-	glow.light_energy = 0.6
-	glow.omni_range = 3.0
+	glow.light_energy = 0.4
+	glow.omni_range = 2.5
 	glow.position = Vector3(0, 1.0, 0)
 	add_child(glow)
 

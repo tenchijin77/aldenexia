@@ -86,6 +86,31 @@ var class_riposte_base: int = 0
 var class_concentration_base: int = 0
 
 # ================================================================================
+# ⭐ RACIAL BONUSES (set by player3d.gd's apply_racial_modifiers(); character_options.json
+# is the source of truth for the numbers — this is the "core combat stats" subset only.
+# Skill-specific bonuses, faction standing offsets, and environmental/conditional traits
+# (daylight, cold, swamp, "outdoors") aren't wired up yet — see
+# [[project_racial_traits]] in Claude's memory for the full list and what's deferred.
+# ================================================================================
+
+var race_hp_mult: float = 0.0             # Percentage (0.1 = +10% max HP)
+var race_mana_mult: float = 0.0
+var race_melee_damage_mult: float = 0.0
+var race_spell_damage_mult: float = 0.0
+var race_physical_resist: float = 0.0     # Flat percentage reduction on incoming physical damage
+var race_dodge_bonus: int = 0             # Flat points added to dodge_chance
+var race_parry_bonus: int = 0
+var race_crit_bonus: int = 0
+var race_movement_speed_mult: float = 0.0 # Applied directly in player3d.gd's handle_movement()
+var race_all_stats_mult: float = 0.0      # Applied to effective base stats in recalculate_derived_stats()
+var race_negative_effect_resist: float = 0.0  # Chance [0-1] to shrug off an incoming debuff/CC entirely
+var race_immune_to_root: bool = false
+var race_immune_to_blind: bool = false
+
+func rolls_resist_negative_effect() -> bool:
+	return race_negative_effect_resist > 0.0 and randf() < race_negative_effect_resist
+
+# ================================================================================
 # ⭐ SPELL CASTING
 # ================================================================================
 
@@ -281,33 +306,45 @@ func recalculate_derived_stats():
 
 	_cached_stats.clear()
 
+	# Effective base stats — race_all_stats_mult (e.g. Half-Elf's +5%) scales
+	# every base stat's CONTRIBUTION to derived stats below, without mutating
+	# the stored base stat itself (keeps saved character data clean).
+	var str_eff: float  = strength     * (1.0 + race_all_stats_mult)
+	var con_eff: float  = constitution * (1.0 + race_all_stats_mult)
+	var dex_eff: float  = dexterity    * (1.0 + race_all_stats_mult)
+	var int_eff: float  = intelligence * (1.0 + race_all_stats_mult)
+	var wis_eff: float  = wisdom       * (1.0 + race_all_stats_mult)
+	var luck_eff: float = luck         * (1.0 + race_all_stats_mult)
+
 	# Health (HP)
 	var base_hp = 50  # Base for level 1
-	var con_bonus = constitution * 10
+	var con_bonus = int(con_eff * 10)
 	var hp_from_class = int(base_hp * class_hp_bonus) if class_hp_bonus > 0 else 0
-	max_hp = base_hp + con_bonus + hp_from_class + gear_hp
+	var hp_from_race = int(base_hp * race_hp_mult)
+	max_hp = base_hp + con_bonus + hp_from_class + hp_from_race + gear_hp
 	current_hp = min(current_hp, max_hp)
 	_cached_stats["max_hp"] = max_hp
 
 	# Mana (MP)
 	var base_mana = 30  # Base for level 1
-	var int_wis_bonus = (intelligence + wisdom) * 5
+	var int_wis_bonus = int((int_eff + wis_eff) * 5)
 	var mana_from_class = int(base_mana * class_mana_bonus) if class_mana_bonus > 0 else 0
-	max_mana = base_mana + int_wis_bonus + mana_from_class + gear_mana
+	var mana_from_race = int(base_mana * race_mana_mult)
+	max_mana = base_mana + int_wis_bonus + mana_from_class + mana_from_race + gear_mana
 	current_mana = min(current_mana, max_mana)
 	_cached_stats["max_mana"] = max_mana
 
 	# Stamina
-	max_stamina = 100 + (constitution * 5)
+	max_stamina = 100 + int(con_eff * 5)
 	current_stamina = min(current_stamina, max_stamina)
 	_cached_stats["max_stamina"] = max_stamina
 
 	# Attack Rating (ATK)
-	var atk = (weapon_skill * 2) + strength + int(dexterity / 2.0) + gear_atk
+	var atk = (weapon_skill * 2) + int(str_eff) + int(dex_eff / 2.0) + gear_atk
 	_cached_stats["attack_rating"] = atk
 
 	# Armor Class (AC)
-	var ac = 10 + gear_ac + int(dexterity / 2.0) + class_ac_bonus
+	var ac = 10 + gear_ac + int(dex_eff / 2.0) + class_ac_bonus
 	if has_shield and shield_bonus_map.has(shield_type):
 		ac += shield_bonus_map[shield_type]
 	_cached_stats["armor_class"] = ac
@@ -315,38 +352,38 @@ func recalculate_derived_stats():
 	# Crit Chance
 	var base_crit = 5
 	var class_crit_bonus = _get_class_crit_bonus()
-	var crit_chance = base_crit + int((dexterity + luck) / 2.0) + class_crit_bonus + gear_crit
+	var crit_chance = base_crit + int((dex_eff + luck_eff) / 2.0) + class_crit_bonus + gear_crit + race_crit_bonus
 	crit_chance = clamp(crit_chance, 0, 60)  # Hard cap at 60%
 	_cached_stats["crit_chance"] = crit_chance
 
 	# Crit Damage
-	var crit_damage = 150 + int(luck * 0.5) + gear_crit_damage
+	var crit_damage = 150 + int(luck_eff * 0.5) + gear_crit_damage
 	_cached_stats["crit_damage"] = crit_damage
 
 	# Riposte Chance
-	var riposte = class_riposte_base + int(dexterity * 0.2) + int(weapon_skill * 0.1) + gear_riposte
+	var riposte = class_riposte_base + int(dex_eff * 0.2) + int(weapon_skill * 0.1) + gear_riposte
 	riposte = clamp(riposte, 0, 100)
 	_cached_stats["riposte_chance"] = riposte
 
 	# Dodge Chance
-	var dodge = class_dodge_base + int(dexterity * 0.5)
+	var dodge = class_dodge_base + int(dex_eff * 0.5) + race_dodge_bonus
 	dodge = clamp(dodge, 0, 50)  # Soft cap at 50%
 	_cached_stats["dodge_chance"] = dodge
 
 	# Parry Chance
-	var parry = class_parry_base + int(dexterity * 0.3) + int(weapon_skill * 0.1)
+	var parry = class_parry_base + int(dex_eff * 0.3) + int(weapon_skill * 0.1) + race_parry_bonus
 	parry = clamp(parry, 0, 50)  # Soft cap at 50%
 	_cached_stats["parry_chance"] = parry
 
 	# Block Chance
 	var block = 0
 	if has_shield and shield_bonus_map.has(shield_type):
-		block = shield_bonus_map[shield_type] + int(dexterity * 0.2)
+		block = shield_bonus_map[shield_type] + int(dex_eff * 0.2)
 	block = clamp(block, 0, 50)  # Soft cap at 50%
 	_cached_stats["block_chance"] = block
 
 	# Resistances (all types)
-	var base_resist = int(constitution / 2.0) + int(wisdom / 2.0)
+	var base_resist = int(con_eff / 2.0) + int(wis_eff / 2.0)
 	_cached_stats["fire_resist"] = clamp(base_resist + gear_ac, 0, 200)
 	_cached_stats["cold_resist"] = clamp(base_resist + gear_ac, 0, 200)
 	_cached_stats["poison_resist"] = clamp(base_resist + gear_ac, 0, 200)
@@ -354,35 +391,35 @@ func recalculate_derived_stats():
 	_cached_stats["arcane_resist"] = clamp(base_resist + gear_ac, 0, 200)
 	_cached_stats["divine_resist"] = clamp(base_resist + gear_ac, 0, 200)
 	_cached_stats["psychic_resist"] = clamp(base_resist + gear_ac, 0, 200)
-	_cached_stats["spirit_resist"] = clamp(int((constitution + wisdom) / 2.0) + gear_spirit_resist, 0, 200)
+	_cached_stats["spirit_resist"] = clamp(int((con_eff + wis_eff) / 2.0) + gear_spirit_resist, 0, 200)
 
 	# Health Regeneration (per 6-second tick). Sitting multiplier applied in player3d.
-	var hp_regen = 2 + int(constitution / 3.0)
+	var hp_regen = 2 + int(con_eff / 3.0)
 	_cached_stats["hp_regen"] = hp_regen
 
 	# Mana Regeneration (per 6-second tick). Sitting multiplier applied in player3d.
-	var mana_regen = 2 + int(wisdom / 3.0)
+	var mana_regen = 2 + int(wis_eff / 3.0)
 	_cached_stats["mana_regen"] = mana_regen
 
 	# Stamina Regeneration (per second)
-	var stamina_regen = 10 + int(constitution / 5.0)
+	var stamina_regen = 10 + int(con_eff / 5.0)
 	_cached_stats["stamina_regen"] = stamina_regen
 
 	# Spell Power (Arcane)
-	var arcane_power = (intelligence * 2) + gear_spell_power
+	var arcane_power = int(int_eff * 2) + gear_spell_power
 	_cached_stats["arcane_power"] = arcane_power
 
 	# Spell Power (Divine/Nature)
-	var divine_power = (wisdom * 2) + gear_healing_power
+	var divine_power = int(wis_eff * 2) + gear_healing_power
 	_cached_stats["divine_power"] = divine_power
 
 	# Concentration
-	var concentration = class_concentration_base + int(wisdom / 2.0) + int(intelligence / 4.0) + gear_concentration
+	var concentration = class_concentration_base + int(wis_eff / 2.0) + int(int_eff / 4.0) + gear_concentration
 	concentration = clamp(concentration, 0, 95)  # Hard cap at 95%
 	_cached_stats["concentration"] = concentration
 
 	# Carry Weight
-	var carry_weight = 100 + (strength * 2)
+	var carry_weight = 100 + int(str_eff * 2)
 	_cached_stats["carry_weight"] = carry_weight
 
 	_stats_dirty = false
@@ -565,6 +602,10 @@ func calculate_melee_damage(target: CombatNode = null, is_crit: bool = false) ->
 	if is_two_handed:
 		raw_damage = int(raw_damage * 1.15)  # +15%
 
+	# Racial melee damage bonus/penalty (e.g. Ogre +20%, Gnome -15%)
+	if race_melee_damage_mult != 0.0:
+		raw_damage = int(raw_damage * (1.0 + race_melee_damage_mult))
+
 	# Apply crit
 	if is_crit:
 		var crit_dmg_mult = 1.0 + (get_crit_damage() / 100.0)
@@ -589,6 +630,10 @@ func apply_ac_mitigation(raw_damage: int, target: CombatNode) -> int:
 	var target_ac = target.get_ac()
 	var damage_reduction = target_ac / float(target_ac + 100 + (target.level * 10))
 	var final_damage = int(raw_damage * (1.0 - damage_reduction))
+	# Racial physical damage resistance (e.g. Dwarf/Ogre +5%) — a flat extra
+	# reduction on top of AC mitigation, not folded into the AC formula itself.
+	if target.race_physical_resist > 0.0:
+		final_damage = int(final_damage * (1.0 - target.race_physical_resist))
 	return max(1, final_damage)
 
 func calculate_spell_damage(base_spell_damage: int, is_arcane: bool = true, target: CombatNode = null, is_crit: bool = false) -> int:
@@ -612,6 +657,10 @@ func calculate_spell_damage(base_spell_damage: int, is_arcane: bool = true, targ
 		damage = int(damage * (1.0 - (target_resist / 100.0)))
 
 	damage = int(damage * (1.0 + get_modifier("damage_mult")))
+
+	# Racial spell damage bonus/penalty (e.g. Elf +5%, Half-Orc -5%)
+	if race_spell_damage_mult != 0.0:
+		damage = int(damage * (1.0 + race_spell_damage_mult))
 
 	return max(1, damage)
 
