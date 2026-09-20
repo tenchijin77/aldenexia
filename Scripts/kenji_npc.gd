@@ -1,8 +1,8 @@
 # kenji_npc.gd — Kenji, the cat by the town gate. Cats don't speak, so there is
 # no dialogue or quest log: other NPCs mention him (see the guards' "hail"
 # lines in Data/guard_flavor_text.json), hailing him gets an emote, and the
-# "quest" is just EverQuest-style — right-click him, drag rat tails into the
-# Give window (give_window.gd), press Give. He remembers partial hand-ins PER
+# "quest" is just EverQuest-style — drag a rat tail from your backpack and drop it ON him
+# (or right-click him and drag it into the Give window, give_window.gd), press Give. He remembers partial hand-ins PER
 # CHARACTER (a save-file key, so it survives logging out): give him 3 now and 7
 # later and it completes at 10 total, then resets so it can be done again.
 #
@@ -121,6 +121,16 @@ func open_interaction(player: Node) -> void:
 	win.name = "GiveWindow"
 	get_tree().root.add_child(win)
 	win.setup(self, player)
+
+
+# An inventory item was dragged out of the backpack and released ON Kenji in the world (EverQuest-style; see
+# player3d.gd's try_offer_item_to_npc_at()). Opens the Give window with that item already offered; the player
+# still presses Give, like the trade window in EQ. Too far away -> open_interaction() says so and nothing opens.
+func receive_item_drop(item: Dictionary, player: Node) -> void:
+	open_interaction(player)
+	var win := get_tree().root.get_node_or_null("GiveWindow")
+	if win and win.has_method("offer_item"):
+		win.offer_item(item)
 
 
 # /pet — see player3d.gd's try_pet_nearby().

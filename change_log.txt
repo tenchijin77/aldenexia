@@ -1199,6 +1199,43 @@ The LAN host/join flow is untouched apart from a handshake tweak (below). Versio
   busy"), verifies the sha256, checks the certificate match. Tested against stand-in ssh/scp.
 - `Data/servers.json` now lists `test` (internal IP) and `test-public` (vpn.nctlv.org) as two entries; the second reads "offline" until the port forward exists.
 
+### Kenji turn-in / click targeting fix (2026-09-20, after the first real-server session)
+- Report: couldn't hand a rat tail to Kenji. The hand-in is right-click Kenji -> drag the tail into the Give window -> Give (not a drag onto the cat).
+  The hand-in itself works everywhere (verified single player AND on the dedicated server: window opens, drop + Give consume the tails, the count is saved
+  in the character, and a brand-new session still remembers it: given=5 on the server's save).
+- Root cause of the right-click failing: `player3d.gd::_raycast_world_hit` reports only the FIRST physics hit. Simulating clicks on Kenji from 3 distances x 4
+  directions (headless, real zone): his hitbox is fine (capsule matches the model) and 3 of 4 sides hit him 100%, but from the +Z side every click hit the level's own
+  wall/gate collision instead (0/49 at every distance), and from another side the player's own pet body took 21/49 clicks. Overall 68% of body clicks reached him.
+- Fix: `_vendor_near_mouse()` — when the ray hits something that isn't an NPC (wall, pet, creature, ground), pick the nearest VendorNPC whose body centre is within 55 px
+  of the cursor and 12 m of the player. Used by right-click (shop/Give window) and left-click targeting. Result: 588/588 body clicks reach him, and clicks 160+ px away
+  don't select him. Clicks that hit a real target (monster, guard, ally) are untouched; corpse looting is proximity based and unaffected.
+- CLIENT-ONLY change: needs a client rebuild. A new commit changes the build stamp, so a stamped client and the deployed server (098e0d7) won't match until the server is
+  re-exported/deployed from the same commit (the editor build, unstamped, connects to any server on the same version).
+
+### EverQuest-style hand-in, draggable Give window, log noise (2026-09-20)
+- Report: the user tried to left-click DRAG a rat tail from their bags straight onto Kenji (like EverQuest) — that never did anything (Godot only delivers drops to UI
+  controls). Now it works: `slot_button.gd` notices a drag from a bag/basic slot that ended over the world (no UI accepted it, cursor not over a window), and asks
+  `player3d.gd::try_offer_item_to_npc_at()` which finds the NPC under the cursor (same forgiving pick as right-click) and calls its `receive_item_drop()`. Kenji opens the Give
+  window with the item ALREADY in the slot (`GiveWindow.offer_item()`); the player still presses Give. Too far (> 6 m) -> the usual "too far away" message. Right-click -> Give
+  window still works. Verified with real pushed mouse events (press on a slot, drag, release): slot captured the item, drag-end handler ran, Give window opened with the
+  tail offered, Give consumed the tails; releasing on empty ground or from 10 m away opens nothing.
+- The Give window is now draggable like the other windows (press anywhere on its panel and drag; position saved per character under "give_window" via WindowPosition). Verified:
+  moved by exactly the dragged amount, saved, and re-opens where it was left.
+- Server log flood: "WARNING: Exponent too high (built_in_strtod)" was Godot's warning for the `1e99999` "infinite" durations of permanent buffs, printed once per buff on every
+  save-upload validation and login. The server now validates a copy with `1e99999` swapped for `1e308` (the stored text is unchanged). Client-side loads of a save with permanent
+  buffs still print it in the editor console (harmless; the value must stay infinite there).
+- New server log line `[server] Long frame: N s (players)` for any server frame over 0.5 s — stalls long enough make every client time out and the server look "offline"
+  for a moment, and this is how we would see it (relevant on a shared VM).
+
+### Server sizing (measured 2026-09-20, exported stripped server, headless clients that fight/teleport/save/open windows)
+- 1 client for 270 s: no disconnect, no server stalls (0 "Long frame"), ~150-205 KB/s streamed to the client, RTT 12 ms, packet loss < 0.1%.
+- 6 simultaneous clients for 120 s: all stayed connected, 0 stalls, 0 script errors. Server CPU 0.56 of ONE core (it is essentially single-threaded), RSS 126 MB, 20 threads,
+  ~225 KB/s per player (about 1.35 MB/s = ~11 Mbit/s total upload for 6 players; scales with the number of monsters alive).
+- Recommended VM for 6 players: 2 dedicated vCPUs (NOT oversubscribed — a few seconds of CPU steal stalls the loop and clients time out), 1-2 GB RAM, ~1 GB disk, Linux glibc >= 2.28,
+  no GPU/X libs, and ~15 Mbit/s of upload if players come in over the internet (LAN is no issue).
+- Observation to look at later: the number of monsters in the zone grew from ~25 at start to ~70 during active fighting (spawner respawns + corpses that linger), and
+  replication bandwidth grows with it.
+
 ### Not built yet
 - Nothing on the original server list. Possible later: per-server certificates in servers.json, an in-game admin/console command channel,
   server-side damage re-verification, loot rolled server-side (see "Still-open netcode gaps").

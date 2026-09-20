@@ -435,9 +435,36 @@ func _apply_weapon_poison(equip_slot: String) -> void:
 	GameLog.log_general("[color=#88ffaa]You coat %s with poison (+%d damage).[/color]" % [weapon.get("name", "your weapon"), bonus])
 
 
+# What was picked up by the drag in progress (item_data itself can be refreshed before the drag ends).
+var _dragged_item: Dictionary = {}
+
+
+# Dropping an item on an NPC in the 3D world (EverQuest-style: drag a rat tail onto Kenji). Godot only delivers drops
+# to Controls, so when a drag from a bag slot ends with no UI accepting it AND the cursor is over the world (not
+# over another window), the item is offered to whatever NPC is under the cursor.
+func _notification(what: int) -> void:
+	if what != NOTIFICATION_DRAG_END or _dragged_item.is_empty():
+		return
+	var item := _dragged_item
+	_dragged_item = {}
+	if slot_type != "basic" and slot_type != "bag":
+		return
+	var vp := get_viewport()
+	if vp == null or vp.gui_is_drag_successful() or vp.gui_get_hovered_control() != null:
+		return
+	_offer_item_to_world(item, vp.get_mouse_position())
+
+
+func _offer_item_to_world(item: Dictionary, screen_pos: Vector2) -> void:
+	var player := TargetFrame.local_player()
+	if is_instance_valid(player) and player.has_method("try_offer_item_to_npc_at"):
+		player.try_offer_item_to_npc_at(screen_pos, item)
+
+
 func _get_drag_data(at_position: Vector2) -> Variant:
 	if item_data.is_empty():
 		return null
+	_dragged_item = item_data.duplicate(true)
 	var payload := {
 		"item_data": item_data,
 		"slot_type": slot_type,

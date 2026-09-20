@@ -7,7 +7,10 @@ extends CanvasLayer
 class_name GiveWindow
 
 const CLOSE_DISTANCE := 8.0
+const POSITION_KEY := "give_window"  # WindowPosition key (saved in the character, like the other windows)
 
+var _panel: Panel
+var _dragging := false
 var _npc: Node3D = null
 var _player: Node3D = null
 var _offered_id := ""
@@ -40,6 +43,10 @@ func setup(npc: Node3D, player: Node3D) -> void:
 	bg.set_corner_radius_all(4)
 	panel.add_theme_stylebox_override("panel", bg)
 	add_child(panel)
+	# Draggable like the other windows: press anywhere on the panel background and drag; the spot is remembered.
+	_panel = panel
+	panel.gui_input.connect(_on_panel_gui_input)
+	WindowPosition.load_position_into(POSITION_KEY, panel)
 
 	var vbox := VBoxContainer.new()
 	vbox.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT, Control.PRESET_MODE_MINSIZE, 12)
@@ -120,6 +127,21 @@ func setup(npc: Node3D, player: Node3D) -> void:
 	buttons.add_child(close_btn)
 
 
+func _on_panel_gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+		if event.pressed:
+			_dragging = true
+		else:
+			if _dragging:
+				WindowPosition.save(POSITION_KEY, _panel)
+			_dragging = false
+	elif event is InputEventMouseMotion and _dragging:
+		_panel.offset_left += event.relative.x
+		_panel.offset_top += event.relative.y
+		_panel.offset_right += event.relative.x
+		_panel.offset_bottom += event.relative.y
+
+
 func _process(_delta: float) -> void:
 	if not is_instance_valid(_npc) or not is_instance_valid(_player) \
 			or _player.global_position.distance_to(_npc.global_position) > CLOSE_DISTANCE:
@@ -132,7 +154,12 @@ func _can_drop(_at_position: Vector2, data: Variant) -> bool:
 
 
 func _on_drop(_at_position: Vector2, data: Variant) -> void:
-	var item: Dictionary = data["item_data"]
+	offer_item(data["item_data"])
+
+
+# Puts `item` in the slot. Used by the slot's own drop above and by KenjiNPC.receive_item_drop() when an item is
+# dragged straight onto the NPC in the world.
+func offer_item(item: Dictionary) -> void:
 	_offered_item = item
 	_offered_id = str(item.get("item_id", ""))
 	var icon_path: String = str(item.get("icon", ""))

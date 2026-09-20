@@ -1,0 +1,55 @@
+ ALDENEXIA SERVER CHEAT SHEET (v0.4.0)
+
+  UPDATE THE SERVER (from the dev machine)
+    1. commit, then:  tools/stamp_build.sh
+    2. tools/deploy_server.sh --export          export + upload + verify checksum
+         first deploy / key mismatch:  add --force-tls (copies the TLS key)
+         restart for you:  --restart 'sudo systemctl restart aldenexia-server'
+         other options:    --host user@host  --dir somedir  --help
+    3. restart the server (see below); nothing changes until you do
+    Manual export only:  godot --headless --path . --export-release "Linux Server"
+                         -> Builds/Server/Aldenexia_Server.x86_64 (single file)
+
+  RUN (on the server, in ~/aldenexia)
+    ALDENEXIA_SERVER_BIN=$PWD/Aldenexia_Server.x86_64 ./run_server.sh --name=test --port=8910 --max-players=6 --tls-dir=$PWD/tls
+      --name=      short server name (letters/numbers); prefixes saves (test_zozuur)
+      --port=      UDP port, default 8910        --max-players=  default 6
+      --tls-dir=   ABSOLUTE path to the folder holding server.key + server.crt
+    Dev machine:   tools/run_server.sh --name=test
+    Healthy start: "listening on UDP 8910 (encrypted)" and
+                   "World check: ground ... OK, navmesh ... OK, N monsters"
+
+  STOP (saves every player's character + the world clock first)
+    Ctrl-C in the run_server.sh terminal, or  systemctl stop aldenexia-server
+    or:  kill -TERM <PID of run_server.sh>
+    NEVER kill the Godot process directly (kill / kill -9): it dies instantly, saves nothing.
+    systemd needs KillMode=mixed (tools/aldenexia-server.service.example)
+
+  NETWORK
+    UDP 8910 (ENet is UDP).  Server firewall: sudo ufw allow 8910/udp
+    Router: forward UDP 8910 -> 192.168.77.100
+    Clients list servers in Data/servers.json (test = internal IP, test-public = vpn.nctlv.org)
+    Changing servers.json needs a client rebuild
+
+  WHERE THINGS LIVE (server, for the user running it)
+    ~/.local/share/godot/app_userdata/Aldenexia-Lightfall/
+      server_characters/test_<name>_character_stats.json   the character
+      server_characters/test_<name>_auth.json              password hash
+      server_characters/test_<name>_character_stats.bak    last good copy (refreshed at each login)
+      server_characters/deleted/                           deleted characters (kept)
+      server_state_test.json                               world clock
+    ~/aldenexia/tls/server.key + server.crt                TLS pair (keep the key private, back it up)
+
+  RECOVERY
+    Forgot a password:   delete test_<name>_auth.json, then the next login sets a new one
+    Undo a delete:       copy the two files from deleted/ back, removing the _<timestamp> from the names
+    Bad save:            stop the server, copy the .bak over the .json
+    Character names:     letters/numbers only, 2-16 characters
+
+  TROUBLESHOOTING
+    Client shows "offline":  server down / port or firewall / certificate mismatch.
+         Compare:  sha256sum ~/aldenexia/tls/server.crt   (server)
+                   sha256sum Data/server_cert.crt         (project)     must be identical
+         Mismatch fix:  tools/deploy_server.sh --force-tls
+    "Update needed":  version or build stamp differs. Server and clients must be exported from the same commit.
+    Full docs:  game_flow.txt, "DEDICATED SERVER — OPERATING GUIDE"

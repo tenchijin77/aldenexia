@@ -41,6 +41,7 @@ const TLS_CN := "aldenexia"  # the name the server certificate is issued for; cl
 const TRUSTED_CERT_PATHS := ["res://Data/server_cert.crt", "user://server_tls/server.crt"]  # certificates a client will trust (see _client_tls_options)
 const SHUTDOWN_GRACE := 8.0  # seconds a shutting-down server waits for players' final saves
 const WORLD_SAVE_INTERVAL := 300.0  # seconds between world-state saves while running
+const HITCH_LOG_SECONDS := 0.5  # a server frame longer than this is logged ("Long frame") — stalls make clients time out
 
 var is_multiplayer_game := false
 ## Why the last join attempt failed, when the host said so (e.g. a version mismatch).
@@ -701,7 +702,10 @@ func _on_login_timeout(id: int) -> void:
 func _parse_character(json_text: String, player: String) -> Dictionary:
 	if json_text.length() > MAX_CHARACTER_BYTES:
 		return {}
-	var data = JSON.parse_string(json_text)
+	# Permanent buffs are saved with an "infinite" duration, which Godot writes as 1e99999 and then WARNS about every time
+	# it parses it ("Exponent too high") — once per buff per save upload, which flooded the server log. This copy is only
+	# checked, never stored (the original text is what gets written), so a huge finite number is a safe stand-in.
+	var data = JSON.parse_string(json_text.replace("1e99999", "1e308"))
 	if typeof(data) != TYPE_DICTIONARY or sanitize_name(str(data.get("player_name", ""))) != player:
 		return {}
 	return data
@@ -1048,6 +1052,8 @@ func _await_save_acks() -> void:
 func _process(delta: float) -> void:
 	if not is_dedicated_server or _shutting_down:
 		return
+	if delta > HITCH_LOG_SECONDS:
+		print("[server] Long frame: %.1f s (%d player(s) online)" % [delta, _peer_character.size()])
 	_stop_poll += delta
 	if _stop_poll >= 1.0:
 		_stop_poll = 0.0

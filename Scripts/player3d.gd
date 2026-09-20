@@ -311,7 +311,10 @@ var _shop_window_instance: Node = null
 # whether the player is in normal cursor-visible play.
 func _try_open_shop_or_loot() -> void:
 	if not Global.mouselook_enabled:
-		var hit := _raycast_world_hit(get_viewport().get_mouse_position())
+		var mouse_pos := get_viewport().get_mouse_position()
+		var hit := _raycast_world_hit(mouse_pos)
+		if not (hit is VendorNPC) and not (hit is Player3D and hit != self and hit.dying):
+			hit = _vendor_near_mouse(mouse_pos, hit)  # a wall/pet/creature was in the way: pick the NPC by proximity on screen
 		if hit is VendorNPC:
 			_open_shop(hit)
 			return
@@ -383,6 +386,52 @@ func _raycast_world_hit(screen_pos: Vector2) -> Node:
 	query.exclude = [self]
 	var hit := space.intersect_ray(query)
 	return hit.get("collider") if hit else null
+
+
+# A forgiving click target for NPCs. The mouse ray only reports the FIRST thing it meets, so a small NPC like
+# Kenji is easy to lose to the level's wall/gate collision, another creature, or your own pet standing in the
+# line of sight (found by simulating clicks around him: from some sides every click hit the wall instead).
+# When the ray hit something that isn't itself an NPC, this returns the nearest VendorNPC whose body centre is
+# within NPC_CLICK_RADIUS_PX of the cursor and NPC_CLICK_RANGE of the player; `fallback` (the ray's own hit)
+# is returned when there is none.
+const NPC_CLICK_RADIUS_PX := 55.0
+const NPC_CLICK_RANGE := 12.0
+
+func _vendor_near_mouse(mouse_pos: Vector2, fallback: Node = null) -> Node:
+	var camera := get_viewport().get_camera_3d()
+	if not camera:
+		return fallback
+	var best: Node = null
+	var best_px := NPC_CLICK_RADIUS_PX
+	for node in get_tree().get_nodes_in_group("npc_vendor"):
+		if not node is VendorNPC or not is_instance_valid(node):
+			continue
+		if global_position.distance_to(node.global_position) > NPC_CLICK_RANGE:
+			continue
+		var body := node.get_node_or_null("CollisionShape3D") as Node3D
+		var centre: Vector3 = body.global_position if body else node.global_position + Vector3(0, 1.0, 0)
+		if camera.is_position_behind(centre):
+			continue
+		var px := camera.unproject_position(centre).distance_to(mouse_pos)
+		if px < best_px:
+			best_px = px
+			best = node
+	return best if best != null else fallback
+
+
+# EverQuest-style hand-over: an item dragged out of the backpack and released on an NPC in the world (slot_button.gd
+# calls this when the drop landed on no UI at all). Only NPCs that define receive_item_drop() take part — Kenji.
+# Uses the same forgiving pick as right-click. Returns whether an NPC took it.
+func try_offer_item_to_npc_at(screen_pos: Vector2, item: Dictionary) -> bool:
+	if Global.mouselook_enabled:
+		return false
+	var target := _raycast_world_hit(screen_pos)
+	if not (target is VendorNPC):
+		target = _vendor_near_mouse(screen_pos, target)
+	if target is VendorNPC and target.has_method("receive_item_drop"):
+		target.receive_item_drop(item, self)
+		return true
+	return false
 
 
 # Right-click a downed ally to bandage them back up — an alternative to
@@ -2205,6 +2254,11 @@ func _try_click_target(screen_pos: Vector2) -> void:
 	var query := PhysicsRayQueryParameters3D.create(origin, origin + direction * 150.0)
 	query.exclude = [self]
 	var hit := space.intersect_ray(query)
+	var clicked: Node = hit.get("collider") if hit else null
+	if not (clicked is Monster or clicked is GuardNPC or clicked is VendorNPC or clicked is PetMinion or clicked is Player3D):
+		# The ray found a wall, the ground or nothing — but an NPC may be right under the cursor (see _vendor_near_mouse).
+		clicked = _vendor_near_mouse(screen_pos, null)
+		hit = {"collider": clicked} if clicked != null else {}
 	if hit and (hit.collider is Monster or hit.collider is GuardNPC or hit.collider is VendorNPC or hit.collider is PetMinion or hit.collider is Player3D):
 		var m: Node = hit.collider
 		# Its collider still physically exists (that's how the raycast found
