@@ -1369,6 +1369,9 @@ Scene: Scenes/player3d.tscn (contains CameraRig → CameraController + Camera3D)
     Global.player_data["kenji_rat_tails_given"] (saved with the character); at tails_required (10)
     rat_tail total -> 40 XP + kenjis_blessing buff + emote text and the counter resets. He takes only
     what is still owed (find_stacks/consume_item across all bags). Every text and number is an @export.
+    /pet: both cats join group "pettable"; player3d.gd try_pet_nearby() pets the current target if
+    pettable ("too far" past PET_RANGE 4m) else the nearest pettable in range, calling its
+    receive_pet() (@export pet_text with {name}; Kenji = he, Oni = she). Both cats have 200 HP.
     OniNPC extends GuardNPC: patrol_waypoints (OniPatrol1-6 markers),
     hunts prey_monsters within hunt_range of home, add_threat()s each rat she hits (the same
     mechanism pets use, so monster3d.gd's get_current_target() makes the rat fight back), procedural

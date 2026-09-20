@@ -13,12 +13,12 @@
 [ext_resource type="Script" uid="uid://dlymcplumwpqu" path="res://Scripts/npc_scripted_conversation.gd" id="11_gdconv1"]
 [ext_resource type="NavigationMesh" path="res://Data/lumora_outskirts_navmesh.tres" id="12_navmesh"]
 [ext_resource type="PackedScene" uid="uid://bvendor01npc" path="res://Scenes/vendor_npc.tscn" id="13_vendor1"]
-[ext_resource type="PackedScene" uid="uid://network_widget_hud" path="res://Scenes/network_widget.tscn" id="14_netwidget"]
+[ext_resource type="PackedScene" path="res://Scenes/network_widget.tscn" id="14_netwidget"]
 [ext_resource type="AudioStream" uid="uid://canimf824sbt2" path="res://Assets/wind woosh loop.ogg" id="14_windamb"]
-[ext_resource type="Script" path="res://Scripts/multiplayer_player_spawner.gd" id="15_mpspawn"]
+[ext_resource type="Script" uid="uid://c1gpx5b7imou1" path="res://Scripts/multiplayer_player_spawner.gd" id="15_mpspawn"]
 [ext_resource type="PackedScene" path="res://Scenes/kenji_npc.tscn" id="kenji_npc_scn"]
 [ext_resource type="PackedScene" path="res://Scenes/oni_npc.tscn" id="oni_npc_scn"]
-[ext_resource type="Script" path="res://Scripts/weather_manager.gd" id="weather_mgr_script"]
+[ext_resource type="Script" uid="uid://wqmn351jhvbo" path="res://Scripts/weather_manager.gd" id="weather_mgr_script"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_1j15t"]
 sky_top_color = Color(0.22986513, 0.3887299, 0.9202023, 1)
@@ -142,7 +142,7 @@ environment = SubResource("Environment_7vt6w")
 [node name="DayNightCycle" type="Node" parent="." unique_id=847362915]
 script = ExtResource("4_dyncyc")
 
-[node name="WeatherManager" type="Node" parent="."]
+[node name="WeatherManager" type="Node" parent="." unique_id=1742442997]
 script = ExtResource("weather_mgr_script")
 
 [node name="AmbientWind" type="AudioStreamPlayer" parent="." unique_id=2008731715]
@@ -277,9 +277,9 @@ monster_name = "skeleton"
 [node name="monster_spawner" type="Node3D" parent="." unique_id=1015832831]
 script = ExtResource("3_u020j")
 
-[node name="SpawnedMobs" type="Node3D" parent="monster_spawner"]
+[node name="SpawnedMobs" type="Node3D" parent="monster_spawner" unique_id=1285463648]
 
-[node name="MobSpawner" type="MultiplayerSpawner" parent="monster_spawner"]
+[node name="MobSpawner" type="MultiplayerSpawner" parent="monster_spawner" unique_id=1269417424]
 spawn_path = NodePath("../SpawnedMobs")
 
 [node name="Campfires" type="Node3D" parent="." unique_id=1493082187]
@@ -318,10 +318,10 @@ npc_name = "the Apothecary"
 shop_id = "lumora_apothecary"
 vendor_model_key = "female"
 
-[node name="Kenji" parent="." instance=ExtResource("kenji_npc_scn")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0, 9.5)
+[node name="Kenji" parent="." unique_id=1817547243 instance=ExtResource("kenji_npc_scn")]
+transform = Transform3D(0.97146577, 0, 0.23718, 0, 1, 0, -0.23718, 0, 0.97146577, 6, 0, 19.098156)
 
-[node name="Oni" parent="." instance=ExtResource("oni_npc_scn")]
+[node name="Oni" parent="." unique_id=2146170527 instance=ExtResource("oni_npc_scn")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, 9)
 patrol_waypoints = Array[NodePath]([NodePath("../Markers/OniPatrol1"), NodePath("../Markers/OniPatrol2"), NodePath("../Markers/OniPatrol3"), NodePath("../Markers/OniPatrol4"), NodePath("../Markers/OniPatrol5"), NodePath("../Markers/OniPatrol6")])
 
@@ -355,22 +355,22 @@ transform = Transform3D(0.023607604, -0.99610966, -0.08490132, 0.46668175, 0.086
 [node name="Town Gate" type="Marker3D" parent="Markers" unique_id=1731383424]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.7632446, 0, 6.958519)
 
-[node name="OniPatrol1" type="Marker3D" parent="Markers"]
+[node name="OniPatrol1" type="Marker3D" parent="Markers" unique_id=1290974262]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, 9)
 
-[node name="OniPatrol2" type="Marker3D" parent="Markers"]
+[node name="OniPatrol2" type="Marker3D" parent="Markers" unique_id=660881493]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18, 0, 4)
 
-[node name="OniPatrol3" type="Marker3D" parent="Markers"]
+[node name="OniPatrol3" type="Marker3D" parent="Markers" unique_id=1018748630]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32, 0, -6)
 
-[node name="OniPatrol4" type="Marker3D" parent="Markers"]
+[node name="OniPatrol4" type="Marker3D" parent="Markers" unique_id=1805737887]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 44, 0, -11)
 
-[node name="OniPatrol5" type="Marker3D" parent="Markers"]
+[node name="OniPatrol5" type="Marker3D" parent="Markers" unique_id=590066727]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 0, 12)
 
-[node name="OniPatrol6" type="Marker3D" parent="Markers"]
+[node name="OniPatrol6" type="Marker3D" parent="Markers" unique_id=1484883956]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0, 12)
 
 [node name="Dock" type="Marker3D" parent="Markers" unique_id=1391371630]
@@ -406,4 +406,4 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -313.709, 0, 635.21643)
 [node name="Wagon Crash Site" type="Marker3D" parent="Markers" unique_id=788774885]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -592.9677, 0, -570.0188)
 
-[node name="NetworkWidget" parent="." instance=ExtResource("14_netwidget")]
+[node name="NetworkWidget" parent="." unique_id=95073630 instance=ExtResource("14_netwidget")]

@@ -235,6 +235,7 @@ const CHAT_COMMANDS := [
 	["/time", "Show the current in-game date/time"],
 	["/who", "List every connected player, their level, class and zone"],
 	["/weather rain|clear", "Start or stop rain (host / single-player only)"],
+	["/pet", "Pet the cat you are targeting, or the nearest one"],
 ]
 
 

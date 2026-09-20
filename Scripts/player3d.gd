@@ -448,6 +448,32 @@ func _try_loot_corpse() -> void:
 
 
 const HAIL_RANGE := 5.0
+const PET_RANGE := 4.0
+
+
+# /pet — pet your current target if it is pettable (the cats), otherwise the
+# nearest pettable thing within PET_RANGE. The petted node's receive_pet()
+# supplies the reply text.
+func try_pet_nearby() -> void:
+	if is_instance_valid(current_target) and current_target.is_in_group("pettable"):
+		if global_position.distance_to(current_target.global_position) > PET_RANGE:
+			GameLog.log_general("You are too far away to pet %s." % TargetFrame.display_name(current_target))
+			return
+		current_target.receive_pet(self)
+		return
+	var nearest: Node = null
+	var nearest_dist := PET_RANGE
+	for node in get_tree().get_nodes_in_group("pettable"):
+		if not is_instance_valid(node):
+			continue
+		var dist := global_position.distance_to(node.global_position)
+		if dist < nearest_dist:
+			nearest_dist = dist
+			nearest = node
+	if nearest == null:
+		GameLog.log_general("There is nothing close enough to pet.")
+		return
+	nearest.receive_pet(self)
 
 func try_hail_nearby_npc() -> void:
 	var nearest: Node = null

@@ -35,7 +35,12 @@ const EMOTE_COLOR := "#ffd9a0"
 @export_group("Model")
 @export var model_scale: float = 0.5
 
+@export_group("Stats")
+@export var max_health: int = 200
+
 @export_group("Chat text (shown in the chat log; edit freely)")
+## Shown when a player pets him (/pet). {name} = his name.
+@export_multiline var pet_text: String = "You pet {name}. He begins to purr happily!"
 ## Picked at random when a player hails him (H / /hail).
 @export var hail_emotes: PackedStringArray = [
 	"Meoww! Kenji meows at you while pawing at a rat's tail. He seems very interested in it.",
@@ -56,7 +61,18 @@ var _model: Node3D = null
 
 func _ready() -> void:
 	super._ready()
+	add_to_group("pettable")  # /pet finds anything in this group
 	call_deferred("_finish_model")
+
+
+# VendorNPC gives every vendor a flat 100 HP; Kenji gets max_health instead
+# (base_hp 50 + gear_hp, same formula the vendor/guard setups use).
+func _setup_combat() -> void:
+	super._setup_combat()
+	combat_node.gear_hp = max_health - 50
+	combat_node._stats_dirty = true
+	combat_node.recalculate_derived_stats()
+	combat_node.current_hp = combat_node.max_hp
 
 
 # ── Visuals: static cat mesh, no animations ────────────────────────────────
@@ -105,6 +121,12 @@ func open_interaction(player: Node) -> void:
 	win.name = "GiveWindow"
 	get_tree().root.add_child(win)
 	win.setup(self, player)
+
+
+# /pet — see player3d.gd's try_pet_nearby().
+func receive_pet(_petter: Node) -> void:
+	_face_local_player()
+	_emote(pet_text.replace("{name}", npc_name))
 
 
 # Called by the Give window. Returns true when the hand-in was accepted (the

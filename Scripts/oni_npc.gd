@@ -23,9 +23,13 @@ const HUNT_LEASH_EXTRA := 15.0  # gave up if prey drags her this far past hunt_r
 ## How far from her home spot she'll notice and chase prey.
 @export var hunt_range: float = 60.0
 
+@export_group("Chat text")
+## Shown when a player pets her (/pet). {name} = her name.
+@export_multiline var pet_text: String = "You pet {name}. She begins to purr happily!"
+
 @export_group("Stats")
 @export var cat_level: int = 3
-@export var cat_health: int = 120
+@export var cat_health: int = 200
 @export var cat_damage: int = 10
 @export var cat_armor_class: int = 12
 ## Walk speed x10 (same units as monsters.json "speed": 35 = 3.5 m/s).
@@ -40,6 +44,7 @@ var _lunge_tween: Tween = null
 func _ready() -> void:
 	flavor_text_path = "res://Data/cat_flavor_text.json"
 	super._ready()
+	add_to_group("pettable")  # /pet finds anything in this group
 	_model = CatModel.build(self, MODEL_BASE, model_scale)
 	call_deferred("_finish_model")
 
@@ -104,6 +109,14 @@ func say(line: String) -> void:
 func respond_to_hail() -> void:
 	_face_player()
 	_say_flavor("hail")
+
+
+# /pet — see player3d.gd's try_pet_nearby(). Shown regardless of distance to the
+# viewer (say()'s hearing range doesn't apply — the petter is right here).
+func receive_pet(_petter: Node) -> void:
+	if state != GuardState.ENGAGE:  # don't spin around mid-hunt
+		_face_player()
+	GameLog.log_general("[color=#ffd9a0]%s[/color]" % pet_text.replace("{name}", npc_name))
 
 
 # ── Hunting ────────────────────────────────────────────────────────────────

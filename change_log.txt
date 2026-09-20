@@ -32,6 +32,8 @@ candidates instead of guessing; a typo that matches nothing prints "Unknown comm
   `try_follow()`, `start_following()`, `stop_following()`, `_handle_follow_movement()`.
 
 - `/who` (added 2026-09-19) — lists every player in the world with level, class and zone.
+- `/pet` (added 2026-09-19) — pet your targeted cat, or the nearest one within 4m (Kenji, Oni).
+  Note: `/p` is now ambiguous between /party and /pet (use /pa or /pe, or the full names).
 - `/weather rain|clear` (added 2026-09-19, host / single-player only) — start or stop rain; it
   otherwise rains on its own, randomly and rarely.
 
@@ -833,7 +835,8 @@ saved to disk isn't captured here.)
 - Kenji (`Scenes/kenji_npc.tscn`, `kenji_npc.gd`, built on VendorNPC for targeting/hail/faction) sits
   by the Town Gate at (6, 0, 9.5); cats don't speak, so the "quest" is EverQuest-style: guards'
   hail lines now mention him (3 new lines in guard_flavor_text.json), hailing him prints your
-  emote text ("Meoww! Kenji meows at you while pawing at a rat's tail..."), right-click opens a
+  emote text ("Meoww! Kenji meows at you while pawing at a rat's tail..."), `/pet` ("You pet Kenji.
+  He begins to purr happily!" — Oni: "She begins...", both editable `pet_text`), right-click opens a
   small "Give to Kenji" window (`give_window.gd`) — drag an item into the slot, press Give.
   10 rat_tail -> 40 XP + "Kenji's Blessing" (+2 HP/Mana/Stamina regen, +3 to hit, 15 min,
   buff-bar entry added). He REMEMBERS partial hand-ins per character (save-file key
@@ -847,7 +850,8 @@ saved to disk isn't captured here.)
   (new OniPatrol1-6 markers), hunts rats within 60m of home, registers threat on every rat she hits
   so the rat's normal aggro table makes it fight back (same mechanism pets use) — rats CAN hurt
   her. Her kills give no loot/XP. Procedural bob + lunge instead of animations (unrigged mesh);
-  emote-style chatter in Data/cat_flavor_text.json. Stats are @exports (lvl 3, 120 HP, 10 dmg).
+  emote-style chatter in Data/cat_flavor_text.json. Stats are @exports (lvl 3, 200 HP, 10 dmg);
+  Kenji's `max_health` export is also 200 (vendors default to 100).
 - New shared helpers: `cat_model.gd` (static cat mesh + PBR material, auto-grounds and floats
   the nameplate), `npc_respawner.gd`. ALL town NPCs (guards, vendors, Kenji, Oni) now have
   `die()` and respawn at their original spot after `respawn_seconds` (default 120): hidden,

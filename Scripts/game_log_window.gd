@@ -429,7 +429,7 @@ func _on_chat_input_gui_input(event: InputEvent) -> void:
 # too (Linux-style abbreviation) — see _resolve_command() below. e.g. "/loc"
 # and "/location" both resolve to "/location" since no other command starts
 # with "loc"; "/f" would be ambiguous if two commands both started with "f".
-const COMMANDS := ["/location", "/hail", "/appraise", "/time", "/follow", "/camp", "/exit", "/log", "/invite", "/disband", "/tell", "/party", "/resetui", "/who", "/weather"]
+const COMMANDS := ["/location", "/hail", "/appraise", "/time", "/follow", "/camp", "/exit", "/log", "/invite", "/disband", "/tell", "/party", "/resetui", "/who", "/weather", "/pet"]
 
 
 func _handle_slash_command(text: String) -> void:
@@ -444,6 +444,8 @@ func _handle_slash_command(text: String) -> void:
 	match cmd:
 		"/who":
 			WorldAnnouncer.print_who(player)
+		"/pet":
+			player.try_pet_nearby()
 		"/weather":
 			# Test/debug control — rain otherwise starts on its own, randomly and rarely.
 			var wm := get_tree().get_first_node_in_group("weather_manager")
