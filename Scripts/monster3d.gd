@@ -311,8 +311,18 @@ func _ready() -> void:
 		# existing effect on to-hit/resist chance (calculate_hit_chance()'s
 		# level_modifier) already differentiates a level-4 spawn from a
 		# level-2 one of the same mob.
+		var base_level: int = level
 		if stats.has("level_min") and stats.has("level_max"):
 			level = randi_range(int(stats["level_min"]), int(stats["level_max"]))
+		# Level scaling (Data/combat_balance.json): each level above the monster's base level in monsters.json adds
+		# monster_hp_per_level / monster_damage_per_level (below the base level it removes them). Neutral = no scaling,
+		# which is how it worked before — level then only changed attack and armor.
+		var lvl_delta: int = level - base_level
+		var scale_min: float = CombatBalance.num("monster_scale_min")
+		var scale_max: float = CombatBalance.num("monster_scale_max")
+		var hp_scale: float = clampf(1.0 + lvl_delta * CombatBalance.num("monster_hp_per_level"), scale_min, scale_max)
+		max_health = int(round(max_health * hp_scale * CombatBalance.num("monster_hp_mult")))
+		_balance_damage_scale = clampf(1.0 + lvl_delta * CombatBalance.num("monster_damage_per_level"), scale_min, scale_max)
 		aggro_range = stats.get("aggro_range", aggro_range)
 		behavior_type = stats.get("behavior_type", behavior_type)
 
@@ -553,9 +563,12 @@ func load_monster_stats(p_monster_name: String) -> Dictionary:
 	return {}
 
 # ===== COMBAT NODE SETUP =====
+var _balance_damage_scale: float = 1.0  # from the rolled level, see _ready()
+
 func _configure_combat_node() -> void:
 	combat_node.level = level
 	combat_node.weapon_damage = damage
+	combat_node.balance_damage_scale = _balance_damage_scale
 
 	# Real, level-scaled secondary stats — NOT flatly zeroed. Balance pass,
 	# 2026-09-14: every base stat used to be 0, with only gear_atk/gear_ac/
@@ -759,8 +772,24 @@ func state_patrol(delta: float) -> void:
 		change_state(State.CHASE)
 		return
 
-	if global_position.distance_to(patrol_target) < 1.0:
-		pick_new_patrol_point()
+	# Arrival is measured on the ground plane and must be FARTHER than the nav agent's own stopping distance
+	# (target_desired_distance = 1.5 m). It used to be 1.0 m in 3D: the agent stopped at 1.5 m, called itself
+	# finished, and the monster stood there forever because it never got within 1.0 m — measured: most
+	# wandering monsters never moved after their first leg. After a leg the monster pauses (IDLE), then
+	# wanders again, so it strolls in bursts instead of walking non-stop.
+	var flat_to_target: float = Vector2(global_position.x - patrol_target.x, global_position.z - patrol_target.z).length()
+	if flat_to_target <= PATROL_ARRIVE_DISTANCE:
+		change_state(State.IDLE)
+		return
+	# Watchdog: no real progress toward the point for a while (blocked, wedged) -> give up on it, pause, pick another.
+	if flat_to_target < _patrol_best_distance - 0.5:
+		_patrol_best_distance = flat_to_target
+		_patrol_stall_timer = 0.0
+	else:
+		_patrol_stall_timer += delta
+		if _patrol_stall_timer >= PATROL_STALL_SECONDS:
+			change_state(State.IDLE)
+			return
 
 	if is_inside_tree() and nav_agent:
 		nav_agent.target_position = patrol_target
@@ -1686,17 +1715,31 @@ func can_see_player() -> bool:
 		_:  # aggressive, skitter, etc.
 			return distance <= effective_range
 
+const PATROL_ARRIVE_DISTANCE: float = 2.0   # ground-plane distance that counts as "arrived" (must exceed the nav agent's 1.5 m stopping distance)
+const PATROL_STALL_SECONDS: float = 6.0     # no progress toward the wander point for this long -> pick another
+var _patrol_best_distance: float = INF
+var _patrol_stall_timer: float = 0.0
 const PATROL_MIN_DISTANCE: float = 5.0   # avoid trivially-short legs that don't read as movement
 const PATROL_MAX_DISTANCE: float = 18.0  # was a flat 10.0 with no minimum — too tight a bubble to look like real wandering
 
 func pick_new_patrol_point() -> void:
-	var random_angle: float = randf() * TAU
-	var random_distance: float = randf_range(PATROL_MIN_DISTANCE, PATROL_MAX_DISTANCE)
-	patrol_target = spawn_position + Vector3(
-		cos(random_angle) * random_distance,
-		0,
-		sin(random_angle) * random_distance
-	)
+	_patrol_best_distance = INF
+	_patrol_stall_timer = 0.0
+	# Try a few random spots and keep the first that is actually on the navmesh (not inside a wall, rock or water) —
+	# the point is snapped onto the mesh so the arrival check above can really be met.
+	var map: RID = get_world_3d().navigation_map if is_inside_tree() else RID()
+	for attempt in 6:
+		var random_angle: float = randf() * TAU
+		var random_distance: float = randf_range(PATROL_MIN_DISTANCE, PATROL_MAX_DISTANCE)
+		var candidate: Vector3 = spawn_position + Vector3(cos(random_angle) * random_distance, 0, sin(random_angle) * random_distance)
+		if not map.is_valid():
+			patrol_target = candidate
+			return
+		var on_mesh: Vector3 = NavigationServer3D.map_get_closest_point(map, candidate)
+		if Vector2(on_mesh.x - candidate.x, on_mesh.z - candidate.z).length() <= 2.0:
+			patrol_target = on_mesh
+			return
+	patrol_target = global_position  # nowhere sensible nearby: stay put this round
 
 func look_at_target(target_pos: Vector3) -> void:
 	var look_pos: Vector3 = target_pos

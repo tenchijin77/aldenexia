@@ -128,6 +128,8 @@ func _scan_for_targets() -> void:
 			continue
 		if not (str(monster.get("monster_name")) in prey_monsters):
 			continue
+		if int(_ignored_targets.get(monster.get_instance_id(), 0)) > Time.get_ticks_msec():
+			continue  # couldn't reach this one recently
 		var dist := home_position.distance_to(monster.global_position)
 		if dist < nearest_dist:
 			nearest_dist = dist
@@ -135,6 +137,8 @@ func _scan_for_targets() -> void:
 	if nearest:
 		attack_target = nearest
 		_engage_origin = global_position
+		_engage_best_dist = INF
+		_engage_stall_timer = 0.0
 		state = GuardState.ENGAGE
 		_say_flavor("engage", true)
 
@@ -150,6 +154,15 @@ func _process_engage(delta: float) -> void:
 	var distance := global_position.distance_to(attack_target.global_position)
 	if distance > ATTACK_RANGE:
 		_move_toward(attack_target.global_position, ATTACK_RANGE, delta, move_speed * SPRINT_SPEED_MULTIPLIER)
+		# Same watchdog as GuardNPC: chasing without getting closer -> give up and ignore that rat for a while.
+		if distance < _engage_best_dist - PROGRESS_EPSILON:
+			_engage_best_dist = distance
+			_engage_stall_timer = 0.0
+		else:
+			_engage_stall_timer += delta
+			if _engage_stall_timer >= ENGAGE_STALL_GIVE_UP:
+				_ignored_targets[attack_target.get_instance_id()] = Time.get_ticks_msec() + int(IGNORE_UNREACHABLE_SECONDS * 1000.0)
+				_disengage()
 		return
 
 	_apply_gravity(delta)

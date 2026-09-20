@@ -49,6 +49,8 @@ var gear_mana: int = 0           # Mana bonus
 # ================================================================================
 
 var weapon_skill: int = 0        # 0-252 (EQ-style)
+## Set by monster3d.gd from the level it rolled (see monster_damage_per_level in Data/combat_balance.json). 1.0 for everyone else.
+var balance_damage_scale: float = 1.0
 var weapon_damage: int = 0       # Base weapon damage
 var weapon_speed: float = 2.0    # Attack speed in seconds (base 2.0-3.0)
 var weapon_type: String = "melee"  # melee, ranged, unarmed, staff
@@ -649,6 +651,11 @@ func calculate_melee_damage(target: CombatNode = null, is_crit: bool = false) ->
 	# Apply active buff/debuff damage modifiers (e.g. blood_ritual)
 	raw_damage = int(raw_damage * (1.0 + get_modifier("damage_mult")))
 
+	# Tunable melee damage (Data/combat_balance.json): players, and monsters (+ their per-level scaling)
+	match CombatBalance.role_of(self):
+		"player": raw_damage = int(raw_damage * CombatBalance.num("player_melee_damage_mult"))
+		"monster": raw_damage = int(raw_damage * CombatBalance.num("monster_melee_damage_mult") * balance_damage_scale)
+
 	return max(1, raw_damage)
 
 func calculate_offhand_damage(target: CombatNode = null, is_crit: bool = false) -> int:
@@ -703,6 +710,10 @@ func calculate_spell_damage(base_spell_damage: int, resist_type: String = "magic
 	if race_spell_damage_mult != 0.0:
 		damage = int(damage * (1.0 + race_spell_damage_mult))
 
+	# Tunable spell damage for players (Data/combat_balance.json)
+	if CombatBalance.role_of(self) == "player":
+		damage = int(damage * CombatBalance.num("player_spell_damage_mult"))
+
 	return max(1, damage)
 
 func calculate_healing(base_heal: int, is_crit: bool = false) -> int:
@@ -722,18 +733,23 @@ func calculate_healing(base_heal: int, is_crit: bool = false) -> int:
 
 func calculate_hit_chance(target: CombatNode) -> int:
 	"""Calculate hit chance vs target AC"""
-	var level_modifier = (level - target.level) * 5
+	var level_modifier = (level - target.level) * CombatBalance.num("hit_level_diff_per_level")
 	level_modifier = clamp(level_modifier, -50, 50)
 
 	var atk = get_atk()
 	var target_ac = target.get_ac()
-	var hit_chance = (atk - target_ac) + level_modifier + randi() % 21
+	var hit_chance = (atk - target_ac) + int(level_modifier) + randi() % 21
 
 	# Active buff/debuff accuracy modifiers (e.g. shadow_aura applied to an attacking monster)
 	hit_chance += int(get_modifier("hit_chance"))
 
+	# Tunable accuracy for players / monsters (Data/combat_balance.json)
+	match CombatBalance.role_of(self):
+		"player": hit_chance += int(CombatBalance.num("player_hit_bonus"))
+		"monster": hit_chance += int(CombatBalance.num("monster_hit_bonus"))
+
 	# Hard caps
-	hit_chance = clamp(hit_chance, 5, 95)
+	hit_chance = clampi(hit_chance, int(CombatBalance.num("hit_min")), int(CombatBalance.num("hit_max")))
 
 	return hit_chance
 

@@ -1,0 +1,35 @@
+{
+	"_readme": "Combat tuning knobs. Change a number, save, restart the game (server AND clients read the same file). Set a value back to its 'neutral' number to undo it. Anything missing or invalid falls back to neutral.",
+
+	"player_hit_bonus": 35,
+	"monster_hit_bonus": 0,
+	"hit_level_diff_per_level": 5,
+	"hit_min": 5,
+	"hit_max": 95,
+
+	"player_melee_damage_mult": 1.0,
+	"monster_melee_damage_mult": 1.0,
+	"player_spell_damage_mult": 0.5,
+
+	"monster_hp_mult": 1.0,
+	"monster_hp_per_level": 0.12,
+	"monster_damage_per_level": 0.12,
+	"monster_scale_min": 0.5,
+	"monster_scale_max": 3.0,
+
+	"_help": {
+		"player_hit_bonus": "Flat percentage points added to a PLAYER's melee hit chance. Neutral 0. (Hit chance = attack - target armor + level difference x hit_level_diff_per_level + random 0-20 + this bonus, then clamped to hit_min..hit_max.)",
+		"monster_hit_bonus": "Same, for MONSTERS attacking. Neutral 0. Raise it to make monsters hit you more often.",
+		"hit_level_diff_per_level": "Hit chance points per level of difference between attacker and target. Neutral 5.",
+		"hit_min": "Lowest hit chance any attack can have, in percent. Neutral 5.",
+		"hit_max": "Highest hit chance any attack can have, in percent. Neutral 95.",
+		"player_melee_damage_mult": "Multiplier on the damage of a player's melee hits. Neutral 1.0.",
+		"monster_melee_damage_mult": "Multiplier on the damage of monsters' melee hits. Neutral 1.0.",
+		"player_spell_damage_mult": "Multiplier on the damage of spells cast by players. Neutral 1.0. (0.5 halves them.)",
+		"monster_hp_mult": "Multiplier on every monster's HP, before level scaling. Neutral 1.0.",
+		"monster_hp_per_level": "HP gained per level ABOVE the monster's base level in monsters.json (and lost per level below), as a fraction: 0.12 = +12% per level. Neutral 0 (level then only changes attack/armor).",
+		"monster_damage_per_level": "Same for melee damage. Neutral 0.",
+		"monster_scale_min": "Level scaling never takes HP/damage below this multiple. Neutral 0.5.",
+		"monster_scale_max": "...or above this multiple. Neutral 3.0."
+	}
+}

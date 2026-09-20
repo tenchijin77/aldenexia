@@ -732,7 +732,7 @@ func _show_played() -> void:
 		GameLog.log_general("[color=green]%s was born on %s (in-game).[/color]" % [who, Global.format_birthday_ingame(creation)])
 		var age := Global.format_real_age(creation)
 		GameLog.log_general("[color=green]In the real world: %s%s.[/color]" % [Global.format_birthday_real(creation), (" — " + age) if not age.is_empty() else ""])
-	GameLog.log_general("[color=green]Time played: %s (this session: %s).[/color]" % [
+	GameLog.log_general("[color=green]Total time played: %s. This session: %s.[/color]" % [
 		Global.format_playtime(Global.get_total_playtime()), Global.format_playtime(Global.get_session_playtime())])
 
 

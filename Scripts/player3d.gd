@@ -2346,7 +2346,7 @@ func attack_current_target() -> void:
 			GameLog.log_combat(msg)
 			_broadcast_combat(CombatLogFormatter.player_attack_broadcast(player_name, result, target_desc, weapon_name, dmg_type))
 		if result["result"] == "HIT":
-			var skey: String = weapon.get("skill", "").to_lower().replace(" ", "_")
+			var skey: String = _weapon_skill_key(weapon)
 			_tick_skill(skey)
 		# PARRY/DODGE/BLOCK/RIPOSTE here mean the *target* defended against our
 		# attack, not that we defended anything — ticking our own defensive
@@ -2447,7 +2447,7 @@ func perform_melee_attack() -> void:
 				GameLog.log_combat(msg)
 				_broadcast_combat(CombatLogFormatter.player_attack_broadcast(player_name, result, target_desc, weapon_name, dmg_type))
 			if result["result"] == "HIT":
-				var skey: String = weapon.get("skill", "").to_lower().replace(" ", "_")
+				var skey: String = _weapon_skill_key(weapon)
 				_tick_skill(skey)
 			# See attack_current_target()'s identical comment: PARRY/DODGE/
 			# BLOCK/RIPOSTE here are the target's own defense, not ours.
@@ -2773,6 +2773,28 @@ func load_player_data_from_global() -> void:
 	if not inv_data.is_empty():
 		Inventory.load_inventory_data(inv_data)
 		_apply_equipment_from_inventory()
+		# The equipped weapon only exists from here on. load_character_data() (above) ran _sync_weapon_skill() BEFORE the
+		# inventory was loaded, found nothing wielded, and left the baseline skill in place — so accuracy at login came from
+		# the baseline and only jumped to the character's real weapon skill at the first "You've become better at..." message.
+		_sync_weapon_skill()
+		_apply_baseline_weapon_skill()  # still 0 (e.g. an old save keyed under a different skill name): keep the fallback
+		combat_node._stats_dirty = true
+		combat_node.recalculate_derived_stats()
+
+
+# Starting weapon skill: combat classes begin with a baseline so they can hit. Only a FALLBACK for when the equipped
+# weapon's real skill is 0 (or nothing is equipped yet).
+func _apply_baseline_weapon_skill() -> void:
+	match player_class:
+		"Blademaster", "Shadowblade", "Voidknight", "Lightsworn":
+			if combat_node.weapon_skill == 0:
+				combat_node.weapon_skill = 10
+		"Woodstalker", "Aetherfist", "Zenblade":
+			if combat_node.weapon_skill == 0:
+				combat_node.weapon_skill = 8
+		_:
+			if combat_node.weapon_skill == 0:
+				combat_node.weapon_skill = 4
 
 
 func load_character_data(data: Dictionary) -> void:
@@ -2837,21 +2859,11 @@ func load_character_data(data: Dictionary) -> void:
 	known_spells     = data.get("known_spells", [])
 	known_skills     = data.get("known_skills", [])
 	skill_levels     = data.get("skill_levels", {})
+	_migrate_legacy_skills()
 	action_bar_slots = data.get("action_bar_slots", _default_action_bar_slots())
 	_sync_weapon_skill()
 	apply_equipment(data.get("equipment", {}))
-
-	# Starting weapon skill: combat classes begin with a baseline so they can hit
-	match player_class:
-		"Blademaster", "Shadowblade", "Voidknight", "Lightsworn":
-			if combat_node.weapon_skill == 0:
-				combat_node.weapon_skill = 10
-		"Woodstalker", "Aetherfist", "Zenblade":
-			if combat_node.weapon_skill == 0:
-				combat_node.weapon_skill = 8
-		_:
-			if combat_node.weapon_skill == 0:
-				combat_node.weapon_skill = 4
+	_apply_baseline_weapon_skill()
 	combat_node._stats_dirty = true
 	combat_node.recalculate_derived_stats()
 
@@ -3158,7 +3170,7 @@ func cast_spell(spell_name: String, is_auto_recast: bool = false) -> bool:
 	if player_class == "Troubadour" and not is_auto_recast:
 		if _active_songs.has(spell_name):
 			_active_songs.erase(spell_name)
-			GameLog.log_general("You stop playing [b]%s[/b]." % spell_display_name(spell_name))
+			GameLog.log_combat("You stop playing [b]%s[/b]." % spell_display_name(spell_name))
 			return false
 		# Only one song plays at a time (per user correction 2026-09-17 — the
 		# earlier "multiple songs stack independently" design was explicitly
@@ -3167,7 +3179,7 @@ func cast_spell(spell_name: String, is_auto_recast: bool = false) -> bool:
 		# its already-applied buff just runs out on its own over its
 		# remaining duration, same as toggling a song off normally does.
 		for other_song in _active_songs.keys():
-			GameLog.log_general("[b]%s[/b] fades as you begin a new song." % spell_display_name(other_song))
+			GameLog.log_combat("[b]%s[/b] fades as you begin a new song." % spell_display_name(other_song))
 		_active_songs.clear()
 		_active_songs[spell_name] = true
 
@@ -3194,7 +3206,7 @@ func cast_spell(spell_name: String, is_auto_recast: bool = false) -> bool:
 	var cost: int = int(spell.get("mana_cost", 0.0))
 	if combat_node.current_mana < cost:
 		if is_auto_recast:
-			GameLog.log_general("[color=#ff8866]You don't have enough mana to keep playing [b]%s[/b] — the song fades.[/color]" % spell_display_name(spell_name))
+			GameLog.log_combat("[color=#ff8866]You don't have enough mana to keep playing [b]%s[/b] — the song fades.[/color]" % spell_display_name(spell_name))
 			_active_songs.erase(spell_name)
 		else:
 			GameLog.log_general("Insufficient mana to use [b]%s[/b]!" % spell_display_name(spell_name))
@@ -3219,7 +3231,7 @@ func cast_spell(spell_name: String, is_auto_recast: bool = false) -> bool:
 			return false
 		if not _is_targetable_alive(target_node):
 			if is_auto_recast:
-				GameLog.log_general("[color=#ff8866]Your target for [b]%s[/b] is gone — the song fades.[/color]" % display_name)
+				GameLog.log_combat("[color=#ff8866]Your target for [b]%s[/b] is gone — the song fades.[/color]" % display_name)
 				_active_songs.erase(spell_name)
 			else:
 				GameLog.log_general("Your target is already dead.")
@@ -3230,7 +3242,7 @@ func cast_spell(spell_name: String, is_auto_recast: bool = false) -> bool:
 			return false
 
 	# Begin cast message
-	GameLog.log_general(CombatLogFormatter.begin_cast("You"))
+	GameLog.log_combat(CombatLogFormatter.begin_cast("You"))
 
 	# Commit mana and cooldown
 	combat_node.current_mana -= cost
@@ -3319,7 +3331,7 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 
 				var stealth_duration: float = float(spell.get("duration", 30.0))
 				combat_node.apply_effect("invisibility", stealth_duration, {"invisible": 1.0})
-				GameLog.log_general("[color=#8866ff]You vanish into the shadows behind %s.[/color]" % TargetFrame.display_name(target_node))
+				GameLog.log_combat("[color=#8866ff]You vanish into the shadows behind %s.[/color]" % TargetFrame.display_name(target_node))
 			return
 
 		"enemy", "corpse", "line":
@@ -3411,24 +3423,24 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 					var heal_amount := int(final_dmg * heal_pct * (1.0 + combat_node.get_modifier("life_drain_heal_mult")))
 					var healed := combat_node.heal(heal_amount)
 					if healed > 0:
-						GameLog.log_general("[color=#66ff99]You siphon life, healing yourself for [b]%d[/b].[/color]" % healed)
+						GameLog.log_combat("[color=#66ff99]You siphon life, healing yourself for [b]%d[/b].[/color]" % healed)
 						_broadcast_combat("[color=#66ff99]%s siphons life, healing themself for [b]%d[/b].[/color]" % [player_name, healed])
 						if target_node.has_method("add_threat"):
 							target_node.add_threat(self, combat_node.generate_threat(0, healed))
 				"necrotic_grasp":
 					if target_cn is CombatNode:
 						_buff_target(target_node, target_cn, "necrotic_grasp", 6.0, {"speed_slow": 0.15, "attack_speed_slow": 0.15})
-						GameLog.log_general("[color=#8866ff]%s is gripped by necrotic energy, slowing them.[/color]" % target_desc.capitalize())
+						GameLog.log_combat("[color=#8866ff]%s is gripped by necrotic energy, slowing them.[/color]" % target_desc.capitalize())
 						_broadcast_combat("[color=#8866ff]%s is gripped by necrotic energy, slowing them.[/color]" % target_desc.capitalize())
 				"curse_of_weakness":
 					if target_cn is CombatNode:
 						_buff_target(target_node, target_cn, "curse_of_weakness", 10.0, {"damage_mult": -0.05})
-						GameLog.log_general("[color=#8866ff]%s is weakened, their attacks feeble.[/color]" % target_desc.capitalize())
+						GameLog.log_combat("[color=#8866ff]%s is weakened, their attacks feeble.[/color]" % target_desc.capitalize())
 						_broadcast_combat("[color=#8866ff]%s is weakened, their attacks feeble.[/color]" % target_desc.capitalize())
 				"plague_strike":
 					if target_cn is CombatNode:
 						_buff_target(target_node, target_cn, "plague_strike", 8.0, {}, 5, 1.0)
-						GameLog.log_general("[color=#77aa44]%s is wracked with plague.[/color]" % target_desc.capitalize())
+						GameLog.log_combat("[color=#77aa44]%s is wracked with plague.[/color]" % target_desc.capitalize())
 						_broadcast_combat("[color=#77aa44]%s is wracked with plague.[/color]" % target_desc.capitalize())
 				"soul_leech":
 					if target_cn is CombatNode:
@@ -3436,20 +3448,20 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 						target_cn.current_mana = maxf(0.0, target_cn.current_mana - drained)
 						var healed := combat_node.heal(int(drained * 0.30))
 						if healed > 0:
-							GameLog.log_general("[color=#66ff99]You leech %d mana from %s, healing yourself for [b]%d[/b].[/color]" % [drained, target_desc, healed])
+							GameLog.log_combat("[color=#66ff99]You leech %d mana from %s, healing yourself for [b]%d[/b].[/color]" % [drained, target_desc, healed])
 							_broadcast_combat("[color=#66ff99]%s leeches %d mana from %s, healing themself for [b]%d[/b].[/color]" % [player_name, drained, target_desc, healed])
 				"improved_disarm":
 					if randf() < 0.40:
 						if "attack_timer" in target_node and "attack_cooldown" in target_node:
 							_disable_target(target_node, 2.0)
-						GameLog.log_general("[color=#ffcc66]You disarm %s, disrupting their attack![/color]" % target_desc)
+						GameLog.log_combat("[color=#ffcc66]You disarm %s, disrupting their attack![/color]" % target_desc)
 						_broadcast_combat("[color=#ffcc66]%s disarms %s, disrupting their attack![/color]" % [player_name, target_desc])
 					else:
-						GameLog.log_general("Your disarm attempt on %s fails." % target_desc)
+						GameLog.log_combat("Your disarm attempt on %s fails." % target_desc)
 				"taunt":
 					if target_node.has_method("taunt"):
 						target_node.taunt(self)
-						GameLog.log_general("[color=#ffcc66]You bellow a challenge — %s's fury turns on you![/color]" % target_desc)
+						GameLog.log_combat("[color=#ffcc66]You bellow a challenge — %s's fury turns on you![/color]" % target_desc)
 						_broadcast_combat("[color=#ffcc66]%s bellows a challenge — %s's fury turns to them![/color]" % [player_name, target_desc])
 				_:
 					# Generic, data-driven fallback for every other spell (any
@@ -3529,7 +3541,7 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 					GameLog.log_combat("[color=#88bbcc]A pale, deathly light fills your eyes — the unseen becomes visible.[/color]")
 				"invisibility":
 					combat_node.apply_effect("invisibility", 8.0, {"invisible": 1.0})
-					GameLog.log_general("[color=#aaaaaa]You fade from sight...[/color]")
+					GameLog.log_combat("[color=#aaaaaa]You fade from sight...[/color]")
 				_:
 					if not _apply_generic_spell_effect(effect_type, spell, combat_node, combat_node, self, "yourself"):
 						GameLog.log_combat("You use [b]%s[/b] on yourself." % display_name)
@@ -3646,7 +3658,7 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 				"ancestral_guidance":
 					if ally_cn is CombatNode:
 						_buff_target(ally_target, ally_cn, "ancestral_guidance", 8.0, {"damage_mult": 0.05})
-						GameLog.log_general("[color=#88ffcc]Ancestral spirits quicken %s.[/color]" % ally_desc)
+						GameLog.log_combat("[color=#88ffcc]Ancestral spirits quicken %s.[/color]" % ally_desc)
 						_broadcast_combat("[color=#88ffcc]Ancestral spirits quicken %s.[/color]" % ally_bcast_desc)
 				"earth_totem":
 					# True small-radius group buff: caster + any non-Enemy within 8m.
@@ -3658,7 +3670,7 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 						var cn = node.get("combat_node")
 						if cn is CombatNode:
 							cn.apply_effect("earth_totem", 15.0, {"damage_taken_mult": 0.05})
-					GameLog.log_general("[color=#88cc66]You plant an Earth Totem, warding %d nearby allies.[/color]" % protected.size())
+					GameLog.log_combat("[color=#88cc66]You plant an Earth Totem, warding %d nearby allies.[/color]" % protected.size())
 					_broadcast_combat("[color=#88cc66]%s plants an Earth Totem, warding %d nearby allies.[/color]" % [player_name, protected.size()])
 				_:
 					if not _apply_generic_spell_effect(effect_type, spell, combat_node, ally_cn, ally_target, ally_desc):
@@ -3779,7 +3791,7 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 					blink_distance = range_str.trim_suffix("m").to_float()
 				var forward: Vector3 = -global_transform.basis.z
 				global_position += forward * blink_distance
-				GameLog.log_general("[color=#8888ff]You blink forward in a flash.[/color]")
+				GameLog.log_combat("[color=#8888ff]You blink forward in a flash.[/color]")
 			else:
 				GameLog.log_combat("You use [b]%s[/b]." % display_name)
 
@@ -3895,13 +3907,13 @@ func _apply_generic_spell_effect(effect_type: String, spell: Dictionary, caster_
 		"charm", "mesmerize", "confuse", "root", "blind", "silence"]
 	if effect_type in NEGATIVE_EFFECT_TYPES:
 		if effect_type == "root" and target_cn.race_immune_to_root:
-			GameLog.log_general("[color=#88ccff]%s is immune to being rooted.[/color]" % target_desc.capitalize())
+			GameLog.log_combat("[color=#88ccff]%s is immune to being rooted.[/color]" % target_desc.capitalize())
 			return false
 		if effect_type == "blind" and target_cn.race_immune_to_blind:
-			GameLog.log_general("[color=#88ccff]%s is immune to blindness.[/color]" % target_desc.capitalize())
+			GameLog.log_combat("[color=#88ccff]%s is immune to blindness.[/color]" % target_desc.capitalize())
 			return false
 		if target_cn.rolls_resist_negative_effect():
-			GameLog.log_general("[color=#88ccff]%s resists the effect![/color]" % target_desc.capitalize())
+			GameLog.log_combat("[color=#88ccff]%s resists the effect![/color]" % target_desc.capitalize())
 			return false
 
 	# These messages are all target-referential ("Target is empowered.") with
@@ -3960,21 +3972,21 @@ func _apply_generic_spell_effect(effect_type: String, spell: Dictionary, caster_
 			_buff_target(target_node, target_cn, effect_name, duration, {"damage_mult": 0.05})
 			var buff_msg: String = self_cast_message if not self_cast_message.is_empty() \
 				else "[color=#88ffcc]%s is empowered.[/color]" % target_desc.capitalize()
-			GameLog.log_general(buff_msg)
+			GameLog.log_combat(buff_msg)
 			_broadcast_combat("[color=#88ffcc]%s is empowered.[/color]" % bcast_desc.capitalize())
 			return true
 		"debuff":
 			if duration <= 0.0:
 				return false
 			_buff_target(target_node, target_cn, effect_name, duration, {"damage_mult": -0.05})
-			GameLog.log_general("[color=#8866ff]%s is weakened.[/color]" % target_desc.capitalize())
+			GameLog.log_combat("[color=#8866ff]%s is weakened.[/color]" % target_desc.capitalize())
 			_broadcast_combat("[color=#8866ff]%s is weakened.[/color]" % bcast_desc.capitalize())
 			return true
 		"snare":
 			if duration <= 0.0:
 				return false
 			_buff_target(target_node, target_cn, effect_name, duration, {"speed_slow": 0.15, "attack_speed_slow": 0.15})
-			GameLog.log_general("[color=#8866ff]%s is slowed.[/color]" % target_desc.capitalize())
+			GameLog.log_combat("[color=#8866ff]%s is slowed.[/color]" % target_desc.capitalize())
 			_broadcast_combat("[color=#8866ff]%s is slowed.[/color]" % bcast_desc.capitalize())
 			return true
 		"stun":
@@ -3987,7 +3999,7 @@ func _apply_generic_spell_effect(effect_type: String, spell: Dictionary, caster_
 				return false
 			if target_node.has_method("apply_fear"):
 				_fear_target(target_node, duration)
-				GameLog.log_general("[color=#ffcc66]%s flees in terror![/color]" % target_desc.capitalize())
+				GameLog.log_combat("[color=#ffcc66]%s flees in terror![/color]" % target_desc.capitalize())
 				_broadcast_combat("[color=#ffcc66]%s flees in terror![/color]" % bcast_desc.capitalize())
 				return true
 			var feared := _apply_disable_effect(duration, target_node, target_desc, "flees in terror!")
@@ -4000,7 +4012,7 @@ func _apply_generic_spell_effect(effect_type: String, spell: Dictionary, caster_
 			if target_node.has_method("apply_charm"):
 				_charm_target(target_node, duration)
 				_open_charm_control_window(target_node)
-				GameLog.log_general("[color=#ffcc66]%s is charmed![/color]" % target_desc.capitalize())
+				GameLog.log_combat("[color=#ffcc66]%s is charmed![/color]" % target_desc.capitalize())
 				_broadcast_combat("[color=#ffcc66]%s is charmed![/color]" % bcast_desc.capitalize())
 				return true
 			var charmed := _apply_disable_effect(duration, target_node, target_desc, "is charmed!")
@@ -4021,14 +4033,14 @@ func _apply_generic_spell_effect(effect_type: String, spell: Dictionary, caster_
 			if duration <= 0.0:
 				return false
 			_buff_target(target_node, target_cn, effect_name, duration, {"speed_slow": 1.0})
-			GameLog.log_general("[color=#8866ff]%s is rooted in place.[/color]" % target_desc.capitalize())
+			GameLog.log_combat("[color=#8866ff]%s is rooted in place.[/color]" % target_desc.capitalize())
 			_broadcast_combat("[color=#8866ff]%s is rooted in place.[/color]" % bcast_desc.capitalize())
 			return true
 		"blind":
 			if duration <= 0.0:
 				return false
 			_buff_target(target_node, target_cn, effect_name, duration, {"hit_chance": -25.0})
-			GameLog.log_general("[color=#8866ff]%s is blinded.[/color]" % target_desc.capitalize())
+			GameLog.log_combat("[color=#8866ff]%s is blinded.[/color]" % target_desc.capitalize())
 			_broadcast_combat("[color=#8866ff]%s is blinded.[/color]" % bcast_desc.capitalize())
 			return true
 		"silence":
@@ -4039,7 +4051,7 @@ func _apply_generic_spell_effect(effect_type: String, spell: Dictionary, caster_
 			# to consult it, but any future caster (monster or class) that
 			# checks it before casting will work with zero extra wiring here.
 			_buff_target(target_node, target_cn, effect_name, duration, {"silenced": 1.0})
-			GameLog.log_general("[color=#8888ff]%s is silenced.[/color]" % target_desc.capitalize())
+			GameLog.log_combat("[color=#8888ff]%s is silenced.[/color]" % target_desc.capitalize())
 			_broadcast_combat("[color=#8888ff]%s is silenced.[/color]" % bcast_desc.capitalize())
 			return true
 		"cure":
@@ -4047,7 +4059,7 @@ func _apply_generic_spell_effect(effect_type: String, spell: Dictionary, caster_
 			if to_remove.is_empty():
 				return false
 			_remove_effect_from_target(target_node, target_cn, to_remove)
-			GameLog.log_general("[color=#88ffaa]%s is cleansed of %s.[/color]" % [
+			GameLog.log_combat("[color=#88ffaa]%s is cleansed of %s.[/color]" % [
 				target_desc.capitalize(), spell_display_name(to_remove)
 			])
 			_broadcast_combat("[color=#88ffaa]%s is cleansed of %s.[/color]" % [
@@ -4065,7 +4077,7 @@ func _apply_generic_spell_effect(effect_type: String, spell: Dictionary, caster_
 			# field if a group-target absorb spell is ever added.
 			target_cn.apply_effect(effect_name, duration, {})
 			target_cn.active_effects[effect_name]["absorb_remaining"] = magnitude
-			GameLog.log_general("[color=#8866ff]%s is shielded, absorbing damage.[/color]" % target_desc.capitalize())
+			GameLog.log_combat("[color=#8866ff]%s is shielded, absorbing damage.[/color]" % target_desc.capitalize())
 			_broadcast_combat("[color=#8866ff]%s is shielded, absorbing damage.[/color]" % bcast_desc.capitalize())
 			return true
 	return false
@@ -4618,11 +4630,44 @@ func _tick_defense_skill(result: String) -> void:
 			_tick_skill("riposte")
 
 
+# Skill names older saves used, mapped to the current names in Data/player_skills.json.
+const LEGACY_SKILL_NAMES := {
+	"1h_slashing": "slashing_weapons", "2h_slashing": "slashing_weapons",
+	"1h_piercing": "piercing_weapons", "2h_piercing": "piercing_weapons",
+	"1h_blunt": "blunt_weapons", "2h_blunt": "blunt_weapons",
+}
+
+
+func _canonical_skill_name(raw: String) -> String:
+	var key := raw.to_lower().replace(" ", "_")
+	return LEGACY_SKILL_NAMES.get(key, key)
+
+
+# The skill a weapon uses AND trains. Taken from the item's CURRENT definition: a saved item is a full copy from the day
+# it was picked up and can carry a stale name (a saved rusty sword still said "1h slashing" while the game and the
+# class starting skills say slashing_weapons), which made the weapon look like skill 0 and accuracy fall back to a baseline.
+func _weapon_skill_key(weapon: Dictionary) -> String:
+	var definition := Inventory.get_item_definition(str(weapon.get("item_id", "")))
+	return _canonical_skill_name(str(definition.get("skill", weapon.get("skill", ""))))
+
+
+# Carries skills saved under a legacy name over to the current name (keeping the higher value) so old characters
+# don't lose the skill they earned.
+func _migrate_legacy_skills() -> void:
+	for old_name in LEGACY_SKILL_NAMES:
+		if skill_levels.has(old_name):
+			var new_name: String = LEGACY_SKILL_NAMES[old_name]
+			skill_levels[new_name] = maxi(int(skill_levels.get(new_name, 0)), int(skill_levels[old_name]))
+			skill_levels.erase(old_name)
+	for i in known_skills.size():
+		known_skills[i] = _canonical_skill_name(str(known_skills[i]))
+
+
 func _sync_weapon_skill() -> void:
 	var weapon := Inventory.get_equipped_weapon()
 	if weapon.is_empty():
 		return
-	var skey: String = weapon.get("skill", "").to_lower().replace(" ", "_")
+	var skey: String = _weapon_skill_key(weapon)
 	if skey.is_empty() or skey == "none":
 		return
 	combat_node.weapon_skill = skill_levels.get(skey, 0)

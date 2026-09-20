@@ -254,7 +254,19 @@ func _ready():
 	load_settings()
 	apply_audio_settings()
 
+# Saves are otherwise event-driven (a kill, an item moved...), so nothing banked the play time or your position if a
+# session ended any other way — a dropped connection, closing the window, a crash. /played then only ever showed the
+# current session. While a character is in the world it is now saved once a minute, and when the window is closed.
+const AUTOSAVE_INTERVAL := 60.0
+var _autosave_elapsed := 0.0
+
+
 func _process(delta: float):
+	_autosave_elapsed += delta
+	if _autosave_elapsed >= AUTOSAVE_INTERVAL:
+		_autosave_elapsed = 0.0
+		if not player_data.is_empty() and is_instance_valid(TargetFrame.local_player()):
+			save_player_data_to_file()
 	if not time_running:
 		return
 	time_accumulator += delta
@@ -295,7 +307,14 @@ func load_world_state(server_name: String) -> void:
 			game_time[key] = int(data["game_time"][key])
 	time_accumulator = float(data.get("time_accumulator", 0.0))
 	initialize_time_system()
-	print("[server] Restored the world clock: day %d, %02d:%02d." % [game_time.day, game_time.hour, game_time.minute])
+	Net._slog("Restored the world clock: day %d, %02d:%02d." % [game_time.day, game_time.hour, game_time.minute])
+
+
+func _notification(what: int) -> void:
+	# Closing the game window: bank the play time and position. (For a server character Net.disconnect_game() then
+	# flushes the upload; whichever of the two runs first, the other still does the right thing.)
+	if what == NOTIFICATION_WM_CLOSE_REQUEST and not player_data.is_empty() and is_instance_valid(TargetFrame.local_player()):
+		save_player_data_to_file()
 
 
 func send_time_to(peer_id: int) -> void:

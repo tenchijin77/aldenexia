@@ -42,6 +42,14 @@ const TRUSTED_CERT_PATHS := ["res://Data/server_cert.crt", "user://server_tls/se
 const SHUTDOWN_GRACE := 8.0  # seconds a shutting-down server waits for players' final saves
 const WORLD_SAVE_INTERVAL := 300.0  # seconds between world-state saves while running
 const HITCH_LOG_SECONDS := 0.5  # a server frame longer than this is logged ("Long frame") — stalls make clients time out
+# ENet gives up on a silent connection after ~5-6 s by default. Measured: a server (or network) stall of 6+ s dropped a client,
+# which is easily reached by WiFi power-save/roaming or a starved VM. Both ends now wait longer before declaring the other dead.
+# Cost: a really dead peer is noticed after PEER_TIMEOUT_MIN_MS instead of ~5 s (a crashed player's character stays "in the world" that long).
+const PEER_TIMEOUT_LIMIT := 32
+const PEER_TIMEOUT_MIN_MS := 20000
+const PEER_TIMEOUT_MAX_MS := 60000
+const CLIENT_HITCH_SECONDS := 1.0  # a frame this long on the PLAYER's machine is logged too (a frozen client also makes the server drop it)
+const LINK_LOG_INTERVAL := 30.0  # seconds between the client's "link to server" log lines
 
 var is_multiplayer_game := false
 ## Why the last join attempt failed, when the host said so (e.g. a version mismatch).
@@ -93,6 +101,9 @@ var _world_save_timer := 0.0
 var server_shutdown_notice := ""
 var _shutdown_reply_pending := false
 var _request_serial := 0
+var _last_frame_ms := 0
+var _link_log_timer := 0.0
+var _last_link_stats := "no reading yet"
 ## Client side: a one-off errand to a server from a menu (delete a character...) — connect, do it, disconnect,
 ## no zone. Empty when idle. See request_server_delete().
 var _menu_request: Dictionary = {}
@@ -111,6 +122,60 @@ func _ready() -> void:
 	multiplayer.server_disconnected.connect(_on_server_disconnected)
 	if _wants_dedicated_server():
 		_start_dedicated_server.call_deferred()
+
+
+# Makes the connection to `peer_id` (1 = the server, from a client) more patient — see PEER_TIMEOUT_MIN_MS.
+func _relax_timeouts(peer_id: int) -> void:
+	var peer := multiplayer.multiplayer_peer as ENetMultiplayerPeer
+	if peer == null:
+		return
+	var link := peer.get_peer(peer_id)
+	if link != null:
+		link.set_timeout(PEER_TIMEOUT_LIMIT, PEER_TIMEOUT_MIN_MS, PEER_TIMEOUT_MAX_MS)
+
+
+# Server log lines carry a wall-clock time so a disconnect can be matched to what happened at that moment.
+func _slog(msg: String) -> void:
+	print("%s [server] %s" % [Time.get_time_string_from_system(), msg])
+
+
+func _slog_err(msg: String) -> void:
+	printerr("%s [server] %s" % [Time.get_time_string_from_system(), msg])
+
+
+# Client side (playing on a dedicated server): logs this machine's own stalls and the link quality, so a random
+# disconnect can be told apart — did the PLAYER's game freeze (this prints a long frame right after), or did the link
+# degrade (RTT/loss climbing), or neither (then look at the server's "Long frame" lines).
+# Real seconds since the previous frame. NOT the `delta` _process receives: Godot clamps that, so a long stall (a
+# frozen VM, a debugger pause) would look like a normal frame and the stall loggers would never fire.
+func _real_frame_seconds() -> float:
+	var now_ms := Time.get_ticks_msec()
+	var seconds := 0.0 if _last_frame_ms == 0 else (now_ms - _last_frame_ms) / 1000.0
+	_last_frame_ms = now_ms
+	return seconds
+
+
+func _monitor_client_link(delta: float, frame_seconds: float) -> void:
+	if not remote_character_mode:
+		return
+	var now := Time.get_time_string_from_system()
+	if frame_seconds > CLIENT_HITCH_SECONDS:
+		print("%s [client] This game stalled for %.1f s (the server drops a client that stops answering for ~30 s)." % [now, frame_seconds])
+	var peer := multiplayer.multiplayer_peer as ENetMultiplayerPeer
+	if peer == null or peer.get_connection_status() != MultiplayerPeer.CONNECTION_CONNECTED:
+		return
+	_link_log_timer += delta
+	if _link_log_timer < LINK_LOG_INTERVAL:
+		return
+	_link_log_timer = 0.0
+	var server_peer := peer.get_peer(1)
+	if server_peer == null:
+		return
+	_last_link_stats = "RTT %d ms (variance %d), packet loss %.2f%%" % [
+		int(server_peer.get_statistic(ENetPacketPeer.PEER_ROUND_TRIP_TIME)),
+		int(server_peer.get_statistic(ENetPacketPeer.PEER_ROUND_TRIP_TIME_VARIANCE)),
+		float(server_peer.get_statistic(ENetPacketPeer.PEER_PACKET_LOSS)) / 65536.0 * 100.0]
+	print("%s [client] link to server: %s" % [now, _last_link_stats])
 
 
 # ── Dedicated server ──────────────────────────────────────────────────────
@@ -152,16 +217,16 @@ func _start_dedicated_server() -> void:
 	var wanted_name := _cmdline_value("name", server_name)
 	server_name = sanitize_name(wanted_name)
 	if server_name.is_empty():
-		printerr("[server] --name must be letters/numbers only (got '%s')." % wanted_name)
+		_slog_err("--name must be letters/numbers only (got '%s')." % wanted_name)
 		get_tree().quit(1)
 		return
 	Global.load_world_state(server_name)
 	if host_game(port) != OK:
-		printerr("[server] Could not start (UDP port %d in use, or no usable TLS key/certificate — see errors above)." % port)
+		_slog_err("Could not start (UDP port %d in use, or no usable TLS key/certificate — see errors above)." % port)
 		get_tree().quit(1)
 		return
-	print("[server] '%s' — Aldenexia %s listening on UDP %d (encrypted), up to %d players." % [server_name, GameVersion.display(), port, max_players])
-	print("[server] Stop it gracefully by creating the file %s (tools/run_server.sh does this on Ctrl-C / SIGTERM)." % ProjectSettings.globalize_path(stop_file))
+	_slog("'%s' — Aldenexia %s listening on UDP %d (encrypted), up to %d players." % [server_name, GameVersion.display(), port, max_players])
+	_slog("Stop it gracefully by creating the file %s (tools/run_server.sh does this on Ctrl-C / SIGTERM)." % ProjectSettings.globalize_path(stop_file))
 	get_tree().change_scene_to_file(pending_zone_path)
 	_run_world_check()
 
@@ -174,7 +239,7 @@ func _run_world_check() -> void:
 	await get_tree().create_timer(4.0).timeout
 	var zone := get_tree().current_scene
 	if zone == null:
-		printerr("[server] WORLD CHECK FAILED: no zone is loaded.")
+		_slog_err("WORLD CHECK FAILED: no zone is loaded.")
 		return
 	var spawn: Vector3 = zone.get("spawn_position") if zone.get("spawn_position") != null else Vector3.ZERO
 	var world: World3D = get_tree().root.world_3d
@@ -188,13 +253,13 @@ func _run_world_check() -> void:
 	var mob_count: int = mobs.get_child_count() if mobs else -1
 	var ground_ok: bool = not hit.is_empty()
 	var nav_ok: bool = NavigationServer3D.map_get_regions(nav_map).size() > 0 and path.size() >= 2
-	print("[server] World check: ground under spawn %s, navmesh %s (%d region(s), %d-point test path), %d monsters." % [
+	_slog("World check: ground under spawn %s, navmesh %s (%d region(s), %d-point test path), %d monsters." % [
 		("OK (y=%.1f)" % hit["position"].y) if ground_ok else "MISSING",
 		"OK" if nav_ok else "BROKEN", NavigationServer3D.map_get_regions(nav_map).size(), path.size(), mob_count])
 	if not ground_ok:
-		printerr("[server] WARNING: no ground collision under the spawn point — monsters and players would fall through the world.")
+		_slog_err("WARNING: no ground collision under the spawn point — monsters and players would fall through the world.")
 	if not nav_ok:
-		printerr("[server] WARNING: the navigation mesh is missing or unusable — monsters won't be able to path.")
+		_slog_err("WARNING: the navigation mesh is missing or unusable — monsters won't be able to path.")
 
 
 func host_game(port: int = DEFAULT_PORT) -> Error:
@@ -390,7 +455,7 @@ func broadcast_combat_message(text: String, source_position: Vector3) -> void:
 @rpc("any_peer", "call_remote", "reliable")
 func _rpc_receive_world_announce(kind: String, pname: String, level: int, cls: String, variant: int) -> void:
 	if is_dedicated_server:
-		print("[server] %s: %s (level %d %s)" % [kind, pname, level, cls])
+		_slog("%s: %s (level %d %s)" % [kind, pname, level, cls])
 	WorldAnnouncer.announce(kind, pname, level, cls, variant)
 
 
@@ -475,6 +540,8 @@ func send_group_removed(target_peer_id: int, reason: String) -> void:
 
 
 func _on_peer_connected(id: int) -> void:
+	if is_multiplayer_game or is_dedicated_server:
+		_relax_timeouts(id)
 	if multiplayer.is_server():
 		# The host holds player_connected (which spawns the newcomer's puppet)
 		# until they've proven they run a compatible build — see below.
@@ -486,7 +553,7 @@ func _on_peer_connected(id: int) -> void:
 
 func _on_peer_disconnected(id: int) -> void:
 	if is_dedicated_server:
-		print("[server] Peer %d disconnected (%d/%d)." % [id, multiplayer.get_peers().size(), max_players])
+		_slog("Peer %d disconnected (%d/%d)." % [id, multiplayer.get_peers().size(), max_players])
 	_unverified_peers.erase(id)
 	_awaiting_login.erase(id)
 	_peer_character.erase(id)
@@ -497,6 +564,7 @@ func _on_peer_disconnected(id: int) -> void:
 
 
 func _on_connected_to_server() -> void:
+	_relax_timeouts(1)
 	# We only count as connected once the host has approved our build.
 	_rpc_submit_version.rpc_id(1, GameVersion.version(), GameVersion.build_id())
 
@@ -520,7 +588,7 @@ func _rpc_submit_version(client_version: String, client_build: String) -> void:
 		if is_dedicated_server:
 			# A dedicated server has no character of its own to lean on: the joiner must now log one
 			# in (see _rpc_login) before their puppet is spawned.
-			print("[server] Peer %d connected (%d/%d), waiting for a character." % [id, multiplayer.get_peers().size(), max_players])
+			_slog("Peer %d connected (%d/%d), waiting for a character." % [id, multiplayer.get_peers().size(), max_players])
 			_awaiting_login[id] = true
 			get_tree().create_timer(LOGIN_TIMEOUT).timeout.connect(_on_login_timeout.bind(id))
 		else:
@@ -602,6 +670,8 @@ func _on_connection_failed() -> void:
 
 
 func _on_server_disconnected() -> void:
+	if remote_character_mode:
+		print("%s [client] Lost the connection to the server. Last link reading: %s" % [Time.get_time_string_from_system(), _last_link_stats])
 	if not _menu_request.is_empty():
 		_finish_menu_request(false, "", "The server closed the connection.")
 		return
@@ -639,11 +709,11 @@ func _server_tls_options() -> TLSOptions:
 		cert = crypto.generate_self_signed_certificate(key, "CN=%s,O=Aldenexia" % TLS_CN, "20260101000000", "20460101000000")
 		DirAccess.make_dir_recursive_absolute(tls_dir)
 		if key.save(key_path) != OK or cert.save(cert_path) != OK:
-			printerr("[server] Could not write the TLS key/certificate to %s" % tls_dir)
+			_slog_err("Could not write the TLS key/certificate to %s" % tls_dir)
 			return null
-		print("[server] Created a new TLS key and certificate in %s" % ProjectSettings.globalize_path(tls_dir))
-		print("[server] >>> Copy server.crt (the PUBLIC certificate) to Data/server_cert.crt in the game project and rebuild the client,")
-		print("[server] >>> or players can't connect. Keep server.key private — never put it in the project or share it.")
+		_slog("Created a new TLS key and certificate in %s" % ProjectSettings.globalize_path(tls_dir))
+		_slog(">>> Copy server.crt (the PUBLIC certificate) to Data/server_cert.crt in the game project and rebuild the client,")
+		_slog(">>> or players can't connect. Keep server.key private — never put it in the project or share it.")
 	return TLSOptions.server(key, cert)
 
 
@@ -686,16 +756,24 @@ func _character_path(key: String) -> String:
 
 
 func _login_fail(id: int, kind: String, reason: String) -> void:
-	print("[server] Login refused for peer %d: %s" % [id, reason])
+	_slog("Login refused for peer %d: %s" % [id, reason])
 	_rpc_login_failed.rpc_id(id, kind, reason)
 	get_tree().create_timer(0.6).timeout.connect(_kick.bind(id))  # let the message land first
 
 
 func _on_login_timeout(id: int) -> void:
 	if _awaiting_login.has(id):
-		print("[server] Peer %d never logged a character in — dropped." % id)
+		_slog("Peer %d never logged a character in — dropped." % id)
 		_awaiting_login.erase(id)
 		_kick(id)
+
+
+# The peer id currently logged in as `key`, or 0.
+func _peer_holding(key: String) -> int:
+	for peer_id in _peer_character:
+		if _peer_character[peer_id] == key:
+			return peer_id
+	return 0
 
 
 # Parses an uploaded/stored character; {} unless it is a real dictionary for `player` (a sanitized name).
@@ -802,18 +880,18 @@ func _rpc_login(character_name: String, password: String, creation_json: String)
 	if _shutting_down:
 		_login_fail(id, "shutting_down", "The server is shutting down. Try again in a few minutes.")
 		return
-	if _peer_character.size() >= max_players:
+	# Is this character still held by ANOTHER connection? After a dropped/crashed client the server keeps the old
+	# connection open for ~30 s (see PEER_TIMEOUT_MIN_MS), and the player usually reconnects at once.
+	var holder := _peer_holding(key)
+	if holder == 0 and _peer_character.size() >= max_players:
 		_login_fail(id, "server_full", "The server is full (%d/%d players). Try again later." % [_peer_character.size(), max_players])
-		return
-	if _peer_character.values().has(key):
-		_login_fail(id, "already_online", "%s is already in the world." % player.capitalize())
 		return
 	var path := _character_path(key)
 	var exists := FileAccess.file_exists(path)
 	var json_text := ""
 	var status := ""  # "created" / "password_set" / "" — told to the client
 	if not creation_json.is_empty():
-		if exists:
+		if exists or holder != 0:
 			_login_fail(id, "name_taken", "A character named %s already exists on this server." % player.capitalize())
 			return
 		if password.length() < MIN_PASSWORD_LENGTH:
@@ -833,9 +911,25 @@ func _rpc_login(character_name: String, password: String, creation_json: String)
 		if not exists:
 			_login_fail(id, "no_character", "There is no character named %s on this server." % player.capitalize())
 			return
-		if FileAccess.file_exists(_auth_path(key)):
+		var has_password := FileAccess.file_exists(_auth_path(key))
+		if holder != 0 and not has_password:
+			# Nothing proves this is the same player, so don't let anyone take the character over.
+			_login_fail(id, "already_online", "%s is already in the world." % player.capitalize())
+			return
+		if has_password:
 			if not _check_access(id, key, password):
 				return
+			if holder != 0:
+				# Correct password while the old connection is still open (the player's link dropped and they came
+				# straight back): the new login replaces the old one instead of being turned away.
+				_slog("Peer %d takes over %s from peer %d (the old connection was still open)." % [id, key, holder])
+				_peer_character.erase(holder)
+				# Graceful, not forced: a forced disconnect leaves the peer listed in multiplayer.get_peers() (no
+				# disconnect event ever fires), and later broadcasts then fail with "Invalid target peer".
+				var link := multiplayer.multiplayer_peer as ENetMultiplayerPeer
+				if link != null:
+					link.disconnect_peer(holder, false)
+				player_disconnected.emit(holder)  # take the old player's body out of the world right now; the real disconnect event follows later (harmless repeat)
 		elif password.length() < MIN_PASSWORD_LENGTH:
 			_login_fail(id, "weak_password", "%s has no password yet. Enter one (at least %d characters) to set it." % [player.capitalize(), MIN_PASSWORD_LENGTH])
 			return
@@ -848,7 +942,7 @@ func _rpc_login(character_name: String, password: String, creation_json: String)
 		DirAccess.copy_absolute(path, path.get_basename() + ".bak")  # last known-good copy, refreshed every login
 	_awaiting_login.erase(id)
 	_peer_character[id] = key
-	print("[server] Peer %d logged in as %s%s." % [id, key, " (new character)" if status == "created" else (" (password set)" if status == "password_set" else "")])
+	_slog("Peer %d logged in as %s%s." % [id, key, " (new character)" if status == "created" else (" (password set)" if status == "password_set" else "")])
 	_rpc_login_ok.rpc_id(id, json_text, status)
 
 
@@ -881,7 +975,7 @@ func _rpc_delete_character(character_name: String, password: String) -> void:
 	if not moved:
 		_login_fail(id, "server_error", "The server could not delete %s." % player.capitalize())
 		return
-	print("[server] Peer %d deleted character %s (kept in deleted/)." % [id, key])
+	_slog("Peer %d deleted character %s (kept in deleted/)." % [id, key])
 	_awaiting_login.erase(id)
 	_rpc_delete_done.rpc_id(id, "%s was deleted." % player.capitalize())
 	get_tree().create_timer(0.6).timeout.connect(_kick.bind(id))
@@ -1050,16 +1144,20 @@ func _await_save_acks() -> void:
 # upload its character right now, waits for each to confirm (up to SHUTDOWN_GRACE), saves the world clock and exits.
 # Players see "The server shut down. Your character was saved." on the Join a Server screen.
 func _process(delta: float) -> void:
-	if not is_dedicated_server or _shutting_down:
+	var frame_seconds := _real_frame_seconds()
+	if not is_dedicated_server:
+		_monitor_client_link(delta, frame_seconds)
 		return
-	if delta > HITCH_LOG_SECONDS:
-		print("[server] Long frame: %.1f s (%d player(s) online)" % [delta, _peer_character.size()])
+	if _shutting_down:
+		return
+	if frame_seconds > HITCH_LOG_SECONDS:
+		_slog("Long frame: %.1f s (%d player(s) online) — this machine/VM stalled" % [frame_seconds, _peer_character.size()])
 	_stop_poll += delta
 	if _stop_poll >= 1.0:
 		_stop_poll = 0.0
 		if FileAccess.file_exists(stop_file):
 			DirAccess.remove_absolute(stop_file)
-			print("[server] Stop requested.")
+			_slog("Stop requested.")
 			begin_shutdown()
 	_world_save_timer += delta
 	if _world_save_timer >= WORLD_SAVE_INTERVAL:
@@ -1072,7 +1170,7 @@ func begin_shutdown() -> void:
 		return
 	_shutting_down = true
 	_shutdown_waiting = _peer_character.keys()
-	print("[server] Shutting down — waiting for %d player(s) to save." % _shutdown_waiting.size())
+	_slog("Shutting down — waiting for %d player(s) to save." % _shutdown_waiting.size())
 	for id in multiplayer.get_peers():
 		_rpc_server_shutting_down.rpc_id(id)
 	get_tree().create_timer(SHUTDOWN_GRACE).timeout.connect(_finish_shutdown)
@@ -1089,9 +1187,9 @@ func _finish_shutdown() -> void:
 		return
 	_shutdown_done = true
 	if not _shutdown_waiting.is_empty():
-		print("[server] %d player(s) did not confirm their save in time." % _shutdown_waiting.size())
+		_slog("%d player(s) did not confirm their save in time." % _shutdown_waiting.size())
 	Global.save_world_state(server_name)
-	print("[server] World state saved. Goodbye.")
+	_slog("World state saved. Goodbye.")
 	# Tell everyone goodbye but leave the peer itself open until we quit: closing it made other nodes' _process
 	# (weather, mob spawner) log errors reading multiplayer state during the last frame.
 	if multiplayer.multiplayer_peer != null:

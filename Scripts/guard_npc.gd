@@ -81,6 +81,25 @@ var _banter_interval: float = 420.0
 
 var _patrol_points: Array[Vector3] = []
 var _patrol_index: int = 0
+# Progress watchdogs — a guard must never be able to stand still forever. Patrol: no closer to the current waypoint for
+# PATROL_STALL_SKIP seconds -> give up on it and head for the next. Engage: chasing a monster without getting closer for
+# ENGAGE_STALL_GIVE_UP seconds -> drop it, and ignore it for IGNORE_UNREACHABLE_SECONDS so the scan doesn't re-pick it.
+const PATROL_STALL_SKIP := 20.0
+const ENGAGE_STALL_GIVE_UP := 8.0
+const IGNORE_UNREACHABLE_SECONDS := 30.0
+const PROGRESS_EPSILON := 0.5
+var _patrol_best_dist: float = INF
+var _patrol_stall_timer: float = 0.0
+var _engage_best_dist: float = INF
+var _engage_stall_timer: float = 0.0
+var _ignored_targets: Dictionary = {}  # monster instance id -> Time.get_ticks_msec() until which it is ignored
+
+
+# Distance on the ground plane only. Navmesh points sit up to ~0.8 m above the floor a guard's feet are on, so a 3D
+# distance can stay above an arrival threshold even when the guard is standing right on the point — Bryn froze on a path
+# corner exactly like that (0.2 m away horizontally, 0.83 m in 3D, arrival threshold 0.75).
+static func _flat_distance(a: Vector3, b: Vector3) -> float:
+	return Vector2(a.x - b.x, a.z - b.z).length()
 
 
 func _ready() -> void:
@@ -403,8 +422,26 @@ func _process_patrol(delta: float) -> void:
 		return
 	var target: Vector3 = _patrol_points[_patrol_index]
 	_move_toward(target, WAYPOINT_ARRIVAL, delta)
-	if global_position.distance_to(target) <= WAYPOINT_ARRIVAL:
-		_patrol_index = (_patrol_index + 1) % _patrol_points.size()
+	var to_target := _flat_distance(global_position, target)
+	if to_target <= WAYPOINT_ARRIVAL:
+		_advance_patrol()
+		return
+	# Watchdog: no real progress toward this waypoint for a long time (unreachable, wedged...) -> move on to the next.
+	if to_target < _patrol_best_dist - PROGRESS_EPSILON:
+		_patrol_best_dist = to_target
+		_patrol_stall_timer = 0.0
+	else:
+		_patrol_stall_timer += delta
+		if _patrol_stall_timer >= PATROL_STALL_SKIP:
+			push_warning("%s made no progress toward patrol waypoint #%d for %d s — skipping it." % [npc_name, _patrol_index, int(PATROL_STALL_SKIP)])
+			_advance_patrol()
+
+
+func _advance_patrol() -> void:
+	_patrol_index = (_patrol_index + 1) % _patrol_points.size()
+	_patrol_best_dist = INF
+	_patrol_stall_timer = 0.0
+	_current_path.clear()
 
 
 func _scan_for_targets() -> void:
@@ -414,9 +451,12 @@ func _scan_for_targets() -> void:
 
 	var nearest: Node = null
 	var nearest_dist := engage_range
+	var now_ms := Time.get_ticks_msec()
 	for monster in get_tree().get_nodes_in_group("monsters"):
 		if monster.get("current_state") == monster.State.DEAD:
 			continue
+		if int(_ignored_targets.get(monster.get_instance_id(), 0)) > now_ms:
+			continue  # gave up on this one recently (couldn't reach it)
 		var dist := origin.distance_to(monster.global_position)
 		if dist < nearest_dist:
 			nearest_dist = dist
@@ -424,6 +464,8 @@ func _scan_for_targets() -> void:
 	if nearest:
 		attack_target = nearest
 		_engage_origin = global_position
+		_engage_best_dist = INF
+		_engage_stall_timer = 0.0
 		state = GuardState.ENGAGE
 		_say_flavor("engage", true)
 
@@ -444,6 +486,17 @@ func _process_engage(delta: float) -> void:
 	var distance := global_position.distance_to(attack_target.global_position)
 	if distance > ATTACK_RANGE:
 		_move_toward(attack_target.global_position, ATTACK_RANGE, delta, move_speed * SPRINT_SPEED_MULTIPLIER)
+		# Watchdog: chasing without getting any closer (behind a wall, across water...) -> stop, and don't pick it again for a while.
+		if distance < _engage_best_dist - PROGRESS_EPSILON:
+			_engage_best_dist = distance
+			_engage_stall_timer = 0.0
+		else:
+			_engage_stall_timer += delta
+			if _engage_stall_timer >= ENGAGE_STALL_GIVE_UP:
+				_ignored_targets[attack_target.get_instance_id()] = Time.get_ticks_msec() + int(IGNORE_UNREACHABLE_SECONDS * 1000.0)
+				attack_target = null
+				state = _default_state
+				_current_path.clear()
 		return
 
 	_apply_gravity(delta)
@@ -516,7 +569,7 @@ func _move_toward(target_pos: Vector3, stop_distance: float, delta: float, speed
 		return
 
 	while _current_path_index < _current_path.size() - 1 \
-			and global_position.distance_to(_current_path[_current_path_index]) < CORNER_ARRIVAL:
+			and _flat_distance(global_position, _current_path[_current_path_index]) < CORNER_ARRIVAL:
 		_current_path_index += 1
 
 	var next_position: Vector3 = _current_path[_current_path_index]

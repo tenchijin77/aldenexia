@@ -2719,6 +2719,8 @@ SESSION 51 UPDATE (2026-09-19) — dedicated server, step 1 (v0.4.0):
   refuse logins, _rpc_server_shutting_down -> clients flush their character and answer _rpc_shutdown_ready -> save world clock
   (user://server_state_<name>.json) -> quit. 8 s grace. tools/run_server.sh turns Ctrl-C/SIGTERM/SIGHUP into the stop file (Godot's headless
   server cannot catch signals itself). systemd needs KillMode=mixed (tools/aldenexia-server.service.example).
+- LINK PATIENCE + TAKEOVER: both ends set ENet timeouts to (32, 20 s min, 60 s max) so short stalls (WiFi, VM) don't disconnect; a login with the correct password while the character is still
+  held by a stale connection replaces it (Net._peer_holding). Server log lines are timestamped; `Long frame` (server) and `[client] ... stalled` / `link to server` (client) use real elapsed time.
 - WORLD CHECK: 4 s after start the server logs ground/navmesh/monster status (and WARNINGs) — read it after every export.
 
 DEDICATED SERVER — OPERATING GUIDE

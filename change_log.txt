@@ -1236,6 +1236,45 @@ The LAN host/join flow is untouched apart from a handshake tweak (below). Versio
 - Observation to look at later: the number of monsters in the zone grew from ~25 at start to ~70 during active fighting (spawner respawns + corpses that linger), and
   replication bandwidth grows with it.
 
+### Batch after the first real sessions (2026-09-20): casting messages, /played, Bryn, disconnect diagnostics
+- Casting messages now go to the COMBAT window: the caster's own "You begin casting a spell.", effect lines (Life Siphon, slows, roots, buffs, immunities/resists, songs
+  starting/ending...) use `GameLog.log_combat` (31 calls in `player3d.gd`'s spell code). Refusals/usage errors ("No target selected", "Insufficient mana", "not ready", "must be
+  level N") stay in General as feedback. Other players already received these in their combat window via the existing broadcast. Verified by casting Life Siphon and reading both channels.
+- /played showed only the current session because play time was banked only when a SAVE happened, and saves are event-driven — a session ending in a dropped connection,
+  a closed window or a crash banked ~nothing (measured: 15 s played, 1 s banked). `Global` now autosaves once a minute while a character is in the world (`AUTOSAVE_INTERVAL`) and
+  on window close. Output reads "Total time played: X. This session: Y." Verified on the dedicated server: a 75 s session that never saved still banked 60 s and the next login started from it.
+- Sergeant Bryn froze mid-patrol. Reproduced by fast-forwarding the real zone: he stood exactly on a path corner at (-29.6, -200) forever. Cause: corner/waypoint ARRIVAL used 3D
+  distance, but navmesh points sit ~0.8 m above the floor his feet are on, so 0.2 m away horizontally was 0.83 m in 3D (> the 0.75 m threshold) and he never advanced. Now measured on the
+  ground plane (`GuardNPC._flat_distance`). Safety nets so a guard can never stand still forever: PATROL — no progress toward a waypoint for 20 s -> skip to the next; ENGAGE — chasing without
+  getting closer for 8 s -> give up and ignore that monster for 30 s (`_ignored_targets`). Oni shares the movement code and got the same engage watchdog. Verified: Bryn completed the whole route
+  (Town Gate -> Mausoleum -> Dock -> South Zone -> Traveling Merchant -> Signpost -> Archery Targets -> Town Gate) and looped again with no stalls (~5 game-hours fast-forwarded).
+- Disconnect diagnostics: server log lines now carry a wall-clock time; the server logs `Long frame: N s` for stalls and clients log `[client] This game stalled for N s`,
+  a `[client] link to server: RTT.. loss..` line every 30 s and the last reading when the connection is lost. Both stall detectors use real elapsed time — Godot clamps the `delta` it passes
+  to _process, so a delta-based detector never fires on a long stall (found by testing). Findings: a client can freeze 25 s and stay connected; a 6 s server freeze is logged and survived. The user
+  reported random disconnects on a laptop over WiFi but NONE from a wired PC, which points at the WiFi link rather than the server.
+- Monsters standing still: the existing wander logic (`monster3d.gd::state_patrol`) mostly never worked. Measured over 3 game-minutes with no player near: slimes, bandits and bats moved
+  ~0-1 m, only 3 of 6 rats moved. Cause: a wander leg picked a random point and re-picked only when the monster got within 1.0 m (3D), but the nav agent stops at
+  `target_desired_distance` = 1.5 m and calls itself finished — a permanent deadlock 1.5 m short of the point. Now: ground-plane arrival at 2.0 m, then a pause (IDLE) before the next leg,
+  wander points snapped onto the navmesh (6 tries), and a 6 s no-progress watchdog. After: every non-passive type moves (37-153 m walked in 3 game-minutes, within ~10-32 m of home).
+  Passive monsters (dune scarab) still stay put until aggroed, by design — open question for the user. Note: monsters now roam more, so they meet guards/players more often.
+- Connection patience: ENet drops a silent connection after ~5-6 s by default; measured — a server/network stall of 6+ s dropped a client (WiFi power-save/roaming or a starved VM easily does that).
+  Both ends now use `set_timeout(32, 20000, 60000)` (PEER_TIMEOUT_*): 12 s stalls are survived, a stall past ~24 s still drops. Cost: a crashed/dropped client lingers on the server ~33 s.
+  So a correctly authenticated re-login now TAKES OVER the old connection instead of being refused "already in the world" (`_peer_holding`, graceful disconnect + immediate puppet removal;
+  a forced disconnect left a zombie peer and "Invalid target peer" errors). Characters with no password are never taken over. A wrong password leaves the online player untouched.
+- COMBAT TUNING: every combat number is now in `Data/combat_balance.json` (read by `Scripts/combat_balance.gd`, `CombatBalance.num(key)`; each key has a neutral fallback = the old behaviour, and
+  the file's `_help` block explains each one). Knobs: `player_hit_bonus`, `monster_hit_bonus`, `hit_level_diff_per_level`, `hit_min`/`hit_max`, `player_melee_damage_mult`,
+  `monster_melee_damage_mult`, `player_spell_damage_mult`, `monster_hp_mult`, `monster_hp_per_level`, `monster_damage_per_level`, `monster_scale_min/max`. Players vs monsters are told apart by
+  group in `combatnode.gd` (guards/pets stay neutral). Shipped values = the proposed defaults: player_hit_bonus 35 (a level-1 Voidknight now hits Lv2-4 monsters ~49-72% instead of 17-36%),
+  player_spell_damage_mult 0.5 (Life Siphon 52 -> 26), monster HP/damage +12% per level above the monster's base level in monsters.json (rat Lv1/2/3 = 20/22/25 HP; snake Lv3 = 31).
+  Monster accuracy is unchanged (13-57% on a level-1 player). Set any value back to its neutral number to undo it. Player hit/damage is computed on each player's machine and monster HP/damage
+  on the server, so the server and the clients must ship the same file.
+- WEAPON SKILL FIX: at login the equipped weapon did not exist yet when `_sync_weapon_skill()` ran (inventory loads after `load_character_data`), so accuracy came from a baseline skill (10) until the
+  first "you've become better at..." skill-up applied the real value. Now synced again after the equipment loads (`load_player_data_from_global`); the baseline is only a fallback when the real skill is 0.
+  Also found: saved item copies carry stale skill names (a saved rusty sword said "1h slashing"; today it is `slashing_weapons`, which is also the class starting skill), so the weapon skill and the
+  skill being TRAINED could disagree. `_weapon_skill_key()` now reads the CURRENT item definition for the sync and both training call sites, and `_migrate_legacy_skills()` maps the old names
+  (`1h_slashing` etc.) onto the current ones keeping the higher value so old characters lose nothing. Verified: fresh Voidknight = skill 8 / ATK 38 at login, +1 skill = +2 ATK with no jump;
+  a legacy save with `1h_slashing: 47` keeps 47 as `slashing_weapons`.
+
 ### Not built yet
 - Nothing on the original server list. Possible later: per-server certificates in servers.json, an in-game admin/console command channel,
   server-side damage re-verification, loot rolled server-side (see "Still-open netcode gaps").
