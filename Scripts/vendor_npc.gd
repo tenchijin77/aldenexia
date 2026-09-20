@@ -16,6 +16,8 @@ class_name VendorNPC
 # the default "default") falls back to DEFAULT_VENDOR_MODEL, the original
 # shared player model every vendor used before 2026-09-16.
 @export var vendor_model_key: String = "default"
+## Seconds after dying before this NPC returns at its original spot.
+@export var respawn_seconds: float = 120.0
 
 const VENDOR_MODELS := {
 	"male": {
@@ -43,6 +45,7 @@ var _shop_data: Dictionary = {}
 
 func _ready() -> void:
 	add_to_group("npc_vendor")
+	NPCRespawner.register_home(self)
 	if name_label:
 		name_label.text = npc_name
 	_load_shop_data()
@@ -81,6 +84,12 @@ func _load_shop_data() -> void:
 	file.close()
 	if typeof(result) == TYPE_DICTIONARY:
 		_shop_data = result.get(shop_id, {})
+
+
+# Vendors have HP (see _setup_combat) so they can be killed like any NPC; they
+# then respawn via the shared helper. Nothing currently attacks them.
+func die() -> void:
+	NPCRespawner.handle_death(self, respawn_seconds)
 
 
 func get_vendor_display_name() -> String:

@@ -44,6 +44,9 @@ properties/10/replication_mode = 2
 properties/11/path = NodePath("CombatNode:level")
 properties/11/spawn = true
 properties/11/replication_mode = 2
+properties/12/path = NodePath(".:player_class")
+properties/12/spawn = true
+properties/12/replication_mode = 2
 
 [node name="CharacterBody3D" type="CharacterBody3D" unique_id=992623004 groups=["player"]]
 script = ExtResource("1_w11xc")

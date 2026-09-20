@@ -2,6 +2,7 @@
     {
         "spell_id": 1,
         "spell_name": "life_siphon",
+        "icon": "res://Assets/icons/spells/targetnecromancy.png",
         "description": "Life Siphon deals 50 necrotic damage, heals self for 30-70% of damage dealt (randomized).",
         "caster_proficiency": "intelligence",
         "mana_cost": 25.0,
@@ -29,6 +30,7 @@
     {
         "spell_id": 2,
         "spell_name": "shadow_aura",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "Reduces enemy accuracy by 5% in 10m radius. Duration: 15 minutes.",
         "caster_proficiency": "intelligence",
         "mana_cost": 25.0,
@@ -56,6 +58,7 @@
     {
         "spell_id": 3,
         "spell_name": "blood_ritual",
+        "icon": "res://Assets/icons/spells/selfheal.png",
         "description": "Sacrifice 10% health for +10% attack power for 8 seconds.",
         "caster_proficiency": "intelligence",
         "mana_cost": 25.0,
@@ -83,6 +86,7 @@
     {
         "spell_id": 4,
         "spell_name": "necrotic_grasp",
+        "icon": "res://Assets/icons/spells/targetroot.png",
         "description": "Slows target movement/attack speed by 15% for 6 seconds.",
         "caster_proficiency": "intelligence",
         "mana_cost": 25.0,
@@ -110,6 +114,7 @@
     {
         "spell_id": 5,
         "spell_name": "improved_block",
+        "icon": "res://Assets/icons/spells/selfward.png",
         "description": "Block absorbs 10% more damage, 5% chance to stagger.",
         "caster_proficiency": "intelligence",
         "mana_cost": 25.0,
@@ -137,6 +142,7 @@
     {
         "spell_id": 6,
         "spell_name": "spectral_minion",
+        "icon": "res://Assets/icons/spells/petsummon.png",
         "description": "Summons skeleton (40% caster's health) until destroyed.",
         "caster_proficiency": "intelligence",
         "mana_cost": 25.0,
@@ -164,6 +170,7 @@
     {
         "spell_id": 7,
         "spell_name": "curse_of_weakness",
+        "icon": "res://Assets/icons/spells/targetnecromancy.png",
         "description": "Reduces target's STR by 5%, lowering melee damage for 10 seconds.",
         "caster_proficiency": "intelligence",
         "mana_cost": 25.0,
@@ -191,6 +198,7 @@
     {
         "spell_id": 8,
         "spell_name": "dark_pact",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "Grants 10% magic resistance, costs 5% mana.",
         "caster_proficiency": "intelligence",
         "mana_cost": 25.0,
@@ -218,6 +226,7 @@
     {
         "spell_id": 9,
         "spell_name": "enhanced_riposte",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "Riposte deals +10 necrotic damage, counter window extended by 0.5 seconds.",
         "caster_proficiency": "intelligence",
         "mana_cost": 25.0,
@@ -244,6 +253,7 @@
     {
         "spell_id": 10,
         "spell_name": "plague_strike",
+        "icon": "res://Assets/icons/spells/targetnecromancy.png",
         "description": "Deals 60 damage, inflicts 5 damage/sec DoT for 8 seconds.",
         "caster_proficiency": "intelligence",
         "mana_cost": 25.0,
@@ -272,6 +282,7 @@
     {
         "spell_id": 11,
         "spell_name": "shadow_ward",
+        "icon": "res://Assets/icons/spells/selfward.png",
         "description": "Absorbs 100 damage over 8 seconds.",
         "caster_proficiency": "intelligence",
         "mana_cost": 25.0,
@@ -298,6 +309,7 @@
     {
         "spell_id": 12,
         "spell_name": "soul_leech",
+        "icon": "res://Assets/icons/spells/targetnecromancy.png",
         "description": "Drains 3% target mana, converts to 30% health for caster.",
         "caster_proficiency": "intelligence",
         "mana_cost": 25.0,
@@ -325,6 +337,7 @@
     {
         "spell_id": 13,
         "spell_name": "improved_disarm",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "Disarm disables abilities for 2 seconds, 40% success rate.",
         "caster_proficiency": "intelligence",
         "mana_cost": 25.0,
@@ -352,6 +365,7 @@
     {
         "spell_id": 14,
         "spell_name": "gravechill",
+        "icon": "res://Assets/icons/spells/aoeice.png",
         "description": "Cone attack deals 30 cold damage, slows by 15% for 6 seconds.",
         "caster_proficiency": "intelligence",
         "mana_cost": 25.0,
@@ -379,6 +393,7 @@
     {
         "spell_id": 15,
         "spell_name": "blood_aegis",
+        "icon": "res://Assets/icons/spells/selfheal.png",
         "description": "Converts 20% incoming damage to health drain for 6 seconds.",
         "caster_proficiency": "intelligence",
         "mana_cost": 25.0,
@@ -406,6 +421,7 @@
     {
         "spell_id": 16,
         "spell_name": "deaths_echo",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "Killing an enemy boosts next attack damage by 10%.",
         "caster_proficiency": "intelligence",
         "mana_cost": 25.0,
@@ -433,6 +449,7 @@
     {
         "spell_id": 17,
         "spell_name": "fearful_gaze",
+        "icon": "res://Assets/icons/spells/targetfear.png",
         "description": "Forces one enemy to flee for 4 seconds.",
         "caster_proficiency": "intelligence",
         "mana_cost": 25.0,
@@ -460,6 +477,7 @@
     {
         "spell_id": 18,
         "spell_name": "improved_shadow_aura",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "Shadow Aura reduces enemy damage by 5% in 10m.",
         "caster_proficiency": "intelligence",
         "mana_cost": 25.0,
@@ -487,6 +505,7 @@
     {
         "spell_id": 19,
         "spell_name": "master_riposte",
+        "icon": "res://Assets/icons/spells/groupnecromancy.png",
         "description": "Riposte chains to 1 enemy, deals +15 necrotic damage.",
         "caster_proficiency": "intelligence",
         "mana_cost": 25.0,
@@ -515,6 +534,7 @@
     {
         "spell_id": 20,
         "spell_name": "summon_wraith",
+        "icon": "res://Assets/icons/spells/petsummon.png",
         "description": "Summons wraith (60% caster's health) that debuffs nearby enemy accuracy by 10%. Lasts until destroyed.",
         "caster_proficiency": "intelligence",
         "mana_cost": 25.0,
@@ -542,6 +562,7 @@
     {
         "spell_id": 21,
         "spell_name": "vile_miasma",
+        "icon": "res://Assets/icons/spells/targetnecromancy.png",
         "description": "Creates 8m decay cloud, deals 10 damage/sec, weakens by 5% for 10 seconds.",
         "caster_proficiency": "intelligence",
         "mana_cost": 25.0,
@@ -570,6 +591,7 @@
     {
         "spell_id": 22,
         "spell_name": "withering_strike",
+        "icon": "res://Assets/icons/spells/targetnecromancy.png",
         "description": "Deals 80 necrotic damage, reduces healing received by 10% for 8 seconds.",
         "caster_proficiency": "intelligence",
         "mana_cost": 25.0,
@@ -597,6 +619,7 @@
     {
         "spell_id": 23,
         "spell_name": "unyielding_darkness",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "Grants 30% damage reduction, CC immunity for 6 seconds.",
         "caster_proficiency": "intelligence",
         "mana_cost": 25.0,
@@ -624,6 +647,7 @@
     {
         "spell_id": 24,
         "spell_name": "chill_of_the_void",
+        "icon": "res://Assets/icons/spells/targetice.png",
         "description": "Freezes one enemy for 2 seconds, deals 50 cold damage.",
         "caster_proficiency": "intelligence",
         "mana_cost": 25.0,
@@ -651,6 +675,7 @@
     {
         "spell_id": 25,
         "spell_name": "improved_plague_strike",
+        "icon": "res://Assets/icons/spells/targetnecromancy.png",
         "description": "Plague Strike spreads to 1 extra enemy, DoT increased to 8 damage/sec.",
         "caster_proficiency": "intelligence",
         "mana_cost": 25.0,
@@ -679,6 +704,7 @@
     {
         "spell_id": 26,
         "spell_name": "dark_reprisal",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "5% chance to reflect 25% damage as necrotic when hit.",
         "caster_proficiency": "intelligence",
         "mana_cost": 25.0,
@@ -733,6 +759,7 @@
     {
         "spell_id": 28,
         "spell_name": "soul_harvest",
+        "icon": "res://Assets/icons/spells/selfheal.png",
         "description": "Consumes 2 corpses to restore 20% health/mana.",
         "caster_proficiency": "intelligence",
         "mana_cost": 25.0,
@@ -760,6 +787,7 @@
     {
         "spell_id": 29,
         "spell_name": "summon_shade",
+        "icon": "res://Assets/icons/spells/petsummon.png",
         "description": "Summons shade (80% caster's health) that drains 3% enemy mana per hit. Lasts until destroyed.",
         "caster_proficiency": "intelligence",
         "mana_cost": 25.0,
@@ -787,6 +815,7 @@
     {
         "spell_id": 30,
         "spell_name": "plague_burst",
+        "icon": "res://Assets/icons/spells/targetpoison.png",
         "description": "Infects 10m area, deals 15 damage/sec for 8 seconds.",
         "caster_proficiency": "intelligence",
         "mana_cost": 25.0,
@@ -815,6 +844,7 @@
     {
         "spell_id": 31,
         "spell_name": "improved_soul_leech",
+        "icon": "res://Assets/icons/spells/targetnecromancy.png",
         "description": "Soul Leech drains 5% mana, converts to 50% health.",
         "caster_proficiency": "intelligence",
         "mana_cost": 25.0,
@@ -842,6 +872,7 @@
     {
         "spell_id": 32,
         "spell_name": "void_slash",
+        "icon": "res://Assets/icons/spells/aoenecromancy.png",
         "description": "Deals 120 necrotic damage in 5m arc, slows by 20% for 6 seconds.",
         "caster_proficiency": "intelligence",
         "mana_cost": 25.0,
@@ -870,6 +901,7 @@
     {
         "spell_id": 33,
         "spell_name": "umbral_fortress",
+        "icon": "res://Assets/icons/spells/selfward.png",
         "description": "Absorbs 300 damage, retaliates 30 necrotic damage per hit for 8 seconds.",
         "caster_proficiency": "intelligence",
         "mana_cost": 25.0,
@@ -896,6 +928,7 @@
     {
         "spell_id": 34,
         "spell_name": "terror_aura",
+        "icon": "res://Assets/icons/spells/aoenecromancy.png",
         "description": "Enemies in 10m have 10% chance to miss.",
         "caster_proficiency": "intelligence",
         "mana_cost": 25.0,
@@ -923,6 +956,7 @@
     {
         "spell_id": 35,
         "spell_name": "improved_soul_harvest",
+        "icon": "res://Assets/icons/spells/selfheal.png",
         "description": "Soul Harvest restores 30% health/mana, affects 1 ally in 10m.",
         "caster_proficiency": "intelligence",
         "mana_cost": 25.0,
@@ -950,6 +984,7 @@
     {
         "spell_id": 36,
         "spell_name": "necrotic_dominion",
+        "icon": "res://Assets/icons/spells/groupnecromancy.png",
         "description": "Creates 15m zone dealing 25 damage/sec, buffs allies' necrotic damage by 10% for 20 seconds.",
         "caster_proficiency": "intelligence",
         "mana_cost": 25.0,
@@ -978,6 +1013,7 @@
     {
         "spell_id": 37,
         "spell_name": "master_wraith",
+        "icon": "res://Assets/icons/spells/selfheal.png",
         "description": "Wraith gains +10% health, debuffs enemy damage by 10%.",
         "caster_proficiency": "intelligence",
         "mana_cost": 25.0,
@@ -1005,6 +1041,7 @@
     {
         "spell_id": 38,
         "spell_name": "dark_sovereign",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "Grants 50% damage reduction, +20% damage for 10 seconds.",
         "caster_proficiency": "intelligence",
         "mana_cost": 25.0,
@@ -1032,6 +1069,7 @@
     {
         "spell_id": 39,
         "spell_name": "void_ascendancy",
+        "icon": "res://Assets/icons/spells/selfheal.png",
         "description": "Deals 400 necrotic damage in 15m, heals self for 50% damage dealt.",
         "caster_proficiency": "intelligence",
         "mana_cost": 25.0,
@@ -1059,6 +1097,7 @@
     {
         "spell_id": 40,
         "spell_name": "eternal_wraith",
+        "icon": "res://Assets/icons/spells/petsummon.png",
         "description": "Summons wraith (120% caster's health) with 15% lifesteal. Lasts until destroyed.",
         "caster_proficiency": "intelligence",
         "mana_cost": 25.0,
@@ -1086,6 +1125,7 @@
     {
         "spell_id": 41,
         "spell_name": "necrotic_apotheosis",
+        "icon": "res://Assets/icons/spells/selfheal.png",
         "description": "Grants +30% damage, CC immunity, +20% health for 12 seconds.",
         "caster_proficiency": "intelligence",
         "mana_cost": 25.0,
@@ -1113,6 +1153,7 @@
     {
         "spell_id": 42,
         "spell_name": "holy_strike",
+        "icon": "res://Assets/icons/spells/targetdivine.png",
         "description": "Deals 60 radiant damage, +25% vs. undead.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -1139,6 +1180,7 @@
     {
         "spell_id": 43,
         "spell_name": "blessing_of_light",
+        "icon": "res://Assets/icons/spells/targethot.png",
         "description": "Grants ally +5% defense, 3 HP/sec regen for 8 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -1167,6 +1209,7 @@
     {
         "spell_id": 44,
         "spell_name": "lay_on_hands",
+        "icon": "res://Assets/icons/spells/targetheal.png",
         "description": "Restores 100 health to self/ally.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -1194,6 +1237,7 @@
     {
         "spell_id": 45,
         "spell_name": "divine_ward",
+        "icon": "res://Assets/icons/spells/groupward.png",
         "description": "Absorbs 100 damage for 6 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -1220,6 +1264,7 @@
     {
         "spell_id": 46,
         "spell_name": "improved_parry",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "Parry reflects 5% damage back to attacker.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -1247,6 +1292,7 @@
     {
         "spell_id": 47,
         "spell_name": "smite_evil",
+        "icon": "res://Assets/icons/spells/targetdivine.png",
         "description": "Deals 80 radiant damage to Void/undead, +10% vs. others.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -1273,6 +1319,7 @@
     {
         "spell_id": 48,
         "spell_name": "aura_of_courage",
+        "icon": "res://Assets/icons/spells/groupfear.png",
         "description": "Allies in 10m resist fear, gain 5% attack speed.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -1300,6 +1347,7 @@
     {
         "spell_id": 49,
         "spell_name": "purify",
+        "icon": "res://Assets/icons/spells/targetdispel.png",
         "description": "Removes one curse/poison from self/ally.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -1354,6 +1402,7 @@
     {
         "spell_id": 51,
         "spell_name": "radiant_burst",
+        "icon": "res://Assets/icons/spells/groupheal.png",
         "description": "Deals 60 radiant damage in 5m, heals allies for 30 health.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -1381,6 +1430,7 @@
     {
         "spell_id": 52,
         "spell_name": "sacred_oath",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "+10% attack/defense for 10 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -1407,6 +1457,7 @@
     {
         "spell_id": 53,
         "spell_name": "lights_grace",
+        "icon": "res://Assets/icons/spells/targethot.png",
         "description": "Heals ally for 15 HP/sec for 8 seconds, +10% in sunlight.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -1435,6 +1486,7 @@
     {
         "spell_id": 54,
         "spell_name": "improved_riposte",
+        "icon": "res://Assets/icons/spells/selfheal.png",
         "description": "Riposte heals self for 3% max health on success.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -1462,6 +1514,7 @@
     {
         "spell_id": 55,
         "spell_name": "hammer_of_justice",
+        "icon": "res://Assets/icons/spells/targetdivine.png",
         "description": "Stuns one enemy for 2 seconds, deals 50 damage.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -1489,6 +1542,7 @@
     {
         "spell_id": 56,
         "spell_name": "holy_aegis",
+        "icon": "res://Assets/icons/spells/selfward.png",
         "description": "Absorbs 200 damage, reflects 10% to attackers for 6 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -1515,6 +1569,7 @@
     {
         "spell_id": 57,
         "spell_name": "beacon_of_hope",
+        "icon": "res://Assets/icons/spells/groupheal.png",
         "description": "Allies in 10m gain +10% healing received for 10 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -1542,6 +1597,7 @@
     {
         "spell_id": 58,
         "spell_name": "cleansing_flame",
+        "icon": "res://Assets/icons/spells/targetdispel.png",
         "description": "Deals 60 fire damage in 5m, removes enemy buffs.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -1568,6 +1624,7 @@
     {
         "spell_id": 59,
         "spell_name": "improved_blessing",
+        "icon": "res://Assets/icons/spells/groupdivine.png",
         "description": "Blessing of Light affects 2 allies, adds +5% movement speed.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -1594,6 +1651,7 @@
     {
         "spell_id": 60,
         "spell_name": "divine_judgment",
+        "icon": "res://Assets/icons/spells/aoedivine.png",
         "description": "Deals 150 radiant damage in 8m line, stuns for 1 second.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -1621,6 +1679,7 @@
     {
         "spell_id": 61,
         "spell_name": "aura_of_divinity",
+        "icon": "res://Assets/icons/spells/grouparcane.png",
         "description": "Allies gain 10% dark magic resistance, +5% damage in 10m.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -1647,6 +1706,7 @@
     {
         "spell_id": 62,
         "spell_name": "solar_smite",
+        "icon": "res://Assets/icons/spells/targetdivine.png",
         "description": "Deals 100 radiant damage, blinds Void/undead for 2 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -1674,6 +1734,7 @@
     {
         "spell_id": 63,
         "spell_name": "shield_of_aurethiel",
+        "icon": "res://Assets/icons/spells/selfheal.png",
         "description": "Absorbs 250 damage, heals self for 5% absorbed.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -1701,6 +1762,7 @@
     {
         "spell_id": 64,
         "spell_name": "lights_call",
+        "icon": "res://Assets/icons/spells/grouparcane.png",
         "description": "Allies in 10m gain +10% critical chance for 8 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -1727,6 +1789,7 @@
     {
         "spell_id": 65,
         "spell_name": "master_parry",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "Parry reflects 10% damage, grants +5% attack speed for 4 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -1754,6 +1817,7 @@
     {
         "spell_id": 66,
         "spell_name": "radiant_tempest",
+        "icon": "res://Assets/icons/spells/groupheal.png",
         "description": "Deals 100 radiant damage in 8m, heals allies for 50 health.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -1781,6 +1845,7 @@
     {
         "spell_id": 67,
         "spell_name": "divine_vow",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "+15% attack/defense, immune to debuffs for 8 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -1807,6 +1872,7 @@
     {
         "spell_id": 68,
         "spell_name": "exorcism",
+        "icon": "res://Assets/icons/spells/targetnecromancy.png",
         "description": "Banishes one Void/undead enemy for 4 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -1833,6 +1899,7 @@
     {
         "spell_id": 69,
         "spell_name": "resurrection",
+        "icon": "res://Assets/icons/spells/resurrect.png",
         "description": "Revives ally with 30% health (Ultima-inspired).",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -1860,6 +1927,7 @@
     {
         "spell_id": 70,
         "spell_name": "holy_verdict",
+        "icon": "res://Assets/icons/spells/groupheal.png",
         "description": "Deals 150 radiant damage, +25% vs. low-health targets.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -1887,6 +1955,7 @@
     {
         "spell_id": 71,
         "spell_name": "improved_resurrection",
+        "icon": "res://Assets/icons/spells/resurrect.png",
         "description": "Resurrection revives with 50% health, removes one debuff.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -1914,6 +1983,7 @@
     {
         "spell_id": 72,
         "spell_name": "aura_of_sanctity",
+        "icon": "res://Assets/icons/spells/grouphot.png",
         "description": "Allies in 10m gain 15% magic resistance, +10 HP/sec regen.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -1942,6 +2012,7 @@
     {
         "spell_id": 73,
         "spell_name": "purge_of_light",
+        "icon": "res://Assets/icons/spells/targetheal.png",
         "description": "Removes all debuffs from one ally, heals 50 health.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -1969,6 +2040,7 @@
     {
         "spell_id": 74,
         "spell_name": "lights_bastion",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "Grants 50% damage reduction for 5 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -1996,6 +2068,7 @@
     {
         "spell_id": 75,
         "spell_name": "celestial_strike",
+        "icon": "res://Assets/icons/spells/groupheal.png",
         "description": "Deals 150 radiant damage in 10m, heals allies for 75 health.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -2024,6 +2097,7 @@
     {
         "spell_id": 76,
         "spell_name": "improved_divine_judgment",
+        "icon": "res://Assets/icons/spells/aoedivine.png",
         "description": "Divine Judgment deals 200 damage, stuns for 2 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -2051,6 +2125,7 @@
     {
         "spell_id": 77,
         "spell_name": "sanctified_aura",
+        "icon": "res://Assets/icons/spells/groupheal.png",
         "description": "Allies in 15m gain +20% healing, +10% damage resistance.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -2078,6 +2153,7 @@
     {
         "spell_id": 78,
         "spell_name": "divine_retribution",
+        "icon": "res://Assets/icons/spells/targetdivine.png",
         "description": "Deals 200 radiant damage, +30% vs. Void/undead.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -2104,6 +2180,7 @@
     {
         "spell_id": 79,
         "spell_name": "divine_wrath",
+        "icon": "res://Assets/icons/spells/targetdivine.png",
         "description": "Deals 400 radiant damage in 15m, stuns for 3 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -2131,6 +2208,7 @@
     {
         "spell_id": 80,
         "spell_name": "celestial_aegis",
+        "icon": "res://Assets/icons/spells/selfward.png",
         "description": "Grants invulnerability for 6 seconds, reflects 20% damage.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -2158,6 +2236,7 @@
     {
         "spell_id": 81,
         "spell_name": "aurethiels_blessing",
+        "icon": "res://Assets/icons/spells/groupheal.png",
         "description": "Party gains +25% damage/healing, CC immunity for 12 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -2211,6 +2290,7 @@
     {
         "spell_id": 83,
         "spell_name": "battle_shout",
+        "icon": "res://Assets/icons/spells/grouparcane.png",
         "description": "Allies in 10m gain +5% attack speed/damage for 8 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -2237,6 +2317,7 @@
     {
         "spell_id": 84,
         "spell_name": "shield_bash",
+        "icon": "res://Assets/icons/spells/targetstun.png",
         "description": "Stuns enemy for 1 second, interrupts casting.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -2264,6 +2345,7 @@
     {
         "spell_id": 85,
         "spell_name": "tactical_stance",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "+15% defense, -5% movement speed for 8 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -2317,6 +2399,7 @@
     {
         "spell_id": 87,
         "spell_name": "rallying_cry",
+        "icon": "res://Assets/icons/spells/groupheal.png",
         "description": "Restores 5% stamina to allies in 10m.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -2344,6 +2427,7 @@
     {
         "spell_id": 88,
         "spell_name": "weapon_mastery",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "+5% damage with equipped weapon type.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -2370,6 +2454,7 @@
     {
         "spell_id": 89,
         "spell_name": "enhanced_parry",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "Parry boosts next attack's critical chance by 10%.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -2424,6 +2509,7 @@
     {
         "spell_id": 91,
         "spell_name": "iron_resolve",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "Grants 15% physical damage resistance for 6 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -2451,6 +2537,7 @@
     {
         "spell_id": 92,
         "spell_name": "commanding_presence",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Reduces enemy aggro on Blademaster by 10%.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -2505,6 +2592,7 @@
     {
         "spell_id": 94,
         "spell_name": "battle_focus",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "+10% accuracy/critical chance for 8 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -2531,6 +2619,7 @@
     {
         "spell_id": 95,
         "spell_name": "defensive_strike",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "Deals 60 damage, boosts defense by 5% on hit.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -2585,6 +2674,7 @@
     {
         "spell_id": 97,
         "spell_name": "improved_battle_shout",
+        "icon": "res://Assets/icons/spells/grouparcane.png",
         "description": "Battle Shout affects 3 allies, adds +5% critical chance.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -2611,6 +2701,7 @@
     {
         "spell_id": 98,
         "spell_name": "shatter",
+        "icon": "res://Assets/icons/spells/targetstun.png",
         "description": "Deals 150 damage, stuns target for 2 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -2638,6 +2729,7 @@
     {
         "spell_id": 99,
         "spell_name": "unyielding_stand",
+        "icon": "res://Assets/icons/spells/selfheal.png",
         "description": "Grants 10 HP/sec regen for 8 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -2694,6 +2786,7 @@
     {
         "spell_id": 101,
         "spell_name": "commanders_aura",
+        "icon": "res://Assets/icons/spells/grouparcane.png",
         "description": "Allies in 10m gain +10% damage/movement speed.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -2746,6 +2839,7 @@
     {
         "spell_id": 103,
         "spell_name": "steel_aegis",
+        "icon": "res://Assets/icons/spells/selfward.png",
         "description": "Absorbs 200 damage, +5% defense for 8 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -2772,6 +2866,7 @@
     {
         "spell_id": 104,
         "spell_name": "tacticians_call",
+        "icon": "res://Assets/icons/spells/grouparcane.png",
         "description": "Allies in 10m gain +10% accuracy for 10 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -2798,6 +2893,7 @@
     {
         "spell_id": 105,
         "spell_name": "master_disarm",
+        "icon": "res://Assets/icons/spells/targetsilence.png",
         "description": "Disarm silences enemy for 1 second, 60% success rate.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -2853,6 +2949,7 @@
     {
         "spell_id": 107,
         "spell_name": "ironclad_resolve",
+        "icon": "res://Assets/icons/spells/groupheal.png",
         "description": "+15% health, +10% damage for 10 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -2907,6 +3004,7 @@
     {
         "spell_id": 109,
         "spell_name": "improved_shatter",
+        "icon": "res://Assets/icons/spells/targetstun.png",
         "description": "Shatter hits 2 enemies, applies 10% armor reduction.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -2933,6 +3031,7 @@
     {
         "spell_id": 110,
         "spell_name": "onslaught",
+        "icon": "res://Assets/icons/spells/groupstun.png",
         "description": "Deals 150 damage in 5m arc, +15% vs. stunned targets.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -2961,6 +3060,7 @@
     {
         "spell_id": 111,
         "spell_name": "fortified_stance",
+        "icon": "res://Assets/icons/spells/selfheal.png",
         "description": "Grants 20% damage reduction, +5 HP/sec regen for 8 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -2989,6 +3089,7 @@
     {
         "spell_id": 112,
         "spell_name": "warlords_presence",
+        "icon": "res://Assets/icons/spells/grouparcane.png",
         "description": "Allies in 10m gain +15% damage, -5% damage taken.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -3067,6 +3168,7 @@
     {
         "spell_id": 115,
         "spell_name": "master_weapon_mastery",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "Weapon Mastery grants +15% damage, +5% critical chance.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -3094,6 +3196,7 @@
     {
         "spell_id": 116,
         "spell_name": "battle_surge",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "+20% attack speed, +10% critical damage for 10 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -3120,6 +3223,7 @@
     {
         "spell_id": 117,
         "spell_name": "blade_of_destiny",
+        "icon": "res://Assets/icons/spells/targetstun.png",
         "description": "Deals 400 damage, ignores 50% armor, stuns for 3 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -3147,6 +3251,7 @@
     {
         "spell_id": 118,
         "spell_name": "unyielding_legion",
+        "icon": "res://Assets/icons/spells/groupheal.png",
         "description": "Party gains +20% health/damage, CC immunity for 12 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -3174,6 +3279,7 @@
     {
         "spell_id": 119,
         "spell_name": "ironclad_bastion",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "Grants 60% damage reduction, taunts all enemies for 8 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -3201,6 +3307,7 @@
     {
         "spell_id": 120,
         "spell_name": "cure_wounds",
+        "icon": "res://Assets/icons/spells/groupheal.png",
         "description": "Restores 100 health to a target (D&D-inspired).",
         "caster_proficiency": "wisdom",
         "mana_cost": 25.0,
@@ -3228,6 +3335,7 @@
     {
         "spell_id": 121,
         "spell_name": "bless",
+        "icon": "res://Assets/icons/spells/targetbuff.png",
         "description": "Grants ally +5% attack/defense for 8 seconds.",
         "caster_proficiency": "wisdom",
         "mana_cost": 25.0,
@@ -3255,6 +3363,7 @@
     {
         "spell_id": 122,
         "spell_name": "holy_light",
+        "icon": "res://Assets/icons/spells/groupheal.png",
         "description": "Heals allies in 8m for 60 health.",
         "caster_proficiency": "wisdom",
         "mana_cost": 25.0,
@@ -3282,6 +3391,7 @@
     {
         "spell_id": 123,
         "spell_name": "turn_undead",
+        "icon": "res://Assets/icons/spells/targetfear.png",
         "description": "Undead in 8m flee for 4 seconds.",
         "caster_proficiency": "wisdom",
         "mana_cost": 25.0,
@@ -3309,6 +3419,7 @@
     {
         "spell_id": 124,
         "spell_name": "prayer_of_healing",
+        "icon": "res://Assets/icons/spells/grouphot.png",
         "description": "Heals allies in 8m for 15 HP/sec for 6 seconds.",
         "caster_proficiency": "wisdom",
         "mana_cost": 25.0,
@@ -3337,6 +3448,7 @@
     {
         "spell_id": 125,
         "spell_name": "sacred_flame",
+        "icon": "res://Assets/icons/spells/targetdivine.png",
         "description": "Deals 60 radiant damage to one enemy.",
         "caster_proficiency": "wisdom",
         "mana_cost": 25.0,
@@ -3363,6 +3475,7 @@
     {
         "spell_id": 126,
         "spell_name": "shield_of_faith",
+        "icon": "res://Assets/icons/spells/targetward.png",
         "description": "Grants ally a 150-damage shield for 6 seconds.",
         "caster_proficiency": "wisdom",
         "mana_cost": 25.0,
@@ -3390,6 +3503,7 @@
     {
         "spell_id": 127,
         "spell_name": "remove_curse",
+        "icon": "res://Assets/icons/spells/targetdispel.png",
         "description": "Cleanses one curse from an ally.",
         "caster_proficiency": "wisdom",
         "mana_cost": 25.0,
@@ -3417,6 +3531,7 @@
     {
         "spell_id": 128,
         "spell_name": "greater_cure",
+        "icon": "res://Assets/icons/spells/groupheal.png",
         "description": "Restores 200 health to a single target.",
         "caster_proficiency": "wisdom",
         "mana_cost": 25.0,
@@ -3444,6 +3559,7 @@
     {
         "spell_id": 129,
         "spell_name": "divine_favor",
+        "icon": "res://Assets/icons/spells/targetbuff.png",
         "description": "Grants ally +10% critical chance/damage for 8 seconds.",
         "caster_proficiency": "wisdom",
         "mana_cost": 25.0,
@@ -3471,6 +3587,7 @@
     {
         "spell_id": 130,
         "spell_name": "radiant_ward",
+        "icon": "res://Assets/icons/spells/targetward.png",
         "description": "Grants ally 15% magic damage resistance for 6 seconds.",
         "caster_proficiency": "wisdom",
         "mana_cost": 25.0,
@@ -3498,6 +3615,7 @@
     {
         "spell_id": 131,
         "spell_name": "smite",
+        "icon": "res://Assets/icons/spells/targetdivine.png",
         "description": "Deals 80 radiant damage, 10% chance to blind for 2 seconds.",
         "caster_proficiency": "wisdom",
         "mana_cost": 25.0,
@@ -3525,6 +3643,7 @@
     {
         "spell_id": 132,
         "spell_name": "mass_cure_wounds",
+        "icon": "res://Assets/icons/spells/groupheal.png",
         "description": "Heals allies in 10m for 150 health.",
         "caster_proficiency": "wisdom",
         "mana_cost": 25.0,
@@ -3552,6 +3671,7 @@
     {
         "spell_id": 133,
         "spell_name": "spiritual_weapon",
+        "icon": "res://Assets/icons/spells/petsummon.png",
         "description": "Summons weapon (30% caster's damage) for 15 seconds (D&D-inspired).",
         "caster_proficiency": "wisdom",
         "mana_cost": 25.0,
@@ -3578,6 +3698,7 @@
     {
         "spell_id": 134,
         "spell_name": "guardian_spirit",
+        "icon": "res://Assets/icons/spells/targetward.png",
         "description": "Absorbs fatal damage for an ally once, lasts 8 seconds.",
         "caster_proficiency": "wisdom",
         "mana_cost": 25.0,
@@ -3604,6 +3725,7 @@
     {
         "spell_id": 135,
         "spell_name": "purge_evil",
+        "icon": "res://Assets/icons/spells/targetdispel.png",
         "description": "Removes enemy buffs, deals 40 radiant damage.",
         "caster_proficiency": "wisdom",
         "mana_cost": 25.0,
@@ -3630,6 +3752,7 @@
     {
         "spell_id": 136,
         "spell_name": "lights_embrace",
+        "icon": "res://Assets/icons/spells/targethot.png",
         "description": "Heals ally for 20 HP/sec, +5% damage resistance for 8 seconds.",
         "caster_proficiency": "wisdom",
         "mana_cost": 25.0,
@@ -3658,6 +3781,7 @@
     {
         "spell_id": 137,
         "spell_name": "improved_cure_wounds",
+        "icon": "res://Assets/icons/spells/groupheal.png",
         "description": "Cure Wounds heals for 150 health, costs 10% less mana.",
         "caster_proficiency": "wisdom",
         "mana_cost": 25.0,
@@ -3685,6 +3809,7 @@
     {
         "spell_id": 138,
         "spell_name": "divine_intervention",
+        "icon": "res://Assets/icons/spells/targetheal.png",
         "description": "Fully heals ally, removes one debuff.",
         "caster_proficiency": "wisdom",
         "mana_cost": 25.0,
@@ -3712,6 +3837,7 @@
     {
         "spell_id": 139,
         "spell_name": "holy_word",
+        "icon": "res://Assets/icons/spells/groupheal.png",
         "description": "Deals 100 radiant damage, heals allies for 100 health in 10m.",
         "caster_proficiency": "wisdom",
         "mana_cost": 25.0,
@@ -3739,6 +3865,7 @@
     {
         "spell_id": 140,
         "spell_name": "sanctuary",
+        "icon": "res://Assets/icons/spells/targetbuff.png",
         "description": "Prevents ally from being targeted for 4 seconds.",
         "caster_proficiency": "wisdom",
         "mana_cost": 25.0,
@@ -3765,6 +3892,7 @@
     {
         "spell_id": 141,
         "spell_name": "radiant_strike",
+        "icon": "res://Assets/icons/spells/targetdivine.png",
         "description": "Deals 100 radiant damage, +15% vs. undead/Void.",
         "caster_proficiency": "wisdom",
         "mana_cost": 25.0,
@@ -3791,6 +3919,7 @@
     {
         "spell_id": 142,
         "spell_name": "celestial_beacon",
+        "icon": "res://Assets/icons/spells/groupheal.png",
         "description": "Allies in 10m gain +15% healing/damage for 10 seconds.",
         "caster_proficiency": "wisdom",
         "mana_cost": 25.0,
@@ -3818,6 +3947,7 @@
     {
         "spell_id": 143,
         "spell_name": "blessing_of_purity",
+        "icon": "res://Assets/icons/spells/targetheal.png",
         "description": "Removes all debuffs from one ally, heals 80 health.",
         "caster_proficiency": "wisdom",
         "mana_cost": 25.0,
@@ -3845,6 +3975,7 @@
     {
         "spell_id": 144,
         "spell_name": "improved_prayer",
+        "icon": "res://Assets/icons/spells/grouphot.png",
         "description": "Prayer of Healing heals for 20 HP/sec, affects 3 allies.",
         "caster_proficiency": "wisdom",
         "mana_cost": 25.0,
@@ -3873,6 +4004,7 @@
     {
         "spell_id": 145,
         "spell_name": "aegis_of_light",
+        "icon": "res://Assets/icons/spells/targetward.png",
         "description": "Grants ally a 200-damage shield, +5% regen for 8 seconds.",
         "caster_proficiency": "wisdom",
         "mana_cost": 25.0,
@@ -3900,6 +4032,7 @@
     {
         "spell_id": 146,
         "spell_name": "greater_mass_cure",
+        "icon": "res://Assets/icons/spells/groupheal.png",
         "description": "Heals allies in 15m for 200 health.",
         "caster_proficiency": "wisdom",
         "mana_cost": 25.0,
@@ -3927,6 +4060,7 @@
     {
         "spell_id": 147,
         "spell_name": "divine_smite",
+        "icon": "res://Assets/icons/spells/targetdivine.png",
         "description": "Deals 120 radiant damage, stuns undead for 2 seconds.",
         "caster_proficiency": "wisdom",
         "mana_cost": 25.0,
@@ -3954,6 +4088,7 @@
     {
         "spell_id": 148,
         "spell_name": "seraphic_ward",
+        "icon": "res://Assets/icons/spells/groupward.png",
         "description": "Grants party 15% magic resistance for 8 seconds.",
         "caster_proficiency": "wisdom",
         "mana_cost": 25.0,
@@ -3981,6 +4116,7 @@
     {
         "spell_id": 149,
         "spell_name": "lights_renewal",
+        "icon": "res://Assets/icons/spells/targethot.png",
         "description": "Heals ally for 300 health, +15 HP/sec for 6 seconds.",
         "caster_proficiency": "wisdom",
         "mana_cost": 25.0,
@@ -4009,6 +4145,7 @@
     {
         "spell_id": 150,
         "spell_name": "improved_divine_intervention",
+        "icon": "res://Assets/icons/spells/targetheal.png",
         "description": "Divine Intervention heals party for 30% health.",
         "caster_proficiency": "wisdom",
         "mana_cost": 25.0,
@@ -4036,6 +4173,7 @@
     {
         "spell_id": 151,
         "spell_name": "sanctified_ground",
+        "icon": "res://Assets/icons/spells/grouphot.png",
         "description": "Creates 8m zone healing allies for 20 HP/sec for 10 seconds.",
         "caster_proficiency": "wisdom",
         "mana_cost": 25.0,
@@ -4064,6 +4202,7 @@
     {
         "spell_id": 152,
         "spell_name": "purge_of_divinity",
+        "icon": "res://Assets/icons/spells/targetdispel.png",
         "description": "Removes all enemy buffs in 8m, deals 60 radiant damage.",
         "caster_proficiency": "wisdom",
         "mana_cost": 25.0,
@@ -4090,6 +4229,7 @@
     {
         "spell_id": 153,
         "spell_name": "improved_holy_word",
+        "icon": "res://Assets/icons/spells/groupheal.png",
         "description": "Holy Word deals 150 radiant damage, heals for 150 health.",
         "caster_proficiency": "wisdom",
         "mana_cost": 25.0,
@@ -4117,6 +4257,7 @@
     {
         "spell_id": 154,
         "spell_name": "lights_vigor",
+        "icon": "res://Assets/icons/spells/targetheal.png",
         "description": "Ally gains +15% health, +10% damage for 10 seconds.",
         "caster_proficiency": "wisdom",
         "mana_cost": 25.0,
@@ -4144,6 +4285,7 @@
     {
         "spell_id": 155,
         "spell_name": "greater_sanctuary",
+        "icon": "res://Assets/icons/spells/targetbuff.png",
         "description": "Sanctuary affects 2 allies, lasts 5 seconds.",
         "caster_proficiency": "wisdom",
         "mana_cost": 25.0,
@@ -4170,6 +4312,7 @@
     {
         "spell_id": 156,
         "spell_name": "radiant_nova",
+        "icon": "res://Assets/icons/spells/groupheal.png",
         "description": "Deals 200 radiant damage, heals allies for 100 health in 15m.",
         "caster_proficiency": "wisdom",
         "mana_cost": 25.0,
@@ -4197,6 +4340,7 @@
     {
         "spell_id": 157,
         "spell_name": "aurethiels_grace",
+        "icon": "res://Assets/icons/spells/groupheal.png",
         "description": "Fully heals party, removes all debuffs.",
         "caster_proficiency": "wisdom",
         "mana_cost": 25.0,
@@ -4224,6 +4368,7 @@
     {
         "spell_id": 158,
         "spell_name": "holy_nova",
+        "icon": "res://Assets/icons/spells/groupheal.png",
         "description": "Deals 400 radiant damage, heals allies for 300 health in 20m.",
         "caster_proficiency": "wisdom",
         "mana_cost": 25.0,
@@ -4251,6 +4396,7 @@
     {
         "spell_id": 159,
         "spell_name": "divine_sanctuary",
+        "icon": "res://Assets/icons/spells/groupbuff.png",
         "description": "Grants party invulnerability for 5 seconds.",
         "caster_proficiency": "wisdom",
         "mana_cost": 25.0,
@@ -4278,6 +4424,7 @@
     {
         "spell_id": 160,
         "spell_name": "spirit_mend",
+        "icon": "res://Assets/icons/spells/targetheal.png",
         "description": "Restores 100 health to an ally.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -4305,6 +4452,7 @@
     {
         "spell_id": 161,
         "spell_name": "earth_totem",
+        "icon": "res://Assets/icons/spells/totemsummon.png",
         "description": "Grants +5% defense to allies in 8m for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -4332,6 +4480,7 @@
     {
         "spell_id": 162,
         "spell_name": "spirit_strike",
+        "icon": "res://Assets/icons/spells/targetnecromancy.png",
         "description": "Deals 60 spirit damage to one enemy.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -4358,6 +4507,7 @@
     {
         "spell_id": 163,
         "spell_name": "ancestral_guidance",
+        "icon": "res://Assets/icons/spells/targetbuff.png",
         "description": "Grants ally +5% movement/attack speed for 8 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -4385,6 +4535,7 @@
     {
         "spell_id": 164,
         "spell_name": "healing_wave",
+        "icon": "res://Assets/icons/spells/groupheal.png",
         "description": "Heals ally for 150 health, chains to one ally for 50%.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -4412,6 +4563,7 @@
     {
         "spell_id": 165,
         "spell_name": "flame_totem",
+        "icon": "res://Assets/icons/spells/totemsummon.png",
         "description": "Deals 15 fire damage/sec to enemies in 5m for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -4441,6 +4593,7 @@
     {
         "spell_id": 166,
         "spell_name": "ghost_wolf",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "Transforms into wolf, +15% movement speed for 8 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -4467,6 +4620,7 @@
     {
         "spell_id": 167,
         "spell_name": "curse_of_sloth",
+        "icon": "res://Assets/icons/spells/targetroot.png",
         "description": "Slows enemy movement/attack speed by 15% for 6 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -4494,6 +4648,7 @@
     {
         "spell_id": 168,
         "spell_name": "spirit_link",
+        "icon": "res://Assets/icons/spells/groupbuff.png",
         "description": "Distributes 30% damage taken by one ally across party for 8 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -4520,6 +4675,7 @@
     {
         "spell_id": 169,
         "spell_name": "storm_totem",
+        "icon": "res://Assets/icons/spells/totemsummon.png",
         "description": "Deals 20 lightning damage/sec in 5m for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -4548,6 +4704,7 @@
     {
         "spell_id": 170,
         "spell_name": "ancestral_shield",
+        "icon": "res://Assets/icons/spells/targetheal.png",
         "description": "Grants ally a 150-health shield for 6 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -4575,6 +4732,7 @@
     {
         "spell_id": 171,
         "spell_name": "windfury",
+        "icon": "res://Assets/icons/spells/targetbuff.png",
         "description": "Grants ally 15% chance for extra melee attack for 8 seconds (EQ-inspired).",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -4602,6 +4760,7 @@
     {
         "spell_id": 172,
         "spell_name": "mass_healing_wave",
+        "icon": "res://Assets/icons/spells/groupheal.png",
         "description": "Heals allies in 10m for 150 health.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -4629,6 +4788,7 @@
     {
         "spell_id": 173,
         "spell_name": "frost_totem",
+        "icon": "res://Assets/icons/spells/totemsummon.png",
         "description": "Slows enemies by 15% in 5m for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -4656,6 +4816,7 @@
     {
         "spell_id": 174,
         "spell_name": "spirit_walk",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "Grants immunity to movement debuffs for 5 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -4683,6 +4844,7 @@
     {
         "spell_id": 175,
         "spell_name": "hex",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Transforms enemy into a frog for 4 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -4709,6 +4871,7 @@
     {
         "spell_id": 176,
         "spell_name": "primal_surge",
+        "icon": "res://Assets/icons/spells/targetheal.png",
         "description": "Grants ally +10% critical chance/healing received for 8 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -4736,6 +4899,7 @@
     {
         "spell_id": 177,
         "spell_name": "spirit_bolt",
+        "icon": "res://Assets/icons/spells/targetnecromancy.png",
         "description": "Deals 80 spirit damage, +15% vs. undead.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -4762,6 +4926,7 @@
     {
         "spell_id": 178,
         "spell_name": "ancestral_revival",
+        "icon": "res://Assets/icons/spells/resurrect.png",
         "description": "Revives ally with 30% health.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -4789,6 +4954,7 @@
     {
         "spell_id": 179,
         "spell_name": "elemental_wrath",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Deals 100 mixed elemental damage in 8m.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -4815,6 +4981,7 @@
     {
         "spell_id": 180,
         "spell_name": "totem_of_harmony",
+        "icon": "res://Assets/icons/spells/totemsummon.png",
         "description": "Heals allies for 15 HP/sec in 8m for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -4843,6 +5010,7 @@
     {
         "spell_id": 181,
         "spell_name": "ancestral_vigor",
+        "icon": "res://Assets/icons/spells/targetheal.png",
         "description": "Grants ally +10% health for 8 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -4870,6 +5038,7 @@
     {
         "spell_id": 182,
         "spell_name": "improved_healing_wave",
+        "icon": "res://Assets/icons/spells/groupheal.png",
         "description": "Healing Wave chains to 2 allies, heals for 200 health.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -4898,6 +5067,7 @@
     {
         "spell_id": 183,
         "spell_name": "magma_totem",
+        "icon": "res://Assets/icons/spells/totemsummon.png",
         "description": "Deals 25 fire damage/sec, burns for 5 damage/sec for 5 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -4926,6 +5096,7 @@
     {
         "spell_id": 184,
         "spell_name": "spirit_flight",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "Grants +20% movement speed, +5% evasion for 6 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -4953,6 +5124,7 @@
     {
         "spell_id": 185,
         "spell_name": "curse_of_elements",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Reduces enemy elemental resistance by 15% for 10 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -4980,6 +5152,7 @@
     {
         "spell_id": 186,
         "spell_name": "greater_mass_healing",
+        "icon": "res://Assets/icons/spells/groupheal.png",
         "description": "Mass Healing Wave heals for 200 health in 15m.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -5007,6 +5180,7 @@
     {
         "spell_id": 187,
         "spell_name": "thunder_totem",
+        "icon": "res://Assets/icons/spells/totemsummon.png",
         "description": "Deals 30 lightning damage/sec, 1% stun chance/sec in 8m.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -5035,6 +5209,7 @@
     {
         "spell_id": 188,
         "spell_name": "improved_ancestral_revival",
+        "icon": "res://Assets/icons/spells/resurrect.png",
         "description": "Revival grants 50% health, +5% damage for 8 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -5062,6 +5237,7 @@
     {
         "spell_id": 189,
         "spell_name": "tempest_call",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Deals 150 mixed elemental damage, slows by 20% in 10m.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -5089,6 +5265,7 @@
     {
         "spell_id": 190,
         "spell_name": "totem_of_renewal",
+        "icon": "res://Assets/icons/spells/totemsummon.png",
         "description": "Heals 20 HP/sec, +5% regen in 10m for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -5117,6 +5294,7 @@
     {
         "spell_id": 191,
         "spell_name": "primal_ward",
+        "icon": "res://Assets/icons/spells/groupward.png",
         "description": "Grants party 15% damage reduction for 8 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -5144,6 +5322,7 @@
     {
         "spell_id": 192,
         "spell_name": "improved_elemental_wrath",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Elemental Wrath deals 200 damage, +10% critical chance.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -5170,6 +5349,7 @@
     {
         "spell_id": 193,
         "spell_name": "spirit_surge",
+        "icon": "res://Assets/icons/spells/targetheal.png",
         "description": "Ally gains +15% damage, +10% healing received for 10 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -5197,6 +5377,7 @@
     {
         "spell_id": 194,
         "spell_name": "storm_summon",
+        "icon": "res://Assets/icons/spells/targetlightning.png",
         "description": "Deals 200 lightning damage in 10m, stuns for 2 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -5224,6 +5405,7 @@
     {
         "spell_id": 195,
         "spell_name": "ancestral_aegis",
+        "icon": "res://Assets/icons/spells/targetheal.png",
         "description": "Grants ally a 300-health shield for 8 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -5251,6 +5433,7 @@
     {
         "spell_id": 196,
         "spell_name": "greater_totem_of_harmony",
+        "icon": "res://Assets/icons/spells/totemsummon.png",
         "description": "Totem of Harmony heals 30 HP/sec, affects 15m.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -5279,6 +5462,7 @@
     {
         "spell_id": 197,
         "spell_name": "elemental_vigor",
+        "icon": "res://Assets/icons/spells/groupbuff.png",
         "description": "Party gains +15% elemental damage for 12 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -5305,6 +5489,7 @@
     {
         "spell_id": 198,
         "spell_name": "ancestral_apotheosis",
+        "icon": "res://Assets/icons/spells/groupheal.png",
         "description": "Fully heals party, removes debuffs.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -5332,6 +5517,7 @@
     {
         "spell_id": 199,
         "spell_name": "elemental_cataclysm",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Deals 400 mixed elemental damage in 15m, stuns for 3 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -5359,6 +5545,7 @@
     {
         "spell_id": 200,
         "spell_name": "spirit_nexus",
+        "icon": "res://Assets/icons/spells/grouphot.png",
         "description": "Grants party a 400-damage shield, +15 HP/sec for 10 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -5387,6 +5574,7 @@
     {
         "spell_id": 201,
         "spell_name": "regrowth",
+        "icon": "res://Assets/icons/spells/targethot.png",
         "description": "Heals ally for 100 health, +5 HP/sec for 6 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -5415,6 +5603,7 @@
     {
         "spell_id": 202,
         "spell_name": "entangle",
+        "icon": "res://Assets/icons/spells/grouproot.png",
         "description": "Roots enemies in 5m for 5 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -5443,6 +5632,7 @@
     {
         "spell_id": 203,
         "spell_name": "barkskin",
+        "icon": "res://Assets/icons/spells/targetbuff.png",
         "description": "Grants ally +10% armor, 5% damage resistance for 8 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -5470,6 +5660,7 @@
     {
         "spell_id": 204,
         "spell_name": "moonfire",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Deals 60 nature damage over 6 seconds (D&D-inspired).",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -5496,6 +5687,7 @@
     {
         "spell_id": 205,
         "spell_name": "wild_growth",
+        "icon": "res://Assets/icons/spells/grouphot.png",
         "description": "Heals allies in 8m for 15 HP/sec for 6 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -5524,6 +5716,7 @@
     {
         "spell_id": 206,
         "spell_name": "thorn_whip",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Deals 70 nature damage, pulls enemy 3m closer.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -5550,6 +5743,7 @@
     {
         "spell_id": 207,
         "spell_name": "bear_form",
+        "icon": "res://Assets/icons/spells/groupheal.png",
         "description": "Gains +15% health, +10% melee damage for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -5577,6 +5771,7 @@
     {
         "spell_id": 208,
         "spell_name": "natures_grasp",
+        "icon": "res://Assets/icons/spells/targetroot.png",
         "description": "Vines slow enemies by 15% in 5m for 6 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -5604,6 +5799,7 @@
     {
         "spell_id": 209,
         "spell_name": "rejuvenation",
+        "icon": "res://Assets/icons/spells/targethot.png",
         "description": "Heals ally for 20 HP/sec for 8 seconds, +30 health at end.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -5632,6 +5828,7 @@
     {
         "spell_id": 210,
         "spell_name": "cat_form",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "Gains +15% speed, +10% melee critical chance for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -5658,6 +5855,7 @@
     {
         "spell_id": 211,
         "spell_name": "starfire",
+        "icon": "res://Assets/icons/spells/aoearcane.png",
         "description": "Deals 80 arcane/nature damage to one target.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -5684,6 +5882,7 @@
     {
         "spell_id": 212,
         "spell_name": "natures_ward",
+        "icon": "res://Assets/icons/spells/selfward.png",
         "description": "Absorbs 150 damage, +15% outdoors for 6 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -5710,6 +5909,7 @@
     {
         "spell_id": 213,
         "spell_name": "tranquility",
+        "icon": "res://Assets/icons/spells/grouphot.png",
         "description": "Heals allies in 10m for 20 HP/sec for 8 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -5738,6 +5938,7 @@
     {
         "spell_id": 214,
         "spell_name": "hawk_form",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "Gains ranged attacks, +10% evasion for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -5764,6 +5965,7 @@
     {
         "spell_id": 215,
         "spell_name": "hurricane",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Deals 80 nature damage, slows enemies by 20% in 8m for 6 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -5791,6 +5993,7 @@
     {
         "spell_id": 216,
         "spell_name": "thorns",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "Reflects 15% damage to attackers for 8 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -5817,6 +6020,7 @@
     {
         "spell_id": 217,
         "spell_name": "solar_wrath",
+        "icon": "res://Assets/icons/spells/targetdivine.png",
         "description": "Deals 90 radiant/nature damage, 15% chance to stun for 2 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -5844,6 +6048,7 @@
     {
         "spell_id": 218,
         "spell_name": "improved_regrowth",
+        "icon": "res://Assets/icons/spells/targethot.png",
         "description": "Regrowth heals for 150 health, +10 HP/sec.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -5872,6 +6077,7 @@
     {
         "spell_id": 219,
         "spell_name": "natures_bounty",
+        "icon": "res://Assets/icons/spells/targetheal.png",
         "description": "Fully heals ally, boosts max health by 10% for 8 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -5899,6 +6105,7 @@
     {
         "spell_id": 220,
         "spell_name": "feral_roar",
+        "icon": "res://Assets/icons/spells/groupbuff.png",
         "description": "Party gains +10% damage/speed in animal forms for 10 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -5925,6 +6132,7 @@
     {
         "spell_id": 221,
         "spell_name": "verdant_barrier",
+        "icon": "res://Assets/icons/spells/groupward.png",
         "description": "Grants party a 200-damage shield for 6 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -5952,6 +6160,7 @@
     {
         "spell_id": 222,
         "spell_name": "vine_lash",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Deals 100 nature damage in 5m, roots enemies for 2 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -5979,6 +6188,7 @@
     {
         "spell_id": 223,
         "spell_name": "call_of_the_wild",
+        "icon": "res://Assets/icons/spells/petsummon.png",
         "description": "Summons 1 animal companion (40% caster's health) for 20 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -6006,6 +6216,7 @@
     {
         "spell_id": 224,
         "spell_name": "panther_form",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "Gains +20% critical damage, +5% stealth for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -6032,6 +6243,7 @@
     {
         "spell_id": 225,
         "spell_name": "improved_wild_growth",
+        "icon": "res://Assets/icons/spells/grouphot.png",
         "description": "Wild Growth heals for 20 HP/sec, affects 3 allies.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -6060,6 +6272,7 @@
     {
         "spell_id": 226,
         "spell_name": "natures_vengeance",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Reduces enemy damage by 10% for 8 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -6087,6 +6300,7 @@
     {
         "spell_id": 227,
         "spell_name": "greater_tranquility",
+        "icon": "res://Assets/icons/spells/grouphot.png",
         "description": "Tranquility heals for 30 HP/sec in 15m for 10 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -6115,6 +6329,7 @@
     {
         "spell_id": 228,
         "spell_name": "starfall",
+        "icon": "res://Assets/icons/spells/aoearcane.png",
         "description": "Deals 120 arcane/nature damage in 8m, +5 damage/sec for 5 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -6144,6 +6359,7 @@
     {
         "spell_id": 229,
         "spell_name": "tree_form",
+        "icon": "res://Assets/icons/spells/groupheal.png",
         "description": "Gains +20% healing, +15% health for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -6171,6 +6387,7 @@
     {
         "spell_id": 230,
         "spell_name": "thorn_shield",
+        "icon": "res://Assets/icons/spells/targetward.png",
         "description": "Grants ally a 300-damage shield, reflects 15% damage.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -6198,6 +6415,7 @@
     {
         "spell_id": 231,
         "spell_name": "improved_natures_bounty",
+        "icon": "res://Assets/icons/spells/targetheal.png",
         "description": "Nature's Bounty heals party for 30% health.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -6225,6 +6443,7 @@
     {
         "spell_id": 232,
         "spell_name": "feral_tempest",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Deals 150 nature damage in 10m, slows by 30% for 6 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -6252,6 +6471,7 @@
     {
         "spell_id": 233,
         "spell_name": "verdant_call",
+        "icon": "res://Assets/icons/spells/petsummon.png",
         "description": "Summons 2 animal companions (50% caster's health) for 30 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -6279,6 +6499,7 @@
     {
         "spell_id": 234,
         "spell_name": "natures_harmony",
+        "icon": "res://Assets/icons/spells/groupheal.png",
         "description": "Party gains +15% healing received, +5% damage for 10 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -6306,6 +6527,7 @@
     {
         "spell_id": 235,
         "spell_name": "improved_starfall",
+        "icon": "res://Assets/icons/spells/aoearcane.png",
         "description": "Starfall deals 200 damage, +10 damage/sec for 6 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -6334,6 +6556,7 @@
     {
         "spell_id": 236,
         "spell_name": "moonkin_form",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "Gains +15% spell damage, +10% armor for 20 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -6360,6 +6583,7 @@
     {
         "spell_id": 237,
         "spell_name": "greater_thorn_shield",
+        "icon": "res://Assets/icons/spells/targetward.png",
         "description": "Thorn Shield absorbs 400 damage, reflects 20% damage.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -6386,6 +6610,7 @@
     {
         "spell_id": 238,
         "spell_name": "natures_surge",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Deals 200 nature damage in 10m, roots enemies for 3 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -6413,6 +6638,7 @@
     {
         "spell_id": 239,
         "spell_name": "emerald_dream",
+        "icon": "res://Assets/icons/spells/grouphot.png",
         "description": "Fully heals party, +15 HP/sec for 12 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -6441,6 +6667,7 @@
     {
         "spell_id": 240,
         "spell_name": "wrath_of_the_wild",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Deals 400 nature damage in 15m, roots enemies for 5 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -6468,6 +6695,7 @@
     {
         "spell_id": 241,
         "spell_name": "verdant_apotheosis",
+        "icon": "res://Assets/icons/spells/groupheal.png",
         "description": "Party gains +25% healing/damage, +15% armor for 12 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -6521,6 +6749,7 @@
     {
         "spell_id": 243,
         "spell_name": "wind_stance",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "+10% attack speed/evasion for 8 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -6547,6 +6776,7 @@
     {
         "spell_id": 244,
         "spell_name": "inner_focus",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "Regenerates 15% ki over 6 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -6600,6 +6830,7 @@
     {
         "spell_id": 246,
         "spell_name": "improved_ki_strike",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Ki Strike deals +10 force damage.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -6626,6 +6857,7 @@
     {
         "spell_id": 247,
         "spell_name": "fire_strike",
+        "icon": "res://Assets/icons/spells/targetfire.png",
         "description": "Deals 60 fire damage, +5 damage/sec for 5 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -6654,6 +6886,7 @@
     {
         "spell_id": 248,
         "spell_name": "meditation",
+        "icon": "res://Assets/icons/spells/grouphot.png",
         "description": "Heals 10 HP/sec for 6 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -6682,6 +6915,7 @@
     {
         "spell_id": 249,
         "spell_name": "stunning_fist",
+        "icon": "res://Assets/icons/spells/targetstun.png",
         "description": "Stuns enemy for 1 second, deals 50 damage.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -6709,6 +6943,7 @@
     {
         "spell_id": 250,
         "spell_name": "enhanced_mend_wounds",
+        "icon": "res://Assets/icons/spells/grouphot.png",
         "description": "Mend Wounds heals 15 HP/sec, costs 5% less ki.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -6737,6 +6972,7 @@
     {
         "spell_id": 251,
         "spell_name": "water_strike",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Deals 70 water damage, slows target by 15% for 5 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -6764,6 +7000,7 @@
     {
         "spell_id": 252,
         "spell_name": "wholeness_of_body",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "Grants 15% damage resistance for 6 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -6791,6 +7028,7 @@
     {
         "spell_id": 253,
         "spell_name": "swift_step",
+        "icon": "res://Assets/icons/spells/teleport.png",
         "description": "Dashes 8m, +15% movement speed for 4 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -6817,6 +7055,7 @@
     {
         "spell_id": 254,
         "spell_name": "earth_strike",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Deals 80 earth damage, knocks back target 3m.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -6843,6 +7082,7 @@
     {
         "spell_id": 255,
         "spell_name": "ki_barrier",
+        "icon": "res://Assets/icons/spells/selfward.png",
         "description": "Absorbs 150 damage for 6 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -6896,6 +7136,7 @@
     {
         "spell_id": 257,
         "spell_name": "serenity",
+        "icon": "res://Assets/icons/spells/selfheal.png",
         "description": "Removes debuffs, restores 5% ki.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -6949,6 +7190,7 @@
     {
         "spell_id": 259,
         "spell_name": "master_ki_strike",
+        "icon": "res://Assets/icons/spells/grouparcane.png",
         "description": "Ki Strike chains to 1 enemy, +15 force damage.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -6976,6 +7218,7 @@
     {
         "spell_id": 260,
         "spell_name": "void_strike",
+        "icon": "res://Assets/icons/spells/targetnecromancy.png",
         "description": "Deals 100 void damage, drains 3% enemy mana.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -7002,6 +7245,7 @@
     {
         "spell_id": 261,
         "spell_name": "perfect_balance",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "Grants knockback immunity, +15% critical chance for 8 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -7029,6 +7273,7 @@
     {
         "spell_id": 262,
         "spell_name": "storm_kick",
+        "icon": "res://Assets/icons/spells/targetlightning.png",
         "description": "Deals 110 lightning damage, stuns for 1 second.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -7082,6 +7327,7 @@
     {
         "spell_id": 264,
         "spell_name": "ki_flow",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "+15% ki regeneration, +5% attack speed for 10 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -7108,6 +7354,7 @@
     {
         "spell_id": 265,
         "spell_name": "wind_dash",
+        "icon": "res://Assets/icons/spells/teleport.png",
         "description": "Dashes 10m, +20% evasion for 4 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -7134,6 +7381,7 @@
     {
         "spell_id": 266,
         "spell_name": "celestial_fist",
+        "icon": "res://Assets/icons/spells/targetdivine.png",
         "description": "Deals 120 radiant damage, +15% vs. undead/Void.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -7160,6 +7408,7 @@
     {
         "spell_id": 267,
         "spell_name": "iron_spirit",
+        "icon": "res://Assets/icons/spells/groupheal.png",
         "description": "Absorbs 200 damage, +5% health for 8 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -7187,6 +7436,7 @@
     {
         "spell_id": 268,
         "spell_name": "zen_focus",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "+15% damage, immune to CC for 6 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -7239,6 +7489,7 @@
     {
         "spell_id": 270,
         "spell_name": "void_tempest",
+        "icon": "res://Assets/icons/spells/targetnecromancy.png",
         "description": "Deals 150 void damage in 5m, drains 5% enemy mana.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -7265,6 +7516,7 @@
     {
         "spell_id": 271,
         "spell_name": "ki_aegis",
+        "icon": "res://Assets/icons/spells/selfward.png",
         "description": "Absorbs 300 damage, reflects 10% as force damage.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -7291,6 +7543,7 @@
     {
         "spell_id": 272,
         "spell_name": "windrider",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "Grants +20% movement speed, +10% evasion for 8 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -7318,6 +7571,7 @@
     {
         "spell_id": 273,
         "spell_name": "improved_void_strike",
+        "icon": "res://Assets/icons/spells/targetnecromancy.png",
         "description": "Void Strike deals 150 damage, drains 7% mana.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -7344,6 +7598,7 @@
     {
         "spell_id": 274,
         "spell_name": "celestial_flurry",
+        "icon": "res://Assets/icons/spells/targetdivine.png",
         "description": "Deals 4x 80 radiant damage attacks, +10% critical chance.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -7370,6 +7625,7 @@
     {
         "spell_id": 275,
         "spell_name": "inner_peace",
+        "icon": "res://Assets/icons/spells/groupheal.png",
         "description": "Restores 75% health/ki over 5 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -7397,6 +7653,7 @@
     {
         "spell_id": 276,
         "spell_name": "storm_surge",
+        "icon": "res://Assets/icons/spells/targetlightning.png",
         "description": "Deals 150 lightning damage, +15% critical damage.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -7423,6 +7680,7 @@
     {
         "spell_id": 277,
         "spell_name": "master_balance",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "Perfect Balance grants +20% critical chance, +10% damage.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -7450,6 +7708,7 @@
     {
         "spell_id": 278,
         "spell_name": "ki_tempest",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Deals 200 force damage in 8m, stuns for 2 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -7477,6 +7736,7 @@
     {
         "spell_id": 279,
         "spell_name": "zen_apotheosis",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Deals 400 force damage in 10m, stuns for 3 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -7504,6 +7764,7 @@
     {
         "spell_id": 280,
         "spell_name": "eternal_spirit",
+        "icon": "res://Assets/icons/spells/groupheal.png",
         "description": "Grants +40% damage/health, CC immunity for 12 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -7531,6 +7792,7 @@
     {
         "spell_id": 281,
         "spell_name": "ki_nirvana",
+        "icon": "res://Assets/icons/spells/groupheal.png",
         "description": "Fully restores health/ki, +15% damage resistance for 12 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -7584,6 +7846,7 @@
     {
         "spell_id": 283,
         "spell_name": "hunters_mark",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "Increases damage taken by target by 5% for 8 seconds (D&D-inspired).",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -7611,6 +7874,7 @@
     {
         "spell_id": 284,
         "spell_name": "call_companion",
+        "icon": "res://Assets/icons/spells/petsummon.png",
         "description": "Summons wolf (40% caster's health) for 20 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -7638,6 +7902,7 @@
     {
         "spell_id": 285,
         "spell_name": "ensnaring_trap",
+        "icon": "res://Assets/icons/spells/grouproot.png",
         "description": "Roots enemies in 5m for 5 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -7666,6 +7931,7 @@
     {
         "spell_id": 286,
         "spell_name": "improved_stealth",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "Stealth grants +10% movement speed for 4 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -7721,6 +7987,7 @@
     {
         "spell_id": 288,
         "spell_name": "beast_bond",
+        "icon": "res://Assets/icons/spells/groupheal.png",
         "description": "Companion gains +10% damage/health for 10 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -7830,6 +8097,7 @@
     {
         "spell_id": 292,
         "spell_name": "hawk_companion",
+        "icon": "res://Assets/icons/spells/petsummon.png",
         "description": "Summons hawk (25% caster's health) for scouting, 15 damage/sec for 20 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -7858,6 +8126,7 @@
     {
         "spell_id": 293,
         "spell_name": "camouflage",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "+15% stealth effectiveness for 8 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -7913,6 +8182,7 @@
     {
         "spell_id": 295,
         "spell_name": "entangling_shot",
+        "icon": "res://Assets/icons/spells/targetroot.png",
         "description": "Roots enemy, slows by 15% for 6 seconds, deals 70 damage.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -7940,6 +8210,7 @@
     {
         "spell_id": 296,
         "spell_name": "bear_companion",
+        "icon": "res://Assets/icons/spells/petsummon.png",
         "description": "Summons bear (60% caster's health) for 25 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -7967,6 +8238,7 @@
     {
         "spell_id": 297,
         "spell_name": "natures_precision",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "+10% ranged accuracy/critical chance for 8 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -7993,6 +8265,7 @@
     {
         "spell_id": 298,
         "spell_name": "venomous_coating",
+        "icon": "res://Assets/icons/spells/targetpoison.png",
         "description": "Applies poison to all attacks, +10 damage/sec for 6 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -8101,6 +8374,7 @@
     {
         "spell_id": 302,
         "spell_name": "pack_leader",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "Companions gain +15% damage/speed for 10 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -8127,6 +8401,7 @@
     {
         "spell_id": 303,
         "spell_name": "explosive_trap",
+        "icon": "res://Assets/icons/spells/targetfire.png",
         "description": "Places trap dealing 100 fire damage in 5m.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -8153,6 +8428,7 @@
     {
         "spell_id": 304,
         "spell_name": "wild_call",
+        "icon": "res://Assets/icons/spells/petsummon.png",
         "description": "Summons 2 animals (40% caster's health) for 25 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -8206,6 +8482,7 @@
     {
         "spell_id": 306,
         "spell_name": "natures_veil",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "Grants +20% stealth, +5% evasion for 8 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -8313,6 +8590,7 @@
     {
         "spell_id": 310,
         "spell_name": "panther_companion",
+        "icon": "res://Assets/icons/spells/petsummon.png",
         "description": "Summons panther (70% caster's health) with +10% critical chance for 30 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -8340,6 +8618,7 @@
     {
         "spell_id": 311,
         "spell_name": "deadly_precision",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "+15% ranged damage, +15% critical chance for 10 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -8392,6 +8671,7 @@
     {
         "spell_id": 313,
         "spell_name": "storm_of_arrows",
+        "icon": "res://Assets/icons/spells/targetroot.png",
         "description": "Deals 150 damage in 10m, slows by 15% for 6 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -8419,6 +8699,7 @@
     {
         "spell_id": 314,
         "spell_name": "beastmasters_bond",
+        "icon": "res://Assets/icons/spells/groupheal.png",
         "description": "Companions gain +20% health/damage, +5% speed for 12 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -8446,6 +8727,7 @@
     {
         "spell_id": 315,
         "spell_name": "camouflage_mastery",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "Grants invisibility for 4 seconds after leaving combat.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -8499,6 +8781,7 @@
     {
         "spell_id": 317,
         "spell_name": "verdant_trap",
+        "icon": "res://Assets/icons/spells/grouproot.png",
         "description": "Places trap dealing 200 nature damage, roots enemies in 8m for 5 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -8527,6 +8810,7 @@
     {
         "spell_id": 318,
         "spell_name": "master_beast_bond",
+        "icon": "res://Assets/icons/spells/groupheal.png",
         "description": "Beast Bond grants +25% companion damage/health.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -8554,6 +8838,7 @@
     {
         "spell_id": 319,
         "spell_name": "snipers_focus",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "+20% ranged accuracy, +15% critical damage for 10 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -8580,6 +8865,7 @@
     {
         "spell_id": 320,
         "spell_name": "natures_wrath",
+        "icon": "res://Assets/icons/spells/targetstun.png",
         "description": "Deals 400 nature damage, ignores armor, stuns for 3 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -8607,6 +8893,7 @@
     {
         "spell_id": 321,
         "spell_name": "wild_legion",
+        "icon": "res://Assets/icons/spells/petsummon.png",
         "description": "Summons 3 animals (60% caster's health) for 50 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -8634,6 +8921,7 @@
     {
         "spell_id": 322,
         "spell_name": "rangers_ascendancy",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "+40% ranged damage, +25% critical chance for 12 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -8686,6 +8974,7 @@
     {
         "spell_id": 324,
         "spell_name": "shadowstep",
+        "icon": "res://Assets/icons/spells/teleport.png",
         "description": "Teleports behind target, enters stealth.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -8712,6 +9001,7 @@
     {
         "spell_id": 325,
         "spell_name": "crippling_poison",
+        "icon": "res://Assets/icons/spells/targetroot.png",
         "description": "Slows enemy movement by 15% for 6 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -8739,6 +9029,7 @@
     {
         "spell_id": 326,
         "spell_name": "evasion",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "+15% dodge chance for 5 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -8765,6 +9056,7 @@
     {
         "spell_id": 327,
         "spell_name": "ambush",
+        "icon": "res://Assets/icons/spells/targetstun.png",
         "description": "Deals 120 damage, stuns for 1 second if from stealth.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -8792,6 +9084,7 @@
     {
         "spell_id": 328,
         "spell_name": "toxic_blade",
+        "icon": "res://Assets/icons/spells/targetpoison.png",
         "description": "Applies 10 damage/sec poison for 6 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -8820,6 +9113,7 @@
     {
         "spell_id": 329,
         "spell_name": "smoke_bomb",
+        "icon": "res://Assets/icons/spells/groupblind.png",
         "description": "Blinds enemies in 5m for 4 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -8876,6 +9170,7 @@
     {
         "spell_id": 331,
         "spell_name": "shadow_cloak",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "Grants invisibility for 2 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -8903,6 +9198,7 @@
     {
         "spell_id": 332,
         "spell_name": "disabling_trap",
+        "icon": "res://Assets/icons/spells/targetstun.png",
         "description": "Places trap stunning enemies for 2 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -8957,6 +9253,7 @@
     {
         "spell_id": 334,
         "spell_name": "deadly_poison",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "Increases critical damage taken by 10% for 8 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -9036,6 +9333,7 @@
     {
         "spell_id": 337,
         "spell_name": "improved_ambush",
+        "icon": "res://Assets/icons/spells/targetstun.png",
         "description": "Ambush deals 150 damage, +10% critical chance.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -9062,6 +9360,7 @@
     {
         "spell_id": 338,
         "spell_name": "assassinate",
+        "icon": "res://Assets/icons/spells/groupheal.png",
         "description": "Deals 150 damage to enemies below 20% health.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -9117,6 +9416,7 @@
     {
         "spell_id": 340,
         "spell_name": "shadow_dance",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "+20% attack speed/dodge chance for 6 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -9169,6 +9469,7 @@
     {
         "spell_id": 342,
         "spell_name": "venom_strike",
+        "icon": "res://Assets/icons/spells/targetpoison.png",
         "description": "Deals 120 damage, applies 20 damage/sec poison for 6 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -9197,6 +9498,7 @@
     {
         "spell_id": 343,
         "spell_name": "shadow_veil",
+        "icon": "res://Assets/icons/spells/selfward.png",
         "description": "Absorbs 150 damage, +10% dodge for 6 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -9223,6 +9525,7 @@
     {
         "spell_id": 344,
         "spell_name": "crippling_trap",
+        "icon": "res://Assets/icons/spells/targetroot.png",
         "description": "Places trap slowing enemies by 20% for 5 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -9277,6 +9580,7 @@
     {
         "spell_id": 346,
         "spell_name": "toxic_shroud",
+        "icon": "res://Assets/icons/spells/aoepoison.png",
         "description": "Applies 25 damage/sec poison to enemies in 5m for 6 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -9306,6 +9610,7 @@
     {
         "spell_id": 347,
         "spell_name": "nightstalker",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "+25% stealth effectiveness, +5% movement speed.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -9332,6 +9637,7 @@
     {
         "spell_id": 348,
         "spell_name": "improved_assassinate",
+        "icon": "res://Assets/icons/spells/groupheal.png",
         "description": "Assassinate triggers below 30% health, deals 200 damage.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -9359,6 +9665,7 @@
     {
         "spell_id": 349,
         "spell_name": "shadow_barrage",
+        "icon": "res://Assets/icons/spells/targetsilence.png",
         "description": "Deals 150 damage in 5m, silences enemies for 2 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -9386,6 +9693,7 @@
     {
         "spell_id": 350,
         "spell_name": "umbral_cloak",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "Grants invisibility for 4 seconds, +15% damage resistance.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -9413,6 +9721,7 @@
     {
         "spell_id": 351,
         "spell_name": "poison_nova",
+        "icon": "res://Assets/icons/spells/targetpoison.png",
         "description": "Deals 120 poison damage in 8m, +15 damage/sec for 6 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -9467,6 +9776,7 @@
     {
         "spell_id": 353,
         "spell_name": "venomous_barrage",
+        "icon": "res://Assets/icons/spells/targetpoison.png",
         "description": "Deals 150 poison damage in 8m, applies 20 damage/sec DoT.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -9495,6 +9805,7 @@
     {
         "spell_id": 354,
         "spell_name": "master_shadow_dance",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "Shadow Dance grants +25% attack speed, +15% dodge chance.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -9522,6 +9833,7 @@
     {
         "spell_id": 355,
         "spell_name": "toxic_strike",
+        "icon": "res://Assets/icons/spells/targetpoison.png",
         "description": "Deals 200 damage, applies 30 damage/sec poison for 8 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -9550,6 +9862,7 @@
     {
         "spell_id": 356,
         "spell_name": "nights_reckoning",
+        "icon": "res://Assets/icons/spells/targetstun.png",
         "description": "Deals 400 damage, ignores armor, stuns for 3 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -9577,6 +9890,7 @@
     {
         "spell_id": 357,
         "spell_name": "shadow_ascendancy",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "+40% damage, +25% dodge chance, CC immunity for 12 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -9631,6 +9945,7 @@
     {
         "spell_id": 359,
         "spell_name": "song_of_courage",
+        "icon": "res://Assets/icons/spells/groupbuff.png",
         "description": "Grants allies in 8m +5% damage/critical chance.",
         "caster_proficiency": "none",
         "mana_cost": 0.0,
@@ -9659,6 +9974,7 @@
     {
         "spell_id": 360,
         "spell_name": "dissonant_chord",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Reduces enemy accuracy/attack speed by 10%.",
         "caster_proficiency": "none",
         "mana_cost": 0.0,
@@ -9713,6 +10029,7 @@
     {
         "spell_id": 362,
         "spell_name": "charm_melody",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Charms enemy to fight for you.",
         "caster_proficiency": "none",
         "mana_cost": 0.0,
@@ -9740,6 +10057,7 @@
     {
         "spell_id": 363,
         "spell_name": "ballad_of_vigor",
+        "icon": "res://Assets/icons/spells/grouphot.png",
         "description": "Heals allies in 8m.",
         "caster_proficiency": "none",
         "mana_cost": 0.0,
@@ -9768,6 +10086,7 @@
     {
         "spell_id": 364,
         "spell_name": "piercing_note",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Deals 70 sonic damage to one enemy.",
         "caster_proficiency": "none",
         "mana_cost": 0.0,
@@ -9794,6 +10113,7 @@
     {
         "spell_id": 365,
         "spell_name": "illusory_mask",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Distracts enemies, reducing aggro for 5 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 0.0,
@@ -9820,6 +10140,7 @@
     {
         "spell_id": 366,
         "spell_name": "song_of_haste",
+        "icon": "res://Assets/icons/spells/groupbuff.png",
         "description": "Grants allies +10% attack/movement speed.",
         "caster_proficiency": "none",
         "mana_cost": 0.0,
@@ -9847,6 +10168,7 @@
     {
         "spell_id": 367,
         "spell_name": "sonic_blast",
+        "icon": "res://Assets/icons/spells/aoearcane.png",
         "description": "Deals 60 sonic damage in 5m cone, disorients for 2 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 20.0,
@@ -9875,6 +10197,7 @@
     {
         "spell_id": 368,
         "spell_name": "enchanted_refrain",
+        "icon": "res://Assets/icons/spells/targetward.png",
         "description": "Grants ally a 150-damage shield for 6 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 20.0,
@@ -9902,6 +10225,7 @@
     {
         "spell_id": 369,
         "spell_name": "dirge_of_doom",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Reduces enemy damage/resistance by 10%.",
         "caster_proficiency": "none",
         "mana_cost": 0.0,
@@ -9956,6 +10280,7 @@
     {
         "spell_id": 371,
         "spell_name": "mesmerizing_tune",
+        "icon": "res://Assets/icons/spells/targetstun.png",
         "description": "Puts enemy to sleep.",
         "caster_proficiency": "none",
         "mana_cost": 0.0,
@@ -9983,6 +10308,7 @@
     {
         "spell_id": 372,
         "spell_name": "anthem_of_glory",
+        "icon": "res://Assets/icons/spells/groupheal.png",
         "description": "Allies gain health, and +10% healing received/damage.",
         "caster_proficiency": "none",
         "mana_cost": 0.0,
@@ -10010,6 +10336,7 @@
     {
         "spell_id": 373,
         "spell_name": "improved_song_of_courage",
+        "icon": "res://Assets/icons/spells/groupbuff.png",
         "description": "Song of Courage affects 3 allies, +10% critical chance.",
         "caster_proficiency": "none",
         "mana_cost": 0.0,
@@ -10036,6 +10363,7 @@
     {
         "spell_id": 374,
         "spell_name": "symphony_of_fate",
+        "icon": "res://Assets/icons/spells/grouparcane.png",
         "description": "Deals 100 sonic damage, buffs allies +5% damage in 8m.",
         "caster_proficiency": "none",
         "mana_cost": 0.0,
@@ -10062,6 +10390,7 @@
     {
         "spell_id": 375,
         "spell_name": "song_of_renewal",
+        "icon": "res://Assets/icons/spells/targetheal.png",
         "description": "Fully heals ally, removes one debuff.",
         "caster_proficiency": "none",
         "mana_cost": 50.0,
@@ -10089,6 +10418,7 @@
     {
         "spell_id": 376,
         "spell_name": "sonic_slash",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Deals 100 sonic damage, disorients for 1 second.",
         "caster_proficiency": "none",
         "mana_cost": 0.0,
@@ -10116,6 +10446,7 @@
     {
         "spell_id": 377,
         "spell_name": "illusory_double",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "Creates decoy taking 30% damage for 6 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 0.0,
@@ -10142,6 +10473,7 @@
     {
         "spell_id": 378,
         "spell_name": "ballad_of_life",
+        "icon": "res://Assets/icons/spells/grouphot.png",
         "description": "Heals allies in 8m for 20 HP/sec.",
         "caster_proficiency": "none",
         "mana_cost": 0.0,
@@ -10170,6 +10502,7 @@
     {
         "spell_id": 379,
         "spell_name": "illusory_strike",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Deals 80 damage, distracts enemy for 4 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 0.0,
@@ -10196,6 +10529,7 @@
     {
         "spell_id": 380,
         "spell_name": "crescendo",
+        "icon": "res://Assets/icons/spells/grouparcane.png",
         "description": "Deals 120 sonic damage in 8m, buffs allies +10% speed.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -10222,6 +10556,7 @@
     {
         "spell_id": 381,
         "spell_name": "song_of_defiance",
+        "icon": "res://Assets/icons/spells/groupbuff.png",
         "description": "Grants allies +15% damage resistance for 8 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 0.0,
@@ -10249,6 +10584,7 @@
     {
         "spell_id": 382,
         "spell_name": "mesmerizing_aria",
+        "icon": "res://Assets/icons/spells/targetstun.png",
         "description": "Puts enemies in range to sleep.",
         "caster_proficiency": "none",
         "mana_cost": 0.0,
@@ -10276,6 +10612,7 @@
     {
         "spell_id": 383,
         "spell_name": "sonic_tempest",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Deals 150 sonic damage in 10m, disorients for 3 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -10303,6 +10640,7 @@
     {
         "spell_id": 384,
         "spell_name": "ballad_of_eternity",
+        "icon": "res://Assets/icons/spells/groupheal.png",
         "description": "Heals party for 200 health, removes one debuff.",
         "caster_proficiency": "none",
         "mana_cost": 50.0,
@@ -10330,6 +10668,7 @@
     {
         "spell_id": 385,
         "spell_name": "illusory_veil",
+        "icon": "res://Assets/icons/spells/groupbuff.png",
         "description": "Grants party +10% dodge chance.",
         "caster_proficiency": "none",
         "mana_cost": 0.0,
@@ -10357,6 +10696,7 @@
     {
         "spell_id": 386,
         "spell_name": "improved_symphony",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Symphony of Fate deals 200 damage, buffs +15% damage.",
         "caster_proficiency": "none",
         "mana_cost": 0.0,
@@ -10383,6 +10723,7 @@
     {
         "spell_id": 387,
         "spell_name": "anthem_of_vigor",
+        "icon": "res://Assets/icons/spells/groupheal.png",
         "description": "Allies gain +15% health, +10% speed.",
         "caster_proficiency": "none",
         "mana_cost": 0.0,
@@ -10410,6 +10751,7 @@
     {
         "spell_id": 388,
         "spell_name": "finale",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Deals 350 damage, +15% per active song.",
         "caster_proficiency": "none",
         "mana_cost": 50.0,
@@ -10436,6 +10778,7 @@
     {
         "spell_id": 389,
         "spell_name": "sonic_barrage",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Deals 150 sonic damage in 10m, +10% critical chance.",
         "caster_proficiency": "none",
         "mana_cost": 30.0,
@@ -10462,6 +10805,7 @@
     {
         "spell_id": 390,
         "spell_name": "master_anthem",
+        "icon": "res://Assets/icons/spells/groupheal.png",
         "description": "Anthem of Glory grants +20% healing/damage, affects 15m.",
         "caster_proficiency": "none",
         "mana_cost": 0.0,
@@ -10489,6 +10833,7 @@
     {
         "spell_id": 391,
         "spell_name": "illusory_harmony",
+        "icon": "res://Assets/icons/spells/aoearcane.png",
         "description": "Distracts all enemies in 10m, reduces aggro.",
         "caster_proficiency": "none",
         "mana_cost": 0.0,
@@ -10517,6 +10862,7 @@
     {
         "spell_id": 392,
         "spell_name": "symphony_of_destiny",
+        "icon": "res://Assets/icons/spells/groupbuff.png",
         "description": "Deals 400 sonic damage, buffs party +20% damage.",
         "caster_proficiency": "none",
         "mana_cost": 50.0,
@@ -10543,6 +10889,7 @@
     {
         "spell_id": 393,
         "spell_name": "anthem_of_lumora",
+        "icon": "res://Assets/icons/spells/groupheal.png",
         "description": "Party gains +25% healing/damage, CC immunity.",
         "caster_proficiency": "none",
         "mana_cost": 0.0,
@@ -10570,6 +10917,7 @@
     {
         "spell_id": 394,
         "spell_name": "sonic_apocalypse",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Deals 400 sonic damage in 15m, stuns targets in range.",
         "caster_proficiency": "none",
         "mana_cost": 80.0,
@@ -10597,6 +10945,7 @@
     {
         "spell_id": 395,
         "spell_name": "shadow_bolt",
+        "icon": "res://Assets/icons/spells/targetnecromancy.png",
         "description": "Deals 10 necrotic damage.",
         "caster_proficiency": "none",
         "mana_cost": 20.0,
@@ -10623,6 +10972,7 @@
     {
         "spell_id": 396,
         "spell_name": "raise_skeleton",
+        "icon": "res://Assets/icons/spells/petsummon.png",
         "description": "Summons a fallen skeleton to aid the gravecaller until destroyed.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -10651,6 +11001,7 @@
     {
         "spell_id": 397,
         "spell_name": "life_drain",
+        "icon": "res://Assets/icons/spells/targetnecromancy.png",
         "description": "Deals 35 damage, heals self for 50% damage dealt.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -10678,6 +11029,7 @@
     {
         "spell_id": 398,
         "spell_name": "curse_of_frailty",
+        "icon": "res://Assets/icons/spells/targetnecromancy.png",
         "description": "Reduces enemy armor/regen by 5% for 8 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -10705,6 +11057,7 @@
     {
         "spell_id": 399,
         "spell_name": "corpse_explosion",
+        "icon": "res://Assets/icons/spells/aoenecromancy.png",
         "description": "Detonates corpse, deals 80 damage in 5m (D&D-inspired).",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -10731,6 +11084,7 @@
     {
         "spell_id": 400,
         "spell_name": "fear",
+        "icon": "res://Assets/icons/spells/groupfear.png",
         "description": "Causes enemies in 5m to flee for 4 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -10759,6 +11113,7 @@
     {
         "spell_id": 401,
         "spell_name": "siphon_mana",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "Drains 3% enemy mana, converts to 30% caster mana.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -10785,6 +11140,7 @@
     {
         "spell_id": 402,
         "spell_name": "bone_shield",
+        "icon": "res://Assets/icons/spells/selfward.png",
         "description": "Absorbs 100 damage for 6 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -10811,6 +11167,7 @@
     {
         "spell_id": 403,
         "spell_name": "death_coil",
+        "icon": "res://Assets/icons/spells/selfheal.png",
         "description": "Deals 80 necrotic damage, heals self for 20% damage.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -10838,6 +11195,7 @@
     {
         "spell_id": 404,
         "spell_name": "summon_ghoul",
+        "icon": "res://Assets/icons/spells/petsummon.png",
         "description": "Summons ghoul (50% caster's health) for 25 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -10865,6 +11223,7 @@
     {
         "spell_id": 405,
         "spell_name": "plague_cloud",
+        "icon": "res://Assets/icons/spells/targetnecromancy.png",
         "description": "Creates 5m cloud dealing 10 damage/sec for 8 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -10893,6 +11252,7 @@
     {
         "spell_id": 406,
         "spell_name": "curse_of_agony",
+        "icon": "res://Assets/icons/spells/targetnecromancy.png",
         "description": "Inflicts 15 damage/sec DoT for 6 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -10921,6 +11281,7 @@
     {
         "spell_id": 407,
         "spell_name": "soul_shard",
+        "icon": "res://Assets/icons/spells/targetnecromancy.png",
         "description": "Harvests soul to empower next spell by 10%.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -10947,6 +11308,7 @@
     {
         "spell_id": 408,
         "spell_name": "blight",
+        "icon": "res://Assets/icons/spells/targetpoison.png",
         "description": "Infects 8m area, deals 15 damage/sec, slows by 15% for 6 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -10975,6 +11337,7 @@
     {
         "spell_id": 409,
         "spell_name": "death_pact",
+        "icon": "res://Assets/icons/spells/groupheal.png",
         "description": "Sacrifices minion to restore 20% health/mana.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -11002,6 +11365,7 @@
     {
         "spell_id": 410,
         "spell_name": "necrotic_chill",
+        "icon": "res://Assets/icons/spells/targetice.png",
         "description": "Deals 70 cold/necrotic damage, 10% chance to freeze for 2 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -11029,6 +11393,7 @@
     {
         "spell_id": 411,
         "spell_name": "spectral_chains",
+        "icon": "res://Assets/icons/spells/targetnecromancy.png",
         "description": "Binds enemy, prevents movement for 4 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -11055,6 +11420,7 @@
     {
         "spell_id": 412,
         "spell_name": "improved_shadow_bolt",
+        "icon": "res://Assets/icons/spells/targetnecromancy.png",
         "description": "Shadow Bolt deals 100 damage, +10% critical chance.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -11081,6 +11447,7 @@
     {
         "spell_id": 413,
         "spell_name": "summon_abomination",
+        "icon": "res://Assets/icons/spells/petsummon.png",
         "description": "Summons abomination (80% caster's health) for 30 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -11108,6 +11475,7 @@
     {
         "spell_id": 414,
         "spell_name": "death_and_decay",
+        "icon": "res://Assets/icons/spells/targetnecromancy.png",
         "description": "Creates 8m zone dealing 20 damage/sec for 8 seconds (EQ-inspired).",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -11136,6 +11504,7 @@
     {
         "spell_id": 415,
         "spell_name": "soul_reaper",
+        "icon": "res://Assets/icons/spells/groupheal.png",
         "description": "Deals 150 damage to enemies below 20% health.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -11163,6 +11532,7 @@
     {
         "spell_id": 416,
         "spell_name": "necrotic_aura",
+        "icon": "res://Assets/icons/spells/groupbuff.png",
         "description": "Enemies in 10m take 5% increased damage.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -11191,6 +11561,7 @@
     {
         "spell_id": 417,
         "spell_name": "improved_plague_cloud",
+        "icon": "res://Assets/icons/spells/targetnecromancy.png",
         "description": "Plague Cloud deals 15 damage/sec, slows by 20%.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -11219,6 +11590,7 @@
     {
         "spell_id": 418,
         "spell_name": "lichs_grasp",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "Grants 50% damage reduction for 4 seconds, costs 20% mana.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -11246,6 +11618,7 @@
     {
         "spell_id": 419,
         "spell_name": "bone_armor",
+        "icon": "res://Assets/icons/spells/selfward.png",
         "description": "Absorbs 200 damage, +5% armor for 8 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -11272,6 +11645,7 @@
     {
         "spell_id": 420,
         "spell_name": "curse_of_doom",
+        "icon": "res://Assets/icons/spells/targetnecromancy.png",
         "description": "Inflicts 20 damage/sec DoT, +10% damage taken for 8 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -11300,6 +11674,7 @@
     {
         "spell_id": 421,
         "spell_name": "improved_abomination",
+        "icon": "res://Assets/icons/spells/groupheal.png",
         "description": "Abomination gains +10% health, deals 10% more damage.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -11327,6 +11702,7 @@
     {
         "spell_id": 422,
         "spell_name": "necrotic_blast",
+        "icon": "res://Assets/icons/spells/groupheal.png",
         "description": "Deals 120 necrotic damage in 8m, +10% vs. low-health targets.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -11354,6 +11730,7 @@
     {
         "spell_id": 423,
         "spell_name": "soul_reap",
+        "icon": "res://Assets/icons/spells/targetnecromancy.png",
         "description": "Harvests 2 souls, empowers next spell by 20%.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -11380,6 +11757,7 @@
     {
         "spell_id": 424,
         "spell_name": "plague_wave",
+        "icon": "res://Assets/icons/spells/targetnecromancy.png",
         "description": "Deals 100 necrotic damage, spreads 10 damage/sec DoT to 2 enemies.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -11408,6 +11786,7 @@
     {
         "spell_id": 425,
         "spell_name": "improved_death_and_decay",
+        "icon": "res://Assets/icons/spells/targetnecromancy.png",
         "description": "Death and Decay deals 25 damage/sec, affects 10m.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -11436,6 +11815,7 @@
     {
         "spell_id": 426,
         "spell_name": "wraith_call",
+        "icon": "res://Assets/icons/spells/petsummon.png",
         "description": "Summons wraith (60% caster's health) that drains 5% enemy mana for 25 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -11463,6 +11843,7 @@
     {
         "spell_id": 427,
         "spell_name": "necrotic_chains",
+        "icon": "res://Assets/icons/spells/targetroot.png",
         "description": "Binds 2 enemies, slows by 20% for 5 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -11490,6 +11871,7 @@
     {
         "spell_id": 428,
         "spell_name": "grave_surge",
+        "icon": "res://Assets/icons/spells/groupheal.png",
         "description": "+15% necrotic damage, +10% health for 10 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -11517,6 +11899,7 @@
     {
         "spell_id": 429,
         "spell_name": "improved_soul_reaper",
+        "icon": "res://Assets/icons/spells/groupheal.png",
         "description": "Soul Reaper triggers below 30% health, deals 200 damage.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -11544,6 +11927,7 @@
     {
         "spell_id": 430,
         "spell_name": "blightstorm",
+        "icon": "res://Assets/icons/spells/targetnecromancy.png",
         "description": "Deals 150 necrotic damage in 10m, +15 damage/sec for 6 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -11572,6 +11956,7 @@
     {
         "spell_id": 431,
         "spell_name": "master_necrotic_aura",
+        "icon": "res://Assets/icons/spells/groupbuff.png",
         "description": "Necrotic Aura increases enemy damage taken by 10%, affects 15m.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -11599,6 +11984,7 @@
     {
         "spell_id": 432,
         "spell_name": "deaths_embrace",
+        "icon": "res://Assets/icons/spells/groupheal.png",
         "description": "Absorbs 300 damage, heals 10% per hit taken for 8 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -11626,6 +12012,7 @@
     {
         "spell_id": 433,
         "spell_name": "necrofell",
+        "icon": "res://Assets/icons/spells/selfheal.png",
         "description": "Deals 400 necrotic damage in 15m, heals self for 50% damage dealt.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -11653,6 +12040,7 @@
     {
         "spell_id": 434,
         "spell_name": "lichs_dominion",
+        "icon": "res://Assets/icons/spells/groupheal.png",
         "description": "Grants +40% damage, +20% health, CC immunity for 12 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -11680,6 +12068,7 @@
     {
         "spell_id": 435,
         "spell_name": "eternal_abomination",
+        "icon": "res://Assets/icons/spells/petsummon.png",
         "description": "Summons permanent abomination (100% caster's health) with 15% lifesteal.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -11707,6 +12096,7 @@
     {
         "spell_id": 436,
         "spell_name": "charm",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Charms enemy to fight for you for 6 seconds (D&D-inspired).",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -11734,6 +12124,7 @@
     {
         "spell_id": 437,
         "spell_name": "illusionary_bolt",
+        "icon": "res://Assets/icons/spells/aoearcane.png",
         "description": "Deals 60 arcane damage, 10% chance to confuse for 2 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -11761,6 +12152,7 @@
     {
         "spell_id": 438,
         "spell_name": "mesmerize",
+        "icon": "res://Assets/icons/spells/targetstun.png",
         "description": "Puts enemy to sleep for 4 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -11788,6 +12180,7 @@
     {
         "spell_id": 439,
         "spell_name": "mana_shield",
+        "icon": "res://Assets/icons/spells/selfward.png",
         "description": "Converts mana to absorb 100 damage for 6 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -11815,6 +12208,7 @@
     {
         "spell_id": 440,
         "spell_name": "invisibility",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "Grants invisibility for 8 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -11842,6 +12236,7 @@
     {
         "spell_id": 441,
         "spell_name": "mind_blast",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Deals 70 psychic damage, interrupts casting.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -11868,6 +12263,7 @@
     {
         "spell_id": 442,
         "spell_name": "disorient",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Reduces enemy accuracy/movement speed by 10% for 6 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -11895,6 +12291,7 @@
     {
         "spell_id": 443,
         "spell_name": "mirror_image",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Creates 2 illusions to distract enemies for 6 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -11921,6 +12318,7 @@
     {
         "spell_id": 444,
         "spell_name": "mass_charm",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Charms 2 weak enemies for 5 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -11948,6 +12346,7 @@
     {
         "spell_id": 445,
         "spell_name": "psychic_scream",
+        "icon": "res://Assets/icons/spells/groupfear.png",
         "description": "Causes enemies in 5m to flee for 4 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -11976,6 +12375,7 @@
     {
         "spell_id": 446,
         "spell_name": "arcane_veil",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "Grants 15% magic damage resistance for 6 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -12003,6 +12403,7 @@
     {
         "spell_id": 447,
         "spell_name": "spellbreak",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "Interrupts and silences enemy caster for 2 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -12030,6 +12431,7 @@
     {
         "spell_id": 448,
         "spell_name": "illusory_terrain",
+        "icon": "res://Assets/icons/spells/groupstun.png",
         "description": "Confuses enemies in 8m, reducing accuracy by 15% for 6 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -12058,6 +12460,7 @@
     {
         "spell_id": 449,
         "spell_name": "mind_flay",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Deals 15 psychic damage/sec for 6 seconds, slows by 15%.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -12086,6 +12489,7 @@
     {
         "spell_id": 450,
         "spell_name": "enchanted_ward",
+        "icon": "res://Assets/icons/spells/targetward.png",
         "description": "Absorbs 150 damage for an ally for 6 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -12112,6 +12516,7 @@
     {
         "spell_id": 451,
         "spell_name": "pacify",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Prevents enemy from attacking for 4 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -12138,6 +12543,7 @@
     {
         "spell_id": 452,
         "spell_name": "clarity",
+        "icon": "res://Assets/icons/spells/targetbuff.png",
         "description": "Grants ally +10% mana regen/spell damage for 8 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -12165,6 +12571,7 @@
     {
         "spell_id": 453,
         "spell_name": "improved_charm",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Charm lasts 8 seconds, +10% success rate.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -12192,6 +12599,7 @@
     {
         "spell_id": 454,
         "spell_name": "dominate",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Fully controls one enemy for 6 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -12218,6 +12626,7 @@
     {
         "spell_id": 455,
         "spell_name": "phantasmal_force",
+        "icon": "res://Assets/icons/spells/aoearcane.png",
         "description": "Deals 100 psychic damage, confuses enemies in 8m for 4 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -12246,6 +12655,7 @@
     {
         "spell_id": 456,
         "spell_name": "arcane_echo",
+        "icon": "res://Assets/icons/spells/aoearcane.png",
         "description": "Deals 120 arcane damage, 10% chance to chain to 1 enemy.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -12272,6 +12682,7 @@
     {
         "spell_id": 457,
         "spell_name": "phantom_veil",
+        "icon": "res://Assets/icons/spells/targetbuff.png",
         "description": "Grants ally +10% dodge chance for 6 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -12299,6 +12710,7 @@
     {
         "spell_id": 458,
         "spell_name": "mind_shatter",
+        "icon": "res://Assets/icons/spells/groupheal.png",
         "description": "Deals 150 psychic damage to one target, +15% vs. low-health.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -12326,6 +12738,7 @@
     {
         "spell_id": 459,
         "spell_name": "psychic_ward",
+        "icon": "res://Assets/icons/spells/targetward.png",
         "description": "Grants ally a 200-damage shield for 8 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -12353,6 +12766,7 @@
     {
         "spell_id": 460,
         "spell_name": "improved_mesmerize",
+        "icon": "res://Assets/icons/spells/targetstun.png",
         "description": "Mesmerize affects 2 enemies, lasts 5 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -12380,6 +12794,7 @@
     {
         "spell_id": 461,
         "spell_name": "phantom_strike",
+        "icon": "res://Assets/icons/spells/aoearcane.png",
         "description": "Deals 100 arcane damage, distracts enemy for 3 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -12406,6 +12821,7 @@
     {
         "spell_id": 462,
         "spell_name": "mass_disorient",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Reduces accuracy/movement speed by 15% in 10m for 6 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -12433,6 +12849,7 @@
     {
         "spell_id": 463,
         "spell_name": "enchanted_clarity",
+        "icon": "res://Assets/icons/spells/groupbuff.png",
         "description": "Party gains +10% mana regen, +5% spell damage for 10 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -12459,6 +12876,7 @@
     {
         "spell_id": 464,
         "spell_name": "phantasmal_barrage",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Deals 150 psychic damage in 10m, confuses for 3 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -12486,6 +12904,7 @@
     {
         "spell_id": 465,
         "spell_name": "arcane_mirage",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "Creates 3 illusions, each taking 20% damage for 8 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -12512,6 +12931,7 @@
     {
         "spell_id": 466,
         "spell_name": "improved_mind_flay",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Mind Flay deals 20 damage/sec, slows by 20% for 8 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -12540,6 +12960,7 @@
     {
         "spell_id": 467,
         "spell_name": "psychic_nova",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Deals 120 psychic damage in 8m, interrupts casting.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -12566,6 +12987,7 @@
     {
         "spell_id": 468,
         "spell_name": "dominate_mind",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Controls one enemy for 8 seconds, +10% damage taken.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -12592,6 +13014,7 @@
     {
         "spell_id": 469,
         "spell_name": "illusory_aegis",
+        "icon": "res://Assets/icons/spells/groupward.png",
         "description": "Grants party a 200-damage shield for 8 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -12619,6 +13042,7 @@
     {
         "spell_id": 470,
         "spell_name": "improved_phantasmal_force",
+        "icon": "res://Assets/icons/spells/aoearcane.png",
         "description": "Phantasmal Force deals 200 damage, affects 10m.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -12645,6 +13069,7 @@
     {
         "spell_id": 471,
         "spell_name": "mind_surge",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Deals 150 psychic damage, +15% critical chance.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -12671,6 +13096,7 @@
     {
         "spell_id": 472,
         "spell_name": "master_clarity",
+        "icon": "res://Assets/icons/spells/targetbuff.png",
         "description": "Clarity grants +15% mana regen/spell damage, affects party.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -12698,6 +13124,7 @@
     {
         "spell_id": 473,
         "spell_name": "illusory_tempest",
+        "icon": "res://Assets/icons/spells/aoearcane.png",
         "description": "Deals 200 arcane damage in 10m, confuses for 4 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -12726,6 +13153,7 @@
     {
         "spell_id": 474,
         "spell_name": "mind_apocalypse",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Deals 400 psychic damage, stuns for 3 seconds in 15m.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -12753,6 +13181,7 @@
     {
         "spell_id": 475,
         "spell_name": "veil_of_dreams",
+        "icon": "res://Assets/icons/spells/groupbuff.png",
         "description": "Grants party +20% damage resistance, CC immunity for 10 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -12780,6 +13209,7 @@
     {
         "spell_id": 476,
         "spell_name": "phantasmal_apotheosis",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Deals 400 psychic damage in 15m, confuses for 5 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -12807,6 +13237,7 @@
     {
         "spell_id": 477,
         "spell_name": "magic_missile",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Magic Missile: fires 3 bolts, each dealing 6 arcane damage.",
         "caster_proficiency": "intelligence",
         "mana_cost": 25.0,
@@ -12834,6 +13265,7 @@
     {
         "spell_id": 478,
         "spell_name": "arcane_armor",
+        "icon": "res://Assets/icons/spells/selfward.png",
         "description": "Creates a magic shield, absorbing 100 damage.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -12861,6 +13293,7 @@
     {
         "spell_id": 479,
         "spell_name": "frost_bolt",
+        "icon": "res://Assets/icons/spells/targetice.png",
         "description": "Deals 60 cold damage, slows target by 15% for 6 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -12888,6 +13321,7 @@
     {
         "spell_id": 480,
         "spell_name": "detect_magic",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "Reveals hidden traps/magical auras for 10 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -12914,6 +13348,7 @@
     {
         "spell_id": 481,
         "spell_name": "fireball",
+        "icon": "res://Assets/icons/spells/targetfire.png",
         "description": "Deals 80 fire damage in 8m (D&D-inspired).",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -12940,6 +13375,7 @@
     {
         "spell_id": 482,
         "spell_name": "blink",
+        "icon": "res://Assets/icons/spells/teleport.png",
         "description": "Teleports 10m to avoid danger.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -12966,6 +13402,7 @@
     {
         "spell_id": 483,
         "spell_name": "counterspell",
+        "icon": "res://Assets/icons/spells/targetsilence.png",
         "description": "Interrupts enemy spellcasting, silences for 2 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -12993,6 +13430,7 @@
     {
         "spell_id": 484,
         "spell_name": "arcane_intellect",
+        "icon": "res://Assets/icons/spells/targetbuff.png",
         "description": "Grants ally +10% mana regen/spell power for 8 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -13020,6 +13458,7 @@
     {
         "spell_id": 485,
         "spell_name": "ice_lance",
+        "icon": "res://Assets/icons/spells/targetice.png",
         "description": "Deals 80 cold damage, +20% to slowed targets.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -13047,6 +13486,7 @@
     {
         "spell_id": 486,
         "spell_name": "arcane_barrage",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Fires 3 bolts, each dealing 50 arcane damage.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -13074,6 +13514,7 @@
     {
         "spell_id": 487,
         "spell_name": "slow",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Reduces enemy movement/attack speed by 15% for 6 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -13101,6 +13542,7 @@
     {
         "spell_id": 488,
         "spell_name": "mana_barrier",
+        "icon": "res://Assets/icons/spells/selfward.png",
         "description": "Absorbs 150 damage at cost of 10% mana.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -13127,6 +13569,7 @@
     {
         "spell_id": 489,
         "spell_name": "chain_lightning",
+        "icon": "res://Assets/icons/spells/grouplightning.png",
         "description": "Deals 100 lightning damage, chains to 2 enemies.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -13154,6 +13597,7 @@
     {
         "spell_id": 490,
         "spell_name": "polymorph",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Transforms enemy into a sheep for 4 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -13180,6 +13624,7 @@
     {
         "spell_id": 491,
         "spell_name": "arcane_explosion",
+        "icon": "res://Assets/icons/spells/aoearcane.png",
         "description": "Deals 80 arcane damage to all enemies in 5m.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -13207,6 +13652,7 @@
     {
         "spell_id": 492,
         "spell_name": "spell_ward",
+        "icon": "res://Assets/icons/spells/selfward.png",
         "description": "Grants 15% magic resistance, reflects 5% spells for 6 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -13234,6 +13680,7 @@
     {
         "spell_id": 493,
         "spell_name": "portal",
+        "icon": "res://Assets/icons/spells/teleport.png",
         "description": "Creates short-range teleport for party, lasts 10 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -13260,6 +13707,7 @@
     {
         "spell_id": 494,
         "spell_name": "improved_magic_missile",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Magic Missile fires 4 bolts, +10% damage.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -13286,6 +13734,7 @@
     {
         "spell_id": 495,
         "spell_name": "meteor",
+        "icon": "res://Assets/icons/spells/targetfire.png",
         "description": "Deals 150 fire damage in 10m, +10 damage/sec for 5 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -13314,6 +13763,7 @@
     {
         "spell_id": 496,
         "spell_name": "time_warp",
+        "icon": "res://Assets/icons/spells/groupbuff.png",
         "description": "Grants party +10% attack/movement speed for 8 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -13341,6 +13791,7 @@
     {
         "spell_id": 497,
         "spell_name": "frost_nova",
+        "icon": "res://Assets/icons/spells/grouproot.png",
         "description": "Freezes enemies in 5m, roots for 4 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -13369,6 +13820,7 @@
     {
         "spell_id": 498,
         "spell_name": "arcane_surge",
+        "icon": "res://Assets/icons/spells/aoearcane.png",
         "description": "Deals 120 arcane damage, +10% critical chance.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -13395,6 +13847,7 @@
     {
         "spell_id": 499,
         "spell_name": "improved_fireball",
+        "icon": "res://Assets/icons/spells/targetfire.png",
         "description": "Fireball deals 120 damage, affects 10m.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -13421,6 +13874,7 @@
     {
         "spell_id": 500,
         "spell_name": "lightning_bolt",
+        "icon": "res://Assets/icons/spells/targetlightning.png",
         "description": "Deals 100 lightning damage, 10% chance to stun for 1 second.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -13448,6 +13902,7 @@
     {
         "spell_id": 501,
         "spell_name": "arcane_ward",
+        "icon": "res://Assets/icons/spells/targetward.png",
         "description": "Grants ally +15% magic resistance for 8 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -13475,6 +13930,7 @@
     {
         "spell_id": 502,
         "spell_name": "improved_polymorph",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Polymorph lasts 5 seconds, +10% success rate.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -13501,6 +13957,7 @@
     {
         "spell_id": 503,
         "spell_name": "arcane_blast",
+        "icon": "res://Assets/icons/spells/groupheal.png",
         "description": "Deals 150 arcane damage, +15% vs. low-health targets.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -13528,6 +13985,7 @@
     {
         "spell_id": 504,
         "spell_name": "ice_barrier",
+        "icon": "res://Assets/icons/spells/targetroot.png",
         "description": "Absorbs 300 damage, slows attackers by 15% for 6 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -13555,6 +14013,7 @@
     {
         "spell_id": 505,
         "spell_name": "chain_storm",
+        "icon": "res://Assets/icons/spells/grouplightning.png",
         "description": "Deals 120 lightning damage, chains to 3 enemies.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -13582,6 +14041,7 @@
     {
         "spell_id": 506,
         "spell_name": "improved_meteor",
+        "icon": "res://Assets/icons/spells/targetfire.png",
         "description": "Meteor deals 200 damage, +15 damage/sec for 6 seconds to all enemies within 10m",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -13611,6 +14071,7 @@
     {
         "spell_id": 507,
         "spell_name": "time_dilation",
+        "icon": "res://Assets/icons/spells/targetroot.png",
         "description": "Slows enemy attack/cast speed by 20% for 8 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -13638,6 +14099,7 @@
     {
         "spell_id": 508,
         "spell_name": "arcane_nova",
+        "icon": "res://Assets/icons/spells/aoearcane.png",
         "description": "Deals 150 arcane damage in 8m, +10% critical chance.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -13665,6 +14127,7 @@
     {
         "spell_id": 509,
         "spell_name": "frostfire_strike",
+        "icon": "res://Assets/icons/spells/targetfire.png",
         "description": "Deals 120 mixed frost/fire damage, slows by 20%.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -13692,6 +14155,7 @@
     {
         "spell_id": 510,
         "spell_name": "improved_time_warp",
+        "icon": "res://Assets/icons/spells/groupbuff.png",
         "description": "Time Warp grants +15% speed, affects 15m.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -13719,6 +14183,7 @@
     {
         "spell_id": 511,
         "spell_name": "disintegrate",
+        "icon": "res://Assets/icons/spells/aoearcane.png",
         "description": "Deals 200 arcane damage to one target, ignores 25% armor.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -13745,6 +14210,7 @@
     {
         "spell_id": 512,
         "spell_name": "master_arcane_intellect",
+        "icon": "res://Assets/icons/spells/targetbuff.png",
         "description": "Arcane Intellect grants +15% mana regen/spell power, affects party.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -13772,6 +14238,7 @@
     {
         "spell_id": 513,
         "spell_name": "meteor_shower",
+        "icon": "res://Assets/icons/spells/targetfire.png",
         "description": "Deals 200 fire damage in 10m, +20 damage/sec for 6 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -13800,6 +14267,7 @@
     {
         "spell_id": 514,
         "spell_name": "arcane_apocalypse",
+        "icon": "res://Assets/icons/spells/aoearcane.png",
         "description": "Deals 400 arcane damage in 15m, stuns for 3 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -13828,6 +14296,7 @@
     {
         "spell_id": 515,
         "spell_name": "temporal_mastery",
+        "icon": "res://Assets/icons/spells/groupbuff.png",
         "description": "Party gains +20% attack",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -13854,6 +14323,7 @@
     {
         "spell_id": 516,
         "spell_name": "chaos_bolt",
+        "icon": "res://Assets/icons/spells/aoefire.png",
         "description": "Deals 20 random elemental damage (fire, cold, lightning, or arcane), 10% chance for +20% damage.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -13880,6 +14350,7 @@
     {
         "spell_id": 517,
         "spell_name": "wild_surge",
+        "icon": "res://Assets/icons/spells/groupward.png",
         "description": "Casts random beneficial effect. (e.g., +10% speed, +5% damage, or 100-damage shield) for 20 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -13906,6 +14377,7 @@
     {
         "spell_id": 518,
         "spell_name": "unstable_ward",
+        "icon": "res://Assets/icons/spells/selfward.png",
         "description": "Absorbs 100 damage, 10% chance to reflect 20% damage as random element.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -13933,6 +14405,7 @@
     {
         "spell_id": 519,
         "spell_name": "entropic_blast",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Deals 50 random elemental damage in 5m, 5% chance to stun for 1 second.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -13960,6 +14433,7 @@
     {
         "spell_id": 520,
         "spell_name": "arcane_flux",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "Grants +10% spell damage, but 5% chance for spells to backfire (10 damage to self) for 8 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -13987,6 +14461,7 @@
     {
         "spell_id": 521,
         "spell_name": "prismatic_spray",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Deals 70 random elemental damage to one target, 10% chance to apply random debuff (slow, silence, or DoT).",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -14015,6 +14490,7 @@
     {
         "spell_id": 522,
         "spell_name": "chaos_rift",
+        "icon": "res://Assets/icons/spells/teleport.png",
         "description": "Teleports 8m randomly, 10% chance to gain +15% speed for 4 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -14041,6 +14517,7 @@
     {
         "spell_id": 523,
         "spell_name": "volatile_spark",
+        "icon": "res://Assets/icons/spells/aoearcane.png",
         "description": "Deals 80 arcane damage, 15% chance to chain to 1 enemy for 50% damage.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -14067,6 +14544,7 @@
     {
         "spell_id": 524,
         "spell_name": "wild_barrier",
+        "icon": "res://Assets/icons/spells/selfward.png",
         "description": "Absorbs 150 damage, 15% chance to explode for 50 random elemental damage in 5m on breaking.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -14094,6 +14572,7 @@
     {
         "spell_id": 525,
         "spell_name": "surge_of_entropy",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Deals 80 random elemental damage in 8m, 10% chance for +10% critical chance on next spell.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -14120,6 +14599,7 @@
     {
         "spell_id": 526,
         "spell_name": "chaos_weave",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "Grants +10% critical chance, but spells cost 5% more mana for 8 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -14147,6 +14627,7 @@
     {
         "spell_id": 527,
         "spell_name": "unstable_missile",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Fires 3 bolts, each dealing 30 random elemental damage, 10% chance for extra bolt.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -14175,6 +14656,7 @@
     {
         "spell_id": 528,
         "spell_name": "polymorphic_surge",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Transforms enemy into a random creature (sheep, frog, or chicken) for 4 seconds, 10% chance to affect 1 extra enemy.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -14201,6 +14683,7 @@
     {
         "spell_id": 529,
         "spell_name": "elemental_burst",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Deals 100 random elemental damage in 8m, 10% chance to apply 10 damage/sec DoT for 5 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -14229,6 +14712,7 @@
     {
         "spell_id": 530,
         "spell_name": "chaos_shield",
+        "icon": "res://Assets/icons/spells/selfward.png",
         "description": "Absorbs 200 damage, 15% chance to cast random debuff (slow, silence, or blind) on attacker.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -14256,6 +14740,7 @@
     {
         "spell_id": 531,
         "spell_name": "entropic_strike",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Deals 100 random elemental damage, 15% chance to reduce enemy resistance by 5% for 6 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -14283,6 +14768,7 @@
     {
         "spell_id": 532,
         "spell_name": "improved_chaos_bolt",
+        "icon": "res://Assets/icons/spells/aoefire.png",
         "description": "Chaos Bolt deals 100 damage, 15% chance for +25% damage.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -14309,6 +14795,7 @@
     {
         "spell_id": 533,
         "spell_name": "wild_cascade",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Deals 80 random elemental damage in 10m, 10% chance to refresh a random cooldown.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -14335,6 +14822,7 @@
     {
         "spell_id": 534,
         "spell_name": "chaos_storm",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Creates 10m storm dealing 20 random elemental damage/sec for 8 seconds, 10% chance to stun enemies for 1 second.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -14363,6 +14851,7 @@
     {
         "spell_id": 535,
         "spell_name": "arcane_anomaly",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Deals 150 random elemental damage, 20% chance to double damage.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -14389,6 +14878,7 @@
     {
         "spell_id": 536,
         "spell_name": "prismatic_veil",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "Grants +15% magic resistance, 15% chance to reflect 10% spell damage for 8 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -14416,6 +14906,7 @@
     {
         "spell_id": 537,
         "spell_name": "unstable_rift",
+        "icon": "res://Assets/icons/spells/teleport.png",
         "description": "Teleports party 10m randomly, 15% chance to grant +10% speed for 6 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -14443,6 +14934,7 @@
     {
         "spell_id": 538,
         "spell_name": "improved_arcane_flux",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "Arcane Flux grants +15% spell damage, reduces backfire chance to 3%.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -14470,6 +14962,7 @@
     {
         "spell_id": 539,
         "spell_name": "chaos_barrage",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Fires 4 bolts, each dealing 40 random elemental damage, 15% chance for extra bolt.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -14498,6 +14991,7 @@
     {
         "spell_id": 540,
         "spell_name": "entropic_ward",
+        "icon": "res://Assets/icons/spells/selfward.png",
         "description": "Absorbs 250 damage, 20% chance to explode for 80 random elemental damage in 5m.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -14524,6 +15018,7 @@
     {
         "spell_id": 541,
         "spell_name": "wildfire",
+        "icon": "res://Assets/icons/spells/aoefire.png",
         "description": "Deals 120 fire or arcane damage in 8m, 15% chance for +10 damage/sec DoT for 6 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -14553,6 +15048,7 @@
     {
         "spell_id": 542,
         "spell_name": "improved_polymorphic_surge",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Polymorphic Surge lasts 5 seconds, 15% chance to affect 2 enemies.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -14579,6 +15075,7 @@
     {
         "spell_id": 543,
         "spell_name": "chaos_nova",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Deals 150 random elemental damage in 10m, 15% chance to apply random debuff (slow, silence, or DoT).",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -14607,6 +15104,7 @@
     {
         "spell_id": 544,
         "spell_name": "surge_mastery",
+        "icon": "res://Assets/icons/spells/groupbuff.png",
         "description": "Wild Surge has a chance to grant two random beneficial effects.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -14634,6 +15132,7 @@
     {
         "spell_id": 545,
         "spell_name": "prismatic_strike",
+        "icon": "res://Assets/icons/spells/grouparcane.png",
         "description": "Deals 120 random elemental damage, 20% chance to chain to 2 enemies for 50% damage.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -14661,6 +15160,7 @@
     {
         "spell_id": 546,
         "spell_name": "improved_chaos_storm",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Chaos Storm deals 30 damage/sec, affects 12m, 15% chance to stun for 1.5 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -14689,6 +15189,7 @@
     {
         "spell_id": 547,
         "spell_name": "arcane_instability",
+        "icon": "res://Assets/icons/spells/targetsilence.png",
         "description": "Reduces enemy magic resistance by 15%, 10% chance to silence for 2 seconds for 8 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -14716,6 +15217,7 @@
     {
         "spell_id": 548,
         "spell_name": "entropic_aegis",
+        "icon": "res://Assets/icons/spells/selfward.png",
         "description": "Absorbs 300 damage, 20% chance to cast random AoE spell (80 damage) on breaking.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -14742,6 +15244,7 @@
     {
         "spell_id": 549,
         "spell_name": "chaos_vortex",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Creates 10m vortex dealing 150 random elemental damage, pulls enemies to center.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -14768,6 +15271,7 @@
     {
         "spell_id": 550,
         "spell_name": "improved_arcane_anomaly",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Arcane Anomaly deals 200 damage, 25% chance to double damage.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -14794,6 +15298,7 @@
     {
         "spell_id": 551,
         "spell_name": "wild_tempest",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Deals 150 random elemental damage in 12m, 20% chance to refresh all cooldowns.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -14820,6 +15325,7 @@
     {
         "spell_id": 552,
         "spell_name": "master_chaos_weave",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "Chaos Weave grants +20% critical chance, removes mana cost penalty.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -14847,6 +15353,7 @@
     {
         "spell_id": 553,
         "spell_name": "prismatic_nova",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Deals 200 random elemental damage in 12m, 20% chance to apply two random debuffs.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -14873,6 +15380,7 @@
     {
         "spell_id": 554,
         "spell_name": "chaos_apotheosis",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Deals 400 random elemental damage in 15m, 25% chance to stun for 3 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -14900,6 +15408,7 @@
     {
         "spell_id": 555,
         "spell_name": "wild_ascension",
+        "icon": "res://Assets/icons/spells/groupbuff.png",
         "description": "Grants party +25% spell damage, +15% critical chance, and CC immunity for 12 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -14927,6 +15436,7 @@
     {
         "spell_id": 556,
         "spell_name": "entropic_cataclysm",
+        "icon": "res://Assets/icons/spells/grouparcane.png",
         "description": "Creates 15m zone dealing 50 random elemental damage/sec for 10 seconds, 20% chance to cast random beneficial spell on allies.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -14955,6 +15465,7 @@
     {
         "spell_id": 557,
         "spell_name": "shadowlight",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "Creates a dim violet light on your weapon or hand. Duration: 1 hour.",
         "caster_proficiency": "intelligence",
         "mana_cost": 15.0,
@@ -14981,6 +15492,7 @@
     {
         "spell_id": 558,
         "spell_name": "deathly_visage",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "Grants Deathsight: see invisible creatures and see clearly in darkness within 10m of yourself, for 15 minutes.",
         "caster_proficiency": "intelligence",
         "mana_cost": 30.0,
@@ -15037,6 +15549,7 @@
     {
         "spell_id": 560,
         "spell_name": "phantasmal_echo",
+        "icon": "res://Assets/icons/spells/petsummon.png",
         "description": "Summons a Phantasmal Echo (30% of caster health) that periodically mends the weakest ally in your group and strikes distant foes with spectral bolts, until dispelled or destroyed.",
         "caster_proficiency": "intelligence",
         "mana_cost": 20.0,
@@ -15064,6 +15577,7 @@
     {
         "spell_id": 561,
         "spell_name": "summon_spirit_of_the_woods",
+        "icon": "res://Assets/icons/spells/petsummon.png",
         "description": "Summons Spirit of the Woods, a nature spirit that fights at range and periodically mends the most wounded ally.",
         "caster_proficiency": "wisdom",
         "mana_cost": 25.0,

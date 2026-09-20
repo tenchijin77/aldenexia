@@ -42,6 +42,8 @@ enum GuardState { IDLE, ENGAGE, PATROL }
 
 @export var npc_name: String = "Lumora Guard"
 @export var npc_faction: String = "Wardens of the Sacred Flame"
+## Seconds after dying before this NPC returns at its original spot.
+@export var respawn_seconds: float = 120.0
 @export var flavor_text_path: String = "res://Data/guard_flavor_text.json"
 # Marker3D nodes (or any Node3D) walked in order and looped. Empty (the
 # default) = stationary, unchanged from before — set this on a guard instance
@@ -50,7 +52,7 @@ enum GuardState { IDLE, ENGAGE, PATROL }
 
 @onready var name_label: Label3D = $NameLabel
 @onready var nav_agent: NavigationAgent3D = $NavigationAgent3D
-@onready var animation_player: AnimationPlayer = $Character/AnimationPlayer
+@onready var animation_player: AnimationPlayer = get_node_or_null("Character/AnimationPlayer")  # null for unrigged NPCs (Oni)
 
 var _flavor: NPCFlavorText
 
@@ -83,6 +85,7 @@ func _ready() -> void:
 		name_label.text = npc_name
 	_flavor = NPCFlavorText.new(flavor_text_path)
 	home_position = global_position
+	NPCRespawner.register_home(self)
 	_banter_interval = randf_range(BANTER_MIN_INTERVAL, BANTER_MAX_INTERVAL)
 	_setup_patrol()
 	_setup_combat()
@@ -102,6 +105,20 @@ func _setup_patrol() -> void:
 func respond_to_hail() -> void:
 	_face_player()
 	_say_flavor("hail")
+
+
+# Anything that reduces a guard to 0 HP through the normal attack path (monsters
+# call die() on their target) sends it through the shared respawn helper — see
+# npc_respawner.gd. Nothing currently targets guards, so this is plumbing for
+# when something does.
+func die() -> void:
+	NPCRespawner.handle_death(self, respawn_seconds)
+
+
+func on_respawned() -> void:
+	attack_target = null
+	state = _default_state
+	_current_path.clear()
 
 
 func _face_player() -> void:

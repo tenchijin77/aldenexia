@@ -1,0 +1,19 @@
+{
+  "_comment": "Emote lines for Oni (the hunting cat) — complete sentences, shown in the chat log exactly as written. Categories: hail (player hails her), engage (she spots a rat), banter (occasional idle behavior). Add or edit freely.",
+  "hail": [
+    "Oni glances at you, then back toward the dunes, tail twitching.",
+    "Oni gives you a slow, unimpressed blink and goes back to watching for rats.",
+    "Mrrp! Oni pads over, sniffs your boots, and decides you are acceptable."
+  ],
+  "engage": [
+    "Oni's ears flatten as she spots a rat and slinks low to the ground.",
+    "Oni's tail lashes once. Something squeaked.",
+    "Oni crouches, haunches wiggling, and springs into the hunt!"
+  ],
+  "banter": [
+    "Oni sits down and washes one paw with great seriousness.",
+    "Oni stretches, yawns, and looks around for something to pounce on.",
+    "Oni sniffs the air, whiskers twitching.",
+    "Oni watches a distant rat with narrow, patient eyes."
+  ]
+}

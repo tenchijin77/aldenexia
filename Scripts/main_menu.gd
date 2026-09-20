@@ -9,6 +9,7 @@ extends Node
 
 
 func _ready():
+	_add_version_label()
 	torch_left.play("torch_flicker")
 	torch_right.play("torch_flicker")
 	torch_sound.play()
@@ -29,6 +30,26 @@ func _ready():
 	if Global.return_to_multiplayer_menu:
 		Global.return_to_multiplayer_menu = false
 		_on_multiplayer_pressed()
+
+
+# Version (and build, if stamped) in the bottom-right corner — see game_version.gd.
+func _add_version_label() -> void:
+	var layer := CanvasLayer.new()
+	layer.layer = 5
+	add_child(layer)
+	var label := Label.new()
+	label.text = GameVersion.display()
+	label.add_theme_font_size_override("font_size", 13)
+	label.add_theme_color_override("font_color", Color(0.72, 0.65, 0.5, 0.85))
+	label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.9))
+	label.add_theme_constant_override("outline_size", 3)
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	label.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
+	label.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	label.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	label.offset_right = -14
+	label.offset_bottom = -10
+	layer.add_child(label)
 
 
 var flicker_timer_left := 0.0

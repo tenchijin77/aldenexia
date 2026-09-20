@@ -17,3 +17,6 @@ export/
 # textures, or once Git LFS is set up for the project.
 models/mobs/juvenile spider/Meshy_AI_juvenile_spider_monst_0916005348_image-to-3d-texture.fbx
 models/mobs/desert scavenger/Meshy_AI_desert_rodent_monster_0916015343_image-to-3d-texture.fbx
+
+# Written by tools/stamp_build.sh right before an export (exact git commit of the build)
+Data/build_info.json

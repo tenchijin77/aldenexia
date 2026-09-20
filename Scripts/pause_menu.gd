@@ -233,6 +233,8 @@ const CHAT_COMMANDS := [
 	["/party <message>", "Send a message to your group"],
 	["/resetui", "Reset every UI window back to its default position"],
 	["/time", "Show the current in-game date/time"],
+	["/who", "List every connected player, their level, class and zone"],
+	["/weather rain|clear", "Start or stop rain (host / single-player only)"],
 ]
 
 

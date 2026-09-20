@@ -90,11 +90,26 @@ func _build_ui() -> void:
 		bg.set_corner_radius_all(3)
 		slot_panel.add_theme_stylebox_override("panel", bg)
 
+		# Spell icon (added first so every label/overlay below draws on top)
+		var icon_rect := TextureRect.new()
+		icon_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+		icon_rect.offset_left   = 2
+		icon_rect.offset_top    = 2
+		icon_rect.offset_right  = -2
+		icon_rect.offset_bottom = -2
+		icon_rect.expand_mode  = TextureRect.EXPAND_IGNORE_SIZE
+		icon_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		icon_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		icon_rect.visible = false
+		slot_panel.add_child(icon_rect)
+
 		# Key number label (top-left)
 		var key_lbl := Label.new()
 		key_lbl.text = key_text
 		key_lbl.add_theme_font_size_override("font_size", 10)
-		key_lbl.add_theme_color_override("font_color", Color(0.55, 0.55, 0.65))
+		key_lbl.add_theme_color_override("font_color", Color(0.75, 0.75, 0.85))
+		key_lbl.add_theme_color_override("font_outline_color", Color.BLACK)
+		key_lbl.add_theme_constant_override("outline_size", 3)
 		key_lbl.position = Vector2(3, 2)
 		key_lbl.size     = Vector2(14, 14)
 		key_lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -104,6 +119,8 @@ func _build_ui() -> void:
 		var type_lbl := Label.new()
 		type_lbl.add_theme_font_size_override("font_size", 9)
 		type_lbl.add_theme_color_override("font_color", Color(0.5, 0.8, 1.0))
+		type_lbl.add_theme_color_override("font_outline_color", Color.BLACK)
+		type_lbl.add_theme_constant_override("outline_size", 3)
 		type_lbl.anchor_right  = 1.0
 		type_lbl.offset_right  = -3.0
 		type_lbl.offset_top    = 2.0
@@ -166,6 +183,7 @@ func _build_ui() -> void:
 		_slot_panels.append(slot_panel)
 
 		_slots.append({
+			"icon_rect":  icon_rect,
 			"name_lbl":   name_lbl,
 			"type_lbl":   type_lbl,
 			"cd_overlay": cd_overlay,
@@ -213,6 +231,13 @@ func _update_slot_display(i: int) -> void:
 	var name_lbl: Label = _slots[i]["name_lbl"]
 	var type_lbl: Label = _slots[i]["type_lbl"]
 	var bg: StyleBoxFlat = _slots[i]["bg"]
+	var icon_rect: TextureRect = _slots[i]["icon_rect"]
+	var slot_panel: Control = _slot_panels[i]
+
+	# Reset the icon/tooltip each time — refilled below for spells that have them.
+	icon_rect.texture = null
+	icon_rect.visible = false
+	slot_panel.tooltip_text = ""
 
 	if aname.is_empty():
 		name_lbl.text     = ""
@@ -225,6 +250,19 @@ func _update_slot_display(i: int) -> void:
 		var parts := display.split(" ", true, 1)
 		display = "\n".join(parts)
 	name_lbl.text = display
+
+	# Spells show their icon (name label hidden — the tooltip carries the name
+	# and description). Spells with no icon in player_spells.json, and skills,
+	# keep the text label.
+	if atype == "spell":
+		var spell_db: Dictionary = _player.get("_spell_by_name") if is_instance_valid(_player) and "_spell_by_name" in _player else {}
+		var info: Dictionary = spell_db.get(aname, {})
+		slot_panel.tooltip_text = SpellInfo.tooltip(aname, info)
+		var tex := SpellInfo.icon_texture(info)
+		if tex != null:
+			icon_rect.texture = tex
+			icon_rect.visible = true
+			name_lbl.text = ""
 
 	match atype:
 		"spell":

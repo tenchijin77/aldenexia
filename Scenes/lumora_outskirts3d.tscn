@@ -16,6 +16,9 @@
 [ext_resource type="PackedScene" uid="uid://network_widget_hud" path="res://Scenes/network_widget.tscn" id="14_netwidget"]
 [ext_resource type="AudioStream" uid="uid://canimf824sbt2" path="res://Assets/wind woosh loop.ogg" id="14_windamb"]
 [ext_resource type="Script" path="res://Scripts/multiplayer_player_spawner.gd" id="15_mpspawn"]
+[ext_resource type="PackedScene" path="res://Scenes/kenji_npc.tscn" id="kenji_npc_scn"]
+[ext_resource type="PackedScene" path="res://Scenes/oni_npc.tscn" id="oni_npc_scn"]
+[ext_resource type="Script" path="res://Scripts/weather_manager.gd" id="weather_mgr_script"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_1j15t"]
 sky_top_color = Color(0.22986513, 0.3887299, 0.9202023, 1)
@@ -138,6 +141,9 @@ environment = SubResource("Environment_7vt6w")
 
 [node name="DayNightCycle" type="Node" parent="." unique_id=847362915]
 script = ExtResource("4_dyncyc")
+
+[node name="WeatherManager" type="Node" parent="."]
+script = ExtResource("weather_mgr_script")
 
 [node name="AmbientWind" type="AudioStreamPlayer" parent="." unique_id=2008731715]
 stream = ExtResource("14_windamb")
@@ -312,6 +318,13 @@ npc_name = "the Apothecary"
 shop_id = "lumora_apothecary"
 vendor_model_key = "female"
 
+[node name="Kenji" parent="." instance=ExtResource("kenji_npc_scn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0, 9.5)
+
+[node name="Oni" parent="." instance=ExtResource("oni_npc_scn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, 9)
+patrol_waypoints = Array[NodePath]([NodePath("../Markers/OniPatrol1"), NodePath("../Markers/OniPatrol2"), NodePath("../Markers/OniPatrol3"), NodePath("../Markers/OniPatrol4"), NodePath("../Markers/OniPatrol5"), NodePath("../Markers/OniPatrol6")])
+
 [node name="Bone Spears" type="Node3D" parent="." unique_id=1575841877]
 
 [node name="Bone Spear2" parent="Bone Spears" unique_id=834988086 instance=ExtResource("9_xcm1m")]
@@ -341,6 +354,24 @@ transform = Transform3D(0.023607604, -0.99610966, -0.08490132, 0.46668175, 0.086
 
 [node name="Town Gate" type="Marker3D" parent="Markers" unique_id=1731383424]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.7632446, 0, 6.958519)
+
+[node name="OniPatrol1" type="Marker3D" parent="Markers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, 9)
+
+[node name="OniPatrol2" type="Marker3D" parent="Markers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18, 0, 4)
+
+[node name="OniPatrol3" type="Marker3D" parent="Markers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32, 0, -6)
+
+[node name="OniPatrol4" type="Marker3D" parent="Markers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 44, 0, -11)
+
+[node name="OniPatrol5" type="Marker3D" parent="Markers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 0, 12)
+
+[node name="OniPatrol6" type="Marker3D" parent="Markers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0, 12)
 
 [node name="Dock" type="Marker3D" parent="Markers" unique_id=1391371630]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -759.6306, 0, -947.18774)

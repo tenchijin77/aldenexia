@@ -22,12 +22,17 @@ signal group_removed_received(reason: String)
 
 const DEFAULT_PORT := 8910
 const MAX_PLAYERS := 6
+const VERSION_CHECK_TIMEOUT := 5.0  # seconds a joiner has to send its version before the host drops it
 
 var is_multiplayer_game := false
+## Why the last join attempt failed, when the host said so (e.g. a version mismatch).
+var last_failure_reason := ""
+var _unverified_peers: Dictionary = {}  # host only: peer_id -> true until they pass the version check
 var pending_zone_path := "res://Scenes/lumora_outskirts3d.tscn"
 
 
 func _ready() -> void:
+	print("Aldenexia %s" % GameVersion.display())
 	multiplayer.peer_connected.connect(_on_peer_connected)
 	multiplayer.peer_disconnected.connect(_on_peer_disconnected)
 	multiplayer.connected_to_server.connect(_on_connected_to_server)
@@ -112,6 +117,46 @@ func broadcast_combat_message(text: String, source_position: Vector3) -> void:
 		_rpc_receive_combat_message.rpc_id(pid, text, source_position)
 
 
+# ── World announcements (join / leave) ───────────────────────────────────
+# "X, the 10th season voidknight, enters the world!" — see world_announcer.gd
+# and Data/world_announcements.json. The sender picks the line variant so every
+# viewer sees the same wording. A joining client announces itself (it's the only
+# one that knows its own loaded character, see player3d.gd's
+# _announce_world_entry()); a departure is announced by the HOST, which still
+# holds the leaver's replicated puppet at the moment of peer_disconnected.
+@rpc("any_peer", "call_remote", "reliable")
+func _rpc_receive_world_announce(kind: String, pname: String, level: int, cls: String, variant: int) -> void:
+	WorldAnnouncer.announce(kind, pname, level, cls, variant)
+
+
+func broadcast_world_announce(kind: String, pname: String, level: int, cls: String, except_peer: int = -1) -> void:
+	if not is_multiplayer_game or not multiplayer.has_multiplayer_peer():
+		return
+	var variant := randi()
+	for pid in multiplayer.get_peers():
+		if pid != except_peer:
+			_rpc_receive_world_announce.rpc_id(pid, kind, pname, level, cls, variant)
+
+
+func _announce_departure(id: int) -> void:
+	# Host only, and only while the session is really up — tearing our own
+	# connection down also fires peer_disconnected for everyone else, which
+	# must not read as a wave of "leaves the world" messages.
+	if not is_multiplayer_game or not multiplayer.has_multiplayer_peer() or not multiplayer.is_server():
+		return
+	if multiplayer.multiplayer_peer.get_connection_status() != MultiplayerPeer.CONNECTION_CONNECTED:
+		return
+	var puppet := TargetFrame.peer_id_to_player_node(id)
+	if not is_instance_valid(puppet):
+		return
+	var info := WorldAnnouncer.player_info(puppet)
+	var variant := randi()
+	WorldAnnouncer.announce("leave", info["name"], info["level"], info["class"], variant)
+	for pid in multiplayer.get_peers():
+		if pid != id:
+			_rpc_receive_world_announce.rpc_id(pid, "leave", info["name"], info["level"], info["class"], variant)
+
+
 # ── Group invite / roster ────────────────────────────────────────────────
 # An invite pops a real accept/decline popup on the target's screen (see
 # group_invite_popup.gd) rather than joining them instantly. Once they
@@ -165,15 +210,73 @@ func send_group_removed(target_peer_id: int, reason: String) -> void:
 
 
 func _on_peer_connected(id: int) -> void:
-	player_connected.emit(id)
+	if multiplayer.is_server():
+		# The host holds player_connected (which spawns the newcomer's puppet)
+		# until they've proven they run a compatible build — see below.
+		_unverified_peers[id] = true
+		get_tree().create_timer(VERSION_CHECK_TIMEOUT).timeout.connect(_on_version_check_timeout.bind(id))
+	else:
+		player_connected.emit(id)
 
 
 func _on_peer_disconnected(id: int) -> void:
+	_unverified_peers.erase(id)
+	_announce_departure(id)
 	player_disconnected.emit(id)
 
 
 func _on_connected_to_server() -> void:
+	# We only count as connected once the host has approved our build.
+	_rpc_submit_version.rpc_id(1, GameVersion.version(), GameVersion.build_id())
+
+
+# ── Version check ─────────────────────────────────────────────────────────
+# Client -> host on connect. Same version number (and, when both builds are
+# stamped, same build id) or the host refuses with a message; an older build
+# that never sends a version is dropped after VERSION_CHECK_TIMEOUT. Nothing is
+# spawned for the newcomer until they pass.
+@rpc("any_peer", "call_remote", "reliable")
+func _rpc_submit_version(client_version: String, client_build: String) -> void:
+	if not multiplayer.is_server():
+		return
+	var id := multiplayer.get_remote_sender_id()
+	if not _unverified_peers.has(id):
+		return
+	if GameVersion.is_compatible(client_version, client_build):
+		_unverified_peers.erase(id)
+		_rpc_version_accepted.rpc_id(id)
+		player_connected.emit(id)
+	else:
+		print("Rejected peer %d: they run v%s (%s), host runs %s" % [id, client_version, client_build if client_build != "" else "no build id", GameVersion.display()])
+		_rpc_version_rejected.rpc_id(id, GameVersion.display())
+		get_tree().create_timer(0.6).timeout.connect(_kick.bind(id))  # let the message land first
+
+
+@rpc("authority", "call_remote", "reliable")
+func _rpc_version_accepted() -> void:
 	connection_succeeded.emit()
+
+
+@rpc("authority", "call_remote", "reliable")
+func _rpc_version_rejected(host_display: String) -> void:
+	last_failure_reason = "Version mismatch: the host is running %s and you are running %s. Update your game to match the host." % [host_display, GameVersion.display()]
+	if multiplayer.multiplayer_peer != null:
+		multiplayer.multiplayer_peer.close()
+	multiplayer.multiplayer_peer = null
+	is_multiplayer_game = false
+	connection_failed.emit()
+
+
+func _on_version_check_timeout(id: int) -> void:
+	if _unverified_peers.has(id):
+		print("Peer %d never sent a version (an older build?) — dropped." % id)
+		_kick(id)
+
+
+func _kick(id: int) -> void:
+	_unverified_peers.erase(id)
+	if multiplayer.has_multiplayer_peer() and multiplayer.multiplayer_peer.get_connection_status() == MultiplayerPeer.CONNECTION_CONNECTED:
+		multiplayer.multiplayer_peer.disconnect_peer(id)
 
 
 func _on_connection_failed() -> void:

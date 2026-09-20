@@ -1,5 +1,5 @@
 ## Aldenexia: Lightfall — Game Flow & System Reference
-## Last updated: 2026-09-17
+## Last updated: 2026-09-19
 ## Purpose: Running reference for how all systems connect, for troubleshooting and onboarding.
 
 ================================================================================
@@ -35,8 +35,22 @@ Inventory    → Scripts/inventory_autoload.gd
   - Signals: inventory_changed, equipment_changed
 
 GlobalBackgroundMusic → Scenes/global_background_music.tscn
-  - AudioStreamPlayer that auto-starts on main_menu and character_creation.
-  - Stops automatically for any other scene.
+  - AudioStreamPlayer that auto-starts on main_menu and character_creation, plus any
+    scene listed in its SCENE_MUSIC table (Lumora Outskirts -> Sands of Lumora.ogg).
+    Stops automatically for any other scene.
+  - COMBAT MUSIC (added 2026-09-19): while the LOCAL player is fighting in a scene
+    that has zone music, the zone track crossfades out (1.5s, and is PAUSED so it
+    resumes from the same spot) and "Tomb of the Lost.ogg" (looped at runtime — its
+    import setting is loop=false) crossfades in. It goes back 8s after the last blow
+    dealt or taken, again with a 1.5s crossfade. Constants: COMBAT_TRACK/FADE/LINGER.
+    "Fighting" = CombatNode.seconds_since_engaged() on the local player, polled 4x/sec.
+    That clock (last_engaged_msec, mark_engaged()) is stamped in CombatNode's
+    resolve_attack() (attacker AND target, even on a miss), take_damage() (amount>0)
+    and generate_threat() (damage_dealt>0 only — pure healing does not count), which
+    together cover melee, spells/cone/pbaoe, pets and anything that hits you. It is
+    deliberately separate from CombatNode.in_combat, which nothing ever sets (turning
+    it on would also change decay_threat()). Menu scenes and non-zone scenes never
+    play combat music; leaving a zone scene mid-fight ends it.
 
 
 ================================================================================
@@ -931,6 +945,14 @@ Scene: Scenes/player3d.tscn (contains CameraRig → CameraController + Camera3D)
   animals/insects/etc. yet, including spider/desert rat, which landed in
   models/mobs/ Session 43 but are unrigged static meshes with no
   AnimationPlayer at all).
+  [Updated 2026-09-19, Session 49: MOB_MODELS now also has "bandit" (sand
+  brigand), "ghost", "goblin" and "mummy" (models/mobs/reanimated tomb mummy/,
+  reanimated_tomb_mummy_animations.res: idle/walk/run/death + one melee clip
+  shared by both attack slots; "mummy" is in HUMANOID_MOB_TYPES). Adding a
+  humanoid mob = folder of Meshy character FBX + Mixamo clips named
+  "<mob> <animation>.fbx", textures resized to 2048², merged library built
+  by a headless script from each clip's real animation (not "Take 001"),
+  then a MOB_MODELS entry. scripts/mummy.gd is a dead 2D-era leftover.]
   MOB_MODELS dict (mirrors player3d.gd's CHARACTER_MODELS pattern) has
   dedicated entries for "skeleton" (models/mobs/fallen scout skeleton/),
   "goblin_warrior" (models/mobs/desert goblin/ — folder name doesn't say
@@ -1281,11 +1303,109 @@ Scene: Scenes/player3d.tscn (contains CameraRig → CameraController + Camera3D)
   hardcoded MOUSE_MODE_VISIBLE, which silently cancelled mouselook if it was
   on — see the Mouse mode section under Camera above).
 
+--- Spell Icons & Tooltips (added 2026-09-19, Session 49) ---
+  Every spell in player_spells.json may carry an "icon" field (res:// path into
+  Assets/icons/spells/, same format as items.json). Spells with no matching
+  icon file simply have no field and fall back to their text label. The 49
+  icon files are named <prefix><kind>.png:
+    prefix  self   = cast on yourself
+            target = single target (an enemy, or one ally)
+            group  = player group when beneficial, all enemies around the
+                     cast target when detrimental (user's design, 2026-09-19)
+            aoe    = pbaoe/cone/line — radiates from the CASTER
+    kind    heal, hot, buff, ward, dispel, stun, root, fear, blind, silence,
+            plus damage types: fire, ice(cold), lightning, poison(+disease),
+            divine, arcane(magic+psychic), necromancy(spirit)
+    misc    petsummon, totemsummon, resurrect, teleport, (tracking: unused)
+  Assignment is done by tools/assign_spell_icons.py (dry run by default,
+  --write to rewrite the field; idempotent — re-run after adding icon files
+  or changing a spell's target/effect_type). Rules, in order: teleport /
+  resurrection / totem / summon special cases → beneficial-vs-hostile (from
+  effect_type, spell_type, and description wording, since ~64 spells are
+  tagged target "enemy" but are really self buffs/forms/shields — those get
+  self* icons) → kind → prefix from the `target` field. Exceptions: a
+  beneficial "group" spell whose description names only a single ally gets
+  target* (that is how player3d.gd actually casts those today); improved_/
+  enhanced_/greater_/master_ upgrades share their base spell's icon. No
+  physical-damage icons exist yet, so 40 physical attacks have no icon.
+  Non-obvious fallbacks: snare→root, mesmerize/confuse→stun, charm→arcane,
+  pbaoe crowd-control→group CC icons (no aoe CC art exists).
+  Shared helper: Scripts/spell_info.gd (class_name SpellInfo) —
+  icon_texture(info) (cached load), wrap_text() (Godot tooltips never wrap;
+  NOT named wrap — that collides with GDScript's global wrap()), and
+  tooltip(spell_name, info) = name + description + "N mp · Ns recast".
+  Used by three UIs, all showing the same tooltip source (the file's own
+  description):
+    action_bar.gd    — slot icon_rect under the key/badge labels; name label
+                       hidden when an icon shows; tooltip on the slot Panel.
+                       Skills ("K" slots) and icon-less spells keep text.
+    abilities_book.gd — 40px icon left of each Class Skills row; row tooltip;
+                       drag preview is the icon.
+    buff_bar.gd      — icon inside the existing 28px box (box is
+                       MOUSE_FILTER_IGNORE so hover reaches the row's
+                       tooltip); stances/environmental effects stay blank.
+  Known quirk: buff_bar's red debuff highlight keys off target == "enemy", so
+  the ~64 mis-tagged self buffs (e.g. lights_bastion) render red if applied.
+
+--- World announcements, /who, NPC respawn, cats, weather, ultravision (2026-09-19) ---
+  WorldAnnouncer (Scripts/world_announcer.gd, static): join/leave lines from
+    Data/world_announcements.json ({name}/{level} ordinal/{class}), ordinal(), who_lines()/
+    print_who() for /who, zone_display_name() (scene file name -> "Lumora Outskirts").
+    Network side is in net.gd: broadcast_world_announce() (a joining client announces itself once
+    loaded — player3d.gd _announce_world_entry()), and the host's _announce_departure() from
+    _on_peer_disconnected() reading the leaver's replicated puppet (name/level/class; player_class
+    is in player3d.tscn's replication list). The announcing side picks the variant number so all
+    viewers see the same line.
+  NPCRespawner (Scripts/npc_respawner.gd, static): register_home(npc) in _ready(), then
+    handle_death(npc, seconds) from the NPC's die(): hides it, disables collision, removes it from
+    its groups (so nothing can target/hail it) and every monster's aggro_table, then restores it
+    at its home transform with full HP and calls npc.on_respawned(). GuardNPC, VendorNPC,
+    KenjiNPC and OniNPC all use it (@export respawn_seconds, default 120).
+  Cats: CatModel (cat_model.gd) builds a static Meshy cat (180° facing fix, PBR maps, auto-grounds,
+    returns height for the nameplate). KenjiNPC extends VendorNPC — same targeting/hail/faction
+    groups, but player3d.gd's _open_shop()/hail hand VendorNPCs that define open_interaction() to
+    it: right-click -> GiveWindow (give_window.gd: drag an item into the slot, Give ->
+    KenjiNPC.try_give()). EQ-style quest with per-character memory: hand-ins accumulate in
+    Global.player_data["kenji_rat_tails_given"] (saved with the character); at tails_required (10)
+    rat_tail total -> 40 XP + kenjis_blessing buff + emote text and the counter resets. He takes only
+    what is still owed (find_stacks/consume_item across all bags). Every text and number is an @export.
+    OniNPC extends GuardNPC: patrol_waypoints (OniPatrol1-6 markers),
+    hunts prey_monsters within hunt_range of home, add_threat()s each rat she hits (the same
+    mechanism pets use, so monster3d.gd's get_current_target() makes the rat fight back), procedural
+    bob/lunge, emote chatter (Data/cat_flavor_text.json). monster3d.gd names non-pet NPC targets by
+    npc_name in the combat log.
+  ItemIcon (item_icon.gd): texture(def) / coin_texture() / make_rect() — used by shop_window.gd's buy
+    and sell rows and corpse_loot_window.gd's rows.
+  WeatherManager (weather_manager.gd, node in the zone scene): host-authoritative random rain
+    (min/max_clear_seconds 600-1500, min/max_rain_seconds 120-300) synced by an authority RPC
+    (late joiners get a silent state push on peer_connected). One smoothed `intensity` (0..1) drives
+    a GPUParticles3D rain box that follows the local player, fog, DayNightCycle.set_weather_dim()
+    (overcast_light_scale/overcast_sky_color exports) and the looping rain sound on the SFX bus.
+    /weather rain|clear forces it (host/single-player). rain_start_text / rain_stop_text exports.
+  Ultravision: DayNightCycle._refresh_ultravision() reads Global.character_options.races.<race>.traits
+    .ultravision for the LOCAL player's race (race string normalised: lowercase, spaces/hyphens ->
+    underscores). At night (weight 1 - daylight) and only when `outdoors` is true, it floors the sky
+    colours, raises ambient energy (ultravision_night_ambient_energy) and multiplies the moon energy
+    (ultravision_moon_energy_multiplier). Rendering is per-client, so only the viewer with the trait is
+    affected; a zone with no DayNightCycle (dungeon) or outdoors=false gives no benefit.
+
+--- Versioning (added 2026-09-19) ---
+  GameVersion (Scripts/game_version.gd): version() reads project.godot's application/config/version
+  (bump it in Project Settings); build_id() reads the optional, git-ignored Data/build_info.json written
+  by tools/stamp_build.sh before an export (git short hash, "-dirty" if uncommitted changes).
+  display() -> "v0.1.0 (abc1234)" / "(dev)" in the editor. Shown bottom-right on the main menu.
+  net.gd join check: on connect the client sends (version, build) to the host (_rpc_submit_version);
+  the host holds Net.player_connected — so no puppet spawns — until GameVersion.is_compatible() passes
+  (same version; same build id when both are stamped), then _rpc_version_accepted makes the client's
+  connection_succeeded fire. Mismatch -> _rpc_version_rejected sets Net.last_failure_reason (shown by
+  multiplayer_menu.gd) and the host kicks them 0.6s later; a peer that sends nothing within
+  VERSION_CHECK_TIMEOUT (5s) is dropped. Builds older than this change cannot join.
+
 --- Buff Bar (buff_bar.gd, added 2026-09-13) ---
   Draggable CanvasLayer, docked top-right by default, in player3d._spawn_hud().
   One row per combat_node.active_effects entry — no independent state, just a
-  reactive view (see Buff/Debuff Engine above). Row = blank bordered 28x28
-  icon placeholder (no icon assets exist yet) + name + remaining time (or "∞"
+  reactive view (see Buff/Debuff Engine above). Row = bordered 28x28
+  icon box (spell icon since 2026-09-19, see Spell Icons above) + name + remaining time (or "∞"
   for INF-duration effects like stances) + a wrapped description line.
   _resolve_effect_display() name/description lookup order: class_stances.json
   (effect name "stance_<id>") → player's _spell_by_name cache (apply_effect's
@@ -1990,6 +2110,8 @@ action_bar.tscn / action_bar.gd
     number key; brief blue highlight flash for feedback.
     Slot mouse_filter = STOP so clicks land on the slot, not the bar.
   - Drag-and-drop from abilities_book to assign slots.
+  - Spell slots show the spell's icon + a hover tooltip (name, description,
+    cost); see "Spell Icons & Tooltips" above.
   - Draggable panel; position saved to Global.player_data["ui_positions"]
     ["action_bar"].
 
@@ -2061,6 +2183,7 @@ abilities_book.gd (Scenes/abilities_book.tscn)
         recast time, description, and "drag to bar" hint. Drag via
         set_drag_forwarding → sends {"type":"spell","name":...} to action_bar slots.
         Empty-state message: "No class abilities known. Use a scroll to learn spells."
+        Each row also shows the spell's icon (2026-09-19) and a hover tooltip.
       "General Skills" — passive combat skills; shows skill name, current level
         (e.g. "10 / 252"), description, and green progress bar toward 252 cap.
   - Draggable panel.
@@ -2175,7 +2298,11 @@ DATA FILES (res://Data/)
 monsters.json           — all monster stats: health, speed, damage, armor_class,
                           level, aggro_range, behavior_type, xp_gain,
                           coin_modifier, is_social, faction, category,
-                          description, animations. Also includes
+                          description, animations, and (2026-09-19) optional
+                          level_min/level_max (Monster._ready() rolls a random
+                          level in the range per spawn; health/damage/AC stay
+                          flat) and death_text (printed to the combat log by
+                          Monster.die() when non-empty). Also includes
                           "lumora_guard" (guard_npc.gd's combat stats, added
                           2026-08-25) and optional appraisal-only fields
                           (resistances, weaknesses, special_ability, is_boss,
@@ -2388,8 +2515,10 @@ PETS (pet_minion.gd + subclasses; added/expanded 2026-09-15 through 2026-09-17)
   state machine hardcodes chasing "the player"); reuses the same CombatNode +
   self-managed `NavigationServer3D.query_path()` movement pattern
   (`NAVIGATION PATTERN` elsewhere in this doc) instead.
-- Commands: Attack, Back, Follow, Sit, Guard, Assist, Dismiss — set via
+- Commands: Attack, Back, Protect, Sit, Guard, Assist, Dismiss — set via
   `pet_frame.gd`'s buttons, persisted across login (`pet_mode` in save data).
+  "Protect" (renamed from "Follow" 2026-09-19, UI label only) is still
+  `cmd_follow` / the FOLLOW state: follows the owner and defends them.
   Assist mode only engages the owner's current target once the owner has
   actually landed a real attack within the last 1.5s (`last_attack_time_ms`,
   a `player3d.gd` field set at every real attack action) — it used to be

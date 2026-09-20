@@ -6,6 +6,7 @@ var _player: Node = null
 
 const WIN_W := 360
 const WIN_H := 440
+const ICON_SIZE := 40
 const POSITION_KEY := "abilities_book"
 const RESIZE_MARGIN := 16.0
 const MIN_WIDTH := 300.0
@@ -189,9 +190,30 @@ func _make_spell_row(spell_name: String, info: Dictionary) -> Control:
 	bg.content_margin_bottom = 4
 	row.add_theme_stylebox_override("panel", bg)
 
+	# Icon on the left (spells with no "icon" in player_spells.json just skip
+	# it and the text fills the row like before), text column on the right.
+	var outer := HBoxContainer.new()
+	outer.add_theme_constant_override("separation", 8)
+	row.add_child(outer)
+
+	var icon_tex := SpellInfo.icon_texture(info)
+	if icon_tex != null:
+		var icon_rect := TextureRect.new()
+		icon_rect.texture = icon_tex
+		icon_rect.custom_minimum_size = Vector2(ICON_SIZE, ICON_SIZE)
+		icon_rect.expand_mode  = TextureRect.EXPAND_IGNORE_SIZE
+		icon_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		icon_rect.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		icon_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		outer.add_child(icon_rect)
+
 	var vbox := VBoxContainer.new()
 	vbox.add_theme_constant_override("separation", 2)
-	row.add_child(vbox)
+	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	outer.add_child(vbox)
+
+	# Hover tooltip: name + the description from player_spells.json + cost.
+	row.tooltip_text = SpellInfo.tooltip(spell_name, info)
 
 	var header := HBoxContainer.new()
 	vbox.add_child(header)
@@ -251,11 +273,19 @@ func _make_spell_row(spell_name: String, info: Dictionary) -> Control:
 	row.mouse_filter = Control.MOUSE_FILTER_STOP
 	row.set_drag_forwarding(
 		func(_at_pos: Vector2) -> Variant:
-			var prev := Label.new()
-			prev.text = spell_name.replace("_", " ").capitalize()
-			prev.add_theme_color_override("font_color", Color(1.0, 0.9, 0.5))
-			prev.add_theme_font_size_override("font_size", 12)
-			row.set_drag_preview(prev)
+			if icon_tex != null:
+				var prev_icon := TextureRect.new()
+				prev_icon.texture = icon_tex
+				prev_icon.custom_minimum_size = Vector2(ICON_SIZE, ICON_SIZE)
+				prev_icon.expand_mode  = TextureRect.EXPAND_IGNORE_SIZE
+				prev_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+				row.set_drag_preview(prev_icon)
+			else:
+				var prev := Label.new()
+				prev.text = spell_name.replace("_", " ").capitalize()
+				prev.add_theme_color_override("font_color", Color(1.0, 0.9, 0.5))
+				prev.add_theme_font_size_override("font_size", 12)
+				row.set_drag_preview(prev)
 			return {"type": "spell", "name": spell_name},
 		Callable(),
 		Callable()

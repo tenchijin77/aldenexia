@@ -110,15 +110,18 @@ func _make_row(drop: Dictionary) -> Control:
 	var is_currency    := CURRENCY_MAP.has(item_id)
 
 	var display_name: String
+	var item_def: Dictionary = {}
 	if is_currency:
 		display_name = "%d %s" % [qty, CURRENCY_LABELS[item_id]]
 	else:
-		display_name = item_id.replace("_", " ").capitalize()
+		# The item's real name from items.json (falls back to a prettified id)
+		item_def = Inventory.get_item_definition(item_id)
+		display_name = str(item_def.get("name", item_id.replace("_", " ").capitalize()))
 		if qty > 1:
 			display_name += " x%d" % qty
 
 	var row := PanelContainer.new()
-	row.custom_minimum_size = Vector2(0, 34)
+	row.custom_minimum_size = Vector2(0, 40)
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(0.13, 0.13, 0.13, 0.92)
 	style.set_border_width_all(1)
@@ -129,6 +132,8 @@ func _make_row(drop: Dictionary) -> Control:
 	var hbox := HBoxContainer.new()
 	hbox.add_theme_constant_override("separation", 8)
 	row.add_child(hbox)
+
+	hbox.add_child(ItemIcon.make_rect(ItemIcon.coin_texture() if is_currency else ItemIcon.texture(item_def)))
 
 	var name_lbl := Label.new()
 	name_lbl.text = display_name
@@ -159,9 +164,15 @@ func _make_row(drop: Dictionary) -> Control:
 	if not is_currency:
 		row.set_drag_forwarding(
 			func(_at: Vector2) -> Variant:
-				var preview := Label.new()
-				preview.text = drop["item"].replace("_", " ").capitalize()
-				row.set_drag_preview(preview)
+				var tex := ItemIcon.texture(item_def)
+				if tex != null:
+					var icon_preview := ItemIcon.make_rect(tex, 48)
+					icon_preview.modulate = Color(1, 1, 1, 0.85)
+					row.set_drag_preview(icon_preview)
+				else:
+					var preview := Label.new()
+					preview.text = display_name
+					row.set_drag_preview(preview)
 				return {
 					"slot_type":   "loot",
 					"item_id":     drop["item"],

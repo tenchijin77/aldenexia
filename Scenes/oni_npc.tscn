@@ -1,0 +1,24 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://Scripts/oni_npc.gd" id="1_oni"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_oni"]
+radius = 0.3
+height = 0.8
+
+[node name="Oni" type="CharacterBody3D" groups=["npc_guard"]]
+script = ExtResource("1_oni")
+npc_name = "Oni"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.4, 0)
+shape = SubResource("CapsuleShape3D_oni")
+
+[node name="NameLabel" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1, 0)
+billboard = 1
+no_depth_test = true
+text = "Oni"
+outline_size = 6
+
+[node name="NavigationAgent3D" type="NavigationAgent3D" parent="."]

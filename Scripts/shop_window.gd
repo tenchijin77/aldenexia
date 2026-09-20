@@ -119,7 +119,7 @@ func _make_buy_row(entry: Dictionary) -> Control:
 	var price: int = entry["price"]
 
 	var row := PanelContainer.new()
-	row.custom_minimum_size = Vector2(0, 32)
+	row.custom_minimum_size = Vector2(0, 38)
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(0.13, 0.13, 0.13, 0.92)
 	style.set_border_width_all(1)
@@ -130,6 +130,8 @@ func _make_buy_row(entry: Dictionary) -> Control:
 	var hbox := HBoxContainer.new()
 	hbox.add_theme_constant_override("separation", 8)
 	row.add_child(hbox)
+
+	hbox.add_child(ItemIcon.make_rect(ItemIcon.texture(item_def)))
 
 	var name_lbl := Label.new()
 	name_lbl.text = item_def.get("name", entry["item_id"])
@@ -227,7 +229,7 @@ func _make_sell_row(row_data: Dictionary) -> Control:
 	var price: int = _vendor.get_sell_price(item)
 
 	var row := PanelContainer.new()
-	row.custom_minimum_size = Vector2(0, 32)
+	row.custom_minimum_size = Vector2(0, 38)
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(0.13, 0.13, 0.13, 0.92)
 	style.set_border_width_all(1)
@@ -237,6 +239,8 @@ func _make_sell_row(row_data: Dictionary) -> Control:
 	var hbox := HBoxContainer.new()
 	hbox.add_theme_constant_override("separation", 8)
 	row.add_child(hbox)
+
+	hbox.add_child(ItemIcon.make_rect(ItemIcon.texture(item)))
 
 	var qty: int = item.get("quantity", 1) if item.get("stackable", false) else 1
 	var display_name: String = item.get("name", "Unknown Item")

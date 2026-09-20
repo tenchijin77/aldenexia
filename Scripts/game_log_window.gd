@@ -429,7 +429,7 @@ func _on_chat_input_gui_input(event: InputEvent) -> void:
 # too (Linux-style abbreviation) — see _resolve_command() below. e.g. "/loc"
 # and "/location" both resolve to "/location" since no other command starts
 # with "loc"; "/f" would be ambiguous if two commands both started with "f".
-const COMMANDS := ["/location", "/hail", "/appraise", "/time", "/follow", "/camp", "/exit", "/log", "/invite", "/disband", "/tell", "/party", "/resetui"]
+const COMMANDS := ["/location", "/hail", "/appraise", "/time", "/follow", "/camp", "/exit", "/log", "/invite", "/disband", "/tell", "/party", "/resetui", "/who", "/weather"]
 
 
 func _handle_slash_command(text: String) -> void:
@@ -442,6 +442,23 @@ func _handle_slash_command(text: String) -> void:
 		return  # _resolve_command already logged unknown/ambiguous
 
 	match cmd:
+		"/who":
+			WorldAnnouncer.print_who(player)
+		"/weather":
+			# Test/debug control — rain otherwise starts on its own, randomly and rarely.
+			var wm := get_tree().get_first_node_in_group("weather_manager")
+			if wm == null:
+				GameLog.log_general("There is no weather in this area.")
+			elif not wm.is_multiplayer_authority():
+				GameLog.log_general("[color=red]Only the host can change the weather.[/color]")
+			else:
+				match arg.to_lower():
+					"rain", "on", "start":
+						wm.set_weather(true)
+					"clear", "off", "stop":
+						wm.set_weather(false)
+					_:
+						GameLog.log_general("Usage: /weather rain | clear")
 		"/location":
 			var pos: Vector3 = player.global_position
 			GameLog.log_general("[color=green]Your location: X=%.2f Y=%.2f Z=%.2f[/color]" % [pos.x, pos.y, pos.z])

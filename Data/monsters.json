@@ -24,7 +24,10 @@
       "idle": "slime_idle",
       "walk": "slime_walk",
       "attack": "slime_attack"
-    }
+    },
+    "level_min": 2,
+    "level_max": 4,
+    "death_text": ""
   },
   "spiderling": {
     "description": "a spiderling swarmer",
@@ -46,7 +49,10 @@
       "idle": "spiderling_idle",
       "walk": "spiderling_walk",
       "attack": "spiderling_attack"
-    }
+    },
+    "level_min": 1,
+    "level_max": 2,
+    "death_text": ""
   },
   "rat": {
     "description": "A desert scavenger",
@@ -67,7 +73,10 @@
       "idle": "rat_idle",
       "walk": "rat_walk",
       "attack": "rat_attack"
-    }
+    },
+    "level_min": 1,
+    "level_max": 3,
+    "death_text": ""
   },
   "bandit": {
     "description": "a sand brigand",
@@ -88,7 +97,10 @@
       "idle": "bandit_idle",
       "walk": "bandit_walk",
       "attack": "bandit_attack"
-    }
+    },
+    "level_min": 2,
+    "level_max": 4,
+    "death_text": ""
   },
   "spider": {
     "description": "a giant desert spider",
@@ -110,7 +122,10 @@
       "idle": "spider_idle",
       "walk": "spider_walk",
       "attack": "spider_attack"
-    }
+    },
+    "level_min": 2,
+    "level_max": 4,
+    "death_text": ""
   },
   "snake": {
     "description": "a sand viper",
@@ -132,7 +147,10 @@
       "idle": "snake_idle",
       "walk": "snake_walk",
       "attack": "snake_attack"
-    }
+    },
+    "level_min": 2,
+    "level_max": 4,
+    "death_text": ""
   },
   "dustwalker": {
     "description": "a desert-dwelling marauder",
@@ -153,7 +171,8 @@
       "idle": "dustwalker_idle",
       "walk": "dustwalker_walk",
       "attack": "dustwalker_attack"
-    }
+    },
+    "death_text": ""
   },
   "dustwalker_scout": {
     "description": "a fast-moving scout",
@@ -174,7 +193,8 @@
       "idle": "dustwalker_scout_idle",
       "walk": "dustwalker_scout_walk",
       "attack": "dustwalker_scout_attack"
-    }
+    },
+    "death_text": ""
   },
   "dustwalker_ravager": {
     "description": "a dual-wielding elite",
@@ -195,7 +215,8 @@
       "idle": "dustwalker_ravager_idle",
       "walk": "dustwalker_ravager_walk",
       "attack": "dustwalker_ravager_attack"
-    }
+    },
+    "death_text": ""
   },
   "dustwalker_warlord": {
     "description": "a powerful desert leader",
@@ -216,7 +237,8 @@
       "idle": "dustwalker_warlord_idle",
       "walk": "dustwalker_warlord_walk",
       "attack": "dustwalker_warlord_attack"
-    }
+    },
+    "death_text": ""
   },
   "wild_dog": {
     "description": "a hungry pack hunter",
@@ -237,7 +259,8 @@
       "idle": "wild_dog_idle",
       "walk": "wild_dog_walk",
       "attack": "wild_dog_attack"
-    }
+    },
+    "death_text": ""
   },
   "dune_scarab": {
     "description": "a dune scarab",
@@ -258,7 +281,10 @@
       "idle": "dune_scarab_idle",
       "walk": "dune_scarab_walk",
       "attack": "dune_scarab_attack"
-    }
+    },
+    "level_min": 2,
+    "level_max": 5,
+    "death_text": ""
   },
   "khepri_beetle": {
     "description": "a large aggressive beetle",
@@ -279,7 +305,8 @@
       "idle": "khepri_beetle_idle",
       "walk": "khepri_beetle_walk",
       "attack": "khepri_beetle_attack"
-    }
+    },
+    "death_text": ""
   },
   "sand_stinger": {
     "description": "a venomous desert scorpion",
@@ -300,7 +327,8 @@
       "idle": "sand_stinger_idle",
       "walk": "sand_stinger_walk",
       "attack": "sand_stinger_attack"
-    }
+    },
+    "death_text": ""
   },
   "lumora_outrider": {
     "description": "a Lumoran Outrider",
@@ -321,7 +349,8 @@
       "idle": "lumora_outrider_idle",
       "walk": "lumora_outrider_walk",
       "attack": "lumora_outrider_attack"
-    }
+    },
+    "death_text": ""
   },
   "sandshifter": {
     "description": "a shifting sand elemental",
@@ -342,7 +371,8 @@
       "idle": "sandshifter_idle",
       "walk": "sandshifter_walk",
       "attack": "sandshifter_attack"
-    }
+    },
+    "death_text": ""
   },
   "mirage_phantom": {
     "description": "a shimmering desert ghost",
@@ -363,7 +393,8 @@
       "idle": "mirage_phantom_idle",
       "walk": "mirage_phantom_walk",
       "attack": "mirage_phantom_attack"
-    }
+    },
+    "death_text": ""
   },
   "thornback_lizard": {
     "description": "a spiked desert reptile",
@@ -384,7 +415,8 @@
       "idle": "thornback_lizard_idle",
       "walk": "thornback_lizard_walk",
       "attack": "thornback_lizard_attack"
-    }
+    },
+    "death_text": ""
   },
   "bonegnawer": {
     "description": "a savage scavenger gnoll",
@@ -405,7 +437,8 @@
       "idle": "bonegnawer_idle",
       "walk": "bonegnawer_walk",
       "attack": "bonegnawer_attack"
-    }
+    },
+    "death_text": ""
   },
   "sunmaddened_wanderer": {
     "description": "a poor soul lost to the heat",
@@ -426,10 +459,11 @@
       "idle": "sunmaddened_wanderer_idle",
       "walk": "sunmaddened_wanderer_walk",
       "attack": "sunmaddened_wanderer_attack"
-    }
+    },
+    "death_text": ""
   },
   "mummy": {
-    "description": "an ancient tomb guardian",
+    "description": "a reanimated sand mummy",
     "speed": 28.0,
     "health": 120,
     "damage": 12,
@@ -447,7 +481,10 @@
       "idle": "mummy_idle",
       "walk": "mummy_walk",
       "attack": "mummy_attack"
-    }
+    },
+    "level_min": 3,
+    "level_max": 6,
+    "death_text": ""
   },
   "skeleton": {
     "description": "a fallen scout skeleton",
@@ -479,7 +516,10 @@
     "special_ability": "",
     "is_boss": false,
     "secret_note": "",
-    "corruption": ""
+    "corruption": "",
+    "level_min": 1,
+    "level_max": 3,
+    "death_text": ""
   },
   "ghost": {
     "description": "a tormented spirit",
@@ -500,7 +540,10 @@
       "idle": "ghost_idle",
       "walk": "ghost_walk",
       "attack": "ghost_attack"
-    }
+    },
+    "level_min": 2,
+    "level_max": 5,
+    "death_text": ""
   },
   "goblin": {
     "description": "a desert goblin",
@@ -521,7 +564,10 @@
       "idle": "",
       "walk": "",
       "attack": ""
-    }
+    },
+    "level_min": 1,
+    "level_max": 4,
+    "death_text": ""
   },
   "goblin_scout": {
     "description": "a desert goblin scout",
@@ -542,7 +588,10 @@
       "idle": "goblin_scout_idle",
       "walk": "goblin_scout_walk",
       "attack": "goblin_scout_attack"
-    }
+    },
+    "level_min": 1,
+    "level_max": 4,
+    "death_text": ""
   },
   "goblin_warrior": {
     "description": "a desert goblin warrior",
@@ -563,7 +612,10 @@
       "idle": "goblin_warrior_idle",
       "walk": "goblin_warrior_walk",
       "attack": "goblin_warrior_attack"
-    }
+    },
+    "level_min": 3,
+    "level_max": 6,
+    "death_text": ""
   },
   "bat": {
     "description": "a dusk bat",
@@ -580,12 +632,15 @@
     "is_social": false,
     "level": 1,
     "aggro_range": 80.0,
-    "special_ability": "Life Tap",
+    "special_ability": "life_siphon",
     "animations": {
       "idle": "bat_idle",
       "walk": "bat_walk",
       "attack": "bat_attack"
-    }
+    },
+    "level_min": 1,
+    "level_max": 3,
+    "death_text": ""
   },
   "lumora_guard": {
     "description": "a Lumoran guard",
@@ -606,6 +661,7 @@
       "idle": "",
       "walk": "",
       "attack": ""
-    }
+    },
+    "death_text": ""
   }
 }

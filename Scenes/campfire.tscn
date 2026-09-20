@@ -112,8 +112,9 @@ draw_pass_1 = SubResource("QuadMesh_c7cxm")
 
 [node name="smoke" type="GPUParticles3D" parent="campfire" unique_id=2057205439]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.0080307, 0)
-amount = 16
+amount = 32
 lifetime = 2.0
+randomness = 1.0
 process_material = SubResource("ParticleProcessMaterial_bfted")
 draw_pass_1 = SubResource("QuadMesh_c4ttc")
 

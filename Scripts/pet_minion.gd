@@ -792,7 +792,7 @@ func _phrase_attack(target_desc: String) -> String:
 	return "I will destroy %s master!" % target_desc
 
 func _phrase_follow() -> String:
-	return "Following your lead, dark lord."
+	return "I will stay close and guard you, dark lord."
 
 func _phrase_sit() -> String:
 	return "Retiring for a bit..."

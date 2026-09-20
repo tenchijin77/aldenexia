@@ -1,5 +1,5 @@
 # pet_frame.gd — Small HUD panel for the active pet: name, HP bar, and command
-# buttons (Attack / Assist / Back / Follow / Sit / Guard / Gear / Dismiss).
+# buttons (Attack / Assist / Back / Protect / Sit / Guard / Gear / Dismiss).
 # Built in code, same pattern as action_bar.gd. Instantiated by player3d.gd
 # when a pet is summoned, freed when the pet dies.
 extends CanvasLayer
@@ -19,11 +19,15 @@ var _mp_bar: ProgressBar = null
 var _mp_label: Label = null
 var _dragging := false
 
-# Follow/Guard/Assist/Sit are persistent modes (not one-shot actions like
+# Protect/Guard/Assist/Sit are persistent modes (not one-shot actions like
 # Attack/Back/Gear/Dismiss) — keyed by PetState.PetState value so _process()
 # can ring-highlight whichever one is actually active, both to answer "is
 # this pet actually in Guard mode or not" at a glance and to make it obvious
-# a mode change really took (e.g. leaving Sit for Follow).
+# a mode change really took (e.g. leaving Sit for Protect). "Protect" is a
+# UI-only rename (added 2026-09-19) of the underlying FOLLOW state/cmd_follow
+# — the state already followed the owner AND defended them from whatever hit
+# them (see pet_minion.gd's _process_auto_engage()'s "defend" branch), the
+# old "Follow" label just didn't communicate that.
 var _mode_buttons: Dictionary = {}
 var _mode_style_off: StyleBoxFlat
 var _mode_style_on: StyleBoxFlat
@@ -126,7 +130,7 @@ func _build_ui() -> void:
 		["Attack", func(): _on_attack_pressed(), -1],
 		["Assist", func(): _on_simple_command("cmd_assist"), 4],
 		["Back",   func(): _on_simple_command("cmd_back"), -1],
-		["Follow", func(): _on_simple_command("cmd_follow"), 0],
+		["Protect", func(): _on_simple_command("cmd_follow"), 0],
 		["Sit",    func(): _on_simple_command("cmd_sit"), 2],
 		["Guard",  func(): _on_simple_command("cmd_guard"), 3],
 		["Gear",   func(): _on_gear_pressed(), -1],

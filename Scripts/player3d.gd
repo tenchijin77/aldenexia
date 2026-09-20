@@ -408,6 +408,11 @@ func _find_bandage_in_inventory() -> Dictionary:
 
 
 func _open_shop(vendor: Node) -> void:
+	# NPCs built on VendorNPC that aren't shops (Kenji) supply their own
+	# right-click interaction instead of the shop window.
+	if vendor.has_method("open_interaction"):
+		vendor.open_interaction(self)
+		return
 	if is_instance_valid(_shop_window_instance):
 		_shop_window_instance.queue_free()
 	_shop_window_instance = load("res://Scenes/shop_window.tscn").instantiate()
@@ -460,7 +465,7 @@ func try_hail_nearby_npc() -> void:
 		GameLog.log_general("There's no one nearby to hail.")
 		return
 
-	if nearest is VendorNPC:
+	if nearest is VendorNPC and not nearest.has_method("open_interaction"):
 		_open_shop(nearest)
 	elif nearest.has_method("respond_to_hail"):
 		nearest.respond_to_hail()
@@ -709,11 +714,20 @@ func _ready() -> void:
 	Global.player_data["active_effects"] = combat_node.active_effects
 
 	_spawn_hud()
+	call_deferred("_announce_world_entry")
 
 	print("[Player3D] ✅ %s initialized | HP: %d/%d | Mana: %d/%d" % [
 		player_name, combat_node.current_hp, combat_node.max_hp,
 		combat_node.current_mana, combat_node.max_mana
 	])
+
+
+# Tells every other player "X, the 10th season voidknight, enters the world!"
+# (multiplayer only — see Net.broadcast_world_announce()). Runs once per world
+# entry on the machine that owns this character.
+func _announce_world_entry() -> void:
+	if is_multiplayer_authority():
+		Net.broadcast_world_announce("join", player_name, int(combat_node.level), player_class)
 
 
 # Which race/sex gets which model+animation set. Anything not listed here
@@ -2771,6 +2785,7 @@ const SPELL_DISPLAY_NAMES := {
 	"spectral_minion": "Morthan's Call",
 	"phantasmal_echo": "Phantasmal Echo",
 	"campfire_warmth": "Warmth of the Campfire",
+	"kenjis_blessing": "Kenji's Blessing",
 	"curse_of_weakness": "Curse of Weakness",
 	"deaths_echo": "Death's Echo",
 }

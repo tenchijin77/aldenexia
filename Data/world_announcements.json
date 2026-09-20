@@ -1,0 +1,19 @@
+{
+  "_comment": "Lines shown to everyone else when a player enters / leaves the world. A random one is picked per event (the same line for every viewer). Placeholders: {name} = character name, {level} = level as an ordinal (10th), {class} = class in lowercase (voidknight). Add or edit lines freely — each list just needs at least one entry.",
+  "join": [
+    "{name}, the {level} season {class}, enters the world!",
+    "{name}, the {level} season {class}, has returned to Aldenexia!",
+    "The winds stir... {name}, the {level} season {class}, walks the world once more.",
+    "{name}, the {level} season {class}, steps into the light of Aldenexia!",
+    "Word spreads through Lumora: {name}, the {level} season {class}, has arrived.",
+    "{name}, the {level} season {class}, answers the call of Aldenexia!",
+    "A new footfall echoes across the land... {name}, the {level} season {class}."
+  ],
+  "leave": [
+    "{name}, the {level} season {class}, leaves the world.",
+    "{name}, the {level} season {class}, has departed Aldenexia.",
+    "{name}, the {level} season {class}, fades from the world...",
+    "The road calls {name}, the {level} season {class}, away from Aldenexia.",
+    "{name}, the {level} season {class}, slips into the mists and is gone."
+  ]
+}

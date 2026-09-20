@@ -216,7 +216,11 @@ func _on_connection_succeeded() -> void:
 
 
 func _on_connection_failed() -> void:
-	status_label.text = "Could not connect. Check the IP and make sure the host has started."
+	if not Net.last_failure_reason.is_empty():
+		status_label.text = Net.last_failure_reason
+		Net.last_failure_reason = ""
+	else:
+		status_label.text = "Could not connect. Check the IP and make sure the host has started."
 	_connecting = false
 	host_btn.disabled = false
 	join_btn.disabled = false

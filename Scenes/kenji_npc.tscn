@@ -1,0 +1,22 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://Scripts/kenji_npc.gd" id="1_kenji"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_kenji"]
+radius = 0.4
+height = 0.9
+
+[node name="Kenji" type="CharacterBody3D" groups=["npc_vendor"]]
+script = ExtResource("1_kenji")
+npc_name = "Kenji"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, 0)
+shape = SubResource("CapsuleShape3D_kenji")
+
+[node name="NameLabel" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 0)
+billboard = 1
+no_depth_test = true
+text = "Kenji"
+outline_size = 6

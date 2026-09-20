@@ -1,0 +1,192 @@
+# weather_manager.gd — Random, infrequent rain for an outdoor zone.
+#
+# Lives in the zone scene next to DayNightCycle. The HOST (or single-player)
+# decides when it rains — a random quiet spell (min/max_clear_seconds) followed
+# by a random shower (min/max_rain_seconds) — and syncs each change to every
+# peer over an RPC; peers joining mid-shower are told silently. Visuals are all
+# driven by one smoothed `intensity` (0..1) so rain fades in and out instead of
+# popping: a falling-rain particle box that follows the local player, haze
+# (fog), dimmer/greyer sky + light (via DayNightCycle.set_weather_dim()), and a
+# looping rain sound. All timings/text are @exports — edit them on the scene.
+extends Node
+class_name WeatherManager
+
+signal rain_changed(raining: bool)
+
+@export_group("Schedule (real-time seconds)")
+@export var min_clear_seconds: float = 600.0
+@export var max_clear_seconds: float = 1500.0
+@export var min_rain_seconds: float = 120.0
+@export var max_rain_seconds: float = 300.0
+@export var fade_in_seconds: float = 12.0
+@export var fade_out_seconds: float = 18.0
+
+@export_group("Look")
+@export var rain_amount: int = 3500
+@export var fog_density_at_full: float = 0.006
+@export var fog_color: Color = Color(0.5, 0.55, 0.62)
+## Rain-loop volume (dB) at full intensity, on the SFX bus.
+@export var rain_volume_db: float = -6.0
+
+@export_group("Chat text")
+@export var rain_start_text: String = "It begins to rain..."
+## Chat message when the rain stops (leave empty for none).
+@export var rain_stop_text: String = "The clear sky begins to break from behind the clouds..."
+
+@export_group("Nodes / assets")
+@export var day_night_path: NodePath = ^"../DayNightCycle"
+@export var world_environment_path: NodePath = ^"../WorldEnvironment"
+@export var rain_sound: AudioStream = preload("res://Assets/boons_freak-rain-sound-188158.mp3")
+
+var raining: bool = false
+var intensity: float = 0.0
+
+var _time_to_next_change: float = 0.0
+var _day_night: Node = null
+var _environment: Environment = null
+var _orig_fog_enabled: bool = false
+var _orig_fog_density: float = 0.01
+var _orig_fog_color: Color = Color.WHITE
+var _rain: GPUParticles3D = null
+var _sound: AudioStreamPlayer = null
+
+
+func _ready() -> void:
+	add_to_group("weather_manager")
+	_day_night = get_node_or_null(day_night_path)
+	var world_env := get_node_or_null(world_environment_path) as WorldEnvironment
+	if world_env and world_env.environment:
+		_environment = world_env.environment
+		_orig_fog_enabled = _environment.fog_enabled
+		_orig_fog_density = _environment.fog_density
+		_orig_fog_color = _environment.fog_light_color
+	_build_rain_particles()
+	_build_sound()
+	_time_to_next_change = randf_range(min_clear_seconds, max_clear_seconds)
+	if Net.is_multiplayer_game and multiplayer.is_server():
+		Net.player_connected.connect(_on_peer_connected)
+
+
+# ── Control ────────────────────────────────────────────────────────────────
+# Host / single-player only. Applies locally with the chat message and tells
+# every other peer. Also used by the /weather test command.
+func set_weather(on: bool) -> void:
+	if not is_multiplayer_authority():
+		return
+	_apply_raining(on, true)
+	_time_to_next_change = randf_range(min_rain_seconds, max_rain_seconds) if on \
+			else randf_range(min_clear_seconds, max_clear_seconds)
+	if Net.is_multiplayer_game and multiplayer.has_multiplayer_peer():
+		_rpc_set_raining.rpc(on, true)
+
+
+@rpc("authority", "call_remote", "reliable")
+func _rpc_set_raining(on: bool, announce: bool) -> void:
+	_apply_raining(on, announce)
+
+
+func _on_peer_connected(peer_id: int) -> void:
+	if raining:
+		_rpc_set_raining.rpc_id(peer_id, true, false)  # silent — they just arrived
+
+
+func _apply_raining(on: bool, announce: bool) -> void:
+	if on == raining:
+		return
+	raining = on
+	if announce:
+		var text := rain_start_text if on else rain_stop_text
+		if not text.is_empty():
+			GameLog.log_general("[color=#9fc5e8]%s[/color]" % text)
+	rain_changed.emit(on)
+
+
+# ── Per-frame ──────────────────────────────────────────────────────────────
+func _process(delta: float) -> void:
+	if is_multiplayer_authority():
+		_time_to_next_change -= delta
+		if _time_to_next_change <= 0.0:
+			set_weather(not raining)
+
+	var target := 1.0 if raining else 0.0
+	if intensity != target:
+		var fade := fade_in_seconds if raining else fade_out_seconds
+		intensity = move_toward(intensity, target, delta / maxf(fade, 0.1))
+	_apply_visuals()
+
+
+func _apply_visuals() -> void:
+	var active := intensity > 0.01
+	if _day_night and _day_night.has_method("set_weather_dim"):
+		_day_night.set_weather_dim(intensity)
+
+	if _environment:
+		_environment.fog_enabled = active or _orig_fog_enabled
+		if active:
+			var daylight: float = _day_night.get_daylight() if _day_night and _day_night.has_method("get_daylight") else 1.0
+			_environment.fog_light_color = fog_color * lerpf(0.12, 1.0, daylight)
+			_environment.fog_density = fog_density_at_full * intensity
+		else:
+			_environment.fog_density = _orig_fog_density
+			_environment.fog_light_color = _orig_fog_color
+
+	if _rain:
+		_rain.emitting = active
+		_rain.amount_ratio = clampf(intensity, 0.05, 1.0)
+		var p := TargetFrame.local_player()
+		if is_instance_valid(p):
+			_rain.global_position = p.global_position + Vector3(0, 13, 0)
+
+	if _sound:
+		if active:
+			if not _sound.playing:
+				_sound.play()
+			_sound.volume_db = rain_volume_db + linear_to_db(maxf(intensity, 0.001))
+		elif _sound.playing:
+			_sound.stop()
+
+
+# ── Construction ───────────────────────────────────────────────────────────
+func _build_rain_particles() -> void:
+	_rain = GPUParticles3D.new()
+	_rain.name = "Rain"
+	_rain.amount = rain_amount
+	_rain.lifetime = 0.9
+	_rain.emitting = false
+	_rain.local_coords = false  # drops stay where they fell as the player moves
+	_rain.visibility_aabb = AABB(Vector3(-25, -30, -25), Vector3(50, 40, 50))
+	_rain.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+
+	var pm := ParticleProcessMaterial.new()
+	pm.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_BOX
+	pm.emission_box_extents = Vector3(16, 0.1, 16)
+	pm.direction = Vector3(0.08, -1, 0.04)
+	pm.spread = 2.0
+	pm.initial_velocity_min = 20.0
+	pm.initial_velocity_max = 26.0
+	pm.gravity = Vector3(0, -12, 0)
+	_rain.process_material = pm
+
+	var streak := QuadMesh.new()
+	streak.size = Vector2(0.012, 0.55)
+	var mat := StandardMaterial3D.new()
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mat.albedo_color = Color(0.78, 0.86, 1.0, 0.5)
+	mat.billboard_mode = BaseMaterial3D.BILLBOARD_FIXED_Y
+	streak.material = mat
+	_rain.draw_pass_1 = streak
+	add_child(_rain)
+
+
+func _build_sound() -> void:
+	if rain_sound == null:
+		return
+	if rain_sound is AudioStreamMP3:
+		(rain_sound as AudioStreamMP3).loop = true  # import setting is off
+	_sound = AudioStreamPlayer.new()
+	_sound.name = "RainLoop"
+	_sound.stream = rain_sound
+	_sound.bus = &"SFX"
+	_sound.volume_db = -80.0
+	add_child(_sound)

@@ -30,7 +30,7 @@ const ASSIST_RANGE: float = 5.0  # call_nearby_allies() — real meters, see the
 # dedicated models below. "bandit" and base "goblin" have no dedicated model
 # of their own yet, so they still fall back to DEFAULT_HUMANOID_MOB_MODEL
 # (the shared player model) same as before — see MOB_MODELS.
-const HUMANOID_MOB_TYPES: Array = ["bandit", "skeleton", "goblin", "goblin_scout", "goblin_warrior", "ghost"]
+const HUMANOID_MOB_TYPES: Array = ["bandit", "skeleton", "goblin", "goblin_scout", "goblin_warrior", "ghost", "mummy"]
 const ATTACK_ANIMS := ["attack_horizontal", "attack_downward"]
 
 # Per-species dedicated models (added 2026-09-16) — mirrors player3d.gd's
@@ -55,6 +55,14 @@ const MOB_MODELS := {
 		"scene":   "res://models/mobs/sand brigand/Meshy_AI_sand_brigand_v2_biped_Character_output.fbx",
 		"library": "res://models/mobs/sand brigand/sand_brigand_animations.res",
 		"texture_override": "res://models/mobs/sand brigand/Meshy_AI_sand_brigand_v2_biped_texture_0.png",
+	},
+	# Added 2026-09-19 — Reanimated Tomb Mummy (1.70m, same 24-bone Meshy/Mixamo
+	# skeleton as the other humanoid mobs; Mutant Walking + Meshy run + Mixamo
+	# idle/death/melee, both attack slots share the one melee clip).
+	"mummy": {
+		"scene":   "res://models/mobs/reanimated tomb mummy/Meshy_AI_mummy_tomb_guardian_r_biped_Character_output.fbx",
+		"library": "res://models/mobs/reanimated tomb mummy/reanimated_tomb_mummy_animations.res",
+		"texture_override": "res://models/mobs/reanimated tomb mummy/Meshy_AI_mummy_tomb_guardian_r_biped_texture_0.png",
 	},
 	"ghost": {
 		"scene":   "res://models/mobs/tormented spirit/Meshy_AI_tormented_spirit_rig_biped_Character_output.fbx",
@@ -158,6 +166,10 @@ const CRITTER_MODELS := {
 @export var is_boss: bool = false
 @export var secret_note: String = ""
 @export var corruption: String = ""
+# Printed to the combat log on death when non-empty (user-authored per
+# monster in monsters.json — the field exists on every monster now but
+# starts blank; added 2026-09-19, see die() for where it's used).
+@export var death_text: String = ""
 
 # ===== STATE =====
 enum State { IDLE, PATROL, CHASE, ATTACK, DEAD, FLEEING, CHARMED }
@@ -288,6 +300,19 @@ func _ready() -> void:
 		damage = stats.get("damage", damage)
 		armor_class = stats.get("armor_class", armor_class)
 		level = stats.get("level", level)
+		# Varying levels per the Zone Spawn Sheet's per-mob Level range (e.g.
+		# "a spider" = 2-4) — picks a random level within [level_min,
+		# level_max] each spawn, same mob otherwise reading identically from
+		# an appraisal/spawn-table standpoint every time. Falls back to the
+		# flat "level" above for any monster without a range defined yet
+		# (currently: everything outside Lumora Outskirts, not live yet).
+		# Deliberately does NOT scale health/damage/armor_class by the rolled
+		# level — those stay the flat values tuned for this monster; level's
+		# existing effect on to-hit/resist chance (calculate_hit_chance()'s
+		# level_modifier) already differentiates a level-4 spawn from a
+		# level-2 one of the same mob.
+		if stats.has("level_min") and stats.has("level_max"):
+			level = randi_range(int(stats["level_min"]), int(stats["level_max"]))
 		aggro_range = stats.get("aggro_range", aggro_range)
 		behavior_type = stats.get("behavior_type", behavior_type)
 
@@ -314,6 +339,7 @@ func _ready() -> void:
 		is_boss         = stats.get("is_boss", is_boss)
 		secret_note     = stats.get("secret_note", secret_note)
 		corruption      = stats.get("corruption", corruption)
+		death_text      = stats.get("death_text", death_text)
 
 	if monster_name in HUMANOID_MOB_TYPES:
 		_setup_humanoid_visual()
@@ -410,12 +436,24 @@ func _setup_critter_visual() -> void:
 	var character: Node3D = character_scene.instantiate()
 	character.name = "Character"
 	# Same 180°-Y facing fix every Meshy/Mixamo model in this codebase needs.
-	# Desert Scavenger's mesh pivot sits above its feet (clipped through the
-	# floor at Transform3D.IDENTITY) — raised 0.4m to sit on the ground plane;
-	# Juvenile Spider's pivot was already correct, so it gets no extra offset.
+	# Every one of these critter meshes has its pivot sitting somewhere above
+	# its actual lowest geometry (clipped through the floor at
+	# Transform3D.IDENTITY) by a different, model-specific amount — measured
+	# precisely 2026-09-19 via world-space AABB (mesh bottom vs. character
+	# root position) after a "sunk into the ground" report on the 2026-09-18
+	# critters; Juvenile Spider was the only one already correct at 0.
 	character.transform = Transform3D.IDENTITY.rotated(Vector3.UP, PI)
-	if monster_name == "rat":
-		character.position.y += 0.4
+	const GROUND_OFFSET := {
+		"rat": 0.4,
+		"snake": 0.22,
+		"spider": 0.38,
+		"spiderling": 0.34,  # added 2026-09-19 — measured 0.342m below the floor; it was rendering half-buried
+		"bat": 0.9,
+		"slime": 0.95,
+		"dune_scarab": 0.46,
+	}
+	if GROUND_OFFSET.has(monster_name):
+		character.position.y += GROUND_OFFSET[monster_name]
 	add_child(character)
 
 	_apply_critter_material(character, model_info)
@@ -1144,7 +1182,11 @@ func perform_attack() -> void:
 			if result.get("damage", 0) > 0 and target.has_method("on_combat_node_hit"):
 				target.on_combat_node_hit(self)
 		else:
-			var target_name: String = target.get("pet_name") if "pet_name" in target else "your ally"
+			var target_name: String = "your ally"
+			if "pet_name" in target:
+				target_name = target.get("pet_name")
+			elif "npc_name" in target:
+				target_name = target.get("npc_name")  # e.g. Oni fighting a rat
 			_log_attack_on_other(result, desc, target_name)
 			if not target.combat_node.is_alive() and target.has_method("die"):
 				target.die()
@@ -1244,6 +1286,11 @@ func die(award_xp: bool = true, drop_loot: bool = true, credited_peer_id: int = 
 		if line != "":
 			var desc: String = monster_description if monster_description != "" else get_monster_name()
 			GameLog.log_general("[color=#cc8888]%s says, \"%s\"[/color]" % [desc.capitalize(), line])
+
+	# User-authored per-monster flavor line from monsters.json's "death_text"
+	# (blank on every monster until filled in — nothing prints then).
+	if death_text != "":
+		GameLog.log_combat(death_text, global_position)
 
 	# No shared roll here anymore — each player who actually right-clicks the
 	# corpse gets their own independent roll, lazily, in open_loot_window().

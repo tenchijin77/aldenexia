@@ -31,6 +31,10 @@ candidates instead of guessing; a typo that matches nothing prints "Unknown comm
   Stops 3m short of the target rather than walking into them. See `player3d.gd`:
   `try_follow()`, `start_following()`, `stop_following()`, `_handle_follow_movement()`.
 
+- `/who` (added 2026-09-19) — lists every player in the world with level, class and zone.
+- `/weather rain|clear` (added 2026-09-19, host / single-player only) — start or stop rain; it
+  otherwise rains on its own, randomly and rarely.
+
 ### Movement
 - `W` / `Up` — move forward
 - `S` / `Down` — move backward (also cancels Autorun if active)
@@ -624,6 +628,288 @@ candidates instead of guessing; a typo that matches nothing prints "Unknown comm
   "resistances" field is a different concept — physical weapon-type tags for
   appraisal, not magic damage-type resistance), and no acid-flavored spell exists yet
   to verify that resist type end-to-end in real gameplay.
+
+---
+
+## 2026-09-19 — Session 49: Critter ground offsets, per-mob level ranges, monster death_text, pet "Protect" rename, items.json icon re-path + new icon assets, spell icons + tooltips on the action bar/K book/buff bar
+
+(Reconstructed after the working session's window was closed accidentally — written
+from the git working-tree diff, not from the original conversation. Everything below
+was verified against the actual files; anything discussed in that session but never
+saved to disk isn't captured here.)
+
+### Critter meshes sunk into the ground — real per-model offsets
+- The 2026-09-18 static critter meshes (slime/bat/spider/snake/dune_scarab, plus rat)
+  each have their pivot sitting a different distance above their lowest geometry, so
+  they clipped through the floor at identity transform. The old code only special-cased
+  the rat (+0.4m). Replaced with a `GROUND_OFFSET` table in `_setup_critter_visual()`
+  (monster3d.gd), measured precisely via world-space AABB (mesh bottom vs. character
+  root): rat 0.4, snake 0.22, spider 0.38, bat 0.9, slime 0.95, dune_scarab 0.46.
+  Juvenile Spider was already correct at 0 and has no entry.
+
+### Per-mob level ranges (from Zone Spawn Sheet.xlsx)
+- monsters.json now has `level_min`/`level_max` on the Lumora Outskirts mobs: slime
+  2-4, spiderling 1-2, rat 1-3, bandit 2-4, spider 2-4, snake 2-4, dune_scarab 2-5,
+  mummy 3-6, skeleton 1-3, ghost 2-5, goblin 1-4, goblin_scout 1-4, goblin_warrior
+  3-6, bat 1-3. `Monster._ready()` rolls a random level in that range on each spawn;
+  monsters without a range (everything outside Lumora Outskirts, not live yet) keep
+  the flat `level`.
+- Deliberately does NOT scale health/damage/armor_class by the rolled level — those
+  stay the flat values tuned per monster. Level's existing effect on to-hit/resist
+  (`calculate_hit_chance()`'s level_modifier) is what differentiates a level-4 spawn
+  from a level-2 one.
+- Also in monsters.json: mummy's description changed from "an ancient tomb guardian"
+  to "a reanimated sand mummy"; bat's `special_ability` changed from "Life Tap" to
+  "life_siphon" (the spell key). Note `special_ability` is only ever loaded into a
+  field and shown by appraisal — no monster ability is actually executed in code yet,
+  so this is a data tag, not a behavior change.
+
+### Monster death_text
+- New `death_text` field on every monster in monsters.json (all 28 entries, all blank
+  for now — user-authored flavor). `Monster.die()` prints it to the combat log
+  (`GameLog.log_combat(death_text, global_position)`, so distant deaths are filtered
+  like other mob combat lines) when non-empty. The field/loader existed but nothing
+  ever printed it until this pass — the hook in die() was the missing piece.
+
+### Pet command "Follow" → "Protect" (UI only)
+- pet_frame.gd's button relabeled Protect; still calls `cmd_follow` and the FOLLOW
+  state (pet already followed the owner AND defended them from whatever hit them —
+  see `_process_auto_engage()`'s "defend" branch; the old label didn't say so). Pet
+  acknowledgment line changed to "I will stay close and guard you, dark lord."
+
+### Item/spell icon assets (user-added) — verified + imported
+- items.json's `icon` paths were re-pointed from `Assets/789_Lorc_RPG_icons/...` to a
+  new `Assets/icons/items/` set (61 PNGs). Verified: all 273 items parse, every icon
+  path resolves to a real file, no old-style refs remain, and no non-icon field
+  differs from `Data/items-old.json` (the pre-change backup, kept alongside).
+  197 items (spell scrolls) currently share the single generic `scroll.png`.
+- `Assets/icons/spells/` (49 PNGs) and six new `aldenexia-*-sheet.png` sprite sheets
+  were also added. The spell icons are NOT referenced by any code or data yet
+  (player_spells.json has no icon field) — assets only, wiring still to do.
+- Ran a headless Godot import pass so the new PNGs get `.import` files (110 created);
+  also imported the new `Tomb of the Lost.ogg` and the updated `Sands of Lumora.ogg`.
+- Known/unrelated: import logs a pre-existing parse error in the old 2D
+  `Scripts/player.gd` (line 162, "Cannot infer the type of initial_offset") — file is
+  untouched and predates this session; the live 3D game isn't affected.
+
+### Spell icons on every spell + icons/tooltips on the action bar, K book and buff bar
+- Added an `icon` field (res:// path into Assets/icons/spells/) to 514 of the 561
+  spells in player_spells.json. Nothing else in the file changed (verified: zero
+  non-icon differences vs. the previous version). The other 47 have none: 40 are
+  physical attacks (no physical icon art exists yet) and 7 are upgrades of one.
+- Icons are assigned by the new, re-runnable `tools/assign_spell_icons.py` (dry run by
+  default, `--write` to apply). Icon family follows the user's targeting design:
+  self* = on yourself, target* = single target, group* = player group (beneficial) or
+  all enemies around the cast target (detrimental), aoe* = pbaoe/cone/line radiating
+  from the caster. The picture comes from effect/damage type (spell_school → fire/ice/
+  lightning/poison/divine/arcane/necromancy). improved_/enhanced_/greater_/master_
+  upgrades reuse their base spell's icon. Full rules in game_flow.txt's new "Spell
+  Icons & Tooltips" section.
+- Found while matching: ~64 spells are tagged `target: "enemy"` but are plainly self
+  buffs/forms/shields (cat_form, mana_shield, lights_bastion, sacred_oath...). They got
+  self* icons by description. Data left as-is — `target` drives casting, so retagging
+  is a separate decision. Side effect: buff_bar.gd draws those red (debuff) because it
+  keys off target == "enemy".
+- New `Scripts/spell_info.gd` (class_name SpellInfo): cached icon loading, word-wrapping
+  for tooltips (Godot's tooltips never wrap on their own), and the shared tooltip text
+  (name, the file's description, "N mp · Ns recast"). First version named the wrap
+  helper `wrap()`, which collided with GDScript's global wrap() and failed to compile —
+  renamed `wrap_text()`.
+- action_bar.gd: spell slots show the icon (name label hidden) with a hover tooltip;
+  key number/badge labels got an outline so they read over artwork. Skill slots and
+  icon-less spells keep the text label.
+- abilities_book.gd (K): 40px icon on each Class Skills row, hover tooltip, and the
+  drag preview is the icon.
+- buff_bar.gd: the existing icon square now shows the effect's spell icon (stances and
+  environmental effects stay blank); tooltip text is now word-wrapped; the icon box no
+  longer swallows the hover, so the tooltip and right-click-cancel work over the icon.
+- Verified with a scratch harness that loads the real action_bar/abilities_book/
+  buff_bar scenes against a stand-in player: 16/16 checks (icons present, text
+  fallbacks, tooltips, wrapping, hover pass-through) plus an in-engine screenshot. Not
+  yet checked by hand in a live play session, and tooltip appearance itself (delay,
+  position) was only verified as text, not by hovering.
+- Data/Player Spells Classifications.xlsx: added two columns for review — F "Spell
+  Target" (the spell's raw `target` field: enemy/group/self/pbaoe/cone/chain/...) and G
+  "Icon" (filename only, e.g. selfheal.png; blank = no icon yet). Filled for all 577
+  spell rows; columns A-E verified unchanged, same font/header style. 57 rows have a
+  blank Icon (47 unique physical spells). Sheet names are a mix of snake_case and
+  Title Case ("Life Siphon"), so rows are matched by normalized name. 9 spells in the
+  JSON have no row in the sheet yet: celestial_fist, natures_surge, necrotic_chill,
+  phantom_strike, phantom_veil, plague_wave, shadowlight, soul_reap,
+  summon_spirit_of_the_woods (not added — left for the user's review).
+
+### Reanimated Tomb Mummy wired in + Kenji/Oni cat models slimmed (bit 1 of the town-cats/weather plan)
+- Mummy: resized all 7 textures 4096²→2048² (folder 204MB→103MB), renamed the Mixamo clips
+  to the `reanimated tomb mummy <animation>.fbx` convention, deleted the redundant Meshy
+  walk clip + its byproduct texture (Mutant Walking covers it), built
+  `reanimated_tomb_mummy_animations.res` (idle/walk/run/death, one melee clip used for both
+  attack slots) and added "mummy" to HUMANOID_MOB_TYPES + a MOB_MODELS entry in
+  monster3d.gd. All clips share the model's 24-bone skeleton; model is exactly 1.70m.
+  Verified with five real monster_template mummies frozen on idle/walk/run/attack/death —
+  textured, distinct poses, feet on the ground. (The mummy already had a live spawn entry.)
+- Kenji and Oni (static Meshy image-to-3D meshes, no rig): FBX meshes were 5.2M and 7.2M
+  triangles (242MB/322MB). Decimated with Blender (collapse, two passes) to 40,000 tris each
+  → 1.9MB FBX, world size preserved within 0.1%, UVs kept; runtime albedo/normal maps resized
+  to 2048², the four byproduct `_0.._3.png` extractions of the old embedded images deleted
+  (nothing referenced them). Each folder went from ~340-415MB to 18MB. Before/after renders
+  with the PBR maps applied look the same except very fine fur detail is a touch softer.
+  They are NOT wired into the game yet (next bit). Their world size is ~1.2-1.9m per axis in
+  Blender units (Meshy default, same as the existing 1.9m rat) — will be scaled to cat size
+  when their scenes are built.
+- Originals of everything touched were backed up outside the repo to
+  ~/Documents/aldenexia-model-backups/2026-09-19/ (Kenji, Oni, reanimated tomb mummy).
+- Correction to an earlier note in this session: `.gitattributes` sends `*.fbx` through Git
+  LFS, so the 100MB GitHub file limit does NOT apply to FBX — the size was still worth
+  fixing (rendering/load cost, LFS quota) but was never a push blocker. For reference the
+  existing critter meshes are just as dense (rat 2.7M tris / 120MB, juvenile spider
+  142MB) — left untouched, could be slimmed the same way.
+- Rain sound loop added by the user: Assets/boons_freak-rain-sound-188158.mp3 (imported; will
+  need looping when weather is built).
+
+### Mob asset standardization audit + slimming (rat, juvenile spider)
+- Audited every mob model with Blender: 12 of the 14 mob folders were ALREADY ~10,000
+  triangles (all 7 rigged humanoids + slime/scarab/bat/giant spider/viper) — left untouched.
+  Only two were oversized: rat "desert scavenger" (2.73M tris) and "juvenile spider" (3.27M).
+  All PNGs in models/mobs were already <=2048 (no texture changes needed).
+- Standard now: static critter/NPC meshes <= 40,000 tris (kept above the 10k of the others on
+  purpose — thin spider legs and fur silhouettes can pinch at 10k), runtime maps 2048², no
+  embedded textures in the FBX, no orphaned extraction PNGs. Rigged humanoids stay ~10k.
+  Rat and spider decimated 2.73M/3.27M -> 40,000 with Blender; rat folder 145MB -> 17MB,
+  spider 174MB -> 22MB; models/mobs total 1.2GB -> ~0.9GB. Byproduct `_0.._3.png` files
+  deleted (unreferenced). Originals backed up to ~/Documents/aldenexia-model-backups/2026-09-19/mobs/.
+- Verified before/after through the real monster_template: world size within 0.002m, ground
+  position within 0.002m (existing GROUND_OFFSET values still valid). Renders: identical at
+  normal distance; in extreme close-up the rat's lumpy hide relief and the spider's abdomen
+  relief are slightly flatter, fur outline/colour and all spider legs intact.
+- FOUND, NOT FIXED: measured `spiderling` (juvenile spider) with its bottom 0.342m BELOW the
+  floor both before and after slimming — it renders half-buried. GROUND_OFFSET has no
+  "spiderling" entry (the earlier note that it needed 0 looks wrong). One-line fix: add
+  "spiderling": 0.34 — awaiting the user's go-ahead.
+
+### Combat music (bit 2 of the town-cats/weather plan)
+- "Tomb of the Lost" now plays while the local player is in combat and "Sands of Lumora"
+  returns afterward. GlobalBackgroundMusic (global_background_music.gd) got a second
+  player: on combat start the zone track crossfades out over 1.5s and is PAUSED (so it
+  resumes from the same spot), the combat track crossfades in (looped at runtime — the
+  .ogg's import is loop=false); 8s after the last blow dealt or taken it crossfades back.
+  Only for scenes with zone music; leaving one mid-fight ends combat music. Purely local
+  (your own combat only, not pets/party).
+- CombatNode: new `last_engaged_msec` + `mark_engaged()` / `seconds_since_engaged()`,
+  stamped in resolve_attack() (both sides, even on a miss), take_damage() (amount > 0) and
+  generate_threat() (damage_dealt > 0 only, so healing an ally doesn't trigger it). Not
+  built on the existing `in_combat` flag because nothing ever sets that and turning it on
+  would change decay_threat() — left untouched.
+- Verified with the real autoload + a stand-in player: 13/13 checks (starts on first blow,
+  stays on while fighting and through 5s of quiet, ends after 9s, zone track frozen while
+  paused and RESUMED from the same position — measured 5.54s paused → 5.92s+ on return —,
+  re-engaging mid-fade, leaving the zone) and 7/7 hook checks. Test-environment note: audio
+  mixing in a headless/--script run only starts ~7s after launch, so positions read 0.00
+  until then; tests need a ~9s warm-up. Not yet heard by ear in a live play session.
+
+### Spiderling ground offset fix
+- `GROUND_OFFSET` in monster3d.gd gained `"spiderling": 0.34` — measured with its lowest point
+  0.342m below the floor (it rendered half-buried); now 0.002m. The earlier note that the
+  juvenile spider "needed 0" was wrong.
+
+### World announcements + /who (multiplayer)
+- Joining a world now announces itself to everyone else, and leaving does too — lines in
+  `Data/world_announcements.json` (7 join / 5 leave, edit freely), e.g. "Zozuur, the 10th
+  season voidknight, enters the world!" Placeholders {name} {level} (ordinal: 10th) {class}
+  (lowercase). The sender picks the variant so every viewer sees the same line.
+- A joining client announces itself once its character is loaded (player3d.gd
+  `_announce_world_entry()` -> `Net.broadcast_world_announce()`); the HOST announces a
+  departure from `Net._on_peer_disconnected()` (it still holds the leaver's puppet), and
+  skips it while its own connection is tearing down so quitting doesn't spam "leaves".
+- `player_class` added to player3d.tscn's replication list (name/race/sex/level already were)
+  so a remote puppet knows a player's class.
+- New `/who`: lists every player in the world with level, class and zone display name
+  ("lumora_outskirts3d" -> "Lumora Outskirts"), self marked "(you)". Added to game_log_window.gd
+  and the pause menu's command list. New `Scripts/world_announcer.gd` (static helpers).
+- Tested with 3 real processes (host + 2 clients): join reaches the host AND the other client
+  (client-to-client relay works), leave is announced by the host and relayed identically.
+- Not done: /who and the announcements don't hide invisible players or tag game masters.
+
+### Kenji + Oni (town cats), Give window, NPC respawn
+- Kenji (`Scenes/kenji_npc.tscn`, `kenji_npc.gd`, built on VendorNPC for targeting/hail/faction) sits
+  by the Town Gate at (6, 0, 9.5); cats don't speak, so the "quest" is EverQuest-style: guards'
+  hail lines now mention him (3 new lines in guard_flavor_text.json), hailing him prints your
+  emote text ("Meoww! Kenji meows at you while pawing at a rat's tail..."), right-click opens a
+  small "Give to Kenji" window (`give_window.gd`) — drag an item into the slot, press Give.
+  10 rat_tail -> 40 XP + "Kenji's Blessing" (+2 HP/Mana/Stamina regen, +3 to hit, 15 min,
+  buff-bar entry added). He REMEMBERS partial hand-ins per character (save-file key
+  `kenji_rat_tails_given`, so it survives logging out): give 3 now and 7 later and it completes at 10
+  total, then resets (repeatable). He only takes what's still owed (carrying 5 with 3 owed -> keeps
+  2); the Give window shows "Rat tails you've given Kenji: 3 / 10" and stays open after a partial
+  hand-in. Wrong item -> an emote, nothing consumed; nothing to give -> an emote. Tested 16/16 incl.
+  the save file, two characters with separate counts, and lowering the requirement under stored progress.
+  All texts, counts, XP, buff duration and model_scale are @exports on the scene.
+- Oni (`oni_npc.tscn`, `oni_npc.gd`, built on GuardNPC): patrols a 6-point loop through town
+  (new OniPatrol1-6 markers), hunts rats within 60m of home, registers threat on every rat she hits
+  so the rat's normal aggro table makes it fight back (same mechanism pets use) — rats CAN hurt
+  her. Her kills give no loot/XP. Procedural bob + lunge instead of animations (unrigged mesh);
+  emote-style chatter in Data/cat_flavor_text.json. Stats are @exports (lvl 3, 120 HP, 10 dmg).
+- New shared helpers: `cat_model.gd` (static cat mesh + PBR material, auto-grounds and floats
+  the nameplate), `npc_respawner.gd`. ALL town NPCs (guards, vendors, Kenji, Oni) now have
+  `die()` and respawn at their original spot after `respawn_seconds` (default 120): hidden,
+  untargetable, dropped from every monster's aggro table meanwhile. Only Oni can actually die
+  today — nothing else is targeted by monsters yet.
+- Hooks: player3d.gd `_open_shop()` routes VendorNPCs that define `open_interaction()`
+  (Kenji) to it, hail does the same; monster3d.gd names an NPC target by `npc_name` in the
+  combat log; GuardNPC's animation lookup is now optional (unrigged NPCs).
+- Verified in the real zone: both placed on flat ground, Oni walks her loop, engages a rat,
+  the rat's threat table locks onto her and her HP drops, death hides/untargets and respawns at
+  home, Kenji hand-in with real inventory (wrong item, 6/10, 14 -> 10 taken, blessing on the buff
+  list), Give-window drag/drop. Model renders confirm both face forward and stand on the ground.
+
+### Item icons in the vendor and loot windows
+- New `item_icon.gd`. The vendor's buy AND sell rows and the corpse loot window rows now show
+  the item's icon next to its name; loot rows use the real items.json name (was the prettified
+  id) and coins get a coin icon; dragging from the loot window shows the icon.
+
+### Rain / weather (Lumora Outskirts)
+- New `weather_manager.gd` node in the zone: random, infrequent rain — a 10-25 min quiet spell
+  then a 2-5 min shower (host decides, RPC-synced; a peer joining mid-rain is told silently).
+  Chat: "It begins to rain..." on start and "The clear sky begins to break from behind the
+  clouds..." when it stops (both @exports; verified on host + clients, late joiners get no start message).
+  Falling-rain particle box follows the local player, haze (fog) scaled by intensity, darker/greyer
+  sky and light via new `DayNightCycle.set_weather_dim()`, and the looping rain sound
+  (`Assets/boons_freak-rain-sound-188158.mp3`, SFX bus, loop set at runtime). All fade in/out.
+- `/weather rain|clear` (host / single-player only) added purely so it can be tested without a
+  10-25 minute wait — remove it from game_log_window.gd/pause_menu.gd if unwanted.
+- Tested: 11/11 zone checks + a 3-process multiplayer sync test; screenshots clear day, rainy day
+  (overcast + haze + streaks) and rainy night.
+
+### Ultravision (racial trait, now functional)
+- 10 of 11 races have `traits.ultravision: true` in character_options.json (all but Human).
+  `DayNightCycle` reads the LOCAL player's race and, outdoors at night, lifts the moonlit sky,
+  ambient and moon energy toward "bright" (viewer-local — each client renders its own lighting).
+  Daytime is unchanged; a scene can set `outdoors = false` (Deep Darkness) for no benefit;
+  works under rain (dimmer). Measured screen luminance at night: 0.086 (Human) vs 0.252 (Elf),
+  noon identical (0.547); Dark Elf and "Half-Elf" resolve correctly. Tunable via the
+  `ultravision_*` exports.
+- OPEN DESIGN QUESTION (raised by the user): 10/11 races having it may be too many / leaves Human
+  night-blind — nothing changed yet; proposed tiers (full: Dark Elf/Dwarf/Gnome/Troll, half: the rest)
+  plus a carriable torch for everyone, awaiting the user's decision.
+
+### Versioning + multiplayer join check
+- There was NO version anywhere before (no config/version, empty export-preset version fields, no
+  git tags), so numbering starts now at **0.1.0** (pre-release). Single source of truth:
+  Project Settings -> Application -> Config -> Version (`config/version` in project.godot). New
+  `Scripts/game_version.gd`: version(), build_id(), display() ("v0.1.0 (1ce742b)" / "(dev)" in the
+  editor), is_compatible().
+- Shown at the bottom right of the main menu (main_menu.gd) and printed in the log at startup.
+- `tools/stamp_build.sh` writes the exact git commit (+ "-dirty" if uncommitted changes) to
+  `Data/build_info.json` (git-ignored) — run it right before exporting so a build carries its commit.
+- Multiplayer join check (net.gd): a client sends its version/build to the host on connect; the host
+  accepts only if the version numbers match (and the build ids too when BOTH are stamped — unstamped
+  editor runs only need the numbers to match). Mismatch -> the joiner sees "Version mismatch: the host
+  is running X and you are running Y..." on the multiplayer screen; a build that never sends a version
+  (older than this change) is dropped after 5s. Nothing spawns for the newcomer until they pass.
+  IMPORTANT: every participant needs a build from this change onward — older exports can't join.
+- Tested with 6 real processes (host + same build, unstamped editor build, wrong version, wrong build
+  stamp, old build without the handshake): first two join, the next two get the message, the last is dropped.
+- Bumping: raise the version in Project Settings when a change affects multiplayer compatibility
+  (netcode/RPCs/replicated data/anything peers must agree on), and for each tagged test build.
 
 ---
 

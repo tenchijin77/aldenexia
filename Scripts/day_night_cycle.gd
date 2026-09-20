@@ -37,7 +37,25 @@ signal phase_changed(is_day: bool)
 @export var day_ambient_energy: float = 1.0
 @export var night_ambient_energy: float = 0.11  # was 0.05 (too dim), then 0.18 (too bright per user 2026-09-17) — same reasoning as moon_energy
 
+@export_group("Weather (driven by weather_manager.gd)")
+@export var overcast_light_scale: float = 0.55   # sun/moon + ambient energy multiplier at full rain
+@export var overcast_sky_color: Color = Color(0.36, 0.39, 0.44)  # daytime sky colour under full rain
+
+@export_group("Ultravision (races with the trait — local viewer only)")
+## Ultravision: outdoors at night, dim light counts as bright light. Only this
+## machine's own rendering is changed (each client runs its own day/night), so
+## it only ever affects the viewer who actually has the trait. Set false on a
+## lightless interior/dungeon scene — with nothing to amplify it does nothing
+## ("Deep Darkness"). Zones without a DayNightCycle at all get no boost either.
+@export var outdoors: bool = true
+@export var ultravision_night_ambient_energy: float = 0.8
+@export var ultravision_moon_energy_multiplier: float = 3.0
+@export var ultravision_sky_top_color: Color = Color(0.20, 0.30, 0.55)
+@export var ultravision_sky_horizon_color: Color = Color(0.30, 0.35, 0.50)
+
 enum Phase { DAY, NIGHT }
+var ultravision: bool = false  # does the local player's race have the trait?
+var weather_dim: float = 0.0  # 0 = clear, 1 = full rain; set via set_weather_dim()
 
 var phase: int = Phase.DAY
 var progress: float = 0.0  # 0..1 through the current phase
@@ -56,10 +74,20 @@ func _ready() -> void:
 		if _environment and _environment.sky:
 			_sky_material = _environment.sky.sky_material
 	Global.time_changed.connect(_on_global_time_changed)
+	_refresh_ultravision()
 	_on_global_time_changed(Global.game_time)
 
 
+# Reads the trait straight from the race data (character_options.json
+# races.<race>.traits.ultravision) for the LOCAL player's race.
+func _refresh_ultravision() -> void:
+	var race := str(Global.player_data.get("player_race", "")).to_lower().replace(" ", "_").replace("-", "_")
+	var traits: Dictionary = Global.character_options.get("races", {}).get(race, {}).get("traits", {})
+	ultravision = bool(traits.get("ultravision", false))
+
+
 func _on_global_time_changed(_current_time: Dictionary) -> void:
+	_refresh_ultravision()
 	var was_day := phase == Phase.DAY
 	_recompute_phase_from_global_time()
 	if was_day != (phase == Phase.DAY):
@@ -88,9 +116,22 @@ func _recompute_phase_from_global_time() -> void:
 func _apply_lighting() -> void:
 	var daylight: float = _daylight_factor()
 
+	var light_scale: float = lerpf(1.0, overcast_light_scale, weather_dim)
+	# 0 in full daylight, 1 in full night — and only for a viewer with the trait.
+	var uv: float = (1.0 - daylight) if (ultravision and outdoors) else 0.0
 	if _sky_material:
-		_sky_material.sky_top_color = night_sky_top_color.lerp(day_sky_top_color, daylight)
+		var top_color: Color = night_sky_top_color.lerp(day_sky_top_color, daylight)
 		var horizon_color: Color = night_sky_horizon_color.lerp(day_sky_horizon_color, daylight)
+		if uv > 0.0:
+			top_color = _brightened(top_color, ultravision_sky_top_color * uv)
+			horizon_color = _brightened(horizon_color, ultravision_sky_horizon_color * uv)
+		if weather_dim > 0.0:
+			# Rain greys the sky toward overcast — darker at night so a rainy
+			# night doesn't glow.
+			var overcast: Color = overcast_sky_color * lerpf(0.15, 1.0, daylight)
+			top_color = top_color.lerp(overcast, weather_dim * 0.85)
+			horizon_color = horizon_color.lerp(overcast, weather_dim * 0.85)
+		_sky_material.sky_top_color = top_color
 		_sky_material.sky_horizon_color = horizon_color
 		# ground_horizon_color was never touched, so it sat at its bright
 		# default gray around the clock — invisible by day, but at night it
@@ -99,7 +140,7 @@ func _apply_lighting() -> void:
 		# keeps the sky/ground halves of the dome seamless at every hour.
 		_sky_material.ground_horizon_color = horizon_color
 	if _environment:
-		_environment.ambient_light_energy = lerp(night_ambient_energy, day_ambient_energy, daylight)
+		_environment.ambient_light_energy = maxf(lerp(night_ambient_energy, day_ambient_energy, daylight), ultravision_night_ambient_energy * uv) * light_scale
 
 	if _sun == null:
 		return
@@ -117,10 +158,10 @@ func _apply_lighting() -> void:
 		# discontinuous jump in light direction, color, or brightness.
 		_sun.rotation_degrees = moon_rotation_degrees.lerp(sun_rotation, daylight)
 		_sun.light_color = moon_color.lerp(sun_color, daylight)
-		_sun.light_energy = lerp(moon_energy, sun_energy, daylight)
+		_sun.light_energy = lerp(moon_energy, sun_energy, daylight) * light_scale * lerpf(1.0, ultravision_moon_energy_multiplier, uv)
 	else:
 		_sun.rotation_degrees = moon_rotation_degrees
-		_sun.light_energy = moon_energy
+		_sun.light_energy = moon_energy * light_scale * lerpf(1.0, ultravision_moon_energy_multiplier, uv)
 		_sun.light_color = moon_color
 
 
@@ -138,8 +179,29 @@ func _daylight_factor() -> float:
 	return 1.0
 
 
+# Per-channel "at least this bright" — lifts a dark sky colour toward a floor
+# colour without ever dimming a colour that is already brighter.
+func _brightened(base: Color, floor_color: Color) -> Color:
+	return Color(maxf(base.r, floor_color.r), maxf(base.g, floor_color.g), maxf(base.b, floor_color.b), base.a)
+
+
 func is_day() -> bool:
 	return phase == Phase.DAY
+
+
+# Public wrapper for the private ramp (used by weather_manager.gd to darken fog at night).
+func get_daylight() -> float:
+	return _daylight_factor()
+
+
+# Called every frame while rain is fading in/out (weather_manager.gd); redraws
+# the lighting immediately instead of waiting for the next game-minute tick.
+func set_weather_dim(value: float) -> void:
+	value = clampf(value, 0.0, 1.0)
+	if is_equal_approx(value, weather_dim):
+		return
+	weather_dim = value
+	_apply_lighting()
 
 
 # Real seconds until the next phase flips (day->night or night->day), for

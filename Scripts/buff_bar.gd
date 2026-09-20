@@ -5,9 +5,9 @@
 # future apply_effect() call — stance, spell buff/debuff, whatever — shows up
 # here automatically with no extra wiring.
 #
-# Icons: each row reserves a blank bordered square on the left for a spell
-# icon. No icon assets exist yet — wire actual textures into the icon_rect
-# placeholder in _build_row() once art is available.
+# Icons: each row has a bordered square on the left that shows the effect's
+# spell icon (player_spells.json's "icon" field, via SpellInfo). Stances and
+# environmental effects have no spell entry, so their square stays blank.
 extends CanvasLayer
 class_name BuffBar
 
@@ -70,17 +70,17 @@ func _rebuild_rows(effect_names: Array, active_effects: Dictionary) -> void:
 	for effect_name in effect_names:
 		var display := _resolve_effect_display(effect_name)
 		var remaining: float = active_effects[effect_name].get("remaining", 0.0)
-		_build_row(effect_name, display.name, display.description, remaining, display.is_debuff)
+		_build_row(effect_name, display.name, display.description, remaining, display.is_debuff, display.get("icon"))
 
 
-func _build_row(effect_name: String, display_name: String, description: String, remaining: float, is_debuff: bool = false) -> void:
+func _build_row(effect_name: String, display_name: String, description: String, remaining: float, is_debuff: bool = false, icon: Texture2D = null) -> void:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 6)
 	# Full description only on hover (was always shown inline, cluttering the
 	# window per the user's feedback 2026-09-17) — needs MOUSE_FILTER_STOP,
 	# since a Container's default filter (IGNORE) never receives the hover
 	# events a tooltip needs.
-	row.tooltip_text = description
+	row.tooltip_text = SpellInfo.wrap_text(description)
 	row.mouse_filter = Control.MOUSE_FILTER_STOP
 	# Right-click cancels the effect, EQ-style — stances excluded since they
 	# toggle through stance_bar.gd's own current-stance state, not a plain
@@ -105,6 +105,22 @@ func _build_row(effect_name: String, display_name: String, description: String, 
 		icon_style.set_border_width_all(1)
 	icon_style.set_corner_radius_all(3)
 	icon_box.add_theme_stylebox_override("panel", icon_style)
+	# A Panel defaults to MOUSE_FILTER_STOP, which would swallow the hover
+	# over the icon and stop the row's tooltip (and right-click cancel) from
+	# firing there.
+	icon_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if icon != null:
+		var icon_rect := TextureRect.new()
+		icon_rect.texture = icon
+		icon_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+		icon_rect.offset_left   = 2
+		icon_rect.offset_top    = 2
+		icon_rect.offset_right  = -2
+		icon_rect.offset_bottom = -2
+		icon_rect.expand_mode  = TextureRect.EXPAND_IGNORE_SIZE
+		icon_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		icon_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		icon_box.add_child(icon_rect)
 	row.add_child(icon_box)
 
 	var text_col := VBoxContainer.new()
@@ -157,6 +173,7 @@ func _format_remaining(remaining: float) -> String:
 const ENVIRONMENTAL_EFFECT_DESCRIPTIONS := {
 	"campfire_warmth": "Resting by a campfire's warmth. +2 HP/Mana/Stamina regeneration.",
 	"well_fed": "Well fed and hydrated. +2 HP/Mana/Stamina regeneration.",
+	"kenjis_blessing": "Kenji's blessing. +2 HP/Mana/Stamina regeneration and +3 to hit.",
 }
 
 # Resolves an active_effects key to a display name + description + is_debuff
@@ -189,7 +206,7 @@ func _resolve_effect_display(effect_name: String) -> Dictionary:
 			# harmful by construction) or a hostile "enemy"-target spell
 			# resolved onto them (always harmful) — target says which.
 			var is_debuff: bool = spell.get("target", "") == "enemy"
-			return {"name": Player3D.spell_display_name(effect_name), "description": spell.get("description", ""), "is_debuff": is_debuff}
+			return {"name": Player3D.spell_display_name(effect_name), "description": spell.get("description", ""), "is_debuff": is_debuff, "icon": SpellInfo.icon_texture(spell)}
 
 	if ENVIRONMENTAL_EFFECT_DESCRIPTIONS.has(effect_name):
 		return {"name": Player3D.spell_display_name(effect_name), "description": ENVIRONMENTAL_EFFECT_DESCRIPTIONS[effect_name], "is_debuff": false}
