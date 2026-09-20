@@ -1638,13 +1638,13 @@
   "torch": {
     "name": "Torch",
     "icon": "res://Assets/icons/items/torch.png",
-    "description": "A low quality torch, it's better than nothing.",
+    "description": "A low quality torch, it's better than nothing. Use it to light it (it burns for about 10 minutes); rain will put it out, and its light will give away a sneaking Shadowblade.",
     "stackable": true,
     "currency_type": "copper",
     "value": 7,
     "type": "misc",
     "armor_class": 0,
-    "slot": "none",
+    "slot": "light",
     "skill": "none",
     "damage": 0,
     "delay": 0,
@@ -1659,7 +1659,20 @@
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
-    "effect": null
+    "effect": null,
+    "light_source": {
+      "kind": "fire",
+      "radius": 9.0,
+      "energy": 2.2,
+      "color": [
+        1.0,
+        0.72,
+        0.35
+      ],
+      "burn_minutes": 10.0,
+      "snuffed_by_rain": true,
+      "breaks_stealth": true
+    }
   },
   "torn_boots": {
     "name": "Torn Boots",

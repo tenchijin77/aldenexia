@@ -93,7 +93,6 @@ func _drop_data(_at_position: Vector2, data: Variant) -> void:
 	held_item_id = item_id
 	held_quantity = quantity
 	tooltip_text = item_data.get("name", item_id)
-	if item_data.has("icon") and item_data.get("icon") is String and FileAccess.file_exists(item_data.get("icon", "")):
-		texture_normal = load(item_data.get("icon"))
+	texture_normal = ItemIcon.texture(item_data)
 	queue_redraw()
 	contents_changed.emit()

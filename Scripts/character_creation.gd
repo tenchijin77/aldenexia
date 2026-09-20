@@ -211,8 +211,15 @@ func load_racial_traits(race_key: String) -> void:
 
 	traits_list.text = ""
 
+	var descriptions: Dictionary = Global.character_options.get("trait_descriptions", {})
 	for key in traits.keys():
-		traits_list.text += "• %s: %s\n" % [str(key), str(traits[key])]
+		var label := str(key).replace("_", " ").capitalize()
+		var value = traits[key]
+		# Yes/no traits read as just their name; numeric ones keep their value.
+		var line := "• %s" % label if typeof(value) == TYPE_BOOL and value else "• %s: %s" % [label, str(value)]
+		if descriptions.has(key):
+			line += " — %s" % str(descriptions[key])
+		traits_list.text += line + "\n"
 
 	for key in penalties.keys():
 		var p_key: String = str(key)

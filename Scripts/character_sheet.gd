@@ -437,30 +437,35 @@ const _SLOT_LABELS: Dictionary = {
 	"back": "Back", "waist": "Belt", "legs": "Legs", "feet": "Feet",
 	"trinket1": "Trinket", "trinket2": "Trinket",
 	"primary": "Primary", "offhand": "Off Hand", "ranged": "Ranged",
-	"ammo": "Ammo", "charm": "Charm", "focus": "Focus",
+	"ammo": "Ammo", "charm": "Charm", "focus": "Focus", "light": "Light",
 }
 
 var _pending_slot_cfg: Array = []
+var _light_status_label: Label
 
 func _build_equipment_panel() -> void:
 	_tab_panels["equipment"] = equipment_scroll
 	_pending_slot_cfg.clear()
+	equipment_panel.add_theme_constant_override("separation", 14)
 
-	equipment_panel.add_child(_build_3col("ear1",      "head",    "ear2"))
-	equipment_panel.add_child(_build_3col("",          "neck",    ""))
-	equipment_panel.add_child(_build_3col("shoulders", "face",    "back"))
-	equipment_panel.add_child(_build_3col("wrist1",    "chest",   "wrist2"))
-	equipment_panel.add_child(_build_3col("",          "arms",    ""))
-	equipment_panel.add_child(_build_3col("charm",     "waist",   "focus"))
-	equipment_panel.add_child(_build_3col("finger1",   "hands",   "finger2"))
-	equipment_panel.add_child(_build_3col("",          "legs",    ""))
-	equipment_panel.add_child(_build_3col("",          "feet",    ""))
+	# Same section style as the Stats tab; slot names live inside the empty
+	# tiles (see slot_button.gd's placeholder) instead of tiny labels below.
+	var paperdoll := VBoxContainer.new()
+	paperdoll.add_theme_constant_override("separation", 5)
+	paperdoll.add_child(_build_3col("ear1",      "head",    "ear2"))
+	paperdoll.add_child(_build_3col("",          "neck",    ""))
+	paperdoll.add_child(_build_3col("shoulders", "face",    "back"))
+	paperdoll.add_child(_build_3col("wrist1",    "chest",   "wrist2"))
+	paperdoll.add_child(_build_3col("",          "arms",    ""))
+	paperdoll.add_child(_build_3col("charm",     "waist",   "focus"))
+	paperdoll.add_child(_build_3col("finger1",   "hands",   "finger2"))
+	paperdoll.add_child(_build_3col("",          "legs",    ""))
+	paperdoll.add_child(_build_3col("",          "feet",    ""))
+	equipment_panel.add_child(_make_section("ARMOR & JEWELRY", paperdoll))
 
-	equipment_panel.add_child(_build_section_header("— Weapon Loadout —"))
-	equipment_panel.add_child(_build_row(["primary", "offhand", "ranged", "ammo"]))
-
-	equipment_panel.add_child(_build_section_header("— Accessories —"))
-	equipment_panel.add_child(_build_row(["trinket1", "trinket2"]))
+	equipment_panel.add_child(_make_section("WEAPONS", _build_row(["primary", "offhand", "ranged", "ammo"])))
+	equipment_panel.add_child(_make_section("ACCESSORIES", _build_row(["trinket1", "trinket2"])))
+	equipment_panel.add_child(_make_section("LIGHT SOURCE", _build_light_row()))
 
 	for cfg in _pending_slot_cfg:
 		var btn = cfg[0]
@@ -471,13 +476,14 @@ func _build_equipment_panel() -> void:
 		btn.bag_slot = -1
 		btn.item_index = -1
 		btn.item_data = {}
+		btn.placeholder = _SLOT_LABELS.get(sn, sn.capitalize())
 		btn.tooltip_text = _SLOT_LABELS.get(sn, sn.capitalize())
 		equipment_slots[sn] = btn
 
 
 func _build_3col(left: String, center: String, right: String) -> HBoxContainer:
 	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 8)
+	row.add_theme_constant_override("separation", 6)
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
 	row.add_child(_make_slot_or_spacer(left))
 	row.add_child(_make_slot_or_spacer(center))
@@ -487,21 +493,13 @@ func _build_3col(left: String, center: String, right: String) -> HBoxContainer:
 func _make_slot_or_spacer(slot_name: String) -> Control:
 	if slot_name == "":
 		var spacer := Control.new()
-		spacer.custom_minimum_size = Vector2(48, 62)
+		spacer.custom_minimum_size = Vector2(48, 48)
 		return spacer
 	return _make_slot_vbox(slot_name)
 
-func _build_section_header(text: String) -> Label:
-	var lbl := Label.new()
-	lbl.text = text
-	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	lbl.add_theme_font_size_override("font_size", 11)
-	lbl.add_theme_color_override("font_color", Color(0.8, 0.7, 0.4))
-	return lbl
-
 func _build_row(slots: Array) -> HBoxContainer:
 	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 8)
+	row.add_theme_constant_override("separation", 6)
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
 	for sn in slots:
 		row.add_child(_make_slot_vbox(sn))
@@ -509,20 +507,36 @@ func _build_row(slots: Array) -> HBoxContainer:
 
 func _make_slot_vbox(slot_name: String) -> VBoxContainer:
 	var vbox := VBoxContainer.new()
-	vbox.add_theme_constant_override("separation", 2)
 	vbox.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-
 	var btn = load("res://Scripts/slot_button.gd").new()
 	vbox.add_child(btn)
 	_pending_slot_cfg.append([btn, slot_name])
-
-	var lbl := Label.new()
-	lbl.text = _SLOT_LABELS.get(slot_name, slot_name.capitalize())
-	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	lbl.add_theme_font_size_override("font_size", 10)
-	vbox.add_child(lbl)
-
 	return vbox
+
+# The Light slot: a tile plus a live status line ("Torch — lit, 8:42 left").
+func _build_light_row() -> Control:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 12)
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.add_child(_make_slot_vbox("light"))
+
+	var info := VBoxContainer.new()
+	info.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	info.add_theme_constant_override("separation", 2)
+	_light_status_label = Label.new()
+	_light_status_label.text = "No light equipped"
+	_light_status_label.add_theme_font_size_override("font_size", 12)
+	_light_status_label.add_theme_color_override("font_color", Color(0.95, 0.85, 0.55))
+	info.add_child(_light_status_label)
+	var hint := Label.new()
+	hint.text = "Use a torch from your bags to light it."
+	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	hint.custom_minimum_size = Vector2(170, 0)
+	hint.add_theme_font_size_override("font_size", 10)
+	hint.add_theme_color_override("font_color", Color(0.5, 0.5, 0.58))
+	info.add_child(hint)
+	row.add_child(info)
+	return row
 
 
 # ===== INVENTORY TAB =====
@@ -570,12 +584,8 @@ func refresh_storage_slots() -> void:
 			slot.tooltip_text = ""
 		else:
 			slot.item_data = item
-			if item.has("icon") and item.get("icon") is String and FileAccess.file_exists(item.get("icon", "")):
-				slot.texture_normal = load(item.get("icon"))
-			else:
-				slot.texture_normal = null
-			var nm: String = item.get("name", "Unknown Item")
-			slot.tooltip_text = nm + (" (bag)" if Inventory.is_bag(item) else "")
+			slot.texture_normal = ItemIcon.texture(item)
+			slot.tooltip_text = ItemIcon.tooltip(item) + ("\n(bag — equip it to add storage)" if Inventory.is_bag(item) else "")
 		slot.queue_redraw()
 
 	_rebuild_bag_sections()
@@ -634,15 +644,8 @@ func _rebuild_bag_sections() -> void:
 				var item: Dictionary = bag_items[item_index]
 				slot.item_index = item_index
 				slot.item_data = item
-				if item.has("icon") and item.get("icon") is String and FileAccess.file_exists(item.get("icon", "")):
-					slot.texture_normal = load(item.get("icon"))
-				slot.tooltip_text = item.get("name", "Unknown Item")
-				if item.get("stackable", false) and item.get("quantity", 1) > 1:
-					var qty_lbl := Label.new()
-					qty_lbl.text = str(item.get("quantity", 1))
-					qty_lbl.add_theme_color_override("font_color", Color(1, 1, 1))
-					qty_lbl.position = Vector2(2, 2)
-					slot.add_child(qty_lbl)
+				slot.texture_normal = ItemIcon.texture(item)
+				slot.tooltip_text = ItemIcon.tooltip(item)
 			else:
 				slot.item_index = -1
 				slot.item_data = {}
@@ -713,16 +716,12 @@ func refresh_equipment_slots() -> void:
 		var item: Variant = Inventory.equipped.get(slot_name, null)
 		if item != null:
 			btn.item_data = item
-			var icon_path: String = item.get("icon", "")
-			if icon_path != "" and FileAccess.file_exists(icon_path):
-				btn.texture_normal = load(icon_path)
-			else:
-				btn.texture_normal = null
-			btn.tooltip_text = item.get("name", slot_name)
+			btn.texture_normal = ItemIcon.texture(item)
+			btn.tooltip_text = ItemIcon.tooltip(item)
 		else:
 			btn.item_data = {}
 			btn.texture_normal = null
-			btn.tooltip_text = slot_name.capitalize()
+			btn.tooltip_text = _SLOT_LABELS.get(slot_name, slot_name.capitalize())
 		btn.queue_redraw()
 
 
@@ -759,6 +758,13 @@ func _process(_delta: float) -> void:
 	_vitals["water"]["bar"].max_value = 100
 	_vitals["water"]["bar"].value = water
 	_vitals["water"]["label"].text = "%d / 100" % water
+
+	if _light_status_label and _player.has_method("light_status_text"):
+		_light_status_label.text = _player.light_status_text()
+		var light_btn = equipment_slots.get("light")
+		var light_item: Variant = Inventory.equipped.get("light", null)
+		if light_btn and light_item is Dictionary:
+			light_btn.tooltip_text = ItemIcon.tooltip(light_item)
 
 	var xp_cur: int = Global.player_data.get("xp", 0)
 	var xp_next: int = Global.player_data.get("xp_next_level", 100)

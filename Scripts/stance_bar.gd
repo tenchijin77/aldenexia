@@ -129,6 +129,9 @@ func _on_slot_clicked(stance_id: String, bg: StyleBoxFlat) -> void:
 		_player.current_stance = ""
 		GameLog.log_general("You drop your stance.")
 	else:
+		if stance_id == "stealth" and _player.has_method("lit_light_breaks_stealth") and _player.lit_light_breaks_stealth():
+			GameLog.log_general("[color=#ffcc66]You can't sneak while carrying a lit light.[/color]")
+			return
 		if not _player.current_stance.is_empty():
 			combat_node.remove_effect("stance_" + _player.current_stance)
 

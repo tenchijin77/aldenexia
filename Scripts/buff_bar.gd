@@ -174,6 +174,11 @@ const ENVIRONMENTAL_EFFECT_DESCRIPTIONS := {
 	"campfire_warmth": "Resting by a campfire's warmth. +2 HP/Mana/Stamina regeneration.",
 	"well_fed": "Well fed and hydrated. +2 HP/Mana/Stamina regeneration.",
 	"kenjis_blessing": "Kenji's blessing. +2 HP/Mana/Stamina regeneration and +3 to hit.",
+	"lit_torch": "A burning torch lights the way. Rain will put it out, and it gives away a sneaking Shadowblade. Right-click to put it out.",
+}
+# Effects that show an item's icon on the buff bar (effect name -> items.json id).
+const ENVIRONMENTAL_EFFECT_ITEM_ICONS := {
+	"lit_torch": "torch",
 }
 
 # Resolves an active_effects key to a display name + description + is_debuff
@@ -209,7 +214,10 @@ func _resolve_effect_display(effect_name: String) -> Dictionary:
 			return {"name": Player3D.spell_display_name(effect_name), "description": spell.get("description", ""), "is_debuff": is_debuff, "icon": SpellInfo.icon_texture(spell)}
 
 	if ENVIRONMENTAL_EFFECT_DESCRIPTIONS.has(effect_name):
-		return {"name": Player3D.spell_display_name(effect_name), "description": ENVIRONMENTAL_EFFECT_DESCRIPTIONS[effect_name], "is_debuff": false}
+		var env_icon: Texture2D = null
+		if ENVIRONMENTAL_EFFECT_ITEM_ICONS.has(effect_name):
+			env_icon = ItemIcon.texture(Inventory.get_item_definition(ENVIRONMENTAL_EFFECT_ITEM_ICONS[effect_name]))
+		return {"name": Player3D.spell_display_name(effect_name), "description": ENVIRONMENTAL_EFFECT_DESCRIPTIONS[effect_name], "is_debuff": false, "icon": env_icon}
 
 	return {"name": Player3D.spell_display_name(effect_name), "description": "", "is_debuff": false}
 

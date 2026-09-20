@@ -883,7 +883,7 @@ saved to disk isn't captured here.)
 - Tested: 11/11 zone checks + a 3-process multiplayer sync test; screenshots clear day, rainy day
   (overcast + haze + streaks) and rainy night.
 
-### Ultravision (racial trait, now functional)
+### Ultravision (racial trait, now functional) — RENAMED Dark Sight / Improved Dark Sight, see below
 - 10 of 11 races have `traits.ultravision: true` in character_options.json (all but Human).
   `DayNightCycle` reads the LOCAL player's race and, outdoors at night, lifts the moonlit sky,
   ambient and moon energy toward "bright" (viewer-local — each client renders its own lighting).
@@ -894,6 +894,38 @@ saved to disk isn't captured here.)
 - OPEN DESIGN QUESTION (raised by the user): 10/11 races having it may be too many / leaves Human
   night-blind — nothing changed yet; proposed tiers (full: Dark Elf/Dwarf/Gnome/Troll, half: the rest)
   plus a carriable torch for everyone, awaiting the user's decision.
+
+### Dark Sight tiers, the Light slot + torches, and the modern equipment tab (2026-09-19, later)
+- Renamed the racial trait: "Improved Dark Sight" (full strength: Dwarf, Gnome, Troll, Dark Elf) and
+  "Dark Sight" (half: Elf, Half-Elf, Halfling, Ogre, Half-Orc, Lizardkin); Human has neither. Data keys
+  `improved_dark_sight` / `dark_sight` replace `ultravision`; `dark_sight_*` exports on DayNightCycle
+  (`dark_sight_basic_strength` = 0.5). Measured night luminance: Human 0.086, Dark Sight 0.164, Improved
+  0.252 (noon identical). Character creation now prints readable trait names ("• Dark Sight — ...") with
+  descriptions from a new top-level `trait_descriptions` block (edit the wording there).
+- FOUND AND REMOVED an older, separate ultravision from Session 46: a per-camera Environment override in
+  camera_controller.gd fed by a hardcoded race list in player3d.gd. It could not do tiers, ignored the
+  data, and would have stacked on top of the new system; its "one shared world" premise doesn't hold
+  because each client renders its own lighting.
+- New equipment slot "light" (Light Source) and working torches. `torch` is now a `light` item with a
+  `light_source` block (radius 9, warm colour, 10 min burn, snuffed_by_rain, breaks_stealth). Use a torch
+  from a bag (item popup -> Light) to equip ONE and light it; a "Lit Torch" effect on the buff bar (with
+  the torch icon) is the burn timer; right-click it there or use Snuff Out on the slot to put it out
+  (time kept, no free refills via unequip). Rain snuffs fire lights and stops them lighting; a lit fire
+  light breaks the Shadowblade stealth stance and blocks entering it. Magic lights later just set those
+  two flags false. Human torches burn 15 min (trait torch_burn_bonus 0.5). Carried light is a plain warm
+  point light on the player, visible to everyone (light_item_id replicated); no held model/flames (the
+  wall-torch particles were dropped — in-hand animation is a later step).
+- Equipment tab redesigned to match the Stats tab: styled sections (ARMOR & JEWELRY, WEAPONS,
+  ACCESSORIES, LIGHT SOURCE with a live "Torch — lit, 14:59 left" status), rounded tiles with the slot name
+  inside when empty, gold frame when filled, warm frame when a light is lit, item hover tooltips (name,
+  slot, stats, description, burn time), stack counts drawn on tiles (everywhere), Unequip/Light/Snuff
+  buttons in the item popup for equipped gear.
+- Fixed: item icons in slots could be covered by the tile background (drawn after the icon), and every
+  slot/pet-gear/tradeskill/backpack icon loader used FileAccess.file_exists(), which fails for imported
+  textures in EXPORTED builds — all now use ItemIcon.texture(). Unequip no longer snuffs a lit torch when
+  the inventory is full (it fails and the torch stays lit).
+- Tests: 25/25 torch logic checks in the real zone, Dark Sight tier luminance check, and earlier Kenji /
+  pet suites re-run clean. NOT yet verified across two machines: another player seeing your carried light.
 
 ### Versioning + multiplayer join check
 - There was NO version anywhere before (no config/version, empty export-preset version fields, no
@@ -914,6 +946,8 @@ saved to disk isn't captured here.)
   stamp, old build without the handshake): first two join, the next two get the message, the last is dropped.
 - Bumping: raise the version in Project Settings when a change affects multiplayer compatibility
   (netcode/RPCs/replicated data/anything peers must agree on), and for each tagged test build.
+- v0.1.0 -> **v0.2.0** (2026-09-19): the Light slot / Dark Sight batch added a replicated player value
+  (`light_item_id`) and changed race trait data, so builds from before it must not mix with newer ones.
 
 ---
 

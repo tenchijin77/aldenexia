@@ -7,17 +7,91 @@ var slot_index: int = -1
 var bag_slot: int = -1
 var item_index: int = -1
 var item_data: Dictionary = {}
+## Dim slot name drawn inside an EMPTY tile (the equipment paperdoll sets this).
+var placeholder: String = ""
+
+const TILE_BG_EMPTY := Color(0.085, 0.085, 0.115, 0.96)
+const TILE_BG_FILLED := Color(0.12, 0.11, 0.09, 0.96)
+const FRAME_EMPTY := Color(0.27, 0.27, 0.34)
+const FRAME_FILLED := Color(0.62, 0.52, 0.30)
+const FRAME_HOVER := Color(0.95, 0.80, 0.42)
+const FRAME_LIT := Color(1.0, 0.62, 0.22)  # a lit light source glows warm
+const PLACEHOLDER_COLOR := Color(0.42, 0.42, 0.52)
+
+var _hovered := false
+var _bg: Control     # tile background + placeholder, drawn BEHIND the icon
+var _frame: Control  # border, drawn ON TOP of the icon
+var _bg_style := StyleBoxFlat.new()
+var _frame_style := StyleBoxFlat.new()
 
 func _ready():
 	custom_minimum_size = Vector2(48, 48)
 	ignore_texture_size = true
 	stretch_mode = TextureButton.STRETCH_KEEP_ASPECT_CENTERED
 	mouse_filter = Control.MOUSE_FILTER_STOP
+
+	_bg_style.set_corner_radius_all(5)
+	_frame_style.set_corner_radius_all(5)
+	_frame_style.draw_center = false
+	_frame_style.set_border_width_all(1)
+
+	# This node's own _draw() runs AFTER the button paints its icon, so anything
+	# drawn there would cover the item. The tile background therefore lives in a
+	# child with show_behind_parent (painted under the icon), and the border in a
+	# normal child (painted over it).
+	_bg = Control.new()
+	_bg.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_bg.show_behind_parent = true
+	_bg.draw.connect(_draw_bg)
+	add_child(_bg)
+	_frame = Control.new()
+	_frame.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_frame.draw.connect(_draw_frame)
+	add_child(_frame)
+	mouse_entered.connect(func(): _hovered = true; _frame.queue_redraw())
+	mouse_exited.connect(func(): _hovered = false; _frame.queue_redraw())
 	queue_redraw()
 
 func _draw():
-	draw_rect(Rect2(Vector2.ZERO, size), Color(0.15, 0.15, 0.15, 0.9))
-	draw_rect(Rect2(Vector2.ZERO, size), Color(0.5, 0.5, 0.5, 1.0), false, 1.0)
+	# Just a redraw trigger: callers queue_redraw() this node whenever the item
+	# changes, and the visible parts are the two child layers.
+	if is_instance_valid(_bg):
+		_bg.queue_redraw()
+	if is_instance_valid(_frame):
+		_frame.queue_redraw()
+
+func _draw_bg():
+	_bg_style.bg_color = TILE_BG_EMPTY if item_data.is_empty() else TILE_BG_FILLED
+	_bg.draw_style_box(_bg_style, Rect2(Vector2.ZERO, size))
+	if item_data.is_empty() and placeholder != "":
+		var font := ThemeDB.fallback_font
+		var text_size := font.get_string_size(placeholder, HORIZONTAL_ALIGNMENT_CENTER, size.x - 4.0, 9)
+		_bg.draw_string(font, Vector2((size.x - text_size.x) / 2.0, size.y / 2.0 + 3.0), placeholder,
+				HORIZONTAL_ALIGNMENT_LEFT, size.x - 4.0, 9, PLACEHOLDER_COLOR)
+
+func _draw_frame():
+	var color := FRAME_EMPTY
+	var width := 1
+	if not item_data.is_empty():
+		color = FRAME_LIT if item_data.get("lit", false) else FRAME_FILLED
+		width = 2 if item_data.get("lit", false) else 1
+	if _hovered:
+		color = FRAME_HOVER
+		width = 2
+	_frame_style.border_color = color
+	_frame_style.set_border_width_all(width)
+	_frame.draw_style_box(_frame_style, Rect2(Vector2.ZERO, size))
+
+	# Stack count in the bottom-right corner
+	if item_data.get("stackable", false) and int(item_data.get("quantity", 1)) > 1:
+		var text := str(int(item_data.get("quantity", 1)))
+		var font := ThemeDB.fallback_font
+		var text_size := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 11)
+		var pos := Vector2(size.x - text_size.x - 4.0, size.y - 4.0)
+		_frame.draw_string_outline(font, pos, text, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, 3, Color(0, 0, 0, 0.9))
+		_frame.draw_string(font, pos, text, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Color(1, 1, 1))
 
 func _gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT \
@@ -161,7 +235,7 @@ func _show_inspect_popup() -> void:
 
 	# Equip button (equippable items only)
 	var equip_slot: String = Inventory.ITEM_SLOT_MAP.get(item_data.get("slot", ""), "")
-	if not equip_slot.is_empty() and slot_type != "pet_equipment":
+	if not equip_slot.is_empty() and slot_type != "pet_equipment" and slot_type != "equipment":
 		var equip_btn := Button.new()
 		equip_btn.text = "Equip"
 		equip_btn.pressed.connect(func():
@@ -170,8 +244,41 @@ func _show_inspect_popup() -> void:
 		)
 		btn_row.add_child(equip_btn)
 
-	# Equip to Pet button (weapon/armor items only, and only while a pet is out)
 	var player := TargetFrame.local_player()
+
+	# Light a torch straight from a bag (equips one into the Light slot and lights it)
+	if slot_type in ["basic", "bag"] and item_data.has("light_source") and player and player.has_method("light_from_bag"):
+		var light_btn := Button.new()
+		light_btn.text = "Light"
+		light_btn.pressed.connect(func():
+			layer.queue_free()
+			player.light_from_bag(item_data, slot_type, slot_index, bag_slot, item_index)
+		)
+		btn_row.add_child(light_btn)
+
+	# Equipped gear: Unequip (and Light / Snuff Out for the Light slot)
+	if slot_type == "equipment" and player:
+		if slot_name == "light" and player.has_method("light_equipped_light"):
+			var lit_now: bool = bool(item_data.get("lit", false))
+			var toggle_btn := Button.new()
+			toggle_btn.text = "Snuff Out" if lit_now else "Light"
+			toggle_btn.pressed.connect(func():
+				layer.queue_free()
+				if lit_now:
+					player.snuff_equipped_light("You put out your %s." % str(item_data.get("name", "light")).to_lower())
+				else:
+					player.light_equipped_light()
+			)
+			btn_row.add_child(toggle_btn)
+		var take_off_btn := Button.new()
+		take_off_btn.text = "Unequip"
+		take_off_btn.pressed.connect(func():
+			layer.queue_free()
+			Inventory.unequip_item(slot_name)
+		)
+		btn_row.add_child(take_off_btn)
+
+	# Equip to Pet button (weapon/armor items only, and only while a pet is out)
 	if player and slot_type != "pet_equipment" and player.has_method("pet_can_equip_slot") \
 			and player.pet_can_equip_slot(equip_slot) and is_instance_valid(player.get("active_pet")):
 		var pet_equip_btn := Button.new()
@@ -340,8 +447,9 @@ func _get_drag_data(at_position: Vector2) -> Variant:
 		"item_index": item_index
 	}
 	var preview := TextureRect.new()
-	if item_data.has("icon") and item_data.get("icon") is String and FileAccess.file_exists(item_data.get("icon", "")):
-		preview.texture = load(item_data.get("icon"))
+	preview.texture = ItemIcon.texture(item_data)
+	preview.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	preview.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	preview.custom_minimum_size = Vector2(48, 48)
 	preview.modulate = Color(1, 1, 1, 0.85)
 	set_drag_preview(preview)

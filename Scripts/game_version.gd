@@ -4,7 +4,8 @@
 #     Config -> Version (project.godot "config/version"), e.g. "0.1.0".
 #   * build_id(): the exact git commit an export was made from, stamped into
 #     Data/build_info.json by tools/stamp_build.sh right before exporting.
-#     Missing when running from the editor / an unstamped build.
+#     Ignored when running from the editor (always "dev") and missing in an
+#     unstamped build.
 # Two builds can join each other only if the version numbers match, and — when
 # BOTH were stamped — their build ids match too (catches "same number, stale
 # export"). Editor/unstamped runs only need the numbers to match.
@@ -23,7 +24,10 @@ static func version() -> String:
 static func build_id() -> String:
 	if not _build_id_loaded:
 		_build_id_loaded = true
-		var file := FileAccess.open(BUILD_INFO_PATH, FileAccess.READ)
+		# Editor runs are always "dev": a stamp file left over from the last export
+		# would otherwise make them look like that old commit and get refused by a
+		# newer stamped build.
+		var file := FileAccess.open(BUILD_INFO_PATH, FileAccess.READ) if not OS.has_feature("editor") else null
 		if file:
 			var data = JSON.parse_string(file.get_as_text())
 			file.close()

@@ -116,12 +116,8 @@ func populate_slots():
 			slot.item_index = item_i
 			slot.item_data = item
 
-			if item.has("icon") and item.icon is String and FileAccess.file_exists(item.icon):
-				slot.texture_normal = load(item.icon)
-			else:
-				slot.texture_normal = null
-
-			slot.tooltip_text = item.get("name", "Unknown Item")
+			slot.texture_normal = ItemIcon.texture(item)
+			slot.tooltip_text = ItemIcon.tooltip(item)
 
 			if item.get("stackable", false):
 				_add_quantity_label(slot, item.get("quantity", 1))

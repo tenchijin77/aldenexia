@@ -134,9 +134,8 @@ func _refresh() -> void:
 		var item: Variant = pet_equipment.get(slot_name, null)
 		if item != null:
 			slot.item_data = item
-			var icon_path: String = item.get("icon", "")
-			slot.texture_normal = load(icon_path) if icon_path != "" and FileAccess.file_exists(icon_path) else null
-			slot.tooltip_text = item.get("name", slot_name)
+			slot.texture_normal = ItemIcon.texture(item)
+			slot.tooltip_text = ItemIcon.tooltip(item)
 		else:
 			slot.item_data = {}
 			slot.texture_normal = null

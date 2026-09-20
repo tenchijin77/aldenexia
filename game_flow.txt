@@ -1385,24 +1385,30 @@ Scene: Scenes/player3d.tscn (contains CameraRig → CameraController + Camera3D)
     a GPUParticles3D rain box that follows the local player, fog, DayNightCycle.set_weather_dim()
     (overcast_light_scale/overcast_sky_color exports) and the looping rain sound on the SFX bus.
     /weather rain|clear forces it (host/single-player). rain_start_text / rain_stop_text exports.
-  Ultravision: DayNightCycle._refresh_ultravision() reads Global.character_options.races.<race>.traits
-    .ultravision for the LOCAL player's race (race string normalised: lowercase, spaces/hyphens ->
-    underscores). At night (weight 1 - daylight) and only when `outdoors` is true, it floors the sky
-    colours, raises ambient energy (ultravision_night_ambient_energy) and multiplies the moon energy
-    (ultravision_moon_energy_multiplier). Rendering is per-client, so only the viewer with the trait is
-    affected; a zone with no DayNightCycle (dungeon) or outdoors=false gives no benefit.
+  Dark Sight: see the "DARK SIGHT / IMPROVED DARK SIGHT" section — DayNightCycle reads the
+    local player's race traits (improved_dark_sight 1.0 / dark_sight 0.5) and lifts night
+    lighting for that viewer only.
+  LIGHT SLOT + TORCHES: equipment slot "light" (Inventory.EQUIPMENT_SLOTS/ITEM_SLOT_MAP). Any
+    item with a `light_source` dict in items.json ({kind, radius, energy, color, burn_minutes,
+    snuffed_by_rain, breaks_stealth}) can go there; torches are the first. player3d.gd region
+    "Light source": light_from_bag() (use a torch from a bag: equips ONE, lights it),
+    light_equipped_light()/snuff_equipped_light(), light_status_text(). While lit it has a
+    "lit_torch" effect (buff bar, torch icon) whose remaining time IS the burn timer, mirrored into
+    the item's burn_remaining so snuffing/unequipping keeps what is left (a carried light is
+    non-stackable so it can never merge back into a fresh stack; a full inventory refuses to
+    unequip and the torch stays lit). Burns out -> item removed. Fire lights are snuffed once rain
+    intensity > 0.3 and can't be lit in rain (snuffed_by_rain); a lit fire light drops the
+    Shadowblade stealth stance and stance_bar.gd refuses stealth while lit (breaks_stealth) —
+    a magic light just sets both flags false. Human torches burn 50% longer (torch_burn_bonus).
+    light_item_id is replicated (player3d.tscn); every peer shows a flickering warm OmniLight3D
+    on the player (no model/flame — the light is slot-based, not held; in-hand visuals later).
+  ItemIcon.tooltip(): item hover text (name x qty, slot/type, stats, wrapped description, burn
+    time for lights, value). slot_button.gd tiles: background is a show_behind_parent child (the
+    script's own _draw runs AFTER the button paints its icon and would cover it), border + stack
+    count on a top child; equipment tiles show their slot name when empty. All icon loading now
+    goes through ItemIcon.texture() (ResourceLoader.exists) — FileAccess.file_exists() returns
+    false for imported PNGs in exported builds.
 
---- Versioning (added 2026-09-19) ---
-  GameVersion (Scripts/game_version.gd): version() reads project.godot's application/config/version
-  (bump it in Project Settings); build_id() reads the optional, git-ignored Data/build_info.json written
-  by tools/stamp_build.sh before an export (git short hash, "-dirty" if uncommitted changes).
-  display() -> "v0.1.0 (abc1234)" / "(dev)" in the editor. Shown bottom-right on the main menu.
-  net.gd join check: on connect the client sends (version, build) to the host (_rpc_submit_version);
-  the host holds Net.player_connected — so no puppet spawns — until GameVersion.is_compatible() passes
-  (same version; same build id when both are stamped), then _rpc_version_accepted makes the client's
-  connection_succeeded fire. Mismatch -> _rpc_version_rejected sets Net.last_failure_reason (shown by
-  multiplayer_menu.gd) and the host kicks them 0.6s later; a peer that sends nothing within
-  VERSION_CHECK_TIMEOUT (5s) is dropped. Builds older than this change cannot join.
 
 --- Buff Bar (buff_bar.gd, added 2026-09-13) ---
   Draggable CanvasLayer, docked top-right by default, in player3d._spawn_hud().
@@ -2871,20 +2877,23 @@ Ancient Bandage/Rotten Linen are lore-only (`type: "misc"`, no effect) —
 correctly excluded from the Use button and the bandage-search.
 
 
-ULTRAVISION (added 2026-09-17, Session 46)
+DARK SIGHT / IMPROVED DARK SIGHT (replaces the 2026-09-17 "ultravision"; 2026-09-19)
 ================================================================================
-Per-race trait (`character_options.json`'s per-race `traits.ultravision`,
-everyone except Human per the user's call — "most elves, trolls, etc have
-it") checked via `player3d.gd`'s `has_ultravision()`. day_night_cycle.gd
-dims one shared WorldEnvironment/DirectionalLight for the whole zone, so
-there's no such thing as "this one player's world is brighter" at that
-level in multiplayer — the effect instead lives on that specific player's
-own `Camera3D.environment` (camera_controller.gd), which overrides the
-WorldEnvironment for only what that camera renders: an ultravision race
-gets a duplicated Environment with `adjustment_enabled`/
-`adjustment_brightness` boosted at night, applied/cleared on
-day_night_cycle.gd's `phase_changed` signal. Not yet visually verified
-in-game — brightness/adjustment values are a first guess to tune.
+Racial traits in character_options.json (races.<race>.traits): `improved_dark_sight`
+(Dwarf, Gnome, Troll, Dark Elf) and `dark_sight` (Elf, Half-Elf, Halfling, Ogre,
+Half-Orc, Lizardkin); Human has neither (it gets `torch_burn_bonus` 0.5 instead).
+Text shown on character creation comes from the top-level `trait_descriptions`.
+DayNightCycle._refresh_dark_sight() reads the LOCAL player's race and sets
+dark_sight_strength (1.0 improved, dark_sight_basic_strength = 0.5 for basic). At
+night (weight 1 - daylight) and only while `outdoors` is true it floors the sky
+colours, raises ambient energy and multiplies moon energy by that strength —
+measured screen luminance at night: Human 0.086, Dark Sight 0.164, Improved 0.252,
+noon identical. Each client renders its own lighting, so it is inherently
+per-viewer. The earlier version (a per-camera Environment override in
+camera_controller.gd driven by a hardcoded race list in player3d.gd) was REMOVED:
+it could not do tiers, was fed from a list instead of the data, and would have
+stacked on top of this. A zone with no DayNightCycle, or outdoors = false, gives no
+benefit ("Deep Darkness").
 
 
 MULTI-BOLT SPELLS (added 2026-09-18, Session 47)

@@ -21,7 +21,8 @@ const EQUIPMENT_SLOTS: Array = [
 	"finger1", "wrist1", "arms", "hands", "wrist2", "finger2",
 	"shoulders", "chest", "back", "waist", "legs", "feet",
 	"trinket1", "trinket2",
-	"primary", "offhand", "ranged", "ammo", "charm", "focus"
+	"primary", "offhand", "ranged", "ammo", "charm", "focus",
+	"light"  # torches now; lanterns / magic lights later (items with a "light_source")
 ]
 
 # Maps item "slot" field → equipment slot name
@@ -34,6 +35,7 @@ const ITEM_SLOT_MAP: Dictionary = {
 	"finger": "finger1", "ring": "finger1",
 	"ranged": "ranged", "ammo": "ammo",
 	"trinket": "trinket1", "charm": "charm", "focus": "focus",
+	"light": "light",
 }
 
 var equipped: Dictionary = {}
@@ -504,7 +506,29 @@ func equip_item(item: Dictionary, src_type: String, src_basic_idx: int = -1, src
 		print("⚠️ '%s' cannot be equipped (slot: %s)" % [item.get("name", "?"), item_slot])
 		return false
 
+	# Only ONE light is carried: pull a single unit off a stack and leave the rest
+	# where it was. (Carried lights are non-stackable so a partly-burnt one can
+	# never merge back into a fresh stack.)
+	if equip_slot == "light" and item.get("stackable", false) and int(item.get("quantity", 1)) > 1:
+		if equipped.get("light", null) != null:
+			GameLog.log_general("You are already carrying a light. Unequip it first.")
+			return false
+		var one: Dictionary = item.duplicate(true)
+		one.erase("quantity")
+		one["stackable"] = false
+		item["quantity"] = int(item["quantity"]) - 1
+		equipped["light"] = one
+		sync_to_global()
+		equipment_changed.emit()
+		inventory_changed.emit()
+		return true
+
 	var displaced: Variant = equipped.get(equip_slot, null)
+	if equip_slot == "light":
+		item["stackable"] = false
+		item.erase("quantity")
+		if displaced is Dictionary:
+			displaced.erase("lit")  # swapped out: no longer burning (burn_remaining is kept)
 
 	# Remove item from source, optionally placing displaced item there
 	if src_type == "basic" and src_basic_idx >= 0:
@@ -536,6 +560,8 @@ func unequip_item(equip_slot: String) -> bool:
 		return false
 	for i in range(BASIC_INVENTORY_SIZE):
 		if basic_inventory[i] == null:
+			if item is Dictionary:
+				item.erase("lit")  # taking a light off snuffs it (burn_remaining is kept)
 			basic_inventory[i] = item
 			equipped[equip_slot] = null
 			sync_to_global()

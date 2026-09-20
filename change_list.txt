@@ -215,7 +215,265 @@ how to rig a new character model:
 -texture note: don't bother fighting Blender's FBX export to embed the texture — it's been unreliable every time. Just make sure the real texture PNG is sitting in the same folder as the FBX; the game applies it directly as a runtime material override instead of depending on the FBX carrying it
 -if you want a second attack animation, look for something like "Standing Melee Attack Downward" in Mixamo in addition to "Standing Melee Attack Horizontal" (or vice versa) — that's the pair the male model uses for its two random swings
 
+9/16/26
+--------
+
+-the spiritcaller pet is in the ground and 180 degrees reversed. I tried fixing this in the scene file and wasn't able to make a difference by changing the transform on the node
+
+-I've decided to rename the Spiritcaller to Spiritweaver. Please update the Spiritcaller class to Spiritweaver everywhere. It sounds too close to Gravecaller, another class.
+
+-female elf assets were messed up- the rigging was not right and looked terrible. i re-rigged it and redownloaded all the assets from mixamo. if anything needs to be updated, please fix. i renamed the old fbx -old at the end. I deleted all the old files, and copied the new ones in place.
+
+-when the pet dies, it crashes the game. the log shows: Invalid type in function '_resolve_spell_cast' in base 'CharacterBody3D (Player3D)'. The Object-derived class of argument 3 (previously freed) is not a subclass of the expected argument class.
+
+-pet assist isn't working properly. When I target a mob with pet assist selected, the pet attacks the mob. It shouldn't do so until I attack the mob. Also the pet's life is still pink in the group window. Please change that to red.
+
+-player skills need to be added into the game. They're in a json file called player_skills.json in the data directory. Players will be able to level up melee skills, and such by doing so in the game and the higher the level the skills, the better they are at them. Please take a look at this file and let me know if you have any questions or want to discuss.
+
+-vendors: i would like an option at the vendor to buy/sell a quantity of an item, also there should be a checkbox to only show items the player can use, i.e. spells, equipment, etc.
+
+-dark elf male and female models have been added, their character sheet images are in as well.
+
+-can we make sure the light spells are working? Most classes have some kind of magic light at lower levels. Can we make sure they are all implemented, and the right color shows? Some kind of small, omnidirectional light with the correct shading, above the player that casts it? Once that works we can darken the world a bit at night and the light will be more useful, and it will feel like real night as well.
+
+-let's add a tracking skill to the elf races, including elf and half elf. It should toggle open a window and show monsters nearby, their level color coded, just like targetting them, and give a list of the monsters within say 50m. It can update realtime, be a draggable window, resizable, persistent and toggle-able with T if it is not used yet. The woodstalker, wildspeaker, and troubadour classes will get this skill as well.
+
+9/17/26
+
+-I've updated the player_skills and player_spells list. I have a spreadsheet i can share with the new classifications for every spell so far. The player_spells.json will need to be updated to match the spell classifications in the sheet as well as all of the melee skills, so our skill window actually levels up as the player uses the skills or spell abilities. I believe the combat system already ties into skill levels, but please doublecheck so this is tied in.
+
+-the next two classes we should make are the Arcanist and Aetherfist. Let's make sure the spells for these classes are in and working up to level 8. Voidknight, Spiritweaver, Aetherfist, and Arcanist.
+
+-next let's work on adding a few classes. We have a tank, healer, and caster dps, let's add a melee and a support class next. We can add the shadowblade and the troubadour. These will be interesting because they will add new mechanics. Stealth, pickpocketing, songs instead of spells, etc. Let's add them in to level 8 as well. When the bard clicks a song, it runs until it is turned off. The spell effects run 4-5 seconds after the song ends, so you can have several effects at once if you are quick and turn one on and off and another (or two) immediately on after.
+
+-next let's implement the wildspeaker (druid) class to level 8. It should also start with a pet, a spirit of the woods, which will be similar to the spiritweaver's pet. It should do ranged damage, and also cast a heal over time spell on the most damaged person in the group once every 30 seconds, healing 5 health per second for 15 seconds.
+
+-can we fix the backpack so it has a black backround like all the other windows? I'd like all windows to be uniform and look like a consistent ui. some of the elements look different, solid black background versus semitransparent. I'd like them all to look the same or have an adjustable transparancy control so the player can set it. Also the backpack seems to only be using half of the window container instead of the whole thing. Let's juice it up like you did the character pane to look better.
+
+-let's start working on some of the tradeskill crafting mechanics.cooking should be a really easy one, as some enemies drop meat. let's make a right click option to the campfire node, so when a player right clicks it they open a window where the player can drag raw meat into it. The window should have campfire in the title (later we will have other types of fires the player can open like a stove, etc. The title should be whatever item they open. It should have multiple boxes, let's say four that they can drag items into as items to combine for cooking.) they should be able to click a button on the new window labeled Cook, (make all new windows draggable and persistent like the other ones) and a progress bar will show. The player will cook the meat, and receive a cooked meat item when done. The player can eat this just like the iron rations to increase satiety as an alternative to buying food. I'll flesh this system out and make a spreadsheet with a list of recipies to add later, but this will make the mechanic work and be a proof of concept. We can do the same thing with alchemy. Let's add an item to the items list, basic alchemy kit, that allows the player to right click it to open the alchemy window. The alchemy window should be similar to the cooking window (all tradeskill wndows will be similar), it will show basic alchemy kit (the name of the item you use to open it, there may be different alchemy sets later, so it should show the name iof the item used at the top of the window, have four slots to drag items into to comine, and the button will say Mix). when the player drags snake venom, and uses the mix, it should create basic poison, that a shadowblade can right click and then select their weapon to add the poison to. The basic poison can add a +2 damage to the weapon when it hits. I'll make a sheet for alchemy and all other tradeskills later to expand this but it will be a good starting point.
+
+
+-let's implement the remaining classes with their spells to level 8. I'm still working on the art assets and will add them and more level design in shortly, but this will allow us to begin testing all classes in multiplayer for a bit.
+
+-found an issue in player_spells.json where the chaosborn was mis-named wildmage (the class' original name). I've renamed all the spells so it should be good to go.
+
+-for the wildspeaker pet, please just use a placeholder obect for now, like we did with the spiritweaver's pet originally. I'll update you when i get art assets for it and we can update it
+
+-for charm let's make the monster have a temporary control window pop up. we can reuse the pet window for the pet classes, so the player controlling it can choose to make it use the standard pet functions. For fear, let's make the monster run in a random direction, changing every 4 seconds during the spell duration until it stops. If the monster runs into another social enemy, the enemy will become aggressive and attack the player.
+
+-for the multiplayer build is it possible to build a network widget in game that shows latency, packet loss, and bits transmitted currently? I'd like it to be togglable with f11, like in everquest. Maybe show the latency colored, green, yellow, red for status. 0-100ms green, 100-500ms yellow, 500ms plus red? also its window should be draggable and persistent when placed.
+
+-let's add Copyright 2026 Kuro Neko Sama Games to the bottom of the main menu screen instead of at the top under the title. Also the load screen shows to the left of the new menu area (where it used to be on the old style). Can we move that to a better looking area?
+
+-let's add an option on the escape menu that shows the controls and / commands for users. (we'll add in the ability to remap them later, but for now let's just use this as a new player guide)
+
+
+---------
+MP testing notes:
+9/17/26
+
+-remote player isn't losing any life when hit. monsters don't seem to attack her; they run right to the host's player
+-we need to make sure races that have ultravision can see better at night than those that can't.
+-tracking doesn't show other players
+-inventory fills strangely. it should fill the first bag, then the next, and so on, in order. if there are free spaces in the player's inventory that aren't bags, it should fill them first.
+
+-when i target another player in multiplayer, it shows them as level 1 instead of pulling their real level and stats
+-when a player is bleeding out, another player should be able to save them by healing them, or right clicking them to bandage them. Once they get back to 0 health, they should stand back up, trigger a chat message "Playername comes back to life!"
+-I set bard songs to the following as default: duration 8 (unless specified), mana 0 (unless specified), cast time 1.5 (unless specified), recast time 5.damage 0 (unless it is a damaging song; some buffs showed damage for some reason.)
+
+-added musicianship to the player_skill.json list. All troubadour spells should increase this, as well as wielding instuments (which I plan to add in the future. higher musicianship and using instruments will make all songs more powerful.)
+
+-the mobs should show their names above their heads, just like the players do. Also the art assets for the desert scavenger is clipping through the floor and needs to be raised up. Are these in tscn files that I can edit myself?
+
+-course bandage, ancient bandage, rotten linen, torch do not have icons in inventory. Do they not have entries in the items.json file?
+
+-buffs should be cancellable/removable by right clicking them in the status efffects window.
+
+-updated female human art assets to the female human/version 2 folder. this should fix issues with the rendering and rigging, etc.
+
+
+Arcanist:
+-magic missile is supposed to do 3 bolts for 6 damage each. It is not hitting for that damage. I raised the damage to 18, but it should be three projectiles that hit for up to a total of 18 damage, 6 damage each. is there a better way to fix this?
+
+Troubadour:
+-casting Song of Courage says: Yourself is empowered.  Where are these messages stored? It should be "You feel courageous." I'd like to be able to edit these myself. It seems like it is acting as a targeted spell instead of an area of effect spell. All Troubadour buff spells are area of effect spells.
+
+-Troubadour casting is wonky. It should be click once to cast the spell and click again to cancel it from auto casting. I can't seem to turn it off. It seems like when i run multiple songs in combat it is trying to keep multiple of them running. only the last song should stay running. for example, if song 1 is running, and i cast song 2, song 1 should stop at the end of its duration and only song 2 keeps running until i toggle it off. It appears like it is trying to keep two songs running simultaneously.
+
+
+Cooking:
+-when successfully cooking, it should raise the cooking skill in the skillbook. The same should occur for alchemy.
+
+Looting:
+-after i collect loot, by choosing all options, it leaves the empty loot window open until i click it. Can we make this auto close when no items are left to set settings for?
+
+Cast bar:
+-when my mouse moves over the cast bar it pushes it out of the way. it should only move when click-dragged.
+
+Spiritweaver:
+-Spiritweaver pets have the same responses as the voidknight ones. We need to change that so they have their own. i.e. a spiritweaver is not a dark lord, so it doesn't make sense when the pet refers to one as that.
+
+Shadowblade:
+-Backstab needs to be done from behind the enemy. Currently you can perform it from any angle.
+-Shadowstep does not put you invisibility. If so, it needs to put the correct nameplate change in as we discussed before. Also the player should be facing the target once the spell teleports them.
+
+End of changes and update request for each session:
+
+-please update the change files, provide a one line dashed list of the updates we've implemented since last push, update your memory, and i will push this, build a test candidate and test.
+
+
+---------
+9/19/26
+
+to do:
+-create sounds for player attacking, player injury, monster injury, monster attacking
+-create npc at the boat dock that announces boat arrival and departure
+
+
+- possible to create a headless relay server that collects and centralizes game data for multiplayer? This server does not render any graphics or sound, but rather keeps track of game information like combat, hit points and mana, loot, monster information, chat, etc.?
+
+Authoritative Headless Relay Server
+No rendering
+No audio
+No scenes loaded except logic nodes
+Tracks all combat, stats, buffs, debuffs
+Owns monster AI and spawn tables
+Owns loot rolls
+Owns chat
+Owns zone state
+Owns persistence
+Clients are dumb terminals that only display results
+
+- work on mausoleum dungeon area and boss character.
+
+- possible to make procedurally defined loot?
+
+
+in progress:
+
+- create icons for buffs, debuffs, spell book, and inventory icons - done
+
+-added reanimated tomb mummy art assets
+
+-add player announcement when another player enters the world. $Playername, the $Playerlevel season $Playerclass has returned to Aldenexia! When they leave also have a similar message. Implement /who to list all connected players, their level, class and current zone (scene name)
+
+-created Kenji cat npc in the town entrance area, gives quest to kill rats and return to him rat tails for xp - model done
+
+-created Oni cat npc that walks around town, attacking rats - - model done
+
+cats concept:
+
+Kenji — The Gentle Gatekeeper
+Location: Town entrance, sitting on a crate or sun‑warmed stone.
+Role: Quest giver
+Personality: Calm, observant, slightly aloof but kind.
+
+Quest:
+“The Rat Problem” — bring him rat tails
+Rewards: XP, small copper, maybe a tiny buff (“Kenji’s Blessing: +1 Luck for 10 minutes”)
+
+Behavior:
+Tail flick idle animation
+Slow blink when player approaches
+Soft meow greeting
+
+Lore:
+“Kenji has watched over Lumora’s gate for years. Travelers swear he sees things that others miss.”
+
+Oni — The Wandering Hunter
+Location: Roams the town, patrol path
+
+Role: Ambient combat NPC
+
+Personality: Bold, mischievous, fearless
+
+Behavior:
+Actively hunts rats
+Pounces, chases, swats
+
+Occasionally sits atop barrels or fences
+
+Lore:
+
+“Oni is Lumora’s shadow. Rats fear her more than any person.”
+
+Shared Lore:
+“Twin spirits of the old world, Kenji and Oni protect Lumora in their own ways — one with vigilance, the other with claws.”
+
+-created combat music - done we need to wire it in so the sands of lumora stops playing when combat starts, the tomb of the lost plays while the player is in combat, and when combat is over the default zone music starts playing again.
+
+-add rain and weather to game
+
+-ultravision notes:
+
+Ultravision (Passive Trait)
+You possess eyes tuned to the ultraviolet spectrum, allowing you to amplify faint light sources.
+​Starlight & Moonlight: Outdoors at night, dim light conditions count as bright light for you out to your normal range of vision.
+​Deep Darkness: In complete, lightless darkness (such as enclosed dungeons), Ultravision provides no benefit without an ambient light source to amplify.
+
+Changed ultravision to dark sight and improved dark sight. Both rely on ambient light, so in a dark dungeon etc, a light source will still be needed.
+
+
+nameplate tags for invisibility, developer, etc:
+-when a player or mob is invisible, their name plate will show in brackets (Player)
+-when a player is in stealth, their name plate will show in brackets [Player]
+-when a player is a developer/gm tag, their name plate will show in angle brackets <Player>
+
+weather can be tested with:
+/weather rain
+/weather clear
+
+-added a versioning system; multiplayer needs to match for clients to connect. The version will be displayed on the main menu page.
+
+  -Kenji now remembers partial rat tail hand-ins per character (saved); completes at 10 total then resets
+  -added a chat message when rain stops: "The clear sky begins to break from behind the clouds..."
+  -added game versioning: v0.1.0 in project settings, shown bottom-right on the main menu; tools/stamp_build.sh stamps the git commit before export
+  -host now checks joiners' version/build and refuses mismatches with a clear message (old builds without the check can't join, re-export for
+  testing)
+
+  -added /pet: pet Kenji or Oni ("You pet Kenji. He begins to purr happily!" / "She begins..."), editable text on each cat
+  -Kenji and Oni now have 200 life so rats don't take them down so fast
+
+-renamed ultravision to Dark Sight (Elf/Half-Elf/Halfling/Ogre/Half-Orc/Lizardkin, half strength) and Improved Dark Sight (Dwarf/Gnome/Troll/Dark Elf, full); creation screen shows readable trait names + descriptions
+  -removed the old camera-based ultravision from session 46 (redundant, would have doubled up)
+  -added a Light slot to the character sheet; torches are used from the bag to equip + light one (10 min, Humans 15); "Lit Torch" on the buff bar; rain snuffs fire lights; lit fire lights break stealth; carried light glows for other players
+  -redesigned the equipment tab like the stats tab (sections, rounded tiles, tooltips, stack counts, Light Source section with live burn time,
+  Unequip/Light/Snuff buttons)
+  -fixed slot icons being covered by the tile background and icons failing to load in exported builds
+  -unequipping with a full inventory no longer snuffs a lit torch
+
+    -bumped version to 0.2.0 (light slot / dark sight batch changed replicated data); editor runs now always report "(dev)" so a leftover build
+  stamp can't block joining
+
 
 
 Notes:
 
+to-do: create icons with meshy for the last 47 physical spells and add them to the game.
+Generate a set of 32x32 painterly pixel-hybrid fantasy combat icons in the Aldenexia style.
+Use thick black outlines, high contrast, one clear symbol per icon, and consistent badge framing.
+Apply Aldenexia’s background color rules: blue for single-target, green for AoE, purple for self, red for PBAoE, yellow for utility.
+
+Create icons for the following physical combat abilities:
+
+Single-target melee: power_strike, precision_strike, rend, sunder_armor, war_cry, titans_strike.
+Aetherfist martial arts: flurry_of_blows, flying_kick, pressure_point, quivering_palm, improved_flurry.
+Woodstalker ranged: aimed_shot, rapid_shot, poison_arrow, deadly_aim, sniper_shot, barrage, volley.
+Shadowblade rogue: backstab, garrote, poison_cloud, toxic_apocalypse, shiv, nights_embrace.
+Troubadour combat: harmony_blade.
+Area attacks: cleave, whirlwind, blade_storm, fan_of_knives, blade_flurry, blade_dance.
+Rogue utility: vanish, master_stealth, master_pickpocket, improved_pickpocket, enhanced_poison_making.
+Defensive and control: master_block, enhanced_block, taunt, defiant_roar.
+Improved variants (use enhanced glow or upgraded color): improved_cleave, improved_quivering_palm, improved_barrage,
+improved_aimed_shot, improved_deadly_aim, improved_volley, improved_fan_of_knives.
+
+Maintain consistent Aldenexia icon style across all symbols. They need to follow the same targeting colors as before:
+
+These colors appear behind spell icons to indicate targeting
+type. They do NOT apply to item icons.
+
+• Single Target (target) ........ Deep Sapphire (blue)
+• Group / AoE (group) ......... Verdant Jade (green)
+• Point-Blank AoE (pbaoe) ... Ember Orange/Red
+• Self-Only (self) .......... Amethyst Violet
+• Utility / Non-Combat ...... Silver Mist

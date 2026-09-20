@@ -1251,9 +1251,211 @@ func _physics_process(delta: float) -> void:
 #endregion
 
 #region Process (regen / vitals / cooldowns)
+#region Light source (torch now; lanterns / magic lights later)
+# The Light equipment slot holds ONE light item — any item with a "light_source"
+# dict in items.json (radius/energy/color, burn_minutes, and the two "fire"
+# traits snuffed_by_rain / breaks_stealth; a future magic light just sets those
+# false). Using a torch from a bag equips one and lights it. While lit it has a
+# "lit_torch" effect on the buff bar whose remaining time IS the burn timer,
+# mirrored into the item's burn_remaining so snuffing/unequipping keeps what is
+# left. light_item_id is replicated so every peer sees the carried light. The
+# light is not "held" (it lives in a slot) — the visual is just a flickering
+# point light on the player, no torch model or flame.
+const LIGHT_SLOT := "light"
+const LIGHT_EFFECT := "lit_torch"
+const CARRIED_LIGHT_HEIGHT := 1.6  # metres above the player's feet
+const RAIN_SNUFF_INTENSITY := 0.3  # rain this established snuffs fire lights
+var light_item_id: String = ""  # REPLICATED: item id of the LIT light ("" = none lit)
+var _light_light: OmniLight3D = null
+var _light_base_energy: float = 2.0
+var _light_shown_id: String = ""
+var _light_flicker_t: float = 0.0
+
+
+func get_light_item() -> Dictionary:
+	var it: Variant = Inventory.equipped.get(LIGHT_SLOT, null)
+	return it if it is Dictionary else {}
+
+
+func _light_source_of(item: Dictionary) -> Dictionary:
+	var src: Variant = item.get("light_source", {})
+	return src if src is Dictionary else {}
+
+
+func _race_trait(trait_name: String, default: Variant = 0.0) -> Variant:
+	var race := player_race.to_lower().replace(" ", "_").replace("-", "_")
+	return Global.character_options.get("races", {}).get(race, {}).get("traits", {}).get(trait_name, default)
+
+
+func _weather_node() -> Node:
+	return get_tree().get_first_node_in_group("weather_manager")
+
+
+# Full burn time for a fresh light, including a race bonus (Human: torch_burn_bonus).
+func light_burn_seconds_for(item: Dictionary) -> float:
+	var minutes := float(_light_source_of(item).get("burn_minutes", 10.0))
+	return minutes * 60.0 * (1.0 + float(_race_trait("torch_burn_bonus", 0.0)))
+
+
+func is_carrying_lit_light() -> bool:
+	return light_item_id != ""
+
+
+# True while a lit light of a kind that gives away a sneaking player is carried.
+func lit_light_breaks_stealth() -> bool:
+	var it := get_light_item()
+	return bool(it.get("lit", false)) and bool(_light_source_of(it).get("breaks_stealth", false))
+
+
+# Use a torch (or any light) from a bag: equip ONE into the Light slot and light it.
+func light_from_bag(item: Dictionary, slot_type: String, slot_index: int, bag_slot: int, item_index: int) -> void:
+	if not get_light_item().is_empty():
+		GameLog.log_general("You are already carrying a light. Unequip it first.")
+		return
+	var src := _light_source_of(item)
+	var wm := _weather_node()
+	if bool(src.get("snuffed_by_rain", false)) and wm != null and wm.raining:
+		GameLog.log_general("It is raining — you can't get your %s to light." % str(item.get("name", "light")).to_lower())
+		return
+	if Inventory.equip_item(item, slot_type, slot_index, bag_slot, item_index):
+		light_equipped_light()
+
+
+# Light (or, if already lit, leave lit) whatever is in the Light slot.
+func light_equipped_light() -> bool:
+	var item := get_light_item()
+	var src := _light_source_of(item)
+	if item.is_empty() or src.is_empty():
+		return false
+	if item.get("lit", false):
+		return true
+	var wm := _weather_node()
+	if bool(src.get("snuffed_by_rain", false)) and wm != null and wm.raining:
+		GameLog.log_general("It is raining — you can't get your %s to light." % str(item.get("name", "light")).to_lower())
+		return false
+	if not item.has("burn_remaining"):
+		item["burn_remaining"] = light_burn_seconds_for(item)
+	item["lit"] = true
+	combat_node.apply_effect(LIGHT_EFFECT, float(item["burn_remaining"]), {})
+	light_item_id = str(item.get("item_id", ""))
+	GameLog.log_general("[color=#ffcc66]You light your %s.[/color]" % str(item.get("name", "light")).to_lower())
+	if bool(src.get("breaks_stealth", false)) and current_stance == "stealth":
+		_drop_stealth_for_light()
+	Inventory.sync_to_global()
+	Inventory.equipment_changed.emit()
+	return true
+
+
+# Put the equipped light out but keep it (and the burn time left).
+func snuff_equipped_light(message: String = "") -> void:
+	var item := get_light_item()
+	if not item.is_empty():
+		item.erase("lit")
+	combat_node.remove_effect(LIGHT_EFFECT)
+	light_item_id = ""
+	if message != "":
+		GameLog.log_general(message)
+	Inventory.sync_to_global()
+	Inventory.equipment_changed.emit()
+
+
+func _burn_out_light() -> void:
+	var item := get_light_item()
+	combat_node.remove_effect(LIGHT_EFFECT)
+	light_item_id = ""
+	Inventory.equipped[LIGHT_SLOT] = null
+	GameLog.log_general("[color=#ffcc66]Your %s burns out.[/color]" % str(item.get("name", "light")).to_lower())
+	Inventory.sync_to_global()
+	Inventory.equipment_changed.emit()
+	Inventory.inventory_changed.emit()
+
+
+func _drop_stealth_for_light() -> void:
+	combat_node.remove_effect("stance_stealth")
+	current_stance = ""
+	GameLog.log_general("[color=#ffcc66]The light gives you away — you come out of hiding.[/color]")
+	for hud in get_tree().get_nodes_in_group("game_hud"):
+		if hud.has_method("_refresh_highlight"):
+			hud._refresh_highlight()
+
+
+# One line for the character sheet's Light slot.
+func light_status_text() -> String:
+	var item := get_light_item()
+	if item.is_empty():
+		return "No light equipped"
+	var remaining := float(item.get("burn_remaining", light_burn_seconds_for(item)))
+	var eff = combat_node.active_effects.get(LIGHT_EFFECT)
+	if item.get("lit", false) and eff != null:
+		remaining = float(eff.get("remaining", remaining))
+	var mmss := "%d:%02d" % [int(remaining) / 60, int(remaining) % 60]
+	return "%s — %s, %s left" % [str(item.get("name", "Light")), "lit" if item.get("lit", false) else "unlit", mmss]
+
+
+# Authority only, every frame: the timer/rain/stealth rules for the Light slot.
+func _update_light_logic() -> void:
+	var item := get_light_item()
+	if item.is_empty() or not item.get("lit", false):
+		if light_item_id != "":
+			light_item_id = ""
+		if combat_node.has_effect(LIGHT_EFFECT):
+			combat_node.remove_effect(LIGHT_EFFECT)  # e.g. it was unequipped while lit
+		return
+	var eff = combat_node.active_effects.get(LIGHT_EFFECT)
+	if eff == null:
+		# The effect ended: burned all the way down, or cancelled from the buff bar.
+		if float(item.get("burn_remaining", 0.0)) <= 2.0:
+			_burn_out_light()
+		else:
+			snuff_equipped_light("You put out your %s." % str(item.get("name", "light")).to_lower())
+		return
+	item["burn_remaining"] = float(eff.get("remaining", 0.0))
+	if light_item_id == "":
+		light_item_id = str(item.get("item_id", ""))  # e.g. right after logging in with it lit
+	if bool(_light_source_of(item).get("snuffed_by_rain", false)):
+		var wm := _weather_node()
+		if wm != null and wm.intensity > RAIN_SNUFF_INTENSITY:
+			snuff_equipped_light("[color=#9fc5e8]The rain snuffs out your %s.[/color]" % str(item.get("name", "light")).to_lower())
+
+
+# Every peer: show/hide the carried light to match light_item_id.
+func _update_light_visual(delta: float) -> void:
+	if light_item_id != _light_shown_id or (light_item_id != "" and not is_instance_valid(_light_light)):
+		_clear_light_visual()
+		_light_shown_id = light_item_id
+		if light_item_id != "":
+			_build_light_visual(_light_source_of(Inventory.get_item_definition(light_item_id)))
+	if is_instance_valid(_light_light):
+		_light_flicker_t += delta
+		_light_light.light_energy = _light_base_energy * (0.9 + 0.07 * sin(_light_flicker_t * 17.0) + 0.05 * sin(_light_flicker_t * 41.0))
+
+
+func _clear_light_visual() -> void:
+	if is_instance_valid(_light_light):
+		_light_light.queue_free()
+	_light_light = null
+
+
+func _build_light_visual(src: Dictionary) -> void:
+	var light := OmniLight3D.new()
+	light.name = "CarriedLight"
+	var c: Array = src.get("color", [1.0, 0.72, 0.35])
+	light.light_color = Color(c[0], c[1], c[2])
+	light.omni_range = float(src.get("radius", 9.0))
+	_light_base_energy = float(src.get("energy", 2.2))
+	light.light_energy = _light_base_energy
+	light.shadow_enabled = false  # carried lights skip shadows (up to 6 players' worth)
+	add_child(light)
+	light.position = Vector3(0.0, CARRIED_LIGHT_HEIGHT, 0.0)
+	_light_light = light
+#endregion
+
+
 func _process(delta: float) -> void:
+	_update_light_visual(delta)  # everyone sees a lit torch (driven by the replicated light_item_id)
 	if not is_multiplayer_authority():
 		return
+	_update_light_logic()
 	if is_incapacitated:
 		_tick_bleedout(delta)
 	if dying:
@@ -2812,6 +3014,7 @@ const SPELL_DISPLAY_NAMES := {
 	"phantasmal_echo": "Phantasmal Echo",
 	"campfire_warmth": "Warmth of the Campfire",
 	"kenjis_blessing": "Kenji's Blessing",
+	"lit_torch": "Lit Torch",
 	"curse_of_weakness": "Curse of Weakness",
 	"deaths_echo": "Death's Echo",
 }
@@ -4378,31 +4581,16 @@ func toggle_pet_gear_window() -> void:
 # issue: player_race is saved/loaded as character_options.json's raw lowercase
 # key ("half_elf", "dark_elf", "elf" — see character_creation.gd's
 # `"player_race": selected_race`, which is never .capitalize()'d the way
-# player_class explicitly is before saving). Both this list and
-# ULTRAVISION_RACES below were written with the CAPITALIZED DISPLAY names
-# ("Elf", "Half-Elf") instead, so neither ever actually matched anything —
-# race-based tracking has silently never worked for any race, and
-# ultravision never worked for ANY race at all (not even the single-word
-# ones, since "elf" != "Elf"). Class-based tracking (TRACKING_CLASSES) was
-# unaffected since player_class genuinely is capitalized before saving.
+# player_class explicitly is before saving). This list was originally written
+# with the CAPITALIZED DISPLAY names ("Elf", "Half-Elf") instead, so it never
+# actually matched anything — race-based tracking silently never worked for
+# any race. Class-based tracking (TRACKING_CLASSES) was unaffected since
+# player_class genuinely is capitalized before saving.
 const TRACKING_RACES := ["elf", "half_elf"]
 const TRACKING_CLASSES := ["Woodstalker", "Wildspeaker", "Troubadour"]
 
 func has_tracking_skill() -> bool:
 	return player_race in TRACKING_RACES or player_class in TRACKING_CLASSES
-
-
-# Ultravision — per user request (2026-09-17): "most elves, trolls, etc have
-# it," mirroring character_options.json's per-race "ultravision" trait
-# (everyone except Human). Kept as its own const/func here rather than
-# reading character_options.json at call time, matching TRACKING_RACES'
-# existing pattern — camera_controller.gd (the only caller) checks this every
-# time the day/night phase flips, so it needs to be cheap. See TRACKING_RACES'
-# comment above for why these are the lowercase-key form, not display names.
-const ULTRAVISION_RACES := ["elf", "half_elf", "dwarf", "gnome", "halfling", "ogre", "troll", "dark_elf", "half_orc", "lizardkin"]
-
-func has_ultravision() -> bool:
-	return player_race in ULTRAVISION_RACES
 
 
 func toggle_tracking_window() -> void:
