@@ -237,6 +237,16 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_menu_btn_pressed")
 theme_override_styles/disabled = SubResource("StyleBoxFlat_menu_btn_disabled")
 text = "Multiplayer"
 
+[node name="join_server" type="Button" parent="MenuButtons/VBoxContainer" unique_id=1616350473]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+tooltip_text = "Join a dedicated server with a character stored there."
+theme_override_styles/normal = SubResource("StyleBoxFlat_menu_btn_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_menu_btn_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_menu_btn_pressed")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_menu_btn_disabled")
+text = "Join a Server"
+
 [node name="options" type="Button" parent="MenuButtons/VBoxContainer" unique_id=1466915718]
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
@@ -267,6 +277,7 @@ text = "Run Away"
 [connection signal="pressed" from="MenuButtons/VBoxContainer/create_character" to="." method="_on_create_character_pressed"]
 [connection signal="pressed" from="MenuButtons/VBoxContainer/load_game" to="." method="_on_load_game_pressed"]
 [connection signal="pressed" from="MenuButtons/VBoxContainer/multiplayer" to="." method="_on_multiplayer_pressed"]
+[connection signal="pressed" from="MenuButtons/VBoxContainer/join_server" to="." method="_on_join_server_pressed"]
 [connection signal="pressed" from="MenuButtons/VBoxContainer/options" to="." method="_on_options_pressed"]
 [connection signal="pressed" from="MenuButtons/VBoxContainer/credits" to="." method="_on_credits_pressed"]
 [connection signal="pressed" from="MenuButtons/VBoxContainer/quit" to="." method="_on_quit_pressed"]

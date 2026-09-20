@@ -11,6 +11,7 @@ var character_select: OptionButton
 var ip_input: LineEdit
 var host_btn: Button
 var join_btn: Button
+var delete_char_btn: Button
 
 var _connecting := false
 
@@ -64,8 +65,16 @@ func _build_ui() -> void:
 	vbox.add_child(title)
 
 	vbox.add_child(_make_label_row("Character"))
+	var character_row := HBoxContainer.new()
+	character_row.add_theme_constant_override("separation", 6)
+	vbox.add_child(character_row)
 	character_select = OptionButton.new()
-	vbox.add_child(character_select)
+	character_select.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	character_row.add_child(character_select)
+	delete_char_btn = Button.new()
+	delete_char_btn.text = "Delete"
+	delete_char_btn.pressed.connect(_on_delete_character_pressed)
+	character_row.add_child(delete_char_btn)
 	_populate_character_dropdown()
 
 	var create_char_btn := _make_button("+ Create New Character")
@@ -136,9 +145,11 @@ func _populate_character_dropdown() -> void:
 	for stem in stems:
 		character_select.add_item(str(stem).capitalize())
 		character_select.set_item_metadata(character_select.item_count - 1, stem)
+	character_select.disabled = false
 	if character_select.item_count == 0:
 		character_select.add_item("No characters found")
 		character_select.disabled = true
+	delete_char_btn.disabled = character_select.disabled
 
 
 func _selected_character_name() -> String:
@@ -244,3 +255,17 @@ func _on_back_pressed() -> void:
 func _on_create_character_pressed() -> void:
 	Global.return_to_multiplayer_menu = true
 	get_tree().change_scene_to_file("res://Scenes/character_creation.tscn")
+
+
+# Same confirm-by-typing-the-name dialog as the Load Game screen; only local saves are listed here.
+func _on_delete_character_pressed() -> void:
+	var stem := _selected_character_name()
+	if stem.is_empty():
+		return
+	var dialog := DeleteCharacterDialog.open(self, Global.local_character_display_name(stem), "this computer")
+	dialog.confirmed.connect(func(_password: String) -> void:
+		Global.delete_local_character(stem)
+		dialog.close()
+		_populate_character_dropdown()
+		status_label.text = "Character deleted."
+	)

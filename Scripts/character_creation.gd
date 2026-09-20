@@ -56,6 +56,11 @@ var casting_stats: Dictionary = {
 @onready var back_button: Button = $MarginContainer/VBoxContainer/bottom_row/back_button
 @onready var portrait_texture: TextureRect = $MarginContainer/VBoxContainer/top_row/portrait_panel/portrait_texture
 
+# Server mode (Global.server_creation set by the Join a Server screen): Confirm builds the character in
+# memory instead of writing user://saves, and Begin hands it to the server, which stores it there.
+var _pending_server_character: Dictionary = {}
+var _status_label: Label
+
 func _ready() -> void:
 	load_class_restrictions()
 	load_character_options()
@@ -79,6 +84,14 @@ func _ready() -> void:
 	# launching a single-player game. See global.gd's return_to_multiplayer_menu.
 	if Global.return_to_multiplayer_menu:
 		begin_button.text = "Done — Return to Multiplayer"
+	if not Global.server_creation.is_empty():
+		begin_button.text = "Enter the World"
+		name_input.max_length = 16
+		name_input.placeholder_text = "Letters and numbers, 2-16"
+		_status_label = Label.new()
+		_status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		_status_label.add_theme_color_override("font_color", Color(0.95, 0.75, 0.45))
+		$MarginContainer/VBoxContainer.add_child(_status_label)
 
 	var spinboxes: Array[SpinBox] = [
 		strength_spin, constitution_spin, dexterity_spin,
@@ -296,6 +309,9 @@ func update_derived_preview() -> void:
 # CONFIRM CHARACTER CREATION
 # ---------------------------------------------------------
 func _on_confirm_pressed() -> void:
+	if not Global.server_creation.is_empty() and Net.sanitize_name(name_input.text).is_empty():
+		_status_label.text = "Server character names use letters and numbers only, 2 to 16 characters."
+		return
 	collect_final_stats()
 	# character_options.json uses lowercase keys; all match statements expect PascalCase.
 	var p_class: String = selected_class.capitalize()
@@ -331,6 +347,11 @@ func _on_confirm_pressed() -> void:
 		"inventory_data": build_starting_inventory(p_class),
 		"skill_levels": build_starting_skill_levels(p_class),
 	}
+
+	if not Global.server_creation.is_empty():
+		_pending_server_character = character_data
+		_status_label.text = "%s is ready — press Enter the World to create it on the server." % name_input.text
+		return
 
 	var save_dir: String = "user://saves"
 	DirAccess.make_dir_recursive_absolute(save_dir)
@@ -526,6 +547,9 @@ func collect_final_stats() -> void:
 # BEGIN BUTTON
 # ---------------------------------------------------------
 func _on_begin_button_pressed() -> void:
+	if not Global.server_creation.is_empty():
+		_begin_on_server()
+		return
 	if name_input.text.strip_edges() == "":
 		push_error("❌ Please enter a character name before beginning.")
 		return
@@ -542,6 +566,18 @@ func _on_begin_button_pressed() -> void:
 		return
 
 	get_tree().change_scene_to_file("res://Scenes/lumora_outskirts3d.tscn")
+
+
+# Sends the character built by Confirm to the server. The zone loads first and the server creates the
+# character during login (net.gd); if it refuses (name taken...) the player lands back on Join a Server.
+func _begin_on_server() -> void:
+	if _pending_server_character.is_empty():
+		_status_label.text = "Press Confirm first to finish designing your character."
+		return
+	var target: Dictionary = Global.server_creation
+	Global.server_creation = {}
+	Global.return_to_join_server_menu = false  # a successful join must not reopen the menu at the next camp-out
+	Net.begin_join_server(target["address"], target["port"], str(_pending_server_character["player_name"]), target["password"], _pending_server_character)
 
 
 # ---------------------------------------------------------

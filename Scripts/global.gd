@@ -121,6 +121,13 @@ func window_bg_style() -> StyleBoxFlat:
 		_window_bg_style.set_corner_radius_all(5)
 	return _window_bg_style
 
+# Same look as window_bg_style() but (nearly) opaque — for modal screens drawn over the main menu, where
+# a translucent panel lets the menu buttons behind it show through the text.
+func opaque_window_bg_style() -> StyleBoxFlat:
+	var style: StyleBoxFlat = window_bg_style().duplicate()
+	style.bg_color.a = 0.98
+	return style
+
 func set_ui_bg_alpha(alpha: float) -> void:
 	settings["ui_bg_alpha"] = alpha
 	window_bg_style().bg_color.a = alpha
@@ -169,6 +176,13 @@ var player_data: Dictionary = {}  # Active player data (matches current_characte
 # character_creation.gd's Back/Begin buttons to return there instead of
 # launching straight into a single-player game.
 var return_to_multiplayer_menu: bool = false
+## Same idea for the Join a Server screen (join_server_menu.gd): set when a server join fails or drops, or
+## when its "Create New Character" shortcut sends the player to character creation and back.
+var return_to_join_server_menu: bool = false
+## Set by the Join a Server screen while character_creation.tscn is creating a character ON A SERVER:
+## {"address", "port", "password"}. Empty in every other flow. Creation then hands the new character to
+## Net.begin_join_server() instead of writing user://saves.
+var server_creation: Dictionary = {}
 #endregion
 
 #region XP System
@@ -260,6 +274,30 @@ func _process(delta: float):
 # Server -> one peer (a joiner right after the version check, or the periodic push).
 # Without this each machine started its own clock at 12:00, so a joiner could see
 # night while the host saw day, and the two drifted apart from then on.
+# A dedicated server keeps the world clock across restarts (user://server_state_<name>.json). Saved every
+# few minutes and on graceful shutdown by net.gd; loaded at start-up so the sun doesn't jump back to noon.
+func save_world_state(server_name: String) -> void:
+	var file := FileAccess.open("user://server_state_%s.json" % server_name, FileAccess.WRITE)
+	if file:
+		file.store_string(JSON.stringify({"game_time": game_time, "time_accumulator": time_accumulator}, "\t"))
+		file.close()
+
+
+func load_world_state(server_name: String) -> void:
+	var path := "user://server_state_%s.json" % server_name
+	if not FileAccess.file_exists(path):
+		return
+	var data = JSON.parse_string(FileAccess.get_file_as_string(path))
+	if typeof(data) != TYPE_DICTIONARY or typeof(data.get("game_time")) != TYPE_DICTIONARY:
+		return
+	for key in game_time.keys():
+		if data["game_time"].has(key):
+			game_time[key] = int(data["game_time"][key])
+	time_accumulator = float(data.get("time_accumulator", 0.0))
+	initialize_time_system()
+	print("[server] Restored the world clock: day %d, %02d:%02d." % [game_time.day, game_time.hour, game_time.minute])
+
+
 func send_time_to(peer_id: int) -> void:
 	_rpc_sync_game_time.rpc_id(peer_id, game_time.duplicate(), time_accumulator)
 
@@ -491,6 +529,28 @@ func set_player_data(data: Dictionary):
 	total_playtime_seconds = int(data.get("playtime_seconds", 0))
 	session_start_time = Time.get_ticks_msec()
 
+# The name a saved character is shown with (the player_name inside the file, as typed at creation), for
+# confirmation prompts. `stem` is the lowercase file stem, e.g. "zozuur".
+func local_character_display_name(stem: String) -> String:
+	var path := "user://saves/%s_character_stats.json" % stem
+	if FileAccess.file_exists(path):
+		var data = JSON.parse_string(FileAccess.get_file_as_string(path))
+		if typeof(data) == TYPE_DICTIONARY and str(data.get("player_name", "")) != "":
+			return str(data["player_name"])
+	return stem.capitalize()
+
+
+# Permanently removes a local character's save. The UI (delete_character_dialog.gd) makes the player
+# type the name first; nothing else keeps per-character files, so this is all a delete needs.
+func delete_local_character(stem: String) -> bool:
+	var path := "user://saves/%s_character_stats.json" % stem
+	if not FileAccess.file_exists(path):
+		return false
+	if current_character_name.to_lower() == stem:
+		clear_current_character_data()
+	return DirAccess.remove_absolute(path) == OK
+
+
 func clear_current_character_data():
 	current_character_data = {}
 	player_data = {}
@@ -522,6 +582,24 @@ func load_player_data_from_file(character_name: String) -> Dictionary:
 func save_player_data_to_file() -> void:
 	if player_data.is_empty() or current_character_name.is_empty():
 		return
+	# A character that lives on a dedicated server is uploaded there (batched, see Net) instead.
+	if Net.remote_character_mode:
+		Net.request_remote_save()
+		return
+	var file_path := "user://saves/%s_character_stats.json" % current_character_name.to_lower()
+	var file := FileAccess.open(file_path, FileAccess.WRITE)
+	if file:
+		file.store_string(serialize_player_data())
+		file.close()
+	else:
+		push_error("❌ Failed to write save: " + file_path)
+
+
+# The character as save-file JSON, with the live fields brought up to date first. Both the
+# local save above and Net's server upload write exactly this.
+func serialize_player_data() -> String:
+	if player_data.is_empty():
+		return ""
 	# Every save call site (many, across player3d.gd and pause_menu.gd) goes
 	# through here, so capturing the live position right before writing —
 	# rather than patching each call site — guarantees it's always current
@@ -534,10 +612,4 @@ func save_player_data_to_file() -> void:
 	# Bank the running total into the save. Before this the total only reached the character
 	# sheet's display, so every save kept "playtime_seconds": 0 no matter how long you played.
 	player_data["playtime_seconds"] = get_total_playtime()
-	var file_path := "user://saves/%s_character_stats.json" % current_character_name.to_lower()
-	var file := FileAccess.open(file_path, FileAccess.WRITE)
-	if file:
-		file.store_string(JSON.stringify(player_data, "\t"))
-		file.close()
-	else:
-		push_error("❌ Failed to write save: " + file_path)
+	return JSON.stringify(player_data, "\t")

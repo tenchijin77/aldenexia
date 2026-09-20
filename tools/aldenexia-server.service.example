@@ -1,0 +1,20 @@
+# Example systemd unit for the dedicated server. Copy to /etc/systemd/system/aldenexia-server.service, edit the
+# paths and user, then:  sudo systemctl daemon-reload && sudo systemctl enable --now aldenexia-server
+# KillMode=mixed matters: `systemctl stop` sends SIGTERM only to run_server.sh (which then makes the server save
+# and exit); the default would SIGTERM Godot directly, and it dies instantly without saving anything.
+[Unit]
+Description=Aldenexia dedicated server
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=aldenexia
+WorkingDirectory=/opt/aldenexia
+Environment=ALDENEXIA_SERVER_BIN=/opt/aldenexia/Aldenexia_Server.x86_64
+ExecStart=/opt/aldenexia/tools/run_server.sh --name=test --port=8910 --max-players=6
+KillMode=mixed
+TimeoutStopSec=40
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

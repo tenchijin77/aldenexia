@@ -74,7 +74,11 @@ func _ready() -> void:
 	if world_env:
 		_environment = world_env.environment
 		if _environment and _environment.sky:
-			_sky_material = _environment.sky.sky_material
+			# A stripped dedicated-server export swaps materials for placeholders (nothing is drawn there anyway),
+			# so only keep the sky material if it is the real thing.
+			var sky_mat := _environment.sky.sky_material
+			if sky_mat is ProceduralSkyMaterial:
+				_sky_material = sky_mat
 	Global.time_changed.connect(_on_global_time_changed)
 	_refresh_dark_sight()
 	_on_global_time_changed(Global.game_time)

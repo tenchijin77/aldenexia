@@ -2681,6 +2681,63 @@ TRACKING WINDOW (T key; added 2026-09-17, Session 44)
 MULTIPLAYER / NETCODE — CURRENT STATE (as of 2026-09-17, Session 45)
 ================================================================================
 
+SESSION 51 UPDATE (2026-09-19) — dedicated server, step 1 (v0.4.0):
+- START: `godot --headless --path . -- --server [--name=test] [--port=8910] [--max-players=6]` (or the dedicated_server export
+  feature). Net._ready() sees it -> _start_dedicated_server(): is_dedicated_server = true, Engine.max_fps = 60, host_game(),
+  change_scene to the zone. No splash, no menus. A dedicated server's max_players are all free seats.
+- CHARACTERS LIVE ON THE SERVER: user://server_characters/<server>_<player>_character_stats.json (e.g. test_zozuur). Display
+  name stays "Zozuur"; the prefix is only the storage key. Client keeps its working copy in Global.player_data as always.
+- LOGIN HANDSHAKE (dedicated only): version check passes -> _awaiting_login -> client _rpc_login(name, creation_json) ->
+  server loads/creates -> _rpc_login_ok(json) -> client Global.set_player_data() -> _rpc_login_ready -> server emits
+  player_connected -> PlayerSpawner spawns the puppet. Client side entry point: Net.begin_join_server(addr, port, name,
+  creation_data = {}) (zone-first like begin_join). Failures come back as Net.last_failure_kind/last_failure_reason and return
+  to the multiplayer screen (kinds: invalid_name, no_character, name_taken, already_online, invalid_character, server_error,
+  version, wrong_mode).
+- SAVING: Global.save_player_data_to_file() -> if Net.remote_character_mode, Net.request_remote_save() (batched 1 s) ->
+  _rpc_save_character(json) -> server validates (logged-in peer only, parses, < 1 MB, name matches), atomic write, replies
+  _rpc_save_acknowledged. Net.disconnect_game() waits up to 2 s for outstanding acks before closing (close() drops unsent
+  data). Camp-out/Save & Exit/quit call disconnect_game().
+- RULES: new server characters must be level 1; one peer per character; names letters/numbers 2-16.
+- PASSWORDS: _rpc_login(name, password, creation_json). Salted stretched SHA-256 in a sidecar <server>_<player>_auth.json (never in the
+  uploaded save). >= 4 chars; 5 wrong tries lock the character 60 s. No auth file = the next login sets the password (owner's reset path).
+  Unencrypted transport for now.
+- DELETE: local = Global.delete_local_character(stem); server = Net.request_server_delete(addr, port, name, password) (a menu errand:
+  connect -> version check -> _rpc_delete_character -> disconnect; result via Net.server_request_done). Server moves the files to
+  server_characters/deleted/; refuses if online / no password / wrong password. All three screens use DeleteCharacterDialog (type the
+  name exactly to unlock Delete; password field for servers).
+- CLIENT SCREENS: main menu "Join a Server" -> join_server_menu.gd (Data/servers.json list + typed address; Enter World / Create New
+  Character / Delete Character). Create = character_creation.tscn in server mode (Global.server_creation): Confirm keeps the character in
+  memory, Begin -> Net.begin_join_server(). A failed/dropped server join returns via Global.return_to_join_server_menu (Net.last_join_was_server
+  picks Join-a-Server vs LAN). Leaving a server clears the working character (Net._forget_remote_character) so it can't be saved locally.
+- ENCRYPTION: dedicated servers use DTLS (ENetConnection.dtls_server_setup / dtls_client_setup). Server key+cert: user://server_tls/ (or
+  --tls-dir=), auto-created on first start. Clients pin the cert in Data/server_cert.crt (fallback: user://server_tls/server.crt on the dev machine)
+  via TLSOptions.client(cert, "aldenexia"). LAN games are plain. Mismatched cert / plain client = no connection at all.
+- PROBE: Net.probe_server(addr, port) -> server_request_done(ok, kind, reason, info{name, players, max_players, version}); kinds: online,
+  version, offline, wrong_mode, no_certificate, busy. join_server_menu.gd probes list entries one at a time (dot + "(n/max)"), typed addresses,
+  Refresh. Slots: max_players + MENU_SLOTS(8) connections; the player cap is checked at login (server_full).
+- SHUTDOWN: stop file (user://server_stop or --stop-file=) polled every second in Net._process, or a window close request -> begin_shutdown():
+  refuse logins, _rpc_server_shutting_down -> clients flush their character and answer _rpc_shutdown_ready -> save world clock
+  (user://server_state_<name>.json) -> quit. 8 s grace. tools/run_server.sh turns Ctrl-C/SIGTERM/SIGHUP into the stop file (Godot's headless
+  server cannot catch signals itself). systemd needs KillMode=mixed (tools/aldenexia-server.service.example).
+- WORLD CHECK: 4 s after start the server logs ground/navmesh/monster status (and WARNINGs) — read it after every export.
+
+DEDICATED SERVER — OPERATING GUIDE
+  0. Update in one command: `tools/deploy_server.sh` (add `--export` to export first, `--restart 'sudo systemctl restart aldenexia-server'`
+     to restart, `--tls` on the FIRST deploy to copy the key). Defaults to rwilkinson@192.168.77.100:~/aldenexia; see its header.
+  1. Export: (optionally `tools/stamp_build.sh` after committing) then
+       godot --headless --path . --export-release "Linux Server"
+     -> Builds/Server/Aldenexia_Server.x86_64 (a single file; Terrain3D is excluded, so no libterrain). The preset strips visuals
+     (`export_filter="customized"` + `customized_files={"res://": "strip"}`); do not "simplify" it back to all_resources, that exports 1.2 GB.
+     Server and client builds must come from the SAME commit when stamped (same version AND build id).
+  2. Run: ALDENEXIA_SERVER_BIN=/path/Aldenexia_Server.x86_64 tools/run_server.sh --name=test --port=8910 --max-players=6
+     (dev machine: just tools/run_server.sh --name=test). Read the first log lines: "listening ... (encrypted)" and "World check ... OK".
+  3. First start creates user://server_tls/server.key + server.crt. Copy server.crt to Data/server_cert.crt in the project and rebuild
+     clients (already done for the dev machine's key). Keep server.key private; to move the server to a VPS copy both files there
+     (--tls-dir=) so the certificate clients trust stays the same.
+  4. Network: forward UDP 8910 (ENet is UDP). Put the public address in Data/servers.json ("test": address, port) and rebuild clients.
+  5. Stop: Ctrl-C in the terminal, `systemctl stop`, or `touch <stop file>`. Data lives in user://server_characters/ (+ deleted/), the
+     world clock in user://server_state_<name>.json.
+
 SESSION 50 UPDATE (2026-09-19) — how a multiplayer game is assembled now (supersedes the older
 "host's own player3d is the pre-placed zone node" description below):
 - JOIN ORDER: Net.begin_join(address) loads the zone FIRST; the zone root's multiplayer_player_spawner.gd

@@ -646,7 +646,7 @@ func start_camp_channel() -> bool:
 	var start_damage_ms: int = player.last_damage_time_ms
 	var was_sitting: bool = player.is_sitting
 	player.is_sitting = true
-	GameLog.log_general("[color=#ffdd88]You sit down and prepare to break camp. Remain undisturbed for 15 seconds...[/color]")
+	GameLog.log_general("[color=#ffdd88]You start preparing to camp.[/color]")
 
 	while Time.get_ticks_msec() - start_ms < CAMP_CHANNEL_MS:
 		await get_tree().create_timer(0.25).timeout
@@ -654,7 +654,7 @@ func start_camp_channel() -> bool:
 			_camping = false
 			return false
 		if player.last_damage_time_ms > start_damage_ms:
-			GameLog.log_general("[color=#ff6666]Your camping attempt is interrupted — you've taken damage![/color]")
+			GameLog.log_general("[color=#ff6666]You abandon your camp preparations.[/color]")
 			player.is_sitting = was_sitting
 			_camping = false
 			return false
@@ -685,6 +685,9 @@ func save_and_return_to_menu() -> void:
 	# locked in place), with no way to click anything short of force-quitting.
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 	Global.save_player_data_to_file()
+	# Leave the multiplayer session too (flushing a server-stored character first). Without this the
+	# connection lingered behind the menu, and a dedicated server kept the character "already online".
+	Net.disconnect_game()
 	for node in get_tree().root.get_children():
 		if node is CanvasLayer:
 			node.queue_free()
@@ -694,6 +697,7 @@ func save_and_return_to_menu() -> void:
 func _save_and_quit() -> void:
 	if await start_camp_channel():
 		Global.save_player_data_to_file()
+		Net.disconnect_game()  # uploads the character to a dedicated server before the process exits
 		get_tree().quit()
 
 

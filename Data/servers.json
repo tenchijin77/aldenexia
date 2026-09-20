@@ -1,0 +1,7 @@
+{
+	"_comment": "Servers shown in the main menu's Join a Server list. 'address' is the server's public IP or hostname; 'port' defaults to 8910. Anyone can also type an address by hand.",
+	"servers": [
+		{ "name": "test", "address": "192.168.77.100", "port": 8910 },
+		{ "name": "test-public", "address": "vpn.nctlv.org", "port": 8910 }
+	]
+}

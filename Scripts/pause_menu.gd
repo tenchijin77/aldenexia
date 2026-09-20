@@ -610,6 +610,7 @@ func _on_save_and_exit() -> void:
 	if log_window == null:
 		# Shouldn't happen mid-game, but don't just silently do nothing.
 		Global.save_player_data_to_file()
+		Net.disconnect_game()
 		for node in get_tree().root.get_children():
 			if node is CanvasLayer:
 				node.queue_free()

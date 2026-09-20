@@ -10,3 +10,6 @@ export/
 
 # Written by tools/stamp_build.sh right before an export (exact git commit of the build)
 Data/build_info.json
+
+# Dedicated-server export (~150 MB binary; GitHub rejects files over 100 MB)
+Builds/Server/

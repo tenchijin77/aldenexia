@@ -66,7 +66,8 @@ func _start_joining() -> void:
 	Net.connection_failed.connect(_on_join_failed, CONNECT_ONE_SHOT)
 	Net.server_disconnected.connect(_on_server_lost, CONNECT_ONE_SHOT)
 	if Net.complete_pending_join() != OK:
-		Net.last_failure_reason = "Failed to start the connection."
+		if Net.last_failure_reason.is_empty():
+			Net.last_failure_reason = "Failed to start the connection."
 		_on_join_failed()
 
 
@@ -81,14 +82,18 @@ func _process(_delta: float) -> void:
 # The host/server went away mid-game. Without this the joiner would be left in a zone
 # with no server — and, with no peer, its spawner would start acting like a solo game.
 func _on_server_lost() -> void:
-	Global.save_player_data_to_file()
-	Net.last_failure_reason = "Lost connection to the server."
+	if not Net.last_join_was_server:  # a server's character is saved server-side; there's nothing local to write
+		Global.save_player_data_to_file()
+	Net.last_failure_reason = Net.server_shutdown_notice if not Net.server_shutdown_notice.is_empty() else "Lost connection to the server."
 	_on_join_failed()
 
 
 func _on_join_failed() -> void:
 	Net.disconnect_game()
-	Global.return_to_multiplayer_menu = true
+	if Net.last_join_was_server:
+		Global.return_to_join_server_menu = true
+	else:
+		Global.return_to_multiplayer_menu = true
 	get_tree().change_scene_to_file("res://Scenes/main_menu.tscn")
 
 

@@ -1077,6 +1077,134 @@ and ran their AI with zero errors — and turned up the bugs below.
 
 ---
 
+## 2026-09-19 — Session 51: Dedicated server (step 1) — headless `--server` startup + server-stored characters (v0.4.0)
+
+First two pieces of the headless "Join a Server" build (see Claude's memory `project_dedicated_server_exploration`).
+The LAN host/join flow is untouched apart from a handshake tweak (below). Version bumped 0.3.1 -> 0.4.0: the
+`_rpc_version_accepted` signature changed and new login RPCs exist, so older builds are refused at the version check.
+
+### Server startup (`net.gd`)
+- `godot --headless --path . -- --server [--name=test] [--port=8910] [--max-players=6]` (also `--port 8910` style), or any
+  build with the `dedicated_server` feature, skips the splash and every menu: sets `Net.is_dedicated_server`, caps
+  `Engine.max_fps` at 60 (a headless server has no vsync and would otherwise spin a core), hosts, loads the zone.
+- `--name` is the server's short name (letters/numbers); it prefixes stored characters. Bad name or a port already in use
+  prints an error and exits with code 1.
+- `[server]` console lines for start-up, peers connecting/leaving (n/max), logins, refusals, and each player's
+  "join/leave: Name (level N Class)" announcement.
+- A dedicated server's `max_players` are ALL free seats (a LAN host still occupies one for their own character).
+
+### Characters live on the server (`net.gd`, `global.gd`)
+- Stored as `user://server_characters/<server>_<player>_character_stats.json` (e.g. `test_zozuur_...`) — a separate folder
+  from `user://saves` so a server run on the developer's own machine doesn't pollute the single-player/LAN character lists.
+  The in-game display name is still the plain player name ("Zozuur"); `test_` is only the storage key.
+- Handshake: version check -> server marks the peer "awaiting login" (20 s timeout) -> client `_rpc_login(name, creation_json)`
+  -> server loads (or, with creation_json, creates) the character -> `_rpc_login_ok(json)` -> client fills `Global.player_data`
+  and answers `_rpc_login_ready` -> ONLY THEN the server emits `player_connected`, which spawns the puppet. (The character must
+  be in place before the puppet's `_ready` reads it.)
+- Refusals (client gets `Net.last_failure_kind` + a readable reason and returns to the multiplayer screen): `invalid_name`
+  (letters/numbers only, 2-16), `no_character`, `name_taken` (creating over an existing one), `already_online` (one peer per
+  character), `invalid_character` (created characters must be level 1 — you can't upload a maxed-out local save), `server_error`,
+  `version`, and `wrong_mode` (a LAN client reaching a dedicated server or vice versa; `_rpc_version_accepted` now carries
+  `is_dedicated` + the server name).
+- Saving: every existing `Global.save_player_data_to_file()` call site still works. In `Net.remote_character_mode` it uploads
+  the JSON to the server (`_rpc_save_character`) instead of writing `user://saves`; bursts of saves collapse into one upload
+  1 s later. The server accepts a save only from the peer that logged that character in, only if it parses, is under 1 MB and
+  its `player_name` matches, and writes it atomically (temp file + rename). Each login refreshes a `.bak` copy of the last save.
+- Leaving right after a save no longer loses it: `Net.disconnect_game()` waits (up to 2 s) for the server to acknowledge every
+  outstanding upload. Found by test: `close()` drops unsent ENet data and the server discards packets that arrive alongside a
+  disconnect, so a graceful-disconnect drain alone was NOT enough — the explicit ack is what makes it reliable.
+- Camp-out / Save & Exit (`game_log_window.gd`, `pause_menu.gd`) now call `Net.disconnect_game()`. Previously the connection
+  lingered behind the main menu (true for LAN too); on a server that kept the character "already online" until the ghost
+  connection timed out. `/exit` (quit) also disconnects so the last upload lands before the process ends.
+- `Global.save_player_data_to_file()` split into `serialize_player_data()` (refresh position/playtime, return JSON) + the write.
+
+### Verified (real headless server + real client processes)
+- create -> load back round trip, batched save, save-then-leave (2222 landed), and every refusal above; two clients can't share a
+  character; LAN host+join still works and each side sees both players; wrong-mode messages both directions. Test saves were
+  backed up/restored around the runs; nothing in the real `user://saves` changed.
+
+### Passwords, character delete, "Join a Server" screen (same session, still v0.4.0 — nothing released yet)
+- Per-character PASSWORDS on a server. `_rpc_login(name, password, creation_json)`. Stored as a salted, stretched SHA-256 hash in a
+  SIDECAR file (`<server>_<player>_auth.json`) — never in the save the client uploads. Creating needs >= 4 characters; 5 wrong tries lock
+  that character for 60 s (`bad_password` with tries left, then `locked`). A character with no auth file (pre-password, or the owner deleted
+  the file to reset a forgotten password) takes whatever password its next login supplies (`password_set`). Passwords still cross the wire
+  unencrypted (ENet is plain UDP) — DTLS is a possible later step.
+- DELETE a character, local and server. One shared dialog (`delete_character_dialog.gd`): the Delete button stays disabled until the
+  character's name is typed exactly (case-sensitive), plus a password field for server characters. Local: permanent (`Global.delete_local_character`),
+  buttons added to the Load Game screen and next to the LAN screen's character dropdown. Server: needs the password, refused while the
+  character is online or has no password yet, and the files are MOVED to `server_characters/deleted/` (never erased) so the owner can undo.
+  Server delete is a menu "errand" (`Net.request_server_delete` -> connect, version check, delete, disconnect, no zone; emits
+  `server_request_done`) — the same mechanism a future online/version status probe will use.
+- "Join a Server" main-menu button + `join_server_menu.gd`: server dropdown from `Data/servers.json` (ships with one placeholder entry,
+  127.0.0.1:8910 — put the real address there) or a typed `host[:port]`; character name + password; Enter World, Create New Character
+  (password typed twice), Delete Character. Remembers the last address/character in settings.json. A failed or dropped join returns here
+  (`Global.return_to_join_server_menu`) with the reason; the LAN screen behaves as before.
+- Creating a server character: `character_creation.tscn` runs in server mode (`Global.server_creation`): Confirm validates the name (letters/
+  numbers, 2-16) and keeps the character in memory, Begin becomes "Enter the World" and hands it to `Net.begin_join_server()`. Nothing is
+  written to `user://saves`.
+- Safety fixes found while wiring this: leaving or losing a server now clears the working character (`Net._forget_remote_character`) so a later
+  save can't drop a copy of a server character into `user://saves`; the "server lost" handler no longer saves a server character locally.
+- Wording: camp messages are now "You start preparing to camp." / "You abandon your camp preparations." (also used by /exit and Save & Exit).
+
+### Verified (real windowed screens + headless server)
+- Every screen driven programmatically with screenshots: Join a Server validation messages, server delete (wrong password keeps the dialog
+  open, right one deletes and closes it), creating a character on the server through the real creation screen and arriving in the world,
+  Load Game and LAN-menu local deletes (wrong-case name keeps Delete disabled), and a failed join returning to the Join screen with the reason.
+  Protocol-level: creation/password/lockout/reset/delete refusals, recreate-after-delete. Test saves/settings were backed up and restored.
+
+### Encryption, server-list status, save-on-shutdown, server export (2026-09-20, still v0.4.0 — nothing released yet)
+- ENCRYPTION (DTLS over ENet) for every dedicated server; LAN games stay plain. The server owns a key + self-signed certificate
+  (created on first start in `user://server_tls/`, or `--tls-dir=`); a client build carries the matching PUBLIC certificate,
+  `Data/server_cert.crt`, and trusts only that exact certificate (`TLSOptions.client(cert, "aldenexia")`), so an impostor server or a
+  man-in-the-middle can't be talked to. Tested: right certificate connects; a server with a different certificate is rejected in ~30 ms and
+  sees no connection; an unencrypted client can't reach an encrypted server. `server.key` must stay private (never in the project).
+  The certificate generated on this dev machine was copied to `Data/server_cert.crt` so builds work with the server run from this machine.
+- ONLINE / VERSION / PLAYERS indicator: `Net.probe_server()` (a menu errand, like delete) connects, does the version check and reports name,
+  players/max, version. The Join a Server list probes each entry one at a time: colored dot + "(2/6)" / "(offline)" / "(update needed)" /
+  "(full)" on each item, a status line for the selected one, a Refresh button, and typing an address probes it. A dedicated server has
+  8 spare connection slots (`MENU_SLOTS`) so a FULL server still answers probes; the player cap is enforced at login (`server_full`).
+- SAVE ON SHUTDOWN: Godot's headless server can't catch SIGTERM/SIGINT (it dies instantly), so a graceful stop is requested by creating a
+  stop file (default `user://server_stop`, or `--stop-file=`) — `tools/run_server.sh` does that on Ctrl-C/SIGTERM/SIGHUP (tested both), and a
+  window close request does it too. The server then tells every player's game to upload its character right now, waits for each to confirm
+  (up to 8 s), saves the world clock, and exits. Players get "The server shut down. Your character was saved." on the Join screen. New
+  logins are refused while it shuts down. Tested: an UNSAVED change made just before the stop landed on the server.
+- WORLD CLOCK persists across restarts (`user://server_state_<name>.json`, saved every 5 minutes and on shutdown, restored at start-up).
+- `tools/run_server.sh` (the launcher to use) and `tools/aldenexia-server.service.example` (systemd; needs `KillMode=mixed` so the wrapper, not Godot,
+  receives SIGTERM).
+- EXPORT PRESET "Linux Server" (`Builds/Server/Aldenexia_Server.x86_64` + `libterrain.linux.release.x86_64.so`, keep them together).
+  Finding: `dedicated_server=true` alone does NOT strip anything; stripping needs `export_filter="customized"` AND an explicit
+  `customized_files={"res://": "strip"}` (proved on a tiny test project: 12.5 MB -> 2.5 KB). Result: 1.2 GB -> 155 MB (73 MB of it the engine
+  template), ~650 MB -> ~130 MB RAM. Excludes Builds/archive-2d/demo/tools/.blend/.old/.tmp.
+- STARTUP WORLD CHECK: 4 s after the zone loads the server logs `World check: ground under spawn OK, navmesh OK (1 region, N-point test path), N
+  monsters` (and WARNINGs if collision or navigation are missing) — this is how the stripped build proved collision + navmesh survived.
+  Verified against the dev server: same ground/navmesh result, and monsters (rat, snake, skeleton, bat) chase and hit a real client identically
+  in the stripped export (scarabs/slimes are passive in both).
+- Stdout is block-buffered in release exports (log lines lagged by minutes when piped/journald), so `project.godot` now has
+  `run/flush_stdout_on_print.dedicated_server=true` — a feature-tag override that only affects dedicated-server builds.
+- Regressions re-run: LAN host+join unchanged (both players visible on both sides); the full UI flow passes against the encrypted server.
+
+### First real deployment fixes + deploy script (2026-09-20)
+- The first run on the real server showed two problems that a test from inside the project folder had hidden (Godot resolves some files
+  from the current directory there): (1) `day_night_cycle.gd` assigned the sky material to a `ProceduralSkyMaterial` variable, but the stripped
+  export turns materials into `PlaceholderMaterial` — `_ready()` aborted; now only real sky materials are kept. (2) The Terrain3D GDExtension
+  (used by no scene) failed to load from a folder without the addon; it is now excluded from the "Linux Server" preset, so the build is just the
+  one binary (no libterrain file). ALWAYS test an export by running it from a neutral folder.
+- Re-verified in a neutral folder: 0 script errors through join, chase, monster attacks, player attacks and kills, and the graceful stop.
+- Shutdown no longer logs errors while exiting: it disconnects players but keeps the peer open until the process quits.
+- Noted (harmless, exit only): ~60 "Attempt to disconnect a nonexistent connection ... tree_exiting" engine messages while a server with monsters is torn down.
+- The first server start had created its OWN TLS key because the key hadn't been copied over — clients would have seen it as offline. `tools/deploy_server.sh`
+  now warns when the server's certificate differs from `Data/server_cert.crt`.
+- `tools/deploy_server.sh`: one-command update of the server machine (`--export`, `--restart CMD`, `--tls` first-time key copy that never overwrites an
+  existing key without `--force-tls`, `--host`/`--dir`). Uploads under temporary names then renames (a running binary can't be overwritten: "Text file
+  busy"), verifies the sha256, checks the certificate match. Tested against stand-in ssh/scp.
+- `Data/servers.json` now lists `test` (internal IP) and `test-public` (vpn.nctlv.org) as two entries; the second reads "offline" until the port forward exists.
+
+### Not built yet
+- Nothing on the original server list. Possible later: per-server certificates in servers.json, an in-game admin/console command channel,
+  server-side damage re-verification, loot rolled server-side (see "Still-open netcode gaps").
+
+---
+
 ## 2026-09-17 — Session 45: Generic spell-effect engine, 7 more classes brought to parity, tradeskills (cooking/alchemy), Wildspeaker pet, fear/charm mechanics, multiplayer CC/heal relay, UI theme + resize pass, 5 new mob models, network widget
 
 ### Generic, data-driven spell-effect engine (the foundation for everything else this session)

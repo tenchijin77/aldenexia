@@ -444,6 +444,72 @@ weather can be tested with:
 
   -bumped version to 0.2.0 (light slot / dark sight batch changed replicated data); editor runs now always report "(dev)" so a leftover build stamp can't block joining
 
+  Passwords (server characters only)
+  - Creating: you set a password of at least 4 characters, typed twice on the Join a Server screen.
+  - Storage: the server keeps it as a salted hash in its own file, separate from the character save that clients upload.
+  - Lockout: 5 wrong tries lock that character for 60 seconds.
+  - Forgotten password: if the server owner deletes a character's password file, the next login sets a new password.
+  - Encryption: the connection is still unencrypted, so passwords travel in the clear until encryption is added.
+
+  Delete (local and server)
+  - Confirmation: one shared dialog. The Delete button stays disabled until you type the character's name exactly, case-sensitive, so "zzlocal"
+    doesn't unlock "ZzLocal". Server characters also need their password.
+  - Local: deleted permanently. The button is on the Load Game screen and beside the LAN menu's character dropdown.
+  - Server: needs the password, is refused while the character is online, and moves the files to a hidden deleted/ folder so you can undo a
+    mistake.
+
+  Join a Server screen
+  - Main menu: it has a new "Join a Server" button.
+  - Server list: the list comes from Data/servers.json, or you can type an address. It ships with one placeholder, 127.0.0.1:8910, so put your
+    real address there.
+  - Character options: Enter World, Create New Character and Delete Character. Creating a character uses the normal creation screen and sends
+    the finished character to the server. Nothing is written to your local saves.
+  - Failed joins: a bad password or dropped connection returns you to this screen with the reason shown.
+
+
+
+    Online/version indicator
+  - Each server in the Join a Server list shows a coloured dot plus a short status: (2/6), (offline), (update needed) or (full).
+  - The selected server also gets a status line, e.g. "Online — 2/6 players — v0.4.0", and a Refresh button re-checks everything.
+  - A typed address is checked when you press Enter.
+  - A full server still answers the check, because the server keeps 8 spare connection slots for status checks and deletes.
+
+  Save on shutdown
+  - Godot's headless server can't catch SIGTERM or SIGINT and just dies, so there was nothing to hook a save onto.
+  - Instead the server watches for a stop file, and tools/run_server.sh creates it on Ctrl-C, SIGTERM or SIGHUP. I tested Ctrl-C and SIGTERM.
+  - On stop, every player's game uploads its character, the server saves the world clock (so time of day now survives restarts), and it exits. A
+    change I made without saving still landed on the server.
+  - Players see "The server shut down. Your character was saved." Under systemd you need KillMode=mixed, as in the example unit I added,
+    tools/aldenexia-server.service.example.
+
+  Encryption
+  - Dedicated servers now use DTLS; LAN games stay unencrypted.
+  - The server keeps a private key in its user data folder. Clients trust only the matching certificate, Data/server_cert.crt. I copied it in
+    from the key generated on this machine.
+  - A server with a different certificate was rejected in about 30 ms, and an unencrypted client can't connect at all.
+  - The evidence is behavioural, because I couldn't sniff packets without root.
+  - Keep server.key private and back it up. When you move to a VPS, copy the key and certificate there, or clients would stop trusting it.
+
+  Server export preset ("Linux Server")
+  - It exports to Builds/Server/; deploy the binary and libterrain.linux.release.x86_64.so together.
+  - The 1.2 GB export shrank to 155 MB, and memory use dropped from about 650 MB to about 130 MB.
+  - Stripping needed export_filter="customized" plus customized_files={"res://": "strip"}. dedicated_server=true alone strips nothing.
+  - The server now logs a check at start-up: ground under spawn OK, navmesh OK, monster count. The stripped build passed it.
+  - Monsters chased and hit a real client the same as in the full build. Scarabs and slimes are passive in both.
+  - Regressions re-run: LAN host and join, and the whole UI flow against the encrypted server.
+  - I also added run/flush_stdout_on_print.dedicated_server=true to project.godot. Exported builds otherwise held log lines back for minutes.
+
+
+    From this machine:
+  ssh user@192.168.77.100 'mkdir -p ~/aldenexia/tls'
+  scp Builds/Server/Aldenexia_Server.x86_64 Builds/Server/libterrain.linux.release.x86_64.so tools/run_server.sh
+  user@192.168.77.100:~/aldenexia/
+  scp ~/.local/share/godot/app_userdata/Aldenexia-Lightfall/server_tls/server.{key,crt} user@192.168.77.100:~/aldenexia/tls/
+
+  On the server:
+  cd ~/aldenexia && chmod +x Aldenexia_Server.x86_64 run_server.sh && chmod 600 tls/server.key
+  ALDENEXIA_SERVER_BIN=$PWD/Aldenexia_Server.x86_64 ./run_server.sh --name=test --port=8910 --tls-dir=$PWD/tls
+  Use an absolute path for --tls-dir. If the server has a firewall, open UDP 8910 (for ufw: ufw allow 8910/udp).
 
 
 Notes:
@@ -465,6 +531,8 @@ Rogue utility: vanish, master_stealth, master_pickpocket, improved_pickpocket, e
 Defensive and control: master_block, enhanced_block, taunt, defiant_roar.
 Improved variants (use enhanced glow or upgraded color): improved_cleave, improved_quivering_palm, improved_barrage,
 improved_aimed_shot, improved_deadly_aim, improved_volley, improved_fan_of_knives.
+
+-also missing item icons for leg armour: cotton, leather, chain, plate
 
 Maintain consistent Aldenexia icon style across all symbols. They need to follow the same targeting colors as before:
 

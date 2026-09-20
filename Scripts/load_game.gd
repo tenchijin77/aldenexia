@@ -9,9 +9,19 @@ extends CanvasLayer
 @onready var character_list: ItemList = $Panel/Margin/VBoxContainer/character_list
 @onready var load_button: Button = $Panel/Margin/VBoxContainer/load_button
 
+var delete_button: Button
+
 
 func _ready() -> void:
 	panel.add_theme_stylebox_override("panel", Global.window_bg_style())
+	# Delete sits right under Load. Built here rather than in the scene, next to the button it pairs with.
+	delete_button = Button.new()
+	delete_button.text = "Delete Character"
+	delete_button.custom_minimum_size = load_button.custom_minimum_size
+	delete_button.pressed.connect(_on_delete_button_pressed)
+	load_button.get_parent().add_child(delete_button)
+	load_button.get_parent().move_child(delete_button, load_button.get_index() + 1)
+	character_list.item_selected.connect(func(_i: int) -> void: _refresh_buttons())
 	load_save_files()
 
 
@@ -41,12 +51,33 @@ func load_save_files() -> void:
 			continue
 		if file_name.ends_with("_character_stats.json"):
 			found_any_saves = true
-			var display_name = file_name.replace("_character_stats.json", "").capitalize()
-			character_list.add_item(display_name)
+			var stem: String = file_name.replace("_character_stats.json", "")
+			character_list.add_item(stem.capitalize())
+			character_list.set_item_metadata(character_list.item_count - 1, stem)
 		file_name = dir.get_next()
 	dir.list_dir_end()
 
 	load_button.disabled = not found_any_saves
+	_refresh_buttons()
+
+
+func _refresh_buttons() -> void:
+	delete_button.disabled = character_list.get_selected_items().is_empty()
+
+
+# Delete asks for the character's name to be typed exactly (see delete_character_dialog.gd) before
+# it removes the save file, then refreshes the list.
+func _on_delete_button_pressed() -> void:
+	var selected_items := character_list.get_selected_items()
+	if selected_items.is_empty():
+		return
+	var stem: String = character_list.get_item_metadata(selected_items[0])
+	var dialog := DeleteCharacterDialog.open(self, Global.local_character_display_name(stem), "this computer")
+	dialog.confirmed.connect(func(_password: String) -> void:
+		Global.delete_local_character(stem)
+		dialog.close()
+		load_save_files()
+	)
 
 
 func _on_load_button_pressed() -> void:

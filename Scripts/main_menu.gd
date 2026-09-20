@@ -30,6 +30,12 @@ func _ready():
 	if Global.return_to_multiplayer_menu:
 		Global.return_to_multiplayer_menu = false
 		_on_multiplayer_pressed()
+	# Same for the Join a Server screen: a failed/dropped server join, or backing out of creating a
+	# server character, lands here and reopens it.
+	if Global.return_to_join_server_menu:
+		Global.return_to_join_server_menu = false
+		Global.server_creation = {}
+		_on_join_server_pressed()
 
 
 # Version (and build, if stamped) in the bottom-right corner — see game_version.gd.
@@ -88,6 +94,11 @@ func _on_load_game_pressed() -> void:
 
 func _on_multiplayer_pressed() -> void:
 	var menu = preload("res://Scenes/multiplayer_menu.tscn").instantiate()
+	add_child(menu)
+
+
+func _on_join_server_pressed() -> void:
+	var menu = preload("res://Scenes/join_server_menu.tscn").instantiate()
 	add_child(menu)
 
 
