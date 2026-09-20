@@ -35,6 +35,9 @@ func _ready() -> void:
 
 
 func _on_phase_changed(is_day: bool) -> void:
+	# The server hosts the exchange (its guards are the real ones) and relays each line.
+	if Net.is_multiplayer_game and multiplayer.has_multiplayer_peer() and not multiplayer.is_server():
+		return
 	play_conversation("day" if is_day else "night")
 
 
@@ -55,5 +58,7 @@ func _play_lines(lines: Array, speakers: Array) -> void:
 		if i > 0:
 			await get_tree().create_timer(line_delay).timeout
 		var speaker: Node = speakers[i % speakers.size()]
-		if is_instance_valid(speaker) and speaker.has_method("say"):
+		if is_instance_valid(speaker) and speaker.has_method("say_to_all"):
+			speaker.say_to_all(lines[i])
+		elif is_instance_valid(speaker) and speaker.has_method("say"):
 			speaker.say(lines[i])

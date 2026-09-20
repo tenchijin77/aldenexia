@@ -179,6 +179,7 @@ const ENVIRONMENTAL_EFFECT_DESCRIPTIONS := {
 # Effects that show an item's icon on the buff bar (effect name -> items.json id).
 const ENVIRONMENTAL_EFFECT_ITEM_ICONS := {
 	"lit_torch": "torch",
+	"well_fed": "iron_rations",  # its icon is the generic food.png — swap for dedicated art when it exists
 }
 
 # Resolves an active_effects key to a display name + description + is_debuff
@@ -195,7 +196,7 @@ func _resolve_effect_display(effect_name: String) -> Dictionary:
 		for class_stances in _class_stances.values():
 			for stance in class_stances:
 				if stance.get("stance_id", "") == stance_id:
-					return {"name": stance.get("name", stance_id), "description": stance.get("description", ""), "is_debuff": false}
+					return {"name": stance.get("name", stance_id), "description": stance.get("description", ""), "is_debuff": false, "icon": SpellInfo.icon_texture(stance)}
 
 	if "_spell_by_name" in _player:
 		var spell: Dictionary = _player._spell_by_name.get(effect_name, {})

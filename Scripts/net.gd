@@ -1,9 +1,8 @@
-# net.gd — Thin wrapper around Godot's high-level multiplayer API (ENet) for
-# LAN co-op. One player hosts a listen-server (their own player3d instance
-# doubles as the server), everyone else connects to that host's LAN IP —
-# manual IP entry, no relay/NAT punchthrough, matching the "6-player co-op
-# over a listen-server" plan in change_list.txt. Good enough to test across
-# two machines on the same network; revisit if we ever need internet play.
+# net.gd — Thin wrapper around Godot's high-level multiplayer API (ENet).
+# One machine hosts (a listen-server whose own character is spawned like everyone
+# else's, or a headless dedicated server with no character — Net.is_dedicated_server);
+# everyone else connects to that address by manual entry — no relay/NAT punchthrough.
+# Joining loads the zone first and connects from inside it (see begin_join()).
 extends Node
 
 signal player_connected(peer_id: int)
@@ -30,6 +29,15 @@ var last_failure_reason := ""
 var _unverified_peers: Dictionary = {}  # host only: peer_id -> true until they pass the version check
 var pending_zone_path := "res://Scenes/lumora_outskirts3d.tscn"
 
+## True while the zone must NOT keep its pre-placed solo/host character: a joiner's own
+## character comes from the host's PlayerSpawner instead, and a dedicated server has
+## no character at all. player3d.gd checks this in _enter_tree() and frees itself.
+var omit_preplaced_player := false
+## True on a headless server: it hosts the world but has no character of its own.
+var is_dedicated_server := false
+var _pending_join_address := ""
+var _pending_join_port := DEFAULT_PORT
+
 
 func _ready() -> void:
 	print("Aldenexia %s" % GameVersion.display())
@@ -48,6 +56,7 @@ func host_game(port: int = DEFAULT_PORT) -> Error:
 		return err
 	multiplayer.multiplayer_peer = peer
 	is_multiplayer_game = true
+	omit_preplaced_player = true  # the host's character is spawned like everyone else's
 	return OK
 
 
@@ -62,11 +71,43 @@ func join_game(address: String, port: int = DEFAULT_PORT) -> Error:
 	return OK
 
 
+# Joining loads the zone FIRST and only then connects (the zone's spawner script
+# calls complete_pending_join() from its _ready). The host starts replicating the
+# moment a peer connects — spawns for every monster and player already in the
+# world — and Godot silently drops a spawn whose spawner node doesn't exist yet on
+# the receiving side ("Parameter 'spawner' is null"), never resending it. Connecting
+# from the menu and loading the zone afterwards therefore left a joiner without their
+# own character, any monsters, or the host's real name/model ("Default Hero").
+func begin_join(address: String, port: int = DEFAULT_PORT) -> void:
+	_pending_join_address = address
+	_pending_join_port = port
+	last_failure_reason = ""
+	omit_preplaced_player = true
+	is_multiplayer_game = true
+	get_tree().change_scene_to_file(pending_zone_path)
+
+
+func has_pending_join() -> bool:
+	return not _pending_join_address.is_empty()
+
+
+func pending_join_label() -> String:
+	return "%s:%d" % [_pending_join_address, _pending_join_port]
+
+
+func complete_pending_join() -> Error:
+	var address := _pending_join_address
+	_pending_join_address = ""
+	return join_game(address, _pending_join_port)
+
+
 func disconnect_game() -> void:
 	if multiplayer.multiplayer_peer != null:
 		multiplayer.multiplayer_peer.close()
 	multiplayer.multiplayer_peer = null
 	is_multiplayer_game = false
+	omit_preplaced_player = false
+	_pending_join_address = ""
 
 
 # Best-guess LAN IP to show the host so they can read it off to whoever's
@@ -245,6 +286,7 @@ func _rpc_submit_version(client_version: String, client_build: String) -> void:
 	if GameVersion.is_compatible(client_version, client_build):
 		_unverified_peers.erase(id)
 		_rpc_version_accepted.rpc_id(id)
+		Global.send_time_to(id)
 		player_connected.emit(id)
 	else:
 		print("Rejected peer %d: they run v%s (%s), host runs %s" % [id, client_version, client_build if client_build != "" else "no build id", GameVersion.display()])
@@ -264,6 +306,7 @@ func _rpc_version_rejected(host_display: String) -> void:
 		multiplayer.multiplayer_peer.close()
 	multiplayer.multiplayer_peer = null
 	is_multiplayer_game = false
+	omit_preplaced_player = false
 	connection_failed.emit()
 
 
@@ -282,10 +325,14 @@ func _kick(id: int) -> void:
 func _on_connection_failed() -> void:
 	multiplayer.multiplayer_peer = null
 	is_multiplayer_game = false
+	omit_preplaced_player = false
+	if last_failure_reason.is_empty():
+		last_failure_reason = "Could not connect. Check the address and make sure the server is running."
 	connection_failed.emit()
 
 
 func _on_server_disconnected() -> void:
 	multiplayer.multiplayer_peer = null
 	is_multiplayer_game = false
+	omit_preplaced_player = false
 	server_disconnected.emit()

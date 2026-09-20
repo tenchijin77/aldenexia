@@ -951,6 +951,84 @@ saved to disk isn't captured here.)
 
 ---
 
+## 2026-09-19 — Session 50: Multiplayer join/sync overhaul (joiners saw "Default Hero", monsters never hurt remote players, unsynced clock/NPCs), stance + Well Fed icons
+
+Groundwork for a headless dedicated server (see Claude's memory `project_dedicated_server_exploration`):
+a feasibility probe ran the real zone headless as an ENet server with no player — 27 monsters spawned
+and ran their AI with zero errors — and turned up the bugs below.
+
+### Multiplayer — joiners lost their character, monsters and the host's real name ("Default Hero")
+- Root cause, reproduced with a real two-process test: the joiner connected from the MENU and only then
+  loaded the zone. The host starts replicating the instant a peer connects (a spawn for every monster and
+  player already in the world), and Godot silently drops a spawn whose spawner node doesn't exist yet on
+  the receiving side (`on_spawn_receive: Parameter "spawner" is null`) — never resending it. So a joiner
+  got no character of their own, no initial monsters, and the host's pre-placed node never received its
+  name/race/model (hence "Default Hero"; the host saw the joiner fine because the host's zone existed).
+  Synchronizer visibility filters do NOT hold spawn packets back (tested in isolation), so the fix is
+  ordering: `Net.begin_join()` loads the zone FIRST, and the zone's `multiplayer_player_spawner.gd`
+  connects from its `_ready` (`Net.complete_pending_join()`), by which point every spawner exists.
+- The zone's pre-placed player is now single-player only. In a multiplayer game EVERY player, the host
+  included, is spawned through the `PlayerSpawner`; `Net.omit_preplaced_player` makes `player3d.gd`
+  free the pre-placed copy in `_enter_tree()` (and `camera_controller.gd` stay inert for it). A dedicated
+  server (`Net.is_dedicated_server`) simply doesn't spawn peer 1. Verified: a joiner on a player-less server
+  sees only themselves — no phantom "host".
+- Spawned players now appear at the zone's real start (`spawn_position` export, the old pre-placed
+  transform) instead of the world origin — which also stops a NEW character's bind point being saved as (0,0,0).
+- A join that fails (bad address, version mismatch) or a server that drops mid-game now returns to the
+  main menu with the reason shown on the multiplayer screen (previously a lost server left the joiner in a
+  zone quietly running its own spawn logic). The joiner sees a "Connecting to ..." cover until their own
+  character exists.
+
+### Multiplayer — monsters never actually hurt remote players
+- Reproduced: an aggressive skeleton stood on the client for 20 s; the SERVER's copy of the client's HP fell
+  172 -> 153 -> 105 while the client's own HP stayed 172. `resolve_attack()` mutated the server's stat-less
+  puppet, and HP replicates owner -> everyone, never back. (Session 46's fix only made monsters TARGET remote
+  players.) Now `monster3d.gd::perform_attack()` sends the target's OWNER a `_rpc_resolve_attack_on_owner`; the owner
+  rolls dodge/parry/block/damage against their real character and HP, which then replicates out. Works for
+  pets too (owner-authoritative). Any riposte damage is undone on the owner's puppet copy and relayed to the
+  server via `apply_networked_damage`. Re-verified: client HP now falls 172 -> 154 -> 144 -> 134.
+- The shared swing logic moved into `_resolve_attack_on(target, relayed)`.
+
+### Combat text — "You" on the wrong screen
+- The server's monster `player` reference is only the NEAREST player, so a hit on the remote player was
+  logged on the HOST's screen as "hits **you**" (and "attacks you!" on aggro). Both now go to the actual
+  target's owner; everyone else nearby gets a named version ("A Desert Scavenger hits Zozuur for 7 damage!")
+  via the existing `Net.broadcast_combat_message`. Player melee/spell broadcasts were already third-person
+  named — verified with a two-player fight (each reads "You ..." for themselves, the other's name for the other).
+
+### Multiplayer — world clock and town NPCs
+- Time of day: every peer used to start its own clock at 12:00. The server is now the clock: `Global.send_time_to()`
+  pushes it to a joiner right after the version check, then every 10 s (`_rpc_sync_game_time`); peers keep ticking
+  locally in between. Verified: host at 20:xx, joiner adopts it.
+- Guards and Oni (GuardNPC): AI now runs only on the server (`_is_puppet()` gate in `_physics_process`); other peers
+  replay position/rotation/velocity/state/attack_seq/visible/HP from a `MultiplayerSynchronizer` added to
+  `guard_npc.tscn` and `oni_npc.tscn`. Unprompted speech (banter, engage callouts, the day/night scripted guard
+  conversation) is decided on the server and relayed (`say_to_all`), each peer applying its own hearing range;
+  a hail reply stays local to whoever hailed. Guard fight lines are broadcast too. Death/respawn hides and
+  un-targets the puppet via `NPCRespawner.mirror_hidden()`. Verified: host vs joiner NPC positions within
+  ~0.3 m, same patrol/engage states. Kenji and the vendors are static and unchanged.
+
+### UI
+- Stances now have icons: `class_stances.json` gained an `"icon"` field (same convention as spells); the stance bar
+  shows it (name moved to a wrapped tooltip) and the buff bar shows it for an active stance. PLACEHOLDER art from
+  existing icons (Shadow Ascendant = sword, Necrotic Bastion = shield, Dusk Walker = self-buff, Stealth = self-ward) —
+  edit the JSON path when real art exists.
+- "Well Fed" buff icon: mapped to the food item icon in `buff_bar.gd`'s `ENVIRONMENTAL_EFFECT_ITEM_ICONS`
+  (generic `food.png` — swap when dedicated art exists). Campfire Warmth and Kenji's Blessing still have no icon.
+
+### Version
+- v0.2.0 -> **v0.3.0** (2026-09-19): new RPCs (monster attack/aggro relay, world-clock sync, NPC speech) and a new join
+  order, so 0.2.0 builds must not mix with 0.3.0. Stamp a fresh build (commit -> tools/stamp_build.sh -> export).
+
+### Known / left alone
+- `Node 'CombatNode:current_hp' not found` log noise on joiners: the CombatNode is created in `_ready()`, after the
+  spawn packet's initial values apply. Values arrive on the next change, so it is cosmetic.
+- Riposte/attack-debuffs on a monster live only on the server's copy; a remote player's swing resolves against the
+  owner's puppet of the monster, so a debuffed monster hits a remote player at full strength.
+- Still no server-side re-verification of reported damage; loot is still rolled per-client when opened.
+
+---
+
 ## 2026-09-17 — Session 45: Generic spell-effect engine, 7 more classes brought to parity, tradeskills (cooking/alchemy), Wildspeaker pet, fear/charm mechanics, multiplayer CC/heal relay, UI theme + resize pass, 5 new mob models, network widget
 
 ### Generic, data-driven spell-effect engine (the foundation for everything else this session)

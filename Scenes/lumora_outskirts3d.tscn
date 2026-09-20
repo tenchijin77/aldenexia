@@ -323,6 +323,7 @@ transform = Transform3D(0.97146577, 0, 0.23718, 0, 1, 0, -0.23718, 0, 0.97146577
 
 [node name="Oni" parent="." unique_id=2146170527 instance=ExtResource("oni_npc_scn")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, 9)
+cat_damage = 18
 patrol_waypoints = Array[NodePath]([NodePath("../Markers/OniPatrol1"), NodePath("../Markers/OniPatrol2"), NodePath("../Markers/OniPatrol3"), NodePath("../Markers/OniPatrol4"), NodePath("../Markers/OniPatrol5"), NodePath("../Markers/OniPatrol6")])
 
 [node name="Bone Spears" type="Node3D" parent="." unique_id=1575841877]

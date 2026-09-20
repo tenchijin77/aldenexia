@@ -67,6 +67,10 @@ var move_speed: float = 3.0
 
 var can_attack: bool = true
 var attack_timer: float = 0.0
+## Bumped on every swing so a puppet (see _is_puppet()) can replay the attack animation.
+var attack_seq: int = 0
+var _seen_attack_seq: int = 0
+var _puppet_hidden: bool = false
 var attack_cooldown: float = 1.5
 const REGEN_INTERVAL := 6.0
 var _regen_timer: float = 0.0
@@ -131,10 +135,28 @@ func _face_player() -> void:
 		look_at(target_pos, Vector3.UP)
 
 
-func _say_flavor(category: String) -> void:
+# `broadcast` = an unprompted line (banter, engage callout) decided on the server that every
+# nearby player should hear; a hail reply stays local to whoever hailed.
+func _say_flavor(category: String, broadcast: bool = false) -> void:
 	var line := _flavor.get_line(category)
 	if line == "":
 		return
+	if broadcast:
+		say_to_all(line)
+	else:
+		say(line)
+
+
+# Server-side speech: says it locally and tells every peer, each of which applies its own
+# hearing range in say().
+func say_to_all(line: String) -> void:
+	say(line)
+	if Net.is_multiplayer_game and multiplayer.has_multiplayer_peer() and multiplayer.is_server():
+		_rpc_say.rpc(line)
+
+
+@rpc("authority", "call_remote", "reliable")
+func _rpc_say(line: String) -> void:
 	say(line)
 
 
@@ -166,6 +188,7 @@ func _setup_combat() -> void:
 	level = stats.get("level", 8)
 
 	combat_node = CombatNode.new()
+	combat_node.name = "CombatNode"  # the scene's MultiplayerSynchronizer replicates HP by this exact path
 	add_child(combat_node)
 	combat_node.level         = level
 	combat_node.weapon_damage = stats.get("damage", 25)
@@ -292,7 +315,32 @@ func play_death_animation() -> void:
 
 # ── Engagement state machine ─────────────────────────────────────────────────
 
+# In a multiplayer game the guards' AI runs ONLY on the server; every other peer's copy is
+# a puppet that just plays back what the server replicates (position, rotation, velocity,
+# state, attack_seq, visible, HP — see the scene's MultiplayerSynchronizer). Before this
+# every peer ran its own guards/Oni, so each machine saw them somewhere different.
+func _is_puppet() -> bool:
+	return Net.is_multiplayer_game and multiplayer.has_multiplayer_peer() and not is_multiplayer_authority()
+
+
+func _puppet_process(delta: float) -> void:
+	if _attack_anim_timer > 0.0:
+		_attack_anim_timer -= delta
+	if attack_seq != _seen_attack_seq:
+		_seen_attack_seq = attack_seq
+		_play_attack_animation()
+	if visible == _puppet_hidden:  # replicated visibility flipped — the server killed/respawned it (NPCRespawner)
+		_puppet_hidden = not visible
+		NPCRespawner.mirror_hidden(self, _puppet_hidden)
+	if visible:
+		_update_animation()
+
+
 func _physics_process(delta: float) -> void:
+	if _is_puppet():
+		_puppet_process(delta)
+		return
+
 	if not can_attack:
 		attack_timer -= delta
 		if attack_timer <= 0.0:
@@ -320,7 +368,7 @@ func _physics_process(delta: float) -> void:
 		if _banter_timer >= _banter_interval:
 			_banter_timer = 0.0
 			_banter_interval = randf_range(BANTER_MIN_INTERVAL, BANTER_MAX_INTERVAL)
-			_say_flavor("banter")
+			_say_flavor("banter", true)
 	else:
 		_banter_timer = 0.0
 
@@ -377,7 +425,7 @@ func _scan_for_targets() -> void:
 		attack_target = nearest
 		_engage_origin = global_position
 		state = GuardState.ENGAGE
-		_say_flavor("engage")
+		_say_flavor("engage", true)
 
 
 func _process_engage(delta: float) -> void:
@@ -564,9 +612,18 @@ func _tick_stuck_detector(delta: float) -> void:
 	_stuck_repath_requested = true
 
 
+# The server logs the fight locally and relays it, so every player near the guard reads it
+# (each peer's own log window applies its 10 m combat range to the position).
+func _log_fight(text: String) -> void:
+	GameLog.log_combat(text, global_position)
+	if Net.is_multiplayer_game and multiplayer.has_multiplayer_peer():
+		Net.broadcast_combat_message(text, global_position)
+
+
 func _perform_attack() -> void:
 	can_attack = false
 	attack_timer = attack_cooldown
+	attack_seq += 1
 	_play_attack_animation()
 
 	if not (attack_target.get("combat_node") is CombatNode):
@@ -580,21 +637,21 @@ func _perform_attack() -> void:
 
 	match result.get("result", ""):
 		"MISS":
-			GameLog.log_combat("%s misses %s!" % [npc_name, target_desc], global_position)
+			_log_fight("%s misses %s!" % [npc_name, target_desc])
 		"PARRY":
-			GameLog.log_combat("%s's attack is parried!" % npc_name, global_position)
+			_log_fight("%s's attack is parried!" % npc_name)
 		"BLOCK":
-			GameLog.log_combat("%s's attack is blocked!" % npc_name, global_position)
+			_log_fight("%s's attack is blocked!" % npc_name)
 		"DODGE":
-			GameLog.log_combat("%s's attack is dodged!" % npc_name, global_position)
+			_log_fight("%s's attack is dodged!" % npc_name)
 		"RIPOSTE":
-			GameLog.log_combat("%s is riposted for [b]%d[/b] damage!" % [npc_name, result.get("damage", 0)], global_position)
+			_log_fight("%s is riposted for [b]%d[/b] damage!" % [npc_name, result.get("damage", 0)])
 		"HIT":
 			var crit: String = " [color=#ffaa00]Critical![/color]" if result.get("is_crit", false) else ""
-			GameLog.log_combat("%s hits %s for [b]%d[/b] damage!%s" % [npc_name, target_desc, result.get("damage", 0), crit], global_position)
+			_log_fight("%s hits %s for [b]%d[/b] damage!%s" % [npc_name, target_desc, result.get("damage", 0), crit])
 
 	if not target_cn.is_alive():
-		GameLog.log_combat("[color=#88ccff]%s dispatches %s.[/color]" % [npc_name, target_desc], global_position)
+		_log_fight("[color=#88ccff]%s dispatches %s.[/color]" % [npc_name, target_desc])
 		if attack_target.has_method("die"):
 			attack_target.die(false, false)
 		attack_target = null

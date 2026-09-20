@@ -1156,8 +1156,44 @@ func perform_attack() -> void:
 	if not target:
 		return
 
+	# A player or pet owned by ANOTHER peer: its real stats, HP and defensive skills
+	# live only on its owner's machine — this (server) copy is a stat-less puppet, and
+	# HP replicates owner -> everyone, never back. Resolving the swing here used to
+	# dent only the server's puppet, so a remote player never lost any life. Ask the
+	# owner to roll the defender side against its real character instead.
+	if Net.is_multiplayer_game and target.is_inside_tree() and not target.is_multiplayer_authority():
+		_rpc_resolve_attack_on_owner.rpc_id(target.get_multiplayer_authority(), target.get_path())
+		return
+
+	_resolve_attack_on(target)
+
+
+# Runs on the peer that owns `target` (see perform_attack()), against that peer's
+# replicated copy of this monster. Only the monster's attack stats matter here, and
+# those are static per monster type, so every peer's copy agrees on them.
+@rpc("authority", "call_remote", "reliable")
+func _rpc_resolve_attack_on_owner(target_path: NodePath) -> void:
+	var target := get_node_or_null(target_path)
+	if not is_instance_valid(target) or not target.is_multiplayer_authority():
+		return
+	if current_state == State.DEAD:
+		return
+	_resolve_attack_on(target, true)
+
+
+# The swing itself. `relayed` = we are the target's owner acting for the server:
+# this machine's copy of the monster is only a puppet, so anything that would change
+# the MONSTER (a riposte's damage) must go back to the real one instead.
+func _resolve_attack_on(target: Node, relayed: bool = false) -> void:
 	if "combat_node" in target and target.combat_node is CombatNode:
+		var monster_hp_before: int = combat_node.current_hp
 		var result = combat_node.resolve_attack(target.combat_node)
+		if relayed:
+			# resolve_attack() applied a riposte to OUR puppet copy of the monster — undo it
+			# and hand the damage to the server, which owns the real one.
+			combat_node.current_hp = monster_hp_before
+			if result.get("result", "") == "RIPOSTE":
+				apply_networked_damage.rpc_id(1, int(result.get("damage", 0)), multiplayer.get_unique_id())
 		# resolve_attack() already applies the hit directly to
 		# target.combat_node.current_hp ("target.current_hp -= damage" inside
 		# combatnode.gd) — do NOT also call target.take_damage()/apply_damage()
@@ -1173,10 +1209,15 @@ func perform_attack() -> void:
 			return
 
 		var desc: String = monster_description if monster_description != "" else get_monster_name()
-		if target == player:
+		if target.is_in_group("player"):
 			var msg: String = CombatLogFormatter.monster_attack(result, desc, get_damage_type())
 			if not msg.is_empty():
 				GameLog.log_combat(msg)
+			# Everyone else nearby reads the same swing with the victim's real name.
+			if Net.is_multiplayer_game:
+				var named: String = _attack_text_on_other(result, desc, str(target.get("player_name")))
+				if not named.is_empty():
+					Net.broadcast_combat_message(named, global_position)
 			if target.has_method("_tick_defense_skill"):
 				target._tick_defense_skill(result.get("result", ""))
 			if result.get("damage", 0) > 0 and target.has_method("on_combat_node_hit"):
@@ -1192,7 +1233,7 @@ func perform_attack() -> void:
 				target.die()
 	elif target.has_method("take_damage"):
 		target.take_damage(damage)
-		if target == player:
+		if target.is_in_group("player"):
 			var desc: String = monster_description if monster_description != "" else get_monster_name()
 			GameLog.log_combat("%s hits you for [b]%d[/b] damage!" % [desc.capitalize(), damage])
 
@@ -1201,21 +1242,29 @@ func perform_attack() -> void:
 
 
 func _log_attack_on_other(result: Dictionary, attacker_desc: String, target_name: String) -> void:
+	var text := _attack_text_on_other(result, attacker_desc, target_name)
+	if not text.is_empty():
+		GameLog.log_combat(text, global_position)
+
+
+func _attack_text_on_other(result: Dictionary, attacker_desc: String, target_name: String) -> String:
 	var cap := attacker_desc.capitalize()
 	match result.get("result", ""):
 		"MISS":
-			GameLog.log_combat("%s misses %s!" % [cap, target_name], global_position)
+			return "%s misses %s!" % [cap, target_name]
 		"PARRY":
-			GameLog.log_combat("%s's attack on %s is parried!" % [cap, target_name], global_position)
+			return "%s's attack on %s is parried!" % [cap, target_name]
 		"BLOCK":
-			GameLog.log_combat("%s's attack on %s is blocked!" % [cap, target_name], global_position)
+			return "%s's attack on %s is blocked!" % [cap, target_name]
 		"DODGE":
-			GameLog.log_combat("%s's attack on %s is dodged!" % [cap, target_name], global_position)
+			return "%s's attack on %s is dodged!" % [cap, target_name]
 		"RIPOSTE":
-			GameLog.log_combat("%s is riposted by %s for [b]%d[/b] damage!" % [cap, target_name, result.get("damage", 0)], global_position)
+			return "%s is riposted by %s for [b]%d[/b] damage!" % [cap, target_name, result.get("damage", 0)]
 		"HIT":
 			var crit: String = " [color=#ffaa00]Critical![/color]" if result.get("is_crit", false) else ""
-			GameLog.log_combat("%s hits %s for [b]%d[/b] damage!%s" % [cap, target_name, result.get("damage", 0), crit], global_position)
+			return "%s hits %s for [b]%d[/b] damage!%s" % [cap, target_name, result.get("damage", 0), crit]
+	return ""
+
 
 func apply_damage(amount: int, damage_type: String = "physical") -> void:
 	if current_state == State.DEAD:
@@ -1560,11 +1609,30 @@ func change_state(new_state: State) -> void:
 		State.PATROL:
 			pick_new_patrol_point()
 		State.CHASE:
-			if get_current_target() == player:
-				var desc: String = monster_description if monster_description != "" else get_monster_name()
-				GameLog.log_combat("[color=orange]%s attacks you![/color]" % desc.capitalize())
+			# Only the chased player should read "attacks you" — this runs on the server,
+			# where `player` is merely the NEAREST player, so a monster going for a remote
+			# player used to announce itself on the host's screen instead.
+			var chased: Node = get_current_target()
+			if chased != null and chased.is_in_group("player"):
+				if chased.is_multiplayer_authority():
+					_log_aggro_on_me()
+				elif Net.is_multiplayer_game and chased.is_inside_tree():
+					_rpc_notify_aggro.rpc_id(chased.get_multiplayer_authority(), chased.get_path())
 		State.ATTACK:
 			velocity = Vector3.ZERO
+
+func _log_aggro_on_me() -> void:
+	var desc: String = monster_description if monster_description != "" else get_monster_name()
+	GameLog.log_combat("[color=orange]%s attacks you![/color]" % desc.capitalize())
+
+
+# Sent by the server to the peer that owns the player this monster just started chasing.
+@rpc("authority", "call_remote", "reliable")
+func _rpc_notify_aggro(target_path: NodePath) -> void:
+	var target := get_node_or_null(target_path)
+	if is_instance_valid(target) and target.is_multiplayer_authority():
+		_log_aggro_on_me()
+
 
 # Called on every monster when the player is incapacitated/dies (see
 # player3d.gd's die()) — clears aggro and heads straight back to spawn_position

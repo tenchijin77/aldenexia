@@ -19,9 +19,13 @@ func _ready() -> void:
 	layer = 10
 	_build_ui()
 
-	Net.connection_succeeded.connect(_on_connection_succeeded)
 	Net.connection_failed.connect(_on_connection_failed)
 	Net.server_disconnected.connect(_on_server_disconnected)
+
+	# A join that failed inside the zone drops back here with the reason.
+	if not Net.last_failure_reason.is_empty():
+		status_label.text = Net.last_failure_reason
+		Net.last_failure_reason = ""
 
 
 func _build_ui() -> void:
@@ -202,17 +206,12 @@ func _on_join_pressed() -> void:
 		return
 	if not _load_named_character(_selected_character_name()):
 		return
-	if Net.join_game(ip) != OK:
-		status_label.text = "Failed to connect."
-		return
-	status_label.text = "Connecting to %s..." % ip
+	# The zone loads first and connects from inside itself — see Net.begin_join().
+	status_label.text = "Loading zone, then connecting to %s..." % ip
 	_connecting = true
 	host_btn.disabled = true
 	join_btn.disabled = true
-
-
-func _on_connection_succeeded() -> void:
-	get_tree().change_scene_to_file(Net.pending_zone_path)
+	Net.begin_join(ip)
 
 
 func _on_connection_failed() -> void:

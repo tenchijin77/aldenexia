@@ -678,7 +678,19 @@ var abilities_book_instance: Node = null
 #endregion
 
 #region Initialization
+# The zone scene ships with one pre-placed player (the solo/host character). A
+# joiner's zone must not keep it — their own character arrives from the host's
+# PlayerSpawner, and a leftover authority-1 copy would show as a phantom "host" that
+# never updates — and a dedicated server has no character at all. Freed here, before
+# any child's _ready() (camera rig, synchronizer) treats it as the local player.
+func _enter_tree() -> void:
+	if Net.omit_preplaced_player and get_parent().name != "RemotePlayers":
+		queue_free()
+
+
 func _ready() -> void:
+	if is_queued_for_deletion():
+		return
 	add_to_group("player")
 	_build_character_model()
 
@@ -1953,6 +1965,8 @@ const MAX_GROUP_SIZE := 6
 # RemotePlayers-spawned puppet, or this node itself. Returns null if that
 # peer isn't currently in the scene (disconnected, different zone, etc.).
 func _peer_id_to_player_node(peer_id: int) -> Node:
+	if not is_inside_tree():  # mid scene change — the HUD can outlive this node by a frame
+		return null
 	for node in get_tree().get_nodes_in_group("player"):
 		if is_instance_valid(node) and node.get_multiplayer_authority() == peer_id:
 			return node

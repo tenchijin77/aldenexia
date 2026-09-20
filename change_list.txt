@@ -330,7 +330,7 @@ to do:
 -create npc at the boat dock that announces boat arrival and departure
 
 
-- possible to create a headless relay server that collects and centralizes game data for multiplayer? This server does not render any graphics or sound, but rather keeps track of game information like combat, hit points and mana, loot, monster information, chat, etc.?
+-possible to create a headless relay server that collects and centralizes game data for multiplayer? This server does not render any graphics or sound, but rather keeps track of game information like combat, hit points and mana, loot, monster information, chat, etc.?
 
 Authoritative Headless Relay Server
 No rendering
@@ -442,8 +442,7 @@ weather can be tested with:
   -fixed slot icons being covered by the tile background and icons failing to load in exported builds
   -unequipping with a full inventory no longer snuffs a lit torch
 
-    -bumped version to 0.2.0 (light slot / dark sight batch changed replicated data); editor runs now always report "(dev)" so a leftover build
-  stamp can't block joining
+  -bumped version to 0.2.0 (light slot / dark sight batch changed replicated data); editor runs now always report "(dev)" so a leftover build stamp can't block joining
 
 
 

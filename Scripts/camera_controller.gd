@@ -57,7 +57,7 @@ func _ready() -> void:
 	# mouselook input, no mouse-mode changes. Offline/single-player is
 	# unaffected since is_multiplayer_authority() is always true with no
 	# active multiplayer peer.
-	if not get_parent().is_multiplayer_authority():
+	if get_parent().is_queued_for_deletion() or not get_parent().is_multiplayer_authority():
 		set_process_input(false)
 		camera.current = false
 		return

@@ -91,7 +91,24 @@ func _build_ui() -> void:
 		bg.set_corner_radius_all(3)
 		slot_panel.add_theme_stylebox_override("panel", bg)
 
+		# Stance icon (class_stances.json's "icon", same field/convention as spells). A stance
+		# without one falls back to its name as text.
+		var icon_tex := SpellInfo.icon_texture(stance)
+		if icon_tex != null:
+			var icon_rect := TextureRect.new()
+			icon_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+			icon_rect.offset_left   = 2
+			icon_rect.offset_top    = 2
+			icon_rect.offset_right  = -2
+			icon_rect.offset_bottom = -2
+			icon_rect.texture = icon_tex
+			icon_rect.expand_mode  = TextureRect.EXPAND_IGNORE_SIZE
+			icon_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			icon_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			slot_panel.add_child(icon_rect)
+
 		var name_lbl := Label.new()
+		name_lbl.visible = icon_tex == null  # the tooltip carries the name once there is an icon
 		name_lbl.set_anchors_preset(Control.PRESET_FULL_RECT)
 		name_lbl.text = stance.get("name", "").replace(" Stance", "")
 		name_lbl.add_theme_font_size_override("font_size", 9)
@@ -102,7 +119,7 @@ func _build_ui() -> void:
 		name_lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		slot_panel.add_child(name_lbl)
 
-		slot_panel.tooltip_text = stance.get("description", "")
+		slot_panel.tooltip_text = "%s\n%s" % [stance.get("name", ""), SpellInfo.wrap_text(str(stance.get("description", "")))]
 		slot_panel.mouse_filter = Control.MOUSE_FILTER_STOP
 
 		var stance_id: String = stance.get("stance_id", "")

@@ -136,7 +136,7 @@ func _scan_for_targets() -> void:
 		attack_target = nearest
 		_engage_origin = global_position
 		state = GuardState.ENGAGE
-		_say_flavor("engage")
+		_say_flavor("engage", true)
 
 
 func _process_engage(delta: float) -> void:

@@ -224,6 +224,8 @@ var game_time: Dictionary = {
 }
 
 var time_accumulator: float = 0.0
+const TIME_SYNC_INTERVAL := 10.0  # real seconds between the server's clock pushes in multiplayer
+var _time_sync_elapsed := 0.0
 var time_running: bool = true
 var session_start_time: int = 0
 var total_playtime_seconds: int = 0
@@ -245,6 +247,28 @@ func _process(delta: float):
 	if time_accumulator >= REAL_SECONDS_PER_GAME_MINUTE:
 		time_accumulator -= REAL_SECONDS_PER_GAME_MINUTE
 		advance_game_time(1)
+	# In a multiplayer game the host/server is the world clock — every peer keeps
+	# ticking locally between pushes, so this only nudges away accumulated drift.
+	if Net.is_multiplayer_game and multiplayer.has_multiplayer_peer() and multiplayer.is_server():
+		_time_sync_elapsed += delta
+		if _time_sync_elapsed >= TIME_SYNC_INTERVAL:
+			_time_sync_elapsed = 0.0
+			for pid in multiplayer.get_peers():
+				send_time_to(pid)
+
+
+# Server -> one peer (a joiner right after the version check, or the periodic push).
+# Without this each machine started its own clock at 12:00, so a joiner could see
+# night while the host saw day, and the two drifted apart from then on.
+func send_time_to(peer_id: int) -> void:
+	_rpc_sync_game_time.rpc_id(peer_id, game_time.duplicate(), time_accumulator)
+
+
+@rpc("authority", "call_remote", "reliable")
+func _rpc_sync_game_time(server_time: Dictionary, server_accumulator: float) -> void:
+	game_time = server_time
+	time_accumulator = server_accumulator
+	emit_signal("time_changed", game_time.duplicate())
 
 func load_xp_table():
 	var file = FileAccess.open("res://Data/xp_table.json", FileAccess.READ)

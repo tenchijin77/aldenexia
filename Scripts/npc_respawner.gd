@@ -19,6 +19,24 @@ static func is_dead(npc: Node) -> bool:
 	return npc.has_meta(DEAD_META)
 
 
+# Client-side mirror of a server-side death/respawn: the server hides the NPC and pulls it
+# out of every group (see handle_death); a puppet only learns the replicated `visible`
+# flag, so it applies the same untargetable/no-collision state locally.
+static func mirror_hidden(npc: Node3D, hidden: bool) -> void:
+	for c in npc.find_children("*", "CollisionShape3D", true, false):
+		c.set_deferred("disabled", hidden)
+	if hidden:
+		var groups: Array = []
+		for g in npc.get_groups():
+			if not str(g).begins_with("_"):
+				groups.append(g)
+				npc.remove_from_group(g)
+		npc.set_meta(GROUPS_META, groups)
+	else:
+		for g in npc.get_meta(GROUPS_META, []):
+			npc.add_to_group(g)
+
+
 static func handle_death(npc: Node3D, respawn_seconds: float) -> void:
 	if not is_instance_valid(npc) or is_dead(npc):
 		return

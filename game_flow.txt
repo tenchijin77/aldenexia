@@ -2681,6 +2681,27 @@ TRACKING WINDOW (T key; added 2026-09-17, Session 44)
 MULTIPLAYER / NETCODE — CURRENT STATE (as of 2026-09-17, Session 45)
 ================================================================================
 
+SESSION 50 UPDATE (2026-09-19) — how a multiplayer game is assembled now (supersedes the older
+"host's own player3d is the pre-placed zone node" description below):
+- JOIN ORDER: Net.begin_join(address) loads the zone FIRST; the zone root's multiplayer_player_spawner.gd
+  connects from _ready (Net.complete_pending_join()). Godot drops any spawn whose spawner node doesn't
+  exist yet and never resends it, and the host replicates the instant a peer connects — so connecting from
+  the menu and loading the zone afterwards left joiners without their character/monsters/host name.
+  A failed join or a lost server returns to the main menu with Net.last_failure_reason.
+- EVERY PLAYER IS SPAWNED: in multiplayer the zone's pre-placed player3d is dropped
+  (Net.omit_preplaced_player -> player3d.gd _enter_tree()); host and joiners alike come from PlayerSpawner at
+  the spawner script's spawn_position. Net.is_dedicated_server = the host has no character (no spawn for peer 1).
+  Single-player still uses the pre-placed node.
+- AUTHORITY MAP: server owns monsters/spawn table/weather/world clock/guards+Oni; each player owns their own
+  movement, HP/MP, inventory and save file (replicated outward); pets are owner-authoritative.
+- MONSTER -> PLAYER HITS: the server does NOT resolve a swing on a remote player's stat-less puppet (HP replicates
+  owner->others only). monster3d.gd perform_attack() sends the target's owner _rpc_resolve_attack_on_owner; the
+  owner rolls the defender side against real stats/HP. Aggro ("attacks you!") is routed the same way.
+- WORLD CLOCK: Global.send_time_to() on join + every 10 s (_rpc_sync_game_time); peers tick locally between pushes.
+- TOWN NPCs: GuardNPC (guards, Oni) AI runs on the server only (_is_puppet()); a MultiplayerSynchronizer replays
+  position/rotation/velocity/state/attack_seq/visible/HP. Unprompted speech uses say_to_all() (server decides,
+  peers apply their own hearing range); hails stay local. Kenji/vendors are static and not replicated.
+
 See also `[[project_multiplayer_netcode]]`-style notes in Claude's memory and
 `change_list.txt`'s netcode to-do entries for a narrative history. This
 section is the current-state snapshot.

@@ -6,6 +6,32 @@
 radius = 0.3
 height = 0.8
 
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_npcsync"]
+properties/0/path = NodePath(".:position")
+properties/0/spawn = true
+properties/0/replication_mode = 1
+properties/1/path = NodePath(".:rotation")
+properties/1/spawn = true
+properties/1/replication_mode = 1
+properties/2/path = NodePath(".:velocity")
+properties/2/spawn = true
+properties/2/replication_mode = 1
+properties/3/path = NodePath(".:state")
+properties/3/spawn = true
+properties/3/replication_mode = 2
+properties/4/path = NodePath(".:attack_seq")
+properties/4/spawn = true
+properties/4/replication_mode = 2
+properties/5/path = NodePath(".:visible")
+properties/5/spawn = true
+properties/5/replication_mode = 2
+properties/6/path = NodePath("CombatNode:current_hp")
+properties/6/spawn = true
+properties/6/replication_mode = 2
+properties/7/path = NodePath("CombatNode:max_hp")
+properties/7/spawn = true
+properties/7/replication_mode = 2
+
 [node name="Oni" type="CharacterBody3D" groups=["npc_guard"]]
 script = ExtResource("1_oni")
 npc_name = "Oni"
@@ -22,3 +48,7 @@ text = "Oni"
 outline_size = 6
 
 [node name="NavigationAgent3D" type="NavigationAgent3D" parent="."]
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
+replication_interval = 0.05
+replication_config = SubResource("SceneReplicationConfig_npcsync")
