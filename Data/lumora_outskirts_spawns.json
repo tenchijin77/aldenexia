@@ -24,6 +24,50 @@
       "spawn_zone": "dunes_start"
     },
     {
+      "mob_type": "rat",
+      "position": [95, 2, 45],
+      "spawn_radius": 10.0,
+      "spawn_chance": 0.7,
+      "max_active": 12,
+      "respawn_time": 12,
+      "min_level": 1,
+      "max_level": 2,
+      "spawn_zone": "dunes_far"
+    },
+    {
+      "mob_type": "rat",
+      "position": [-80, 2, 60],
+      "spawn_radius": 10.0,
+      "spawn_chance": 0.7,
+      "max_active": 12,
+      "respawn_time": 12,
+      "min_level": 1,
+      "max_level": 2,
+      "spawn_zone": "dunes_far"
+    },
+    {
+      "mob_type": "rat",
+      "position": [85, 2, -65],
+      "spawn_radius": 10.0,
+      "spawn_chance": 0.7,
+      "max_active": 12,
+      "respawn_time": 12,
+      "min_level": 1,
+      "max_level": 2,
+      "spawn_zone": "dunes_far"
+    },
+    {
+      "mob_type": "rat",
+      "position": [-95, 2, -35],
+      "spawn_radius": 10.0,
+      "spawn_chance": 0.7,
+      "max_active": 12,
+      "respawn_time": 12,
+      "min_level": 1,
+      "max_level": 2,
+      "spawn_zone": "dunes_far"
+    },
+    {
       "mob_type": "snake",
       "position": [-40, 2, 30],
       "spawn_radius": 10.0,

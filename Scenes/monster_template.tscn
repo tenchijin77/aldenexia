@@ -48,7 +48,7 @@ surface_material_override/0 = SubResource("StandardMaterial3D_001")
 [node name="NameLabel" type="Label3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.2, 0)
 billboard = 1
-no_depth_test = true
+alpha_cut = 2
 outline_size = 6
 
 [node name="NavigationAgent3D" type="NavigationAgent3D" parent="." unique_id=883652468]

@@ -304,6 +304,8 @@ func initialize_time_system():
 	var total_days = (game_time.month * DAYS_PER_MONTH) + game_time.day - 1
 	game_time.day_of_week = total_days % DAYS_PER_WEEK
 
+# Called when the local character actually enters the world (player3d.gd), so menu and
+# loading time isn't counted — /played measures time spent in game.
 func start_playtime_tracking():
 	session_start_time = Time.get_ticks_msec()
 
@@ -333,30 +335,75 @@ func format_short_date() -> String:
 func format_full_date() -> String:
 	return "Day %d, %s, %s %d - %s" % [game_time.day, DAYS_OF_WEEK[game_time.day_of_week], MONTHS[game_time.month], game_time.year, format_time_24h()]
 
+# In-world birth date and clock time, e.g. "Day 6, Nexar, Luminar 300 at 12:19" — "Unknown" for a
+# character created before creation timestamps existed.
+func format_birthday_ingame(creation_data: Dictionary) -> String:
+	if not creation_data.has("game_time"):
+		return "Unknown"
+	var gt: Dictionary = creation_data.game_time
+	# JSON hands numbers back as floats, and arrays can't be indexed by a float — cast first.
+	var dow: int = clampi(int(gt.get("day_of_week", 0)), 0, DAYS_OF_WEEK.size() - 1)
+	var month: int = clampi(int(gt.get("month", 0)), 0, MONTHS.size() - 1)
+	return "Day %d, %s, %s %d at %02d:%02d" % [int(gt.get("day", 1)), DAYS_OF_WEEK[dow], MONTHS[month],
+			int(gt.get("year", START_YEAR)), int(gt.get("hour", 0)), int(gt.get("minute", 0))]
+
+
+# Real-world creation date and time, e.g. "08/25/2026 at 6:30 PM" (12-hour, like /time's real clock).
+func format_birthday_real(creation_data: Dictionary) -> String:
+	var real_time: String = str(creation_data.get("real_time", ""))
+	var parts := real_time.split("T")
+	if parts.size() < 2:
+		return "Unknown"
+	var date_part := parts[0].split("-")
+	var time_part := parts[1].split(":")
+	if date_part.size() < 3 or time_part.size() < 2:
+		return "Unknown"
+	var hour24: int = int(time_part[0])
+	var hour12: int = hour24 % 12
+	if hour12 == 0:
+		hour12 = 12
+	return "%s/%s/%s at %d:%s %s" % [date_part[1], date_part[2], date_part[0], hour12, time_part[1], "AM" if hour24 < 12 else "PM"]
+
+
 func format_birthday(creation_data: Dictionary) -> String:
 	if not creation_data.has("game_time"):
 		return "Unknown"
-	var gt = creation_data.game_time
-	var real_time = creation_data.get("real_time", "")
-	var formatted_real = "Unknown"
-	if real_time.length() > 0:
-		var parts = real_time.split("T")
-		if parts.size() >= 2:
-			var date_part = parts[0].split("-")
-			var time_part = parts[1].split(":")
-			if date_part.size() >= 3 and time_part.size() >= 2:
-				formatted_real = "%s/%s/%s at %s:%s" % [date_part[1], date_part[2], date_part[0], time_part[0], time_part[1]]
-	return "Day %d, %s, %s %d (%s)" % [gt.get("day", 1), DAYS_OF_WEEK[gt.get("day_of_week", 0)], MONTHS[gt.get("month", 0)], gt.get("year", START_YEAR), formatted_real]
+	return "%s (%s)" % [format_birthday_ingame(creation_data), format_birthday_real(creation_data)]
+
+
+# "3 days ago" / "today" for a character's real-world creation time (both clocks read as local time).
+func format_real_age(creation_data: Dictionary) -> String:
+	var real_time: String = str(creation_data.get("real_time", ""))
+	if real_time.is_empty():
+		return ""
+	var created: int = int(Time.get_unix_time_from_datetime_string(real_time))
+	var now_local: int = int(Time.get_unix_time_from_datetime_dict(Time.get_datetime_dict_from_system(false)))
+	var days: int = maxi(0, now_local - created) / 86400
+	if days <= 0:
+		return "today"
+	return "1 day ago" if days == 1 else "%d days ago" % days
+
 
 func format_playtime(seconds: int) -> String:
-	var hours = seconds / 3600
-	var minutes = (seconds % 3600) / 60
-	return "%dh %dm" % [hours, minutes] if hours > 0 else "%dm" % minutes
+	var days: int = seconds / 86400
+	var hours: int = (seconds % 86400) / 3600
+	var minutes: int = (seconds % 3600) / 60
+	if days > 0:
+		return "%dd %dh %dm" % [days, hours, minutes]
+	if hours > 0:
+		return "%dh %dm" % [hours, minutes]
+	if minutes > 0:
+		return "%dm" % minutes
+	return "less than a minute"
 
+
+# Total for this character: everything banked in the save plus the current session.
 func get_total_playtime() -> int:
-	var current = Time.get_ticks_msec()
-	var session = (current - session_start_time) / 1000
-	return total_playtime_seconds + int(session)
+	return total_playtime_seconds + get_session_playtime()
+
+
+func get_session_playtime() -> int:
+	return int((Time.get_ticks_msec() - session_start_time) / 1000)
 
 func is_daytime() -> bool:
 	return game_time.hour >= DAY_START_HOUR and game_time.hour < DAY_END_HOUR
@@ -441,7 +488,7 @@ func set_player_data(data: Dictionary):
 	player_data = data
 	current_character_data = data
 	current_character_name = data.get("player_name", "Unknown")
-	total_playtime_seconds = data.get("playtime_seconds", 0)
+	total_playtime_seconds = int(data.get("playtime_seconds", 0))
 	session_start_time = Time.get_ticks_msec()
 
 func clear_current_character_data():
@@ -484,6 +531,9 @@ func save_player_data_to_file() -> void:
 	var p: Node3D = TargetFrame.local_player()
 	if is_instance_valid(p):
 		player_data["last_position"] = [p.global_position.x, p.global_position.y, p.global_position.z]
+	# Bank the running total into the save. Before this the total only reached the character
+	# sheet's display, so every save kept "playtime_seconds": 0 no matter how long you played.
+	player_data["playtime_seconds"] = get_total_playtime()
 	var file_path := "user://saves/%s_character_stats.json" % current_character_name.to_lower()
 	var file := FileAccess.open(file_path, FileAccess.WRITE)
 	if file:

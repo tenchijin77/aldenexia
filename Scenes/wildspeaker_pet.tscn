@@ -37,14 +37,14 @@ shape = SubResource("CapsuleShape3D_wspet01")
 [node name="NameLabel" type="Label3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.6, 0)
 billboard = 1
-no_depth_test = true
+alpha_cut = 2
 modulate = Color(0.55, 0.85, 0.45, 1)
 outline_size = 6
 
 [node name="TitleLabel" type="Label3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.3, 0)
 billboard = 1
-no_depth_test = true
+alpha_cut = 2
 font_size = 28
 outline_size = 4
 

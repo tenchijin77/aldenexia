@@ -36,6 +36,16 @@ candidates instead of guessing; a typo that matches nothing prints "Unknown comm
   Note: `/p` is now ambiguous between /party and /pet (use /pa or /pe, or the full names).
 - `/weather rain|clear` (added 2026-09-19, host / single-player only) — start or stop rain; it
   otherwise rains on its own, randomly and rarely.
+- Chat channels (added 2026-09-19, Session 50). A dropdown left of the chat box picks the channel plain text goes to;
+  it is sticky — it only changes when you pick another one or type a channel command. Each has its own color:
+  `/say [text]` (yellow) heard by players within 10 m; `/party [text]` (blue) your group; `/zone [text]` (orange) a shout the
+  whole zone hears; `/tell <name> [text]` (purple) one player — `/tell Name` makes later plain text keep going to them, and the
+  dropdown reads "Tell: Name". A channel command with text sends it AND switches to that channel; without text it only
+  switches. In single-player /say and /zone just echo to yourself. Typed "[" is escaped and messages are capped at 300 chars.
+- `/played` (added 2026-09-19) — the character's birthday and time in game: the in-world birth date with its clock time,
+  the real-world date/time (12-hour) with how many days ago, and total time played plus this session.
+  Playtime is a per-character running total banked into the save on every save; it starts counting when you enter the world
+  (not menus/loading). Existing characters start from 0 — it never persisted before.
 
 ### Movement
 - `W` / `Up` — move forward
@@ -1019,6 +1029,44 @@ and ran their AI with zero errors — and turned up the bugs below.
 ### Version
 - v0.2.0 -> **v0.3.0** (2026-09-19): new RPCs (monster attack/aggro relay, world-clock sync, NPC speech) and a new join
   order, so 0.2.0 builds must not mix with 0.3.0. Stamp a fresh build (commit -> tools/stamp_build.sh -> export).
+
+### Session 50 follow-ups (after the first 0.3.0 test build)
+- Old characters' inventory/equipment icons: a saved item is a full copy of its definition, including the icon path from the
+  day it was created, so every pre-Session-49 character kept dead paths (`Assets/789_Lorc_RPG_icons/...` = flat white
+  silhouettes, `Assets/Items/torch.png` = blank slot; the ragged starter set all showed one white shield). `Inventory.load_inventory_data()`
+  now calls `refresh_item_icons()` (bags, bank, equipped; pet gear via `player3d.gd`), re-reading the icon from items.json. Presentational
+  only; nothing else on the saved item changes. Checked against Zozuur's real save: 21 items, 0 missing icons.
+- Tab: target cycling also left Godot's built-in Tab focus navigation enabled, so each press shifted keyboard focus around the HUD
+  (proved: with a HUD button focused, Tab hopped Invite <-> Disband). Movement is skipped whenever the chat `LineEdit` has focus, which
+  matches "Tab targets but I can't move". `player3d.gd::_input()` now consumes the Tab press (unless a LineEdit is focused, so typing is
+  unaffected). Verified focus stays put and targeting still cycles. Not reproduced end-to-end in the exact "stuck" state.
+- Rats: Oni (home ~(22,20), hunt_range 60 + leash 15) reached both original rat spawns, and her kills use die(false, false) so nothing she kills
+  drops loot — no tails ever reached the player. Added four rat spawn entries ~100 m out (95,45) (-80,60) (85,-65) (-95,-35),
+  all on the navmesh and beyond her reach, `max_active` 12. NOTE: mob_spawner3d.gd counts active monsters PER TYPE across all entries, so
+  a new entry's max_active is really the type-wide cap. Probe after 50 s: 11 rats alive beyond her reach, 1 near town.
+- Oni's `hunt_range` 60 -> 25 m (user's call), so with the 15 m leash she now stops at 40 m from her home (~(22,20)). Of the original rat spawns only
+  the one near the gate is still inside it; the other and the four new far ones are out of reach.
+- Nameplates through walls: every NameLabel/TitleLabel (monsters, guards, Oni, Kenji, vendors, pets, players) had `no_depth_test = true`,
+  which draws a Label3D over all geometry. Now depth-tested with `alpha_cut = 2` (opaque prepass, crisp edges). Screenshot-verified: Kenji's
+  and a guard's names no longer show through the town wall.
+- Clock: re-tested with same-instant sampling — host and joiner identical to the minute over 20 samples. Cause of the reported mismatch not found yet.
+
+- Chat channels + `/played` (see the Commands reference at the top). New `chat_channels.gd` (`ChatChannels`) holds channel names/colors/line
+  formats so the sender's echo, the receiver's line (`net.gd`) and the dropdown (`game_log_window.gd`) can't drift. New RPCs
+  `_rpc_receive_say` / `_rpc_receive_zone_message`; the say range is judged on the SENDER from replicated positions, so a far
+  player is never sent the line. Verified with two processes: heard at 1.7 m, not at 40 m; zone reached 40 m; sticky Tell worked.
+  The dropdown takes no keyboard focus (click only) so it can't steal movement keys or reintroduce the Tab-focus problem.
+- Playtime persistence bug: `playtime_seconds` only ever reached the character sheet's display, so every save kept 0. `Global.save_player_data_to_file()`
+  now banks `get_total_playtime()`. Verified: 120 s banked + ~16 s played saved as 136.
+- `Global.format_birthday()` had never been called and would have crashed: it indexed arrays with the floats JSON returns. Now split into
+  `format_birthday_ingame()` / `format_birthday_real()` with int casts, plus `format_real_age()`.
+- Test-harness lesson: rewriting a save with Python's json.dump writes `Infinity`, which Godot can't parse (Godot itself writes/reads `1e99999`);
+  the character then fails to load and the game falls back to the dev defaults, whose autosave overwrote `dev_character_stats.json` (the
+  dev-defaults test character, regenerated identically). Test scripts now refuse to run unless their own character loaded.
+
+### Version
+- v0.3.0 -> **v0.3.1** (2026-09-19): Say/Zone chat RPCs were added after the 0.3.0 build, so 0.3.0 and 0.3.1 must not mix. From here follow-up
+  batches bump the last number (0.3.1, 0.3.2, ...); the middle number is for bigger steps. Stamp a fresh build (commit -> tools/stamp_build.sh -> export).
 
 ### Known / left alone
 - `Node 'CombatNode:current_hp' not found` log noise on joiners: the CombatNode is created in `_ready()`, after the

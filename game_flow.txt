@@ -2698,6 +2698,10 @@ SESSION 50 UPDATE (2026-09-19) — how a multiplayer game is assembled now (supe
   owner->others only). monster3d.gd perform_attack() sends the target's owner _rpc_resolve_attack_on_owner; the
   owner rolls the defender side against real stats/HP. Aggro ("attacks you!") is routed the same way.
 - WORLD CLOCK: Global.send_time_to() on join + every 10 s (_rpc_sync_game_time); peers tick locally between pushes.
+- CHAT: four channels (ChatChannels: Say yellow / Party blue / Zone orange / Tell purple). game_log_window.gd keeps a sticky current
+  channel (dropdown + /say /party /zone /tell); plain text goes to it. Say is range-filtered on the SENDER (10 m, replicated positions)
+  and sent per peer; Zone goes to every peer; Party to group_members; Tell to one named player. /played reads Global (character_creation +
+  banked playtime_seconds).
 - TOWN NPCs: GuardNPC (guards, Oni) AI runs on the server only (_is_puppet()); a MultiplayerSynchronizer replays
   position/rotation/velocity/state/attack_seq/visible/HP. Unprompted speech uses say_to_all() (server decides,
   peers apply their own hearing range); hails stay local. Kenji/vendors are static and not replicated.

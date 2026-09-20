@@ -415,7 +415,35 @@ func load_inventory_data(data: Dictionary):
 			equipped[slot] = null
 	while basic_inventory.size() < BASIC_INVENTORY_SIZE:
 		basic_inventory.append(null)
+	refresh_item_icons(basic_inventory)
+	refresh_item_icons(bag_contents)
+	refresh_item_icons(bank_storage)
+	refresh_item_icons(equipped)
 	print("✅ Inventory data loaded")
+
+
+# A saved item is a full COPY of its definition taken when it was created
+# (create_item_instance()), so it also carries the icon path from that day. When
+# items.json's icons were re-pathed (Session 49) every older character kept the dead
+# path — flat white placeholder silhouettes for the old Lorc art, blank slots for files
+# that no longer exist. The icon is purely presentational, so re-read it from the
+# current definition on every load; nothing else on the saved item is touched. Walks
+# any mix of arrays/dictionaries so it covers bags, bank, equipment and pet gear alike.
+func refresh_item_icons(node: Variant) -> void:
+	if node is Array:
+		for entry in node:
+			refresh_item_icons(entry)
+	elif node is Dictionary:
+		var item_id: String = str(node.get("item_id", ""))
+		if not item_id.is_empty() and item_data.has(item_id):
+			var icon: String = str(item_data[item_id].get("icon", ""))
+			if not icon.is_empty():
+				node["icon"] = icon
+		else:
+			for key in node:
+				var value: Variant = node[key]
+				if value is Array or value is Dictionary:
+					refresh_item_icons(value)
 #endregion
 
 #region Drag & Drop Movement

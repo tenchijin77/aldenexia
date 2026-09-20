@@ -124,12 +124,35 @@ func get_local_ip() -> String:
 # resolve "the same node" across the network the way a per-player RPC would.
 @rpc("any_peer", "call_remote", "reliable")
 func _rpc_receive_tell(sender_name: String, message: String) -> void:
-	GameLog.log_general("[color=#cc88ff]%s tells you, '%s'[/color]" % [sender_name, message])
+	GameLog.log_general(ChatChannels.tell_other(sender_name, message))
 
 
 @rpc("any_peer", "call_remote", "reliable")
 func _rpc_receive_party_message(sender_name: String, message: String) -> void:
-	GameLog.log_general("[color=#88ccff][Party] %s: %s[/color]" % [sender_name, message])
+	GameLog.log_general(ChatChannels.party_other(sender_name, message))
+
+
+# /say and /zone. Like the rest of these, sender_name is whatever the sender claims — fine for
+# a private/trusted game, to be checked against the peer id if this ever needs to be hardened.
+@rpc("any_peer", "call_remote", "reliable")
+func _rpc_receive_say(sender_name: String, message: String) -> void:
+	GameLog.log_general(ChatChannels.say_other(sender_name, message))
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func _rpc_receive_zone_message(sender_name: String, message: String) -> void:
+	GameLog.log_general(ChatChannels.zone_other(sender_name, message))
+
+
+func send_say(target_peer_id: int, sender_name: String, message: String) -> void:
+	_rpc_receive_say.rpc_id(target_peer_id, sender_name, message)
+
+
+# Everyone connected (there is one zone today; once there are several, the server filters this
+# by the sender's zone).
+func broadcast_zone_message(sender_name: String, message: String) -> void:
+	for pid in multiplayer.get_peers():
+		_rpc_receive_zone_message.rpc_id(pid, sender_name, message)
 
 
 func send_tell(target_peer_id: int, sender_name: String, message: String) -> void:

@@ -26,6 +26,13 @@ var _resizing  := false
 var _font_size: int = 12
 var _font_menu: PopupMenu
 
+# Chat channel the box currently talks in (see ChatChannels). Sticky: it only changes when you
+# pick another one from the dropdown or type a channel command (/say /party /zone /tell), so
+# plain text keeps going to the last channel you used.
+var _channel: int = ChatChannels.SAY
+var _tell_target := ""  # who the Tell channel talks to — set by "/tell <name>"
+var _channel_menu: OptionButton
+
 # Detached Combat window (Panel lives outside the main Tabs while detached)
 var _combat_window: CanvasLayer = null
 var _combat_window_panel: Panel = null
@@ -52,6 +59,7 @@ func _ready() -> void:
 	# other focusable control while the chat box is active.
 	chat_input.focus_neighbor_top    = chat_input.get_path()
 	chat_input.focus_neighbor_bottom = chat_input.get_path()
+	_setup_channel_dropdown()
 	chat_input.text_submitted.connect(_on_chat_input_submitted)
 	chat_input.gui_input.connect(_on_chat_input_gui_input)
 	set_process_unhandled_input(true)
@@ -414,7 +422,107 @@ func _on_chat_input_submitted(text: String) -> void:
 	if text.begins_with("/"):
 		_handle_slash_command(text)
 	else:
-		GameLog.log_general("[color=yellow]You say, '%s'[/color]" % text)
+		_send_on_channel(_channel, text)
+
+
+# ── Chat channels ─────────────────────────────────────────────────────────────
+
+# A row of [channel dropdown][chat box] in place of the bare chat box. The dropdown never takes
+# keyboard focus (click only) so it can't steal movement keys or trap Tab/Space.
+func _setup_channel_dropdown() -> void:
+	var box_parent := chat_input.get_parent()
+	var index := chat_input.get_index()
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 4)
+
+	_channel_menu = OptionButton.new()
+	_channel_menu.focus_mode = Control.FOCUS_NONE
+	_channel_menu.add_theme_font_size_override("font_size", 12)
+	_channel_menu.tooltip_text = "Chat channel — plain text goes here. Type /say /party /zone or /tell to switch."
+	for ch in ChatChannels.NAMES.size():
+		_channel_menu.add_icon_item(_color_swatch(ChatChannels.color(ch)), ChatChannels.NAMES[ch], ch)
+	_channel_menu.item_selected.connect(func(idx: int) -> void: _set_channel(idx))
+	row.add_child(_channel_menu)
+
+	box_parent.remove_child(chat_input)
+	chat_input.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(chat_input)
+	box_parent.add_child(row)
+	box_parent.move_child(row, index)
+	_set_channel(ChatChannels.SAY)
+
+
+static func _color_swatch(color: Color) -> ImageTexture:
+	var img := Image.create(12, 12, false, Image.FORMAT_RGBA8)
+	img.fill(color)
+	return ImageTexture.create_from_image(img)
+
+
+func _set_channel(channel: int, tell_target: String = "") -> void:
+	_channel = channel
+	if channel == ChatChannels.TELL and not tell_target.is_empty():
+		_tell_target = tell_target
+	var color := ChatChannels.color(channel)
+	_channel_menu.select(channel)
+	_channel_menu.set_item_text(ChatChannels.TELL, "Tell: %s" % _tell_target if not _tell_target.is_empty() else "Tell")
+	_channel_menu.add_theme_color_override("font_color", color)
+	_channel_menu.add_theme_color_override("font_hover_color", color)
+	_channel_menu.add_theme_color_override("font_focus_color", color)
+	chat_input.add_theme_color_override("font_color", color)  # what you type previews the color it will appear in
+	chat_input.add_theme_color_override("caret_color", color)
+	chat_input.placeholder_text = _placeholder_for(channel)
+
+
+func _placeholder_for(channel: int) -> String:
+	match channel:
+		ChatChannels.PARTY:
+			return "Party chat... (or /loc)"
+		ChatChannels.ZONE:
+			return "Shout to the whole zone... (or /loc)"
+		ChatChannels.TELL:
+			return ("Tell %s..." % _tell_target) if not _tell_target.is_empty() else "/tell <name> to pick who to talk to"
+	return "Say something nearby... (or /loc)"
+
+
+func _send_on_channel(channel: int, message: String) -> void:
+	match channel:
+		ChatChannels.SAY:
+			player.send_say(message)
+		ChatChannels.PARTY:
+			player.send_party_message(message)
+		ChatChannels.ZONE:
+			player.send_zone(message)
+		ChatChannels.TELL:
+			if _tell_target.is_empty():
+				GameLog.log_general("[color=red]Use /tell <name> to choose who to talk to.[/color]")
+			else:
+				player.send_tell(_tell_target, message)
+
+
+# /say, /party and /zone: switch to the channel, and send the rest of the line if there is one.
+func _channel_command(channel: int, arg: String) -> void:
+	_set_channel(channel)
+	if not arg.is_empty():
+		_send_on_channel(channel, arg)
+
+
+# /tell <name> [message]: the name becomes the Tell channel's target, so later plain text keeps
+# going to them; without a message it only switches.
+func _tell_command(arg: String) -> void:
+	var tell_parts := arg.split(" ", false, 1)
+	if tell_parts.is_empty():
+		if _tell_target.is_empty():
+			GameLog.log_general("[color=red]Usage: /tell <name> [message][/color]")
+		else:
+			_set_channel(ChatChannels.TELL)
+		return
+	var target_name: String = tell_parts[0]
+	if Net.is_multiplayer_game and player._find_player_by_name(target_name) == null:
+		GameLog.log_general("[color=red]No player named '%s' is currently online.[/color]" % target_name)
+		return
+	_set_channel(ChatChannels.TELL, target_name)
+	if tell_parts.size() > 1:
+		player.send_tell(target_name, tell_parts[1])
 
 
 # Lets Escape back out of an accidental click into the chat box without
@@ -429,7 +537,7 @@ func _on_chat_input_gui_input(event: InputEvent) -> void:
 # too (Linux-style abbreviation) — see _resolve_command() below. e.g. "/loc"
 # and "/location" both resolve to "/location" since no other command starts
 # with "loc"; "/f" would be ambiguous if two commands both started with "f".
-const COMMANDS := ["/location", "/hail", "/appraise", "/time", "/follow", "/camp", "/exit", "/log", "/invite", "/disband", "/tell", "/party", "/resetui", "/who", "/weather", "/pet"]
+const COMMANDS := ["/location", "/hail", "/appraise", "/time", "/follow", "/camp", "/exit", "/log", "/invite", "/disband", "/say", "/tell", "/party", "/zone", "/played", "/resetui", "/who", "/weather", "/pet"]
 
 
 func _handle_slash_command(text: String) -> void:
@@ -486,17 +594,16 @@ func _handle_slash_command(text: String) -> void:
 				player.disband_or_kick_from_group(player.current_target)
 			else:
 				player.disband_from_group_by_name(arg)
-		"/tell":
-			var tell_parts := arg.split(" ", false, 1)
-			if tell_parts.size() < 2:
-				GameLog.log_general("[color=red]Usage: /tell <name> <message>[/color]")
-			else:
-				player.send_tell(tell_parts[0], tell_parts[1])
+		"/say":
+			_channel_command(ChatChannels.SAY, arg)
+		"/zone":
+			_channel_command(ChatChannels.ZONE, arg)
 		"/party":
-			if arg.is_empty():
-				GameLog.log_general("[color=red]Usage: /party <message>[/color]")
-			else:
-				player.send_party_message(arg)
+			_channel_command(ChatChannels.PARTY, arg)
+		"/tell":
+			_tell_command(arg)
+		"/played":
+			_show_played()
 		"/resetui":
 			player.reset_ui()
 		"/time":
@@ -608,6 +715,21 @@ func _resolve_command(typed: String) -> String:
 		return ""
 	GameLog.log_general("[color=red]Unknown command: %s[/color]" % typed)
 	return ""
+
+
+# /played — the character's birthday (when it was created, in-world and real dates) and the time
+# spent in game. The total is banked into the save (Global.save_player_data_to_file()).
+func _show_played() -> void:
+	var creation: Dictionary = Global.player_data.get("character_creation", {})
+	var who: String = str(player.player_name)
+	if not creation.has("game_time"):
+		GameLog.log_general("[color=green]%s's birthday is lost to history.[/color]" % who)
+	else:
+		GameLog.log_general("[color=green]%s was born on %s (in-game).[/color]" % [who, Global.format_birthday_ingame(creation)])
+		var age := Global.format_real_age(creation)
+		GameLog.log_general("[color=green]In the real world: %s%s.[/color]" % [Global.format_birthday_real(creation), (" — " + age) if not age.is_empty() else ""])
+	GameLog.log_general("[color=green]Time played: %s (this session: %s).[/color]" % [
+		Global.format_playtime(Global.get_total_playtime()), Global.format_playtime(Global.get_session_playtime())])
 
 
 # ── Log output ────────────────────────────────────────────────────────────────

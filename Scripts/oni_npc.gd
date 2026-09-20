@@ -21,7 +21,7 @@ const HUNT_LEASH_EXTRA := 15.0  # gave up if prey drags her this far past hunt_r
 ## monster_name values she will hunt.
 @export var prey_monsters: PackedStringArray = ["rat"]
 ## How far from her home spot she'll notice and chase prey.
-@export var hunt_range: float = 60.0
+@export var hunt_range: float = 25.0
 
 @export_group("Chat text")
 ## Shown when a player pets her (/pet). {name} = her name.

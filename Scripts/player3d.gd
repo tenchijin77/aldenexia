@@ -197,6 +197,19 @@ const FOLLOW_WAYPOINT_EPSILON := 1.5
 var animation_player: AnimationPlayer = null
 #endregion
 
+# Tab is the target-cycle key, but it is ALSO Godot's built-in "move keyboard focus to the
+# next UI control" key — so every press shifted focus around the HUD (pet/group buttons, the
+# chat box) while it cycled targets. Once the chat box's LineEdit gets that focus, movement is
+# deliberately skipped (see _physics_process()'s chat_focused), which read as "Tab targets the
+# next mob but I can't move." The action state is polled elsewhere, so consuming the event
+# here only stops the GUI from also acting on it; typing in the chat box is left alone.
+func _input(event: InputEvent) -> void:
+	if not is_multiplayer_authority():
+		return
+	if event.is_action_pressed("tab_target") and not (get_viewport().gui_get_focus_owner() is LineEdit):
+		get_viewport().set_input_as_handled()
+
+
 #region Loot interaction
 const LOOT_RANGE := 5.0
 
@@ -738,6 +751,7 @@ func _ready() -> void:
 	_load_spell_cache()
 	load_player_data_from_global()
 	call_deferred("_restore_pet_if_saved")
+	Global.start_playtime_tracking()  # the /played clock starts when you enter the world
 	_death_flavor = NPCFlavorText.new("res://Data/player_death_flavor.json")
 	_food_drink_flavor = NPCFlavorText.new("res://Data/food_drink_flavor.json")
 	_restore_last_position()
@@ -2107,8 +2121,9 @@ func send_tell(target_name: String, message: String) -> void:
 	if target == self:
 		GameLog.log_general("[color=red]You can't tell yourself something... or can you?[/color]")
 		return
+	message = ChatChannels.clean(message)
 	Net.send_tell(target.get_multiplayer_authority(), player_name, message)
-	GameLog.log_general("[color=#cc88ff]You tell %s, '%s'[/color]" % [TargetFrame.display_name(target), message])
+	GameLog.log_general(ChatChannels.tell_self(TargetFrame.display_name(target), message))
 
 
 # /party <message> — broadcasts to every OTHER real player currently in
@@ -2123,8 +2138,35 @@ func send_party_message(message: String) -> void:
 	if peer_ids.is_empty():
 		GameLog.log_general("[color=red]You aren't in a group.[/color]")
 		return
+	message = ChatChannels.clean(message)
 	Net.send_party_message(peer_ids, player_name, message)
-	GameLog.log_general("[color=#88ccff][Party] You: %s[/color]" % message)
+	GameLog.log_general(ChatChannels.party_self(message))
+
+
+# /say — heard by players within ChatChannels.SAY_RANGE. The distance is judged here from the
+# replicated positions, so a far-away player is never even sent the line. In single-player
+# there is nobody else, so it is just echoed to yourself.
+func send_say(message: String) -> void:
+	message = ChatChannels.clean(message)
+	if message.is_empty():
+		return
+	GameLog.log_general(ChatChannels.say_self(message))
+	if not Net.is_multiplayer_game or not multiplayer.has_multiplayer_peer():
+		return
+	for pid in multiplayer.get_peers():
+		var other := TargetFrame.peer_id_to_player_node(pid)
+		if is_instance_valid(other) and other.global_position.distance_to(global_position) <= ChatChannels.SAY_RANGE:
+			Net.send_say(pid, player_name, message)
+
+
+# /zone — a shout everyone in the zone hears. Echoed to yourself in single-player.
+func send_zone(message: String) -> void:
+	message = ChatChannels.clean(message)
+	if message.is_empty():
+		return
+	GameLog.log_general(ChatChannels.zone_self(message))
+	if Net.is_multiplayer_game and multiplayer.has_multiplayer_peer():
+		Net.broadcast_zone_message(player_name, message)
 
 
 func tab_cycle_target() -> void:
@@ -2702,6 +2744,7 @@ func load_character_data(data: Dictionary) -> void:
 	data["equipment"] = data.get("equipment", {})
 
 	pet_equipment = data.get("pet_equipment", {})
+	Inventory.refresh_item_icons(pet_equipment)
 	for slot in PET_EQUIPMENT_SLOTS:
 		if not pet_equipment.has(slot):
 			pet_equipment[slot] = null
