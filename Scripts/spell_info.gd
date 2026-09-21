@@ -21,6 +21,12 @@ static func icon_texture(info: Dictionary) -> Texture2D:
 	return _icon_cache[path]
 
 
+# The level a class needs to cast this spell: the per-class entry, not the flat "level" field (the same spell can need a different
+# level for different classes; player3d.gd's cast gate uses the same rule).
+static func required_level(info: Dictionary, player_class: String) -> int:
+	return int(info.get("class_level_requirements", {}).get(player_class, info.get("level", 1)))
+
+
 # Godot's built-in tooltip never wraps, so long descriptions would render as
 # one very wide line — break them on word boundaries ourselves.
 static func wrap_text(text: String, width: int = TOOLTIP_WRAP_CHARS) -> String:

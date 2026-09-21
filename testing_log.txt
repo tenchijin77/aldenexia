@@ -34,6 +34,9 @@ T3  2026-09-20  Public-server test, build 2aff48e
 T4  2026-09-20  Public-server test, build f799051
     Characters: Zozuur (Voidknight)
 
+T5  2026-09-21  Public-server test, build 24015c8
+    Characters: Zozuur (Voidknight)
+
 
 GENERAL (not class specific)
 ================================================================================
@@ -93,6 +96,15 @@ Crafting and camping (T4)
            each taking the full craft time (11 items = 11 x 4 s), each with its own skill roll; same for alchemy and any other station. A "Stop" button and an attack
            interrupt it. change_log: Test 4 findings.
 - [FIXED]  Being attacked while camping did not cancel the camp or stand you up (found by: T4). Any monster swing (hit or miss) now aborts /camp and stands you up.
+
+T5 (2026-09-21)
+- [FIXED]  /raid on the server VM said only the host can start a raid (found by: T5). Game master mode: /gm enable turns it on, /weather and /raid (and future GM
+           commands) need it and run on the SERVER. Anyone can turn it on for now (a real gate later). change_log: Test 5 findings.
+- [FIXED]  Spell book showed no spell levels; no way to know what you can cast (found by: T5). Each spell shows its level (green castable / red too high) and the list is sorted lowest level first.
+- [FIXED]  Meditation did not improve when sitting, and did nothing noticeable (found by: T5). Sitting trains it every tick; each point adds 5% mana per tick while sitting.
+- [FIXED]  "(drag it onto her)" in the wagon-crash quest text broke immersion (found by: T5). Removed from all quest/guard/Sahren texts. Also: "Dessik was a great fight though!"
+- [FIXED]  Dead bodies lingered (found by: T5). A looted corpse goes 2 s after everyone who fought it has looted; an ignored one after 5 minutes.
+- [OPEN]   Anyone can type /gm enable. DECISION: how should real GM access be granted (server-side list, password)?
 
 Server and connection
 - [FIXED]  Random disconnects on a WiFi laptop, none on a wired PC (found by: T1). Connection waits ~20 s before giving up,

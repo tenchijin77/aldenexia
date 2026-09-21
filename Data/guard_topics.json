@@ -276,7 +276,7 @@
      "quest_state": "active"
     },
     "lines": [
-     "The Weavemother, at the heart of the den, and whatever she's wearing that no spider should. Take friends. Drag it onto me when you have it."
+     "The Weavemother, at the heart of the den, and whatever she's wearing that no spider should. Take friends. Bring it to me."
     ]
    },
    {
@@ -320,7 +320,7 @@
      "quest_state": "active"
     },
     "lines": [
-     "Six hanks of the grey silk the blighted spiders leave, from the den out west. Drag them onto me when you have them."
+     "Six hanks of the grey silk the blighted spiders leave, from the den out west. Bring them to me."
     ]
    },
    {
@@ -342,7 +342,7 @@
     },
     "sequence": [
      "The {spiders} in the den, far out west past the cliffs, have gone wrong. Scouts used to come back with bites and complaints. Lately they come back quiet.",
-     "I need proof, not stories. Bring me six hanks of the grey {silk} the blighted ones spin, and drag them onto me. You'll know it by the purple in it."
+     "I need proof, not stories. Bring me six hanks of the grey {silk} the blighted ones spin and bring them to me. You'll know it by the purple in it."
     ],
     "then": {
      "start_quest": "the_silent_den"
@@ -378,7 +378,7 @@
      "quest_state": "active"
     },
     "lines": [
-     "Dessik Coinhand and the Lumoran strongbox. He'll be near the wreck, out along the south road. Bring it to me and drag it onto me when you have it."
+     "Dessik Coinhand and the Lumoran strongbox. He'll be near the wreck, out along the south road. Bring it back to me."
     ]
    },
    {
@@ -435,7 +435,7 @@
     },
     "sequence": [
      "That medal. Where did you... it says Halvek. Sergeant Halvek trained me.",
-     "He's the one on the graveyard road? Still... Give it to me, friend. Drag it onto me. It's time somebody let him stop."
+     "He's the one on the graveyard road? Still... Give it to me, friend. It's time somebody let him stop."
     ]
    },
    {

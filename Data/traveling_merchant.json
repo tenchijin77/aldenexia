@@ -131,7 +131,7 @@
     "quest_state": "active"
    },
    "lines": [
-    "You have taken up the task. Bring me three {tokens}: drag them from your pack onto me."
+    "You have taken up the task. Bring me three {tokens}."
    ]
   },
   {
@@ -171,7 +171,7 @@
    "sequence": [
     "You would do this? Then listen closely. The {Hollowed} wander the deep dunes, where the sun hangs directly over their shadows.",
     "When they are at rest, take what they carry: a clay {token}, like the one I showed you. Bring me three.",
-    "Drag them from your pack onto me, and I will know the sands are quieter."
+    "Place them in my hand, and I will know the sands are quieter."
    ],
    "then": {
     "start_quest": "release_the_hollowed"

@@ -255,6 +255,12 @@ var _regen_timer: float = 0.0
 var _drop_loot_allowed: bool = true
 var _personal_loot: Dictionary = {}  # peer_id (int) -> Array of that peer's remaining drops
 var loot_window: Node = null
+# Corpse lifetime (2026-09-21): a corpse waits until everyone who fought it (each has their own loot roll) has looted it, then goes 2 s
+# later; a corpse nobody empties (ignored, or loot left in it) goes after 5 minutes. Server side; the looters report in by RPC.
+var corpse_loot_timeout: float = 300.0
+var corpse_looted_linger: float = 2.0
+var _loot_eligible: Dictionary = {}   # peer id -> true: the players who fought it
+var _looted_peers: Dictionary = {}    # peer id -> true: has emptied (or found nothing in) their own loot
 
 # ===== CURRENCY =====
 const CURRENCY_MAP: Dictionary = {
@@ -1437,6 +1443,17 @@ func die(award_xp: bool = true, drop_loot: bool = true, credited_peer_id: int = 
 	# themselves), apply directly; otherwise Global.player_data is this
 	# process's own save data — there's no way to reach into a remote peer's
 	# save file directly — so relay it via RPC to their own machine instead.
+	_loot_eligible.clear()
+	for attacker in aggro_table:
+		if is_instance_valid(attacker) and attacker.is_in_group("player"):
+			_loot_eligible[attacker.get_multiplayer_authority()] = true
+	if credited_peer_id != -1:
+		_loot_eligible[credited_peer_id] = true
+	else:
+		var killer := TargetFrame.local_player()
+		if is_instance_valid(killer):
+			_loot_eligible[killer.get_multiplayer_authority()] = true
+
 	if award_xp:
 		var p: Node = TargetFrame.peer_id_to_player_node(credited_peer_id) if credited_peer_id != -1 else TargetFrame.local_player()
 		if is_instance_valid(p):
@@ -1453,12 +1470,54 @@ func die(award_xp: bool = true, drop_loot: bool = true, credited_peer_id: int = 
 		queue_free()
 		return
 
-	await get_tree().create_timer(60.0).timeout
+	var deadline := Time.get_ticks_msec() + int(corpse_loot_timeout * 1000.0)
+	while is_inside_tree() and Time.get_ticks_msec() < deadline and not _everyone_looted():
+		await get_tree().create_timer(0.5).timeout
 	if not is_inside_tree():
 		return
+	if _everyone_looted():
+		await get_tree().create_timer(corpse_looted_linger).timeout
+		if not is_inside_tree():
+			return
 	if is_instance_valid(loot_window):
 		loot_window.queue_free()
 	queue_free()
+
+
+# Has everyone who is entitled to loot this corpse looted it? Nobody has yet -> keep waiting (up to the timeout). A player who
+# fought it but has left the game does not hold it up. Nobody credited at all: the first person to loot it is enough.
+func _everyone_looted() -> bool:
+	if _looted_peers.is_empty():
+		return false
+	if _loot_eligible.is_empty():
+		return true
+	var connected: Array = Array(multiplayer.get_peers()) if multiplayer.has_multiplayer_peer() else []
+	for peer in _loot_eligible:
+		if _looted_peers.has(peer):
+			continue
+		if peer == multiplayer.get_unique_id() or connected.has(peer):
+			return false
+	return true
+
+
+# This peer has emptied its own loot (or found there was none): tell the server, whose timer decides when the body goes.
+func _report_looted() -> void:
+	if not multiplayer.has_multiplayer_peer() or multiplayer.is_server():
+		_looted_peers[multiplayer.get_unique_id()] = true
+	else:
+		_rpc_looted.rpc_id(1)
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func _rpc_looted() -> void:
+	if multiplayer.is_server():
+		_looted_peers[multiplayer.get_remote_sender_id()] = true
+
+
+# A body that is removed (by the server, for everyone) takes this peer's open loot window with it.
+func _exit_tree() -> void:
+	if is_instance_valid(loot_window):
+		loot_window.queue_free()
 
 
 # ── Networked damage (Phase 3 netcode) ──────────────────────────────────────
@@ -1580,6 +1639,7 @@ func open_loot_window() -> void:
 	var my_loot: Array = _personal_loot[peer_id]
 	if my_loot.is_empty():
 		GameLog.log_general("You search the corpse but find nothing upon it.")
+		_report_looted()
 		return
 
 	loot_window = load("res://Scenes/corpse_loot_window.tscn").instantiate()
@@ -1592,7 +1652,7 @@ func open_loot_window() -> void:
 # here anymore (that used to run unconditionally, so the first player to
 # finish looting despawned the corpse out from under everyone else's
 # personal loot). The corpse's actual lifecycle is solely die()'s own
-# 60-second timer now, giving every player in the group the same fair
+# lifetime rules now (see corpse_loot_timeout above), giving every player in the group the same fair
 # window to loot their own roll. Closes immediately rather than after a
 # delay — per user feedback (2026-09-18) a 5s grace period just read as "it
 # doesn't auto-close at all" since they'd already moved on by the time it
@@ -1600,6 +1660,7 @@ func open_loot_window() -> void:
 func _on_fully_looted() -> void:
 	if is_instance_valid(loot_window):
 		loot_window.queue_free()
+	_report_looted()
 
 # Currency is always auto-collected (no reason to ever manually click for
 # coins). Everything else is resolved against the player's saved loot

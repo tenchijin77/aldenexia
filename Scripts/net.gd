@@ -428,6 +428,33 @@ func send_party_message(peer_ids: Array, sender_name: String, message: String) -
 		_rpc_receive_party_message.rpc_id(pid, sender_name, message)
 
 
+# ── Game-master commands (gm_commands.gd) ────────────────────────────────
+const GM := preload("res://Scripts/gm_commands.gd")
+
+# A client that is not the host asks the SERVER to run a GM command; the server checks the sender's own GM flag (GMCommands.run)
+# and answers with the text to show.
+func gm_command(command: String, arg: String) -> void:
+	_rpc_gm_command.rpc_id(1, command, arg)
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func _rpc_gm_command(command: String, arg: String) -> void:
+	if not multiplayer.is_server():
+		return
+	var sender := multiplayer.get_remote_sender_id()
+	var player := TargetFrame.peer_id_to_player_node(sender)
+	var reply: String = GM.run(player, command, arg, get_tree())
+	if is_dedicated_server:
+		_slog("GM command /%s %s from %s (peer %d): %s" % [command, arg, str(player.get("player_name")) if is_instance_valid(player) else "?", sender, "ok" if not reply.contains("Only game masters") else "denied"])
+	if not reply.is_empty():
+		_rpc_gm_reply.rpc_id(sender, reply)
+
+
+@rpc("authority", "call_remote", "reliable")
+func _rpc_gm_reply(text: String) -> void:
+	GameLog.log_general(text)
+
+
 # Combat log relay — GameLog is purely local (see game_log.gd), so without
 # this a second player never sees the first player's attacks/spells/buffs at
 # all. Broadcast (not targeted) since there's no real party requirement to

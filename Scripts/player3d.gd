@@ -1605,10 +1605,16 @@ func _process(delta: float) -> void:
 			var regen_m: int = combat_node.get_derived_stat("mana_regen") + int(combat_node.get_modifier("mana_regen_bonus"))
 			if is_sitting:
 				regen_m = int(regen_m * 3.0)
-				_tick_skill("meditation")  # recovering mana while sitting
+			# Meditation: each point makes a mana tick MEDITATION_REGEN_PER_POINT bigger while sitting (a quarter of that on your feet).
+			regen_m = int(round(regen_m * meditation_regen_multiplier()))
 			if thirst < 25:
 				regen_m = int(regen_m * 0.8)
 			combat_node.current_mana = mini(combat_node.current_mana + regen_m, combat_node.max_mana)
+
+	# Sitting trains meditation on every tick (being attacked stands you up, so sitting always means out of combat), whether or not
+	# your mana is full: it used to train only while mana was missing, so a quick sit at full mana never raised it.
+	if is_sitting:
+		_tick_skill("meditation")
 
 	if attack_cooldown > 0.0:
 		attack_cooldown -= delta
@@ -4722,6 +4728,14 @@ func _tick_active_spell_effects(_delta: float) -> void:
 # How far a skill can be trained at the character's current level (Data/combat_balance.json: skill_cap_per_level,
 # 4 = level 1 caps at 4 points, level 10 at 40), never above the absolute _skill_max and never BELOW what the skill
 # already is (starting skills above the cap wait for the level to catch up; nothing is ever lowered).
+const MEDITATION_REGEN_PER_POINT := 0.05   # +5% mana per tick per point of meditation while sitting (skill 16 = +80%)
+
+
+func meditation_regen_multiplier() -> float:
+	var points := int(skill_levels.get("meditation", 0))
+	return 1.0 + points * MEDITATION_REGEN_PER_POINT * (1.0 if is_sitting else 0.25)
+
+
 func skill_cap_for(current: int) -> int:
 	var per_level := int(CombatBalance.num("skill_cap_per_level"))
 	if per_level <= 0:

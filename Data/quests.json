@@ -3,7 +3,7 @@
   "name": "Release the Hollowed",
   "giver": "Sahren of the Deep Wells",
   "short": "Bring Sahren three Ceramic Water-Tokens taken from the Hollowed.",
-  "summary": "Sahren of the Deep Wells asks you to release the Hollowed, the Djhanid exiles who wander the deep dunes, and to bring him the Ceramic Water-Tokens they carry. Bring him three, by dragging them onto him.",
+  "summary": "Sahren of the Deep Wells asks you to release the Hollowed, the Djhanid exiles who wander the deep dunes, and to bring him the Ceramic Water-Tokens they carry. Bring him three.",
   "objective": {
    "type": "hand_in",
    "item": "ceramic_water_token",
@@ -28,7 +28,7 @@
   "giver": "Guard Reyna",
   "auto_start": true,
   "short": "Take the Lumoran strongbox back from Dessik Coinhand and bring it to Guard Reyna.",
-  "summary": "A Lumoran trading wagon was wrecked on the south road and its strongbox taken by a brigand called Dessik Coinhand. Kill him, take the strongbox, and bring it to Guard Reyna at the gate (drag it onto her).",
+  "summary": "A Lumoran trading wagon was wrecked on the south road and its strongbox taken by a brigand called Dessik Coinhand. Kill him, take the strongbox, and bring it to Guard Reyna at the gate.",
   "objective": {
    "type": "hand_in",
    "item": "lumoran_strongbox",
@@ -78,7 +78,7 @@
   "giver": "Private Corwin",
   "auto_start": true,
   "short": "Bring Private Corwin six hanks of blighted spider silk from the spiders in the western den.",
-  "summary": "The spiders in the den far to the west have gone wrong. Private Corwin wants proof: six hanks of the grey, faintly purple silk the blighted spiders leave behind. Drag them onto him.",
+  "summary": "The spiders in the den far to the west have gone wrong. Private Corwin wants proof: six hanks of the grey, faintly purple silk the blighted spiders leave behind.",
   "objective": {
    "type": "hand_in",
    "item": "blighted_spider_silk",

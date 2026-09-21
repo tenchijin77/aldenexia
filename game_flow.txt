@@ -1100,6 +1100,12 @@ Scene: Scenes/player3d.tscn (contains CameraRig → CameraController + Camera3D)
   Data/vendor_shop.json. Harbour Master Tobias Sandcrest (harbour_master.gd, a shop that sells the ferry token) comments on where
   Sahren is and talks on his own. NPCRaceModel builds NPC bodies from race models. Sahren reacts to a Ceramic Water-Token.
 
+--- GM mode, corpses, meditation, spell book (2026-09-21) ---
+  GMCommands (gm_commands.gd, preload()ed, no class_name): Player3D.is_game_master (saved, replicated) gates /weather and /raid; non-host clients send them to the server (Net.gm_command ->
+  _rpc_gm_command), which checks the sender's flag itself. Corpses (monster3d.gd die()): the server waits until every player who fought it has reported "looted" (_rpc_looted), then 2 s, or 5 min;
+  guard kills vanish at once. Meditation: Player3D.meditation_regen_multiplier() (+5% mana/tick per point sitting, a quarter standing); sitting trains it each tick. The K book sorts by
+  SpellInfo.required_level (class-specific) and marks spells above your level.
+
 --- Named mobs, world notes, guard hand-ins and gate raids (2026-09-21) ---
   A monster type in monsters.json may borrow another's model ("model_from", "model_scale", "tint"): named mobs (Dessik Coinhand, Rask Ironjaw, Grukka Bonechewer, Sergeant Halvek,
   Weavemother Vhessa) and the blighted spider are pure data; their loot is a special_encounters table; they spawn as max-1 entries with long respawns. Quests: the "hand_in" objective plus

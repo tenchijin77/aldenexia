@@ -162,12 +162,18 @@ func _fill_class_skills() -> void:
 		vbox.add_child(_empty_label("No class abilities known.\nUse a scroll to learn spells."))
 		return
 
+	# Lowest level first, so what you can cast now is at the top; same level: alphabetical.
+	var player_class: String = str(_player.get("player_class")) if "player_class" in _player else ""
+	var ordered: Array = []
 	for spell_name in spells:
 		var info: Dictionary = spell_db.get(spell_name, {})
-		vbox.add_child(_make_spell_row(spell_name, info))
+		ordered.append({"name": spell_name, "info": info, "level": SpellInfo.required_level(info, player_class)})
+	ordered.sort_custom(func(a, b): return a["level"] < b["level"] or (a["level"] == b["level"] and str(a["name"]) < str(b["name"])))
+	for entry in ordered:
+		vbox.add_child(_make_spell_row(entry["name"], entry["info"], int(entry["level"])))
 
 
-func _make_spell_row(spell_name: String, info: Dictionary) -> Control:
+func _make_spell_row(spell_name: String, info: Dictionary, required_level: int = 1) -> Control:
 	# PanelContainer + an inner VBoxContainer instead of the old
 	# fixed-position/fixed-size layout — that hardcoded every label's size
 	# (including the description's, clip_text = true) to a fixed row height
@@ -212,8 +218,10 @@ func _make_spell_row(spell_name: String, info: Dictionary) -> Control:
 	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	outer.add_child(vbox)
 
-	# Hover tooltip: name + the description from player_spells.json + cost.
-	row.tooltip_text = SpellInfo.tooltip(spell_name, info)
+	# Hover tooltip: name + the description from player_spells.json + cost, and the level it needs.
+	var my_level: int = int(_player.combat_node.level) if _player and "combat_node" in _player and _player.combat_node else 1
+	var can_cast: bool = my_level >= required_level
+	row.tooltip_text = SpellInfo.tooltip(spell_name, info) + ("\n\nRequires level %d." % required_level if can_cast else "\n\nRequires level %d (you are level %d)." % [required_level, my_level])
 
 	var header := HBoxContainer.new()
 	vbox.add_child(header)
@@ -223,9 +231,17 @@ func _make_spell_row(spell_name: String, info: Dictionary) -> Control:
 	name_lbl.text = spell_name.replace("_", " ").capitalize()
 	name_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	name_lbl.add_theme_font_size_override("font_size", 12)
-	name_lbl.add_theme_color_override("font_color", Color(1.0, 0.85, 0.5))
+	name_lbl.add_theme_color_override("font_color", Color(1.0, 0.85, 0.5) if can_cast else Color(0.62, 0.55, 0.42))
 	name_lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	header.add_child(name_lbl)
+
+	# Level badge: green when you can cast it now, red while your level is too low.
+	var level_lbl := Label.new()
+	level_lbl.text = "Level %d" % required_level
+	level_lbl.add_theme_font_size_override("font_size", 10)
+	level_lbl.add_theme_color_override("font_color", Color(0.55, 0.85, 0.55) if can_cast else Color(0.9, 0.4, 0.4))
+	level_lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	header.add_child(level_lbl)
 
 	# School badge (top-right)
 	var school: String = info.get("spell_school", "")

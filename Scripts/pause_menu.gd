@@ -241,8 +241,9 @@ const CHAT_COMMANDS := [
 	["/resetui", "Reset every UI window back to its default position"],
 	["/time", "Show the current in-game date/time"],
 	["/who", "List every connected player, their level, class and zone"],
-	["/weather rain|clear", "Start or stop rain (host / single-player only)"],
-	["/raid [bandits|goblins]", "Start a gate raid now (host / single-player only)"],
+	["/gm enable|disable", "Turn game master mode on or off (needed for the commands below)"],
+	["/weather rain|clear", "Start or stop rain (game masters)"],
+	["/raid [bandits|goblins]", "Start a gate raid now (game masters)"],
 	["/pet", "Pet the cat you are targeting, or the nearest one"],
 ]
 

@@ -538,7 +538,8 @@ func _on_chat_input_gui_input(event: InputEvent) -> void:
 # too (Linux-style abbreviation) — see _resolve_command() below. e.g. "/loc"
 # and "/location" both resolve to "/location" since no other command starts
 # with "loc"; "/f" would be ambiguous if two commands both started with "f".
-const COMMANDS := ["/location", "/hail", "/appraise", "/time", "/follow", "/camp", "/exit", "/log", "/invite", "/disband", "/say", "/tell", "/party", "/zone", "/played", "/resetui", "/who", "/weather", "/pet", "/quests", "/compass", "/raid"]
+const GMCommandsScript := preload("res://Scripts/gm_commands.gd")
+const COMMANDS := ["/location", "/hail", "/appraise", "/time", "/follow", "/camp", "/exit", "/log", "/invite", "/disband", "/say", "/tell", "/party", "/zone", "/played", "/resetui", "/who", "/weather", "/pet", "/quests", "/compass", "/raid", "/gm"]
 
 
 func _handle_slash_command(text: String) -> void:
@@ -555,32 +556,11 @@ func _handle_slash_command(text: String) -> void:
 			WorldAnnouncer.print_who(player)
 		"/pet":
 			player.try_pet_nearby()
-		"/weather":
-			# Test/debug control — rain otherwise starts on its own, randomly and rarely.
-			var wm := get_tree().get_first_node_in_group("weather_manager")
-			if wm == null:
-				GameLog.log_general("There is no weather in this area.")
-			elif not wm.is_multiplayer_authority():
-				GameLog.log_general("[color=red]Only the host can change the weather.[/color]")
-			else:
-				match arg.to_lower():
-					"rain", "on", "start":
-						wm.set_weather(true)
-					"clear", "off", "stop":
-						wm.set_weather(false)
-					_:
-						GameLog.log_general("Usage: /weather rain | clear")
-		"/raid":
-			# Test/debug control — gate raids otherwise come on their own (Data/gate_raids.json).
-			var rm := get_tree().get_first_node_in_group("gate_raid_manager")
-			if rm == null:
-				GameLog.log_general("There are no raids in this area.")
-			elif not rm.is_multiplayer_authority():
-				GameLog.log_general("[color=red]Only the host can start a raid.[/color]")
-			elif rm.is_raid_active():
-				GameLog.log_general("A raid is already under way.")
-			elif not rm.start_raid(arg.to_lower()):
-				GameLog.log_general("Usage: /raid [bandits | goblins]")
+		"/gm":
+			GMCommandsScript.set_mode(player, arg)
+		"/weather", "/raid":
+			# Game masters only (/gm enable). On a dedicated server the command is sent to the server.
+			GMCommandsScript.request(player, cmd.substr(1), arg, get_tree())
 		"/location":
 			var pos: Vector3 = player.global_position
 			GameLog.log_general("[color=green]Your location: X=%.2f Y=%.2f Z=%.2f[/color]" % [pos.x, pos.y, pos.z])
