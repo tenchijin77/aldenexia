@@ -15,9 +15,9 @@
 extends CharacterBody3D
 class_name GuardNPC
 
-const ENGAGE_RANGE := 4.0          # stationary guards: how far from home_position they'll notice a monster
-const PATROL_ENGAGE_RANGE := 3.0   # patrolling guards: how far from their CURRENT position — they have no fixed post to measure from
-const LEASH_RANGE  := 6.0          # disengage if the target gets this far from wherever combat started (_engage_origin)
+const ENGAGE_RANGE := 8.0          # stationary guards: how far from home_position they'll notice a monster (was 4 m; 8 m per playtest T8)
+const PATROL_ENGAGE_RANGE := 8.0   # patrolling guards: how far from their CURRENT position — they have no fixed post to measure from
+const LEASH_RANGE  := 14.0         # disengage if the target gets this far from wherever combat started (_engage_origin): must exceed the engage range
 const ATTACK_RANGE := 2.5
 const WAYPOINT_ARRIVAL := 1.5      # how close counts as "reached" a patrol waypoint
 # 1.0 (the original value) meant a patrolling guard could cover almost its

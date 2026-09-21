@@ -1105,6 +1105,11 @@ Scene: Scenes/player3d.tscn (contains CameraRig → CameraController + Camera3D)
   see the server as "offline" and never get the "Update needed" button. Put new RPCs on other nodes (scene nodes such as GMRelay / WeatherManager; those only matter between same-build peers, which the
   handshake guarantees). Check before releasing: `git diff <released build> -- Scripts/net.gd` must show no @rpc changes (also Global, GameLog, Inventory).
 
+--- DEATH RULES (updated 2026-09-21) ---
+  0 HP = downed (dying, frozen); health drains 0 -> DEATH_HP (-30) over BLEED_OUT_DURATION (10 s) and you die at -30; a hit to -30 or below kills at once; health is floored at -30; a heal above 0 revives.
+  Death (and going down) calls _stop_all_casting(): songs and the spell in progress end. MONSTERS ARE SERVER-SIDE and only see REPLICATED fields (position, health, mana, level...): a player counts as down for them
+  when replicated health <= 0 (Monster._player_is_down), never rely on the player's own `dying` flag for anything a monster decides. Being attacked targets the attacker only when you have no target.
+
 --- GM mode, corpses, meditation, spell book (2026-09-21) ---
   GMCommands (gm_commands.gd, preload()ed, no class_name): Player3D.is_game_master (saved, replicated) gates /weather and /raid; non-host clients send them to the server through the zone's GMRelay node
   (gm_relay.gd), which checks the sender's flag itself. Corpses (monster3d.gd die()): the server waits until every player who fought it has reported "looted" (_rpc_looted), then 2 s, or 5 min;
@@ -1797,7 +1802,7 @@ Scene: Scenes/monster_template.tscn (base) + individual [name].tscn
   walks straight back to its spawn area instead of wandering off randomly.
   Combined with can_see_player()'s player.dying check above, a monster won't
   pick the fight back up even if the still-incapacitated player is standing
-  right next to it during the ~20s bleed-out window (see player3d.gd's death
+  right next to it during the bleed-out window (10s since 2026-09-21) (see player3d.gd's death
   system below) — the encounter is simply over from the monster's side.
 
 --- Monster death lines (Data/humanoid_death_lines.json, added 2026-09-14, Session 33) ---

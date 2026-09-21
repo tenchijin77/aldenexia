@@ -741,6 +741,8 @@ func _physics_process(delta: float) -> void:
 	# this only governs who gets noticed/chased before that.
 	player = _nearest_player()
 	if not is_instance_valid(player):
+		if current_state == State.CHASE or current_state == State.ATTACK:
+			force_disengage()   # everyone nearby is down or dead: give up the fight
 		return
 
 
@@ -808,7 +810,7 @@ func get_current_target() -> Node:
 	var best: Node = player
 	var best_threat: float = aggro_table.get(player, 0.0)
 	for attacker in aggro_table:
-		if not is_instance_valid(attacker):
+		if not is_instance_valid(attacker) or (attacker.is_in_group("player") and _player_is_down(attacker)):
 			continue
 		if aggro_table[attacker] > best_threat:
 			best_threat = aggro_table[attacker]
@@ -1309,7 +1311,19 @@ func _rpc_resolve_attack_on_owner(target_path: NodePath) -> void:
 # The swing itself. `relayed` = we are the target's owner acting for the server:
 # this machine's copy of the monster is only a puppet, so anything that would change
 # the MONSTER (a riposte's damage) must go back to the real one instead.
+# A player who is downed (0 HP or below, bleeding out) or dead is not a target. The player's own machine knows this via `dying`, but
+# the SERVER's monsters (which are the ones fighting) only see the replicated fields, hence the health check too: without it a raid kept
+# pounding a fallen player on a dedicated server (health -165/164).
+static func _player_is_down(node: Node) -> bool:
+	if "dying" in node and node.dying:
+		return true
+	var cn = node.get("combat_node") if "combat_node" in node else null
+	return cn is CombatNode and cn.current_hp <= 0
+
+
 func _resolve_attack_on(target: Node, relayed: bool = false) -> void:
+	if target.is_in_group("player") and _player_is_down(target):
+		return
 	if "combat_node" in target and target.combat_node is CombatNode:
 		var monster_hp_before: int = combat_node.current_hp
 		var result = combat_node.resolve_attack(target.combat_node)
@@ -1842,7 +1856,7 @@ func _nearest_player() -> Node:
 	for node in get_tree().get_nodes_in_group("player"):
 		if not is_instance_valid(node):
 			continue
-		if "dying" in node and node.dying:
+		if _player_is_down(node):
 			continue
 		var dist: float = global_position.distance_to(node.global_position)
 		if dist < best_dist:
@@ -1854,7 +1868,7 @@ func _nearest_player() -> Node:
 func can_see_player() -> bool:
 	if not player:
 		return false
-	if "dying" in player and player.dying:
+	if _player_is_down(player):
 		return false  # incapacitated or dead-pending-respawn — ignore, per force_disengage() above
 
 	var distance: float = global_position.distance_to(player.global_position)

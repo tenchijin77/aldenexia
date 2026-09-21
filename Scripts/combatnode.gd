@@ -535,11 +535,14 @@ func set_class(new_class: String):
 			class_concentration_base = 0
 
 		"Troubadour":
+			# 2026-09-21 (playtest T8: "almost every enemy was killing me"): measured over 4 duels each at level 4 against bandits, a Troubadour
+			# took 1.76 damage/s vs a Voidknight's 0.75. AC 0 -> 3, parry 1 -> 6, riposte 1 -> 3 brings it to 0.98/s (a melee DPS, still softer
+			# than a tank) with the same damage output.
 			class_hp_bonus = 0.08
-			class_ac_bonus = 0
+			class_ac_bonus = 3
 			class_dodge_base = 5
-			class_parry_base = 1
-			class_riposte_base = 1
+			class_parry_base = 6
+			class_riposte_base = 3
 			class_concentration_base = 10
 
 		"Spiritweaver":

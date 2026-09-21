@@ -126,7 +126,12 @@ var thirst_timer: float = 0.0
 # _tick_bleedout()/_die_for_real()/_respawn() below.
 var dying: bool = false
 var is_incapacitated: bool = false
-const BLEED_OUT_DURATION := 20.0    # seconds at 0 HP before true death
+# Death (2026-09-21): at 0 HP you are DOWNED (frozen, bleeding) and monsters stop attacking you; health then drains from 0 to DEATH_HP over
+# BLEED_OUT_DURATION and at DEATH_HP you die. A hit that takes you to DEATH_HP or below kills you at once. Health never goes below DEATH_HP.
+# An ally's heal that lifts you above 0 gets you up (see _check_bleedout_revival).
+const DEATH_HP := -30
+const BLEED_OUT_DURATION := 10.0    # seconds from 0 HP to DEATH_HP (was a flat 20 s)
+var _bleed_remainder := 0.0
 const BLEED_OUT_WARN_INTERVAL := 5.0
 const RESPAWN_DELAY := 3.0          # seconds the black respawn screen holds before teleporting
 var _bleedout_elapsed: float = 0.0
@@ -1583,8 +1588,12 @@ func _process(delta: float) -> void:
 	if not is_multiplayer_authority():
 		return
 	_update_light_logic()
+	if combat_node.current_hp < DEATH_HP:
+		combat_node.current_hp = DEATH_HP   # simultaneous hits (a raid) can overshoot: health never goes below the death line
 	if is_incapacitated:
 		_tick_bleedout(delta)
+	elif not dying and combat_node.current_hp <= DEATH_HP:
+		die()   # went straight past the downed state
 	if dying:
 		return
 
@@ -2640,10 +2649,18 @@ func on_combat_node_hit(attacker: Node) -> void:
 		die(attacker)
 
 
+# Being attacked targets the attacker ONLY when you have no target (or your target is gone/dead): a second attacker never pulls you
+# off the one you chose.
 func _register_attacker(attacker: Node) -> void:
-	if attacker and is_instance_valid(attacker) and current_target != attacker:
-		current_target = attacker
-		_announce_target(attacker)
+	if not (attacker and is_instance_valid(attacker)) or current_target == attacker:
+		return
+	var has_target: bool = is_instance_valid(current_target) and current_target.get("current_state") != 4   # 4 = Monster.State.DEAD
+	if has_target and "combat_node" in current_target and current_target.combat_node is CombatNode and not current_target.combat_node.is_alive():
+		has_target = false
+	if has_target:
+		return
+	current_target = attacker
+	_announce_target(attacker)
 
 
 # ===== DEATH / INCAPACITATION / RESPAWN =====
@@ -2658,6 +2675,19 @@ func _register_attacker(attacker: Node) -> void:
 # player's bind point (wherever they first spawned in, see
 # _ensure_bind_point()) at full HP/mana/stamina.
 
+# Death ends all casting: the spell in progress, and every song that was playing (they used to resume after respawning).
+func _stop_all_casting() -> void:
+	if not _active_songs.is_empty():
+		GameLog.log_combat("[color=#ff8866]Your song ends.[/color]")
+	_active_songs.clear()
+	combat_node.is_casting = false
+	combat_node.current_cast_time = 0.0
+	_pending_cast_spell = ""
+	_pending_cast_spell_data = {}
+	_pending_cast_target = null
+	casting_spell_name = ""
+
+
 func die(attacker: Node = null) -> void:
 	if dying:
 		return
@@ -2665,7 +2695,9 @@ func die(attacker: Node = null) -> void:
 	is_incapacitated = true
 	_bleedout_elapsed = 0.0
 	_bleedout_warn_timer = 0.0
-	combat_node.current_hp = 0  # clamp — resolve_attack() can overshoot well below 0 on a single big hit
+	_bleed_remainder = 0.0
+	combat_node.current_hp = clampi(combat_node.current_hp, DEATH_HP, 0)  # keep a real overshoot (a hit to -12 leaves you at -12), never below the death line
+	_stop_all_casting()  # a downed bard's song stops, and stays stopped after respawning
 
 	if attacker and is_instance_valid(attacker):
 		var desc: String = attacker.get("monster_description") if "monster_description" in attacker else ""
@@ -2674,9 +2706,12 @@ func die(attacker: Node = null) -> void:
 		if desc != "":
 			_last_attacker_desc = desc
 
-	GameLog.log_combat("[color=#ff8866]You collapse, bleeding out...[/color]")
 	autoattack_enabled = false
 	GameLog.set_autoattack(false)
+	if combat_node.current_hp <= DEATH_HP:
+		_die_for_real()   # a killing blow: no time spent downed
+		return
+	GameLog.log_combat("[color=#ff8866]You collapse, bleeding out...[/color]")
 
 	for m in get_tree().get_nodes_in_group("monsters"):
 		if is_instance_valid(m) and m.has_method("force_disengage"):
@@ -2688,7 +2723,12 @@ func die(attacker: Node = null) -> void:
 
 func _tick_bleedout(delta: float) -> void:
 	_bleedout_elapsed += delta
-	if _bleedout_elapsed >= BLEED_OUT_DURATION:
+	_bleed_remainder += float(-DEATH_HP) / BLEED_OUT_DURATION * delta   # health drains toward the death line
+	while _bleed_remainder >= 1.0:
+		_bleed_remainder -= 1.0
+		combat_node.current_hp -= 1
+	if combat_node.current_hp <= DEATH_HP or _bleedout_elapsed >= BLEED_OUT_DURATION:
+		combat_node.current_hp = DEATH_HP
 		_die_for_real()
 		return
 	_bleedout_warn_timer += delta
@@ -2699,6 +2739,7 @@ func _tick_bleedout(delta: float) -> void:
 
 func _die_for_real() -> void:
 	is_incapacitated = false
+	combat_node.current_hp = DEATH_HP
 	GameLog.log_combat("[color=#ff4444]You have been defeated by %s![/color]" % _last_attacker_desc.capitalize())
 	if _death_flavor:
 		var line := _death_flavor.get_line("death")

@@ -40,6 +40,9 @@ T5  2026-09-21  Public-server test, build 24015c8
 T7  2026-09-21  Public-server test, build 597043a
     Characters: Zozuur (Voidknight)
 
+T8  2026-09-21  Public-server test, build 91f3ec5
+    Characters: Annadaeus (Troubadour)
+
 
 GENERAL (not class specific)
 ================================================================================
@@ -116,6 +119,13 @@ T5 (2026-09-21)
 - [FIXED]  After a raid the guards stayed where the fight ended (asked by: T7). Guards walk back to their posts and face the way they were posted.
 - [FIXED]  Monsters never fled (asked by: T7). Non-undead monsters run for 7 s at 10% health, once per fight.
 - [NOT A BUG] "Level 1 Spirit" in the spell book: Spirit is the spell's school (which resistance applies); "Level N" is the new badge beside it.
+- [WORKS]  GM flagging (T8), rain "looks much better, roof blocks it, the angle looks more realistic" (T8).
+- [FIXED]  Death took forever and monsters pounded a fallen player (-165/164) (found by: T8). Death line at -30, monsters on the server now see a downed player, bleed-out 10 s.
+- [FIXED]  A second attacker changed your target (found by: T8). Attackers only pick your target when you have none.
+- [FIXED]  Guards only engaged within 4 m (asked by: T8). Now 8 m.
+- [FIXED]  Troubadour very weak (found by: T8). Dissonant Chord's 5 damage verified (8 at level 4 with scaling); class defenses buffed (AC +3, parry 6, riposte 3): damage taken 1.76/s -> 0.98/s vs a tank's 0.75/s.
+- [FIXED]  A Troubadour's songs resumed after respawning (found by: T8). Death stops all casting.
+- [OPEN]   Female human's jump animation looks strange (found by: T8): the user will replace the animation.
 - [OPEN]   Anyone can type /gm enable. DECISION: how should real GM access be granted (server-side list, password)?
 
 Server and connection
