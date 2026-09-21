@@ -1,6 +1,7 @@
 # quests.gd — The small, data-driven quest piece (Data/quests.json). Static, no autoload (patches can't add autoloads): the
 # state lives in the character's own save (Global.player_data["quests"]), so it persists per character, on the server too.
 # State per quest: not present = never started, "active" (with hand-in progress), "complete".
+# Optional per quest: "auto_start": true (handing the item in starts it), "requires_quest": id (a chain: that quest must be complete).
 # v1 supports one objective type, "hand_in": bring N of an item to the quest giver — by dragging the items onto the NPC (the
 # EverQuest-style Give window) — which is what "Release the Hollowed" needs. More types (kill counts, reach a spot) come later.
 class_name Quests
@@ -78,6 +79,13 @@ static func try_hand_in(giver: String, item_id: String, player: Node) -> Diction
 		return {"result": "wrong_item"}
 	var def := definition(involved)
 	var texts: Dictionary = def.get("texts", {})
+	# A later step of a chain: the earlier quest has to be complete first.
+	var prerequisite: String = str(def.get("requires_quest", ""))
+	if not prerequisite.is_empty() and state(prerequisite) != "complete" and state(involved) == "none":
+		return {"result": "not_started", "quest_id": involved, "text": texts.get("not_started", "")}
+	# "auto_start": bringing the item is answer enough (you found it before you were asked), so it starts the quest itself.
+	if state(involved) == "none" and bool(def.get("auto_start", false)):
+		start(involved)
 	match state(involved):
 		"none":
 			return {"result": "not_started", "quest_id": involved, "text": texts.get("not_started", "")}
@@ -100,6 +108,11 @@ static func try_hand_in(giver: String, item_id: String, player: Node) -> Diction
 	_give_rewards(def.get("rewards", {}), player)
 	GameLog.log_general("[color=#ffdd44][b]Quest complete:[/b] %s[/color]" % def.get("name", involved))
 	return {"result": "complete", "quest_id": involved, "given": need, "need": need, "taken": taken, "text": str(texts.get("complete", ""))}
+
+
+# Whether a quest has been started (or finished) — for world objects that only react the first time.
+static func is_started(id: String) -> bool:
+	return state(id) != "none"
 
 
 static func _give_rewards(rewards: Dictionary, player: Node) -> void:

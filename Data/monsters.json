@@ -665,5 +665,214 @@
       "attack": ""
     },
     "death_text": ""
+  },
+  "dessik_coinhand": {
+    "description": "Dessik Coinhand",
+    "speed": 34.0,
+    "health": 260,
+    "damage": 15,
+    "behavior_type": "aggressive",
+    "category": "humanoid",
+    "faction": "Bandit",
+    "coin_modifier": 2.0,
+    "xp_gain": 110,
+    "zone": "lumora_outskirts",
+    "armor_class": 15,
+    "is_social": false,
+    "level": 5,
+    "aggro_range": 120.0,
+    "animations": {
+      "idle": "bandit_idle",
+      "walk": "bandit_walk",
+      "attack": "bandit_attack"
+    },
+    "level_min": 5,
+    "level_max": 5,
+    "death_text": "Dessik Coinhand collapses in the sand, one hand still closed around a purse that is no longer there.",
+    "model_from": "bandit",
+    "model_scale": 1.08,
+    "tint": [
+      1.0,
+      0.86,
+      0.72
+    ],
+    "secret_note": "A brigand who robs by the ledger: he stripped a Lumoran wagon of its strongbox and has kept it close, on his belt, ever since.",
+    "is_boss": true
+  },
+  "rask_ironjaw": {
+    "description": "Rask Ironjaw",
+    "speed": 34.0,
+    "health": 340,
+    "damage": 19,
+    "behavior_type": "aggressive",
+    "category": "humanoid",
+    "faction": "Bandit",
+    "coin_modifier": 2.5,
+    "xp_gain": 150,
+    "zone": "lumora_outskirts",
+    "armor_class": 16,
+    "is_social": false,
+    "level": 6,
+    "aggro_range": 120.0,
+    "animations": {
+      "idle": "bandit_idle",
+      "walk": "bandit_walk",
+      "attack": "bandit_attack"
+    },
+    "level_min": 6,
+    "level_max": 6,
+    "death_text": "Rask Ironjaw goes down on one knee, then all the way, and the camp goes very quiet.",
+    "model_from": "bandit",
+    "model_scale": 1.2,
+    "tint": [
+      0.72,
+      0.6,
+      0.56
+    ],
+    "secret_note": "Captain of the sand brigands. The other bandits fight harder when he is close; the ones that flee are running toward him, not away.",
+    "is_boss": true
+  },
+  "grukka_bonechewer": {
+    "description": "Grukka Bonechewer",
+    "speed": 28.0,
+    "health": 380,
+    "damage": 20,
+    "behavior_type": "aggressive",
+    "category": "humanoid",
+    "faction": "Goblin",
+    "coin_modifier": 2.0,
+    "xp_gain": 160,
+    "zone": "lumora_outskirts",
+    "armor_class": 15,
+    "is_social": false,
+    "level": 6,
+    "aggro_range": 120.0,
+    "animations": {
+      "idle": "goblin_warrior_idle",
+      "walk": "goblin_warrior_walk",
+      "attack": "goblin_warrior_attack"
+    },
+    "level_min": 6,
+    "level_max": 6,
+    "death_text": "Grukka Bonechewer topples, and the bones on his belt clatter out across the sand like dropped dice.",
+    "model_from": "goblin_warrior",
+    "model_scale": 1.4,
+    "tint": [
+      0.9,
+      0.78,
+      0.62
+    ],
+    "secret_note": "Chieftain of the goblin camps. The bones he wears are trophies, and some of them are too big to be goblin.",
+    "is_boss": true
+  },
+  "sergeant_halvek": {
+    "description": "Sergeant Halvek",
+    "speed": 26.0,
+    "health": 300,
+    "damage": 16,
+    "behavior_type": "aggressive",
+    "category": "undead",
+    "faction": "None",
+    "coin_modifier": 0.5,
+    "xp_gain": 120,
+    "zone": "lumora_outskirts",
+    "armor_class": 14,
+    "is_social": false,
+    "level": 5,
+    "aggro_range": 100.0,
+    "animations": {
+      "idle": "skeleton_idle",
+      "walk": "skeleton_walk",
+      "attack": "skeleton_attack"
+    },
+    "resistances": [
+      "piercing"
+    ],
+    "weaknesses": [
+      "blunt",
+      "fire"
+    ],
+    "special_ability": "",
+    "is_boss": true,
+    "secret_note": "A Warden who died holding this road and never stopped holding it. Whatever kept him standing is not rest.",
+    "corruption": "",
+    "level_min": 5,
+    "level_max": 5,
+    "death_text": "Sergeant Halvek comes apart at last, and for a moment the bones lie in the shape of a salute.",
+    "model_from": "skeleton",
+    "model_scale": 1.2,
+    "tint": [
+      0.72,
+      0.82,
+      1.0
+    ]
+  },
+  "weavemother_vhessa": {
+    "description": "Weavemother Vhessa",
+    "speed": 30.0,
+    "health": 480,
+    "damage": 22,
+    "behavior_type": "aggressive",
+    "category": "insect",
+    "faction": "None",
+    "coin_modifier": 0.0,
+    "xp_gain": 220,
+    "zone": "lumora_outskirts",
+    "armor_class": 16,
+    "is_social": false,
+    "level": 7,
+    "aggro_range": 100.0,
+    "special_ability": "Poison Bite, Ensnaring Web",
+    "animations": {
+      "idle": "spider_idle",
+      "walk": "spider_walk",
+      "attack": "spider_attack"
+    },
+    "level_min": 7,
+    "level_max": 7,
+    "death_text": "Weavemother Vhessa curls in on herself, legs drawing shut like a fist, and the whole den seems to let go of a held breath.",
+    "model_from": "spider",
+    "model_scale": 2.6,
+    "tint": [
+      0.55,
+      0.4,
+      0.72
+    ],
+    "corruption": "Moribund",
+    "secret_note": "The silk on her back is stitched with a mark that no spider makes: a closed eye over three drops, the sign of the Moribund Order.",
+    "is_boss": true
+  },
+  "blighted_spider": {
+    "description": "a blighted spider",
+    "speed": 30.0,
+    "health": 60,
+    "damage": 12,
+    "behavior_type": "skitter",
+    "category": "insect",
+    "faction": "None",
+    "coin_modifier": 0.0,
+    "xp_gain": 22,
+    "zone": "lumora_outskirts",
+    "armor_class": 12,
+    "is_social": true,
+    "level": 3,
+    "aggro_range": 150.0,
+    "special_ability": "Poison Bite",
+    "animations": {
+      "idle": "spider_idle",
+      "walk": "spider_walk",
+      "attack": "spider_attack"
+    },
+    "level_min": 3,
+    "level_max": 4,
+    "death_text": "",
+    "model_from": "spider",
+    "model_scale": 1.25,
+    "tint": [
+      0.62,
+      0.5,
+      0.78
+    ],
+    "corruption": "Moribund"
   }
 }

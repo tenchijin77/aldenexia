@@ -22,5 +22,106 @@
    "already_done": "Sahren shakes his head gently. \"You have done enough for the Hollowed. Keep it as a reminder.\""
   },
   "_comment": "Draft texts and reward (75 XP + 5 silver) awaiting the user's approval."
+ },
+ "wagon_crash": {
+  "name": "The Wreck on the South Road",
+  "giver": "Guard Reyna",
+  "auto_start": true,
+  "short": "Take the Lumoran strongbox back from Dessik Coinhand and bring it to Guard Reyna.",
+  "summary": "A Lumoran trading wagon was wrecked on the south road and its strongbox taken by a brigand called Dessik Coinhand. Kill him, take the strongbox, and bring it to Guard Reyna at the gate (drag it onto her).",
+  "objective": {
+   "type": "hand_in",
+   "item": "lumoran_strongbox",
+   "count": 1
+  },
+  "rewards": {
+   "xp": 130,
+   "coin": {
+    "silver": 8
+   }
+  },
+  "texts": {
+   "progress": "",
+   "complete": "Seal's whole. The house will weep with joy, and pay, which is better. Here's your share of it. Well done.",
+   "not_started": "",
+   "already_done": "The house has its property back, and you have our thanks. That's all the reward there is, friend."
+  },
+  "_comment": "DRAFT texts and reward (130 XP + 8 silver), non-repeatable, awaiting the user's approval."
+ },
+ "wardens_medal": {
+  "name": "A Warden Not at Rest",
+  "giver": "Guard Reyna",
+  "auto_start": true,
+  "short": "Bring Sergeant Halvek's medal to Guard Reyna.",
+  "summary": "Sergeant Halvek, a Warden, walks the graveyard road as an undead. Bring his medal to Guard Reyna so the Wardens can put his name back where it belongs.",
+  "objective": {
+   "type": "hand_in",
+   "item": "wardens_tarnished_medal",
+   "count": 1
+  },
+  "rewards": {
+   "xp": 70,
+   "coin": {
+    "silver": 5
+   }
+  },
+  "texts": {
+   "progress": "",
+   "not_started": "",
+   "complete": "Halvek. He trained half of us. I thought he'd been posted north. ... Thank you for letting him stop. His name will be read at the next oath-day.",
+   "already_done": "He's resting now. That's all I wanted to know."
+  },
+  "_comment": "DRAFT texts and reward (70 XP + 5 silver), awaiting the user's approval."
+ },
+ "the_silent_den": {
+  "name": "The Silent Den",
+  "giver": "Private Corwin",
+  "auto_start": true,
+  "short": "Bring Private Corwin six hanks of blighted spider silk from the spiders in the western den.",
+  "summary": "The spiders in the den far to the west have gone wrong. Private Corwin wants proof: six hanks of the grey, faintly purple silk the blighted spiders leave behind. Drag them onto him.",
+  "objective": {
+   "type": "hand_in",
+   "item": "blighted_spider_silk",
+   "count": 6
+  },
+  "rewards": {
+   "xp": 100,
+   "coin": {
+    "silver": 6
+   }
+  },
+  "texts": {
+   "progress": "Warm. It shouldn't be warm. {given} of {need}. {left} more.",
+   "complete": "That's all the proof I need, and more than I wanted. Thank you. There's more to this, and I'll tell you when you're ready. Ask me about the den.",
+   "not_started": "",
+   "already_done": "Enough silk. Ask me about the den, if you want the rest."
+  },
+  "_comment": "DRAFT texts and reward (100 XP + 6 silver), awaiting the user's approval. Step 1 of the Moribund Order line at the spider den."
+ },
+ "the_weavemothers_mark": {
+  "name": "The Weavemother's Mark",
+  "giver": "Private Corwin",
+  "auto_start": true,
+  "requires_quest": "the_silent_den",
+  "short": "Kill Weavemother Vhessa at the heart of the den and bring her sigil to Private Corwin.",
+  "summary": "Something keeps the den's mother alive and makes her worse. Kill Weavemother Vhessa, deep in the western den, and bring Private Corwin whatever she carries that no spider should. She is not a lone-hunter's kill: take friends.",
+  "objective": {
+   "type": "hand_in",
+   "item": "moribund_sigil",
+   "count": 1
+  },
+  "rewards": {
+   "xp": 250,
+   "coin": {
+    "silver": 15
+   }
+  },
+  "texts": {
+   "progress": "",
+   "complete": "A closed eye, over three drops. That's the Moribund Order's mark. They were here, and they did this on purpose. I'm taking this to the Captain today. You've done the Wardens a great service. Stay out of the west for a while.",
+   "not_started": "Not yet. Finish what I asked you first: the silk. Then ask me about the den. Then we'll talk about that.",
+   "already_done": "The Captain has the sigil. What comes next isn't mine to say. Not yet."
+  },
+  "_comment": "DRAFT texts and reward (250 XP + 15 silver), awaiting the user's approval. Step 2 of the Moribund Order line; the Captain is the hook for what comes next."
  }
 }

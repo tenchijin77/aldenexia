@@ -755,3 +755,53 @@ Ask about Djhanid lore
 Accept a relic quest
 
 Ask about desert dangers
+
+ Level rollback and problems found
+  - Rollback: zones/LumoraOutskirts.glb is the committed original again. I deleted the resized glb, the -original.glb copy and its extracted
+    textures, and I regenerated collision and the navmesh from it.
+  - Stray offset: the zone scene's NavigationRegion3D had been moved to y = +1.79 by an editor save. That lifted the whole level 1.79 m while
+    markers and NPCs stayed at y = 0. I removed it and re-baked the navmesh.
+  - Editor reload: I've now edited lumora_outskirts3d.tscn several times, so reload it in the editor before saving. Otherwise the offset can
+    come back and my new nodes get dropped.
+  - Kept from the resize: the Sahren spawn marker, the dock-landing South Zone marker, Bryn's shortened patrol, and the moved wanderer spawns. I
+    re-checked all of them on the restored level.
+  - Spawner bug I found: goblin_warrior, goblin_scout and spiderling have spawn entries but are missing from the spawner's valid-types list, so
+    they never spawn. Goblin camp 1 wants 10 warriors, camp 2 wants 10 scouts and the den wants 10 spiderlings, none of which appear today. It's
+    a one-line fix, but I left it alone so your morning test doesn't change on its own. Want it on?
+
+  What I built (all texts and numbers are drafts for you to tune)
+  - Named mobs: five, each with its own loot table and a few new gear items.
+
+  | Mob                | Where         | Drops                                 |
+  |--------------------|---------------|---------------------------------------|
+  | Dessik Coinhand    | wagon wreck   | quest strongbox, signet ring, cutlass |
+  | Rask Ironjaw       | bandit camp 1 | studded vest, cutlass                 |
+  | Grukka Bonechewer  | goblin camp 1 | bone charm, hide boots                |
+  | Sergeant Halvek    | mausoleum     | quest medal, helm, blade              |
+  | Weavemother Vhessa | spider den    | quest sigil, silk cloak, dagger, silk |
+    The den's regular spiders are now purple "blighted spiders" that drop silk. All the new mob variants reuse existing models with a scale and
+    tint set in monsters.json, so no new art was needed.
+  - Wagon crash quest: a readable note lies by the wreck; right-click within 4 m to read it and start the quest. The note is a glowing paper
+    with a name label, and I checked it in a render. Take the strongbox from Dessik and drag it onto Guard Reyna for the reward. It's
+    non-repeatable.
+    - Guard hand-ins: guards can now take hand-ins by drag-and-drop, like Kenji and Sahren.
+    - Side quest: Reyna also has a medal quest tied to Halvek.
+  - Spider den quest line: ask Private Corwin about the spiders, then bring him 6 blighted silk. That unlocks "The Weavemother's Mark": kill
+    Vhessa and bring the Moribund Sigil. Corwin takes it to "the Captain", which is the hook for the Moribund Order storyline.
+  - Gate raids: every 25–45 minutes, while a player is near the gate, 3–4 bandits (60%) or goblins (40%) march on it from about 110 m out.
+    - Guards and players: the guards shout warnings and taunts, go out to meet the raiders, and wear them down without landing killing blows, so
+      players get the kills, XP and loot. With nobody near, they clear the raid themselves in about 24 s.
+    - Testing: /raid bandits or /raid goblins starts one now (host only).
+
+  Verification
+  - Named mobs: stats, models and drop rates checked in a real window.
+  - Quests: a 19-check script passed, covering the note, hand-ins, rewards, the chain and the auto-start.
+  - Raids: normal, no-players and timeout runs all passed.
+
+  What to test in the morning
+  1. /raid bandits near the gate.
+  2. Read the note at the wreck, then find Dessik.
+  3. Ask Corwin about the spiders.
+  4. Try a level-1 character during a raid.
+
+

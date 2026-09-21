@@ -538,7 +538,7 @@ func _on_chat_input_gui_input(event: InputEvent) -> void:
 # too (Linux-style abbreviation) — see _resolve_command() below. e.g. "/loc"
 # and "/location" both resolve to "/location" since no other command starts
 # with "loc"; "/f" would be ambiguous if two commands both started with "f".
-const COMMANDS := ["/location", "/hail", "/appraise", "/time", "/follow", "/camp", "/exit", "/log", "/invite", "/disband", "/say", "/tell", "/party", "/zone", "/played", "/resetui", "/who", "/weather", "/pet", "/quests", "/compass"]
+const COMMANDS := ["/location", "/hail", "/appraise", "/time", "/follow", "/camp", "/exit", "/log", "/invite", "/disband", "/say", "/tell", "/party", "/zone", "/played", "/resetui", "/who", "/weather", "/pet", "/quests", "/compass", "/raid"]
 
 
 func _handle_slash_command(text: String) -> void:
@@ -570,6 +570,17 @@ func _handle_slash_command(text: String) -> void:
 						wm.set_weather(false)
 					_:
 						GameLog.log_general("Usage: /weather rain | clear")
+		"/raid":
+			# Test/debug control — gate raids otherwise come on their own (Data/gate_raids.json).
+			var rm := get_tree().get_first_node_in_group("gate_raid_manager")
+			if rm == null:
+				GameLog.log_general("There are no raids in this area.")
+			elif not rm.is_multiplayer_authority():
+				GameLog.log_general("[color=red]Only the host can start a raid.[/color]")
+			elif rm.is_raid_active():
+				GameLog.log_general("A raid is already under way.")
+			elif not rm.start_raid(arg.to_lower()):
+				GameLog.log_general("Usage: /raid [bandits | goblins]")
 		"/location":
 			var pos: Vector3 = player.global_position
 			GameLog.log_general("[color=green]Your location: X=%.2f Y=%.2f Z=%.2f[/color]" % [pos.x, pos.y, pos.z])
@@ -659,7 +670,7 @@ func start_camp_channel() -> bool:
 	_camping = true
 	var start_ms := Time.get_ticks_msec()
 	var start_damage_ms: int = player.last_damage_time_ms
-	var was_sitting: bool = player.is_sitting
+	var start_attacked_ms: int = player.last_attacked_msec
 	player.is_sitting = true
 	GameLog.log_general("[color=#ffdd88]You begin to prepare your camp.[/color]")
 
@@ -675,9 +686,9 @@ func start_camp_channel() -> bool:
 		if not is_instance_valid(player):
 			_camping = false
 			return false
-		if player.last_damage_time_ms > start_damage_ms:
+		if player.last_damage_time_ms > start_damage_ms or player.last_attacked_msec > start_attacked_ms:
 			GameLog.log_general("[color=#ff6666]You abandon your camp preparations.[/color]")
-			player.is_sitting = was_sitting
+			player.is_sitting = false  # attacked: you are on your feet, whether or not you were sitting before you began
 			_camping = false
 			return false
 

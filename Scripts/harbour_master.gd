@@ -22,6 +22,7 @@ func _ready() -> void:
 	var parsed = JSON.parse_string(FileAccess.get_file_as_string(CONFIG_PATH)) if FileAccess.file_exists(CONFIG_PATH) else null
 	_config = parsed if typeof(parsed) == TYPE_DICTIONARY else {}
 	super._ready()
+	snap_to_floor()  # he stands on the dock's deck (it is 1 m up), wherever the scene has him
 	add_to_group("npc_talker")  # hears what nearby players say (keyword conversation, npc_conversation.gd)
 	_conversation = NPCConversation.new(self, _config.get("topics", []))
 	if _is_decider():

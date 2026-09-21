@@ -240,6 +240,115 @@
  "by_name": {
   "Private Corwin": [
    {
+    "id": "mark_done",
+    "keywords": [
+     "spider",
+     "spiders",
+     "den",
+     "silk",
+     "weavemother",
+     "moribund",
+     "vhessa",
+     "sigil"
+    ],
+    "requires": {
+     "quest": "the_weavemothers_mark",
+     "quest_state": "complete"
+    },
+    "lines": [
+     "The sigil's with the Captain now. What comes of it isn't mine to say. Not yet."
+    ]
+   },
+   {
+    "id": "mark_active",
+    "keywords": [
+     "spider",
+     "spiders",
+     "den",
+     "silk",
+     "weavemother",
+     "moribund",
+     "vhessa",
+     "sigil"
+    ],
+    "requires": {
+     "quest": "the_weavemothers_mark",
+     "quest_state": "active"
+    },
+    "lines": [
+     "The Weavemother, at the heart of the den, and whatever she's wearing that no spider should. Take friends. Drag it onto me when you have it."
+    ]
+   },
+   {
+    "id": "mark_start",
+    "keywords": [
+     "spider",
+     "spiders",
+     "den",
+     "silk",
+     "weavemother",
+     "moribund",
+     "vhessa",
+     "sigil"
+    ],
+    "requires": {
+     "quest": "the_silent_den",
+     "quest_state": "complete"
+    },
+    "sequence": [
+     "That silk was fed on something, and I don't like what. Somebody is keeping that den's mother alive, and making her worse.",
+     "The scouts told of a queen out there, a {Weavemother}. Kill her and bring me whatever she carries that a spider shouldn't. It's not a kill for one hunter. Take friends. Please."
+    ],
+    "then": {
+     "start_quest": "the_weavemothers_mark"
+    }
+   },
+   {
+    "id": "den_active",
+    "keywords": [
+     "spider",
+     "spiders",
+     "den",
+     "silk",
+     "weavemother",
+     "moribund",
+     "vhessa",
+     "sigil"
+    ],
+    "requires": {
+     "quest": "the_silent_den",
+     "quest_state": "active"
+    },
+    "lines": [
+     "Six hanks of the grey silk the blighted spiders leave, from the den out west. Drag them onto me when you have them."
+    ]
+   },
+   {
+    "id": "den_start",
+    "keywords": [
+     "spider",
+     "spiders",
+     "den",
+     "silk",
+     "weavemother",
+     "moribund",
+     "vhessa",
+     "sigil",
+     "webs"
+    ],
+    "requires": {
+     "quest": "the_silent_den",
+     "quest_state": "none"
+    },
+    "sequence": [
+     "The {spiders} in the den, far out west past the cliffs, have gone wrong. Scouts used to come back with bites and complaints. Lately they come back quiet.",
+     "I need proof, not stories. Bring me six hanks of the grey {silk} the blighted ones spin, and drag them onto me. You'll know it by the purple in it."
+    ],
+    "then": {
+     "start_quest": "the_silent_den"
+    }
+   },
+   {
     "id": "gate_duty",
     "keywords": [
      "gate",
@@ -253,6 +362,92 @@
    }
   ],
   "Guard Reyna": [
+   {
+    "id": "wagon_active",
+    "keywords": [
+     "wagon",
+     "wagons",
+     "wreck",
+     "crash",
+     "strongbox",
+     "dessik",
+     "south road"
+    ],
+    "requires": {
+     "quest": "wagon_crash",
+     "quest_state": "active"
+    },
+    "lines": [
+     "Dessik Coinhand and the Lumoran strongbox. He'll be near the wreck, out along the south road. Bring it to me and drag it onto me when you have it."
+    ]
+   },
+   {
+    "id": "wagon_done",
+    "keywords": [
+     "wagon",
+     "wagons",
+     "wreck",
+     "crash",
+     "strongbox",
+     "dessik",
+     "south road"
+    ],
+    "requires": {
+     "quest": "wagon_crash",
+     "quest_state": "complete"
+    },
+    "lines": [
+     "The house has its strongbox and Dessik's dead. That's the wagon settled. Thank you again."
+    ]
+   },
+   {
+    "id": "wagon",
+    "keywords": [
+     "wagon",
+     "wagons",
+     "wreck",
+     "crash",
+     "strongbox",
+     "dessik",
+     "south road"
+    ],
+    "requires": {
+     "quest": "wagon_crash",
+     "quest_state": "none"
+    },
+    "sequence": [
+     "A Lumoran trading wagon was hit on the south road, long way out to the southwest. The driver never made it to us. What was in it, we can guess.",
+     "There's a brigand out that way who calls himself {Dessik} Coinhand. If you go, the wreck should have a note or two on it. Bring me back what he took."
+    ],
+    "then": {
+     "start_quest": "wagon_crash"
+    }
+   },
+   {
+    "id": "halvek",
+    "keywords": [
+     "halvek",
+     "medal",
+     "sergeant halvek"
+    ],
+    "requires": {
+     "has_item": "wardens_tarnished_medal"
+    },
+    "sequence": [
+     "That medal. Where did you... it says Halvek. Sergeant Halvek trained me.",
+     "He's the one on the graveyard road? Still... Give it to me, friend. Drag it onto me. It's time somebody let him stop."
+    ]
+   },
+   {
+    "id": "halvek_ask",
+    "keywords": [
+     "halvek",
+     "sergeant halvek"
+    ],
+    "lines": [
+     "Sergeant Halvek was one of ours. Nobody's seen him in years. If he's walking the graveyard road as a corpse, I'd want to know, and I'd want his medal."
+    ]
+   },
    {
     "id": "graveyard",
     "keywords": [

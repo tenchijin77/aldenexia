@@ -18,6 +18,7 @@ const HEAR_RANGE := 14.0          # he calls out his wares, so he carries farthe
 const CORNER_ARRIVAL := 1.5
 const ARRIVAL := 1.0              # how close counts as "reached" a stop
 const GRAVITY := 20.0
+const HOP_HEIGHT := 1.4           # a ledge up to about this high he hops onto (the dock's deck is 1 m up and the navmesh does not join it to the shore)
 const STALL_SECONDS := 20.0       # no progress toward the stop for this long -> repath / skip a corner
 const TRAVEL_SLACK := 2.5         # a leg may take this many times its expected time before he is simply placed at the stop
 const LEAVING_SECONDS := 4.0      # after the farewell, before he is gone
@@ -45,6 +46,9 @@ var _path_i := 0
 var _dest := Vector3.ZERO
 var _travelling := false
 var _leg_deadline_msec := 0
+var _off_mesh := false             # the navmesh path ends short of his stop (the dock): he finishes the leg in a straight line
+var _shore_point := Vector3.INF    # where he left the navmesh for the dock: the next leg starts by walking back there
+var _to_shore := false
 var _best_dist := INF
 var _stall := 0.0
 var _leave_at_msec := 0            # when the current stay ends
@@ -311,7 +315,10 @@ func _stand_point(marker_pos: Vector3, key: String) -> Vector3:
 func _begin_leg(next_stage: int) -> void:
 	stage = next_stage
 	_dest = _stand_point(route_dock, "dock_stand_offset") if next_stage == Stage.ROAD_TO_DOCK else _stand_point(route_gate, "gate_stand_offset")
+	_dest.y = floor_y_at(_dest, _dest.y)
 	_travelling = true
+	_off_mesh = false
+	_to_shore = _shore_point != Vector3.INF   # leaving the dock: off its deck first, the navmesh there is an island of its own
 	_path = PackedVector3Array()
 	_path_i = 0
 	_best_dist = INF
@@ -325,9 +332,18 @@ func _walk(delta: float, now: int) -> void:
 	if to_dest <= ARRIVAL or now >= _leg_deadline_msec:
 		if now >= _leg_deadline_msec and to_dest > ARRIVAL:
 			push_warning("%s could not reach his stop in time — placing him there." % npc_name)
-			global_position = Vector3(_dest.x, global_position.y, _dest.z)
+			global_position = Vector3(_dest.x, _dest.y, _dest.z)
 		_arrive()
 		return
+	if _to_shore:
+		if _flat(global_position, _shore_point) < CORNER_ARRIVAL:
+			_to_shore = false
+			_shore_point = Vector3.INF
+			_best_dist = INF
+			_path = PackedVector3Array()
+		else:
+			_walk_straight(_shore_point)
+			return
 	# Progress watchdog: he must never be able to stand still forever on a scheduled route.
 	if to_dest < _best_dist - 0.5:
 		_best_dist = to_dest
@@ -346,6 +362,12 @@ func _walk(delta: float, now: int) -> void:
 	while _path_i < _path.size() - 1 and _flat(global_position, _path[_path_i]) < CORNER_ARRIVAL:
 		_path_i += 1
 	var next: Vector3 = _path[_path_i]
+	if _path_i >= _path.size() - 1 and _flat(global_position, next) < CORNER_ARRIVAL * 2.0 and _flat(next, _dest) > CORNER_ARRIVAL * 2.0:
+		_off_mesh = true  # the navmesh ends here but his stop is further on (the dock's deck): walk the rest straight
+		_shore_point = global_position
+	if _off_mesh:
+		_walk_straight(_dest)
+		return
 	var flat_dir := Vector3(next.x - global_position.x, 0.0, next.z - global_position.z)
 	if flat_dir.length() < 0.1:
 		velocity.x = 0.0
@@ -355,6 +377,22 @@ func _walk(delta: float, now: int) -> void:
 	look_at(global_position + dir, Vector3.UP)
 	velocity.x = dir.x * _walk_speed
 	velocity.z = dir.z * _walk_speed
+
+
+# The last stretch when the navmesh does not reach the stop: straight at it, hopping onto a ledge that is in the way.
+func _walk_straight(target: Vector3) -> void:
+	var dir := Vector3(target.x - global_position.x, 0.0, target.z - global_position.z).normalized()
+	look_at(global_position + dir, Vector3.UP)
+	velocity.x = dir.x * _walk_speed
+	velocity.z = dir.z * _walk_speed
+	if is_on_floor():
+		var space := get_world_3d().direct_space_state
+		var knee := PhysicsRayQueryParameters3D.create(global_position + Vector3(0, 0.4, 0), global_position + Vector3(0, 0.4, 0) + dir * 1.0)
+		knee.exclude = [get_rid()]
+		var high := PhysicsRayQueryParameters3D.create(global_position + Vector3(0, HOP_HEIGHT + 0.3, 0), global_position + Vector3(0, HOP_HEIGHT + 0.3, 0) + dir * 1.0)
+		high.exclude = [get_rid()]
+		if space.intersect_ray(knee) and not space.intersect_ray(high):
+			velocity.y = sqrt(2.0 * GRAVITY * HOP_HEIGHT)
 
 
 func _recompute_path() -> void:

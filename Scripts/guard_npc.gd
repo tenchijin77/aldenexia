@@ -78,6 +78,13 @@ var attack_cooldown: float = 1.5
 const REGEN_INTERVAL := 6.0
 var _regen_timer: float = 0.0
 
+## Set by GateRaidManager while a raid is on: guards go out to meet monsters in group "raiders" up to this far from their post
+## (0 = normal, only what wanders within a few metres). With raid_soften a guard only wears a raider down to RAID_SOFTEN_FLOOR of
+## its health and leaves the killing to the players, who then get the XP and the loot (guard kills are quiet: no corpse).
+var raid_alert_range: float = 0.0
+var raid_soften: bool = false
+const RAID_SOFTEN_FLOOR := 0.5
+
 var _scan_timer: float = 0.0
 var _banter_timer: float = 0.0
 var _banter_interval: float = 420.0
@@ -154,6 +161,47 @@ func can_answer(player: Node, text: String) -> bool:
 func hear_say(player: Node, text: String) -> void:
 	if _conversation != null:
 		_conversation.hear(player, text)
+
+
+# ── Hand-ins (Quests: an item dragged onto a guard, EverQuest style) ──
+const INTERACT_RANGE := 8.0
+
+
+func receive_item_drop(item: Dictionary, player: Node) -> void:
+	if global_position.distance_to(player.global_position) > INTERACT_RANGE:
+		GameLog.log_general("You are too far away from %s." % npc_name)
+		return
+	_face_player()
+	var existing := get_tree().root.get_node_or_null("GiveWindow")
+	if existing:
+		existing.queue_free()
+	var win := GiveWindow.new()
+	win.name = "GiveWindow"
+	get_tree().root.add_child(win)
+	win.setup(self, player)
+	win.offer_item(item)
+
+
+# Called by the Give window: true closes it (finished), false leaves it open.
+func try_give(item_id: String, player: Node) -> bool:
+	var result := Quests.try_hand_in(npc_name, item_id, player)
+	var text: String = str(result.get("text", ""))
+	match str(result.get("result", "")):
+		"wrong_item":
+			say("I have no use for that, friend.")
+			return false
+		"complete", "already_done":
+			if not text.is_empty():
+				say(text)
+			return true
+		_:
+			if not text.is_empty():
+				say(text)
+			return false
+
+
+func progress_summary() -> String:
+	return Quests.progress_summary(npc_name)
 
 
 # A remark about the traveling merchant that fits where he is right now.
@@ -234,6 +282,27 @@ func say_to_all(line: String) -> void:
 @rpc("authority", "call_remote", "reliable")
 func _rpc_say(line: String) -> void:
 	say(line)
+
+
+# A shout carries much farther than talk (a raid warning, a rally): every player within SHOUT_RANGE of this guard hears it.
+const SHOUT_RANGE := 70.0
+
+
+func shout_to_all(line: String) -> void:
+	_shout(line)
+	if Net.is_multiplayer_game and multiplayer.has_multiplayer_peer() and multiplayer.is_server():
+		_rpc_shout.rpc(line)
+
+
+@rpc("authority", "call_remote", "reliable")
+func _rpc_shout(line: String) -> void:
+	_shout(line)
+
+
+func _shout(line: String) -> void:
+	var player := TargetFrame.local_player()
+	if is_instance_valid(player) and global_position.distance_to(player.global_position) <= SHOUT_RANGE:
+		GameLog.log_general("[color=#ffdd88]%s shouts, \"%s\"[/color]" % [npc_name, NPCConversation.format(line)])
 
 
 # Speaks an exact line (as opposed to _say_flavor's random pick from this
@@ -515,6 +584,9 @@ func _scan_for_targets() -> void:
 		if int(_ignored_targets.get(monster.get_instance_id(), 0)) > now_ms:
 			continue  # gave up on this one recently (couldn't reach it)
 		var dist := origin.distance_to(monster.global_position)
+		# During a raid a raider is engaged from much farther off (and preferred over anything that merely wandered close).
+		if raid_alert_range > 0.0 and monster.is_in_group("raiders") and dist <= raid_alert_range:
+			dist = minf(dist, engage_range) - 1000.0 + dist * 0.001
 		if dist < nearest_dist:
 			nearest_dist = dist
 			nearest = monster
@@ -534,7 +606,10 @@ func _process_engage(delta: float) -> void:
 		_current_path.clear()  # combat may have moved us off the cached patrol path — force a fresh one
 		return
 
-	if _engage_origin.distance_to(attack_target.global_position) > LEASH_RANGE:
+	var leash := LEASH_RANGE
+	if raid_alert_range > 0.0 and attack_target.is_in_group("raiders"):
+		leash = raid_alert_range + 15.0   # a raider drawn to the gate is chased right out to where it stands
+	if _engage_origin.distance_to(attack_target.global_position) > leash:
 		attack_target = null
 		state = _default_state
 		_current_path.clear()
@@ -740,7 +815,12 @@ func _perform_attack() -> void:
 		return
 
 	var target_cn: CombatNode = attack_target.combat_node
+	# Raid, players nearby: harry the raider but leave it for them to finish (see raid_soften above).
+	if raid_soften and attack_target.is_in_group("raiders") and target_cn.current_hp <= int(target_cn.max_hp * RAID_SOFTEN_FLOOR):
+		return
 	var result: Dictionary = combat_node.resolve_attack(target_cn)
+	if raid_soften and attack_target.is_in_group("raiders") and target_cn.current_hp <= 0:
+		target_cn.current_hp = 1   # a guard never lands the killing blow on a raider while players are there to take it
 	var target_desc: String = attack_target.get("monster_description")
 	if target_desc == "":
 		target_desc = attack_target.get_monster_name()

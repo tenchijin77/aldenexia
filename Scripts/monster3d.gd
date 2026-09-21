@@ -226,6 +226,13 @@ var anim_state: String = ""
 
 # Kept for backward compat — always mirrors combat_node.current_hp
 var monster_description: String = ""
+## Set by GateRaidManager: while this is set the monster marches straight there (a brisk walk) instead of wandering, and it
+## clears itself on arrival, after which the monster mills about that spot. Anything that sees a player still chases first.
+var march_target: Vector3 = Vector3.INF
+const MARCH_SPEED_MULTIPLIER: float = 1.6
+var model_from: String = ""        # monsters.json "model_from": borrow this type's model (see the stats block in _ready)
+var model_scale: float = 1.0
+var model_tint: Color = Color.WHITE
 var current_health: int:
 	get: return combat_node.current_hp if combat_node else 0
 var attack_timer: float = 0.0
@@ -358,11 +365,19 @@ func _ready() -> void:
 		secret_note     = stats.get("secret_note", secret_note)
 		corruption      = stats.get("corruption", corruption)
 		death_text      = stats.get("death_text", death_text)
+		# A variant (a named mob, a blighted spider) reuses another type's model: "model_from" is that type, "model_scale" makes it
+		# bigger or smaller, "tint" ([r, g, b], multiplied into the texture) recolours it. No new art needed.
+		model_from      = str(stats.get("model_from", ""))
+		model_scale     = float(stats.get("model_scale", 1.0))
+		var tint_arr = stats.get("tint", null)
+		if typeof(tint_arr) == TYPE_ARRAY and tint_arr.size() >= 3:
+			model_tint = Color(float(tint_arr[0]), float(tint_arr[1]), float(tint_arr[2]))
 
-	if monster_name in HUMANOID_MOB_TYPES:
-		_setup_humanoid_visual()
-	elif monster_name in CRITTER_MODELS:
-		_setup_critter_visual()
+	var visual_key := model_from if not model_from.is_empty() else monster_name
+	if visual_key in HUMANOID_MOB_TYPES:
+		_setup_humanoid_visual(visual_key)
+	elif visual_key in CRITTER_MODELS:
+		_setup_critter_visual(visual_key)
 
 	combat_node = CombatNode.new()
 	combat_node.name = "CombatNode"
@@ -393,20 +408,21 @@ func _ready() -> void:
 # ===== HUMANOID VISUAL (per-species model if MOB_MODELS has one, else the
 # shared player/guard Mixamo model + anim library — see MOB_MODELS above) =====
 
-func _setup_humanoid_visual() -> void:
+func _setup_humanoid_visual(visual_key: String) -> void:
 	mesh_instance.visible = false
 
 	var capsule := CapsuleShape3D.new()
-	capsule.radius = 0.35
-	capsule.height = 1.8
+	capsule.radius = 0.35 * model_scale
+	capsule.height = 1.8 * model_scale
 	collision_shape.shape = capsule
-	collision_shape.position = Vector3(0, 0.9, 0)
+	collision_shape.position = Vector3(0, 0.9 * model_scale, 0)
 
-	var model_info: Dictionary = MOB_MODELS.get(monster_name, DEFAULT_HUMANOID_MOB_MODEL)
+	var model_info: Dictionary = MOB_MODELS.get(visual_key, DEFAULT_HUMANOID_MOB_MODEL)
 	var character_scene := load(model_info["scene"])
 	var character: Node3D = character_scene.instantiate()
 	character.name = "Character"
 	character.transform = Transform3D.IDENTITY.rotated(Vector3.UP, PI)  # same 180°-Y facing fix baked into player3d.tscn/guard_npc.tscn's Character node
+	character.scale = Vector3.ONE * model_scale
 	add_child(character)
 
 	animation_player = character.get_node("AnimationPlayer")
@@ -422,7 +438,9 @@ func _setup_humanoid_visual() -> void:
 		animation_player.add_animation_library("", lib)
 
 	if model_info.has("texture_override"):
-		_apply_texture_override(character, model_info["texture_override"], model_info.get("tint", Color.WHITE))
+		_apply_texture_override(character, model_info["texture_override"], model_info.get("tint", Color.WHITE) * model_tint)
+	elif model_tint != Color.WHITE:
+		push_warning("%s has a tint but its model has no texture_override to tint" % monster_name)
 
 
 # Meshy-sourced FBX exports never carry their real texture through to Godot
@@ -444,16 +462,16 @@ func _apply_texture_override(node: Node, texture_path: String, tint: Color = Col
 # no AnimationPlayer) — same shape as wildspeaker_pet.gd's model handling.
 # No animation swapping needed since there's nothing to swap; _update_animation()
 # below already no-ops harmlessly when animation_player is null.
-func _setup_critter_visual() -> void:
+func _setup_critter_visual(visual_key: String) -> void:
 	mesh_instance.visible = false
 
 	var capsule := CapsuleShape3D.new()
-	capsule.radius = 0.4
-	capsule.height = 1.0
+	capsule.radius = 0.4 * model_scale
+	capsule.height = 1.0 * model_scale
 	collision_shape.shape = capsule
-	collision_shape.position = Vector3(0, 0.5, 0)
+	collision_shape.position = Vector3(0, 0.5 * model_scale, 0)
 
-	var model_info: Dictionary = CRITTER_MODELS[monster_name]
+	var model_info: Dictionary = CRITTER_MODELS[visual_key]
 	var character_scene := load(model_info["scene"])
 	if not character_scene:
 		return
@@ -476,8 +494,9 @@ func _setup_critter_visual() -> void:
 		"slime": 0.95,
 		"dune_scarab": 0.46,
 	}
-	if GROUND_OFFSET.has(monster_name):
-		character.position.y += GROUND_OFFSET[monster_name]
+	if GROUND_OFFSET.has(visual_key):
+		character.position.y += GROUND_OFFSET[visual_key] * model_scale
+	character.scale = Vector3.ONE * model_scale
 	add_child(character)
 
 	_apply_critter_material(character, model_info)
@@ -495,6 +514,7 @@ func _apply_critter_material(node: Node, model_info: Dictionary) -> void:
 		return
 	var mat := StandardMaterial3D.new()
 	mat.albedo_texture = albedo
+	mat.albedo_color = model_tint
 
 	# Not every critter ships a normal/roughness/metallic map (e.g. the 2026-
 	# 09-18 desert critters have only albedo/roughness/metallic) — an empty
@@ -805,6 +825,9 @@ func state_patrol(delta: float) -> void:
 	# wanders again, so it strolls in bursts instead of walking non-stop.
 	var flat_to_target: float = Vector2(global_position.x - patrol_target.x, global_position.z - patrol_target.z).length()
 	if flat_to_target <= PATROL_ARRIVE_DISTANCE:
+		if march_target != Vector3.INF:
+			march_target = Vector3.INF   # arrived: from now on it wanders around here
+			spawn_position = global_position
 		change_state(State.IDLE)
 		return
 	# Watchdog: no real progress toward the point for a while (blocked, wedged) -> give up on it, pause, pick another.
@@ -1178,6 +1201,8 @@ func handle_movement(delta: float) -> void:
 			look_at_target(global_position + direction)
 
 			var speed_3d = speed / 10.0
+			if current_state == State.PATROL and march_target != Vector3.INF:
+				speed_3d *= MARCH_SPEED_MULTIPLIER
 			if current_state == State.CHASE:
 				speed_3d *= CHASE_SPEED_MULTIPLIER  # most base speeds (2.5-3.5 m/s) trail the player's 5 m/s walk — an aggroed monster should feel urgent, not be outrun at a stroll
 			speed_3d *= (1.0 - combat_node.get_modifier("speed_slow"))
@@ -1273,6 +1298,8 @@ func _resolve_attack_on(target: Node, relayed: bool = false) -> void:
 				var named: String = _attack_text_on_other(result, desc, str(target.get("player_name")))
 				if not named.is_empty():
 					Net.broadcast_combat_message(named, global_position)
+			if target.has_method("on_attacked"):
+				target.on_attacked(self)
 			if target.has_method("_tick_defense_skill"):
 				target._tick_defense_skill(result.get("result", ""))
 			if result.get("damage", 0) > 0 and target.has_method("on_combat_node_hit"):
@@ -1751,6 +1778,10 @@ const PATROL_MAX_DISTANCE: float = 18.0  # was a flat 10.0 with no minimum — t
 func pick_new_patrol_point() -> void:
 	_patrol_best_distance = INF
 	_patrol_stall_timer = 0.0
+	if march_target != Vector3.INF:
+		var march_map: RID = get_world_3d().navigation_map if is_inside_tree() else RID()
+		patrol_target = NavigationServer3D.map_get_closest_point(march_map, march_target) if march_map.is_valid() else march_target
+		return
 	# Try a few random spots and keep the first that is actually on the navmesh (not inside a wall, rock or water) —
 	# the point is snapped onto the mesh so the arrival check above can really be met.
 	var map: RID = get_world_3d().navigation_map if is_inside_tree() else RID()

@@ -27,6 +27,8 @@ signal rain_changed(raining: bool)
 @export var fog_color: Color = Color(0.5, 0.55, 0.62)
 ## Rain-loop volume (dB) at full intensity, on the SFX bus.
 @export var rain_volume_db: float = -6.0
+## How much quieter the rain sounds while you stand under a roof (dB).
+@export var sheltered_volume_drop_db: float = 9.0
 
 @export_group("Chat text")
 @export var rain_start_text: String = "It begins to rain..."
@@ -49,6 +51,9 @@ var _orig_fog_density: float = 0.01
 var _orig_fog_color: Color = Color.WHITE
 var _rain: GPUParticles3D = null
 var _sound: AudioStreamPlayer = null
+var _sheltered := false
+var _shelter_timer := 0.0
+var _shelter_drop_db := 0.0   # smoothed
 
 
 func _ready() -> void:
@@ -136,14 +141,28 @@ func _apply_visuals() -> void:
 		var p := TargetFrame.local_player()
 		if is_instance_valid(p):
 			_rain.global_position = p.global_position + Vector3(0, 13, 0)
+			_shelter_timer -= get_process_delta_time()
+			if active and _shelter_timer <= 0.0:
+				_shelter_timer = 0.3
+				_sheltered = _is_under_cover(p)
 
 	if _sound:
 		if active:
 			if not _sound.playing:
 				_sound.play()
-			_sound.volume_db = rain_volume_db + linear_to_db(maxf(intensity, 0.001))
+			_shelter_drop_db = move_toward(_shelter_drop_db, sheltered_volume_drop_db if _sheltered else 0.0, 30.0 * get_process_delta_time())
+			_sound.volume_db = rain_volume_db + linear_to_db(maxf(intensity, 0.001)) - _shelter_drop_db
 		elif _sound.playing:
 			_sound.stop()
+
+
+# True when something solid is overhead within 30 m (a roof, an arch, a ledge): the rain sound is muffled there.
+func _is_under_cover(player: Node3D) -> bool:
+	var space := player.get_world_3d().direct_space_state
+	var from := player.global_position + Vector3(0, 1.7, 0)
+	var query := PhysicsRayQueryParameters3D.create(from, from + Vector3(0, 30, 0))
+	query.exclude = [player]
+	return not space.intersect_ray(query).is_empty()
 
 
 # ── Construction ───────────────────────────────────────────────────────────
@@ -165,7 +184,17 @@ func _build_rain_particles() -> void:
 	pm.initial_velocity_min = 20.0
 	pm.initial_velocity_max = 26.0
 	pm.gravity = Vector3(0, -12, 0)
+	# Drops that hit something are hidden — the town gate's roof, walls, the ground — so it does not rain indoors. The collider
+	# below reads the scene's shapes from above (a height map) around the camera.
+	pm.collision_mode = ParticleProcessMaterial.COLLISION_HIDE_ON_CONTACT
 	_rain.process_material = pm
+	var collider := GPUParticlesCollisionHeightField3D.new()
+	collider.name = "RainRoofCollider"
+	collider.size = Vector3(48, 60, 48)   # reaches 24 m around the camera (the rain box is 16 m around the player) and 30 m up and down
+	collider.resolution = GPUParticlesCollisionHeightField3D.RESOLUTION_256
+	collider.update_mode = GPUParticlesCollisionHeightField3D.UPDATE_MODE_ALWAYS
+	collider.follow_camera_enabled = true   # it has to follow the camera itself: moved by hand, or as a child of the rain node, it hid every drop or none
+	add_child(collider)
 
 	var streak := QuadMesh.new()
 	streak.size = Vector2(0.012, 0.55)

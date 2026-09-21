@@ -7425,5 +7425,374 @@
     "range": 0,
     "stat_modifiers": null,
     "effect": null
+  },
+  "brigand_cutlass": {
+    "name": "Notched Brigand Cutlass",
+    "icon": "res://Assets/icons/items/sword.png",
+    "description": "A curved blade nicked along its edge by more fights than its owner survived.",
+    "stackable": false,
+    "currency_type": "silver",
+    "value": 14,
+    "type": "weapon",
+    "armor_class": 0,
+    "slot": "primary",
+    "skill": "slashing_weapons",
+    "damage": 11,
+    "delay": 28,
+    "weight": 4.5,
+    "size": "medium",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0.39,
+    "range": 0,
+    "stat_modifiers": {
+      "strength": 1,
+      "dexterity": 2
+    },
+    "effect": null
+  },
+  "wardens_grave_blade": {
+    "name": "Warden's Grave-Blade",
+    "icon": "res://Assets/icons/items/sword.png",
+    "description": "A plain Warden's longsword, pitted by years in the ground and still sharp.",
+    "lore": "Every Warden's blade is stamped with the year of their oath. This one has been in the sand a great deal longer than the Wardens have kept these roads.",
+    "stackable": false,
+    "currency_type": "silver",
+    "value": 16,
+    "type": "weapon",
+    "armor_class": 0,
+    "slot": "primary",
+    "skill": "slashing_weapons",
+    "damage": 12,
+    "delay": 29,
+    "weight": 5.0,
+    "size": "medium",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0.41,
+    "range": 0,
+    "stat_modifiers": {
+      "strength": 2,
+      "stamina": 1
+    },
+    "effect": null
+  },
+  "venomfang_dagger": {
+    "name": "Venomfang Dagger",
+    "icon": "res://Assets/icons/items/dagger.png",
+    "description": "A curved dagger made from a spider's fang, still faintly wet at the tip.",
+    "stackable": false,
+    "currency_type": "silver",
+    "value": 15,
+    "type": "weapon",
+    "armor_class": 0,
+    "slot": "primary",
+    "skill": "piercing_weapons",
+    "damage": 9,
+    "delay": 20,
+    "weight": 1.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0.45,
+    "range": 0,
+    "stat_modifiers": {
+      "dexterity": 3,
+      "agility": 1
+    },
+    "effect": null
+  },
+  "bandit_captains_vest": {
+    "name": "Captain's Studded Vest",
+    "icon": "res://Assets/icons/items/leather-chestpiece.png",
+    "description": "A leather vest studded with old coins, hammered flat, to stop a blade.",
+    "stackable": false,
+    "currency_type": "silver",
+    "value": 18,
+    "type": "armor",
+    "armor_class": 6,
+    "slot": "chest",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 8.0,
+    "size": "medium",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": {
+      "strength": 1,
+      "stamina": 2
+    },
+    "effect": null
+  },
+  "coinhand_signet": {
+    "name": "Coinhand's Signet Ring",
+    "icon": "res://Assets/icons/items/gemstone.png",
+    "description": "A fat brass ring with a merchant's seal filed half off. Whoever wore it wanted to be someone else.",
+    "stackable": false,
+    "currency_type": "silver",
+    "value": 12,
+    "type": "armor",
+    "armor_class": 0,
+    "slot": "finger",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "tiny",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": {
+      "dexterity": 2,
+      "charisma": 2
+    },
+    "effect": null
+  },
+  "chieftains_bone_charm": {
+    "name": "Chieftain's Bone Charm",
+    "icon": "res://Assets/icons/items/totemfragment.png",
+    "description": "A charm strung with knuckle bones, some of them too big to be goblin.",
+    "stackable": false,
+    "currency_type": "silver",
+    "value": 14,
+    "type": "armor",
+    "armor_class": 1,
+    "slot": "neck",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.5,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": {
+      "strength": 2,
+      "stamina": 1
+    },
+    "effect": null
+  },
+  "goblin_hide_boots": {
+    "name": "Goblin-Hide Boots",
+    "icon": "res://Assets/icons/items/leather-boots.png",
+    "description": "Boots sewn from goblin hide. They smell like it and they last.",
+    "stackable": false,
+    "currency_type": "silver",
+    "value": 10,
+    "type": "armor",
+    "armor_class": 3,
+    "slot": "feet",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 2.0,
+    "size": "medium",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": {
+      "agility": 2
+    },
+    "effect": null
+  },
+  "tarnished_warden_helm": {
+    "name": "Tarnished Warden's Helm",
+    "icon": "res://Assets/icons/items/chain-helm.png",
+    "description": "A dented Warden's helm, black with tarnish, the sacred flame on its brow almost worn away.",
+    "stackable": false,
+    "currency_type": "silver",
+    "value": 16,
+    "type": "armor",
+    "armor_class": 5,
+    "slot": "head",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 4.0,
+    "size": "medium",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": {
+      "stamina": 2,
+      "wisdom": 1
+    },
+    "effect": null
+  },
+  "weavemothers_silk_cloak": {
+    "name": "Weavemother's Silk Cloak",
+    "icon": "res://Assets/icons/items/cloak.png",
+    "description": "A cloak of pale silk that catches light like water. It weighs nothing and it does not tear.",
+    "stackable": false,
+    "currency_type": "silver",
+    "value": 18,
+    "type": "armor",
+    "armor_class": 3,
+    "slot": "back",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.4,
+    "size": "medium",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": {
+      "agility": 2,
+      "dexterity": 1
+    },
+    "effect": null
+  },
+  "wardens_tarnished_medal": {
+    "name": "Sergeant Halvek's Medal",
+    "icon": "res://Assets/icons/items/token.png",
+    "description": "A Warden's service medal, green with age. The name on the back is worn, but you can read it: HALVEK.",
+    "lore": "Wardens are buried with their medals. Someone in Lumora will want to know this one is not in its grave.",
+    "stackable": false,
+    "currency_type": "silver",
+    "value": 8,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "tiny",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "lumoran_strongbox": {
+    "name": "Lumoran Strongbox",
+    "icon": "res://Assets/icons/items/trunk.png",
+    "description": "A small iron-banded strongbox stamped with the seal of a Lumoran trading house. The lock has been forced and forced shut again.",
+    "lore": "Taken from a wagon on the south road. Whoever wants it back will want it back with the seal unbroken.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 0,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 3.0,
+    "size": "medium",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "blighted_spider_silk": {
+    "name": "Blighted Spider Silk",
+    "icon": "res://Assets/icons/items/spider-web.png",
+    "description": "A hank of grey silk that is warm to the touch, and should not be. There is a faint purple sheen in it.",
+    "lore": "Healthy silk is cold and dry. This has been fed on something.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 6,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "moribund_sigil": {
+    "name": "Moribund Sigil",
+    "icon": "res://Assets/icons/items/totemfragment.png",
+    "description": "A palm-sized disc of black stone carved with a closed eye above three drops. It is cold enough to hurt.",
+    "lore": "Not spider work. The Order marks what it has claimed.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 0,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
   }
 }

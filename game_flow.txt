@@ -125,7 +125,8 @@ script — as of 2026-08-23 this is no longer a one-off; run:
 
   ./tools/regen_lumora_collision.sh
 
-from the project root after every Blender re-export. It does both steps
+from the project root after every Blender re-export. It also RE-BAKES THE NAVMESH afterwards (tools/bake_lumora_navmesh.gd, ~6 s: the
+bake reads the collision, so a stale collision means a stale navmesh; changed 2026-09-21 after the level resize). It does both steps
 below in one command and exits non-zero with a warning if it detects the
 degenerate-transform gotcha. To run the steps individually (or if you need
 to tweak the generation logic, see tools/regen_lumora_collision.gd):
@@ -1092,9 +1093,19 @@ Scene: Scenes/player3d.tscn (contains CameraRig → CameraController + Camera3D)
 --- Traveling merchant: Sahren of the Deep Wells (2026-09-20) ---
   traveling_merchant_spawner.gd (server-side scheduler, MultiplayerSpawner) -> traveling_merchant.gd (VendorNPC subclass). Random
   first visit + random gaps (Data/traveling_merchant.json); a visit = spawn marker -> walk -> dock (5 min) -> walk -> town gate
-  (5 min) -> gone. Trades only while standing (can_trade()); shop_window closes when he leaves. Stock = shop_id in
+  (5 min) -> gone. The dock's deck is 1 m up and off the navmesh, so on the way in he walks the navmesh to its end, then straight
+  to the stop, hopping the ledge (HOP_HEIGHT), and on the way out walks back to where he came ashore first. Vendors (VendorNPC) have no gravity:
+  snap_to_floor() stands one on whatever is under its scene position (the Harbour Master on the deck).
+  Trades only while standing (can_trade()); shop_window closes when he leaves. Stock = shop_id in
   Data/vendor_shop.json. Harbour Master Tobias Sandcrest (harbour_master.gd, a shop that sells the ferry token) comments on where
   Sahren is and talks on his own. NPCRaceModel builds NPC bodies from race models. Sahren reacts to a Ceramic Water-Token.
+
+--- Named mobs, world notes, guard hand-ins and gate raids (2026-09-21) ---
+  A monster type in monsters.json may borrow another's model ("model_from", "model_scale", "tint"): named mobs (Dessik Coinhand, Rask Ironjaw, Grukka Bonechewer, Sergeant Halvek,
+  Weavemother Vhessa) and the blighted spider are pure data; their loot is a special_encounters table; they spawn as max-1 entries with long respawns. Quests: the "hand_in" objective plus
+  "auto_start" / "requires_quest"; guards (GuardNPC) accept hand-ins (drag onto them) like Kenji/Sahren. WorldNote (world_note.gd) = a readable object placed in a zone scene (right-click within 4 m,
+  starts a quest the first time). GateRaidManager (server-side): raiders are ordinary spawner monsters with march_target set (group "raiders"); guards get raid_alert_range / raid_soften while it lasts
+  so they soften raiders and leave the kills to players; all lines in Data/gate_raids.json. /raid starts one.
 
 --- Keyword conversations and quests (2026-09-20) ---
   NPCs in group npc_talker (Tobias, Sahren) have a "topics" list in their JSON (Scripts/npc_conversation.gd). What the local player says
@@ -1445,6 +1456,9 @@ Scene: Scenes/player3d.tscn (contains CameraRig → CameraController + Camera3D)
     a GPUParticles3D rain box that follows the local player, fog, DayNightCycle.set_weather_dim()
     (overcast_light_scale/overcast_sky_color exports) and the looping rain sound on the SFX bus.
     /weather rain|clear forces it (host/single-player). rain_start_text / rain_stop_text exports.
+    Drops HIDE ON CONTACT with the world (roofs, walls, ground): a GPUParticlesCollisionHeightField3D with follow_camera_enabled
+    (child of the WeatherManager, NOT of the rain node: as a child of the moving node it hides nothing). The rain sound drops 9 dB
+    while something is overhead (_is_under_cover). Any roof you add to a zone keeps the rain off automatically.
   Dark Sight: see the "DARK SIGHT / IMPROVED DARK SIGHT" section — DayNightCycle reads the
     local player's race traits (improved_dark_sight 1.0 / dark_sight 0.5) and lifts night
     lighting for that viewer only.
@@ -3157,6 +3171,9 @@ station (a stove, a forge) is pure data, no new window/script code needed.
   it's a staging slot, not a real inventory slot. Closing the window without crafting
   refunds whatever's staged. Icon uses `texture_normal` (the same property
   `backpack_ui.gd` actually uses) and `tooltip_text` for the hover-name.
+- BATCH CRAFTING TAKES TIME PER ITEM (2026-09-20): a stack crafts one item at a time, each taking the recipe's full craft_time, each with its own
+  skill roll (11 raw meat = 44 s = 11 rolls). One progress bar spans the batch; the button becomes "Stop"; being attacked (player.last_attacked_msec)
+  or a full inventory stops it. Player3D.on_attacked() (called on every monster swing, hit or miss) also stands a sitting player up and aborts /camp.
 - Recipe matching (`_find_best_recipe()`/`_compute_multiplier()`) computes how many
   times a recipe divides evenly into what's staged, so a stack of 4 raw meat against
   a 1-raw-meat recipe crafts all 4 at once — not an exact 1-for-1 requirement.

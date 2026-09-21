@@ -31,6 +31,9 @@ T2  2026-09-20  Second public-server test
 T3  2026-09-20  Public-server test, build 2aff48e
     Characters: Zozuur (Voidknight)
 
+T4  2026-09-20  Public-server test, build f799051
+    Characters: Zozuur (Voidknight)
+
 
 GENERAL (not class specific)
 ================================================================================
@@ -53,6 +56,12 @@ Combat and stats
            and others now train from real use.
 
 World and NPCs
+- [FIXED]  Troll walk animation not in place, he appeared to teleport (found by: T4). Swapped in the re-downloaded in-place Walking.fbx; needs an update + retest. tools/check_root_motion.gd
+           found the same problem in 10 other libraries (still to re-download with "In Place" ticked; list in change_log).
+- [FIXED]  Rain fell through the town gate roof and other objects, so it rained indoors (found by: T4, "we can't have kenji getting wet"). Drops now collide with roofs/walls; rain sound is muffled under cover.
+- [FIXED]  Harbour Master and the Dock marker needed to be on the dock (found by: T4). The user's moves are in the scene now; the Harbour Master is snapped onto the deck (he was standing inside it) and
+           Sahren can walk/hop onto the dock and back off it.
+- [WORKS]  New NPCs (harbour master, traveling merchant) "work well" (T4). Client auto-update "worked flawlessly" (T4).
 - [FIXED]  Reanimated tomb mummy replayed its death animation forever (found by: T1). Movement clips loop; a finished
            one-shot clip no longer restarts on other players' screens.
 - [FIXED]  Monsters stood in place instead of wandering (found by: T0). Wander deadlocked 1.5 m short of its point.
@@ -78,6 +87,12 @@ Chat and messages
 - [FIXED]  Wanted a way to camp out and leave the game completely (found by: T3). "/camp desktop" (same as /exit): 15 s
            camp countdown, save, close. Plain "/camp" still goes to the main menu. Help screen text corrected too.
            T3 follow-up: confirmed working.
+
+Crafting and camping (T4)
+- [FIXED]  Cooked 11 raw meat and got no cooking skill-up (found by: T4). The whole stack was one 4 s craft with one skill roll. Crafting is now one item at a time,
+           each taking the full craft time (11 items = 11 x 4 s), each with its own skill roll; same for alchemy and any other station. A "Stop" button and an attack
+           interrupt it. change_log: Test 4 findings.
+- [FIXED]  Being attacked while camping did not cancel the camp or stand you up (found by: T4). Any monster swing (hit or miss) now aborts /camp and stands you up.
 
 Server and connection
 - [FIXED]  Random disconnects on a WiFi laptop, none on a wired PC (found by: T1). Connection waits ~20 s before giving up,

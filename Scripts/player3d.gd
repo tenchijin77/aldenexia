@@ -65,6 +65,7 @@ var active_pet_frame: Node = null
 var _deathly_visage_light: OmniLight3D = null
 var _shadowlight_light: OmniLight3D = null
 var last_damage_time_ms: int = 0  # Time.get_ticks_msec() of the last hit taken — used to interrupt /camp
+var last_attacked_msec: int = 0   # Time.get_ticks_msec() of the last time something SWUNG at you, hit or miss — interrupts camping and crafting, and stands you up
 var last_attack_time_ms: int = 0  # Time.get_ticks_msec() of the last attack THIS player actually made — see pet_minion.gd's assist-mode engage check
 var current_stance: String = ""
 
@@ -339,7 +340,26 @@ func _try_open_shop_or_loot() -> void:
 			return
 	if _try_open_campfire():
 		return
+	if _try_read_world_note():
+		return
 	_try_loot_corpse()
+
+
+# Right-click near a readable object in the world (world_note.gd: the note at the wagon wreck): range-based like the campfire.
+func _try_read_world_note() -> bool:
+	var nearest: Node = null
+	var nearest_dist: float = INF
+	for node in get_tree().get_nodes_in_group("world_note"):
+		if not is_instance_valid(node):
+			continue
+		var dist := global_position.distance_to(node.global_position)
+		if dist <= node.USE_RANGE and dist < nearest_dist:
+			nearest_dist = dist
+			nearest = node
+	if nearest == null:
+		return false
+	nearest.read(self)
+	return true
 
 
 var _tradeskill_window_instance: Node = null
@@ -419,8 +439,10 @@ func _vendor_near_mouse(mouse_pos: Vector2, fallback: Node = null) -> Node:
 		return fallback
 	var best: Node = null
 	var best_px := NPC_CLICK_RADIUS_PX
-	for node in get_tree().get_nodes_in_group("npc_vendor"):
-		if not node is VendorNPC or not is_instance_valid(node):
+	var candidates: Array = get_tree().get_nodes_in_group("npc_vendor")
+	candidates.append_array(get_tree().get_nodes_in_group("npc_guard"))  # guards take hand-ins too (see try_offer_item_to_npc_at)
+	for node in candidates:
+		if not (node is VendorNPC or node is GuardNPC) or not is_instance_valid(node):
 			continue
 		if global_position.distance_to(node.global_position) > NPC_CLICK_RANGE:
 			continue
@@ -442,9 +464,9 @@ func try_offer_item_to_npc_at(screen_pos: Vector2, item: Dictionary) -> bool:
 	if Global.mouselook_enabled:
 		return false
 	var target := _raycast_world_hit(screen_pos)
-	if not (target is VendorNPC):
+	if not (target is VendorNPC or target is GuardNPC):
 		target = _vendor_near_mouse(screen_pos, target)
-	if target is VendorNPC and target.has_method("receive_item_drop"):
+	if (target is VendorNPC or target is GuardNPC) and target.has_method("receive_item_drop"):
 		target.receive_item_drop(item, self)
 		return true
 	return false
@@ -4773,6 +4795,15 @@ func _resolve_melee_attack(target_cn: CombatNode) -> Dictionary:
 # RIPOSTE — i.e. when *we* successfully defended, as opposed to the ticks in
 # attack_current_target()/perform_melee_attack() which are about a monster
 # defending against our own swing.
+# Called by a monster every time it swings at you (hit, miss, dodge, parry...): an attack is an attack even when it does no damage.
+# It stands you up (you cannot rest through a fight) and interrupts camping and crafting (they watch last_attacked_msec).
+func on_attacked(_attacker: Node) -> void:
+	last_attacked_msec = Time.get_ticks_msec()
+	if is_sitting:
+		is_sitting = false
+		GameLog.log_general("[color=#ff8866]You are attacked and jump to your feet![/color]")
+
+
 func _tick_defense_skill(result: String) -> void:
 	if not result.is_empty():
 		_tick_skill("defense")  # "raised by being attacked in melee" — hit or miss

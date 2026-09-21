@@ -1,0 +1,73 @@
+{
+ "_comment": [
+  "Gate raids (Scripts/gate_raid_manager.gd). Every so often, while a player is near the town gate, a small band of bandits or goblins spawns out on the road and marches on the gate. Guards banter, go out to meet them, and wear them down; they leave the killing to the players (soften_seconds, then they finish the job). Host/single-player: /raid [bandits|goblins] starts one now.",
+  "Times are real-world minutes. 'spawn' is where the band appears (snapped to the navmesh), 'approach_distance' is how far outside the gate marker they march to, count is [min, max] before the extra raiders per additional player nearby (extra_per_players, capped at max_raiders).",
+  "All the lines are DRAFTS awaiting the user's approval. Guards named in the 'guards' lists must be the guard's npc_name; if that guard is not around, any guard near the gate says it."
+ ],
+ "first_raid_minutes": [8, 15],
+ "gap_minutes": [25, 45],
+ "activation_range": 300,
+ "presence_range": 90,
+ "guard_alert_range": 32,
+ "soften_seconds": 120,
+ "raid_timeout_seconds": 480,
+ "max_raiders": 6,
+ "extra_per_players": 2,
+ "gate_marker": "Markers/Town Gate",
+ "spawner": "monster_spawner",
+ "approach_distance": 12,
+ "factions": {
+  "bandits": {
+   "weight": 60,
+   "roster": ["bandit"],
+   "count": [3, 4],
+   "spawn": [-65, 0, 92],
+   "announce": "Bandits are attacking the town gate!",
+   "shouts": [
+    "Open the gates, or we'll open them ourselves!",
+    "Lumoran coin, Lumoran wine, and nobody to stop us. Take it all!",
+    "Cut the guards down first!",
+    "Nobody's coming to save you, Wardens!"
+   ]
+  },
+  "goblins": {
+   "weight": 40,
+   "roster": ["goblin_scout", "goblin", "goblin_warrior"],
+   "count": [3, 4],
+   "spawn": [-80, 0, 78],
+   "announce": "Goblins are attacking the town gate!",
+   "shouts": [
+    "Shinies! Shinies in the big walls!",
+    "Grukka wants the gate! Grukka gets the gate!",
+    "Smash it! Smash the gate!",
+    "Little metal men, we eat you!"
+   ]
+  }
+ },
+ "banter": {
+  "start": {
+   "bandits": [
+    {"guard": "Guard Reyna", "line": "Riders on the south road! Bandits! Wardens, to the gate!"},
+    {"guard": "Private Corwin", "line": "Steady. Let them come to us. Anyone with a blade, stand with the Wardens!"}
+   ],
+   "goblins": [
+    {"guard": "Guard Reyna", "line": "Goblins! A whole warband from the southeast! Wardens, to the gate!"},
+    {"guard": "Private Corwin", "line": "Hold the line. They don't fight fair, so don't you dare drop your guard. Anyone with a blade, stand with us!"}
+   ]
+  },
+  "arrive": [
+   {"guard": "Sergeant Bryn", "line": "You'll find the gate stays shut. Try it."},
+   {"guard": "Guard Reyna", "line": "Shields up! They're on us!"}
+  ],
+  "first_kill": [
+   {"guard": "Guard Reyna", "line": "One down! Hold the line!"}
+  ],
+  "cleared": [
+   {"guard": "Private Corwin", "line": "That's the last of them. Well fought, all of you."},
+   {"guard": "Guard Reyna", "line": "Back to your posts. And thank the ones who stood with us."}
+  ],
+  "fizzled": [
+   {"guard": "Guard Reyna", "line": "They've broken off. Stay sharp; they'll be back."}
+  ]
+ }
+}

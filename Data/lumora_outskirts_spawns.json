@@ -422,7 +422,7 @@
       "spawn_zone": "bandit_camp_2"
     },
     {
-      "mob_type": "spider",
+      "mob_type": "blighted_spider",
       "position": [
         0,
         2,
@@ -432,12 +432,12 @@
       "spawn_chance": 0.75,
       "max_active": 3,
       "respawn_time": 16,
-      "min_level": 2,
-      "max_level": 3,
+      "min_level": 3,
+      "max_level": 4,
       "spawn_zone": "spider_den"
     },
     {
-      "mob_type": "spider",
+      "mob_type": "blighted_spider",
       "position": [
         0,
         2,
@@ -447,12 +447,12 @@
       "spawn_chance": 0.7,
       "max_active": 3,
       "respawn_time": 16,
-      "min_level": 2,
-      "max_level": 3,
+      "min_level": 3,
+      "max_level": 4,
       "spawn_zone": "spider_den"
     },
     {
-      "mob_type": "spider",
+      "mob_type": "blighted_spider",
       "position": [
         0,
         2,
@@ -462,12 +462,12 @@
       "spawn_chance": 0.65,
       "max_active": 2,
       "respawn_time": 16,
-      "min_level": 2,
-      "max_level": 3,
+      "min_level": 3,
+      "max_level": 4,
       "spawn_zone": "spider_den"
     },
     {
-      "mob_type": "spider",
+      "mob_type": "blighted_spider",
       "position": [
         0,
         2,
@@ -477,8 +477,8 @@
       "spawn_chance": 0.65,
       "max_active": 2,
       "respawn_time": 16,
-      "min_level": 2,
-      "max_level": 3,
+      "min_level": 3,
+      "max_level": 4,
       "spawn_zone": "spider_den"
     },
     {
@@ -934,7 +934,7 @@
     {
       "mob_type": "sunmaddened_wanderer",
       "position": [
-        -1200,
+        -880,
         2,
         -60
       ],
@@ -949,7 +949,7 @@
     {
       "mob_type": "sunmaddened_wanderer",
       "position": [
-        -1100,
+        -870,
         2,
         300
       ],
@@ -960,6 +960,81 @@
       "min_level": 4,
       "max_level": 6,
       "spawn_zone": "deep_dunes_south"
+    },
+    {
+      "mob_type": "dessik_coinhand",
+      "position": [
+        -590,
+        2,
+        -562
+      ],
+      "spawn_radius": 5.0,
+      "spawn_chance": 1.0,
+      "max_active": 1,
+      "respawn_time": 900,
+      "min_level": 1,
+      "max_level": 1,
+      "spawn_zone": "wagon_crash_named"
+    },
+    {
+      "mob_type": "rask_ironjaw",
+      "position": [
+        -230,
+        2,
+        295
+      ],
+      "spawn_radius": 4.0,
+      "spawn_chance": 1.0,
+      "max_active": 1,
+      "respawn_time": 900,
+      "min_level": 1,
+      "max_level": 1,
+      "spawn_zone": "bandit_camp_1_named"
+    },
+    {
+      "mob_type": "grukka_bonechewer",
+      "position": [
+        -572.33,
+        2,
+        605.42
+      ],
+      "spawn_radius": 4.0,
+      "spawn_chance": 1.0,
+      "max_active": 1,
+      "respawn_time": 900,
+      "min_level": 1,
+      "max_level": 1,
+      "spawn_zone": "goblin_camp_1_named"
+    },
+    {
+      "mob_type": "sergeant_halvek",
+      "position": [
+        -36.4,
+        2,
+        -236
+      ],
+      "spawn_radius": 6.0,
+      "spawn_chance": 1.0,
+      "max_active": 1,
+      "respawn_time": 900,
+      "min_level": 1,
+      "max_level": 1,
+      "spawn_zone": "mausoleum_named"
+    },
+    {
+      "mob_type": "weavemother_vhessa",
+      "position": [
+        0,
+        2,
+        -850.86
+      ],
+      "spawn_radius": 5.0,
+      "spawn_chance": 1.0,
+      "max_active": 1,
+      "respawn_time": 1200,
+      "min_level": 1,
+      "max_level": 1,
+      "spawn_zone": "spider_den_named"
     }
   ],
   "density": 1.0,

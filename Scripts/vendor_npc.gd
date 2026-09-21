@@ -54,6 +54,28 @@ func _ready() -> void:
 	_setup_combat()
 
 
+# Where the solid ground is under a point: a ray from 3 m above it to 5 m below (so a roof higher up is never hit). Vendors have
+# no gravity, so one placed at a marker's y=0 on a raised dock would stand inside the deck; this finds the deck's top.
+func floor_y_at(pos: Vector3, default_y: float) -> float:
+	if not is_inside_tree():
+		return default_y
+	var from := Vector3(pos.x, pos.y + 3.0, pos.z)
+	var query := PhysicsRayQueryParameters3D.create(from, from + Vector3(0, -8.0, 0))
+	query.exclude = [get_rid()]
+	var hit := get_world_3d().direct_space_state.intersect_ray(query)
+	return hit.position.y if hit else default_y
+
+
+# Stand on whatever is under the spot the scene put this NPC at (waits one physics frame so the level's shapes exist), and make
+# that spot the home he returns to after a respawn.
+func snap_to_floor() -> void:
+	await get_tree().physics_frame
+	if not is_inside_tree():
+		return
+	global_position.y = floor_y_at(global_position, global_position.y)
+	NPCRespawner.register_home(self)
+
+
 # Had no combat_node at all before this — showed as 0/0 HP wherever
 # something expects one (target frame, appraisal), same "no life" bug
 # guard_npc.gd doesn't have since it already sets one up. Vendors don't

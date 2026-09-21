@@ -25,6 +25,8 @@ const MONSTER_TEMPLATE := "res://Scenes/monster_template.tscn"
 const VALID_MOB_TYPES: Array = [
 	"rat", "snake", "slime", "spider", "bat", "dune_scarab",
 	"skeleton", "bandit", "goblin", "ghost", "mummy", "mirage_phantom", "sunmaddened_wanderer",
+	# Variants and named mobs (Data/monsters.json, "model_from")
+	"blighted_spider", "dessik_coinhand", "rask_ironjaw", "grukka_bonechewer", "sergeant_halvek", "weavemother_vhessa",
 ]
 
 @onready var spawner: MultiplayerSpawner = $MobSpawner

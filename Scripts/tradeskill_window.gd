@@ -22,9 +22,12 @@ var _recipes: Array = []
 var _dragging := false
 var _resizing := false
 var _crafting := false
-var _craft_elapsed := 0.0
+var _craft_elapsed := 0.0        # seconds into the item being made right now
 var _craft_recipe: Dictionary = {}
-var _craft_multiplier := 1
+var _craft_multiplier := 1       # how many items this batch makes in total
+var _craft_done := 0             # how many are finished so far
+var _craft_started_msec := 0     # when the batch began (an attack after this interrupts it)
+var _action_label := ""
 
 @onready var panel: Panel = $Panel
 @onready var title_label: Label = $Panel/Margin/VBox/TitleBar/TitleLabel
@@ -57,6 +60,7 @@ func _exit_tree() -> void:
 func setup(station_id: String, title: String, action_label: String) -> void:
 	_station_id = station_id
 	title_label.text = title
+	_action_label = action_label
 	action_btn.text = action_label
 	WindowPosition.load_full_into(POSITION_KEY_PREFIX + station_id, panel)
 	_load_recipes()
@@ -135,51 +139,88 @@ func _refresh_status() -> void:
 
 
 func _on_action_pressed() -> void:
+	if _crafting:
+		_stop_crafting("You stop.")  # the button reads "Stop" while a batch is running
+		return
 	var found := _find_best_recipe()
-	if found.is_empty() or _crafting:
+	if found.is_empty():
 		return
 	_craft_recipe = found["recipe"]
 	_craft_multiplier = found["multiplier"]
 	_crafting = true
 	_craft_elapsed = 0.0
-	action_btn.disabled = true
+	_craft_done = 0
+	_craft_started_msec = Time.get_ticks_msec()
+	action_btn.text = "Stop"
 	close_btn.disabled = true
 	progress_bar.visible = true
 	progress_bar.value = 0.0
-	status_label.text = "Working..."
+	_update_batch_status()
 
 
+# A batch is made ONE ITEM AT A TIME, each taking the recipe's craft_time: 11 raw meat is 11 x the time to cook one, and every item
+# made is its own chance to raise the skill (before, the whole stack was made in a single craft_time with a single skill roll, so
+# crafting in bulk could not level you up). The bar shows the whole batch.
 func _process(delta: float) -> void:
 	if not _crafting:
 		return
+	var player := TargetFrame.local_player()
+	if is_instance_valid(player) and "last_attacked_msec" in player and player.last_attacked_msec > _craft_started_msec:
+		_stop_crafting("You are attacked and lose your concentration.")
+		return
 	_craft_elapsed += delta
-	var craft_time: float = float(_craft_recipe.get("craft_time", 3.0))
-	progress_bar.value = clampf(_craft_elapsed / craft_time, 0.0, 1.0) * 100.0
+	var craft_time: float = maxf(float(_craft_recipe.get("craft_time", 3.0)), 0.1)
+	progress_bar.value = (float(_craft_done) + clampf(_craft_elapsed / craft_time, 0.0, 1.0)) / float(_craft_multiplier) * 100.0
 	if _craft_elapsed >= craft_time:
-		_finish_craft()
+		_craft_elapsed -= craft_time
+		if not _make_one():
+			return
+		_craft_done += 1
+		if _craft_done >= _craft_multiplier:
+			_stop_crafting("")
+		else:
+			_update_batch_status()
 
 
-func _finish_craft() -> void:
+func _update_batch_status() -> void:
+	status_label.text = "Working... %d of %d" % [_craft_done + 1, _craft_multiplier] if _craft_multiplier > 1 else "Working..."
+
+
+# Uses up one set of ingredients and adds one batch of output. False (and the batch stops) if the bags are full.
+func _make_one() -> bool:
 	var output: String = _craft_recipe.get("output", "")
-	var output_qty: int = int(_craft_recipe.get("output_quantity", 1)) * _craft_multiplier
+	var output_qty: int = int(_craft_recipe.get("output_quantity", 1))
 	var ingredients: Dictionary = _craft_recipe.get("ingredients", {})
+	if not output.is_empty() and not Inventory.add_item(output, output_qty):
+		_stop_crafting("Your inventory is full, so you stop.")
+		return false
 	for slot in slot_row.get_children():
 		if slot is TradeskillSlot and not slot.is_empty():
-			var consume: int = int(ingredients.get(slot.held_item_id, 0)) * _craft_multiplier
+			var consume: int = int(ingredients.get(slot.held_item_id, 0))
 			if consume > 0:
 				slot.remove_quantity(consume)
 	if not output.is_empty():
-		if Inventory.add_item(output, output_qty):
-			var display_name: String = Inventory.get_item_definition(output).get("name", output)
-			GameLog.log_general("[color=#88ffaa]You create [b]%d %s[/b].[/color]" % [output_qty, display_name])
-			_tick_tradeskill()
-		else:
-			GameLog.log_general("[color=#ff8866]Your inventory is full — the result is lost![/color]")
+		var display_name: String = Inventory.get_item_definition(output).get("name", output)
+		GameLog.log_general("[color=#88ffaa]You create [b]%d %s[/b].[/color]" % [output_qty, display_name])
+	_tick_tradeskill()  # one skill roll per item made
+	return true
+
+
+# Ends the batch (finished, stopped by the player, interrupted, or the bags filled). What is already made is kept and the
+# ingredients not yet used stay in the slots.
+func _stop_crafting(message: String) -> void:
+	if not _crafting:
+		return
 	_crafting = false
 	_craft_recipe = {}
 	_craft_multiplier = 1
+	_craft_done = 0
+	_craft_elapsed = 0.0
+	action_btn.text = _action_label
 	close_btn.disabled = false
 	progress_bar.visible = false
+	if not message.is_empty():
+		GameLog.log_general("[color=#ffaa66]%s[/color]" % message)
 	_refresh_status()
 
 
@@ -204,7 +245,7 @@ func _tick_tradeskill() -> void:
 
 func _on_close_pressed() -> void:
 	if _crafting:
-		return
+		return  # press Stop first
 	queue_free()
 
 

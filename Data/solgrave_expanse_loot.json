@@ -179,6 +179,33 @@
         { "item": "outrider_insignia", "chance": 0.15, "min": 1, "max": 1 },
         { "item": "standard_issue_spear", "chance": 0.08, "min": 1, "max": 1 }
       ],
+      "dessik_coinhand": [
+        { "item": "lumoran_strongbox", "chance": 1.0, "min": 1, "max": 1 },
+        { "item": "coinhand_signet", "chance": 0.3, "min": 1, "max": 1 },
+        { "item": "brigand_cutlass", "chance": 0.15, "min": 1, "max": 1 }
+      ],
+      "rask_ironjaw": [
+        { "item": "bandit_captains_vest", "chance": 0.3, "min": 1, "max": 1 },
+        { "item": "brigand_cutlass", "chance": 0.3, "min": 1, "max": 1 }
+      ],
+      "grukka_bonechewer": [
+        { "item": "chieftains_bone_charm", "chance": 0.3, "min": 1, "max": 1 },
+        { "item": "goblin_hide_boots", "chance": 0.3, "min": 1, "max": 1 }
+      ],
+      "sergeant_halvek": [
+        { "item": "wardens_tarnished_medal", "chance": 1.0, "min": 1, "max": 1 },
+        { "item": "tarnished_warden_helm", "chance": 0.3, "min": 1, "max": 1 },
+        { "item": "wardens_grave_blade", "chance": 0.15, "min": 1, "max": 1 }
+      ],
+      "weavemother_vhessa": [
+        { "item": "moribund_sigil", "chance": 1.0, "min": 1, "max": 1 },
+        { "item": "blighted_spider_silk", "chance": 1.0, "min": 2, "max": 4 },
+        { "item": "weavemothers_silk_cloak", "chance": 0.3, "min": 1, "max": 1 },
+        { "item": "venomfang_dagger", "chance": 0.2, "min": 1, "max": 1 }
+      ],
+      "blighted_spider": [
+        { "item": "blighted_spider_silk", "chance": 0.4, "min": 1, "max": 1 }
+      ],
       "dustwalker_warlord": [
         { "item": "warlord_scimitar", "chance": 0.05, "min": 1, "max": 1 },
         { "item": "jeweled_hilt", "chance": 0.1, "min": 1, "max": 1 },
