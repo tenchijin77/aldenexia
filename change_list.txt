@@ -547,6 +547,35 @@ weather can be tested with:
     - No effect beyond damage and potency yet: divination, illusion and the other non-damage school effects.
 
 
+● Here's the process for animating Oni, based on how your current models are wired.
+
+  Why your usual pipeline won't work for her: Mixamo auto-rigs and animates humanoids only. A cat has to be animated by hand in Blender.
+  Everything else in your pipeline stays the same.
+
+  In Blender:
+  1. One armature, skinned mesh. The mesh parents to the armature with weights (automatic weights are fine, then check the joints). Keep to 4 or
+     fewer bone influences per vertex, and apply scale and rotation (Ctrl+A) so both are 1.
+  2. Origin and orientation. The model should stand on the ground at the origin, facing forward. I can auto-ground her height in Godot
+     (CatModel.ground_and_measure already does this), but a clean origin saves tweaking.
+  3. Actions: one per animation, named in lowercase exactly like your existing libraries. Use idle, walk, run, attack and death. Idle, walk and
+     run should loop, so make the first and last frames match. Attack and death play once, and death should hold its last pose.
+  4. Save the actions. Give each Action a fake user (the shield icon), or the exporter will skip it.
+  5. Export as glTF 2.0 (.glb) with animation set to "all actions" (not just the active one). glTF keeps clip names reliably, which matters
+     here. FBX also works, but only if you turn on export of all actions.
+  6. Textures: keep the Meshy texture PNG next to the export. Godot loses FBX texture links, so I apply it as an override, like your other
+     models.
+
+  Then to me:
+  1. Drop the export into models/Oni/ and tell me. I'll run the import, check that the skeleton and clip names came through, and build an
+     animation library (oni_animations.res), like the ones for your other characters.
+  2. I'll swap her cat visual to the animated model and hook it to what she already does: idle when standing, walk on patrol, run when chasing a
+     rat, attack on the pounce, death on death. Her pouncing code currently fakes it with a procedural bob, and that gets replaced.
+
+  For Kenji and the non-human mobs, it's the same recipe. Each mob needs the same five clips, and in the game each species is one entry (scene,
+  animation library, texture) in a table in monster3d.gd. Do Oni first as the template. Once we've proven the export settings work, each new
+  creature is just export, drop in the folder, and I wire it.
+
+  Do a first quick test with just idle and walk before you animate everything. That way we find any export problems early.
 
 
 Notes:
@@ -581,3 +610,148 @@ type. They do NOT apply to item icons.
 • Point-Blank AoE (pbaoe) ... Ember Orange/Red
 • Self-Only (self) .......... Amethyst Violet
 • Utility / Non-Combat ...... Silver Mist
+
+-create a dock harbour master character and a traveling merchant character
+
+Meshy Prompts:
+
+Harbour master npc:
+Full-body front-facing clean standing pose of a classic human male harbour master NPC,
+6 ft tall, broad-shouldered athletic build, short brown hair, clean-shaven, neutral expression.
+He wears a coarse linen shirt with rolled sleeves, a dark wool vest with nautical trim,
+dark brown wool trousers, a leather belt holding keys, scrolls, and a small ledger,
+and sturdy leather boots. Include accessories such as a spyglass, rolled map, brass whistle,
+or dockmaster badge. Feet evenly spaced shoulder-width apart, both feet pointing straight forward.
+Clean studio lighting, plain white background, detailed 1990s high-fantasy RPG character art style,
+
+symmetrical, 4k.
+
+Traveling Merchant npc:
+
+Full-body front-facing clean standing pose of a Djhanid-descended traveling merchant NPC
+for the game Aldenexia. 5 ft 10 to 6 ft tall, lean traveler’s build, sun-bronzed skin,
+long dark hair tied back or braided, neutral but charismatic expression.  Wiry but strong build.
+He wears layered clothing from multiple regions with subtle Djhanid accents:
+embroidered desert patterns, a lightweight traveling cloak, sashes, leather belts with satchels
+and pouches, and sturdy boots. Include accessories such as scrolls, maps, a ledger book with
+Djhanid script, trinkets, charms, a waterskin, and a merchant pack filled with curiosities.
+Feet evenly spaced shoulder-width apart, both feet pointing straight forward.
+Clean studio lighting, plain white background, detailed 1990s high-fantasy RPG character art style,
+symmetrical, 4k.
+
+
+⚓ Harbour Master of Sandcrest Landing — Final Dialogue Set
+Greeting Lines
+“Welcome to Sandcrest Landing. Headed north to Thallia’s Bastion?”
+
+“You’re just in time — the Bastion ferry will be docking shortly.”
+
+“Evening, traveler. The northern route is clear today.”
+
+“Sandcrest Landing at your service. Need passage to Thallia’s Bastion?”
+
+Ambient / Idle Lines
+“Northbound ferry arriving! Prepare to board!”
+
+“Strong winds today. Might be a rough ride to the Bastion.”
+
+“If you’re bound for Thallia’s Bastion, keep your gear tied down. The crossing can get lively.”
+
+“Strange fog rolled in last night… only on the northern waters.”
+
+“Cargo’s late again. Bastion captains swear the currents are shifting.”
+
+Functional Travel Lines
+“Only one route from here — straight north to Thallia’s Bastion.”
+
+“Tickets for the Bastion ferry? Aye, I’ve got them.”
+
+“Departure’s soon. If you miss it, you’ll be waiting for the next tide.”
+
+“The Bastion’s a fine place — strong walls, strong people.”
+
+“Board when the horn sounds. Stay seated until we clear the shoals.”
+
+Quest Hooks
+“A crate bound for Thallia’s Bastion went missing last night. If you find it, I’ll pay well.”
+
+“A Bastion captain claims he saw lights beneath the waves. I’d like to know if it’s true.”
+
+“We’ve had trouble with dock rats again. Nasty ones. Could use a hand.”
+
+“A message needs delivering to the Bastion’s gatekeeper. If you’re headed north, take it for me.”
+
+Rare / Secret Lines
+“The Bastion’s northern cliffs… some say they whisper at night.”
+
+“I once saw a ship drift in from the north with no crew aboard.”
+
+“If you hear singing on the water during the crossing, don’t answer.”
+
+Player Response Options
+Ask about the Bastion ferry
+
+Buy a travel token
+
+Ask about northern waters
+
+Offer help with dock issues
+
+🌙 Djhanid Traveling Merchant — Final Dialogue Set (Wiry but Strong)
+Greeting Lines
+“Traveler! You look like someone seeking what others cannot find.”
+
+“Ah, a new face. Care to browse the wonders of distant sands?”
+
+“Welcome. My goods come from places the Bastion guards only whisper about.”
+
+“You carry the scent of the road. A fellow wanderer, perhaps?”
+
+Ambient / Idle Lines
+“Coins jingle like tiny promises.”
+
+“Maps lie. The desert does not.”
+
+“Careful with that relic — it remembers its last owner.”
+
+“Djhanid craftwork… priceless to some, dangerous to others.”
+
+“Storm winds carried strange whispers last night.”
+
+Merchant Sales Lines
+“Everything here has a story. Some even have teeth.”
+
+“Looking for charms? Relics? Spices? Secrets?”
+
+“Prices shift like dunes — but for you, I can be reasonable.”
+
+“If you see something glowing, don’t touch it. Ask me first.”
+
+“A fair trade is a happy trade.”
+
+Quest Hooks
+“A relic fragment lies somewhere between Sandcrest Landing and Thallia’s Bastion. Bring it to me.”
+
+“A caravan vanished on the northern route. If you find any trace, I must know.”
+
+“There’s a Djhanid charm buried beneath the sands — humming with power. I need someone brave.”
+
+“A Bastion courier stole something from me. Recover it, and I’ll owe you a favor.”
+
+Rare / Secret Lines
+“My people walk where shadows have weight.”
+
+“The tomb guardians do not sleep. They wait.”
+
+“Ghost caravans cross the dunes still. I’ve seen them.”
+
+“Djhanid blood remembers things the mind forgets.”
+
+Player Response Options
+Browse rare goods
+
+Ask about Djhanid lore
+
+Accept a relic quest
+
+Ask about desert dangers

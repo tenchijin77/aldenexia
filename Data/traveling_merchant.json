@@ -1,0 +1,359 @@
+{
+ "_help": [
+  "The traveling merchant (Scripts/traveling_merchant_spawner.gd + traveling_merchant.gd). Edit and restart to tune.",
+  "He is not always around: after the server starts he first shows up after a random number of minutes in 'first_visit_delay_minutes',",
+  "and after each visit he is gone for a random number of minutes in 'visit_gap_minutes' (both [min, max], real-world minutes).",
+  "A visit: he appears at the 'spawn' marker, walks to the 'dock' marker and trades there for 'dock_stay_seconds', walks to the town",
+  "'gate' marker and trades there for 'gate_stay_seconds', then packs up and disappears. He only trades while he is standing still.",
+  "Markers are node paths in the zone scene (the Markers node). *_stand_offset moves where he stands, relative to the marker [x, y, z],",
+  "so he does not stand on top of another NPC. walk_speed is metres per second. shop_id is a key in Data/vendor_shop.json: THAT is his stock.",
+  "model is a key of Player3D.CHARACTER_MODELS (a race + sex, e.g. halfling_male, human_male, half_orc_female). Lines are picked at random.",
+  "greeting = hail or right-click at a stop; ambient = said to nearby players every 1-2 minutes while he trades (at night a 20% chance it is a 'secret' line instead);",
+  "sales = said when his shop opens; token_surprise = his reaction (once per visit per player) if you are carrying a Ceramic Water-Token. quest_hooks is kept here for the quest system to use.",
+  "Lines: greeting / ambient / sales / secret / quest_hooks are the user's own text (with {keyword} markup added). Everything in 'topics' plus busy, warn, farewell, hail_leaving, token_surprise_emote, wrong_item are DRAFTS in his voice, awaiting approval.",
+  "topics: see Scripts/npc_conversation.gd. {word} in a line is a clickable keyword; what the player says near him (typed /say or clicked) picks the first topic whose keyword matches and whose 'requires' hold."
+ ],
+ "name": "Sahren of the Deep Wells",
+ "shop_id": "traveling_merchant",
+ "model": "human_male",
+ "walk_speed": 3.5,
+ "dock_stay_seconds": 300,
+ "gate_stay_seconds": 300,
+ "warn_before_leaving_seconds": 30,
+ "first_visit_delay_minutes": [
+  2,
+  8
+ ],
+ "visit_gap_minutes": [
+  20,
+  50
+ ],
+ "markers": {
+  "spawn": "Markers/Traveling Merchant",
+  "dock": "Markers/Dock",
+  "gate": "Markers/Town Gate"
+ },
+ "dock_stand_offset": [
+  2.5,
+  0,
+  2.5
+ ],
+ "gate_stand_offset": [
+  6,
+  0,
+  -5
+ ],
+ "lines": {
+  "greeting": [
+   "Traveler! You look like someone seeking what others cannot find. I am Sahren, of the {Djhanid}.",
+   "Ah, a new face. Care to {browse} the wonders of distant sands?",
+   "Welcome. My {goods} come from places the Bastion guards only whisper about.",
+   "You carry the scent of the road. A fellow wanderer, perhaps? Mind the {dangers} of these sands."
+  ],
+  "ambient": [
+   "Coins jingle like tiny promises.",
+   "Maps lie. The desert does not.",
+   "Careful with that relic - it remembers its last owner.",
+   "{Djhanid} craftwork... priceless to some, dangerous to others.",
+   "Storm winds carried strange whispers last night."
+  ],
+  "sales": [
+   "Everything here has a story. Some even have teeth.",
+   "Looking for charms? Relics? Spices? Secrets?",
+   "Prices shift like dunes - but for you, I can be reasonable.",
+   "If you see something glowing, don't touch it. Ask me first.",
+   "A fair trade is a happy trade."
+  ],
+  "secret": [
+   "My people walk where shadows have weight.",
+   "The tomb guardians do not sleep. They wait.",
+   "Ghost caravans cross the dunes still. I've seen them.",
+   "Djhanid blood remembers things the mind forgets."
+  ],
+  "quest_hooks": [
+   "A relic fragment lies somewhere between Sandcrest Landing and Thallia's Bastion. Bring it to me.",
+   "A caravan vanished on the northern route. If you find any trace, I must know.",
+   "There's a Djhanid charm buried beneath the sands - humming with power. I need someone brave.",
+   "A Bastion courier stole something from me. Recover it, and I'll owe you a favor."
+  ],
+  "token_surprise": [
+   "Where did you get {that}? Do you know what this is {for}?"
+  ],
+  "token_surprise_emote": [
+   "{name} goes very still, his eyes on the clay disc in your pack."
+  ],
+  "busy": [
+   "The sands do not wait, friend. Find me when I have stopped.",
+   "Walk beside me if you like, but I trade only at rest."
+  ],
+  "warn": [
+   "The shadows lengthen. Soon I walk on.",
+   "Choose your treasures, friend. My feet grow restless."
+  ],
+  "farewell": [
+   "The sands call, and I answer. Until our paths cross again.",
+   "May your water never run low."
+  ],
+  "hail_leaving": [
+   "Quickly, quickly. The road is waiting."
+  ],
+  "wrong_item": [
+   "Sahren looks at it, then at you. \"That is not what I am looking for.\""
+  ]
+ },
+ "token_item": "ceramic_water_token",
+ "ambient_secret_chance_at_night": 0.2,
+ "topics": [
+  {
+   "id": "hail",
+   "keywords": [
+    "hail",
+    "hello",
+    "greetings",
+    "hey"
+   ],
+   "then": {
+    "hail": true
+   }
+  },
+  {
+   "id": "release_active",
+   "keywords": [
+    "release",
+    "help",
+    "task",
+    "quest",
+    "work",
+    "job"
+   ],
+   "requires": {
+    "quest": "release_the_hollowed",
+    "quest_state": "active"
+   },
+   "lines": [
+    "You have taken up the task. Bring me three {tokens}: drag them from your pack onto me."
+   ]
+  },
+  {
+   "id": "release_done",
+   "keywords": [
+    "release",
+    "help",
+    "task",
+    "quest",
+    "work",
+    "job"
+   ],
+   "requires": {
+    "quest": "release_the_hollowed",
+    "quest_state": "complete"
+   },
+   "lines": [
+    "The sands are quieter, thanks to you. I have no more of this task for you, for now."
+   ]
+  },
+  {
+   "id": "release_offer",
+   "keywords": [
+    "release",
+    "help",
+    "accept",
+    "task",
+    "quest",
+    "work",
+    "job",
+    "yes"
+   ],
+   "requires": {
+    "quest": "release_the_hollowed",
+    "quest_state": "none"
+   },
+   "sequence": [
+    "You would do this? Then listen closely. The {Hollowed} wander the deep dunes, where the sun hangs directly over their shadows.",
+    "When they are at rest, take what they carry: a clay {token}, like the one I showed you. Bring me three.",
+    "Drag them from your pack onto me, and I will know the sands are quieter."
+   ],
+   "then": {
+    "start_quest": "release_the_hollowed"
+   }
+  },
+  {
+   "id": "hollowed_active",
+   "keywords": [
+    "hollowed",
+    "hollow",
+    "exile",
+    "exiles",
+    "sunmaddened",
+    "madness",
+    "wanderer",
+    "wanderers"
+   ],
+   "requires": {
+    "quest": "release_the_hollowed",
+    "quest_state": "active"
+   },
+   "lines": [
+    "They still wander. Every one you release is a soul the sun no longer holds."
+   ]
+  },
+  {
+   "id": "hollowed_done",
+   "keywords": [
+    "hollowed",
+    "hollow",
+    "exile",
+    "exiles",
+    "sunmaddened",
+    "madness",
+    "wanderer",
+    "wanderers"
+   ],
+   "requires": {
+    "quest": "release_the_hollowed",
+    "quest_state": "complete"
+   },
+   "lines": [
+    "Some still wander, I am sure. But you have done what my people could not."
+   ]
+  },
+  {
+   "id": "hollowed",
+   "keywords": [
+    "hollowed",
+    "hollow",
+    "exile",
+    "exiles",
+    "sunmaddened",
+    "madness",
+    "wanderer",
+    "wanderers"
+   ],
+   "sequence": [
+    "The Hollowed. That is what we call those who broke the code and were sent out into the wastes.",
+    "We believe a soul is carried in the shadow. At noon, when the sun stands over you and your shadow vanishes, that is when the madness comes in.",
+    "My people will not raise a hand against them. The taint would follow us home. But someone must {release} them."
+   ]
+  },
+  {
+   "id": "token_have",
+   "keywords": [
+    "that",
+    "for",
+    "token",
+    "tokens",
+    "disc",
+    "clay",
+    "ceramic"
+   ],
+   "requires": {
+    "has_item": "ceramic_water_token"
+   },
+   "sequence": [
+    "Softly. That mark... it belonged to one of my people who broke the code.",
+    "Whoever carried it had walked among the {Hollowed}."
+   ]
+  },
+  {
+   "id": "token_none",
+   "keywords": [
+    "token",
+    "tokens",
+    "disc",
+    "clay",
+    "ceramic"
+   ],
+   "requires": {
+    "no_item": "ceramic_water_token"
+   },
+   "lines": [
+    "A clay disc stamped with our mark. A debt of {water}, made solid. If you ever find one far from the deep wells, bring it to me. Do not spend it. Do not sell it."
+   ]
+  },
+  {
+   "id": "water",
+   "keywords": [
+    "water",
+    "debt",
+    "water debt",
+    "wells",
+    "well"
+   ],
+   "sequence": [
+    "In the sands, coin is heavy and useless. Water is the only true coin.",
+    "So we keep our debts in clay. Each {token} is a measure of water, stored in a deep well that only my people can find.",
+    "To you it is pottery. To a Djhanid, it is a life."
+   ]
+  },
+  {
+   "id": "djhanid",
+   "keywords": [
+    "djhanid",
+    "people",
+    "nomads",
+    "nomad",
+    "tribe",
+    "clan",
+    "lore"
+   ],
+   "sequence": [
+    "We are the Djhanid: wanderers of the dunes, where the wind itself keeps house.",
+    "Outsiders find our camps and see nothing. We do not build. We anchor our shelters to the wind, and the sand does the rest.",
+    "We trust little that is not the desert. We keep our {water}, and we keep our code."
+   ]
+  },
+  {
+   "id": "dangers",
+   "keywords": [
+    "danger",
+    "dangers",
+    "desert",
+    "dunes",
+    "sands",
+    "beware",
+    "wastes",
+    "safe"
+   ],
+   "sequence": [
+    "Sand stingers lie buried in the dunes, waiting for a careless step. Their venom is why we tip our blades.",
+    "The sand itself can rise and walk. Strike a sandshifter when it is still, not when it moves.",
+    "And beware the Dustwalkers. They wear cloth like ours, but they are not my people. You will know them by what they do."
+   ]
+  },
+  {
+   "id": "sahren",
+   "keywords": [
+    "sahren",
+    "yourself",
+    "travel",
+    "road",
+    "walk",
+    "walking"
+   ],
+   "lines": [
+    "Why do I trade? A Djhanid could keep to the dunes, and most do. I prefer the road: every stranger is a story, and the sands look different at every step."
+   ]
+  },
+  {
+   "id": "wares",
+   "keywords": [
+    "wares",
+    "goods",
+    "browse",
+    "buy",
+    "shop",
+    "sell",
+    "trade",
+    "rare",
+    "items"
+   ],
+   "lines": [
+    "Everything here has a story. Some even have teeth. Look, and choose.",
+    "Prices shift like dunes - but for you, I can be reasonable."
+   ],
+   "then": {
+    "open_shop": true
+   }
+  }
+ ]
+}

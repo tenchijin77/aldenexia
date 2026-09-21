@@ -54,6 +54,18 @@ func _exit_tree() -> void:
 	Global.restore_mouse_mode()
 
 
+# A vendor that can leave (the traveling merchant) takes the shop with him: the window closes when he is gone or has stopped
+# trading, instead of sitting open on a vendor that no longer exists.
+func _process(_delta: float) -> void:
+	if _vendor == null:
+		return
+	if not is_instance_valid(_vendor):
+		queue_free()
+	elif _vendor.has_method("can_trade") and not _vendor.can_trade():
+		GameLog.log_general("%s has stopped trading." % _vendor.get_vendor_display_name())
+		queue_free()
+
+
 func setup(vendor: Node) -> void:
 	_vendor = vendor
 	title_label.text = "🛒  %s" % _vendor.get_vendor_display_name()

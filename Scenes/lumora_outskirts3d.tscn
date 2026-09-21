@@ -19,6 +19,8 @@
 [ext_resource type="PackedScene" path="res://Scenes/kenji_npc.tscn" id="kenji_npc_scn"]
 [ext_resource type="PackedScene" path="res://Scenes/oni_npc.tscn" id="oni_npc_scn"]
 [ext_resource type="Script" uid="uid://wqmn351jhvbo" path="res://Scripts/weather_manager.gd" id="weather_mgr_script"]
+[ext_resource type="Script" path="res://Scripts/traveling_merchant_spawner.gd" id="tm_spawner_scr"]
+[ext_resource type="PackedScene" path="res://Scenes/harbour_master.tscn" id="harbour_master_scn"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_1j15t"]
 sky_top_color = Color(0.22986513, 0.3887299, 0.9202023, 1)
@@ -325,6 +327,23 @@ transform = Transform3D(0.97146577, 0, 0.23718, 0, 1, 0, -0.23718, 0, 0.97146577
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, 9)
 cat_damage = 18
 patrol_waypoints = Array[NodePath]([NodePath("../Markers/OniPatrol1"), NodePath("../Markers/OniPatrol2"), NodePath("../Markers/OniPatrol3"), NodePath("../Markers/OniPatrol4"), NodePath("../Markers/OniPatrol5"), NodePath("../Markers/OniPatrol6")])
+
+
+[node name="ArcheryGuard" parent="Guards" instance=ExtResource("5_guard1")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -30, 0, 130)
+npc_name = "Guard Halric"
+flavor_text_path = "res://Data/guard_archery_flavor_text.json"
+
+[node name="HarbourMaster" parent="." instance=ExtResource("harbour_master_scn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -762.5, 0, -944.5)
+
+[node name="TravelingMerchantSpawner" type="Node3D" parent="."]
+script = ExtResource("tm_spawner_scr")
+
+[node name="Merchants" type="Node3D" parent="TravelingMerchantSpawner"]
+
+[node name="MerchantSpawner" type="MultiplayerSpawner" parent="TravelingMerchantSpawner"]
+spawn_path = NodePath("../Merchants")
 
 [node name="Bone Spears" type="Node3D" parent="." unique_id=1575841877]
 

@@ -443,8 +443,8 @@
   "sunmaddened_wanderer": {
     "description": "a poor soul lost to the heat",
     "speed": 32.0,
-    "health": 35,
-    "damage": 5,
+    "health": 120,
+    "damage": 15,
     "behavior_type": "aggressive",
     "category": "humanoid",
     "faction": "None",
@@ -453,7 +453,7 @@
     "zone": "dustwind_plateaus",
     "armor_class": 11,
     "is_social": false,
-    "level": 1,
+    "level": 4,
     "aggro_range": 150.0,
     "animations": {
       "idle": "sunmaddened_wanderer_idle",

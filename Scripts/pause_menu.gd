@@ -235,6 +235,7 @@ const CHAT_COMMANDS := [
 	["/zone [message]", "Shout to everyone in the zone (orange) — also switches the chat channel"],
 	["/tell <name> [message]", "Private message to a player (purple) — later text keeps going to them"],
 	["/played", "Show your character's birthday and time played"],
+	["/quests", "List your quests and their progress"],
 	["/resetui", "Reset every UI window back to its default position"],
 	["/time", "Show the current in-game date/time"],
 	["/who", "List every connected player, their level, class and zone"],

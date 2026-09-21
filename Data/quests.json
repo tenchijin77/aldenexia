@@ -1,0 +1,26 @@
+{
+ "release_the_hollowed": {
+  "name": "Release the Hollowed",
+  "giver": "Sahren of the Deep Wells",
+  "short": "Bring Sahren three Ceramic Water-Tokens taken from the Hollowed.",
+  "summary": "Sahren of the Deep Wells asks you to release the Hollowed, the Djhanid exiles who wander the deep dunes, and to bring him the Ceramic Water-Tokens they carry. Bring him three, by dragging them onto him.",
+  "objective": {
+   "type": "hand_in",
+   "item": "ceramic_water_token",
+   "count": 3
+  },
+  "rewards": {
+   "xp": 75,
+   "coin": {
+    "silver": 5
+   }
+  },
+  "texts": {
+   "progress": "He turns the disc over in his fingers, then closes his hand around it. \"One more resting. {given} of {need}. There are {left} still wandering.\"",
+   "complete": "Sahren holds the last token to the light, then lowers his head. \"Three released. The sands are quieter for it, and my people will hear that an outsider did what we could not. Take this, with my thanks.\"",
+   "not_started": "Sahren does not take it. \"Not yet, friend. Ask me first what it means, and why I would want it back.\"",
+   "already_done": "Sahren shakes his head gently. \"You have done enough for the Hollowed. Keep it as a reminder.\""
+  },
+  "_comment": "Draft texts and reward (75 XP + 5 silver) awaiting the user's approval."
+ }
+}

@@ -18,7 +18,7 @@ signal progress(received: int, total: int)
 
 const KEY_PATH := "res://Data/update_public_key.json"
 const DEFAULT_PORT := 8911
-const MANIFEST_FORMAT := 1
+const MANIFEST_FORMAT := 1  # stays 1: builds already handed out only understand 1. Per-platform entries are an ADDITION (see below)
 const REQUEST_TIMEOUT := 15.0
 const STALL_SECONDS := 30.0
 const PENDING := "user://patches/pending.pck"
@@ -26,7 +26,13 @@ const PENDING_PART := "user://patches/pending.pck.part"
 const PENDING_INFO := "user://patches/pending.json"
 
 var manifest: Dictionary = {}
+var _entry: Dictionary = {}  # this platform's part of the manifest: {base, stamp, commit_count, patch_file, patch_size, patch_sha256}
 var _base_url := ""
+
+
+# The manifest keys its per-platform entries by this: "windows", "linux" or "macos".
+static func platform_key() -> String:
+	return OS.get_name().to_lower()
 
 
 # "http://host:port" for a server address, unless a full update_url was configured (Data/servers.json).
@@ -44,6 +50,7 @@ static func url_for(address: String, update_port: int = DEFAULT_PORT, update_url
 func check(base_url: String) -> Dictionary:
 	_base_url = base_url.trim_suffix("/")
 	manifest = {}
+	_entry = {}
 	var m := await _fetch(_base_url + "/manifest.json")
 	if not m.ok:
 		return _result("error", "Could not reach the update server (%s)." % m.error)
@@ -56,34 +63,50 @@ func check(base_url: String) -> Dictionary:
 	if typeof(parsed) != TYPE_DICTIONARY or int(parsed.get("format", 0)) != MANIFEST_FORMAT:
 		return _result("error", "The update information is not in a format this game understands. A newer full build may be needed.")
 	manifest = parsed
-	var published_stamp := str(manifest.get("stamp", ""))
 	if str(manifest.get("version", "")) != GameVersion.version():
 		return _result("full_build_required", "The latest update is for game version %s and this is %s: it needs a new full download, not a patch." % [manifest.get("version", "?"), GameVersion.version()])
-	if str(manifest.get("base", "")) != PatchLoader.base_stamp:
-		return _result("full_build_required", "The latest update was made for a newer full build (%s) than the one you installed (%s). Download the new full build." % [manifest.get("base", "?"), PatchLoader.base_stamp])
+	# The manifest has one entry per platform ("platforms"). The top-level base/stamp/patch_* fields are the Windows entry, kept
+	# so the first Windows builds that were handed out (which know only those fields) keep working.
+	var entries = manifest.get("platforms", null)
+	if typeof(entries) == TYPE_DICTIONARY:
+		if typeof(entries.get(platform_key())) != TYPE_DICTIONARY:
+			return _result("full_build_required", "No update is published for your platform (%s)." % platform_key())
+		_entry = entries[platform_key()]
+	elif platform_key() == "windows":
+		_entry = manifest
+	else:
+		return _result("full_build_required", "No update is published for your platform (%s)." % platform_key())
+	var published_stamp := str(_entry.get("stamp", manifest.get("stamp", "")))
+	if str(_entry.get("base", "")) != PatchLoader.base_stamp:
+		return _result("full_build_required", "The latest update was made for a newer full build (%s) than the one you installed (%s). Download the new full build." % [_entry.get("base", "?"), PatchLoader.base_stamp])
 	if published_stamp == GameVersion.build_id():
 		return _result("up_to_date", "Your game is already at the latest build (%s)." % published_stamp)
-	if int(manifest.get("commit_count", 0)) < _my_commit_count():
+	if int(_entry.get("commit_count", manifest.get("commit_count", 0))) < _my_commit_count():
 		return _result("error", "The published update (%s) is older than your build; not going backwards." % published_stamp)
-	if str(manifest.get("patch_file", "")).is_empty():
+	if str(_entry.get("patch_file", "")).is_empty():
 		return _result("full_build_required", "The published build (%s) has no patch for your install." % published_stamp)
 	return _result("available", "Update available: %s." % published_stamp)
 
 
+# The build stamp the published update brings (this platform's entry) — valid after check().
+func entry_stamp() -> String:
+	return str(_entry.get("stamp", manifest.get("stamp", "")))
+
+
 # Downloads the manifest's patch to user://patches/pending.* — returns {ok, message}. Progress is emitted as it goes.
 func download() -> Dictionary:
-	if manifest.is_empty() or str(manifest.get("patch_file", "")).is_empty():
+	if manifest.is_empty() or str(_entry.get("patch_file", "")).is_empty():
 		return {"ok": false, "message": "There is no update to download; check first."}
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path("user://patches"))
 	for path in [PENDING, PENDING_PART, PENDING_INFO]:
 		if FileAccess.file_exists(path):
 			DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
-	var expected_size := int(manifest.get("patch_size", 0))
+	var expected_size := int(_entry.get("patch_size", 0))
 	var req := HTTPRequest.new()
 	req.download_file = PENDING_PART
 	req.timeout = 0.0  # a big file may legitimately take long; the stall watchdog below catches a dead connection
 	add_child(req)
-	var err := req.request(_base_url + "/" + str(manifest["patch_file"]))
+	var err := req.request(_base_url + "/" + str(_entry["patch_file"]))
 	if err != OK:
 		req.queue_free()
 		return {"ok": false, "message": "Could not start the download."}
@@ -116,16 +139,16 @@ func download() -> Dictionary:
 		DirAccess.remove_absolute(part)
 		return {"ok": false, "message": "The download is incomplete. Try again."}
 	var sha := FileAccess.get_sha256(PENDING_PART)
-	if sha != str(manifest.get("patch_sha256", "")):
+	if sha != str(_entry.get("patch_sha256", "")):
 		DirAccess.remove_absolute(part)
 		return {"ok": false, "message": "The downloaded update is damaged (checksum mismatch). Try again."}
 	# pending.pck first, pending.json last: patch_loader.gd needs both, so a half-finished download is never applied.
 	DirAccess.rename_absolute(part, ProjectSettings.globalize_path(PENDING))
 	var info := FileAccess.open(PENDING_INFO, FileAccess.WRITE)
-	info.store_string(JSON.stringify({"base": manifest.get("base", ""), "stamp": manifest.get("stamp", ""), "sha256": sha}))
+	info.store_string(JSON.stringify({"base": _entry.get("base", ""), "stamp": _entry.get("stamp", manifest.get("stamp", "")), "sha256": sha}))
 	info.close()
 	progress.emit(expected_size, expected_size)
-	return {"ok": true, "message": "Update %s downloaded. The game restarts to apply it." % manifest.get("stamp", "")}
+	return {"ok": true, "message": "Update %s downloaded. The game restarts to apply it." % _entry.get("stamp", manifest.get("stamp", ""))}
 
 
 # Quits and starts the game again (the same command line); patch_loader.gd applies the pending patch on the way up.

@@ -210,7 +210,7 @@
     ]
   },
   "lumora_apothecary": {
-    "_comment": "Placeholder stock for the new Apothecary vendor (added 2026-09-16) \u2014 no potion/elixir items exist in items.json yet to stock her properly. User said she'll customize this later.",
+    "_comment": "Placeholder stock for the new Apothecary vendor (added 2026-09-16) — no potion/elixir items exist in items.json yet to stock her properly. User said she'll customize this later.",
     "vendor_name": "the Apothecary",
     "buy_price_multiplier": 1.0,
     "sell_price_multiplier": 0.5,
@@ -218,6 +218,28 @@
       "trail_rations",
       "spring_water",
       "water_flask"
+    ]
+  },
+  "traveling_merchant": {
+    "_comment": "The traveling merchant's stock (Data/traveling_merchant.json points here). PLACEHOLDER: a few of the better items that already exist, at double price, until the special rarer set is made - replace the stock list with the real items.",
+    "vendor_name": "Sahren of the Deep Wells",
+    "buy_price_multiplier": 2.0,
+    "sell_price_multiplier": 0.5,
+    "stock": [
+      "warlord_scimitar",
+      "ghostly_cloak",
+      "traveler_pack",
+      "basic_poison",
+      "basic_alchemy_kit"
+    ]
+  },
+  "sandcrest_harbour": {
+    "_comment": "Tobias Sandcrest, Harbour Master of Sandcrest Landing (Scripts/harbour_master.gd). He sells the ferry token; the token does nothing yet (the Bastion ship is away until Thallia's Bastion exists) and he says so when the shop opens.",
+    "vendor_name": "Harbour Master Tobias Sandcrest",
+    "buy_price_multiplier": 1.0,
+    "sell_price_multiplier": 0.35,
+    "stock": [
+      "bastion_ferry_token"
     ]
   }
 }

@@ -53,6 +53,7 @@ func _ready() -> void:
 	_setup_detach_button()
 	tabs.focus_mode = Control.FOCUS_NONE
 	general_log.focus_mode = Control.FOCUS_NONE
+	general_log.meta_clicked.connect(_on_meta_clicked)  # clicking a highlighted keyword in an NPC's line says it
 	combat_log.focus_mode  = Control.FOCUS_NONE
 	# Up/Down aren't meaningful to a single-line field, so without this Godot's
 	# default focus-traversal grabs them instead and hands focus off to some
@@ -537,7 +538,7 @@ func _on_chat_input_gui_input(event: InputEvent) -> void:
 # too (Linux-style abbreviation) — see _resolve_command() below. e.g. "/loc"
 # and "/location" both resolve to "/location" since no other command starts
 # with "loc"; "/f" would be ambiguous if two commands both started with "f".
-const COMMANDS := ["/location", "/hail", "/appraise", "/time", "/follow", "/camp", "/exit", "/log", "/invite", "/disband", "/say", "/tell", "/party", "/zone", "/played", "/resetui", "/who", "/weather", "/pet"]
+const COMMANDS := ["/location", "/hail", "/appraise", "/time", "/follow", "/camp", "/exit", "/log", "/invite", "/disband", "/say", "/tell", "/party", "/zone", "/played", "/resetui", "/who", "/weather", "/pet", "/quests"]
 
 
 func _handle_slash_command(text: String) -> void:
@@ -610,6 +611,12 @@ func _handle_slash_command(text: String) -> void:
 			_tell_command(arg)
 		"/played":
 			_show_played()
+		"/quests":
+			var quest_lines := Quests.journal_lines()
+			if quest_lines.is_empty():
+				GameLog.log_general("[color=#cccccc]You have no quests.[/color]")
+			for quest_line in quest_lines:
+				GameLog.log_general(quest_line)
 		"/resetui":
 			player.reset_ui()
 		"/time":
@@ -747,6 +754,13 @@ func _show_played() -> void:
 		GameLog.log_general("[color=green]In the real world: %s%s.[/color]" % [Global.format_birthday_real(creation), (" — " + age) if not age.is_empty() else ""])
 	GameLog.log_general("[color=green]Total time played: %s. This session: %s.[/color]" % [
 		Global.format_playtime(Global.get_total_playtime()), Global.format_playtime(Global.get_session_playtime())])
+
+
+# A highlighted word in an NPC's line ("kw:<word>", see npc_conversation.gd) was clicked: say it, exactly as if typed.
+func _on_meta_clicked(meta: Variant) -> void:
+	var text := str(meta)
+	if text.begins_with("kw:") and is_instance_valid(player):
+		player.send_say(text.substr(3))
 
 
 # ── Log output ────────────────────────────────────────────────────────────────

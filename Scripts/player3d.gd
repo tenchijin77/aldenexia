@@ -479,6 +479,12 @@ func _open_shop(vendor: Node) -> void:
 	if vendor.has_method("open_interaction"):
 		vendor.open_interaction(self)
 		return
+	open_shop_window(vendor)
+
+
+# Opens the shop window against `vendor`. Public because a vendor that runs its own interaction (the traveling merchant only
+# trades while he stands still) calls it from its open_interaction() once it has decided the shop may open.
+func open_shop_window(vendor: Node) -> void:
 	if is_instance_valid(_shop_window_instance):
 		_shop_window_instance.queue_free()
 	_shop_window_instance = load("res://Scenes/shop_window.tscn").instantiate()
@@ -2212,12 +2218,21 @@ func send_say(message: String) -> void:
 	if message.is_empty():
 		return
 	GameLog.log_general(ChatChannels.say_self(message))
+	_npcs_hear(message)
 	if not Net.is_multiplayer_game or not multiplayer.has_multiplayer_peer():
 		return
 	for pid in multiplayer.get_peers():
 		var other := TargetFrame.peer_id_to_player_node(pid)
 		if is_instance_valid(other) and other.global_position.distance_to(global_position) <= ChatChannels.SAY_RANGE:
 			Net.send_say(pid, player_name, message)
+
+
+# Whatever you say near a talkative NPC (npc_talker group) is heard by it — EverQuest-style keyword conversation, see
+# npc_conversation.gd. Answers go only to you, from your own machine's copy of the NPC.
+func _npcs_hear(message: String) -> void:
+	for npc in get_tree().get_nodes_in_group("npc_talker"):
+		if is_instance_valid(npc) and npc.has_method("hear_say"):
+			npc.hear_say(self, message)
 
 
 # /zone — a shout everyone in the zone hears. Echoed to yourself in single-player.

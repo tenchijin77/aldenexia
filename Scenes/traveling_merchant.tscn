@@ -1,0 +1,40 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://Scripts/traveling_merchant.gd" id="1_merchant"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_merchant"]
+radius = 0.4
+height = 1.5
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_merchant"]
+properties/0/path = NodePath(".:position")
+properties/0/spawn = true
+properties/0/replication_mode = 1
+properties/1/path = NodePath(".:rotation")
+properties/1/spawn = true
+properties/1/replication_mode = 1
+properties/2/path = NodePath(".:stage")
+properties/2/spawn = true
+properties/2/replication_mode = 2
+properties/3/path = NodePath(".:anim_state")
+properties/3/spawn = true
+properties/3/replication_mode = 2
+
+[node name="TravelingMerchant" type="CharacterBody3D" groups=["npc_vendor", "traveling_merchant"]]
+script = ExtResource("1_merchant")
+npc_name = "Traveling Merchant"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
+shape = SubResource("CapsuleShape3D_merchant")
+
+[node name="NameLabel" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.65, 0)
+billboard = 1
+alpha_cut = 2
+text = "Traveling Merchant"
+outline_size = 6
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
+replication_interval = 0.1
+replication_config = SubResource("SceneReplicationConfig_merchant")

@@ -1089,10 +1089,25 @@ Scene: Scenes/player3d.tscn (contains CameraRig → CameraController + Camera3D)
   entry). Top-level knobs: "density" (multiplies every max_active) and "activation_range" (metres; an entry spawns only
   while a player is that close; 0 = always). min_level/max_level on entries are not used (monsters.json decides).
 
+--- Traveling merchant: Sahren of the Deep Wells (2026-09-20) ---
+  traveling_merchant_spawner.gd (server-side scheduler, MultiplayerSpawner) -> traveling_merchant.gd (VendorNPC subclass). Random
+  first visit + random gaps (Data/traveling_merchant.json); a visit = spawn marker -> walk -> dock (5 min) -> walk -> town gate
+  (5 min) -> gone. Trades only while standing (can_trade()); shop_window closes when he leaves. Stock = shop_id in
+  Data/vendor_shop.json. Harbour Master Tobias Sandcrest (harbour_master.gd, a shop that sells the ferry token) comments on where
+  Sahren is and talks on his own. NPCRaceModel builds NPC bodies from race models. Sahren reacts to a Ceramic Water-Token.
+
+--- Keyword conversations and quests (2026-09-20) ---
+  NPCs in group npc_talker (Tobias, Sahren) have a "topics" list in their JSON (Scripts/npc_conversation.gd). What the local player says
+  (send_say -> _npcs_hear) picks the first matching topic within 9 m; {word} in a line = highlighted clickable keyword in the chat.
+  Quests: Scripts/quests.gd + Data/quests.json, state in Global.player_data["quests"], hand-in via the Give window; /quests lists them.
+  Adding a quest = a quests.json entry + a topic with then.start_quest + try_give/receive_item_drop on the giver (see traveling_merchant.gd).
+
 --- Client auto-update (2026-09-20) ---
   Players install one full build (the BASE); updates are signed patch .pck files served by the game server's machine.
-  Publish:  git commit -> tools/stamp_build.sh -> tools/update.sh   (--new-base when the exe/libs/project.godot/version change,
-  and once now so everyone gets the update system itself; share Builds/Windows after a --new-base).
+  Publish:  git commit -> tools/stamp_build.sh -> tools/update.sh   (builds the server + BOTH the Windows and Linux clients;
+  --new-base when the exe/libs/project.godot/version change, and once so everyone has the update system; after a --new-base
+  share Builds/Windows and run Builds/Linux; --platforms windows|linux limits it). One base + one patch per platform, one
+  signed manifest with a "platforms" entry for each (top-level fields = the Windows entry, kept for the first builds handed out).
   Server machine: ~/aldenexia/updates (manifest.json, manifest.sig, patch-<stamp>.pck) served by ./run_update_server.sh on TCP 8911.
   Client: Join screen "Download update" (GameUpdater) -> user://patches/pending.* -> restart -> PatchLoader (first autoload)
   swaps it to current.pck and mounts it before any script loads. `--no-patch` = base build; delete user://patches to drop a patch.

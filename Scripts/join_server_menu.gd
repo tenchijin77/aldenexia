@@ -492,7 +492,7 @@ func _on_update_pressed() -> void:
 			message += " This server runs %s, so ask the host to update the server." % _server_builds.get(index, "another build")
 		_finish_update(message)
 		return
-	var published: String = str(checked.manifest.get("stamp", ""))
+	var published: String = _updater.entry_stamp()
 	var server_stamp := _stamp_of(str(_server_builds.get(index, "")))
 	if not server_stamp.is_empty() and server_stamp != published:
 		_finish_update("The latest published update is %s but this server runs %s. Ask the host to update the server (or publish again)." % [published, server_stamp])

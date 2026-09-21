@@ -1,0 +1,203 @@
+{
+ "_comment": "Tobias Sandcrest, Harbour Master of Sandcrest Landing (Scripts/harbour_master.gd, Scenes/harbour_master.tscn). greeting / ambient / secret / quest_hooks / topics are the user's text. ferry_away, merchant_* are DRAFTS awaiting approval. ferry_running lines are for when the Bastion ship is in service (not yet). Ambient lines are said to nearby players every ambient_minutes; at night there is a chance for a secret line. 'topics' = the keyword conversation (Scripts/npc_conversation.gd); {word} in a line is a clickable keyword. The topic lines are DRAFTS awaiting approval.",
+ "ambient_minutes": [
+  3,
+  6
+ ],
+ "ambient_secret_chance_at_night": 0.2,
+ "greeting": [
+  "Welcome to Sandcrest Landing. Headed north to {Thallia's Bastion}?",
+  "Evening, traveler. The {northern route} is clear today.",
+  "Sandcrest Landing at your service. Need {passage} to Thallia's Bastion?"
+ ],
+ "ferry_away": [
+  "I'll sell you a {token}, aye, but I'll be honest: the Bastion ship is a long way out. It'll be a good while before she's back.",
+  "The {token}'s good for the crossing, whenever the boat returns. That won't be soon, mind.",
+  "Cargo's late and the ship with it. Buy a {token} now if you like, but don't hold your breath for the horn."
+ ],
+ "ambient": [
+  "Strong winds today. Might be a rough ride to the Bastion.",
+  "If you're bound for Thallia's Bastion, keep your gear tied down. The crossing can get lively.",
+  "Strange {fog} rolled in last night... only on the northern {waters}.",
+  "{Cargo}'s late again. Bastion captains swear the currents are shifting."
+ ],
+ "secret": [
+  "The Bastion's northern cliffs... some say they whisper at night.",
+  "I once saw a ship drift in from the north with no crew aboard.",
+  "If you hear singing on the water during the crossing, don't answer."
+ ],
+ "topics_now": [
+  "Only one route from here - straight north to Thallia's Bastion.",
+  "Tickets for the Bastion ferry? Aye, I've got them.",
+  "The Bastion's a fine place - strong walls, strong people."
+ ],
+ "ferry_running": [
+  "You're just in time - the Bastion ferry will be docking shortly.",
+  "Northbound ferry arriving! Prepare to board!",
+  "Departure's soon. If you miss it, you'll be waiting for the next tide.",
+  "Board when the horn sounds. Stay seated until we clear the shoals."
+ ],
+ "quest_hooks": [
+  "A crate bound for Thallia's Bastion went missing last night. If you find it, I'll pay well.",
+  "A Bastion captain claims he saw lights beneath the waves. I'd like to know if it's true.",
+  "We've had trouble with dock rats again. Nasty ones. Could use a hand.",
+  "A message needs delivering to the Bastion's gatekeeper. If you're headed north, take it for me."
+ ],
+ "merchant_coming": [
+  "Someone's coming down the road with a pack the size of a house. Sahren, I'd wager. He always stops here first.",
+  "Keep an eye on the road, friend. Sahren of the Deep Wells has been walking a while now."
+ ],
+ "merchant_here": [
+  "That's Sahren over by the pier. Walks the sands for the love of it, and trades when the mood takes him.",
+  "Sahren's set up. He won't stay long. Best have a look at what he's carrying."
+ ],
+ "merchant_gone": [
+  "You missed Sahren. He's gone up toward Lumora. Try the town gate.",
+  "Sahren's packed up and moved on. You might still catch him at the gate."
+ ],
+ "merchant_none": [
+  "Sahren? A Djhanid who walks the sands for the love of it. He passes through now and then. I couldn't give you a day."
+ ],
+ "topics": [
+  {
+   "id": "hail",
+   "keywords": [
+    "hail",
+    "hello",
+    "greetings",
+    "hey"
+   ],
+   "then": {
+    "hail": true
+   }
+  },
+  {
+   "id": "merchant",
+   "keywords": [
+    "sahren",
+    "peddler",
+    "merchant",
+    "trader",
+    "djhanid"
+   ],
+   "dynamic": "merchant_remark"
+  },
+  {
+   "id": "secrets_night",
+   "keywords": [
+    "singing",
+    "whisper",
+    "whispers",
+    "cliffs",
+    "crew",
+    "ghost ship",
+    "secret",
+    "secrets",
+    "strange"
+   ],
+   "requires": {
+    "night": true
+   },
+   "category": "secret"
+  },
+  {
+   "id": "secrets_day",
+   "keywords": [
+    "singing",
+    "whisper",
+    "whispers",
+    "cliffs",
+    "crew",
+    "ghost ship",
+    "secret",
+    "secrets",
+    "strange"
+   ],
+   "requires": {
+    "night": false
+   },
+   "lines": [
+    "That's a question for after dark, friend. Ask me again when the lamps are lit."
+   ]
+  },
+  {
+   "id": "token",
+   "keywords": [
+    "token",
+    "tokens",
+    "ticket",
+    "tickets",
+    "passage",
+    "fare",
+    "buy"
+   ],
+   "lines": [
+    "Tickets for the Bastion ferry? Aye, I've got them. Have a look."
+   ],
+   "then": {
+    "open_shop": true
+   }
+  },
+  {
+   "id": "ferry",
+   "keywords": [
+    "ferry",
+    "boat",
+    "ship",
+    "bastion",
+    "thallia",
+    "thallia's bastion",
+    "northern route",
+    "route",
+    "north",
+    "crossing",
+    "sail"
+   ],
+   "sequence": [
+    "Only one route from here - straight north to Thallia's Bastion.",
+    "The Bastion's a fine place - strong walls, strong people. But the ship that serves it is a long way out, and I can't tell you when she'll be back."
+   ]
+  },
+  {
+   "id": "waters",
+   "keywords": [
+    "fog",
+    "waters",
+    "northern waters",
+    "sea"
+   ],
+   "lines": [
+    "Strange fog rolled in last night... only on the northern waters. I don't like it."
+   ]
+  },
+  {
+   "id": "cargo",
+   "keywords": [
+    "cargo",
+    "late",
+    "delay",
+    "currents"
+   ],
+   "lines": [
+    "Cargo's late again. Bastion captains swear the currents are shifting."
+   ]
+  },
+  {
+   "id": "help",
+   "keywords": [
+    "help",
+    "work",
+    "job",
+    "task",
+    "quest",
+    "rats",
+    "crate",
+    "lights",
+    "message"
+   ],
+   "lines": [
+    "Work? Nothing I can hand you just now. But there's always something wanting doing on a dock. Keep your blade sharp, and look in again."
+   ]
+  }
+ ]
+}

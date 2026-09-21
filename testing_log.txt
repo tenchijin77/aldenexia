@@ -77,6 +77,7 @@ Chat and messages
 - [FIXED]  /played showed only the current session (found by: T0). Play time is autosaved every minute.
 - [FIXED]  Wanted a way to camp out and leave the game completely (found by: T3). "/camp desktop" (same as /exit): 15 s
            camp countdown, save, close. Plain "/camp" still goes to the main menu. Help screen text corrected too.
+           T3 follow-up: confirmed working.
 
 Server and connection
 - [FIXED]  Random disconnects on a WiFi laptop, none on a wired PC (found by: T1). Connection waits ~20 s before giving up,
@@ -92,12 +93,12 @@ Art and polish
            headless + rendered; still to confirm with two real clients.
 - [FIXED]  "Warmth of the Campfire" and "Kenji's Blessing" had no buff icon (found by: T1, T3). Now use the existing red
            flame and golden sunburst spell icons (placeholders until there is dedicated art). Well Fed still reuses the
-           generic food icon.
+           generic food icon. T3 follow-up: the icons look right.
 - [FIXED]  Weapon poisons (alchemy) didn't show anywhere, so a poisoned weapon looked like a clean one and it wasn't clear
            whether Basic Poison did anything (found by: T3). It does: +2 damage on every hit, folded into the weapon's damage.
            The Status Effects window now has a row "Basic Poison (Rusty Sword)" with the icon of a green skull, hover for
            the details. It now lasts 15 minutes of play (like a buff; re-applying refreshes it) and wears off with a
-           message; the row shows the countdown.
+           message; the row shows the countdown. T3 follow-up: the poison row shows on the status window.
 
 
 CLASSES
