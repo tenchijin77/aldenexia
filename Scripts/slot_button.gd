@@ -84,6 +84,13 @@ func _draw_frame():
 	_frame_style.set_border_width_all(width)
 	_frame.draw_style_box(_frame_style, Rect2(Vector2.ZERO, size))
 
+	# A spell scroll for a spell you already know: green badge (disc with a tick) in the top-right corner
+	if ItemInspector.teaches_known_spell(item_data):
+		var centre := Vector2(size.x - 10.0, 10.0)
+		_frame.draw_circle(centre, 7.5, Color(0, 0, 0, 0.85))
+		_frame.draw_circle(centre, 6.0, Color(0.20, 0.62, 0.28))
+		_frame.draw_polyline(PackedVector2Array([centre + Vector2(-3.2, 0.2), centre + Vector2(-0.8, 2.6), centre + Vector2(3.4, -2.6)]), Color(1, 1, 1), 1.8, true)
+
 	# Stack count in the bottom-right corner
 	if item_data.get("stackable", false) and int(item_data.get("quantity", 1)) > 1:
 		var text := str(int(item_data.get("quantity", 1)))

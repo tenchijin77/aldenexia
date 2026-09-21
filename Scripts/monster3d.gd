@@ -1424,6 +1424,13 @@ func apply_damage(amount: int, damage_type: String = "physical") -> void:
 	print("DEBUG: %s hit for %d, HP: %d/%d" %
 		[get_monster_name(), modified_damage, combat_node.current_hp, combat_node.max_hp])
 
+	# On a joined client this monster is a puppet: the hit above only nudges its local copy of the health (the server's real number
+	# replicates over it). The kill itself belongs to the server, which the caller has already told (apply_networked_damage). Running
+	# die() here as well played the death animation a second time and paid the kill's XP twice ("goblins run their death animation
+	# multiple times" and double XP on spell kills).
+	if not is_multiplayer_authority():
+		return
+
 	if is_social and combat_node.is_alive():
 		call_nearby_allies()
 
@@ -1473,7 +1480,15 @@ func get_damage_type() -> String:
 
 const DEATH_LINE_PATH := "res://Data/humanoid_death_lines.json"
 
+var _death_handled := false
+
 func die(award_xp: bool = true, drop_loot: bool = true, credited_peer_id: int = -1) -> void:
+	# Once only. Every hit that lands on a body (a second attacker, a damage-over-time tick, a guard's or pet's swing a moment
+	# later) used to reach here again: the death animation restarted from the top each time ("goblins run their death animation
+	# several times") and the kill's XP and loot rights were handed out again.
+	if _death_handled:
+		return
+	_death_handled = true
 	change_state(State.DEAD)
 	target_key = ""
 	print("💀 %s died! (XP: %d, Coins: %.2f, Category: %s)" % [monster_name, xp_gain, coin_modifier, category])
@@ -1618,6 +1633,17 @@ func apply_networked_damage(amount: int, attacker_peer_id: int) -> void:
 		add_threat(attacker, float(amount))
 	if not combat_node.is_alive():
 		die(true, true, attacker_peer_id)
+
+
+# A non-host player's Taunt: threat lives only in the server's aggro_table, so the caster's own puppet copy of the monster cannot be
+# taunted — the request goes to the server, which sets the caster's threat just above the highest (see taunt()).
+@rpc("any_peer", "call_remote", "reliable")
+func apply_networked_taunt(attacker_peer_id: int) -> void:
+	if not is_multiplayer_authority() or current_state == State.DEAD:
+		return
+	var attacker: Node = _resolve_peer_to_player(attacker_peer_id)
+	if attacker:
+		taunt(attacker)
 
 
 # Same reasoning/pattern as apply_networked_damage() above, for the

@@ -6,6 +6,7 @@ signal closed
 
 var main_panel: Panel
 var options_panel: Panel
+const GMCommandsScript := preload("res://Scripts/gm_commands.gd")
 var controls_panel: Panel
 
 
@@ -250,12 +251,17 @@ const CHAT_COMMANDS := [
 	["/who", "List every connected player, their level, class and zone"],
 	["/focus [clear|name]", "Make your target (or a named group member) your FOCUS: beneficial spells go to them while you target an enemy"],
 	["/assist  (or press F)", "Target whatever your current target is targeting"],
-	["/gm enable|disable", "Turn game master mode on or off (needed for the commands below)"],
-	["/weather rain|clear", "Start or stop rain (game masters)"],
-	["/raid [bandits|goblins]", "Start a gate raid now (game masters)"],
-	["/announce <text>", "A red message in the middle of everyone's screen (game masters)"],
-	["/maintenance [minutes|cancel]", "Warn everyone, refuse new logins, and take the server down for an update (game masters)"],
 	["/pet", "Pet the cat you are targeting, or the nearest one"],
+]
+
+
+# Shown on the Controls & Commands page ONLY to a game master (Player3D.is_game_master, turned on with /gm enable).
+const GM_COMMANDS := [
+	["/gm enable|disable", "Turn game master mode off (or back on)"],
+	["/weather rain|clear", "Start or stop rain"],
+	["/raid [bandits|goblins]", "Start a gate raid now"],
+	["/announce <text>", "A red message in the middle of everyone's screen"],
+	["/maintenance [minutes|cancel]", "Warn everyone, refuse new logins, and take the server down for an update"],
 ]
 
 
@@ -310,6 +316,8 @@ func _build_controls_panel() -> void:
 		content.add_child(_make_control_section(group[0], group[1]))
 
 	content.add_child(_make_control_section("Chat Commands", CHAT_COMMANDS))
+	if GMCommandsScript.is_gm(TargetFrame.local_player()):
+		content.add_child(_make_control_section("Game Master Commands", GM_COMMANDS))
 
 	var back_btn2 := _make_button("Back")
 	back_btn2.pressed.connect(_hide_controls)

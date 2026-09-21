@@ -916,6 +916,49 @@ Ask about desert dangers
   - Shadowlight: the Voidknight's light spell is now a carried light like a torch, with the same radius, brightness and flicker, in purple, and
     every player sees it. I only checked the numbers, since my test world was in daylight, so I'd like your eyes on it at night.
 
+
+
+     Reboot announcement
+
+  It's doable, and your server already does most of the work. Stopping it gracefully asks every player's game to save their character, then
+  exits.
+
+  - Trigger:
+    - Both a GM command and a file update.sh can write, so it works with no one logged in. The commands would be /maintenance [minutes] and
+      /maintenance cancel, plus /announce <text> for any custom red message.
+    - The GM command is for when you're already in the game. The file is for the update script, which has no login. The server polls for it once
+      a second, like it does for its existing stop file.
+  - Countdown:
+    - At the start: the server sends the big red banner, for example "An update approaches and the end draws near! Save your player and log out now!"
+    - Reminders: it repeats at 3 min, 1 min, 30 s and 10 s, and refuses new logins with the message the server already has for shutdowns.
+    - Early exit: the moment the player count reaches 0 it shuts down at once.
+    - Deadline: at the deadline, 5 minutes by default, it runs the existing graceful save-and-exit for anyone still on.
+  - Banner: it's a big red centered message that fades after about 8 seconds and is also written to chat. It would travel over a new node in the zone scene, like the GM relay, because we can't touch the networking autoload's RPC list.
+  - Catch: the server on the VM is running the old build, so it can't announce anything until it's running the new one. The very next update
+    still needs the manual restart. After that, updates can announce themselves.
+  - update.sh:
+    - Steps: a --reboot-in 5 option would upload as usual, write the maintenance file, wait for the server to exit, then run your restart
+      command.
+    - Decision for you: how do you start the server on the VM: ./run_aldenexia.sh typed into a tmux session? That decides whether the script can
+      restart it automatically. I'd also want a few banner wordings for you to choose from.
+
+  Chat tabs and filters
+
+  Right now the chat window has two fixed logs, General and Combat, and every non-combat message goes into one pipe with no category. So
+  - Tabs: a "+" to add a tab, and right-click a tab to rename it, set its filter checkboxes, or delete it. Each tab keeps its own scroll
+    history, and your tabs are saved per character.
+  - Defaults: General and Combat stay as ready-made presets. Any tab could be detached into its own window, like Combat can be now.
+  - Size: it's a medium-sized change, and the tagging is the tedious part.
+  - Questions for you:
+    - Categories: is that list right, or are there groupings you want, such as a separate "Loot" or "XP" tab?
+    - Combat tab: should it become just a preset, or stay special?
+
+  Commit notes for the dual wield fix
+  -dual wield skill only trains with a weapon in each hand (Blade Dance no longer trains it bare-handed)
+  -change_log and testing_log updated
+
+
+
   Focus (the defensive target)
   - Setting it: /focus uses your current friendly target. /focus <name> picks a group member, /focus self targets you, and /focus clear drops
     it. You can also Shift-click a friend in the world or a group-frame row. An enemy can't be a focus.

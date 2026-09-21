@@ -49,6 +49,12 @@ T9  2026-09-21  Public-server test, build e7cc914
 T10 2026-09-21  Public-server test, build 7620382
     Characters: Annadaeus (Troubadour)
 
+T11 2026-09-21  Public-server test, build b57406f
+    Characters: Zozuur (Voidknight), Annadaeus (Troubadour)
+
+T12 2026-09-21  Public-server test, build 983fe73
+    Characters: Zozuur (Voidknight)
+
 
 GENERAL (not class specific)
 ================================================================================
@@ -147,6 +153,13 @@ T5 (2026-09-21)
 - [FIXED]  Dual wield went up with no weapons equipped (found by: T10). It only trains with a weapon in each hand.
 - [DONE]   Server reboot announcement (asked by: T10 notes). Red centre-screen message, 5-minute default wait, logins refused, saves everyone; tools/update.sh --reboot-in N or /maintenance. The server must already run this build: the first update after it still needs a manual restart.
 - [DONE]   Chat tabs with filters (asked by: T10 notes). "+" adds a tab, right-click renames / picks channels (say, tell, party, zone, NPC, loot, xp, skills, quests, combat) / detaches / closes; messages are copied, not moved; unread tabs flash. Needs a hands-on look: try a Tell-only tab in a real group.
+- [WORKS]  Encounter frame, /focus frame (T11); /maintenance 5 with banner + countdown + shutdown, /announce, chat tabs and filters (T12).
+- [FIXED]  Goblins ran their death animation more than once (found by: T11). Cause: a client's spell kill ran die() on the client's copy too (also paid the XP twice). Only the server/host kills now.
+- [FIXED]  Taunt never affected monsters for a joined player (found while reproducing T11): now sent to the server.
+- [OPEN]   Taunt crashes the game for Zozuur when learning it (found by: T11). NOT reproduced (scroll bought in the shop, learned from the backpack, cast, in single player and on a client). Please send the client's log right after a crash: ~/.local/share/godot/app_userdata/Aldenexia-Lightfall/logs/godot.log (or the newest godotYYYY-...log) and say what you clicked (right-click the scroll and Learn? drag to a slot? the K book?).
+- [DONE]   Owned spells are marked: green tick on the scroll in the backpack, "✔ known" in the vendor list (asked by: T11).
+- [DONE]   Game master commands are listed on the Controls & Commands page for game masters only (asked by: T12 talk).
+- [FIXED]  Right-click on items / chat tabs turned the camera (mouse look) and the wheel zoomed over panels (found by: T12). The camera ignores clicks and wheel turns that land on a window.
 - [OPEN]   Female human's jump animation looks strange (found by: T8): the user will replace the animation.
 - [OPEN]   Anyone can type /gm enable. DECISION: how should real GM access be granted (server-side list, password)?
 

@@ -83,6 +83,16 @@ static func fill(vbox: VBoxContainer, item_def: Dictionary, with_comparison: boo
 				_line(vbox, entry[0], entry[1], int(entry[2]) if entry.size() > 2 else 11)
 
 
+# True for a spell scroll whose spell the local player already knows — the shop and the inventory mark those so you do not buy or carry a
+# scroll you cannot use.
+static func teaches_known_spell(def: Dictionary) -> bool:
+	var spell_name := str(def.get("teaches_spell", ""))
+	if spell_name.is_empty():
+		return false
+	var player := TargetFrame.local_player()
+	return is_instance_valid(player) and "known_spells" in player and spell_name in player.known_spells
+
+
 # What a spell scroll teaches: the spell's name, the level YOUR class needs, its description and its numbers, and whether you already
 # know it. [] for anything that is not a scroll. Songs (the Troubadour's spells) are spells too.
 static func _spell_lines(def: Dictionary) -> Array:

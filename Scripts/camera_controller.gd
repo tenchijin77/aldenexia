@@ -40,6 +40,7 @@ const MODE_POSITIONS := {
 
 #region State Variables
 var current_zoom: float = 6.0
+var _right_press_on_ui := false   # the current right-click began on a window/button, so it is not a head turn
 var rotation_x: float = 0.0
 var rotation_y: float = 0.0
 var _head_turn_held: bool = false
@@ -75,9 +76,21 @@ func _input(event: InputEvent) -> void:
 	# Right mouse button held = capped "head turn", independent of mouselook.
 	# Mouselook (if already on) takes priority and owns the mouse mode, so
 	# right-click here only matters when mouselook is off.
+	# A right-click that lands on a window/button (an item, a chat tab, a title bar...) belongs to that control (its menu), so it must not turn
+	# the head; and the wheel over a panel scrolls the panel instead of zooming the camera.
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT:
-		_head_turn_held = event.pressed
-		if not Global.mouselook_enabled:
+		if event.pressed and _pointer_over_ui():
+			_head_turn_held = false
+			_right_press_on_ui = true
+		elif event.pressed:
+			_right_press_on_ui = false
+			_head_turn_held = true
+		elif _right_press_on_ui:
+			_right_press_on_ui = false      # released after a click that was the UI's: nothing was started
+			return
+		else:
+			_head_turn_held = false
+		if not Global.mouselook_enabled and not _right_press_on_ui:
 			if _head_turn_held:
 				Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
 			else:
@@ -90,7 +103,7 @@ func _input(event: InputEvent) -> void:
 			_handle_head_turn(event.relative)
 
 	# Mouse wheel zoom
-	if event is InputEventMouseButton:
+	if event is InputEventMouseButton and not _pointer_over_ui():
 		if event.button_index == MOUSE_BUTTON_WHEEL_UP and event.pressed:
 			zoom_camera(-ZOOM_SPEED)
 		elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN and event.pressed:
@@ -99,6 +112,15 @@ func _input(event: InputEvent) -> void:
 	# Cycle camera modes (Home key)
 	if event.is_action_pressed("cycle_camera_mode"):
 		cycle_camera_mode()
+
+
+# True while the pointer is over a visible window/button/label (anything that takes mouse input); false over the bare game world. In mouselook
+# (mouse captured) there is no pointer to be over a window, so the world always gets the input.
+func _pointer_over_ui() -> bool:
+	if Global.mouselook_enabled or Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
+		return false
+	var hovered := get_viewport().gui_get_hovered_control()
+	return hovered != null and hovered.is_visible_in_tree()
 
 
 # Uncapped yaw (wraps instead of growing unbounded), pitch capped only to

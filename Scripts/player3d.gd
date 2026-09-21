@@ -3823,7 +3823,11 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 					else:
 						GameLog.log_combat("Your disarm attempt on %s fails." % target_desc)
 				"taunt":
-					if target_node.has_method("taunt"):
+					if target_node is Monster and not target_node.is_multiplayer_authority():
+						target_node.apply_networked_taunt.rpc_id(1, multiplayer.get_unique_id())   # the server owns the threat table
+						GameLog.log_combat("[color=#ffcc66]You bellow a challenge — %s's fury turns on you![/color]" % target_desc)
+						_broadcast_combat("[color=#ffcc66]%s bellows a challenge — %s's fury turns to them![/color]" % [player_name, target_desc])
+					elif target_node.has_method("taunt"):
 						target_node.taunt(self)
 						GameLog.log_combat("[color=#ffcc66]You bellow a challenge — %s's fury turns on you![/color]" % target_desc)
 						_broadcast_combat("[color=#ffcc66]%s bellows a challenge — %s's fury turns to them![/color]" % [player_name, target_desc])

@@ -1105,6 +1105,10 @@ Scene: Scenes/player3d.tscn (contains CameraRig → CameraController + Camera3D)
   see the server as "offline" and never get the "Update needed" button. Put new RPCs on other nodes (scene nodes such as GMRelay / WeatherManager; those only matter between same-build peers, which the
   handshake guarantees). Check before releasing: `git diff <released build> -- Scripts/net.gd` must show no @rpc changes (also Global, GameLog, Inventory).
 
+--- MONSTER DEATH + CLIENT PUPPETS (2026-09-21) ---
+  A joined client's copy of a monster is a puppet: it may nudge its local health (cosmetic), but only the authority (server / host) runs die(), threat (add_threat / taunt) and ally calls. Anything a client does to a monster's server-side state goes through an
+  apply_networked_* RPC on the monster (damage, effect, disable, fear, taunt). die() runs once (_death_handled). The camera ignores right-clicks and wheel turns that land on a UI control (CameraController._pointer_over_ui()).
+
 --- CHAT TABS (2026-09-21) ---
   Message flow: anything calling GameLog.log_general(text[, category]) -> signal message_categorized(category, text) (category from GameLog.classify() when not given) -> GameLogWindow._on_message -> ChatTabs.route(): appended to every tab whose
   filter has the category, plus the 1500-message history. Combat: GameLog.combat_message -> GameLogWindow._on_combat -> route("combat" | "combat_other"). To give a new kind of message its own filter: add a category to
