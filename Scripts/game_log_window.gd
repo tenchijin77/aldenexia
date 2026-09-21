@@ -1,4 +1,4 @@
-# game_log_window.gd — Tabbed General / Combat message log
+# game_log_window.gd — The chat window: tabbed message log (General, Combat and your own filtered tabs — see chat_tabs.gd), chat box, channel dropdown
 extends CanvasLayer
 class_name GameLogWindow
 
@@ -13,6 +13,7 @@ class_name GameLogWindow
 # index 0 can silently grab someone else's character instead of mine.
 @onready var player := TargetFrame.local_player()
 
+const ChatTabsScript := preload("res://Scripts/chat_tabs.gd")
 const MAX_LINES  := 200
 const DRAG_BAR_H := 22.0
 const MIN_WIDTH  := 180.0
@@ -25,6 +26,7 @@ var _dragging  := false
 var _resizing  := false
 var _font_size: int = 12
 var _font_menu: PopupMenu
+var chat_tabs: Node = null   # the tab manager (chat_tabs.gd): filters, right-click menu, flashing, detached tabs
 
 # Chat channel the box currently talks in (see ChatChannels). Sticky: it only changes when you
 # pick another one from the dropdown or type a channel command (/say /party /zone /tell), so
@@ -42,15 +44,18 @@ var _combat_window_resizing := false
 
 
 func _ready() -> void:
-	GameLog.general_message.connect(_on_general)
+	GameLog.message_categorized.connect(_on_message)
 	GameLog.combat_message.connect(_on_combat)
 	GameLog.autoattack_changed.connect(_on_autoattack_changed)
-	_append(general_log, "[color=#888888]— Welcome to Aldenexia —[/color]")
 	_setup_font_menu()
 	_setup_autoattack_dot()
 	_setup_drag_bar()
 	_setup_resize_handle()
 	_setup_detach_button()
+	chat_tabs = ChatTabsScript.new()
+	add_child(chat_tabs)
+	chat_tabs.setup(self, tabs, $Panel, {"control": $Panel/VBox/Tabs/General, "log": general_log}, {"control": combat_tab, "log": combat_log})
+	_on_message("system", "[color=#888888]— Welcome to Aldenexia —[/color]")
 	tabs.focus_mode = Control.FOCUS_NONE
 	general_log.focus_mode = Control.FOCUS_NONE
 	general_log.meta_clicked.connect(_on_meta_clicked)  # clicking a highlighted keyword in an NPC's line says it
@@ -90,6 +95,8 @@ func _on_font_size_chosen(id: int) -> void:
 func _apply_font_size() -> void:
 	general_log.add_theme_font_size_override("normal_font_size", _font_size)
 	combat_log.add_theme_font_size_override("normal_font_size", _font_size)
+	if chat_tabs != null:
+		chat_tabs.apply_font_size(_font_size)
 
 
 # ── Drag bar (title + drag handle + right-click menu trigger) ─────────────────
@@ -539,7 +546,7 @@ func _on_chat_input_gui_input(event: InputEvent) -> void:
 # and "/location" both resolve to "/location" since no other command starts
 # with "loc"; "/f" would be ambiguous if two commands both started with "f".
 const GMCommandsScript := preload("res://Scripts/gm_commands.gd")
-const COMMANDS := ["/location", "/hail", "/appraise", "/time", "/follow", "/camp", "/exit", "/log", "/invite", "/disband", "/say", "/tell", "/party", "/zone", "/played", "/resetui", "/who", "/weather", "/pet", "/quests", "/compass", "/raid", "/gm", "/focus", "/assist"]
+const COMMANDS := ["/location", "/hail", "/appraise", "/time", "/follow", "/camp", "/exit", "/log", "/invite", "/disband", "/say", "/tell", "/party", "/zone", "/played", "/resetui", "/who", "/weather", "/pet", "/quests", "/compass", "/raid", "/gm", "/focus", "/assist", "/announce", "/maintenance"]
 
 
 func _handle_slash_command(text: String) -> void:
@@ -562,7 +569,7 @@ func _handle_slash_command(text: String) -> void:
 			player.assist_target()
 		"/gm":
 			GMCommandsScript.set_mode(player, arg)
-		"/weather", "/raid":
+		"/weather", "/raid", "/announce", "/maintenance":
 			# Game masters only (/gm enable). On a dedicated server the command is sent to the server.
 			GMCommandsScript.request(player, cmd.substr(1), arg, get_tree())
 		"/location":
@@ -762,8 +769,8 @@ func _on_meta_clicked(meta: Variant) -> void:
 
 # ── Log output ────────────────────────────────────────────────────────────────
 
-func _on_general(text: String) -> void:
-	_append(general_log, text)
+func _on_message(category: String, text: String) -> void:
+	chat_tabs.route(category, text, _timestamp())
 	_write_to_log_file("GENERAL", text)
 
 
@@ -777,7 +784,7 @@ func _on_combat(text: String, has_position: bool, position: Vector3) -> void:
 	if has_position and is_instance_valid(player) \
 			and player.global_position.distance_to(position) > COMBAT_VISIBILITY_RANGE:
 		return
-	_append(combat_log, text)
+	chat_tabs.route("combat_other" if has_position else "combat", text, _timestamp())
 
 
 # ===== /log — dumps chat + combat to a plain-text file for balance review =====
@@ -822,12 +829,6 @@ func _strip_bbcode(text: String) -> String:
 	var regex := RegEx.new()
 	regex.compile("\\[[^\\]]*\\]")
 	return regex.sub(text, "", true)
-
-
-func _append(log: RichTextLabel, text: String) -> void:
-	if log.get_paragraph_count() > MAX_LINES:
-		log.clear()
-	log.append_text(_timestamp() + text + "\n")
 
 
 func _timestamp() -> String:

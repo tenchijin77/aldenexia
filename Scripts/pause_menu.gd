@@ -209,6 +209,12 @@ const KEYBIND_GROUPS := [
 		["N", "Show / hide the compass (needs a Compass)"],
 		["F11", "Network diagnostics widget"],
 	]],
+	["Chat window", [
+		["+ button", "Add a chat tab"],
+		["Right-click a tab", "Rename it, choose what it shows (say, tell, party, zone, loot, xp, skills, combat...), pop it out into its own window, or close it"],
+		["Flashing tab name", "Something new arrived in a tab you are not looking at"],
+		["Right-click the title", "Chat font size"],
+	]],
 	["Interacting with the World", [
 		["H", "Hail the nearest NPC"],
 		["I", "Appraise your current target"],
@@ -247,6 +253,8 @@ const CHAT_COMMANDS := [
 	["/gm enable|disable", "Turn game master mode on or off (needed for the commands below)"],
 	["/weather rain|clear", "Start or stop rain (game masters)"],
 	["/raid [bandits|goblins]", "Start a gate raid now (game masters)"],
+	["/announce <text>", "A red message in the middle of everyone's screen (game masters)"],
+	["/maintenance [minutes|cancel]", "Warn everyone, refuse new logins, and take the server down for an update (game masters)"],
 	["/pet", "Pet the cat you are targeting, or the nearest one"],
 ]
 

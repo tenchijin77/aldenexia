@@ -4946,9 +4946,19 @@ func skill_cap_for(current: int) -> int:
 	return mini(_skill_max, maxi(int(combat_node.level) * per_level, current))
 
 
+# A weapon in the primary hand AND a weapon in the off hand (a shield is not a weapon). Dual wield only trains with both.
+func is_dual_wielding() -> bool:
+	var main: Variant = Inventory.equipped.get("primary", null)
+	var off: Variant = Inventory.equipped.get("offhand", null)
+	return typeof(main) == TYPE_DICTIONARY and str(main.get("type", "")) == "weapon" \
+			and typeof(off) == TYPE_DICTIONARY and str(off.get("type", "")) == "weapon"
+
+
 func _tick_skill(skill_name: String) -> void:
 	if skill_name.is_empty() or skill_name == "none":
 		return
+	if skill_name == "dual_wield" and not is_dual_wielding():
+		return   # it used to rise from casting Blade Dance with nothing in your hands
 	# Previously required the skill to already be in skill_levels — meaning a
 	# class could only ever level the handful of skills it happened to start
 	# with (build_starting_skill_levels()), so e.g. a Blademaster who picked

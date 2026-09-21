@@ -26,6 +26,7 @@
 [ext_resource type="Script" path="res://Scripts/world_note.gd" id="world_note_scr"]
 [ext_resource type="Script" path="res://Scripts/gate_raid_manager.gd" id="gate_raid_scr"]
 [ext_resource type="Script" path="res://Scripts/gm_relay.gd" id="gm_relay_scr"]
+[ext_resource type="Script" path="res://Scripts/server_notice.gd" id="server_notice_scr"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_1j15t"]
 sky_top_color = Color(0.22986513, 0.3887299, 0.9202023, 1)
@@ -448,3 +449,6 @@ script = ExtResource("gate_raid_scr")
 
 [node name="GMRelay" type="Node" parent="."]
 script = ExtResource("gm_relay_scr")
+
+[node name="ServerNotice" type="Node" parent="."]
+script = ExtResource("server_notice_scr")

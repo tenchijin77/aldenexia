@@ -1105,6 +1105,15 @@ Scene: Scenes/player3d.tscn (contains CameraRig → CameraController + Camera3D)
   see the server as "offline" and never get the "Update needed" button. Put new RPCs on other nodes (scene nodes such as GMRelay / WeatherManager; those only matter between same-build peers, which the
   handshake guarantees). Check before releasing: `git diff <released build> -- Scripts/net.gd` must show no @rpc changes (also Global, GameLog, Inventory).
 
+--- CHAT TABS (2026-09-21) ---
+  Message flow: anything calling GameLog.log_general(text[, category]) -> signal message_categorized(category, text) (category from GameLog.classify() when not given) -> GameLogWindow._on_message -> ChatTabs.route(): appended to every tab whose
+  filter has the category, plus the 1500-message history. Combat: GameLog.combat_message -> GameLogWindow._on_combat -> route("combat" | "combat_other"). To give a new kind of message its own filter: add a category to
+  ChatTabs.CATEGORIES + a rule in GameLog.classify() (or pass the category explicitly). Tabs/filters/detached windows are saved in Global.player_data["chat_tabs"]. chat_tabs.gd has no class_name (preloaded).
+
+--- SERVER MAINTENANCE / ANNOUNCE (2026-09-21) ---
+  tools/update.sh --reboot-in N (or tools/server_maintenance.sh) writes the request file (Net.maintenance_file) on the server -> ServerNotice (scene node, polls 1 s) -> red banner + chat line to everyone, Net.maintenance_pending refuses logins,
+  reminders 3m/1m/30s/10s -> Net.begin_shutdown() when nobody is logged in or the time is up. GM: /announce, /maintenance. Words: Data/server_notices.json. Stale request files (> 15 min, or left from a previous run) are ignored/deleted.
+
 --- ENCOUNTER FRAME (2026-09-21) ---
   encounter_frame.gd: the monsters whose replicated target_key is the local player or a group member (+ your current target if it is in a fight), nearest first; rows are kept per monster (not rebuilt) so clicks work.
   RULE for every HUD frame: draggable, resizable, remembered per character (WindowPosition.save / load_full_into), restored by /resetui (spawn it in Player3D._spawn_hud_frames()).

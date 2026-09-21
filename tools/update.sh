@@ -10,6 +10,9 @@
 #   tools/update.sh --server-only       only the server binary          (--client-only: only the client patches)
 #   tools/update.sh --skip-export       don't rebuild, just sign + upload what is already in Builds/
 #   tools/update.sh --restart 'CMD'     afterwards run CMD on the server (e.g. to restart it)
+#   tools/update.sh --reboot-in N       after uploading: warn the players (a red message on their screens), wait up to N minutes for them to
+#                                       log out, let the server save and exit, then run the --restart command if there is one
+#                                       (tools/server_maintenance.sh; needs the server to already run a build with the feature)
 #   tools/update.sh --host user@host --dir aldenexia     where to upload (defaults below)
 #   tools/update.sh --local DIR         "upload" into a local folder instead — for testing this script
 #
@@ -41,7 +44,7 @@ DIR="${ALDENEXIA_DEPLOY_DIR:-aldenexia}"
 KEY="${ALDENEXIA_SIGNING_KEY:-$HOME/.config/aldenexia/update_signing.key}"
 UPDATE_PORT="${ALDENEXIA_UPDATE_PORT:-8911}"
 PLATFORMS="windows,linux"
-DO_STAMP=0; NEW_BASE=0; DO_SERVER=1; DO_CLIENT=1; DO_EXPORT=1; RESTART_CMD=""; LOCAL_DEST=""
+DO_STAMP=0; NEW_BASE=0; DO_SERVER=1; DO_CLIENT=1; DO_EXPORT=1; RESTART_CMD=""; LOCAL_DEST=""; REBOOT_IN=""
 
 while [ $# -gt 0 ]; do
 	case "$1" in
@@ -55,6 +58,7 @@ while [ $# -gt 0 ]; do
 		--client-only) DO_SERVER=0; shift ;;
 		--skip-export) DO_EXPORT=0; shift ;;
 		--restart)     RESTART_CMD="${2:?--restart needs a command}"; shift 2 ;;
+		--reboot-in)   REBOOT_IN="${2:?--reboot-in needs minutes}"; shift 2 ;;
 		-h|--help)     sed -n '2,37p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
 		*) echo "Unknown option: $1 (try --help)" >&2; exit 2 ;;
 	esac
@@ -258,7 +262,12 @@ fi
 if [ "$NEW_BASE" = 1 ] && [ "$DO_CLIENT" = 1 ]; then
 	say "New base: run the fresh Builds/Linux yourself, and share Builds/Windows (exe + pck + dll) with your Windows players — once."
 fi
-if [ -n "$RESTART_CMD" ] && [ -z "$LOCAL_DEST" ]; then
+if [ -n "$REBOOT_IN" ] && [ -z "$LOCAL_DEST" ]; then
+	say "Warning the players and waiting for the server to go down (up to $REBOOT_IN minute(s))..."
+	MAINT=(tools/server_maintenance.sh "$HOST" --minutes "$REBOOT_IN" --wait)
+	[ -n "$RESTART_CMD" ] && MAINT+=(--restart "$RESTART_CMD")
+	"${MAINT[@]}"
+elif [ -n "$RESTART_CMD" ] && [ -z "$LOCAL_DEST" ]; then
 	say "Restarting: $RESTART_CMD"
 	ssh -t "${SSH_OPTS[@]}" "$HOST" "$RESTART_CMD"
 elif [ "$DO_SERVER" = 1 ]; then

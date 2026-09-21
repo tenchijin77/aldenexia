@@ -144,6 +144,9 @@ T5 (2026-09-21)
 - [FIXED]  No overview of enemies in a multi-enemy fight (asked by: T10). Encounter frame: every enemy in combat with you or your group, with name, health and distance; draggable, resizable.
 - [FIXED]  Guard Halric did not seem to face the hailer, or snapped back at once (found by: T10). Guards hold the facing 10 s; vendors face the player when hailed.
 - [FIXED]  Torch flavour text (asked by: T10). Lighting and the rain snuffing it have their own lines. F is the assist key.
+- [FIXED]  Dual wield went up with no weapons equipped (found by: T10). It only trains with a weapon in each hand.
+- [DONE]   Server reboot announcement (asked by: T10 notes). Red centre-screen message, 5-minute default wait, logins refused, saves everyone; tools/update.sh --reboot-in N or /maintenance. The server must already run this build: the first update after it still needs a manual restart.
+- [DONE]   Chat tabs with filters (asked by: T10 notes). "+" adds a tab, right-click renames / picks channels (say, tell, party, zone, NPC, loot, xp, skills, quests, combat) / detaches / closes; messages are copied, not moved; unread tabs flash. Needs a hands-on look: try a Tell-only tab in a real group.
 - [OPEN]   Female human's jump animation looks strange (found by: T8): the user will replace the animation.
 - [OPEN]   Anyone can type /gm enable. DECISION: how should real GM access be granted (server-side list, password)?
 

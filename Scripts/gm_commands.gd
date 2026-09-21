@@ -9,7 +9,7 @@
 extends RefCounted   # no class_name on purpose: net.gd (an autoload) uses it, and a brand-new class name is not known to Godot until its class cache is rebuilt; users preload() it instead
 
 const DENIED := "[color=red]Only game masters can do that.[/color]"
-const COMMANDS := ["weather", "raid"]
+const COMMANDS := ["weather", "raid", "announce", "maintenance"]
 
 
 static func is_gm(player: Node) -> bool:
@@ -80,4 +80,18 @@ static func run(player: Node, command: String, arg: String, tree: SceneTree) -> 
 			if not rm.start_raid(arg.strip_edges().to_lower()):
 				return "Usage: /raid [bandits | goblins]"
 			return "[color=#88ccff]Raid started.[/color]"
+	if command == "announce" or command == "maintenance":
+		var notice := tree.get_first_node_in_group("server_notice")
+		if notice == null:
+			return "There is no notice board in this area."
+		if command == "announce":
+			if arg.strip_edges().is_empty():
+				return "Usage: /announce <text>: a red message in the middle of everyone's screen."
+			notice.broadcast(arg.strip_edges())
+			return "[color=#88ccff]Announced.[/color]"
+		var word := arg.strip_edges().to_lower()
+		if word == "cancel":
+			return notice.cancel_maintenance()
+		var minutes: float = word.to_float() if word.is_valid_float() else 5.0
+		return notice.start_maintenance(minutes)
 	return "Unknown GM command: /%s" % command

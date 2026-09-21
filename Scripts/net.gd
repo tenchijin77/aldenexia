@@ -92,6 +92,8 @@ var _login_failures: Dictionary = {}
 ## (Godot's headless server can't catch SIGTERM — tools/run_server.sh touches this file when it is signalled).
 var tls_dir := "user://server_tls"
 var stop_file := "user://server_stop"
+var maintenance_file := "user://server_maintenance"   # the update script writes the minutes to wait here (see server_notice.gd)
+var maintenance_pending := false                        # an update countdown is running: new logins are refused
 var _shutting_down := false
 var _shutdown_done := false
 var _shutdown_waiting: Array = []
@@ -213,6 +215,7 @@ func _start_dedicated_server() -> void:
 	max_players = clampi(int(_cmdline_value("max-players", str(MAX_PLAYERS))), 1, 64)
 	tls_dir = _cmdline_value("tls-dir", tls_dir)
 	stop_file = _cmdline_value("stop-file", stop_file)
+	maintenance_file = _cmdline_value("maintenance-file", maintenance_file)
 	get_tree().auto_accept_quit = false  # a close request starts a graceful shutdown instead of dropping everyone
 	var wanted_name := _cmdline_value("name", server_name)
 	server_name = sanitize_name(wanted_name)
@@ -227,6 +230,7 @@ func _start_dedicated_server() -> void:
 		return
 	_slog("'%s' — Aldenexia %s listening on UDP %d (encrypted), up to %d players." % [server_name, GameVersion.display(), port, max_players])
 	_slog("Stop it gracefully by creating the file %s (tools/run_server.sh does this on Ctrl-C / SIGTERM)." % ProjectSettings.globalize_path(stop_file))
+	_slog("Update countdown: write the minutes to wait into %s (tools/server_maintenance.sh does this), or a GM types /maintenance." % ProjectSettings.globalize_path(maintenance_file))
 	get_tree().change_scene_to_file(pending_zone_path)
 	_run_world_check()
 
@@ -880,6 +884,9 @@ func _rpc_login(character_name: String, password: String, creation_json: String)
 	if _shutting_down:
 		_login_fail(id, "shutting_down", "The server is shutting down. Try again in a few minutes.")
 		return
+	if maintenance_pending:
+		_login_fail(id, "shutting_down", "The server is about to go down for an update. Try again in a few minutes.")
+		return
 	# Is this character still held by ANOTHER connection? After a dropped/crashed client the server keeps the old
 	# connection open for ~30 s (see PEER_TIMEOUT_MIN_MS), and the player usually reconnects at once.
 	var holder := _peer_holding(key)
@@ -1163,6 +1170,11 @@ func _process(delta: float) -> void:
 	if _world_save_timer >= WORLD_SAVE_INTERVAL:
 		_world_save_timer = 0.0
 		Global.save_world_state(server_name)
+
+
+# How many players are logged in with a character right now (the dedicated server's view).
+func logged_in_count() -> int:
+	return _peer_character.size()
 
 
 func begin_shutdown() -> void:

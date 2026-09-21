@@ -1,0 +1,27 @@
+{
+ "_comment": [
+  "Server notices (Scripts/server_notice.gd): the big red message in the middle of every player's screen, and the wording of the update countdown.",
+  "{time} becomes '5 minutes', '1 minute', '30 seconds'... One line of each list is picked at random. All lines are DRAFTS for the user to change.",
+  "default_minutes: how long the server waits for players to log out before it goes down (it goes at once if nobody is logged in, or the moment the last player leaves). reminder_seconds: when the reminders go out (seconds left)."
+ ],
+ "default_minutes": 5,
+ "reminder_seconds": [180, 60, 30, 10],
+ "banner_seconds": 9,
+ "start": [
+  "An update approaches and the end draws near! Save your player and log out now!",
+  "The sky darkens and the world prepares to be remade. Save your player and log out within {time}!",
+  "The end draws near, and a new world waits behind it. Save your player and log out now: {time} remain."
+ ],
+ "reminder": [
+  "{time} remain before the end. Save your player and log out!",
+  "The end draws closer: {time}. Log out now, and your character will be waiting for you.",
+  "The world will end in {time}. Save your player and log out!"
+ ],
+ "final": [
+  "The end is upon us! The world goes dark now.",
+  "Time is up. The world ends, and begins again."
+ ],
+ "cancelled": [
+  "The end is postponed. The world endures... for now."
+ ]
+}

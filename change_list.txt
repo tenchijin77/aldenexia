@@ -960,5 +960,32 @@ Ask about desert dangers
   - Torch text: lighting shows "You light a torch to keep the darkness at bay." and rain snuffing it shows "The falling rain quickly snuffs the
     life out of your torch." Any future light can have its own lines through two new fields in its data.
 
+hat tabs with filters are built and tested, and the docs and memory notes are updated. That's the known old 2D player.gd error, unrelated to
+  this work, and the Net RPC list is unchanged.
+
+  How it works
+  - New tab: a + beside the tabs adds one. It starts with say, tell, party and zone.
+  - Right-click a tab:
+    - Rename it, edited in place.
+    - Filters: tick any of General/system, Say, Tell, Party, Zone, NPC speech, Loot & coin, Experience & levels, Skill-ups, Quests, Combat: you,
+      or Combat: others nearby. The menu stays open while you tick.
+    - Detach it to its own window, which you can drag and resize.
+    - Clear or Close it.
+  - Copies, not moves: a message goes into every tab whose filter matches, so a Tell-only tab never takes tells out of General. Changing a tab's
+    filter rebuilds it from the last 1500 messages, so ticking Loot on an old tab brings the recent loot back.
+  - Flashing: a tab you aren't looking at with unread messages alternates between » Tells « and Tells until you click it.
+  - General and Combat: they keep their old behaviour, but you can change their filters too.
+  - Saved per character: tab names, filters and detached windows are remembered.
+  - Help page: Escape → Controls & Commands has a new "Chat window" section.
+
+  Verification
+  - Headless test: 35 checks pass. They cover the classifier samples, copy-not-move, the Tell tab receiving only tells, flashing and clearing,
+    rebuild on filter change, combat routing, rename, the menu, detach and reattach, and the saved data.
+  - Screenshot: it shows the flashing tabs and the right-click menu. I didn't try the submenu or the in-place rename by hand.
+  - Not tried: a Tell-only tab in a real group.
+  - Cleanup: I deleted the throwaway zzchat character.
+
+  Still to do: the running server on the VM is the old build. The first update after this still needs a manual restart of ./run_aldenexia.sh,
+  because the old build can't listen for the maintenance request.
 
 
