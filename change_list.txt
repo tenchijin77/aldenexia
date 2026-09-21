@@ -512,6 +512,43 @@ weather can be tested with:
   Use an absolute path for --tls-dir. If the server has a firewall, open UDP 8910 (for ufw: ufw allow 8910/udp).
 
 
+  Ranged pet projectiles
+
+  - What you see: the Phantasmal Echo now shoots a teal-green bolt and the Wildspeaker's spirit a lime-green one. Each has a glowing core, a
+    particle trail and sparkles, and a particle burst with a flash of light on impact.
+  - Why others couldn't see it before: the bolt was created only on the pet owner's machine. Now the owner's game still deals the damage, and
+    everyone else's game shows a visual-only copy that flies to the same target and deals nothing.
+  - Verified: the damage logic checks out headless. I also rendered two bolts in flight and an impact and looked at them. I haven't tested it
+    with two real clients yet, so ask Mike to watch for it next time.
+
+  Skills wired into the formulas
+
+  - New data file: Data/skill_effects.json lists each skill's bonus per point, in the same style as combat_balance.json, so you can retune it.
+  - Players only: monsters, guards and pets get nothing, so their balance is unchanged. Skills cap at 4 per level, so the effect starts small.
+  - What each skill does:
+    - Weapon mastery: ATK, melee damage and crit.
+    - Offense: ATK and melee damage.
+    - Dodge, parry, riposte, block: their own chance, plus defense and shield defense. Block only counts with a shield.
+    - Spell casting and a spell's own school: spell damage and healing.
+    - Physical abilities: damage from the ability's own skill.
+    - Concentration and channeling: the chance to keep a spell when hit.
+    - Meditation, athletics, bind wound: mana regen, stamina, and bandage healing.
+    - Double and triple attack: the Aetherfist multi-attack chances.
+  - Training added: offense and weapon mastery now rise on melee hits, and defense rises whenever a monster swings at you. The others train from
+    their own actions, listed in change_log.txt.
+  - Two fixes found on the way:
+    - Swapping weapons never updated the weapon skill until you relogged.
+    - Fighting bare-handed kept the old weapon's skill. It now uses hand_to_hand.
+  - Verified: on a level-10 test character with skills at 40, ATK went 62→102, dodge 1→9 and parry 6→14. A monster-style node got no bonus, and
+    150 rounds of real melee and casting raised the right skills with no errors.
+  - Skills with nothing to attach to yet: I left these alone rather than invent a mechanic.
+    - No mechanic exists: safe_fall, perception, tracking, lockpicking, trapping, legerdermain, stealth detection.
+    - Players can't use it yet: dual_wield, because players can't equip an off-hand weapon.
+    - No effect beyond damage and potency yet: divination, illusion and the other non-damage school effects.
+
+
+
+
 Notes:
 
 to-do: create icons with meshy for the last 47 physical spells and add them to the game.

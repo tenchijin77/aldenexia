@@ -1324,6 +1324,56 @@ The LAN host/join flow is untouched apart from a handshake tweak (below). Versio
   uses them beyond the ability damage), divination/illusion/conjuration/enchantment/alteration/wild_magic beyond spell potency, fishing/forage/prospecting and the other tradeskills that already train from the crafting windows.
 - TESTING LOG: `testing_log.txt` (project root) — what each test found and how it ended, in GENERAL and per-CLASS sections, with test sessions (players + characters + classes) at the top.
 
+### Test 3 findings (2026-09-20) — open-world mob density, buff icons, weapon poison on the status window, /camp desktop
+- OPEN-WORLD MOB DENSITY (`Scripts/mob_spawner3d.gd`, `Data/lumora_outskirts_spawns.json`). Reported: 30+ mobs in front of the graveyard/mausoleum, an over-abundance at the gate, and an empty world beyond them. Root cause:
+  `max_active` was compared with the number of live mobs of that TYPE across the whole zone (`_active[mob_type]`), so all entries of a type shared one pool — the mausoleum's "10 skeletons / 10 mummies" plus the crypts
+  and graveyard together approached 25-30, and adding a spawn point for a type added nothing (the goblin camps shared 10 goblins, four spider entries shared 10 spiders, four far rat entries shared 12...).
+  Fixes: (1) `max_active` is now PER SPAWN ENTRY (`_active[entry index]`); (2) the data was retuned for that: gate ring ~18 (was ~24), mausoleum/graveyard/crypts 14 (was ~22-30), camps 4 goblins each,
+  2 bandits per camp spot, spider den 10, and ~30 new small groups (1-2 mobs each, 1 phantom at two far points) along the roads: south past the graveyard toward the spider den, the west road to the signpost,
+  north-west toward the bandit/goblin camps, the south-west, the wagon crash site and the far west — 62 entries, 115 mobs at full cap (was ~70). (3) `density` (top of the JSON, 1.0) multiplies every entry's
+  cap (never below 1 for an entry that has any) — one knob for "too many / too few". (4) `activation_range` (400 m): a spawn point only makes mobs while some player is that close, because each mob costs the
+  single-threaded server ~0.06 ms of animation + physics per frame (measured: 105 mobs ~6 ms of a 16.7 ms frame). Mobs already spawned stay; 0 = the old behaviour (everything from the start).
+  Verified headless: all 62 entries sit on the navmesh (0 m off-mesh; note the navmesh is one flat plane, so this cannot tell about scenery — nudge a point in the JSON if one lands inside a rock or wall);
+  a player at the gate settles at ~58 mobs (6-8 within 60 m of the gate, ~25 between 120 and 300 m), and teleporting to the west road brings its spawn points to life (total 70, 37 of them within 450 m).
+  Not changed: spawn entries' `min_level`/`max_level` are still ignored (levels come from monsters.json per type), so distance does not make mobs tougher yet; goblin_warrior/goblin_scout/spiderling entries stay
+  in the file but are skipped (no model). `Scripts/mob_spawner.gd` is the old 2D spawner (unused).
+- BUFF ICONS: Warmth of the Campfire uses the red flame spell icon (`aoefire`), Kenji's Blessing the golden sunburst (`aoedivine`) — `ENVIRONMENTAL_EFFECT_SPELL_ICONS` in `buff_bar.gd`, placeholders until art exists.
+- WEAPON POISON ON THE STATUS WINDOW (`buff_bar.gd`, `slot_button.gd`): the poison lives on the weapon item (`poison_bonus_damage`, added to weapon damage by `_apply_equipment_from_inventory`), not in `active_effects`, so nothing showed it.
+  Each poisoned equipped weapon now gets a synthetic row "Basic Poison (Rusty Sword)" with the green skull icon, a tooltip ("+2 damage on every hit. It does not wear off."), shown as ∞, not cancellable; a poison on a
+  non-main-hand weapon says it has no effect yet. `_apply_weapon_poison()` now also stores `poison_name`. Answer to "did it do anything": yes, +2 flat damage per hit (before armor), applied to the
+  main-hand weapon only. Verified in a real window (screenshot): row and icon appear with the buffs, vanish when the poison is removed. Still open: it never wears off and a second application does not stack.
+- `/camp desktop` (also `/camp desk`/`quit`/`exit`): the same 15-second camp countdown, then save and close the game; `/camp` (or `/camp menu`) still returns to the main menu; anything else prints the usage line.
+  `/exit` is unchanged (same as `/camp desktop`); the help screen wrongly said /exit goes to the main menu and now lists both. Verified: the countdown runs and the process exits by itself after ~15 s.
+
+### Weapon poison lasts 15 minutes; client auto-update system + one-command publish script (2026-09-20)
+- WEAPON POISON DURATION: a poison coating now lasts 15 minutes of play, like a standard buff. `basic_poison` has `weapon_poison_duration` (900 s) in items.json; `_apply_weapon_poison()` stores `poison_remaining` on the weapon item
+  (saved with it); `Player3D._tick_weapon_poison()` runs it down while the weapon is equipped and, at 0, removes the coating with "<Poison> wears off your <weapon>."; applying it again refreshes the time. The Status Effects row shows the
+  countdown instead of the infinity sign. A coating from before this change (no timer) gets a full 15 minutes the first time it is seen. Verified: applied with a 3 s timer it counted down, damage went 8 -> 6 when it expired, log line shown.
+- CLIENT AUTO-UPDATE. Players install one FULL build (the "base"); every later update is a small signed PATCH pack downloaded from the server's update address. Pieces:
+  * `Scripts/patch_loader.gd` — NEW FIRST AUTOLOAD (project.godot). At startup, before any other game script loads, it swaps a downloaded `user://patches/pending.pck` in as `current.pck`, checks it against this build's base stamp and its sha256,
+    and mounts it (`ProjectSettings.load_resource_pack(..., replace_files=true)`), so patches can replace scripts, scenes and data — including the other autoloads. A patch made for a different base is discarded. `--no-patch` starts the plain
+    base build; deleting the `patches` folder in the game's user data folder does the same. It can never be updated by a patch itself (neither can project.godot, the executable or the native libraries).
+  * `Scripts/game_updater.gd` (`GameUpdater`) — `check(url)` fetches `manifest.json` + `manifest.sig` over HTTP and verifies the RSA-SHA256 signature against `Data/update_public_key.json` (an update is code, so nothing unsigned is accepted; HTTP is fine
+    because of the signature and the patch's sha256), then answers `available` / `up_to_date` / `full_build_required` (different game version or different base) / `error` (unreachable, bad signature, older than the installed build).
+    `download()` streams the patch to `pending.pck.part` with progress + a stall watchdog, verifies size and sha256, then writes `pending.pck` and `pending.json` (json last, so a half download is never applied). `restart()` uses `OS.set_restart_on_exit`.
+    `--update-from=URL` on the command line checks, downloads and stages an update headlessly, then exits (`main_menu.gd`) — for testing.
+  * Join a Server screen: when a server's probe says "update needed", a "Download update" button appears; it checks the server's update address (`http://<address>:8911`, or `update_port` / `update_url` in `Data/servers.json`), refuses if the published
+    update doesn't match the build the server actually runs, shows a progress bar, then restarts the game into the update.
+  * `tools/make_update_key.sh` (one-time): creates `~/.config/aldenexia/update_signing.key` (private, back it up) and `Data/update_public_key.json` (public, goes in the game; stored as JSON so the export packs it). Already run: the key exists.
+  * `tools/update.sh` — the publish script: `git commit` -> `tools/stamp_build.sh` -> `tools/update.sh` (or `--stamp` to include the stamping). It exports the dedicated server, exports a client PATCH against the base (`godot --export-patch ... --patches base.pck`), writes and
+    signs `manifest.json`, and rsyncs everything to the VM (server binary under a temp name + rename so a running server isn't disturbed; patch, then manifest last; keeps the newest 3 patches), verifies the server binary's checksum and that the manifest is
+    being served. `--new-base` makes the current build the new base (exports the FULL Windows client to Builds/Windows and remembers it in Builds/Base); options `--server-only`, `--client-only`, `--skip-export`, `--restart CMD`, `--host`, `--dir`, `--local DIR`.
+    Guards: refuses a patch if the game version changed since the base; warns if project.godot changed (patches can't carry it) or the stamp is dirty/not HEAD; an export that "succeeds" without writing its output counts as a failure.
+  * `tools/run_update_server.sh` — a 10-line python3 static HTTP server for `<dir>/updates` on TCP 8911; run it on the VM (own tmux window). It needs TCP 8911 open (and forwarded for players outside the LAN).
+  Verified end to end with an exported Linux client: base client -> publish a patch (14 KB for a one-script change vs a 1.2 GB pack) -> `--update-from` downloads it -> next start swaps it in, the patched autoload script runs, the stamp changes, a second check says up to date,
+  `--no-patch` gives the base build back. Failure cases all handled and reported: manifest edited after signing, signature from another key, corrupted patch (checksum), newer game version, different base, older-than-installed build, missing signature, server unreachable, patch
+  missing on the server. The Join screen was driven in a real window (button appears on "update needed", progress bar, staging). The publish script was run against the real Windows preset and the real server export (into scratch folders), and against the VM
+  (rsync + checksum verification + HTTP fetch of the manifest and patch over the LAN from a throwaway folder, since removed).
+  Found on the way: (1) a lambda cannot report back through captured local variables (the first download "stalled" for exactly this reason) — the updater now uses a dictionary; (2) the editor rewrote `export_presets.cfg` at 18:36 (an export from the open editor
+  saves its in-memory copy) and blanked the Windows `application/icon` again — restored; export from the editor's Project > Export dialog only after restarting the editor, or use `tools/update.sh`, which never rewrites the file.
+  Limits to know: the first update needs everyone on a build that HAS this system (one more full download — use `--new-base`); a patch holds everything changed since the base, so it grows (the script warns at 300 MB); native libraries, the executable and
+  project.godot changes always need a new base; only the Windows client is set up as the published client (the script's preset is `Windows Desktop`).
+
 ### Not built yet
 - Nothing on the original server list. Possible later: per-server certificates in servers.json, an in-game admin/console command channel,
   server-side damage re-verification, loot rolled server-side (see "Still-open netcode gaps").

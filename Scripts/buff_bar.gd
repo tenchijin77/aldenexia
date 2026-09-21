@@ -48,7 +48,7 @@ func _process(_delta: float) -> void:
 	if not ("combat_node" in _player) or not (_player.combat_node is CombatNode):
 		return
 
-	var active_effects: Dictionary = _player.combat_node.active_effects
+	var active_effects: Dictionary = _with_weapon_poisons(_player.combat_node.active_effects)
 	var effect_names: Array = active_effects.keys()
 	effect_names.sort()
 
@@ -86,7 +86,7 @@ func _build_row(effect_name: String, display_name: String, description: String, 
 	# toggle through stance_bar.gd's own current-stance state, not a plain
 	# active_effects entry; erasing just the buff-bar side of it here would
 	# desync the two.
-	if not effect_name.begins_with("stance_"):
+	if not effect_name.begins_with("stance_") and not effect_name.begins_with(WEAPON_POISON_PREFIX):
 		row.gui_input.connect(func(event: InputEvent): _on_row_gui_input(event, effect_name))
 
 	var icon_box := Panel.new()
@@ -168,6 +168,43 @@ func _format_remaining(remaining: float) -> String:
 	return "%d:%02d" % [seconds / 60, seconds % 60]
 
 
+# A poison coating a weapon isn't an active_effects entry — it's stored on the weapon item itself (slot_button.gd's
+# _apply_weapon_poison() sets poison_bonus_damage + poison_name, and player3d.gd adds it to the weapon's damage). So it
+# never showed up here and there was no way to tell a poisoned weapon from a clean one. Each poisoned equipped weapon now
+# gets a synthetic row, keyed "weapon_poison:<slot>:<weapon>:<bonus>" (the key changes when the weapon or poison does, which
+# is what makes the list rebuild). The time shown is the coating's poison_remaining (15 minutes of play from the moment it
+# is applied). Not cancellable from here.
+const WEAPON_POISON_PREFIX := "weapon_poison:"
+const WEAPON_POISON_ICON := "res://Assets/icons/spells/aoepoison.png"  # the green skull
+
+func _with_weapon_poisons(active_effects: Dictionary) -> Dictionary:
+	var merged: Dictionary = active_effects
+	for slot in ["primary", "secondary"]:
+		var weapon: Variant = Inventory.equipped.get(slot, null)
+		if weapon == null or typeof(weapon) != TYPE_DICTIONARY:
+			continue
+		var bonus: int = int(weapon.get("poison_bonus_damage", 0))
+		if bonus <= 0:
+			continue
+		if merged == active_effects:
+			merged = active_effects.duplicate()  # never write into the real effect dictionary
+		merged["%s%s:%s:%d" % [WEAPON_POISON_PREFIX, slot, weapon.get("name", "weapon"), bonus]] = {"remaining": float(weapon.get("poison_remaining", Player3D.WEAPON_POISON_DEFAULT_SECONDS))}
+	return merged
+
+
+func _weapon_poison_display(effect_name: String) -> Dictionary:
+	var parts := effect_name.substr(WEAPON_POISON_PREFIX.length()).split(":")
+	var slot: String = parts[0] if parts.size() > 0 else "primary"
+	var weapon: Variant = Inventory.equipped.get(slot, null)
+	var weapon_name: String = str(weapon.get("name", "weapon")) if typeof(weapon) == TYPE_DICTIONARY else "weapon"
+	var bonus: int = int(weapon.get("poison_bonus_damage", 0)) if typeof(weapon) == TYPE_DICTIONARY else 0
+	var poison_name: String = str(weapon.get("poison_name", "Poison")) if typeof(weapon) == TYPE_DICTIONARY else "Poison"
+	var description := "%s coats your %s: +%d damage on every hit, until it wears off." % [poison_name, weapon_name, bonus]
+	if slot != "primary":
+		description = "%s coats your %s, but only the weapon in your main hand deals damage, so this has no effect yet." % [poison_name, weapon_name]
+	return {"name": "%s (%s)" % [poison_name, weapon_name], "description": description, "is_debuff": false, "icon": load(WEAPON_POISON_ICON) as Texture2D}
+
+
 # Non-spell, non-stance effects (environmental buffs, etc.) that still want a
 # real description on the buff bar instead of just a titled name.
 const ENVIRONMENTAL_EFFECT_DESCRIPTIONS := {
@@ -175,6 +212,12 @@ const ENVIRONMENTAL_EFFECT_DESCRIPTIONS := {
 	"well_fed": "Well fed and hydrated. +2 HP/Mana/Stamina regeneration.",
 	"kenjis_blessing": "Kenji's blessing. +2 HP/Mana/Stamina regeneration and +3 to hit.",
 	"lit_torch": "A burning torch lights the way. Rain will put it out, and it gives away a sneaking Shadowblade. Right-click to put it out.",
+}
+# Effects that borrow one of the spell icons (effect name -> icon path). There is no dedicated art for these yet, so they
+# reuse the closest spell icon: a red flame for the campfire and the golden sunburst (the divine icon) for Kenji's blessing.
+const ENVIRONMENTAL_EFFECT_SPELL_ICONS := {
+	"campfire_warmth": "res://Assets/icons/spells/aoefire.png",
+	"kenjis_blessing": "res://Assets/icons/spells/aoedivine.png",
 }
 # Effects that show an item's icon on the buff bar (effect name -> items.json id).
 const ENVIRONMENTAL_EFFECT_ITEM_ICONS := {
@@ -191,6 +234,8 @@ const ENVIRONMENTAL_EFFECT_ITEM_ICONS := {
 # then the environmental-effects table above, falling back to a titled
 # version of the raw effect name if nothing matches.
 func _resolve_effect_display(effect_name: String) -> Dictionary:
+	if effect_name.begins_with(WEAPON_POISON_PREFIX):
+		return _weapon_poison_display(effect_name)
 	if effect_name.begins_with("stance_"):
 		var stance_id := effect_name.substr(len("stance_"))
 		for class_stances in _class_stances.values():
@@ -218,6 +263,8 @@ func _resolve_effect_display(effect_name: String) -> Dictionary:
 		var env_icon: Texture2D = null
 		if ENVIRONMENTAL_EFFECT_ITEM_ICONS.has(effect_name):
 			env_icon = ItemIcon.texture(Inventory.get_item_definition(ENVIRONMENTAL_EFFECT_ITEM_ICONS[effect_name]))
+		elif ENVIRONMENTAL_EFFECT_SPELL_ICONS.has(effect_name):
+			env_icon = load(ENVIRONMENTAL_EFFECT_SPELL_ICONS[effect_name]) as Texture2D
 		return {"name": Player3D.spell_display_name(effect_name), "description": ENVIRONMENTAL_EFFECT_DESCRIPTIONS[effect_name], "is_debuff": false, "icon": env_icon}
 
 	return {"name": Player3D.spell_display_name(effect_name), "description": "", "is_debuff": false}

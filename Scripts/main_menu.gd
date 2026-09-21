@@ -9,6 +9,7 @@ extends Node
 
 
 func _ready():
+	GameUpdater.run_cli_if_requested(self)  # `--update-from=URL` downloads an update and exits (testing / no-UI use)
 	_add_version_label()
 	torch_left.play("torch_flicker")
 	torch_right.play("torch_flicker")

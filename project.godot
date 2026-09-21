@@ -23,6 +23,7 @@ run/flush_stdout_on_print.dedicated_server=true
 
 [autoload]
 
+PatchLoader="*res://Scripts/patch_loader.gd"
 Global="*res://Scripts/global.gd"
 GlobalBackgroundMusic="*res://Scenes/global_background_music.tscn"
 Inventory="*uid://d47686paj5f8"

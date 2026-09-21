@@ -579,9 +579,15 @@ func _handle_slash_command(text: String) -> void:
 		"/follow":
 			player.try_follow(arg)
 		"/camp":
-			start_camp_sequence()
+			match arg.to_lower():
+				"", "menu":
+					start_camp_sequence()  # camp out to the main menu
+				"desktop", "desk", "quit", "exit":
+					_save_and_quit()       # camp out and close the game
+				_:
+					GameLog.log_general("Usage: /camp (back to the main menu) or /camp desktop (exit the game)")
 		"/exit":
-			_save_and_quit()
+			_save_and_quit()  # same as /camp desktop
 		"/log":
 			_toggle_file_logging()
 		"/invite":

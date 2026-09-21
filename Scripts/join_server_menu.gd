@@ -3,7 +3,9 @@
 # the player can enter the world, create a new server character (character_creation.tscn in server mode,
 # see Global.server_creation) or delete one (needs its password). The server list comes from
 # Data/servers.json; any address can also be typed. Each entry shows whether it is online, how many players
-# it has and whether its version matches this build (Net.probe_server, one server at a time).
+# it has and whether its version matches this build (Net.probe_server, one server at a time). When a server runs a
+# different build, a "Download update" button fetches the published update from that server's update address
+# (GameUpdater, see game_updater.gd) and restarts the game into it.
 # See net.gd's "Server-side characters" section.
 extends CanvasLayer
 
@@ -22,6 +24,11 @@ var status_label: Label
 
 var refresh_btn: Button
 var server_status_label: Label
+var update_btn: Button
+var update_bar: ProgressBar
+var _updater: GameUpdater = null
+var _updating := false
+var _server_builds: Dictionary = {}  # list index -> the build display string a server reported when it needed an update
 
 var _servers: Array = []
 var _busy := false
@@ -74,8 +81,8 @@ func _build_ui() -> void:
 	panel.set_anchors_preset(Control.PRESET_CENTER)
 	panel.offset_left = -200.0
 	panel.offset_right = 200.0
-	panel.offset_top = -270.0
-	panel.offset_bottom = 270.0
+	panel.offset_top = -290.0
+	panel.offset_bottom = 290.0
 	panel.add_theme_stylebox_override("panel", Global.opaque_window_bg_style())
 	add_child(panel)
 
@@ -125,6 +132,16 @@ func _build_ui() -> void:
 	server_status_label.add_theme_font_size_override("font_size", 11)
 	server_status_label.custom_minimum_size = Vector2(0, 16)
 	vbox.add_child(server_status_label)
+
+	update_btn = _make_button("Download update")
+	update_btn.visible = false
+	update_btn.pressed.connect(_on_update_pressed)
+	vbox.add_child(update_btn)
+	update_bar = ProgressBar.new()
+	update_bar.visible = false
+	update_bar.show_percentage = false
+	update_bar.custom_minimum_size = Vector2(0, 12)
+	vbox.add_child(update_bar)
 
 	vbox.add_child(HSeparator.new())
 
@@ -304,6 +321,7 @@ func _apply_probe_result(index: int, ok: bool, kind: String, reason: String, inf
 		else:
 			_apply_status(index, "online", "Online — %d/%d players — %s" % [players, cap, info.get("version", "")], "(%d/%d)" % [players, cap])
 	elif kind == "version":
+		_server_builds[index] = str(info.get("version", ""))
 		_apply_status(index, "version", "Update needed — this server runs %s" % info.get("version", "another version"), "(update needed)")
 	elif kind == "offline":
 		_apply_status(index, "offline", "Offline or unreachable", "(offline)")
@@ -330,6 +348,7 @@ func _refresh_status_label() -> void:
 		return
 	server_status_label.text = str(_status[index]["text"])
 	server_status_label.add_theme_color_override("font_color", STATUS_COLORS[_status[index]["state"]])
+	update_btn.visible = _status[index]["state"] == "version" and not _updating
 
 
 # "host" or "host:port" -> [host, port]; an empty host means nothing was entered.
@@ -432,6 +451,76 @@ func _on_server_request_done(ok: bool, kind: String, reason: String, info: Dicti
 		status_label.text = ""
 	else:
 		status_label.text = reason
+
+
+# ── Game updates ──
+# Where a server publishes its updates: an explicit "update_url" in servers.json, else http://<address>:<update_port or 8911>.
+func _update_url_for(index: int) -> String:
+	var target := _target_for(index)
+	if index < _servers.size():
+		return GameUpdater.url_for(str(target[0]), int(_servers[index].get("update_port", GameUpdater.DEFAULT_PORT)), str(_servers[index].get("update_url", "")))
+	return GameUpdater.url_for(str(target[0]))
+
+
+# "v0.4.0 (2aff48e)" -> "2aff48e"; "" when there is no build id in it.
+static func _stamp_of(display: String) -> String:
+	var open := display.find("(")
+	var close := display.find(")", open)
+	return display.substr(open + 1, close - open - 1) if open >= 0 and close > open else ""
+
+
+func _on_update_pressed() -> void:
+	if _updating or _busy:
+		return
+	var index := server_select.selected
+	if index < 0 or (index >= _servers.size() and (_parse_address()[0] as String).is_empty()):
+		return
+	_cancel_probes()
+	_updating = true
+	_set_busy(true)
+	update_btn.visible = false
+	status_label.text = "Checking for the update..."
+	if _updater == null:
+		_updater = GameUpdater.new()
+		_updater.progress.connect(_on_update_progress)
+		add_child(_updater)
+	var checked: Dictionary = await _updater.check(_update_url_for(index))
+	if checked.status != "available":
+		# Already at the published build but the server still differs: the server has not been updated (or is newer).
+		var message: String = checked.message
+		if checked.status == "up_to_date":
+			message += " This server runs %s, so ask the host to update the server." % _server_builds.get(index, "another build")
+		_finish_update(message)
+		return
+	var published: String = str(checked.manifest.get("stamp", ""))
+	var server_stamp := _stamp_of(str(_server_builds.get(index, "")))
+	if not server_stamp.is_empty() and server_stamp != published:
+		_finish_update("The latest published update is %s but this server runs %s. Ask the host to update the server (or publish again)." % [published, server_stamp])
+		return
+	status_label.text = "Downloading update %s..." % published
+	update_bar.value = 0
+	update_bar.visible = true
+	var got: Dictionary = await _updater.download()
+	if not got.ok:
+		_finish_update(got.message)
+		return
+	status_label.text = got.message
+	await get_tree().create_timer(1.5).timeout
+	GameUpdater.restart(get_tree())
+
+
+func _on_update_progress(received: int, total: int) -> void:
+	update_bar.max_value = maxi(total, 1)
+	update_bar.value = received
+	status_label.text = "Downloading update... %.1f / %.1f MB" % [received / 1048576.0, total / 1048576.0]
+
+
+func _finish_update(message: String) -> void:
+	_updating = false
+	_set_busy(false)
+	update_bar.visible = false
+	status_label.text = message
+	_refresh_status_label()
 
 
 func _on_back_pressed() -> void:

@@ -1083,6 +1083,26 @@ Scene: Scenes/player3d.tscn (contains CameraRig → CameraController + Camera3D)
     No mechanic yet (nothing to attach to): safe_fall, perception, tracking, lockpicking, trapping, legerdermain,
     stealth detection, dual_wield (no player off-hand), and the extra effects of the non-damage schools.
 
+--- Mob spawning (2026-09-20) ---
+  Scripts/mob_spawner3d.gd reads Data/lumora_outskirts_spawns.json (server only). Each ENTRY is one spawn point with
+  its own max_active (per entry, NOT per mob type), spawn_radius, respawn_time and spawn_chance (one mob per tick per
+  entry). Top-level knobs: "density" (multiplies every max_active) and "activation_range" (metres; an entry spawns only
+  while a player is that close; 0 = always). min_level/max_level on entries are not used (monsters.json decides).
+
+--- Client auto-update (2026-09-20) ---
+  Players install one full build (the BASE); updates are signed patch .pck files served by the game server's machine.
+  Publish:  git commit -> tools/stamp_build.sh -> tools/update.sh   (--new-base when the exe/libs/project.godot/version change,
+  and once now so everyone gets the update system itself; share Builds/Windows after a --new-base).
+  Server machine: ~/aldenexia/updates (manifest.json, manifest.sig, patch-<stamp>.pck) served by ./run_update_server.sh on TCP 8911.
+  Client: Join screen "Download update" (GameUpdater) -> user://patches/pending.* -> restart -> PatchLoader (first autoload)
+  swaps it to current.pck and mounts it before any script loads. `--no-patch` = base build; delete user://patches to drop a patch.
+  Trust: manifest signed with ~/.config/aldenexia/update_signing.key; public half in Data/update_public_key.json (in the base build).
+
+--- Status effects window: weapon poisons (2026-09-20) ---
+  A poison applied from the bags is stored on the weapon item (poison_bonus_damage + poison_name + poison_remaining, 15 minutes
+  of play, ticked by Player3D._tick_weapon_poison while equipped), not in combat_node.active_effects; buff_bar.gd builds a
+  synthetic row for each poisoned equipped weapon.
+
 --- Ranged pets (2026-09-20) ---
   Phantasmal Echo and Wildspeaker's spirit hold at 14 m and shoot a SpectralBolt (green, particle trail, impact
   burst). PetMinion._launch_bolt(): the pet owner's machine spawns the damaging bolt and RPCs _rpc_show_bolt so every

@@ -1540,6 +1540,8 @@ func _process(delta: float) -> void:
 	if dying:
 		return
 
+	_tick_weapon_poison(delta)
+
 	regen_timer += delta
 	if regen_timer >= REGEN_INTERVAL:
 		regen_timer = 0.0
@@ -3083,6 +3085,28 @@ func apply_equipment(equipment: Dictionary) -> void:
 func _on_equipment_changed() -> void:
 	_apply_equipment_from_inventory()
 	Global.save_player_data_to_file()
+
+
+# A weapon poison (slot_button.gd's _apply_weapon_poison()) lasts WEAPON_POISON_DEFAULT_SECONDS of play, like a standard buff.
+# The time left is stored on the weapon item itself (poison_remaining, saved with it) and only runs down while the weapon is
+# equipped. A coating from before poisons expired has no timer: it gets a full one the first time it is seen.
+const WEAPON_POISON_DEFAULT_SECONDS := 900.0
+
+func _tick_weapon_poison(delta: float) -> void:
+	for slot in ["primary", "secondary"]:
+		var weapon: Variant = Inventory.equipped.get(slot, null)
+		if typeof(weapon) != TYPE_DICTIONARY or int(weapon.get("poison_bonus_damage", 0)) <= 0:
+			continue
+		var left: float = float(weapon.get("poison_remaining", WEAPON_POISON_DEFAULT_SECONDS)) - delta
+		if left > 0.0:
+			weapon["poison_remaining"] = left
+			continue
+		var poison_name: String = str(weapon.get("poison_name", "The poison"))
+		weapon.erase("poison_bonus_damage")
+		weapon.erase("poison_name")
+		weapon.erase("poison_remaining")
+		GameLog.log_general("[color=#88ffaa]%s wears off your %s.[/color]" % [poison_name, weapon.get("name", "weapon")])
+		_apply_equipment_from_inventory()
 
 
 func _apply_equipment_from_inventory() -> void:

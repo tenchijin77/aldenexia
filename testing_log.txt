@@ -28,6 +28,9 @@ T1  2026-09-20  First PUBLIC-server test with a remote friend (Mike)
 T2  2026-09-20  Second public-server test
     Characters: Annadaeus (Troubadour)
 
+T3  2026-09-20  Public-server test, build 2aff48e
+    Characters: Zozuur (Voidknight)
+
 
 GENERAL (not class specific)
 ================================================================================
@@ -39,7 +42,8 @@ Combat and stats
            (found by: T0). Skill synced after equipment loads, legacy names migrated. change_log: WEAPON SKILL FIX.
 - [FIXED]  Monster level changed only the number, not HP/damage (found by: T0). Per-level scaling added (see above).
 - [FIXED]  Left-click targeting hard to use in combat: corpses / your own pet / walls in front swallowed the click
-           (found by: T1). New _pick_target_at() looks through them and allows a near miss.
+           (found by: T1). New _pick_target_at() looks through them and allows a near miss. T3: "feels better after the
+           last update".
 - [FIXED]  Skills could be trained to the maximum at level 1 (found by: T2). Cap of 4 points per character level,
            tunable (skill_cap_per_level in Data/combat_balance.json); Skills page shows level / cap.
 - [FIXED]  Skills in player_skills.json didn't feed the combat formulas (found by: T1). Data/skill_effects.json now maps each
@@ -55,14 +59,24 @@ World and NPCs
 - [FIXED]  Sergeant Bryn stopped patrolling (found by: T0). Path-corner arrival measured in 3D against a raised navmesh; now
            ground-plane, plus stall watchdogs for guards and Oni.
 - [FIXED]  Could not hand a rat tail to Kenji (found by: T0). Right-click hit-testing forgiven, and dragging an item from
-           the bags straight onto Kenji now works (EverQuest style). Give window is draggable.
+           the bags straight onto Kenji now works (EverQuest style). Give window is draggable. T3: the quest turn-in works.
 - [OPEN]   Passive monsters (dune scarab) never wander. DECISION: should they roam slowly?
+- [FIXED]  30+ mobs in front of the graveyard/mausoleum and a crowd at the gate, but the open world between landmarks was
+           empty for a long stretch (found by: T3). Cause: max_active was counted per mob TYPE for the whole zone, so every
+           extra spawn point of a type just shared one pool. Now per spawn point; gate ring and graveyard cluster thinned
+           (~14 at the graveyard instead of ~25-30), ~30 small groups added along the roads (south past the graveyard, west
+           toward the signpost, north-west toward the camps, wagon crash, far west). Spawn points only fill while a player is
+           within 400 m, and "density" in Data/lumora_outskirts_spawns.json scales everything. change_log: OPEN-WORLD MOB DENSITY.
+- [DECISION] Spawn entries' min_level/max_level are ignored (the level range comes from monsters.json per mob type), so far
+           areas are not higher level than the gate. Honour the entry levels so difficulty rises with distance?
 
 Chat and messages
 - [FIXED]  Casting messages appeared in the chat window instead of the combat window (found by: T0).
 - [FIXED]  Camping text reads "You begin to prepare your camp." with a 15..1 second countdown in chat (found by: T0).
            (Uncommitted at the time of writing.)
 - [FIXED]  /played showed only the current session (found by: T0). Play time is autosaved every minute.
+- [FIXED]  Wanted a way to camp out and leave the game completely (found by: T3). "/camp desktop" (same as /exit): 15 s
+           camp countdown, save, close. Plain "/camp" still goes to the main menu. Help screen text corrected too.
 
 Server and connection
 - [FIXED]  Random disconnects on a WiFi laptop, none on a wired PC (found by: T1). Connection waits ~20 s before giving up,
@@ -76,8 +90,14 @@ Art and polish
 - [FIXED]  Pets with ranged attacks had no visible projectile for other players (found by: T1). Green bolt with particle trail
            and impact burst; the owner's game deals the damage, every other player's game shows a visual-only copy. Verified
            headless + rendered; still to confirm with two real clients.
-- [DECISION] "Warmth of the Campfire" has no buff icon (found by: T1). Kenji's Blessing has none either; Well Fed reuses
-           a generic food icon. Waiting on art or a choice of existing icon.
+- [FIXED]  "Warmth of the Campfire" and "Kenji's Blessing" had no buff icon (found by: T1, T3). Now use the existing red
+           flame and golden sunburst spell icons (placeholders until there is dedicated art). Well Fed still reuses the
+           generic food icon.
+- [FIXED]  Weapon poisons (alchemy) didn't show anywhere, so a poisoned weapon looked like a clean one and it wasn't clear
+           whether Basic Poison did anything (found by: T3). It does: +2 damage on every hit, folded into the weapon's damage.
+           The Status Effects window now has a row "Basic Poison (Rusty Sword)" with the icon of a green skull, hover for
+           the details. It now lasts 15 minutes of play (like a buff; re-applying refreshes it) and wears off with a
+           message; the row shows the countdown.
 
 
 CLASSES

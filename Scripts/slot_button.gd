@@ -425,6 +425,10 @@ func _apply_weapon_poison(equip_slot: String) -> void:
 	if weapon.is_empty():
 		return
 	weapon["poison_bonus_damage"] = bonus
+	weapon["poison_name"] = str(item_data.get("name", "Poison"))  # shown on the status window (buff_bar.gd)
+	# Seconds of play left on the coating (ticks down while the weapon is equipped — see Player3D._tick_weapon_poison());
+	# applying it again refreshes the time, like re-casting a buff.
+	weapon["poison_remaining"] = float(item_data.get("weapon_poison_duration", Player3D.WEAPON_POISON_DEFAULT_SECONDS))
 	Inventory.equipped[equip_slot] = weapon
 
 	var player := TargetFrame.local_player()
@@ -432,7 +436,7 @@ func _apply_weapon_poison(equip_slot: String) -> void:
 		player._apply_equipment_from_inventory()
 
 	Inventory.consume_one(slot_type, slot_index, bag_slot, item_index)
-	GameLog.log_general("[color=#88ffaa]You coat %s with poison (+%d damage).[/color]" % [weapon.get("name", "your weapon"), bonus])
+	GameLog.log_general("[color=#88ffaa]You coat %s with poison (+%d damage for %d minutes).[/color]" % [weapon.get("name", "your weapon"), bonus, int(round(float(weapon["poison_remaining"]) / 60.0))])
 
 
 # What was picked up by the drag in progress (item_data itself can be refreshed before the drag ends).

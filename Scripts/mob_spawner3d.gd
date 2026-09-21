@@ -32,7 +32,17 @@ const VALID_MOB_TYPES: Array = [
 
 var _entries: Array = []
 var _cooldowns: Dictionary = {}
+## Live mobs per SPAWN ENTRY (index into _entries) — each entry's max_active caps its own spawn point. It used to be
+## counted per mob TYPE across the whole zone, so every extra rat/skeleton entry just shared one pool: clusters filled to the
+## type's total and adding more spawn points added nothing.
 var _active: Dictionary = {}
+## Data/lumora_outskirts_spawns.json "density": multiplies every entry's max_active (1.0 = as written; 0.5 = half the mobs,
+## but never below 1 for an entry that has any). One knob for "too crowded / too empty" without editing every line.
+var _density: float = 1.0
+## Data/lumora_outskirts_spawns.json "activation_range" (metres): a spawn point only makes mobs while some player is this close.
+## Every mob costs the (single-threaded) server animation + physics time each frame, and most of a big zone is far from every
+## player most of the time. Mobs already spawned stay; 0 = no limit (everything spawns from the start, the old behaviour).
+var _activation_range: float = 0.0
 var _tick: float = 0.0
 var _next_mob_id: int = 0
 
@@ -52,12 +62,11 @@ func _load_data() -> void:
 		push_error("❌ MobSpawner3D: invalid data in %s" % spawn_data_path)
 		return
 	_entries = data["spawns"]
+	_density = maxf(float(data.get("density", 1.0)), 0.0)
+	_activation_range = maxf(float(data.get("activation_range", 0.0)), 0.0)
 	for i in range(_entries.size()):
 		_cooldowns[i] = 0.0
-	for entry in _entries:
-		var mt: String = entry.get("mob_type", "")
-		if mt and not _active.has(mt):
-			_active[mt] = 0
+		_active[i] = 0
 
 func _process(delta: float) -> void:
 	# Spawn decisions are server-only — in single-player Net.is_multiplayer_game
@@ -73,18 +82,42 @@ func _process(delta: float) -> void:
 	_try_spawn()
 
 func _try_spawn() -> void:
+	var player_spots: Array = []
+	if _activation_range > 0.0:
+		for player in get_tree().get_nodes_in_group("player"):
+			if is_instance_valid(player) and player is Node3D:
+				player_spots.append(Vector2(player.global_position.x, player.global_position.z))
 	for i in range(_entries.size()):
 		if _cooldowns[i] > 0.0:
 			continue
 		var entry: Dictionary = _entries[i]
+		if _activation_range > 0.0 and not _player_within_range(entry, player_spots):
+			continue
 		var mob_type: String = entry.get("mob_type", "")
 		if mob_type.is_empty() or mob_type not in VALID_MOB_TYPES:
 			continue
-		if _active.get(mob_type, 0) >= entry.get("max_active", 3):
+		if _active.get(i, 0) >= _entry_cap(entry):
 			continue
 		if randf() > entry.get("spawn_chance", 0.5):
 			continue
 		_spawn(i, entry, mob_type)
+
+func _player_within_range(entry: Dictionary, player_spots: Array) -> bool:
+	var pos: Array = entry.get("position", [0.0, 0.0, 0.0])
+	var spot := Vector2(float(pos[0]), float(pos[2]))
+	for p in player_spots:
+		if spot.distance_to(p) <= _activation_range + float(entry.get("spawn_radius", 0.0)):
+			return true
+	return false
+
+
+# This entry's max_active after the file's density multiplier (an entry that has any mobs keeps at least 1 unless density is 0).
+func _entry_cap(entry: Dictionary) -> int:
+	var cap := int(entry.get("max_active", 3))
+	if cap <= 0 or _density <= 0.0:
+		return 0
+	return maxi(1, roundi(cap * _density))
+
 
 func _spawn(idx: int, entry: Dictionary, mob_type: String) -> void:
 	var pos_arr: Array = entry.get("position", [0.0, 2.0, 0.0])
@@ -113,11 +146,11 @@ func _spawn(idx: int, entry: Dictionary, mob_type: String) -> void:
 	}
 	var mob: Node = spawner.spawn(spawn_data)
 
-	_active[mob_type] = _active.get(mob_type, 0) + 1
+	_active[idx] = _active.get(idx, 0) + 1
 	_cooldowns[idx] = float(entry.get("respawn_time", 15))
 
 	mob.tree_exited.connect(func():
-		_active[mob_type] = maxi(_active.get(mob_type, 1) - 1, 0)
+		_active[idx] = maxi(_active.get(idx, 1) - 1, 0)
 	)
 
 	print("🐾 Spawned %s at %.0f, %.0f, %.0f" % [mob_type, spawn_pos.x, spawn_pos.y, spawn_pos.z])

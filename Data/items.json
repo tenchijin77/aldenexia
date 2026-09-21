@@ -3795,7 +3795,7 @@
   "basic_poison": {
     "name": "Basic Poison",
     "icon": "res://Assets/icons/items/reagent.png",
-    "description": "A crude venom-based poison. Right-click to apply to an equipped weapon, adding +2 damage on hit.",
+    "description": "A crude venom-based poison. Right-click to apply to an equipped weapon, adding +2 damage on hit for 15 minutes.",
     "stackable": true,
     "currency_type": "copper",
     "value": 8,
@@ -3817,7 +3817,8 @@
     "range": 0,
     "stat_modifiers": null,
     "effect": null,
-    "weapon_poison_bonus_damage": 2
+    "weapon_poison_bonus_damage": 2,
+    "weapon_poison_duration": 900
   },
   "basic_alchemy_kit": {
     "name": "Basic Alchemy Kit",
