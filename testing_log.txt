@@ -1,0 +1,131 @@
+ALDENEXIA: LIGHTFALL — TESTING LOG
+================================================================================
+What this is: one place that records what playtesting found and what we did about it.
+Class-specific findings go under that class's heading; everything that isn't tied to a class
+goes in GENERAL. Every entry says WHO found it, WHAT, its STATUS, and where the fix lives.
+
+How to add a test (Claude keeps this file up to date as issues are reported and fixed):
+  1. Add a block to TEST SESSIONS: date, testers, and the character + class each one played.
+  2. File each issue under its class heading (or GENERAL) as:
+       - [STATUS] what was seen ........ (found by: T# / who)  -> fix or decision, file/section
+  3. Change the STATUS when it moves. Statuses:
+       OPEN            reported, not looked at yet
+       DECISION        investigated; waiting on a design decision
+       IN PROGRESS     being built
+       FIXED           built and verified (how it was verified is in change_log.txt)
+       NOT A BUG       working as designed (why is noted)
+  Fix details live in change_log.txt (under the same date); design notes in game_flow.txt.
+
+
+TEST SESSIONS
+================================================================================
+T0  2026-09-20  Solo dev testing (local + dedicated server)
+    Character: Zozuur (Voidknight, level 1)
+
+T1  2026-09-20  First PUBLIC-server test with a remote friend (Mike)
+    Characters: Zozuur (Voidknight), Wanderer (Spiritweaver)
+
+T2  2026-09-20  Second public-server test
+    Characters: Annadaeus (Troubadour)
+
+
+GENERAL (not class specific)
+================================================================================
+Combat and stats
+- [FIXED]  Melee hit chance far too low at level 1 (about 20%, ~30 s to land a hit) while spells one-shot
+           everything (found by: T0). Combat numbers now live in Data/combat_balance.json (player_hit_bonus 35,
+           player_spell_damage_mult 0.5, monster HP/damage +12% per level above base). change_log: COMBAT TUNING.
+- [FIXED]  Weapon skill only applied at the first skill-up; saved item copies carried old skill names
+           (found by: T0). Skill synced after equipment loads, legacy names migrated. change_log: WEAPON SKILL FIX.
+- [FIXED]  Monster level changed only the number, not HP/damage (found by: T0). Per-level scaling added (see above).
+- [FIXED]  Left-click targeting hard to use in combat: corpses / your own pet / walls in front swallowed the click
+           (found by: T1). New _pick_target_at() looks through them and allows a near miss.
+- [FIXED]  Skills could be trained to the maximum at level 1 (found by: T2). Cap of 4 points per character level,
+           tunable (skill_cap_per_level in Data/combat_balance.json); Skills page shows level / cap.
+- [FIXED]  Skills in player_skills.json didn't feed the combat formulas (found by: T1). Data/skill_effects.json now maps each
+           skill to what it does (weapon mastery -> ATK/damage/crit, dodge/parry/riposte/block, spell potency, concentration,
+           meditation, athletics, bind wound...); skills with no mechanic to hook are listed in change_log.txt. Also fixed:
+           swapping weapons now re-syncs the weapon skill, unarmed uses hand_to_hand, and offense/defense/weapon mastery
+           and others now train from real use.
+
+World and NPCs
+- [FIXED]  Reanimated tomb mummy replayed its death animation forever (found by: T1). Movement clips loop; a finished
+           one-shot clip no longer restarts on other players' screens.
+- [FIXED]  Monsters stood in place instead of wandering (found by: T0). Wander deadlocked 1.5 m short of its point.
+- [FIXED]  Sergeant Bryn stopped patrolling (found by: T0). Path-corner arrival measured in 3D against a raised navmesh; now
+           ground-plane, plus stall watchdogs for guards and Oni.
+- [FIXED]  Could not hand a rat tail to Kenji (found by: T0). Right-click hit-testing forgiven, and dragging an item from
+           the bags straight onto Kenji now works (EverQuest style). Give window is draggable.
+- [OPEN]   Passive monsters (dune scarab) never wander. DECISION: should they roam slowly?
+
+Chat and messages
+- [FIXED]  Casting messages appeared in the chat window instead of the combat window (found by: T0).
+- [FIXED]  Camping text reads "You begin to prepare your camp." with a 15..1 second countdown in chat (found by: T0).
+           (Uncommitted at the time of writing.)
+- [FIXED]  /played showed only the current session (found by: T0). Play time is autosaved every minute.
+
+Server and connection
+- [FIXED]  Random disconnects on a WiFi laptop, none on a wired PC (found by: T1). Connection waits ~20 s before giving up,
+           and a re-login with the right password takes over a stale connection. Server/client log timing and link quality.
+- [FIXED]  Server logged "Exponent too high" warnings on every save (found by: T1).
+
+Art and polish
+- [FIXED]  The executable needs an icon; a tester couldn't find the exe (Windows hid the extension, and the default
+           Godot robot icon was showing) (found by: T1). Neon cat from the studio logo embedded in the exe; placeholder until
+           there is real art.
+- [FIXED]  Pets with ranged attacks had no visible projectile for other players (found by: T1). Green bolt with particle trail
+           and impact burst; the owner's game deals the damage, every other player's game shows a visual-only copy. Verified
+           headless + rendered; still to confirm with two real clients.
+- [DECISION] "Warmth of the Campfire" has no buff icon (found by: T1). Kenji's Blessing has none either; Well Fed reuses
+           a generic food icon. Waiting on art or a choice of existing icon.
+
+
+CLASSES
+================================================================================
+Voidknight
+- [FIXED]  Zozuur has no points in parry, dodge or weapon mastery — are they working? (found by: T1). They now feed the formulas
+           and train from use (weapon mastery + offense on hits, defense when attacked, parry/dodge when defending) even though
+           Voidknights are not seeded with them. See GENERAL: skills wiring.
+
+Lightsworn
+- (no entries yet)
+
+Blademaster
+- (no entries yet)
+
+Lightmender
+- (no entries yet)
+
+Spiritweaver
+- [FIXED]  Earth Totem did not affect the whole group (found by: T1, Wanderer). It warded pets/guards/vendors but never
+           other players; players within 8 m are now warded (relayed to their own machine). DECISION: should it reach the
+           whole group at any distance instead of 8 m?
+- [FIXED]  Phantasmal Echo (ranged pet) needs a visible projectile (found by: T1). Teal-green bolt. See GENERAL.
+
+Wildspeaker
+- [FIXED]  Wildspeaker's pet needs a visible ranged projectile (found by: T1). Lime-green bolt. See GENERAL.
+
+Aetherfist
+- (no entries yet)
+
+Woodstalker
+- (no entries yet)
+
+Shadowblade
+- (no entries yet)
+
+Troubadour
+- [FIXED]  Songs never trained musicianship (found by: T2, Annadaeus). Every song cast now trains it.
+- [FIXED]  Skills/spells could be levelled to the maximum at level 1 (found by: T2). 4-points-per-level cap (see GENERAL).
+
+Gravecaller
+- (no entries yet)
+
+Runecaster
+- (no entries yet)
+
+Arcanist
+- (no entries yet)
+
+Chaosborn
+- (no entries yet)

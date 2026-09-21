@@ -54,7 +54,9 @@ var _skill_cooldowns: Dictionary = {}
 # below. casting_spell_name is public so cast_bar.gd can read it without
 # duplicating the spell-name lookup.
 var casting_spell_name: String = ""
+var _athletics_run_time: float = 0.0  # seconds spent sprinting since the last athletics skill roll
 var _pending_cast_spell: String = ""
+var _spell_skill_category: String = ""  # the spell being resolved right now: which skill it belongs to (evocation, backstab, ...) — feeds Data/skill_effects.json
 var _pending_cast_spell_data: Dictionary = {}
 var _pending_cast_target: Node = null
 var _appraisal_cooldowns: Dictionary = {}  # target instance ID -> remaining seconds
@@ -446,6 +448,8 @@ func _try_bandage(target: Node) -> void:
 		GameLog.log_general("You don't have a bandage to use.")
 		return
 	var heal_amount: int = int(bandage["item"].get("heal_amount", 0))
+	heal_amount = int(heal_amount * (1.0 + combat_node.skill_bonus("bandage_heal_pct") / 100.0))
+	_tick_skill("bind_wound")
 	_heal_target(target, target.combat_node, heal_amount)
 	Inventory.consume_one(bandage["slot_type"], bandage["slot_index"], bandage["bag_slot"], bandage["item_index"])
 	GameLog.log_general("[color=#88ffaa]You bandage %s's wounds.[/color]" % TargetFrame.display_name(target))
@@ -1556,6 +1560,7 @@ func _process(delta: float) -> void:
 			var regen_m: int = combat_node.get_derived_stat("mana_regen") + int(combat_node.get_modifier("mana_regen_bonus"))
 			if is_sitting:
 				regen_m = int(regen_m * 3.0)
+				_tick_skill("meditation")  # recovering mana while sitting
 			if thirst < 25:
 				regen_m = int(regen_m * 0.8)
 			combat_node.current_mana = mini(combat_node.current_mana + regen_m, combat_node.max_mana)
@@ -1709,6 +1714,7 @@ func handle_jump() -> void:
 			return
 		current_stamina -= STAMINA_DRAIN_JUMP
 		current_stamina = max(current_stamina, 0.0)
+		_tick_skill("athletics")
 		velocity.y = JUMP_VELOCITY
 
 
@@ -1916,7 +1922,11 @@ func update_stamina(delta: float) -> void:
 			GameLog.log_general("You stand up.")
 
 	if is_moving and is_running and is_on_floor():
-		current_stamina -= STAMINA_DRAIN_RUN * delta
+		current_stamina -= STAMINA_DRAIN_RUN * delta * maxf(0.5, 1.0 - combat_node.skill_bonus("stamina_drain_pct") / 100.0)
+		_athletics_run_time += delta
+		if _athletics_run_time >= 10.0:  # every 10 s of sprinting is a workout
+			_athletics_run_time = 0.0
+			_tick_skill("athletics")
 	elif is_on_floor() and satiety > 0:  # satiety<=0 halts stamina regen too, see update_vitals_decay()
 		var regen_rate: float
 		if is_sitting:
@@ -1925,7 +1935,7 @@ func update_stamina(delta: float) -> void:
 			regen_rate = STAMINA_REGEN_WALK
 		else:
 			regen_rate = STAMINA_REGEN_STAND
-		current_stamina += (regen_rate + combat_node.get_modifier("stamina_regen_bonus")) * delta
+		current_stamina += (regen_rate + combat_node.get_modifier("stamina_regen_bonus") + combat_node.skill_bonus("stamina_regen")) * delta
 
 	current_stamina = clamp(current_stamina, 0.0, max_stamina)
 	if current_stamina <= 0.0:
@@ -2245,31 +2255,70 @@ func tab_cycle_target() -> void:
 
 
 func _try_click_target(screen_pos: Vector2) -> void:
+	var picked: Node = _pick_target_at(screen_pos)
+	if picked == null:
+		return
+	if _is_targetable_alive(picked):
+		current_target = picked
+		_announce_target(current_target)
+
+
+const TARGET_CLICK_RADIUS_PX := 45.0
+const TARGET_CLICK_MAX_RANGE := 40.0
+
+# What the player most plausibly meant by a click. The old version took the FIRST thing under the cursor, so in a fight
+# a corpse (they linger ~60 s and can't be targeted), your own pet or a wall in front of the enemy swallowed the click and
+# nothing happened. Now the ray passes THROUGH everything in its way and the pick is, in order:
+#   1. the nearest LIVE monster on the ray (corpses, walls and your own pet in front no longer matter),
+#   2. else the nearest other targetable thing on the ray (guard, vendor, pet, another player),
+#   3. else the live monster/NPC whose body centre is nearest the cursor, within TARGET_CLICK_RADIUS_PX (a near miss).
+func _pick_target_at(screen_pos: Vector2) -> Node:
 	var camera := get_viewport().get_camera_3d()
 	if not camera:
-		return
+		return null
 	var space := get_world_3d().direct_space_state
-	var origin    := camera.project_ray_origin(screen_pos)
+	var origin := camera.project_ray_origin(screen_pos)
 	var direction := camera.project_ray_normal(screen_pos)
-	var query := PhysicsRayQueryParameters3D.create(origin, origin + direction * 150.0)
-	query.exclude = [self]
-	var hit := space.intersect_ray(query)
-	var clicked: Node = hit.get("collider") if hit else null
-	if not (clicked is Monster or clicked is GuardNPC or clicked is VendorNPC or clicked is PetMinion or clicked is Player3D):
-		# The ray found a wall, the ground or nothing — but an NPC may be right under the cursor (see _vendor_near_mouse).
-		clicked = _vendor_near_mouse(screen_pos, null)
-		hit = {"collider": clicked} if clicked != null else {}
-	if hit and (hit.collider is Monster or hit.collider is GuardNPC or hit.collider is VendorNPC or hit.collider is PetMinion or hit.collider is Player3D):
-		var m: Node = hit.collider
-		# Its collider still physically exists (that's how the raycast found
-		# it at all) even though its model/nameplate are hidden — this is what
-		# actually makes an invisible entity untargetable rather than just
-		# invisible-looking.
-		if TargetFrame.is_hidden_from_local_player(m):
-			return
-		if _is_targetable_alive(m):
-			current_target = m
-			_announce_target(current_target)
+	var skip: Array[RID] = [get_rid()]
+	var first_other: Node = null
+	for _step in 10:
+		var query := PhysicsRayQueryParameters3D.create(origin, origin + direction * 150.0)
+		query.exclude = skip
+		var hit := space.intersect_ray(query)
+		if hit.is_empty():
+			break
+		var collider: Node = hit["collider"]
+		skip.append(hit["rid"])
+		# A collider still physically exists when its model/nameplate are hidden (an invisible entity) — hidden ones are not targets.
+		if collider is Monster:
+			if _is_targetable_alive(collider) and not TargetFrame.is_hidden_from_local_player(collider):
+				return collider
+		elif first_other == null and (collider is GuardNPC or collider is VendorNPC or collider is PetMinion or collider is Player3D):
+			if not TargetFrame.is_hidden_from_local_player(collider):
+				first_other = collider
+	if first_other != null:
+		return first_other
+	return _nearest_to_cursor(screen_pos, camera)
+
+
+# Live monsters and vendors whose body centre is within TARGET_CLICK_RADIUS_PX of the cursor (nearest to the cursor wins).
+func _nearest_to_cursor(screen_pos: Vector2, camera: Camera3D) -> Node:
+	var best: Node = null
+	var best_px := TARGET_CLICK_RADIUS_PX
+	for node in get_tree().get_nodes_in_group("monsters") + get_tree().get_nodes_in_group("npc_vendor"):
+		if not is_instance_valid(node) or not _is_targetable_alive(node) or TargetFrame.is_hidden_from_local_player(node):
+			continue
+		if global_position.distance_to(node.global_position) > TARGET_CLICK_MAX_RANGE:
+			continue
+		var body := node.get_node_or_null("CollisionShape3D") as Node3D
+		var centre: Vector3 = body.global_position if body else node.global_position + Vector3(0, 1.0, 0)
+		if camera.is_position_behind(centre):
+			continue
+		var px := camera.unproject_position(centre).distance_to(screen_pos)
+		if px < best_px:
+			best_px = px
+			best = node
+	return best
 
 
 func _announce_target(target: Node) -> void:
@@ -2348,6 +2397,8 @@ func attack_current_target() -> void:
 		if result["result"] == "HIT":
 			var skey: String = _weapon_skill_key(weapon)
 			_tick_skill(skey)
+			_tick_skill("offense")
+			_tick_skill("weapon_mastery")
 		# PARRY/DODGE/BLOCK/RIPOSTE here mean the *target* defended against our
 		# attack, not that we defended anything — ticking our own defensive
 		# skills on these results was crediting us for the monster's save. Our
@@ -2449,6 +2500,8 @@ func perform_melee_attack() -> void:
 			if result["result"] == "HIT":
 				var skey: String = _weapon_skill_key(weapon)
 				_tick_skill(skey)
+				_tick_skill("offense")
+				_tick_skill("weapon_mastery")
 			# See attack_current_target()'s identical comment: PARRY/DODGE/
 			# BLOCK/RIPOSTE here are the target's own defense, not ours.
 			if not target.combat_node.is_alive():
@@ -2860,6 +2913,7 @@ func load_character_data(data: Dictionary) -> void:
 	known_skills     = data.get("known_skills", [])
 	skill_levels     = data.get("skill_levels", {})
 	_migrate_legacy_skills()
+	combat_node.skills = skill_levels  # Data/skill_effects.json reads the player's skills through the combat node
 	action_bar_slots = data.get("action_bar_slots", _default_action_bar_slots())
 	_sync_weapon_skill()
 	apply_equipment(data.get("equipment", {}))
@@ -3046,6 +3100,9 @@ func _apply_equipment_from_inventory() -> void:
 
 	combat_node.weapon_damage = weapon_dmg
 	combat_node.gear_ac       = bonus_ac
+	# Swapping weapons swaps which skill counts (and unarmed uses hand_to_hand) — this used to stay on the old weapon's skill until relog.
+	_sync_weapon_skill()
+	_apply_baseline_weapon_skill()
 	combat_node._stats_dirty  = true
 	combat_node.recalculate_derived_stats()
 
@@ -3250,6 +3307,10 @@ func cast_spell(spell_name: String, is_auto_recast: bool = false) -> bool:
 
 	# Tick spell_casting skill
 	_tick_skill("spell_casting")
+	# Every Troubadour spell is a song, and playing one trains musicianship (nothing did before — it was a skill no
+	# action ever raised).
+	if player_class == "Troubadour":
+		_tick_skill("musicianship")
 
 	# Also tick the spell's own governing skill (e.g. necromancy, evocation,
 	# mantis_fist), so schools/classifications level individually, not just
@@ -3280,6 +3341,7 @@ func cast_spell(spell_name: String, is_auto_recast: bool = false) -> bool:
 func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Node) -> void:
 	var display_name    := spell_display_name(spell_name)
 	var school: String   = spell.get("spell_school", "magic")
+	_spell_skill_category = str(spell.get("skill_category", ""))
 	var spell_target    := spell.get("target", "enemy") as String
 	var base_damage: int = spell.get("damage", 0)
 	var effect_type_raw  = spell.get("effect_type", "")
@@ -3390,6 +3452,7 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 			if school == "physical":
 				# Physical combat abilities scale with STR and are mitigated by AC
 				final_dmg = base_damage + int(combat_node.strength / 2.0)
+				final_dmg = int(final_dmg * (1.0 + combat_node.skill_bonus("ability_damage_pct", str(spell.get("skill_category", ""))) / 100.0))
 				if target_cn is CombatNode:
 					final_dmg = combat_node.apply_ac_mitigation(final_dmg, target_cn)
 				final_dmg = max(1, final_dmg)
@@ -3398,7 +3461,7 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 				# Magical spells scale with arcane/divine power and are
 				# resisted by the specific damage type they deal (school
 				# directly IS the resist_type — see calculate_spell_damage()).
-				final_dmg = combat_node.calculate_spell_damage(base_damage, school, target_cn)
+				final_dmg = combat_node.calculate_spell_damage(base_damage, school, target_cn, false, str(spell.get("skill_category", "")))
 				target_node.apply_damage(final_dmg, "magic")
 
 			# Multiplayer: relay real damage to whoever actually owns this
@@ -3662,14 +3725,19 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 						_broadcast_combat("[color=#88ffcc]Ancestral spirits quicken %s.[/color]" % ally_bcast_desc)
 				"earth_totem":
 					# True small-radius group buff: caster + any non-Enemy within 8m.
+					# Other PLAYERS were missing from this scan (only pets/guards/vendors), so the totem never warded a group
+					# member. A remote player owns their own combat_node, so the effect is relayed to them (_buff_target).
 					var protected: Array = [self]
-					for node in get_tree().get_nodes_in_group("pets") + get_tree().get_nodes_in_group("npc_guard") + get_tree().get_nodes_in_group("npc_vendor"):
+					for node in get_tree().get_nodes_in_group("player") + get_tree().get_nodes_in_group("pets") + get_tree().get_nodes_in_group("npc_guard") + get_tree().get_nodes_in_group("npc_vendor"):
 						if is_instance_valid(node) and node != self and global_position.distance_to(node.global_position) <= 8.0:
 							protected.append(node)
 					for node in protected:
 						var cn = node.get("combat_node")
 						if cn is CombatNode:
-							cn.apply_effect("earth_totem", 15.0, {"damage_taken_mult": 0.05})
+							if node.is_in_group("player"):
+								_buff_target(node, cn, "earth_totem", 15.0, {"damage_taken_mult": 0.05})
+							else:
+								cn.apply_effect("earth_totem", 15.0, {"damage_taken_mult": 0.05})
 					GameLog.log_combat("[color=#88cc66]You plant an Earth Totem, warding %d nearby allies.[/color]" % protected.size())
 					_broadcast_combat("[color=#88cc66]%s plants an Earth Totem, warding %d nearby allies.[/color]" % [player_name, protected.size()])
 				_:
@@ -3875,10 +3943,11 @@ func _cast_multi_bolt_spell(spell_name: String, target_node: Node, target_cn, ta
 func _compute_spell_damage(base_damage: int, school: String, target_cn) -> int:
 	if school == "physical":
 		var dmg: int = base_damage + int(combat_node.strength / 2.0)
+		dmg = int(dmg * (1.0 + combat_node.skill_bonus("ability_damage_pct", _spell_skill_category) / 100.0))
 		if target_cn is CombatNode:
 			dmg = combat_node.apply_ac_mitigation(dmg, target_cn)
 		return max(1, dmg)
-	return combat_node.calculate_spell_damage(base_damage, school, target_cn)
+	return combat_node.calculate_spell_damage(base_damage, school, target_cn, false, _spell_skill_category)
 
 
 # Generic, data-driven fallback for any spell whose effect_type isn't covered
@@ -3897,6 +3966,8 @@ func _apply_generic_spell_effect(effect_type: String, spell: Dictionary, caster_
 	var duration_raw = spell.get("duration", 0)
 	var duration: float = 0.0 if duration_raw is String else float(duration_raw)
 	var magnitude: int = int(spell.get("damage", 0))
+	if effect_type == "heal" or effect_type == "hot":
+		magnitude = int(magnitude * (1.0 + combat_node.skill_bonus("spell_potency_pct", str(spell.get("skill_category", ""))) / 100.0))
 
 	# Racial resistance/immunity to harmful effects (Halfling's general
 	# negative_effect_resist chance, Elf's root immunity, Dark Elf's blind
@@ -4513,6 +4584,8 @@ func _check_spell_interrupt(attacker: Node) -> void:
 	match result.get("result", ""):
 		"CONCENTRATION_SUCCESS":
 			GameLog.log_general("[color=#88ccff]%s[/color]" % result.get("message", ""))
+			_tick_skill("concentration")  # keeping your focus under fire is what trains it
+			_tick_skill("channeling")
 		"CONCENTRATION_FAILURE":
 			GameLog.log_general("[color=#ff8866]%s[/color]" % result.get("message", ""))
 			_pending_cast_spell = ""
@@ -4557,6 +4630,16 @@ func _tick_active_spell_effects(_delta: float) -> void:
 					_buff_target(monster, mob_cn, "shadow_aura_debuff", 1.5, {"hit_chance": -5.0})
 
 
+# How far a skill can be trained at the character's current level (Data/combat_balance.json: skill_cap_per_level,
+# 4 = level 1 caps at 4 points, level 10 at 40), never above the absolute _skill_max and never BELOW what the skill
+# already is (starting skills above the cap wait for the level to catch up; nothing is ever lowered).
+func skill_cap_for(current: int) -> int:
+	var per_level := int(CombatBalance.num("skill_cap_per_level"))
+	if per_level <= 0:
+		return _skill_max
+	return mini(_skill_max, maxi(int(combat_node.level) * per_level, current))
+
+
 func _tick_skill(skill_name: String) -> void:
 	if skill_name.is_empty() or skill_name == "none":
 		return
@@ -4575,7 +4658,7 @@ func _tick_skill(skill_name: String) -> void:
 		if not known_skills.has(skill_name):
 			known_skills.append(skill_name)  # so abilities_book.gd's skill list actually shows it
 	var current: int = skill_levels[skill_name]
-	var cap: int = _skill_max
+	var cap: int = skill_cap_for(current)
 	if current >= cap:
 		return
 	var chance: float = 0.15 * (1.0 - float(current) / float(cap))
@@ -4585,6 +4668,8 @@ func _tick_skill(skill_name: String) -> void:
 			skill_name.replace("_", " ").capitalize(), skill_levels[skill_name]
 		])
 		_sync_weapon_skill()
+		combat_node.skills = skill_levels
+		combat_node._stats_dirty = true  # dodge/parry/crit/... are derived from skills now
 		Global.player_data["skill_levels"] = skill_levels
 
 
@@ -4606,6 +4691,9 @@ func _resolve_melee_attack(target_cn: CombatNode) -> Dictionary:
 
 	if result["attack_count"] > 1:
 		GameLog.log_combat("[color=#ffdd88]%s[/color]" % result["message"])
+		_tick_skill("double_attack")
+		if result["attack_count"] > 2:
+			_tick_skill("triple_attack")
 	return {
 		"result": "HIT",
 		"damage": result["total_damage"],
@@ -4619,6 +4707,8 @@ func _resolve_melee_attack(target_cn: CombatNode) -> Dictionary:
 # attack_current_target()/perform_melee_attack() which are about a monster
 # defending against our own swing.
 func _tick_defense_skill(result: String) -> void:
+	if not result.is_empty():
+		_tick_skill("defense")  # "raised by being attacked in melee" — hit or miss
 	match result:
 		"PARRY":
 			_tick_skill("parry")
@@ -4647,6 +4737,8 @@ func _canonical_skill_name(raw: String) -> String:
 # it was picked up and can carry a stale name (a saved rusty sword still said "1h slashing" while the game and the
 # class starting skills say slashing_weapons), which made the weapon look like skill 0 and accuracy fall back to a baseline.
 func _weapon_skill_key(weapon: Dictionary) -> String:
+	if weapon.is_empty():
+		return "hand_to_hand"  # bare hands
 	var definition := Inventory.get_item_definition(str(weapon.get("item_id", "")))
 	return _canonical_skill_name(str(definition.get("skill", weapon.get("skill", ""))))
 
@@ -4664,13 +4756,9 @@ func _migrate_legacy_skills() -> void:
 
 
 func _sync_weapon_skill() -> void:
-	var weapon := Inventory.get_equipped_weapon()
-	if weapon.is_empty():
-		return
-	var skey: String = _weapon_skill_key(weapon)
-	if skey.is_empty() or skey == "none":
-		return
-	combat_node.weapon_skill = skill_levels.get(skey, 0)
+	var skey: String = _weapon_skill_key(Inventory.get_equipped_weapon())
+	# A weapon with no skill of its own (or an unknown one) counts as 0 — _apply_baseline_weapon_skill() then supplies the fallback.
+	combat_node.weapon_skill = 0 if (skey.is_empty() or skey == "none") else int(skill_levels.get(skey, 0))
 	combat_node._stats_dirty = true
 
 

@@ -321,7 +321,8 @@ func _fill_general_skills() -> void:
 	for skill_name in skills:
 		var desc: String  = skill_db.get(skill_name, "")
 		var level: int    = levels.get(skill_name, 0)
-		vbox.add_child(_make_skill_row(skill_name, desc, level, skill_max))
+		var cap: int = int(_player.call("skill_cap_for", level)) if _player.has_method("skill_cap_for") else skill_max
+		vbox.add_child(_make_skill_row(skill_name, desc, level, cap))
 
 
 func _make_skill_row(skill_name: String, desc: String, level: int, skill_max: int) -> Control:

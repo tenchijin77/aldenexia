@@ -17,6 +17,8 @@
 	"monster_scale_min": 0.5,
 	"monster_scale_max": 3.0,
 
+	"skill_cap_per_level": 4,
+
 	"_help": {
 		"player_hit_bonus": "Flat percentage points added to a PLAYER's melee hit chance. Neutral 0. (Hit chance = attack - target armor + level difference x hit_level_diff_per_level + random 0-20 + this bonus, then clamped to hit_min..hit_max.)",
 		"monster_hit_bonus": "Same, for MONSTERS attacking. Neutral 0. Raise it to make monsters hit you more often.",
@@ -30,6 +32,7 @@
 		"monster_hp_per_level": "HP gained per level ABOVE the monster's base level in monsters.json (and lost per level below), as a fraction: 0.12 = +12% per level. Neutral 0 (level then only changes attack/armor).",
 		"monster_damage_per_level": "Same for melee damage. Neutral 0.",
 		"monster_scale_min": "Level scaling never takes HP/damage below this multiple. Neutral 0.5.",
-		"monster_scale_max": "...or above this multiple. Neutral 3.0."
+		"monster_scale_max": "...or above this multiple. Neutral 3.0.",
+		"skill_cap_per_level": "A skill or spell school can be trained up to this many points PER CHARACTER LEVEL (4 = level 1 caps at 4, level 10 at 40). A skill is never lowered, so a starting skill above the cap just waits for you to catch up. Neutral 0 = no cap (everything trains to 275)."
 	}
 }

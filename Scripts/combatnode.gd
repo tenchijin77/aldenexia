@@ -49,6 +49,9 @@ var gear_mana: int = 0           # Mana bonus
 # ================================================================================
 
 var weapon_skill: int = 0        # 0-252 (EQ-style)
+## The player's skill levels (name -> points), shared by reference with player3d.gd. Empty for monsters, guards and pets,
+## which is what keeps them out of Data/skill_effects.json — see skill_bonus().
+var skills: Dictionary = {}
 ## Set by monster3d.gd from the level it rolled (see monster_damage_per_level in Data/combat_balance.json). 1.0 for everyone else.
 var balance_damage_scale: float = 1.0
 var weapon_damage: int = 0       # Base weapon damage
@@ -121,6 +124,22 @@ var race_cold_resist: int = 0
 var race_acid_resist: int = 0
 var race_magic_resist: int = 0
 var race_psychic_resist: int = 0
+
+# Sum of what the player's skills add to `stat`, from Data/skill_effects.json ("skill: bonus per point").
+# `category` is the skill the current spell/ability belongs to (stands in for "@category"). 0.0 for anything without skills.
+func skill_bonus(stat: String, category: String = "") -> float:
+	if skills.is_empty():
+		return 0.0
+	var total := 0.0
+	var table := SkillEffects.table(stat)
+	for skill_name in table:
+		var points := 0
+		match skill_name:
+			"@weapon": points = weapon_skill
+			"@category": points = int(skills.get(category, 0)) if not category.is_empty() else 0
+			_: points = int(skills.get(skill_name, 0))
+		total += points * float(table[skill_name])
+	return total
 
 func rolls_resist_negative_effect() -> bool:
 	return race_negative_effect_resist > 0.0 and randf() < race_negative_effect_resist
@@ -368,7 +387,7 @@ func recalculate_derived_stats():
 	_cached_stats["max_stamina"] = max_stamina
 
 	# Attack Rating (ATK)
-	var atk = (weapon_skill * 2) + int(str_eff) + int(dex_eff / 2.0) + gear_atk
+	var atk = (weapon_skill * 2) + int(str_eff) + int(dex_eff / 2.0) + gear_atk + int(skill_bonus("attack_rating"))
 	_cached_stats["attack_rating"] = atk
 
 	# Armor Class (AC)
@@ -380,7 +399,7 @@ func recalculate_derived_stats():
 	# Crit Chance
 	var base_crit = 5
 	var class_crit_bonus = _get_class_crit_bonus()
-	var crit_chance = base_crit + int((dex_eff + luck_eff) / 2.0) + class_crit_bonus + gear_crit + race_crit_bonus
+	var crit_chance = base_crit + int((dex_eff + luck_eff) / 2.0) + class_crit_bonus + gear_crit + race_crit_bonus + int(skill_bonus("crit_chance"))
 	crit_chance = clamp(crit_chance, 0, 60)  # Hard cap at 60%
 	_cached_stats["crit_chance"] = crit_chance
 
@@ -389,24 +408,24 @@ func recalculate_derived_stats():
 	_cached_stats["crit_damage"] = crit_damage
 
 	# Riposte Chance
-	var riposte = class_riposte_base + int(dex_eff * 0.2) + int(weapon_skill * 0.1) + gear_riposte
+	var riposte = class_riposte_base + int(dex_eff * 0.2) + int(weapon_skill * 0.1) + gear_riposte + int(skill_bonus("riposte_chance"))
 	riposte = clamp(riposte, 0, 100)
 	_cached_stats["riposte_chance"] = riposte
 
 	# Dodge Chance
-	var dodge = class_dodge_base + int(dex_eff * 0.5) + race_dodge_bonus
+	var dodge = class_dodge_base + int(dex_eff * 0.5) + race_dodge_bonus + int(skill_bonus("dodge_chance"))
 	dodge = clamp(dodge, 0, 50)  # Soft cap at 50%
 	_cached_stats["dodge_chance"] = dodge
 
 	# Parry Chance
-	var parry = class_parry_base + int(dex_eff * 0.3) + int(weapon_skill * 0.1) + race_parry_bonus
+	var parry = class_parry_base + int(dex_eff * 0.3) + int(weapon_skill * 0.1) + race_parry_bonus + int(skill_bonus("parry_chance"))
 	parry = clamp(parry, 0, 50)  # Soft cap at 50%
 	_cached_stats["parry_chance"] = parry
 
 	# Block Chance
 	var block = 0
 	if has_shield and shield_bonus_map.has(shield_type):
-		block = shield_bonus_map[shield_type] + int(dex_eff * 0.2)
+		block = shield_bonus_map[shield_type] + int(dex_eff * 0.2) + int(skill_bonus("block_chance"))
 	block = clamp(block, 0, 50)  # Soft cap at 50%
 	_cached_stats["block_chance"] = block
 
@@ -432,7 +451,7 @@ func recalculate_derived_stats():
 	_cached_stats["hp_regen"] = hp_regen
 
 	# Mana Regeneration (per 6-second tick). Sitting multiplier applied in player3d.
-	var mana_regen = 2 + int(wis_eff / 3.0)
+	var mana_regen = 2 + int(wis_eff / 3.0) + int(skill_bonus("mana_regen"))
 	_cached_stats["mana_regen"] = mana_regen
 
 	# Stamina Regeneration (per second)
@@ -448,7 +467,7 @@ func recalculate_derived_stats():
 	_cached_stats["divine_power"] = divine_power
 
 	# Concentration
-	var concentration = class_concentration_base + int(wis_eff / 2.0) + int(int_eff / 4.0) + gear_concentration
+	var concentration = class_concentration_base + int(wis_eff / 2.0) + int(int_eff / 4.0) + gear_concentration + int(skill_bonus("concentration"))
 	concentration = clamp(concentration, 0, 95)  # Hard cap at 95%
 	_cached_stats["concentration"] = concentration
 
@@ -640,6 +659,9 @@ func calculate_melee_damage(target: CombatNode = null, is_crit: bool = false) ->
 	if race_melee_damage_mult != 0.0:
 		raw_damage = int(raw_damage * (1.0 + race_melee_damage_mult))
 
+	# Skills: weapon mastery / offense / the wielded weapon's own skill (Data/skill_effects.json)
+	raw_damage = int(raw_damage * (1.0 + skill_bonus("melee_damage_pct") / 100.0))
+
 	# Apply crit
 	if is_crit:
 		var crit_dmg_mult = 1.0 + (get_crit_damage() / 100.0)
@@ -675,7 +697,7 @@ func apply_ac_mitigation(raw_damage: int, target: CombatNode) -> int:
 		final_damage = int(final_damage * (1.0 - target.race_physical_resist))
 	return max(1, final_damage)
 
-func calculate_spell_damage(base_spell_damage: int, resist_type: String = "magic", target: CombatNode = null, is_crit: bool = false) -> int:
+func calculate_spell_damage(base_spell_damage: int, resist_type: String = "magic", target: CombatNode = null, is_crit: bool = false, skill_category: String = "") -> int:
 	"""Calculate spell damage with resist checks. resist_type is one of the
 	10 finalized spell_school damage types (see game_flow.txt's "Spell
 	Classification" section, 2026-09-19) — physical/fire/cold/acid/
@@ -705,6 +727,9 @@ func calculate_spell_damage(base_spell_damage: int, resist_type: String = "magic
 		damage = int(damage * (1.0 - (target_resist / 100.0)))
 
 	damage = int(damage * (1.0 + get_modifier("damage_mult")))
+
+	# Skills: general spell casting + the spell's own school (Data/skill_effects.json)
+	damage = int(damage * (1.0 + skill_bonus("spell_potency_pct", skill_category) / 100.0))
 
 	# Racial spell damage bonus/penalty (e.g. Elf +5%, Half-Orc -5%)
 	if race_spell_damage_mult != 0.0:
@@ -1050,7 +1075,7 @@ func resolve_aetherfist_attack(target: CombatNode) -> Dictionary:
 
 	# DOUBLE ATTACK CHECK (Level 10+)
 	if level >= 10:
-		var double_chance = 40 + int(dexterity * 0.3) + (level - 10)
+		var double_chance = 40 + int(dexterity * 0.3) + (level - 10) + int(skill_bonus("double_attack_chance"))
 		double_chance = clamp(double_chance, 0, 100)
 
 		var roll = randi() % 100 + 1
@@ -1063,7 +1088,7 @@ func resolve_aetherfist_attack(target: CombatNode) -> Dictionary:
 
 				# TRIPLE ATTACK CHECK (Level 15+)
 				if level >= 15:
-					var triple_chance = 15 + int(dexterity * 0.2) + int((level - 15) * 0.5)
+					var triple_chance = 15 + int(dexterity * 0.2) + int((level - 15) * 0.5) + int(skill_bonus("triple_attack_chance"))
 					triple_chance = clamp(triple_chance, 0, 100)
 
 					var triple_roll = randi() % 100 + 1

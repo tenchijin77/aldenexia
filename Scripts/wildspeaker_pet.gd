@@ -19,6 +19,7 @@ class_name WildspeakerPet
 
 const RANGED_ATTACK_RANGE := 14.0
 const RANGED_ATTACK_COOLDOWN := 3.0
+const BOLT_COLOR := Color(0.45, 1.0, 0.25)  # this pet's shade of green for its ranged attack
 
 const HOT_INTERVAL := 30.0
 const HOT_DURATION := 15.0
@@ -141,12 +142,7 @@ func _perform_attack() -> void:
 	var dmg: int = combat_node.apply_ac_mitigation(combat_node.weapon_damage, target_cn)
 	dmg = max(1, dmg)
 
-	var bolt: Node3D = load("res://Scenes/spectral_bolt.tscn").instantiate()
-	get_tree().current_scene.add_child(bolt)
-	bolt.global_position = global_position + Vector3(0, 1.1, 0)
-	bolt.target = attack_target
-	bolt.damage = dmg
-	bolt.source_pet = self
+	_launch_bolt(attack_target, dmg, BOLT_COLOR)
 
 
 func _resolve_bolt_impact(target: Node, dmg: int) -> void:

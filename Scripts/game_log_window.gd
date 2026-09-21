@@ -646,9 +646,16 @@ func start_camp_channel() -> bool:
 	var start_damage_ms: int = player.last_damage_time_ms
 	var was_sitting: bool = player.is_sitting
 	player.is_sitting = true
-	GameLog.log_general("[color=#ffdd88]You start preparing to camp.[/color]")
+	GameLog.log_general("[color=#ffdd88]You begin to prepare your camp.[/color]")
 
+	# A countdown in the chat: "15 seconds remaining" ... "1 second remaining", then the player camps out. Announced
+	# whenever the whole seconds left change (the loop ticks 4x a second), so no second is skipped or repeated.
+	var announced := 0
 	while Time.get_ticks_msec() - start_ms < CAMP_CHANNEL_MS:
+		var remaining := ceili((CAMP_CHANNEL_MS - (Time.get_ticks_msec() - start_ms)) / 1000.0)
+		if remaining != announced and remaining > 0:
+			announced = remaining
+			GameLog.log_general("[color=#ffdd88]%d second%s remaining[/color]" % [remaining, "" if remaining == 1 else "s"])
 		await get_tree().create_timer(0.25).timeout
 		if not is_instance_valid(player):
 			_camping = false

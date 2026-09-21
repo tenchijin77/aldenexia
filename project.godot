@@ -18,7 +18,7 @@ config/name="Aldenexia:Lightfall"
 config/version="0.4.0"
 run/main_scene="res://Scenes/splash_screen.tscn"
 config/features=PackedStringArray("4.7", "Mobile")
-config/icon="res://icon.svg"
+config/icon="res://Assets/app_icon.png"
 run/flush_stdout_on_print.dedicated_server=true
 
 [autoload]

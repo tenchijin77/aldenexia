@@ -22,6 +22,7 @@ const NEUTRAL := {
 	"monster_damage_per_level": 0.0,
 	"monster_scale_min": 0.5,
 	"monster_scale_max": 3.0,
+	"skill_cap_per_level": 0.0,  # 0 = no level cap on skills (the old behaviour: everything trains up to skill_max)
 }
 
 static var _values: Dictionary = {}

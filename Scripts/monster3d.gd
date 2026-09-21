@@ -404,6 +404,11 @@ func _setup_humanoid_visual() -> void:
 	animation_player = character.get_node("AnimationPlayer")
 	var lib := load(model_info["library"]) as AnimationLibrary
 	if lib and animation_player:
+		# Some libraries (the reanimated mummy's) were saved with EVERY clip set to play once, idle/walk/run included,
+		# so they stopped after one cycle and got restarted with a visible pop. Movement clips must loop.
+		for looping_clip in ["idle", "walk", "run"]:
+			if lib.has_animation(looping_clip) and lib.get_animation(looping_clip).loop_mode == Animation.LOOP_NONE:
+				lib.get_animation(looping_clip).loop_mode = Animation.LOOP_LINEAR
 		if animation_player.has_animation_library(""):
 			animation_player.remove_animation_library("")
 		animation_player.add_animation_library("", lib)
@@ -535,11 +540,23 @@ func _update_animation() -> void:
 # (no local AI to decide with) — they just mirror whatever anim_state the
 # authoritative server/single-player simulation replicated out, same pattern
 # as player3d.gd's own puppet branch.
+# A one-shot clip (death, an attack swing) that has FINISHED leaves current_animation empty, which used to read as "not
+# playing the replicated state yet" and restarted it every frame — the reanimated mummy's death animation played over
+# and over. Now a one-shot state is played once per state change; it can only play again after the state has changed.
+var _one_shot_played: String = ""
+
 func _play_replicated_animation() -> void:
 	if not animation_player or animation_player.get_animation_list().is_empty():
 		return
-	if animation_player.current_animation != anim_state and animation_player.has_animation(anim_state):
-		animation_player.play(anim_state, 0.15)
+	if not animation_player.has_animation(anim_state) or animation_player.current_animation == anim_state:
+		return
+	if animation_player.get_animation(anim_state).loop_mode == Animation.LOOP_NONE:
+		if _one_shot_played == anim_state:
+			return
+		_one_shot_played = anim_state
+	else:
+		_one_shot_played = ""
+	animation_player.play(anim_state, 0.15)
 
 
 func _play_attack_animation() -> void:

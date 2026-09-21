@@ -19,6 +19,7 @@ class_name PhantasmalEchoPet
 # holds at range and lobs spectral bolts rather than closing distance.
 const RANGED_ATTACK_RANGE := 14.0
 const RANGED_ATTACK_COOLDOWN := 3.0
+const BOLT_COLOR := Color(0.3, 1.0, 0.7)  # this pet's shade of green for its ranged attack
 
 const HEAL_INTERVAL := 20.0
 const HEAL_AMOUNT := 10
@@ -149,12 +150,7 @@ func _perform_attack() -> void:
 	var dmg: int = combat_node.apply_ac_mitigation(combat_node.weapon_damage, target_cn)
 	dmg = max(1, dmg)
 
-	var bolt: Node3D = load("res://Scenes/spectral_bolt.tscn").instantiate()
-	get_tree().current_scene.add_child(bolt)
-	bolt.global_position = global_position + Vector3(0, 1.1, 0)
-	bolt.target = attack_target
-	bolt.damage = dmg
-	bolt.source_pet = self
+	_launch_bolt(attack_target, dmg, BOLT_COLOR)
 
 
 # Called by spectral_bolt.gd once the projectile actually reaches its target.

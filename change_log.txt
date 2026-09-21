@@ -1261,6 +1261,26 @@ The LAN host/join flow is untouched apart from a handshake tweak (below). Versio
   Both ends now use `set_timeout(32, 20000, 60000)` (PEER_TIMEOUT_*): 12 s stalls are survived, a stall past ~24 s still drops. Cost: a crashed/dropped client lingers on the server ~33 s.
   So a correctly authenticated re-login now TAKES OVER the old connection instead of being refused "already in the world" (`_peer_holding`, graceful disconnect + immediate puppet removal;
   a forced disconnect left a zombie peer and "Invalid target peer" errors). Characters with no password are never taken over. A wrong password leaves the online player untouched.
+- Camping text: "You begin to prepare your camp." followed by a chat countdown "15 seconds remaining" ... "1 second remaining", then "You finish breaking camp." and the camp-out. Same channel for
+  /camp, /exit and Save & Exit; damage still interrupts ("You abandon your camp preparations."). Verified with a real 15 s camp and an interrupted one.
+### From the first public-server test with a remote friend (2026-09-20)
+- Reanimated mummy death animation looped forever. Two causes, both fixed in `monster3d.gd`: (1) its animation library was saved with EVERY clip set to play once (idle/walk/run too) — movement clips are
+  now forced to loop at load; (2) other players' games restart any clip that has finished, because a finished one-shot leaves `current_animation` empty which read as "not playing the replicated state" — a
+  one-shot state (death, an attack swing) now plays once per state change. Verified: death clip started once in 6 s (it is 2.3 s long).
+- Left-click targeting in a fight: the click took the FIRST thing under the cursor, so a corpse (lingers ~60 s, untargetable), your own pet or a wall in front of the enemy swallowed it. New
+  `_pick_target_at()` passes the ray THROUGH everything and picks (1) the nearest live monster on the ray, (2) else the nearest other targetable (guard/vendor/pet/player), (3) else the live monster/NPC
+  whose centre is within 45 px of the cursor (a near miss). Verified with a corpse directly in front of a live monster (raw ray hits the corpse, the pick finds the monster), a lone corpse selects
+  nothing, a click 30 px beside a monster picks it, 140 px away does not. Your own pet is only picked when no live monster is on the ray (F-keys still select group members/pets).
+- Earth Totem never warded other players: its scan covered pets, guards and vendors but not the `player` group. Nearby players (8 m) are now included and the effect is relayed to their own machine
+  (`_buff_target`). Verified with two clients on the dedicated server: the second player received `earth_totem`.
+- Test 2 (Troubadour): (1) Musicianship never levelled — casting trained `spell_casting` and the spell's own school (Song of Courage = enchantment) but nothing ever trained musicianship. Every Troubadour spell is a
+  song, so each song cast now also trains musicianship (`cast_spell`). (2) Skill cap: skills and spell schools can only be trained to `skill_cap_per_level` x character level (new knob in
+  `Data/combat_balance.json`, shipped as 4 = level 1 caps at 4 points, level 10 at 40; 0 = no cap, the old behaviour). A skill is never lowered, so starting skills above the cap (a Voidknight's necromancy 10,
+  a Troubadour's enchantment 8) simply wait for the level to catch up. `Player3D.skill_cap_for()`; the Skills page now shows level / cap instead of level / 275 (its bar fills toward the cap).
+  Verified with a level-1 Troubadour casting 120 songs (musicianship 0 -> 4 and stops; enchantment/spell casting stay at 8), then level 5 (cap 20: musicianship 19, enchantment 17, spell casting 13, none above 20).
+- Findings not yet acted on (waiting on decisions): the parry/dodge/weapon_mastery skills do not feed any formula (dodge = class base + DEX, parry = class base + DEX + weapon skill) and Voidknights are not
+  seeded with them; all pets are melee-only (2.5 m) so ranged pets/projectiles are a new feature; the Windows exe uses Godot's DEFAULT robot icon (`icon.svg`) and Godot has no `rcedit` configured to embed a
+  custom one when exporting from Linux; Campfire Warmth and Kenji's Blessing have no buff-bar icon.
 - COMBAT TUNING: every combat number is now in `Data/combat_balance.json` (read by `Scripts/combat_balance.gd`, `CombatBalance.num(key)`; each key has a neutral fallback = the old behaviour, and
   the file's `_help` block explains each one). Knobs: `player_hit_bonus`, `monster_hit_bonus`, `hit_level_diff_per_level`, `hit_min`/`hit_max`, `player_melee_damage_mult`,
   `monster_melee_damage_mult`, `player_spell_damage_mult`, `monster_hp_mult`, `monster_hp_per_level`, `monster_damage_per_level`, `monster_scale_min/max`. Players vs monsters are told apart by
@@ -1274,6 +1294,35 @@ The LAN host/join flow is untouched apart from a handshake tweak (below). Versio
   skill being TRAINED could disagree. `_weapon_skill_key()` now reads the CURRENT item definition for the sync and both training call sites, and `_migrate_legacy_skills()` maps the old names
   (`1h_slashing` etc.) onto the current ones keeping the higher value so old characters lose nothing. Verified: fresh Voidknight = skill 8 / ATK 38 at login, +1 skill = +2 ATK with no jump;
   a legacy save with `1h_slashing: 47` keeps 47 as `slashing_weapons`.
+
+### Follow-ups to the test-1/test-2 findings (2026-09-20) — icon, ranged-pet projectile, skills wired into the formulas, testing log
+- (Correction to the "findings" bullet above: Wildspeaker and Spiritweaver (Phantasmal Echo) pets were ALREADY ranged — 14 m, one shot per 3 s; only the base pet is melee. What was missing was the visible shot.)
+- EXE ICON: `Assets/app_icon.png` / `Assets/app_icon.ico` (the neon cat from the studio logo, cropped, rounded corners; ICO 16-256 px). `project.godot` `config/icon` and the Windows export preset's
+  `application/icon` point at them. Godot 4.7 embeds the icon itself — no rcedit needed. Verified: a Windows export's exe carries the icon (checked in the PE resources). Placeholder until real art exists.
+- RANGED PET PROJECTILE: `Scripts/spectral_bolt.gd` rewritten — a bright green core with a soft halo, a particle trail + drifting sparkles behind it, a burst of particles and a short light flash on impact
+  (additive, unshaded soft-dot particles). Phantasmal Echo shoots teal-green (0.3, 1.0, 0.7), the Wildspeaker's spirit lime-green (0.45, 1.0, 0.25) — `BOLT_COLOR` in each pet script.
+  Before, the bolt was a local node that only the pet OWNER's machine ever created, so other players saw a pet standing still and the monster losing health. `PetMinion._launch_bolt()` now spawns the real
+  (damaging) bolt on the owner's machine and sends `_rpc_show_bolt` (authority -> everyone else, unreliable) so every other player gets a visual-only copy that flies to the same target and bursts but deals
+  nothing. Verified headless: a real bolt hits exactly once for its damage, a visual copy hits nothing, a target that dies mid-flight ends the bolt quietly, bolts clean themselves up ~1 s after impact; and a
+  windowed render of two bolts in flight and an impact (screenshot reviewed). Not yet verified with two real clients.
+- SKILLS WIRED INTO THE FORMULAS: `Data/skill_effects.json` (+ `Scripts/skill_effects.gd`, `CombatNode.skill_bonus()`) is a table "stat: skill: bonus per point", with a `_help` block. Players only —
+  `CombatNode.skills` is set by `player3d.gd` (the same dictionary as `skill_levels`), so monsters, guards and pets get nothing and their balance is unchanged. Two stand-in names: `@weapon` (the wielded weapon's
+  own skill) and `@category` (the skill the spell/ability belongs to). Shipped values (per skill point): weapon_mastery ATK +0.5 / melee damage +0.15% / crit +0.05; offense ATK +0.5 / damage +0.1%;
+  @weapon damage +0.1%; dodge +0.15, parry +0.15, riposte +0.15, block +0.15, shield_defense +0.1 (block only counts with a shield); defense +0.05 to dodge/parry/block; spell_casting +0.1% and the spell's own school
+  +0.2% to spell damage AND direct/over-time healing; a physical ability's own skill (backstab, bash, mantis_fist...) +0.2% damage; concentration +0.15 and channeling +0.05 to the keep-your-spell-when-hit chance;
+  meditation +0.04 mana per regen tick; athletics +0.05 stamina/s and -0.15% sprint drain (never below half); bind_wound +0.5% bandage healing; double/triple_attack +0.15 to the Aetherfist multi-attack chances.
+  Skills are capped at 4 per level so the effect is small early (level-10 skill of 40 = e.g. dodge +6, weapon mastery +20 ATK / +6% damage) and grows with play.
+  Training added for skills that had no way to rise: offense and weapon_mastery on every melee hit, defense whenever a monster swings at you (hit or miss), double/triple_attack when the Aetherfist multi-attack
+  fires, concentration/channeling when a concentration check succeeds, meditation when mana regenerates while sitting, athletics on jumps and every 10 s of sprinting, bind_wound when bandaging an ally.
+  Related fixes found on the way: (1) swapping weapons never re-synced the weapon skill until the next login/skill-up — `_apply_equipment_from_inventory()` now does; (2) fighting with bare hands kept the old
+  weapon's skill — unarmed now uses `hand_to_hand` (which is trained by unarmed hits); a weapon with no skill counts as 0 plus the class baseline.
+  Verified with a level-10 character: baseline vs skills at 40 gives ATK 62 -> 102, crit 24 -> 26, dodge 1 -> 9, parry 6 -> 14, riposte 7 -> 13, concentration 7 -> 15, mana regen 5 -> 6, average melee hit 17 -> 18, a 50-damage
+  evocation 29 -> 33; a monster-style CombatNode gets exactly 0; unarmed switches to hand_to_hand; 300 monster swings train defense 0 -> 26 at the level-10 cap of 40 and the derived dodge moves live; 150 rounds of real melee +
+  Life Siphon + being attacked raised offense, defense, weapon mastery, necromancy and spell casting with no script errors.
+  Skills with NO mechanic in the game to attach to yet (left alone on purpose, not invented): safe_fall (no fall damage exists), perception, tracking (the tracking window is not skill-driven), lockpicking, trapping,
+  legerdermain, stealth (a stance exists but nothing rolls detection), dual_wield (players cannot equip an off-hand weapon yet), taunt/bash beyond their ability damage, archery/throwing (no player ranged attack
+  uses them beyond the ability damage), divination/illusion/conjuration/enchantment/alteration/wild_magic beyond spell potency, fishing/forage/prospecting and the other tradeskills that already train from the crafting windows.
+- TESTING LOG: `testing_log.txt` (project root) — what each test found and how it ended, in GENERAL and per-CLASS sections, with test sessions (players + characters + classes) at the top.
 
 ### Not built yet
 - Nothing on the original server list. Possible later: per-server certificates in servers.json, an in-game admin/console command channel,

@@ -647,6 +647,36 @@ func _target_alive(target: Node) -> bool:
 	return true
 
 
+# ── Ranged pets (Phantasmal Echo, Wildspeaker's spirit): the projectile ─────────────────────────────────────────────
+# Launches the pet's bolt. The pet owner's machine (the pet's multiplayer authority) makes the bolt that actually
+# deals `dmg` on impact and tells every OTHER player to show a visual-only copy, so the shot is seen by everyone —
+# before this the bolt was a local node that only the owner ever saw.
+func _launch_bolt(target: Node, dmg: int, color: Color) -> void:
+	_spawn_bolt(target, dmg, color, false, Vector3.ZERO)
+	if Net.is_multiplayer_game and multiplayer.has_multiplayer_peer() and is_multiplayer_authority() and is_instance_valid(target):
+		_rpc_show_bolt.rpc(target.get_path(), target.global_position + Vector3(0, 1.0, 0), color)
+
+
+func _spawn_bolt(target: Node, dmg: int, color: Color, visual_only: bool, fixed_pos: Vector3) -> void:
+	var scene := get_tree().current_scene
+	if scene == null:
+		return
+	var bolt: SpectralBolt = load("res://Scenes/spectral_bolt.tscn").instantiate()
+	bolt.bolt_color = color
+	bolt.visual_only = visual_only
+	bolt.fixed_target = fixed_pos
+	bolt.target = target
+	bolt.damage = dmg
+	bolt.source_pet = self
+	scene.add_child(bolt)
+	bolt.global_position = global_position + Vector3(0, 1.1, 0)
+
+
+@rpc("authority", "call_remote", "unreliable")
+func _rpc_show_bolt(target_path: NodePath, target_pos: Vector3, color: Color) -> void:
+	_spawn_bolt(get_node_or_null(target_path), 0, color, true, target_pos)
+
+
 func _perform_attack() -> void:
 	can_attack = false
 	attack_timer = attack_cooldown

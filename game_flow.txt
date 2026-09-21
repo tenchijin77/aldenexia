@@ -1066,6 +1066,27 @@ Scene: Scenes/player3d.tscn (contains CameraRig → CameraController + Camera3D)
     list (character_options.json's class_skills) is a STARTING SET ONLY, not
     a lock. Confirmed 2026-09-19 this was already fixed in an earlier session
     (previously a class could only ever level skills it started with).
+  Skill CAP (2026-09-20): a skill trains to skill_cap_per_level x character level (Data/combat_balance.json, 4;
+    0 = no cap), never above 275 and never below what it already is. Player3D.skill_cap_for().
+  Skill EFFECTS (2026-09-20): Data/skill_effects.json says what each skill does ("stat: skill: bonus per point",
+    read by SkillEffects; CombatNode.skill_bonus(stat, category) sums it). PLAYERS ONLY — CombatNode.skills is the
+    player's skill_levels dict (set in load_character_data / _tick_skill); monsters/guards/pets have none.
+    "@weapon" = the wielded weapon's skill (hand_to_hand when unarmed), "@category" = the spell's own skill_category.
+    Stats: attack_rating, melee_damage_pct, crit_chance, dodge/parry/riposte/block_chance, spell_potency_pct
+    (spell damage + heal/hot), ability_damage_pct (physical abilities), concentration, mana_regen, stamina_regen,
+    stamina_drain_pct, bandage_heal_pct, double/triple_attack_chance. The derived ones are folded into
+    recalculate_derived_stats(); a skill-up marks the cache dirty so they move live.
+    What trains what: weapon skill + offense + weapon_mastery on melee hits; defense when a monster swings at you;
+    parry/dodge/block/riposte when you defend; double/triple_attack on Aetherfist multi-attacks; concentration +
+    channeling on a kept concentration check; meditation on sitting mana regen; athletics on jumps / 10 s of sprint;
+    bind_wound on bandaging; spell_casting + the spell's category on every cast; musicianship on Troubadour songs.
+    No mechanic yet (nothing to attach to): safe_fall, perception, tracking, lockpicking, trapping, legerdermain,
+    stealth detection, dual_wield (no player off-hand), and the extra effects of the non-damage schools.
+
+--- Ranged pets (2026-09-20) ---
+  Phantasmal Echo and Wildspeaker's spirit hold at 14 m and shoot a SpectralBolt (green, particle trail, impact
+  burst). PetMinion._launch_bolt(): the pet owner's machine spawns the damaging bolt and RPCs _rpc_show_bolt so every
+  other player sees a visual-only copy (deals nothing).
 
 --- Spell Classification: skill_category vs. spell_school (finalized 2026-09-19,
     NOT YET IMPLEMENTED past skill_category — see status note at the end) ---

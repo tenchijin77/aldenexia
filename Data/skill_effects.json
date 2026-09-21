@@ -1,0 +1,43 @@
+{
+	"_help": [
+		"What each skill in Data/player_skills.json DOES in the game. Every entry is 'skill name: bonus per skill point'.",
+		"Edit and restart to retune. A skill listed under a stat adds (its level x the number) to that stat; a stat with several",
+		"skills adds them all up. Two special names stand in for a skill that depends on the situation:",
+		"  @weapon    the skill of the weapon in your hand (slashing_weapons, piercing_weapons, ... or hand_to_hand when unarmed)",
+		"  @category  the skill the spell/ability itself belongs to (evocation, necromancy, backstab, mantis_fist, ...)",
+		"Skills grow at most 4 points per character level (skill_cap_per_level in combat_balance.json), so at level 10 a skill is 40:",
+		"0.15 per point then means +6. Only PLAYERS use this table; monsters, guards and pets are untouched.",
+		"",
+		"Stats:",
+		"  attack_rating          added to ATK (accuracy: ATK minus the target's AC). Weapon skill already counts x2 in ATK itself.",
+		"  melee_damage_pct       % more melee damage",
+		"  crit_chance            percentage points of crit chance",
+		"  dodge_chance / parry_chance / riposte_chance / block_chance   percentage points (block needs a shield)",
+		"  spell_potency_pct      % more spell damage and % more healing/heal-over-time from a heal spell",
+		"  ability_damage_pct     % more damage from a PHYSICAL ability (backstab, bash, kicks, ...)",
+		"  concentration          percentage points of chance to keep a spell when hit while casting",
+		"  mana_regen             mana per 6-second regen tick",
+		"  stamina_regen          sprint stamina regained per second",
+		"  stamina_drain_pct      % less sprint stamina used (never below half)",
+		"  bandage_heal_pct       % more healing from a bandage",
+		"  double_attack_chance / triple_attack_chance   percentage points, for classes that can multi-attack (Aetherfist)"
+	],
+	"effects": {
+		"attack_rating":         { "weapon_mastery": 0.5, "offense": 0.5 },
+		"melee_damage_pct":      { "weapon_mastery": 0.15, "offense": 0.1, "@weapon": 0.1 },
+		"crit_chance":           { "weapon_mastery": 0.05 },
+		"dodge_chance":          { "dodge": 0.15, "defense": 0.05 },
+		"parry_chance":          { "parry": 0.15, "defense": 0.05 },
+		"riposte_chance":        { "riposte": 0.15 },
+		"block_chance":          { "block": 0.15, "shield_defense": 0.1, "defense": 0.05 },
+		"spell_potency_pct":     { "spell_casting": 0.1, "@category": 0.2 },
+		"ability_damage_pct":    { "@category": 0.2 },
+		"concentration":         { "concentration": 0.15, "channeling": 0.05 },
+		"mana_regen":            { "meditation": 0.04 },
+		"stamina_regen":         { "athletics": 0.05 },
+		"stamina_drain_pct":     { "athletics": 0.15 },
+		"bandage_heal_pct":      { "bind_wound": 0.5 },
+		"double_attack_chance":  { "double_attack": 0.15 },
+		"triple_attack_chance":  { "triple_attack": 0.15 }
+	}
+}
