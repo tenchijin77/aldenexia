@@ -7402,5 +7402,28 @@
     "range": 0,
     "stat_modifiers": null,
     "effect": null
+  },
+  "compass": {
+    "name": "Compass",
+    "icon": "res://Assets/icons/items/compass.png",
+    "description": "A brass compass with a needle that never wavers from north. While you carry it, a compass shows the way you are facing. Press N to show or hide it.",
+    "lore": "The dunes shift and the roads vanish under the wind. Travelers who lose their bearings in the outskirts are rarely found. A compass is the cheapest insurance in Lumora.",
+    "stackable": false,
+    "currency_type": "silver",
+    "value": 5,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.2,
+    "size": "small",
+    "class": ["all"],
+    "race": ["all"],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
   }
 }

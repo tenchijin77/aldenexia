@@ -55,6 +55,9 @@ enum GuardState { IDLE, ENGAGE, PATROL }
 @onready var animation_player: AnimationPlayer = get_node_or_null("Character/AnimationPlayer")  # null for unrigged NPCs (Oni)
 
 var _flavor: NPCFlavorText
+var _conversation: NPCConversation = null
+var _merchant_lines: Dictionary = {}
+const TOPICS_PATH := "res://Data/guard_topics.json"
 
 var combat_node: CombatNode
 var level: int = 8  # mirrors combat_node.level; exposed at the top level like monster3d.gd's `level`
@@ -110,9 +113,63 @@ func _ready() -> void:
 	home_position = global_position
 	NPCRespawner.register_home(self)
 	_banter_interval = randf_range(BANTER_MIN_INTERVAL, BANTER_MAX_INTERVAL)
+	_setup_conversation()
 	_setup_patrol()
 	_setup_combat()
 	_setup_animations()
+
+
+# Guards answer keywords (Data/guard_topics.json): their own topics first, then the shared ones. Not Oni: she's a cat (_can_talk()).
+func _can_talk() -> bool:
+	return true
+
+
+func _setup_conversation() -> void:
+	if not _can_talk():
+		return
+	var parsed = JSON.parse_string(FileAccess.get_file_as_string(TOPICS_PATH)) if FileAccess.file_exists(TOPICS_PATH) else null
+	if typeof(parsed) != TYPE_DICTIONARY:
+		return
+	var topics: Array = []
+	topics.append_array(parsed.get("by_name", {}).get(npc_name, []))
+	topics.append_array(parsed.get("shared", []))
+	_merchant_lines = parsed.get("merchant_lines", {})
+	_conversation = NPCConversation.new(self, topics, HEAR_RANGE)
+	add_to_group("npc_talker")
+
+
+# ── Conversation (npc_conversation.gd) ──
+func speak(line: String) -> void:
+	say(line)
+
+
+func face_player() -> void:
+	_face_player()
+
+
+func can_answer(player: Node, text: String) -> bool:
+	return _conversation != null and _conversation.can_answer(player, text)
+
+
+func hear_say(player: Node, text: String) -> void:
+	if _conversation != null:
+		_conversation.hear(player, text)
+
+
+# A remark about the traveling merchant that fits where he is right now.
+func dynamic_lines(name: String) -> Array:
+	if name != "merchant_remark":
+		return []
+	var kind := "none"
+	for node in get_tree().get_nodes_in_group("traveling_merchant"):
+		if is_instance_valid(node):
+			match int(node.get("stage")):
+				TravelingMerchant.Stage.ROAD_TO_DOCK: kind = "coming"
+				TravelingMerchant.Stage.AT_DOCK: kind = "dock"
+				TravelingMerchant.Stage.ROAD_TO_GATE, TravelingMerchant.Stage.AT_GATE: kind = "gate"
+				_: kind = "gone"
+	var pool = _merchant_lines.get(kind, [])
+	return pool if typeof(pool) == TYPE_ARRAY else []
 
 
 func _setup_patrol() -> void:
@@ -189,7 +246,7 @@ func _rpc_say(line: String) -> void:
 func say(line: String) -> void:
 	if not _player_in_hear_range():
 		return
-	GameLog.log_general("[color=#cccc88]%s says, \"%s\"[/color]" % [npc_name, line])
+	GameLog.log_general("[color=#cccc88]%s says, \"%s\"[/color]" % [npc_name, NPCConversation.format(line)])
 
 
 func _player_in_hear_range() -> bool:

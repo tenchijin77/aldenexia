@@ -205,6 +205,7 @@ const KEYBIND_GROUPS := [
 		["C", "Character Sheet"],
 		["P", "Pet Gear"],
 		["T", "Tracking Window"],
+		["N", "Show / hide the compass (needs a Compass)"],
 		["F11", "Network diagnostics widget"],
 	]],
 	["Interacting with the World", [
@@ -236,6 +237,7 @@ const CHAT_COMMANDS := [
 	["/tell <name> [message]", "Private message to a player (purple) — later text keeps going to them"],
 	["/played", "Show your character's birthday and time played"],
 	["/quests", "List your quests and their progress"],
+	["/compass", "Show / hide the compass (same as N; needs a Compass)"],
 	["/resetui", "Reset every UI window back to its default position"],
 	["/time", "Show the current in-game date/time"],
 	["/who", "List every connected player, their level, class and zone"],

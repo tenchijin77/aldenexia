@@ -177,6 +177,10 @@ func dynamic_lines(name: String) -> Array:
 	return pool if typeof(pool) == TYPE_ARRAY else []
 
 
+func can_answer(player: Node, text: String) -> bool:
+	return _conversation != null and _conversation.can_answer(player, text)
+
+
 # Something the local player said nearby. He only talks while standing still.
 func hear_say(player: Node, text: String) -> void:
 	if _conversation == null:

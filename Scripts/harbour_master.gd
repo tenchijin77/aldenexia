@@ -118,6 +118,10 @@ func can_trade() -> bool:
 	return true  # the harbour shop is always open
 
 
+func can_answer(player: Node, text: String) -> bool:
+	return _conversation != null and _conversation.can_answer(player, text)
+
+
 func hear_say(player: Node, text: String) -> void:
 	if _conversation != null:
 		_conversation.hear(player, text)

@@ -238,6 +238,11 @@ func _unhandled_input(event: InputEvent) -> void:
 			try_hail_nearby_npc()
 			return
 
+		# N shows/hides the compass (a raw key, not an InputMap action, so it can ship in an update patch).
+		if event.keycode == KEY_N and not event.ctrl_pressed and not (get_viewport().gui_get_focus_owner() is LineEdit):
+			toggle_compass()
+			return
+
 		if event.is_action_pressed("appraise") and not (get_viewport().gui_get_focus_owner() is LineEdit):
 			try_appraise_target()
 			return
@@ -255,6 +260,15 @@ func _unhandled_input(event: InputEvent) -> void:
 			match slot.get("type", ""):
 				"spell": cast_spell(slot["name"])
 				"skill": use_skill(slot["name"])
+
+
+# Shows or hides the compass HUD (needs the Compass item). Also /compass.
+func toggle_compass() -> void:
+	for node in get_tree().get_nodes_in_group("game_hud"):
+		if node is CompassHud:
+			GameLog.log_general("[color=#cccccc]%s[/color]" % node.toggle())
+			return
+	GameLog.log_general("[color=#cccccc]You have no compass.[/color]")
 
 
 # Closes every open modal window at once (character sheet, backpack, abilities
@@ -1189,6 +1203,7 @@ const HUD_FRAME_SCENES := [
 	"res://Scenes/action_bar.tscn",
 	"res://Scenes/stance_bar.tscn",
 	"res://Scenes/buff_bar.tscn",
+	"res://Scenes/compass.tscn",
 ]
 
 func _spawn_hud_frames() -> void:
@@ -2230,9 +2245,22 @@ func send_say(message: String) -> void:
 # Whatever you say near a talkative NPC (npc_talker group) is heard by it — EverQuest-style keyword conversation, see
 # npc_conversation.gd. Answers go only to you, from your own machine's copy of the NPC.
 func _npcs_hear(message: String) -> void:
+	# Only ONE answers: the one you have targeted if it can, otherwise the nearest that has an answer (three guards standing
+	# together must not all reply to the same word).
+	var best: Node = null
+	var best_dist := INF
 	for npc in get_tree().get_nodes_in_group("npc_talker"):
-		if is_instance_valid(npc) and npc.has_method("hear_say"):
-			npc.hear_say(self, message)
+		if not is_instance_valid(npc) or not npc.has_method("can_answer") or not npc.can_answer(self, message):
+			continue
+		if npc == current_target:
+			best = npc
+			break
+		var dist: float = global_position.distance_to(npc.global_position)
+		if dist < best_dist:
+			best_dist = dist
+			best = npc
+	if best != null:
+		best.hear_say(self, message)
 
 
 # /zone — a shout everyone in the zone hears. Echoed to yourself in single-player.

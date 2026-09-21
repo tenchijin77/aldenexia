@@ -30,7 +30,7 @@ const ASSIST_RANGE: float = 5.0  # call_nearby_allies() — real meters, see the
 # dedicated models below. "bandit" and base "goblin" have no dedicated model
 # of their own yet, so they still fall back to DEFAULT_HUMANOID_MOB_MODEL
 # (the shared player model) same as before — see MOB_MODELS.
-const HUMANOID_MOB_TYPES: Array = ["bandit", "skeleton", "goblin", "goblin_scout", "goblin_warrior", "ghost", "mummy"]
+const HUMANOID_MOB_TYPES: Array = ["bandit", "skeleton", "goblin", "goblin_scout", "goblin_warrior", "ghost", "mummy", "sunmaddened_wanderer"]
 const ATTACK_ANIMS := ["attack_horizontal", "attack_downward"]
 
 # Per-species dedicated models (added 2026-09-16) — mirrors player3d.gd's
@@ -38,6 +38,14 @@ const ATTACK_ANIMS := ["attack_horizontal", "attack_downward"]
 # HUMANOID_MOB_TYPES but not listed here falls back to
 # DEFAULT_HUMANOID_MOB_MODEL.
 const MOB_MODELS := {
+	# STAND-IN until a Meshy model exists: the human male race model, tinted a faded, sun-bleached colour so a Hollowed wanderer
+	# doesn't read as a player (optional "tint" multiplies the texture).
+	"sunmaddened_wanderer": {
+		"scene":   "res://models/Human Male/Human Male Breathing Idle.fbx",
+		"library": "res://models/Human Male/human_male_animations.res",
+		"texture_override": "res://models/Human Male/Meshy_AI_fantasy_commoner_rigg_biped_texture_0.png",
+		"tint": Color(0.68, 0.62, 0.5),
+	},
 	"skeleton": {
 		"scene":   "res://models/mobs/fallen scout skeleton/Meshy_AI_Fallen_Scout_Skeleton_biped_Character_output.fbx",
 		"library": "res://models/mobs/fallen scout skeleton/skeleton_animations.res",
@@ -414,20 +422,21 @@ func _setup_humanoid_visual() -> void:
 		animation_player.add_animation_library("", lib)
 
 	if model_info.has("texture_override"):
-		_apply_texture_override(character, model_info["texture_override"])
+		_apply_texture_override(character, model_info["texture_override"], model_info.get("tint", Color.WHITE))
 
 
 # Meshy-sourced FBX exports never carry their real texture through to Godot
 # reliably (confirmed recurring bug across every model built this way), so
 # apply it as a runtime material override instead of trusting the FBX's own
 # material.
-func _apply_texture_override(node: Node, texture_path: String) -> void:
+func _apply_texture_override(node: Node, texture_path: String, tint: Color = Color.WHITE) -> void:
 	var tex := load(texture_path) as Texture2D
 	if not tex:
 		push_warning("⚠️ Mob texture override not found: %s" % texture_path)
 		return
 	var mat := StandardMaterial3D.new()
 	mat.albedo_texture = tex
+	mat.albedo_color = tint
 	_apply_material_recursive(node, mat)
 
 

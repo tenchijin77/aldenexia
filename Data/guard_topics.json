@@ -1,0 +1,375 @@
+{
+ "_comment": "Keyword topics for the guards (Scripts/guard_npc.gd, npc_conversation.gd). 'by_name' topics are checked before 'shared', so a guard can have their own answer for something; 'merchant_lines' are picked by where Sahren is right now. Directions use the whiteboard map: Lumora is north, the docks southwest, the graveyard west, goblins and bandits southeast, spiders far west by the sea. All lines are DRAFTS awaiting approval. {word} = clickable keyword.",
+ "shared": [
+  {
+   "id": "hail",
+   "keywords": [
+    "hail",
+    "hello",
+    "greetings",
+    "hey"
+   ],
+   "then": {
+    "hail": true
+   }
+  },
+  {
+   "id": "merchant",
+   "keywords": [
+    "merchant",
+    "peddler",
+    "trader",
+    "sahren",
+    "djhanid trader"
+   ],
+   "dynamic": "merchant_remark"
+  },
+  {
+   "id": "lumora",
+   "keywords": [
+    "lumora",
+    "city",
+    "town",
+    "inside"
+   ],
+   "lines": [
+    "Lumora lies just beyond the gate, straight north: walls, markets, the Wardens. Show your coin, not your blade.",
+    "Lumora's north of us, through the gate. Mind your manners inside, and you'll find nothing but welcome."
+   ]
+  },
+  {
+   "id": "kenji",
+   "keywords": [
+    "kenji",
+    "cat",
+    "rat tails",
+    "rat tail"
+   ],
+   "lines": [
+    "The grey cat by the gate? Kenji. Bring him ten rat tails and he'll bless you for the trouble. Don't ask me why. I stopped asking."
+   ]
+  },
+  {
+   "id": "oni",
+   "keywords": [
+    "oni",
+    "tortoiseshell"
+   ],
+   "lines": [
+    "Oni? The little tortoiseshell that patrols the road. She hunts rats. Kenji likes what she leaves behind."
+   ]
+  },
+  {
+   "id": "vendors",
+   "keywords": [
+    "vendors",
+    "vendor",
+    "shop",
+    "shops",
+    "supplies",
+    "provisioner",
+    "apothecary",
+    "aldric",
+    "stalls",
+    "market"
+   ],
+   "lines": [
+    "Aldric the Provisioner and the Apothecary keep their stalls near the gate: food, water, torches, scrolls. Aldric's honest, if not cheap."
+   ]
+  },
+  {
+   "id": "docks",
+   "keywords": [
+    "docks",
+    "dock",
+    "harbour",
+    "harbor",
+    "sandcrest",
+    "landing",
+    "boat",
+    "ferry",
+    "tobias"
+   ],
+   "sequence": [
+    "The docks are a long walk southwest, down along the coast. Sandcrest Landing, where the boats put in.",
+    "Harbour Master Tobias Sandcrest keeps the place. He'll sell you passage north, if there were a boat to take you."
+   ]
+  },
+  {
+   "id": "graveyard",
+   "keywords": [
+    "graveyard",
+    "mausoleum",
+    "crypt",
+    "crypts",
+    "undead",
+    "skeletons"
+   ],
+   "sequence": [
+    "The graveyard's west of the gate, a few minutes along the wall. Bones that don't lie still, and worse in the crypts.",
+    "Go by day, and not alone if you're green."
+   ]
+  },
+  {
+   "id": "goblins",
+   "keywords": [
+    "goblins",
+    "goblin",
+    "goblin camps",
+    "camps"
+   ],
+   "lines": [
+    "Goblin camps sit far to the southeast, out past the signpost road. They don't fight fair, and they don't fight alone. Not a place for the green."
+   ]
+  },
+  {
+   "id": "bandits",
+   "keywords": [
+    "bandits",
+    "bandit",
+    "raiders",
+    "brigands",
+    "robbers"
+   ],
+   "lines": [
+    "Bandits hold camps to the southeast, between the road and the goblins. They rob whoever walks alone. If you go, go strong."
+   ]
+  },
+  {
+   "id": "archery",
+   "keywords": [
+    "archery",
+    "range",
+    "targets",
+    "dummies",
+    "training",
+    "arrows",
+    "bow"
+   ],
+   "lines": [
+    "The archery range is east of the gate, the straw targets along the far end. Guard Halric keeps the firing line. Mind where you stand."
+   ]
+  },
+  {
+   "id": "spiders",
+   "keywords": [
+    "spiders",
+    "spider",
+    "webs",
+    "den"
+   ],
+   "lines": [
+    "Spiders nest far to the west, up along the cliffs by the sea. Webs across the path, and more of them than you'd like. Not a place to go alone."
+   ]
+  },
+  {
+   "id": "dustwalkers",
+   "keywords": [
+    "dustwalkers",
+    "dustwalker",
+    "marauders",
+    "dustwalkers"
+   ],
+   "lines": [
+    "Dustwalkers raid the roads. Folk in Lumora mistake them for the Djhanid, and that's an insult to the Djhanid. Learn the difference."
+   ]
+  },
+  {
+   "id": "djhanid",
+   "keywords": [
+    "djhanid",
+    "nomads",
+    "desert people"
+   ],
+   "lines": [
+    "The Djhanid keep to the deep dunes and trust no one. They trouble nobody who leaves them be. Leave them be."
+   ]
+  },
+  {
+   "id": "wanderers",
+   "keywords": [
+    "wanderers",
+    "wanderer",
+    "hollowed",
+    "sunmaddened",
+    "madmen"
+   ],
+   "lines": [
+    "Poor souls lost to the sun, out in the deep dunes. Don't get close if you see one. They don't know you're not a shadow."
+   ]
+  },
+  {
+   "id": "campfire",
+   "keywords": [
+    "campfire",
+    "fire",
+    "warmth",
+    "rest"
+   ],
+   "lines": [
+    "There's a campfire on the road south of the gate. Warmth for the weary, and a good place to cook what you kill."
+   ]
+  },
+  {
+   "id": "signpost",
+   "keywords": [
+    "signpost",
+    "sign",
+    "road",
+    "south",
+    "dustwind"
+   ],
+   "lines": [
+    "The signpost stands well south along the road. Past it lies the Dustwind Plateaus, tougher country. Come back stronger."
+   ]
+  },
+  {
+   "id": "danger",
+   "keywords": [
+    "danger",
+    "dangers",
+    "safe",
+    "warning",
+    "beware"
+   ],
+   "lines": [
+    "Rats, snakes and scarabs near the gate. Worse further out. Stay near the road until you've a few levels behind you."
+   ]
+  }
+ ],
+ "by_name": {
+  "Private Corwin": [
+   {
+    "id": "gate_duty",
+    "keywords": [
+     "gate",
+     "duty",
+     "post",
+     "job"
+    ],
+    "lines": [
+     "Gate duty. Nobody gets through without one of us noticing. Well... mostly nobody."
+    ]
+   }
+  ],
+  "Guard Reyna": [
+   {
+    "id": "graveyard",
+    "keywords": [
+     "graveyard",
+     "mausoleum",
+     "crypt",
+     "crypts",
+     "undead",
+     "skeletons",
+     "mummy",
+     "mummies"
+    ],
+    "sequence": [
+     "The graveyard lies west of the gate. A few minutes along the wall, and you'll feel it before you see it.",
+     "Skeletons by day, worse by night. And the mausoleum has something in it that doesn't stay dead. Don't go alone, and don't go green."
+    ]
+   }
+  ],
+  "Sergeant Bryn": [
+   {
+    "id": "patrol",
+    "keywords": [
+     "patrol",
+     "patrols",
+     "roads",
+     "road",
+     "sergeant"
+    ],
+    "lines": [
+     "I walk the road from the gate to the signpost and back. Anything that lives out there knows my boots."
+    ]
+   },
+   {
+    "id": "goblins",
+    "keywords": [
+     "goblins",
+     "goblin",
+     "goblin camps",
+     "camps"
+    ],
+    "sequence": [
+     "Three goblin camps, far southeast. Ten to a camp, and they'll call for friends.",
+     "Take a group, or wait until you're a good few levels stronger. That's a sergeant's honest advice."
+    ]
+   },
+   {
+    "id": "bandits",
+    "keywords": [
+     "bandits",
+     "bandit",
+     "raiders",
+     "brigands",
+     "robbers"
+    ],
+    "sequence": [
+     "Bandits hold the ground between the road and the goblins. They're hunters of the lonely and the careless.",
+     "Their leaders hit hard. If you must go, go in numbers."
+    ]
+   }
+  ],
+  "Guard Halric": [
+   {
+    "id": "archery",
+    "keywords": [
+     "archery",
+     "range",
+     "targets",
+     "dummies",
+     "training",
+     "arrows",
+     "bow",
+     "hunting"
+    ],
+    "sequence": [
+     "The range is mine. Straw targets at the far end, and the shooters stand behind this line.",
+     "Loose a few if you like. The wind takes the arrows of anyone who rushes."
+    ]
+   },
+   {
+    "id": "docks",
+    "keywords": [
+     "docks",
+     "dock",
+     "harbour",
+     "harbor",
+     "sandcrest",
+     "landing",
+     "boat",
+     "ferry",
+     "tobias",
+     "bastion"
+    ],
+    "sequence": [
+     "The docks are a long walk southwest, along the coast. Sandcrest Landing.",
+     "The harbour master there sells tokens for the Bastion ferry, but the ship's a long way out. Don't expect a boat soon."
+    ]
+   }
+  ]
+ },
+ "merchant_lines": {
+  "coming": [
+   "A peddler's coming up the west road with a pack the size of a house. Sahren, the Djhanid. He always stops at the docks first.",
+   "Sahren's on the road, heading for the docks. You'll catch him there if you're quick."
+  ],
+  "dock": [
+   "The Djhanid peddler, Sahren, is set up at the docks. He won't stay long. Go now.",
+   "Sahren's at the docks with his pack. He'll be along to the gate afterward, if you'd rather wait."
+  ],
+  "gate": [
+   "Sahren's at the gate right now. The Djhanid peddler with the pack. Rare goods, or so he says.",
+   "The peddler's here! By the wall, near the gate. Take a look before he packs up."
+  ],
+  "gone": [
+   "Sahren left already. Gone back to the sands. He'll be along again, though I couldn't say when."
+  ],
+  "none": [
+   "A Djhanid peddler comes through now and then. Sahren, they call him. I couldn't give you a day."
+  ]
+ }
+}

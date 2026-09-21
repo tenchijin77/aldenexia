@@ -1102,6 +1102,10 @@ Scene: Scenes/player3d.tscn (contains CameraRig → CameraController + Camera3D)
   Quests: Scripts/quests.gd + Data/quests.json, state in Global.player_data["quests"], hand-in via the Give window; /quests lists them.
   Adding a quest = a quests.json entry + a topic with then.start_quest + try_give/receive_item_drop on the giver (see traveling_merchant.gd).
 
+--- Compass and the zone's compass directions (2026-09-20) ---
+  Compass item + HUD strip (compass_hud.gd; draggable + resizable, saved in ui_positions), N key or /compass, needs the item. Data/compass.json: north per zone; Lumora Outskirts: north = +X, east = +Z.
+  Guards answer keywords from Data/guard_topics.json; the targeted (else nearest) NPC is the one that answers.
+
 --- Client auto-update (2026-09-20) ---
   Players install one full build (the BASE); updates are signed patch .pck files served by the game server's machine.
   Publish:  git commit -> tools/stamp_build.sh -> tools/update.sh   (builds the server + BOTH the Windows and Linux clients;

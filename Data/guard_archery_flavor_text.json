@@ -1,24 +1,24 @@
 {
-	"_comment": "Lines for the guard at the archery range (Guards/ArcheryGuard in the outskirts scene). Same categories as guard_flavor_text.json.",
-	"hail": [
-		"Mind the line, traveler. Nobody crosses in front of the shooters.",
-		"Care to loose a few? The targets don't mind, and they can't complain about your aim.",
-		"Stay behind the marker while the range is hot. I'd hate to explain an arrow in the leg.",
-		"Practice makes the difference between a hunter and a dinner. Shoot straight.",
-		"Fletcher's shafts fly truer than the ones from the market. Take that from someone who's seen both.",
-		"Those targets take a beating. Straw's cheap, at least. Faces are harder to replace.",
-		"Sand gets in everything out here. Wax your strings and check them twice."
-	],
-	"engage": [
-		"Something's loose near the range! Hold there!",
-		"Not on my range, you vermin!",
-		"Down! Let me clear that."
-	],
-	"banter": [
-		"Too many people can't judge distance out here. Everything's farther than it looks.",
-		"Dead still on a calm day, and someone still finds a way to miss.",
-		"If I had a copper for every arrow in the dirt behind those targets, I'd have retired.",
-		"Wind's picking up. Someone's going to blame the wind.",
-		"Heard a peddler's been working the west road. Might be worth saving a few coins."
-	]
+ "_comment": "Lines for the guard at the archery range (Guards/ArcheryGuard in the outskirts scene). Same categories as guard_flavor_text.json.",
+ "hail": [
+  "Mind the line, traveler. Nobody crosses in front of the shooters.",
+  "Care to loose a few at the {targets}? The targets don't mind, and they can't complain about your aim.",
+  "Stay behind the marker while the range is hot. I'd hate to explain an arrow in the leg.",
+  "Practice makes the difference between a hunter and a dinner. Shoot straight.",
+  "Fletcher's shafts fly truer than the ones from the market. Take that from someone who's seen both.",
+  "Those targets take a beating. Straw's cheap, at least. Faces are harder to replace.",
+  "Sand gets in everything out here. Wax your strings and check them twice."
+ ],
+ "engage": [
+  "Something's loose near the range! Hold there!",
+  "Not on my range, you vermin!",
+  "Down! Let me clear that."
+ ],
+ "banter": [
+  "Too many people can't judge distance out here. Everything's farther than it looks.",
+  "Dead still on a calm day, and someone still finds a way to miss.",
+  "If I had a copper for every arrow in the dirt behind those targets, I'd have retired.",
+  "Wind's picking up. Someone's going to blame the wind.",
+  "Heard a {peddler}'s been working the west road. Might be worth saving a few coins."
+ ]
 }

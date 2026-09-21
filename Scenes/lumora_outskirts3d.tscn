@@ -21,6 +21,8 @@
 [ext_resource type="Script" uid="uid://wqmn351jhvbo" path="res://Scripts/weather_manager.gd" id="weather_mgr_script"]
 [ext_resource type="Script" path="res://Scripts/traveling_merchant_spawner.gd" id="tm_spawner_scr"]
 [ext_resource type="PackedScene" path="res://Scenes/harbour_master.tscn" id="harbour_master_scn"]
+[ext_resource type="Script" path="res://Scripts/ambient_water_sound.gd" id="ocean_script"]
+[ext_resource type="AudioStream" path="res://Assets/soundsforyou-ocean-sea-soft-waves-121349.mp3" id="ocean_stream"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_1j15t"]
 sky_top_color = Color(0.22986513, 0.3887299, 0.9202023, 1)
@@ -152,6 +154,10 @@ stream = ExtResource("14_windamb")
 volume_db = -10.0
 autoplay = true
 bus = &"SFX"
+
+[node name="AmbientOcean" type="Node" parent="."]
+script = ExtResource("ocean_script")
+stream = ExtResource("ocean_stream")
 
 [node name="CharacterBody3D" parent="." unique_id=992623004 instance=ExtResource("1_xodo7")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -32.28161, 1.5000012, 12.601559)

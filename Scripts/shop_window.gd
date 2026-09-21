@@ -126,6 +126,15 @@ func _is_usable_by_player(item_def: Dictionary) -> bool:
 	return class_ok and race_ok
 
 
+# Right-click a row (For Sale or Your Items) to see the item's properties and how it compares with what you have equipped.
+func _connect_inspect(row: Control, item_def: Dictionary) -> void:
+	row.mouse_filter = Control.MOUSE_FILTER_STOP
+	row.gui_input.connect(func(event: InputEvent) -> void:
+		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_RIGHT:
+			row.accept_event()
+			ItemInspector.open(item_def, row.get_global_mouse_position(), get_tree()))
+
+
 func _make_buy_row(entry: Dictionary) -> Control:
 	var item_def: Dictionary = entry["item_def"]
 	var price: int = entry["price"]
@@ -138,6 +147,7 @@ func _make_buy_row(entry: Dictionary) -> Control:
 	style.border_color = Color(0.32, 0.32, 0.32)
 	row.add_theme_stylebox_override("panel", style)
 	row.tooltip_text = item_def.get("description", "")
+	_connect_inspect(row, item_def)
 
 	var hbox := HBoxContainer.new()
 	hbox.add_theme_constant_override("separation", 8)
@@ -247,6 +257,7 @@ func _make_sell_row(row_data: Dictionary) -> Control:
 	style.set_border_width_all(1)
 	style.border_color = Color(0.32, 0.32, 0.32)
 	row.add_theme_stylebox_override("panel", style)
+	_connect_inspect(row, Inventory.get_item_definition(str(item.get("item_id", ""))) if not Inventory.get_item_definition(str(item.get("item_id", ""))).is_empty() else item)
 
 	var hbox := HBoxContainer.new()
 	hbox.add_theme_constant_override("separation", 8)

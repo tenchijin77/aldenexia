@@ -441,7 +441,7 @@
     "death_text": ""
   },
   "sunmaddened_wanderer": {
-    "description": "a poor soul lost to the heat",
+    "description": "a sun maddened wanderer",
     "speed": 32.0,
     "health": 120,
     "damage": 15,
@@ -449,11 +449,13 @@
     "category": "humanoid",
     "faction": "None",
     "coin_modifier": 0.12,
-    "xp_gain": 12,
+    "xp_gain": 45,
     "zone": "dustwind_plateaus",
-    "armor_class": 11,
+    "armor_class": 14,
     "is_social": false,
     "level": 4,
+    "level_min": 4,
+    "level_max": 6,
     "aggro_range": 150.0,
     "animations": {
       "idle": "sunmaddened_wanderer_idle",

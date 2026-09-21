@@ -49,6 +49,10 @@ func _ready() -> void:
 	call_deferred("_finish_model")
 
 
+func _can_talk() -> bool:
+	return false  # she is a cat
+
+
 func _finish_model() -> void:
 	if _model == null:
 		return

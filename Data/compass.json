@@ -1,0 +1,20 @@
+{
+ "_help": [
+  "Which way is north in each zone, as [x, z] in world coordinates (the direction that is 'north' on the zone map). The compass HUD (Scripts/compass_hud.gd) measures the character's facing against it.",
+  "Lumora Outskirts: north is the +X axis (Lumora is north, the docks southwest); east is then +Z. Zones not listed use 'default' = Godot's forward (-Z)."
+ ],
+ "default": {
+  "north": [
+   0,
+   -1
+  ]
+ },
+ "zones": {
+  "lumora_outskirts3d": {
+   "north": [
+    1,
+    0
+   ]
+  }
+ }
+}

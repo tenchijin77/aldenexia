@@ -24,11 +24,14 @@ const KEYWORD_COLOR := "#ffe08a"
 var _npc: Node3D
 var _topics: Array = []
 var _busy := false
+var _talk_range := TALK_RANGE
 
 
-func _init(npc: Node3D, topics: Array) -> void:
+# talk_range: how close the player must be (guards only "hear" within 5 m, so theirs is 5).
+func _init(npc: Node3D, topics: Array, talk_range: float = TALK_RANGE) -> void:
 	_npc = npc
 	_topics = topics
+	_talk_range = talk_range
 
 
 # {word} -> a clickable, highlighted word. Clicking says the word (see GameLogWindow._on_meta_clicked).
@@ -66,10 +69,16 @@ func find_topic(text: String) -> Dictionary:
 	return {}
 
 
+# Would this NPC answer what the player just said? (In range and a topic matches.) Player3D uses this to let only ONE NPC answer.
+func can_answer(player: Node3D, text: String) -> bool:
+	return is_instance_valid(_npc) and is_instance_valid(player) \
+			and player.global_position.distance_to(_npc.global_position) <= _talk_range and not find_topic(text).is_empty()
+
+
 func hear(player: Node3D, text: String) -> void:
 	if _busy or not is_instance_valid(_npc) or not is_instance_valid(player):
 		return
-	if player.global_position.distance_to(_npc.global_position) > TALK_RANGE:
+	if player.global_position.distance_to(_npc.global_position) > _talk_range:
 		return
 	var topic := find_topic(text)
 	if not topic.is_empty():

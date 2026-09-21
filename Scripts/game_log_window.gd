@@ -538,7 +538,7 @@ func _on_chat_input_gui_input(event: InputEvent) -> void:
 # too (Linux-style abbreviation) — see _resolve_command() below. e.g. "/loc"
 # and "/location" both resolve to "/location" since no other command starts
 # with "loc"; "/f" would be ambiguous if two commands both started with "f".
-const COMMANDS := ["/location", "/hail", "/appraise", "/time", "/follow", "/camp", "/exit", "/log", "/invite", "/disband", "/say", "/tell", "/party", "/zone", "/played", "/resetui", "/who", "/weather", "/pet", "/quests"]
+const COMMANDS := ["/location", "/hail", "/appraise", "/time", "/follow", "/camp", "/exit", "/log", "/invite", "/disband", "/say", "/tell", "/party", "/zone", "/played", "/resetui", "/who", "/weather", "/pet", "/quests", "/compass"]
 
 
 func _handle_slash_command(text: String) -> void:
@@ -611,6 +611,8 @@ func _handle_slash_command(text: String) -> void:
 			_tell_command(arg)
 		"/played":
 			_show_played()
+		"/compass":
+			player.toggle_compass()
 		"/quests":
 			var quest_lines := Quests.journal_lines()
 			if quest_lines.is_empty():
