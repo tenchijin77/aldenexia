@@ -1527,6 +1527,14 @@ func light_status_text() -> String:
 # Authority only, every frame: the timer/rain/stealth rules for the Light slot.
 func _update_light_logic() -> void:
 	var item := get_light_item()
+	# Shadowlight (the Voidknight's spell) is a carried light too, the same as a torch (same radius, brightness, flicker, and visible to
+	# everyone through light_item_id) but violet. A lit torch takes over the slot while it burns.
+	if item.is_empty() or not item.get("lit", false):
+		var spell_light := SHADOWLIGHT_LIGHT_ID if combat_node.has_effect("shadowlight") else ""
+		if light_item_id == "" or light_item_id == SHADOWLIGHT_LIGHT_ID:
+			if light_item_id != spell_light:
+				light_item_id = spell_light
+			return
 	if item.is_empty() or not item.get("lit", false):
 		if light_item_id != "":
 			light_item_id = ""
@@ -1555,11 +1563,17 @@ func _update_light_visual(delta: float) -> void:
 	if light_item_id != _light_shown_id or (light_item_id != "" and not is_instance_valid(_light_light)):
 		_clear_light_visual()
 		_light_shown_id = light_item_id
-		if light_item_id != "":
+		if light_item_id == SHADOWLIGHT_LIGHT_ID:
+			_build_light_visual(SHADOWLIGHT_SOURCE)
+		elif light_item_id != "":
 			_build_light_visual(_light_source_of(Inventory.get_item_definition(light_item_id)))
 	if is_instance_valid(_light_light):
 		_light_flicker_t += delta
 		_light_light.light_energy = _light_base_energy * (0.9 + 0.07 * sin(_light_flicker_t * 17.0) + 0.05 * sin(_light_flicker_t * 41.0))
+
+
+const SHADOWLIGHT_LIGHT_ID := "spell:shadowlight"   # what light_item_id holds while the spell is up (there is no item)
+const SHADOWLIGHT_SOURCE := {"radius": 9.0, "energy": 2.2, "color": [0.62, 0.35, 0.95]}   # a torch's light, in violet
 
 
 func _clear_light_visual() -> void:
@@ -2675,6 +2689,45 @@ func _register_attacker(attacker: Node) -> void:
 # player's bind point (wherever they first spawned in, see
 # _ensure_bind_point()) at full HP/mana/stamina.
 
+# ── Spell messages (player_spells.json "cast_message") ──
+# The line the caster sees when the spell lands, with these variables: $targetname (the target's name: "a sand brigand", "Guard Reyna", or
+# "yourself" when you are the target), $Targetname (the same with a capital first letter, for the start of a sentence), $caster (your name)
+# and $spell (the spell's name). Example: "The melody makes $targetname feel strangely at ease."
+func _format_cast_message(text: String, spell_name: String, target_desc: String) -> String:
+	var out := text
+	out = out.replace("$Targetname", target_desc.substr(0, 1).to_upper() + target_desc.substr(1))
+	out = out.replace("$targetname", target_desc)
+	out = out.replace("$caster", player_name)
+	out = out.replace("$spell", spell_display_name(spell_name))
+	return out
+
+
+# The flavor line for a spell aimed at someone else (a self-cast shows it through _apply_generic_spell_effect instead).
+func _log_cast_flavor(spell_name: String, spell: Dictionary, target_desc: String) -> void:
+	var text := str(spell.get("cast_message", ""))
+	if not text.is_empty():
+		GameLog.log_combat("[color=#e6d9a8]%s[/color]" % _format_cast_message(text, spell_name, target_desc))
+
+
+# ── Spell range ──
+# player_spells.json "range" is text like "15m" ("0m" = self only). A spell aimed at a target cannot be cast at anything farther than that
+# (a little slack for the target's body): it used to work at 120 m.
+const SPELL_RANGE_SLACK := 1.0
+var _range_warn_msec := 0
+
+
+static func spell_range_m(spell: Dictionary) -> float:
+	var text := str(spell.get("range", "15m")).strip_edges().to_lower().trim_suffix("m")
+	return text.to_float() if text.is_valid_float() else 15.0
+
+
+func _target_out_of_range(spell: Dictionary, target: Node) -> bool:
+	if target == null or target == self or not (target is Node3D):
+		return false
+	var reach := spell_range_m(spell)
+	return reach > 0.0 and global_position.distance_to((target as Node3D).global_position) > reach + SPELL_RANGE_SLACK
+
+
 # Death ends all casting: the spell in progress, and every song that was playing (they used to resume after respawning).
 func _stop_all_casting() -> void:
 	if not _active_songs.is_empty():
@@ -2758,7 +2811,7 @@ func _show_death_screen() -> void:
 	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_death_screen.add_child(bg)
 	var lbl := Label.new()
-	lbl.text = "RETURNING TO YOUR BIND POINT..."
+	lbl.text = "Death is upon you! Returning to your bind point......."
 	lbl.set_anchors_preset(Control.PRESET_FULL_RECT)
 	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
@@ -3443,6 +3496,14 @@ func cast_spell(spell_name: String, is_auto_recast: bool = false) -> bool:
 			if not is_auto_recast:
 				GameLog.log_general("You can't target an ally with [b]%s[/b]." % display_name)
 			return false
+		if _target_out_of_range(spell, target_node):
+			# A song that plays on keeps trying, so it resumes when the target is back in reach: say so only now and then.
+			if not is_auto_recast or Time.get_ticks_msec() - _range_warn_msec > 5000:
+				_range_warn_msec = Time.get_ticks_msec()
+				GameLog.log_general("[color=#ff8866]Your target is out of range for [b]%s[/b] (%d m).[/color]" % [display_name, int(spell_range_m(spell))])
+			if not is_auto_recast:
+				_active_songs.erase(spell_name)   # a song that never started is not "playing"
+			return false
 
 	# Begin cast message
 	GameLog.log_combat(CombatLogFormatter.begin_cast("You"))
@@ -3552,6 +3613,9 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 			if TargetFrame.faction_status(target_node) == "Ally":
 				GameLog.log_general("You can't target an ally with [b]%s[/b]." % display_name)
 				return
+			if _target_out_of_range(spell, target_node):
+				GameLog.log_general("[color=#ff8866]Your target moved out of range of [b]%s[/b].[/color]" % display_name)
+				return
 			if not target_node.has_method("apply_damage"):
 				return
 
@@ -3561,6 +3625,7 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 			var target_cn = target_node.get("combat_node")
 			var target_desc: String = target_node.get("monster_description") \
 				if target_node.get("monster_description") != "" else target_node.get_monster_name()
+			_log_cast_flavor(spell_name, spell, target_desc)
 
 			# Multi-bolt spells (Magic Missile, Arcane Barrage, Unstable
 			# Missile, Chaos Barrage) — data-driven via "bolt_count" (and
@@ -3850,8 +3915,13 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 			var ally_target: Node = self
 			if target_node != null and is_instance_valid(target_node) and TargetFrame.faction_status(target_node) != "Enemy":
 				ally_target = target_node
+				if _target_out_of_range(spell, ally_target):
+					GameLog.log_general("[color=#ff8866]%s is out of range of [b]%s[/b] (%d m).[/color]" % [TargetFrame.display_name(ally_target), display_name, int(spell_range_m(spell))])
+					return
 			var ally_cn = ally_target.get("combat_node")
 			var ally_desc: String = "yourself" if ally_target == self else TargetFrame.display_name(ally_target)
+			if ally_target != self:
+				_log_cast_flavor(spell_name, spell, ally_desc)
 			# Same "yourself" swap as _apply_generic_spell_effect's bcast_desc
 			# — an ally-target broadcast naming this caster's real name when
 			# the target is themself, otherwise the same name every observer
@@ -4151,7 +4221,7 @@ func _apply_generic_spell_effect(effect_type: String, spell: Dictionary, caster_
 	# broadcast to third-party observers, still uses the existing 3rd-person
 	# "Target is empowered."-style text instead, since 2nd person wouldn't
 	# make sense describing what happened to someone else.
-	var self_cast_message: String = spell.get("cast_message", "") if target_desc == "yourself" else ""
+	var self_cast_message: String = _format_cast_message(str(spell.get("cast_message", "")), str(spell.get("spell_name", "")), "yourself") if target_desc == "yourself" else ""
 
 	match effect_type:
 		"heal":
@@ -4506,18 +4576,7 @@ func _enable_deathly_visage_light() -> void:
 # on your weapon or hand") rather than deathly_visage's room-illuminating
 # night vision.
 func _enable_shadowlight() -> void:
-	if not is_instance_valid(_shadowlight_light):
-		_shadowlight_light = OmniLight3D.new()
-		# Bumped 2026-09-17 (was energy 0.6 / range 4.0 — barely noticeable,
-		# especially now that night is darker overall) — noticeable violet
-		# glow across ~5m without reading as a full light source.
-		_shadowlight_light.light_color = Color(0.62, 0.35, 0.95)
-		_shadowlight_light.light_energy = 1.4
-		_shadowlight_light.omni_range = 5.0
-		_shadowlight_light.omni_attenuation = 1.4  # falls off a bit faster than default so it stays a "glow," not a floodlight
-		_shadowlight_light.position = Vector3(0, 1.3, 0)
-		add_child(_shadowlight_light)
-	_shadowlight_light.visible = true
+	pass  # the light itself is the shared carried light (see _update_light_logic): same as a torch, in violet
 
 
 # pet_type keys into PET_SCENES and is saved to Global.player_data so

@@ -162,67 +162,35 @@ func _use_bandage() -> void:
 
 
 func _show_inspect_popup() -> void:
-	var root = get_tree().root
+	var tree := get_tree()
+	var root = tree.root
 	var existing = root.get_node_or_null("ItemInspectLayer")
 	if existing:
+		existing.name = "ItemInspectLayer_closing"  # freed only at the end of the frame: its name must not rename the new popup
 		existing.queue_free()
 
 	var layer := CanvasLayer.new()
 	layer.name = "ItemInspectLayer"
 	layer.layer = 15
 
-	var popup := Panel.new()
-	popup.custom_minimum_size = Vector2(280, 80)
+	# A PanelContainer, so the popup grows to fit however many lines the item has (a plain Panel stays a fixed size).
+	var popup := PanelContainer.new()
+	popup.custom_minimum_size = Vector2(310, 60)
 
 	var bg := StyleBoxFlat.new()
 	bg.bg_color     = Color(0.08, 0.07, 0.06, 0.97)
 	bg.border_color = Color(0.45, 0.38, 0.25)
 	bg.set_border_width_all(2)
 	bg.set_corner_radius_all(4)
+	bg.set_content_margin_all(10)
 	popup.add_theme_stylebox_override("panel", bg)
 
 	var vbox := VBoxContainer.new()
-	vbox.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT, Control.PRESET_MODE_MINSIZE, 10)
 	vbox.add_theme_constant_override("separation", 6)
 
-	# Item name
-	var title := Label.new()
-	title.text = item_data.get("name", "Unknown Item")
-	title.add_theme_color_override("font_color", Color(1.0, 0.85, 0.4))
-	title.add_theme_font_size_override("font_size", 13)
-	vbox.add_child(title)
-
-	# Stats line (damage / armor / value)
-	var stats_parts: Array = []
-	if item_data.get("damage", 0) > 0:
-		stats_parts.append("Dmg: %d" % item_data["damage"])
-	if item_data.get("armor_class", 0) > 0:
-		stats_parts.append("AC: %d" % item_data["armor_class"])
-	if item_data.get("value", 0) > 0:
-		stats_parts.append("Value: %d cp" % item_data["value"])
-	if not stats_parts.is_empty():
-		var stats_lbl := Label.new()
-		stats_lbl.text = "  ".join(stats_parts)
-		stats_lbl.add_theme_color_override("font_color", Color(0.7, 0.85, 1.0))
-		stats_lbl.add_theme_font_size_override("font_size", 11)
-		vbox.add_child(stats_lbl)
-
-	# Description
-	var desc_lbl := Label.new()
-	desc_lbl.text = item_data.get("description", "")
-	desc_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	desc_lbl.add_theme_font_size_override("font_size", 11)
-	desc_lbl.add_theme_color_override("font_color", Color(0.80, 0.80, 0.80))
-	vbox.add_child(desc_lbl)
-
-	# Lore (if any)
-	if item_data.has("lore") and item_data["lore"] != "":
-		var lore_lbl := Label.new()
-		lore_lbl.text = item_data["lore"]
-		lore_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		lore_lbl.add_theme_color_override("font_color", Color(0.65, 0.65, 0.55))
-		lore_lbl.add_theme_font_size_override("font_size", 10)
-		vbox.add_child(lore_lbl)
+	# The same details the shop shows (kind, stats, who can use it, what it does; for a spell scroll what the spell does), and how it compares
+	# with what you wear.
+	ItemInspector.fill(vbox, item_data)
 
 	# Separator
 	var sep := HSeparator.new()
@@ -363,6 +331,11 @@ func _show_inspect_popup() -> void:
 	popup.position = get_global_mouse_position() + Vector2(10, 10)
 	layer.add_child(popup)
 	root.add_child(layer)
+	# Kept fully on screen once its real size is known (a frame later): a spell scroll's popup is tall.
+	await tree.process_frame
+	if is_instance_valid(popup):
+		var vp := popup.get_viewport_rect().size
+		popup.position = Vector2(clampf(popup.position.x, 4.0, maxf(vp.x - popup.size.x - 4.0, 4.0)), clampf(popup.position.y, 4.0, maxf(vp.y - popup.size.y - 4.0, 4.0)))
 
 # Small popup listing whichever weapon slot(s) (primary/secondary) currently
 # have a weapon equipped, so the player picks which one gets poisoned when

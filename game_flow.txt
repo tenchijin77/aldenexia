@@ -1105,6 +1105,13 @@ Scene: Scenes/player3d.tscn (contains CameraRig → CameraController + Camera3D)
   see the server as "offline" and never get the "Update needed" button. Put new RPCs on other nodes (scene nodes such as GMRelay / WeatherManager; those only matter between same-build peers, which the
   handshake guarantees). Check before releasing: `git diff <released build> -- Scripts/net.gd` must show no @rpc changes (also Global, GameLog, Inventory).
 
+--- SPELL DATA FIELDS worth knowing (Data/player_spells.json, 2026-09-21) ---
+  damage: the amount. effect_type "heal": an instant heal of that amount; "hot": the TOTAL healed over "duration" seconds, one tick per second (amount/duration, min 1 a tick); both scale with spell potency.
+  range: "15m" = how far you can be from the target ("0m" = self only). Area/self spells ignore it; Troubadour group songs use "aoe_radius" (default 8) for who is hit.
+  cast_message: the line the caster sees when it lands, with $targetname / $Targetname / $caster / $spell (Player3D._format_cast_message).
+  A spell scroll's popup (ItemInspector._spell_lines) shows the spell's description, level for your class, mana, cast, recast, range, target, damage.
+  Shadowlight is a carried light (Player3D.SHADOWLIGHT_SOURCE, light_item_id "spell:shadowlight"), replicated like a torch.
+
 --- DEATH RULES (updated 2026-09-21) ---
   0 HP = downed (dying, frozen); health drains 0 -> DEATH_HP (-30) over BLEED_OUT_DURATION (10 s) and you die at -30; a hit to -30 or below kills at once; health is floored at -30; a heal above 0 revives.
   Death (and going down) calls _stop_all_casting(): songs and the spell in progress end. MONSTERS ARE SERVER-SIDE and only see REPLICATED fields (position, health, mana, level...): a player counts as down for them

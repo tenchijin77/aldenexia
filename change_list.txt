@@ -886,3 +886,32 @@ Ask about desert dangers
       with the same damage output.
     - Tuning: those three numbers are in combatnode.gd. A level-1 character against the level 2–4 bandits in a raid is hard for every class.
 
+
+    - Target name in messages: there wasn't one, and cast_message only showed when you cast on yourself. That's why the Dissonant Chord and Charm
+    Melody messages you wrote never appeared. It now shows for spells aimed at someone else too, and supports these variables:
+    - $targetname: the target, such as "a sand brigand", "Guard Reyna", or "yourself" for a self-cast.
+    - $Targetname: the same with a capital first letter, for the start of a sentence.
+    - $caster: your name.
+    - $spell: the spell's name.
+
+    For example, "The melody makes $targetname feel strangely at ease." shows as "The melody makes a sand brigand feel strangely at ease."
+  - Healing amount: the damage field is the amount. I measured ballad_of_vigor at different values:
+    - effect_type: "heal" is an instant heal of that many points.
+    - "hot" (your ballad) is the total healed over duration seconds, one tick per second.
+    - damage: 0 (what you have now) gave only 8 in total, 1 a second. 24 gave 24, 40 gave 40 and 80 gave 80.
+    - So for your 8-second ballad, "damage": 40 heals 5 per second, 40 in all.
+    - Both scale with spell potency.
+    - The ballad heals the caster and every ally within aoe_radius, which defaults to 8 m; add "aoe_radius": 12 to change it. The "range": "8m"
+      field isn't what sets that.
+
+  Other changes
+  - Spell range: range in the spell data is now enforced, at 15 m for almost every spell. A target beyond it is refused, and it's checked again
+    when the cast finishes. A target 60 m away was refused, one at 8 m took 8 damage, and one moved to 70 m mid-cast took nothing. A song that
+    keeps playing waits until the target is back in reach. Area songs and self spells aren't affected.
+  - Death text: it now reads "Death is upon you! Returning to your bind point......."
+  - Spell scrolls: a scroll's right-click popup now shows the spell's description, its level for your class (green if you can cast it, red if
+    not), and its numbers. It also says "You already know this" when that applies. It works in the vendor and in the inventory and backpack, and
+    the bag popup now also shows the weapon and armor comparison the shop has.
+  - XP bar: it's under Water in the top strip of the character sheet, on every tab, in the same style as the other bars.
+  - Shadowlight: the Voidknight's light spell is now a carried light like a torch, with the same radius, brightness and flicker, in purple, and
+    every player sees it. I only checked the numbers, since my test world was in daylight, so I'd like your eyes on it at night.

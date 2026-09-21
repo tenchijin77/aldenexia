@@ -43,6 +43,9 @@ T7  2026-09-21  Public-server test, build 597043a
 T8  2026-09-21  Public-server test, build 91f3ec5
     Characters: Annadaeus (Troubadour)
 
+T9  2026-09-21  Public-server test, build e7cc914
+    Characters: Annadaeus (Troubadour)
+
 
 GENERAL (not class specific)
 ================================================================================
@@ -125,6 +128,13 @@ T5 (2026-09-21)
 - [FIXED]  Guards only engaged within 4 m (asked by: T8). Now 8 m.
 - [FIXED]  Troubadour very weak (found by: T8). Dissonant Chord's 5 damage verified (8 at level 4 with scaling); class defenses buffed (AC +3, parry 6, riposte 3): damage taken 1.76/s -> 0.98/s vs a tank's 0.75/s.
 - [FIXED]  A Troubadour's songs resumed after respawning (found by: T8). Death stops all casting.
+- [WORKS]  Damage on Dissonant Chord "helped tremendously"; meditation "working as intended now" (T9).
+- [FIXED]  Spells had no range: Dissonant Chord could be cast at 120 m (found by: T9). The "range" field (15 m) is enforced when the cast starts and when it finishes.
+- [FIXED]  Spell scrolls did not say what the spell does (found by: T9). The vendor's and the inventory's / backpack's right-click popup show the spell's description, level and numbers.
+- [FIXED]  XP bar was buried in the Stats tab (asked by: T9). It sits under Water in the top strip.
+- [FIXED]  Death screen wording (asked by: T9): "Death is upon you! Returning to your bind point......."
+- [FIXED]  Voidknight's light spell should look like the torch, in violet (asked by: T9). Shadowlight is now a carried light like a torch: same radius, brightness and flicker, violet, visible to everyone.
+- [FIXED]  cast_message only worked for self-casts and had no target name (asked by: T9). Works for targeted spells; $targetname, $Targetname, $caster, $spell.
 - [OPEN]   Female human's jump animation looks strange (found by: T8): the user will replace the animation.
 - [OPEN]   Anyone can type /gm enable. DECISION: how should real GM access be granted (server-side list, password)?
 

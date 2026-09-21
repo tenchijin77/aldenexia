@@ -36,23 +36,7 @@ static func open(item_def: Dictionary, at_position: Vector2, tree: SceneTree) ->
 	vbox.add_theme_constant_override("separation", 5)
 	popup.add_child(vbox)
 
-	_line(vbox, str(item_def.get("name", "Unknown Item")), Color(1.0, 0.85, 0.4), 14)
-	_line(vbox, _kind_line(item_def), Color(0.62, 0.62, 0.66), 11)
-	for stat_line in _stat_lines(item_def):
-		_line(vbox, stat_line, Color(0.7, 0.85, 1.0), 12)
-	var usable := _usability_line(item_def)
-	if not usable.is_empty():
-		_line(vbox, usable[0], usable[1], 11)
-	if str(item_def.get("description", "")) != "":
-		_line(vbox, str(item_def["description"]), Color(0.82, 0.82, 0.82), 11)
-	if str(item_def.get("lore", "")) != "":
-		_line(vbox, str(item_def["lore"]), Color(0.65, 0.65, 0.55), 10)
-
-	var comparison := _comparison(item_def)
-	if not comparison.is_empty():
-		vbox.add_child(HSeparator.new())
-		for entry in comparison:
-			_line(vbox, entry[0], entry[1], int(entry[2]) if entry.size() > 2 else 11)
+	fill(vbox, item_def)
 
 	vbox.add_child(HSeparator.new())
 	var close_btn := Button.new()
@@ -69,6 +53,80 @@ static func open(item_def: Dictionary, at_position: Vector2, tree: SceneTree) ->
 	if is_instance_valid(popup):
 		var vp := popup.get_viewport_rect().size
 		popup.position = Vector2(clampf(popup.position.x, 4.0, maxf(vp.x - popup.size.x - 4.0, 4.0)), clampf(popup.position.y, 4.0, maxf(vp.y - popup.size.y - 4.0, 4.0)))
+
+
+# Everything the popup says about an item: name, kind, stats, who can use it, what it does (for a spell scroll: what the spell does), lore, and
+# how it compares with what you wear. Shared by the shop's popup (open() above) and the inventory / backpack popup (slot_button.gd).
+static func fill(vbox: VBoxContainer, item_def: Dictionary, with_comparison: bool = true) -> void:
+	_line(vbox, str(item_def.get("name", "Unknown Item")), Color(1.0, 0.85, 0.4), 14)
+	_line(vbox, _kind_line(item_def), Color(0.62, 0.62, 0.66), 11)
+	for stat_line in _stat_lines(item_def):
+		_line(vbox, stat_line, Color(0.7, 0.85, 1.0), 12)
+	var usable := _usability_line(item_def)
+	if not usable.is_empty():
+		_line(vbox, usable[0], usable[1], 11)
+	if str(item_def.get("description", "")) != "":
+		_line(vbox, str(item_def["description"]), Color(0.82, 0.82, 0.82), 11)
+	var spell_block := _spell_lines(item_def)
+	if not spell_block.is_empty():
+		vbox.add_child(HSeparator.new())
+		for entry in spell_block:
+			_line(vbox, entry[0], entry[1], int(entry[2]) if entry.size() > 2 else 11)
+	if str(item_def.get("lore", "")) != "":
+		_line(vbox, str(item_def["lore"]), Color(0.65, 0.65, 0.55), 10)
+
+	if with_comparison:
+		var comparison := _comparison(item_def)
+		if not comparison.is_empty():
+			vbox.add_child(HSeparator.new())
+			for entry in comparison:
+				_line(vbox, entry[0], entry[1], int(entry[2]) if entry.size() > 2 else 11)
+
+
+# What a spell scroll teaches: the spell's name, the level YOUR class needs, its description and its numbers, and whether you already
+# know it. [] for anything that is not a scroll. Songs (the Troubadour's spells) are spells too.
+static func _spell_lines(def: Dictionary) -> Array:
+	var spell_name := str(def.get("teaches_spell", ""))
+	if spell_name.is_empty():
+		return []
+	var player := TargetFrame.local_player()
+	var info: Dictionary = {}
+	if is_instance_valid(player) and "_spell_by_name" in player:
+		info = player._spell_by_name.get(spell_name, {})
+	if info.is_empty():
+		return [["Teaches: %s" % _nice(spell_name), Color(0.8, 0.75, 1.0), 12]]
+	var lines: Array = []
+	var my_class := str(player.get("player_class")) if is_instance_valid(player) else ""
+	var levels: Dictionary = info.get("class_level_requirements", {})
+	var required := SpellInfo.required_level(info, my_class) if levels.has(my_class) else (int(levels.values().min()) if not levels.is_empty() else int(info.get("level", 1)))
+	var my_level := int(player.combat_node.level) if is_instance_valid(player) and "combat_node" in player and player.combat_node else 1
+	var can_cast := levels.has(my_class) and my_level >= required
+	var known: Array = player.get("known_spells") if is_instance_valid(player) and "known_spells" in player else []
+	var header := "%s: %s" % ["Song" if my_class == "Troubadour" else "Spell", Player3D.spell_display_name(spell_name)]
+	lines.append([header, Color(0.8, 0.75, 1.0), 13])
+	var school := str(info.get("spell_school", ""))
+	lines.append(["Level %d%s" % [required, ("   ·   " + _nice(school)) if school != "" else ""], Color(0.55, 0.85, 0.55) if can_cast else Color(0.9, 0.4, 0.4), 11])
+	if str(info.get("description", "")) != "":
+		lines.append([str(info["description"]), Color(0.86, 0.86, 0.92), 11])
+	var facts: Array = []
+	if float(info.get("mana_cost", 0.0)) > 0.0:
+		facts.append("%d mana" % int(info["mana_cost"]))
+	if float(info.get("casting_time", 0.0)) > 0.0:
+		facts.append("cast %.1f s" % float(info["casting_time"]))
+	if float(info.get("recast_time", 0.0)) > 0.0:
+		facts.append("recast %.0f s" % float(info["recast_time"]))
+	var reach := Player3D.spell_range_m(info)
+	if reach > 0.0 and str(info.get("target", "")) not in ["self", "pbaoe"]:
+		facts.append("range %d m" % int(reach))
+	if str(info.get("target", "")) != "":
+		facts.append("target: %s" % _nice(str(info["target"])))
+	if float(info.get("damage", 0)) > 0.0:
+		facts.append("damage %d" % int(info["damage"]))
+	if not facts.is_empty():
+		lines.append(["  ·  ".join(facts), Color(0.45, 0.65, 1.0), 11])
+	if spell_name in known:
+		lines.append(["You already know this.", Color(0.7, 0.7, 0.75), 11])
+	return lines
 
 
 static func _line(parent: Control, text: String, color: Color, font_size: int) -> void:

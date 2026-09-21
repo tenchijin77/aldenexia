@@ -31,7 +31,7 @@
         "spell_id": 2,
         "spell_name": "shadow_aura",
         "icon": "res://Assets/icons/spells/selfbuff.png",
-        "description": "Reduces enemy accuracy by 5% in 10m radius. Duration: 15 minutes.",
+        "description": "Reduces enemy accuracy by 5% in 10m radius.",
         "caster_proficiency": "intelligence",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -9946,7 +9946,7 @@
         "spell_id": 359,
         "spell_name": "song_of_courage",
         "icon": "res://Assets/icons/spells/groupbuff.png",
-        "description": "Grants allies in 8m +5% damage/critical chance.",
+        "description": "Grants allies within 8m a +5% damage/critical chance.",
         "caster_proficiency": "none",
         "mana_cost": 0.0,
         "recast_time": 5.0,
@@ -9992,6 +9992,7 @@
         "blockable": true,
         "dispellable": true,
         "spell_type": "detrimental",
+        "cast_message": "The dissonant chord's screech makes the enemy wince in pain.",
         "interruptable": true,
         "class_level_requirements": {
             "Troubadour": 1
@@ -10002,7 +10003,7 @@
     {
         "spell_id": 361,
         "spell_name": "blade_dance",
-        "description": "Deals damage to enemies within 5m.",
+        "description": "Deals damage to all enemies within 5m.",
         "caster_proficiency": "none",
         "mana_cost": 0.0,
         "recast_time": 5.0,
@@ -10019,6 +10020,7 @@
         "blockable": true,
         "dispellable": true,
         "spell_type": "pbaoe",
+        "cast_message": "Blades of energy assault the nearby enemies.",
         "interruptable": true,
         "class_level_requirements": {
             "Troubadour": 2
@@ -10030,7 +10032,7 @@
         "spell_id": 362,
         "spell_name": "charm_melody",
         "icon": "res://Assets/icons/spells/targetarcane.png",
-        "description": "Charms enemy to fight for you.",
+        "description": "Charms an enemy to fight for you.",
         "caster_proficiency": "none",
         "mana_cost": 0.0,
         "recast_time": 5.0,
@@ -10047,6 +10049,7 @@
         "blockable": true,
         "dispellable": true,
         "spell_type": "charm",
+        "cast_message": "The melody makes the enemy feel strangely at ease.",
         "interruptable": true,
         "class_level_requirements": {
             "Troubadour": 2
@@ -10058,16 +10061,16 @@
         "spell_id": 363,
         "spell_name": "ballad_of_vigor",
         "icon": "res://Assets/icons/spells/grouphot.png",
-        "description": "Heals allies in 8m.",
+        "description": "Heals all allies within 8m.",
         "caster_proficiency": "none",
         "mana_cost": 0.0,
         "recast_time": 5.0,
         "level": 3,
         "spell_school": "magic",
         "skill_category": "evocation",
-        "damage": 0,
+        "damage": 40,
         "target": "group",
-        "range": "15m",
+        "range": "8m",
         "duration": 8,
         "casting_time": 1.5,
         "failure_rate": 0.0,
@@ -10075,6 +10078,7 @@
         "blockable": true,
         "dispellable": true,
         "spell_type": "beneficial",
+          "cast_message": "The ballad makes you feel a bit better.",
         "interruptable": true,
         "class_level_requirements": {
             "Troubadour": 3

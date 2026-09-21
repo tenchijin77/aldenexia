@@ -119,6 +119,7 @@ const VITAL_COLORS := {
 	"sta":   Color(0.85, 0.75, 0.1),
 	"food":  Color(0.75, 0.45, 0.15),
 	"water": Color(0.15, 0.65, 0.75),
+	"xp":    Color(0.45, 0.25, 0.75),
 }
 
 func _build_identity_strip() -> void:
@@ -154,6 +155,9 @@ func _build_identity_strip() -> void:
 	_make_vital_row(vitals_box, "sta", "STA")
 	_make_vital_row(vitals_box, "food", "Food")
 	_make_vital_row(vitals_box, "water", "Water")
+	_make_vital_row(vitals_box, "xp", "XP")   # the experience bar lives with the other bars, under Water, on every tab
+	xp_bar = _vitals["xp"]["bar"]
+	_stat_labels["xp"] = _vitals["xp"]["label"]
 
 
 func _make_vital_row(parent: Control, key: String, label_text: String) -> void:
@@ -270,26 +274,6 @@ func _build_stats_panel() -> void:
 			["magic", "Magic", Color(0.54, 0.32, 0.85)], ["divine", "Divine", Color(0.90, 0.82, 0.55)],
 			["psychic", "Psychic", Color(0.79, 0.37, 0.68)], ["spirit", "Spirit", Color(0.60, 0.60, 0.95)]]:
 		_make_badge(resist_row, key_label_color[0], key_label_color[1], key_label_color[2])
-
-	var xp_row := HBoxContainer.new()
-	xp_row.add_theme_constant_override("separation", 8)
-	stats_panel.add_child(_make_section("Experience", xp_row))
-	xp_bar = ProgressBar.new()
-	xp_bar.show_percentage = false
-	xp_bar.custom_minimum_size = Vector2(0, 10)
-	xp_bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	var xp_fill := StyleBoxFlat.new()
-	xp_fill.bg_color = Color(0.45, 0.25, 0.75)
-	xp_bar.add_theme_stylebox_override("fill", xp_fill)
-	var xp_bg := StyleBoxFlat.new()
-	xp_bg.bg_color = Color(0.10, 0.08, 0.14)
-	xp_bar.add_theme_stylebox_override("background", xp_bg)
-	xp_row.add_child(xp_bar)
-	var xp_lbl := Label.new()
-	xp_lbl.custom_minimum_size = Vector2(90, 0)
-	xp_lbl.add_theme_font_size_override("font_size", 10)
-	xp_row.add_child(xp_lbl)
-	_stat_labels["xp"] = xp_lbl
 
 	var coin_row := HBoxContainer.new()
 	coin_row.add_theme_constant_override("separation", 12)
