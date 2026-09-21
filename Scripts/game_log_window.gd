@@ -539,7 +539,7 @@ func _on_chat_input_gui_input(event: InputEvent) -> void:
 # and "/location" both resolve to "/location" since no other command starts
 # with "loc"; "/f" would be ambiguous if two commands both started with "f".
 const GMCommandsScript := preload("res://Scripts/gm_commands.gd")
-const COMMANDS := ["/location", "/hail", "/appraise", "/time", "/follow", "/camp", "/exit", "/log", "/invite", "/disband", "/say", "/tell", "/party", "/zone", "/played", "/resetui", "/who", "/weather", "/pet", "/quests", "/compass", "/raid", "/gm"]
+const COMMANDS := ["/location", "/hail", "/appraise", "/time", "/follow", "/camp", "/exit", "/log", "/invite", "/disband", "/say", "/tell", "/party", "/zone", "/played", "/resetui", "/who", "/weather", "/pet", "/quests", "/compass", "/raid", "/gm", "/focus", "/assist"]
 
 
 func _handle_slash_command(text: String) -> void:
@@ -556,6 +556,10 @@ func _handle_slash_command(text: String) -> void:
 			WorldAnnouncer.print_who(player)
 		"/pet":
 			player.try_pet_nearby()
+		"/focus":
+			player.cmd_focus(arg)
+		"/assist":
+			player.assist_target()
 		"/gm":
 			GMCommandsScript.set_mode(player, arg)
 		"/weather", "/raid":

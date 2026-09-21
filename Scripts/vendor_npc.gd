@@ -127,11 +127,23 @@ func respond_to_hail() -> void:
 	var player := TargetFrame.local_player()
 	if not is_instance_valid(player):
 		return
+	face_hailer(player)
 	greet_player(player.player_name)
+
+
+# Turn to face whoever is talking to this NPC (upright: never tilts up or down).
+func face_hailer(player: Node3D) -> void:
+	var target := player.global_position
+	target.y = global_position.y
+	if target.distance_to(global_position) > 0.01:
+		look_at(target, Vector3.UP)
 
 
 # Called by player3d.gd's _open_shop() the moment the shop window opens.
 func greet_player(player_name: String) -> void:
+	var talker := TargetFrame.local_player()
+	if is_instance_valid(talker):
+		face_hailer(talker)
 	var stock := get_shop_stock()
 	if stock.is_empty():
 		return

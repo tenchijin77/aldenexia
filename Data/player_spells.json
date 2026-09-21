@@ -2482,6 +2482,7 @@
     {
         "spell_id": 90,
         "spell_name": "cleave",
+        "icon": "res://Assets/icons/spells/aoephysical.png",
         "description": "Deals 50 damage to 2 enemies in 5m arc.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -2565,6 +2566,7 @@
     {
         "spell_id": 93,
         "spell_name": "whirlwind",
+        "icon": "res://Assets/icons/spells/aoephysical.png",
         "description": "Deals 70 damage to all enemies in 5m.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -2921,6 +2923,7 @@
     {
         "spell_id": 106,
         "spell_name": "blade_storm",
+        "icon": "res://Assets/icons/spells/aoephysical.png",
         "description": "Deals 100 damage to all enemies in 6m, reduces armor by 5%.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -2977,6 +2980,7 @@
     {
         "spell_id": 108,
         "spell_name": "defiant_roar",
+        "icon": "res://Assets/icons/spells/aoephysical.png",
         "description": "Taunts all enemies in 10m for 4 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -9226,6 +9230,7 @@
     {
         "spell_id": 333,
         "spell_name": "fan_of_knives",
+        "icon": "res://Assets/icons/spells/aoephysical.png",
         "description": "Deals 60 damage to all enemies in 5m.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -9553,6 +9558,7 @@
     {
         "spell_id": 345,
         "spell_name": "blade_flurry",
+        "icon": "res://Assets/icons/spells/aoephysical.png",
         "description": "Deals 100 damage to 2 enemies in 5m, +5% critical chance.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -10003,6 +10009,7 @@
     {
         "spell_id": 361,
         "spell_name": "blade_dance",
+        "icon": "res://Assets/icons/spells/aoephysical.png",
         "description": "Deals damage to all enemies within 5m.",
         "caster_proficiency": "none",
         "mana_cost": 0.0,

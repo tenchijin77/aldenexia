@@ -1105,6 +1105,16 @@ Scene: Scenes/player3d.tscn (contains CameraRig → CameraController + Camera3D)
   see the server as "offline" and never get the "Update needed" button. Put new RPCs on other nodes (scene nodes such as GMRelay / WeatherManager; those only matter between same-build peers, which the
   handshake guarantees). Check before releasing: `git diff <released build> -- Scripts/net.gd` must show no @rpc changes (also Global, GameLog, Inventory).
 
+--- ENCOUNTER FRAME (2026-09-21) ---
+  encounter_frame.gd: the monsters whose replicated target_key is the local player or a group member (+ your current target if it is in a fight), nearest first; rows are kept per monster (not rebuilt) so clicks work.
+  RULE for every HUD frame: draggable, resizable, remembered per character (WindowPosition.save / load_full_into), restored by /resetui (spawn it in Player3D._spawn_hud_frames()).
+  F = assist (raw key in Player3D._unhandled_input); guards hold a facing 10 s after a hail (GuardNPC._face_hold_until_msec).
+
+--- FOCUS / TARGET OF TARGET (2026-09-21) ---
+  Player3D.focus_target (client-side, friendly, survives death) is the fallback for single-ally beneficial spells when current_target is not a friend (see the "group" branch of _resolve_spell_cast).
+  target_key (players, monsters, guards) is the replicated "who am I fighting" key behind TargetFrame.target_of(); MiniTargetFrame draws the FOCUS and TARGET'S TARGET frames; Global.settings["detrimental_to_tot"]
+  redirects attack spells from a friendly target to that friend's enemy (cast_spell). /focus, /assist.
+
 --- SPELL DATA FIELDS worth knowing (Data/player_spells.json, 2026-09-21) ---
   damage: the amount. effect_type "heal": an instant heal of that amount; "hot": the TOTAL healed over "duration" seconds, one tick per second (amount/duration, min 1 a tick); both scale with spell potency.
   range: "15m" = how far you can be from the target ("0m" = self only). Area/self spells ignore it; Troubadour group songs use "aoe_radius" (default 8) for who is hit.

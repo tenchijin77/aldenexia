@@ -63,11 +63,14 @@ var combat_node: CombatNode
 var level: int = 8  # mirrors combat_node.level; exposed at the top level like monster3d.gd's `level`
 var home_position: Vector3 = Vector3.ZERO
 var _home_yaw: float = 0.0   # which way the post faces: restored after a fight
+var _face_hold_until_msec := 0   # after facing someone (a hail, a conversation) the guard keeps facing them this long before turning back to the post
+const FACE_HOLD_SECONDS := 10.0
 const POST_RETURN_DISTANCE := 1.5   # a stationary guard further than this from its post walks back to it
 const POST_ARRIVAL := 0.8
 var state: GuardState = GuardState.IDLE
 var _default_state: GuardState = GuardState.IDLE  # what to return to once combat ends — IDLE for stationary guards, PATROL for patrolling ones
 var attack_target: Node = null
+var target_key: String = ""   # who this guard is fighting (TargetFrame.target_key_of), for "target's target"
 var _engage_origin: Vector3 = Vector3.ZERO  # where this guard was standing when it started the current fight — leash reference point (works for both stationary and patrolling guards)
 var move_speed: float = 3.0
 
@@ -261,6 +264,7 @@ func _face_player() -> void:
 	target_pos.y = global_position.y  # stay upright, don't tilt up/down toward the player
 	if target_pos.distance_to(global_position) > 0.01:
 		look_at(target_pos, Vector3.UP)
+		_face_hold_until_msec = Time.get_ticks_msec() + int(FACE_HOLD_SECONDS * 1000.0)
 
 
 # `broadcast` = an unprompted line (banter, engage callout) decided on the server that every
@@ -533,7 +537,8 @@ func _physics_process(delta: float) -> void:
 				_apply_gravity(delta)
 				velocity.x = 0.0
 				velocity.z = 0.0
-				rotation.y = lerp_angle(rotation.y, _home_yaw, minf(4.0 * delta, 1.0))   # and face the way it was posted
+				if Time.get_ticks_msec() >= _face_hold_until_msec:
+					rotation.y = lerp_angle(rotation.y, _home_yaw, minf(4.0 * delta, 1.0))   # and face the way it was posted (once done facing whoever hailed)
 		GuardState.PATROL:
 			_scan_timer += delta
 			if _scan_timer >= SCAN_INTERVAL:
@@ -543,6 +548,8 @@ func _physics_process(delta: float) -> void:
 				_process_patrol(delta)
 		GuardState.ENGAGE:
 			_process_engage(delta)
+	if state != GuardState.ENGAGE and target_key != "":
+		target_key = ""
 
 	move_and_slide()
 	_update_animation()
@@ -608,6 +615,9 @@ func _scan_for_targets() -> void:
 
 
 func _process_engage(delta: float) -> void:
+	var fighting_key := TargetFrame.target_key_of(attack_target)
+	if fighting_key != target_key:
+		target_key = fighting_key
 	if not is_instance_valid(attack_target) or attack_target.get("current_state") == attack_target.State.DEAD:
 		attack_target = null
 		state = _default_state

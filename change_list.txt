@@ -915,3 +915,50 @@ Ask about desert dangers
   - XP bar: it's under Water in the top strip of the character sheet, on every tab, in the same style as the other bars.
   - Shadowlight: the Voidknight's light spell is now a carried light like a torch, with the same radius, brightness and flicker, in purple, and
     every player sees it. I only checked the numbers, since my test world was in daylight, so I'd like your eyes on it at night.
+
+  Focus (the defensive target)
+  - Setting it: /focus uses your current friendly target. /focus <name> picks a group member, /focus self targets you, and /focus clear drops
+    it. You can also Shift-click a friend in the world or a group-frame row. An enemy can't be a focus.
+  - Routing for heals and buffs:
+    - A friend you've explicitly targeted always wins.
+    - Otherwise the heal goes to your focus.
+    - Otherwise it goes to you.
+    - Detrimental spells still need a hostile target.
+    - Troubadour songs are unchanged.
+    - The spell range limit applies to the focus too.
+  - Death: the focus survives your death and respawn. It clears only when that person leaves the world.
+  - Frame: a small "FOCUS" frame sits under the target frame with a green health bar and the distance, which turns red past 15 m. Click it to
+    target that person. It drags like the other windows and comes back with /resetui.
+
+  Target-of-target
+  - Frame: a "TARGET'S TARGET" frame sits to the right of the target frame. Target the boss and it shows who the boss is hitting.
+  - /assist: targets whatever your current target is targeting. Target the tank, type /assist, and you're on his enemy.
+  - Option: "Attack Spells Follow My Friend's Target" is in the Options menu and off by default. With it on, an attack spell aimed at a friend
+    goes to the enemy they're fighting. If they aren't fighting anything, you get the usual "can't target an ally" message.
+
+  Target distance: the target frame now shows how far the target is at the right end of its HP row, such as "7.4 m", switching to whole metres
+  at 10 m and beyond.
+
+    - F = assist: it targets whatever your current target is targeting. It ignores the key while you're typing in chat, and when Ctrl, Shift or
+    Alt is held. The help page says "(or press F)".
+  - Encounter frame: it sits next to the target frame and has one row per enemy fighting you or a group member.
+    - Row contents: the name (colored by difficulty, red for bosses), a health bar with numbers, and the distance.
+    - Order and targeting: rows run nearest first. Your targeted enemy is outlined in gold, and clicking a row targets it.
+    - When it shows: it appears whenever at least one enemy is fighting you or your group, and it's hidden otherwise. If you'd rather it only
+      appear at two or more, that's a one-line change.
+    - Frame behavior: drag it by its title strip, and it holds up to 16 rows with scrolling.
+    - Check: with four bandits on me, all four were listed, retargeting by click worked, and a dead one dropped off.
+  - Blade Dance icon: I made a crimson crossed-swords icon by recoloring the existing crossed-swords art, so it isn't confused with the orange
+    arcane-area icon. It's on Blade Dance and six other physical area abilities (Cleave, Whirlwind, Blade Storm, Defiant Roar, Fan of Knives,
+    Blade Flurry). I edited player_spells.json minimally, so your formatting is untouched. About 40 other physical abilities, mostly
+    single-target and group ones, still have no icon because there's no matching art yet.
+  - Facing: the snap-back was my mistake. Last session I added logic that turns idle guards back to their posts, and it turned Halric back to
+    his archery targets the very next frame after a hail.
+    - Guards: they now hold their facing for 10 seconds after a hail or conversation, then turn back smoothly. Halric turned about 68° toward
+      me, was still there 3 seconds later, and turned back after the hold.
+    - Vendors: generic vendors and Sahren now face you when hailed. Tobias, Kenji and the guards already did.
+  - Torch text: lighting shows "You light a torch to keep the darkness at bay." and rain snuffing it shows "The falling rain quickly snuffs the
+    life out of your torch." Any future light can have its own lines through two new fields in its data.
+
+
+

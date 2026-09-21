@@ -1671,7 +1671,9 @@
       ],
       "burn_minutes": 10.0,
       "snuffed_by_rain": true,
-      "breaks_stealth": true
+      "breaks_stealth": true,
+      "light_message": "You light a torch to keep the darkness at bay.",
+      "rain_snuff_message": "The falling rain quickly snuffs the life out of your torch."
     }
   },
   "torn_boots": {

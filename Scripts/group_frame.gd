@@ -199,6 +199,9 @@ func _on_row_clicked(event: InputEvent, row: Dictionary, part: String) -> void:
 	var target: Node = row["member"] if part == "member" else row["pet"]
 	if not is_instance_valid(target):
 		return
+	if Input.is_key_pressed(KEY_SHIFT) and _player.has_method("set_focus"):
+		_player.set_focus(target)   # Shift-click a group row: make them your focus
+		return
 	_player.current_target = target
 	if _player.has_method("_announce_target"):
 		_player._announce_target(target)

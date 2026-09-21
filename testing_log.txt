@@ -46,6 +46,9 @@ T8  2026-09-21  Public-server test, build 91f3ec5
 T9  2026-09-21  Public-server test, build e7cc914
     Characters: Annadaeus (Troubadour)
 
+T10 2026-09-21  Public-server test, build 7620382
+    Characters: Annadaeus (Troubadour)
+
 
 GENERAL (not class specific)
 ================================================================================
@@ -135,6 +138,12 @@ T5 (2026-09-21)
 - [FIXED]  Death screen wording (asked by: T9): "Death is upon you! Returning to your bind point......."
 - [FIXED]  Voidknight's light spell should look like the torch, in violet (asked by: T9). Shadowlight is now a carried light like a torch: same radius, brightness and flicker, violet, visible to everyone.
 - [FIXED]  cast_message only worked for self-casts and had no target name (asked by: T9). Works for targeted spells; $targetname, $Targetname, $caster, $spell.
+- [DONE]   Focus target (asked by: T9 design talk): /focus, Shift-click, a focus frame, heals route to the focus while you target an enemy; target-of-target frame + /assist; option for attack spells to follow a friend's target; distance on the target frame. Needs a playtest with a real group.
+- [WORKS]  XP bar, spell descriptions, spell range, guards walking back to their posts, an automatic bandit raid (T10).
+- [FIXED]  Blade Dance had no spell icon (found by: T10). New crimson crossed-swords icon on it and the 6 other physical area abilities; 40 physical single-target/group abilities still have none.
+- [FIXED]  No overview of enemies in a multi-enemy fight (asked by: T10). Encounter frame: every enemy in combat with you or your group, with name, health and distance; draggable, resizable.
+- [FIXED]  Guard Halric did not seem to face the hailer, or snapped back at once (found by: T10). Guards hold the facing 10 s; vendors face the player when hailed.
+- [FIXED]  Torch flavour text (asked by: T10). Lighting and the rain snuffing it have their own lines. F is the assist key.
 - [OPEN]   Female human's jump animation looks strange (found by: T8): the user will replace the animation.
 - [OPEN]   Anyone can type /gm enable. DECISION: how should real GM access be granted (server-side list, password)?
 

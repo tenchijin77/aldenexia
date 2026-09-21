@@ -21,6 +21,7 @@ var _resizing := false
 
 # Appraisal "wrong color" cosmetic effect (failed/critically-failed Insight
 # Check) — overrides the real con-color for a short time, then self-corrects.
+var dist_label: Label = null   # how far the target is, at the right end of the HP row (built in _ready)
 var _wrong_color: Color = Color.WHITE
 var _wrong_color_until: float = 0.0
 
@@ -37,6 +38,13 @@ func _ready() -> void:
 	# faction_label next to it — clip with an ellipsis instead.
 	name_label.clip_text = true
 	name_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+
+	dist_label = Label.new()
+	dist_label.custom_minimum_size = Vector2(46, 0)
+	dist_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	dist_label.add_theme_font_size_override("font_size", 11)
+	dist_label.add_theme_color_override("font_color", Color(0.75, 0.75, 0.8))
+	$Panel/VBox/HPRow.add_child(dist_label)
 
 	panel.gui_input.connect(_on_panel_gui_input)
 	WindowPosition.load_full_into(POSITION_KEY, panel)
@@ -161,6 +169,55 @@ static func local_player() -> Node:
 # `_peer_id_to_player_node()`, exposed statically so non-player scripts
 # (monster3d.gd's kill-credit routing) don't need a Player3D instance just to
 # call it.
+# ── Who is targeting whom ("target of target") ──
+# Players and monsters publish who they are targeting as a short replicated key, so every client can show "target's target" (who the boss
+# is hitting, what the tank is fighting): "p:<peer id>" a player, "m:<node name>" a monster, "n:<npc name>" a guard or vendor.
+static func target_key_of(node: Node) -> String:
+	if node == null or not is_instance_valid(node):
+		return ""
+	if node.is_in_group("player"):
+		return "p:%d" % node.get_multiplayer_authority()
+	if node.is_in_group("monsters"):
+		return "m:" + str(node.name)
+	if node.is_in_group("npc_guard") or node.is_in_group("npc_vendor"):
+		return "n:" + str(node.get("npc_name"))
+	return ""
+
+
+static func resolve_target_key(key: String) -> Node:
+	if key.length() < 3:
+		return null
+	var tree := Engine.get_main_loop() as SceneTree
+	if tree == null:
+		return null
+	var wanted := key.substr(2)
+	match key[0]:
+		"p":
+			return peer_id_to_player_node(int(wanted))
+		"m":
+			for m in tree.get_nodes_in_group("monsters"):
+				if is_instance_valid(m) and str(m.name) == wanted:
+					return m
+		"n":
+			for group in ["npc_guard", "npc_vendor"]:
+				for n in tree.get_nodes_in_group(group):
+					if is_instance_valid(n) and str(n.get("npc_name")) == wanted:
+						return n
+	return null
+
+
+# What `node` is targeting right now (null when nothing, or it is gone or dead).
+static func target_of(node: Node) -> Node:
+	if node == null or not is_instance_valid(node) or not ("target_key" in node):
+		return null
+	var t := resolve_target_key(str(node.get("target_key")))
+	if t == null or not is_instance_valid(t):
+		return null
+	if "current_state" in t and t.get("current_state") == t.State.DEAD:
+		return null
+	return t
+
+
 static func peer_id_to_player_node(peer_id: int) -> Node:
 	var tree := Engine.get_main_loop() as SceneTree
 	if not tree:
@@ -302,6 +359,9 @@ func _process(_delta: float) -> void:
 
 	visible = true
 	_refresh_name_and_con()
+	if dist_label and is_instance_valid(_player) and _target is Node3D:
+		var metres: float = _player.global_position.distance_to((_target as Node3D).global_position)
+		dist_label.text = "" if _target == _player else ("%.1f m" % metres if metres < 10.0 else "%d m" % int(metres))
 
 	if "combat_node" in _target:
 		var cn = _target.combat_node

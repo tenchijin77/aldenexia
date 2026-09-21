@@ -116,6 +116,7 @@ func respond_to_hail() -> void:
 
 # Called by Player3D when his shop opens: if you carry a Ceramic Water-Token he reacts to THAT first; otherwise a sales line.
 func greet_player(_player_name: String) -> void:
+	_face_player()
 	if _notice_token():
 		return
 	say_local(_pick("sales"))

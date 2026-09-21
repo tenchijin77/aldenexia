@@ -29,7 +29,7 @@ RES = "res://Assets/icons/spells/"
 
 have = {f[:-4] for f in os.listdir(ICON_DIR) if f.endswith(".png")}
 
-SCHOOL_KIND = {"fire": "fire", "cold": "ice", "lightning": "lightning",
+SCHOOL_KIND = {"physical": "physical", "fire": "fire", "cold": "ice", "lightning": "lightning",
                "poison": "poison", "disease": "poison", "divine": "divine",
                "magic": "arcane", "psychic": "arcane", "spirit": "necromancy"}
 CC_KIND = {"stun": "stun", "root": "root", "snare": "root", "fear": "fear",
@@ -123,7 +123,7 @@ def classify(s):
     else:
         if tgt in ("pbaoe", "cone", "line"):
             prefix = "aoe" if kind in ("fire", "ice", "lightning", "poison", "divine",
-                                       "arcane", "necromancy") else "group"
+                                       "arcane", "necromancy", "physical") else "group"
             if prefix == "group":
                 note = "aoe-cc->group"
         elif tgt in ("group", "chain"):

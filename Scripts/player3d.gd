@@ -166,6 +166,11 @@ var attack_cooldown: float = 0.0
 var _current_cast_anim: String = ""
 var _cast_anim_timer: float = 0.0
 var current_target: Node = null
+# Focus (2026-09-21): a second, sticky FRIENDLY target. Beneficial spells go to your current target when it is friendly, otherwise to the focus,
+# otherwise to you; detrimental spells still need a hostile current target. Client-side only; survives death and respawn.
+var focus_target: Node = null
+# Who I am targeting, as a short key ("p:<peer id>", "m:<monster name>", "n:<npc name>"), replicated so everyone can show "target's target".
+var target_key: String = ""
 var _target_idx: int = -1
 
 # F1-F6 group targeting (EQ/modern-MMO style) — group_members[0] is always
@@ -246,6 +251,12 @@ func _unhandled_input(event: InputEvent) -> void:
 
 		if event.is_action_pressed("hail") and not (get_viewport().gui_get_focus_owner() is LineEdit):
 			try_hail_nearby_npc()
+			return
+
+		# F = assist: target what your current target is targeting (a raw key, like N: it can ship in a patch).
+		if event.keycode == KEY_F and not event.ctrl_pressed and not event.shift_pressed and not event.alt_pressed and not event.echo \
+				and not (get_viewport().gui_get_focus_owner() is LineEdit):
+			assist_target()
 			return
 
 		# N shows/hides the compass (a raw key, not an InputMap action, so it can ship in an update patch).
@@ -1225,6 +1236,8 @@ func _spawn_hud() -> void:
 	GameLog.log_general("Welcome, [b]%s[/b]." % player_name)
 
 
+const MINI_TARGET_FRAME := preload("res://Scripts/mini_target_frame.gd")
+const ENCOUNTER_FRAME := preload("res://Scripts/encounter_frame.gd")
 const HUD_FRAME_SCENES := [
 	"res://Scenes/player_frame.tscn",
 	"res://Scenes/cast_bar.tscn",
@@ -1243,6 +1256,14 @@ func _spawn_hud_frames() -> void:
 		var node: Node = load(scene_path).instantiate()
 		node.add_to_group("game_hud")
 		root.add_child(node)
+	var encounter: Node = ENCOUNTER_FRAME.new()   # who is fighting you right now (encounter_frame.gd)
+	encounter.add_to_group("game_hud")
+	root.add_child(encounter)
+	for frame_kind in ["focus", "tot"]:   # the focus and target-of-target frames (mini_target_frame.gd)
+		var mini: Node = MINI_TARGET_FRAME.new()
+		mini.kind = frame_kind
+		mini.add_to_group("game_hud")
+		root.add_child(mini)
 
 
 # /resetui — for when a panel gets dragged off-screen and there's no way to
@@ -1470,7 +1491,7 @@ func light_equipped_light() -> bool:
 	item["lit"] = true
 	combat_node.apply_effect(LIGHT_EFFECT, float(item["burn_remaining"]), {})
 	light_item_id = str(item.get("item_id", ""))
-	GameLog.log_general("[color=#ffcc66]You light your %s.[/color]" % str(item.get("name", "light")).to_lower())
+	GameLog.log_general("[color=#ffcc66]%s[/color]" % str(src.get("light_message", "You light your %s." % str(item.get("name", "light")).to_lower())))
 	if bool(src.get("breaks_stealth", false)) and current_stance == "stealth":
 		_drop_stealth_for_light()
 	Inventory.sync_to_global()
@@ -1555,7 +1576,7 @@ func _update_light_logic() -> void:
 	if bool(_light_source_of(item).get("snuffed_by_rain", false)):
 		var wm := _weather_node()
 		if wm != null and wm.intensity > RAIN_SNUFF_INTENSITY:
-			snuff_equipped_light("[color=#9fc5e8]The rain snuffs out your %s.[/color]" % str(item.get("name", "light")).to_lower())
+			snuff_equipped_light("[color=#9fc5e8]%s[/color]" % str(_light_source_of(item).get("rain_snuff_message", "The rain snuffs out your %s." % str(item.get("name", "light")).to_lower())))
 
 
 # Every peer: show/hide the carried light to match light_item_id.
@@ -1602,6 +1623,9 @@ func _process(delta: float) -> void:
 	if not is_multiplayer_authority():
 		return
 	_update_light_logic()
+	var key := TargetFrame.target_key_of(current_target)
+	if key != target_key:
+		target_key = key
 	if combat_node.current_hp < DEATH_HP:
 		combat_node.current_hp = DEATH_HP   # simultaneous hits (a raid) can overshoot: health never goes below the death line
 	if is_incapacitated:
@@ -2065,6 +2089,63 @@ func handle_combat() -> void:
 
 
 
+# ── Focus target and target-of-target ──
+func get_focus() -> Node:
+	if focus_target != null and not is_instance_valid(focus_target):
+		focus_target = null
+	return focus_target
+
+
+func set_focus(node: Node) -> void:
+	if node == null or not is_instance_valid(node):
+		return
+	if TargetFrame.faction_status(node) == "Enemy":
+		GameLog.log_general("An enemy can't be your focus: target a friend.")
+		return
+	focus_target = node
+	var who: String = "yourself" if node == self else TargetFrame.display_name(node)
+	GameLog.log_general("[color=#88ddaa]Focus: [b]%s[/b]. Your beneficial spells go to them while you target something else.[/color]" % who)
+
+
+func clear_focus() -> void:
+	if focus_target != null:
+		focus_target = null
+		GameLog.log_general("You clear your focus.")
+
+
+# /focus  = your current target becomes the focus; /focus clear; /focus <group member's name>; /focus self.
+func cmd_focus(arg: String) -> void:
+	var text := arg.strip_edges()
+	match text.to_lower():
+		"":
+			if current_target != null and is_instance_valid(current_target):
+				set_focus(current_target)
+			elif get_focus() != null:
+				GameLog.log_general("Your focus is %s. (/focus clear to drop it)" % TargetFrame.display_name(get_focus()))
+			else:
+				GameLog.log_general("Target a friend and type /focus (Shift-click a group member works too).")
+		"clear", "off", "none":
+			clear_focus()
+		"self", "me":
+			set_focus(self)
+		_:
+			for node in get_tree().get_nodes_in_group("player"):
+				if is_instance_valid(node) and node != self and str(node.get("player_name")).to_lower().begins_with(text.to_lower()):
+					set_focus(node)
+					return
+			GameLog.log_general("There is nobody called '%s' nearby." % text)
+
+
+# /assist: target whatever your current target is targeting (target the tank, /assist: the enemy the tank is fighting).
+func assist_target() -> void:
+	var t := TargetFrame.target_of(current_target)
+	if t == null or not _is_targetable_alive(t):
+		GameLog.log_general("Your target has no target to assist with.")
+		return
+	current_target = t
+	_announce_target(t)
+
+
 func clear_target() -> void:
 	if current_target == null:
 		return
@@ -2358,6 +2439,9 @@ func tab_cycle_target() -> void:
 func _try_click_target(screen_pos: Vector2) -> void:
 	var picked: Node = _pick_target_at(screen_pos)
 	if picked == null:
+		return
+	if Input.is_key_pressed(KEY_SHIFT) and TargetFrame.faction_status(picked) != "Enemy":
+		set_focus(picked)   # Shift-click a friend: focus, without changing your target
 		return
 	if _is_targetable_alive(picked):
 		current_target = picked
@@ -3476,6 +3560,12 @@ func cast_spell(spell_name: String, is_auto_recast: bool = false) -> bool:
 	var display_name    := spell_display_name(spell_name)
 	var spell_target    := spell.get("target", "enemy") as String
 	var target_node: Node = current_target if (current_target and is_instance_valid(current_target)) else null
+	# Option "detrimental spells go to my friendly target's target": with a friend (the tank) targeted, an enemy-aimed spell goes to the enemy they are fighting.
+	if spell_target in ["enemy", "cone"] and target_node != null and Global.settings.get("detrimental_to_tot", false) \
+			and TargetFrame.faction_status(target_node) != "Enemy":
+		var their_target := TargetFrame.target_of(target_node)
+		if their_target != null and TargetFrame.faction_status(their_target) == "Enemy" and _is_targetable_alive(their_target):
+			target_node = their_target
 
 	# Enemy/cone spells need a valid, hostile target to even begin casting —
 	# checked again in _resolve_spell_cast() too, since a multi-second cast can
@@ -3914,7 +4004,10 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 
 			var ally_target: Node = self
 			if target_node != null and is_instance_valid(target_node) and TargetFrame.faction_status(target_node) != "Enemy":
-				ally_target = target_node
+				ally_target = target_node   # an explicitly targeted friend always wins
+			elif get_focus() != null:
+				ally_target = get_focus()   # otherwise the focus: you are targeting an enemy (or nothing) and healing the tank
+			if ally_target != self:
 				if _target_out_of_range(spell, ally_target):
 					GameLog.log_general("[color=#ff8866]%s is out of range of [b]%s[/b] (%d m).[/color]" % [TargetFrame.display_name(ally_target), display_name, int(spell_range_m(spell))])
 					return

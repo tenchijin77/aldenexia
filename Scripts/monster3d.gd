@@ -201,6 +201,7 @@ const LOW_HEALTH_FLEE_SPEED := 1.5
 var _has_fled: bool = false
 var _flee_from: Node3D = null      # set while running away from a threat (otherwise fear flees in random directions)
 var flees_at_low_health: bool = true
+var target_key: String = ""        # who this monster is fighting, replicated for "target's target" (TargetFrame.target_key_of)
 
 # ===== CHARM (2026-09-17) =====
 # Charm hands the player a temporary "pet" out of a hostile monster, using
@@ -743,7 +744,12 @@ func _physics_process(delta: float) -> void:
 	if not is_instance_valid(player):
 		if current_state == State.CHASE or current_state == State.ATTACK:
 			force_disengage()   # everyone nearby is down or dead: give up the fight
+		if target_key != "":
+			target_key = ""
 		return
+	var fighting := TargetFrame.target_key_of(get_current_target()) if (current_state == State.CHASE or current_state == State.ATTACK) else ""
+	if fighting != target_key:
+		target_key = fighting
 
 
 	if not _has_fled and flees_at_low_health and (current_state == State.CHASE or current_state == State.ATTACK) \
@@ -1469,6 +1475,7 @@ const DEATH_LINE_PATH := "res://Data/humanoid_death_lines.json"
 
 func die(award_xp: bool = true, drop_loot: bool = true, credited_peer_id: int = -1) -> void:
 	change_state(State.DEAD)
+	target_key = ""
 	print("💀 %s died! (XP: %d, Coins: %.2f, Category: %s)" % [monster_name, xp_gain, coin_modifier, category])
 
 	if category == "humanoid":

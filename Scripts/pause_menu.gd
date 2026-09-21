@@ -131,6 +131,7 @@ func _build_options_panel() -> void:
 	vbox.add_child(_make_slider_row("Sound Volume", "sfx_volume"))
 	vbox.add_child(_make_invert_y_row())
 	vbox.add_child(_make_toggle_row("Show Name Tags", "show_name_tags"))
+	vbox.add_child(_make_toggle_row("Attack Spells Follow My Friend's Target", "detrimental_to_tot", false))
 	vbox.add_child(_make_ui_transparency_row())
 
 	vbox.add_child(HSeparator.new())
@@ -241,6 +242,8 @@ const CHAT_COMMANDS := [
 	["/resetui", "Reset every UI window back to its default position"],
 	["/time", "Show the current in-game date/time"],
 	["/who", "List every connected player, their level, class and zone"],
+	["/focus [clear|name]", "Make your target (or a named group member) your FOCUS: beneficial spells go to them while you target an enemy"],
+	["/assist  (or press F)", "Target whatever your current target is targeting"],
 	["/gm enable|disable", "Turn game master mode on or off (needed for the commands below)"],
 	["/weather rain|clear", "Start or stop rain (game masters)"],
 	["/raid [bandits|goblins]", "Start a gate raid now (game masters)"],

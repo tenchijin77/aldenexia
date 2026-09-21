@@ -48,6 +48,7 @@ func greet_player(_player_name: String) -> void:
 
 
 func respond_to_hail() -> void:
+	_face_player()
 	greet_player("")
 
 
