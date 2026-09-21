@@ -854,3 +854,35 @@ Ask about desert dangers
     stayed and fought.
     - Named mobs flee too, so Dessik or Vhessa can run at 10%. If you'd rather they never do, that's a one-line data change.
 
+     Death: two causes were behind the −165/164.
+  - Server blind spot: monsters run on the server, and the server only sees replicated player values such as health and position. It never saw
+    that you were downed, so a raid kept hitting a fallen player.
+  - No floor: nothing capped negative health.
+
+  Death now works like this:
+  - Downed at 0: health then drains toward −30 over 10 seconds. It was a flat 20 s before, and you can raise or lower that with
+    BLEED_OUT_DURATION.
+  - Dead at −30: a hit that reaches −30 or below kills you at once. Health is never lower than −30, and a real overshoot such as −13 is kept.
+  - Heals: an ally's heal that lifts you above 0 still gets you up.
+  - Monsters: they now treat anyone at 0 health or below as down and give up the fight.
+
+  On a real dedicated server, a level-1 client was downed at −13 as a bandit raid arrived. It died about 6 seconds later and respawned at full
+  health. The lowest health across the whole raid was −30.
+
+  Songs: death now ends the spell in progress and every song that was playing, so a Troubadour has to play them again after respawning.
+
+  Targeting: being attacked only picks your target when you have none, or when your target is dead. A second attacker no longer pulls you off
+  the one you chose.
+
+  Guards: they now engage at 8 m instead of 4 m. I also raised their leash from 6 m to 14 m so they don't drop the fight the moment it starts. A
+  rat 6.5 m from Reyna's post was killed and one 11 m away was left alone.
+
+  Troubadour:
+  - Dissonant Chord damage works. The data says 5, and at level 4 the cast did 8 damage plus the "weakened" debuff. The extra comes from the
+    game's spell scaling.
+  - Survivability: I measured four level-4 duels each against bandits. A Troubadour took 1.76 damage per second and a Voidknight took 0.75,
+    which is about 2.3 times as much, with roughly equal damage output.
+    - Buff: I raised AC bonus from 0 to 3, parry from 1 to 6 and riposte from 1 to 3. That brings it to 0.98 per second, about 1.3 times a tank,
+      with the same damage output.
+    - Tuning: those three numbers are in combatnode.gd. A level-1 character against the level 2–4 bandits in a raid is hard for every class.
+
