@@ -830,3 +830,27 @@ Ask about desert dangers
     rat, and the server removed it 2.3 s later while the one it ignored stayed.
   - Spell book and meditation: both checked in scripted runs.
   - Test data: I deleted the throwaway test characters I created, including the test server's. Your real characters weren't touched.
+
+   Rain: I found the cause. The collider I added to keep rain off the gate roof was thinning the rain everywhere, not just under roofs. In open
+  desert with nothing overhead, about 40% of the drops disappeared, mostly the low ones. That's your "patches in the sky".
+  - Roofs: I replaced the collider with a small overhead map. The game casts rays up over the surrounding ground to find roofs, arches and
+    walls, and remembers each spot, so it costs almost nothing after the first moments. The rain shader hides only the part of a streak that is
+    below something.
+  - Verified in the zone: at Kenji's spot, rain falls heavily in the open and none reaches the gate structure, Kenji, the player or the ground
+    under the overhang. With the map switched off, the rain went straight through. Open-desert rain is back at full density.
+  - Random wind: every time rain starts, whether it comes on its own or from /weather rain, it rolls a random compass direction and a slant of
+    about 7–29°. The server sends the same roll to every player, so everyone sees the same weather. The streaks tilt along the fall direction. I
+    checked this against a real dedicated server: 8 rains gave 8 different headings, and a client received the server's wind.
+
+  Other items
+  - "Level 1 Spirit": "Spirit" is the spell's school, shown as the small green badge that was already there. It decides which resistance a
+    target rolls against. The new "Level N" badge sits next to it. I can label it more clearly if you like.
+  - GM nameplate: a game master's name now shows as <Zozuur> in orange, immediately after /gm enable and for everyone else too. Your own label
+    wasn't refreshing after load, which is why nothing changed on your screen.
+  - Guards after raids: a guard drawn off their post walks back to it and turns to face the way they were posted. Reyna, moved 9 m away, walked
+    back in 2.5 s and faced her post again. Bryn simply resumes his patrol.
+  - Monsters flee: any non-undead monster at 10% health runs straight away from its attacker for 7 seconds, then comes back and fights on. It
+    only flees once per fight, and the combat log says "A Sand Brigand turns to flee!". Undead never flee; a skeleton at 5% and a bandit at 30%
+    stayed and fought.
+    - Named mobs flee too, so Dessik or Vhessa can run at 10%. If you'd rather they never do, that's a one-line data change.
+
