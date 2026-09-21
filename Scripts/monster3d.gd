@@ -192,6 +192,15 @@ var _flee_time_remaining: float = 0.0
 var _flee_direction_timer: float = 0.0
 var _flee_direction: Vector3 = Vector3.ZERO
 var _pre_flee_state: State = State.IDLE
+# Low-health flight (2026-09-21): a monster that is not undead turns and runs once its health drops to LOW_HEALTH_FLEE_FRACTION, for
+# LOW_HEALTH_FLEE_SECONDS, away from whoever it was fighting, then comes back and fights on (it flees once per fight: no rubber-banding).
+# monsters.json "flees": false opts a type out. Undead never flee: they do not fear death.
+const LOW_HEALTH_FLEE_FRACTION := 0.10
+const LOW_HEALTH_FLEE_SECONDS := 7.0
+const LOW_HEALTH_FLEE_SPEED := 1.5
+var _has_fled: bool = false
+var _flee_from: Node3D = null      # set while running away from a threat (otherwise fear flees in random directions)
+var flees_at_low_health: bool = true
 
 # ===== CHARM (2026-09-17) =====
 # Charm hands the player a temporary "pet" out of a hostile monster, using
@@ -371,6 +380,7 @@ func _ready() -> void:
 		secret_note     = stats.get("secret_note", secret_note)
 		corruption      = stats.get("corruption", corruption)
 		death_text      = stats.get("death_text", death_text)
+		flees_at_low_health = bool(stats.get("flees", true)) and category != "undead"
 		# A variant (a named mob, a blighted spider) reuses another type's model: "model_from" is that type, "model_scale" makes it
 		# bigger or smaller, "tint" ([r, g, b], multiplied into the texture) recolours it. No new art needed.
 		model_from      = str(stats.get("model_from", ""))
@@ -734,6 +744,10 @@ func _physics_process(delta: float) -> void:
 		return
 
 
+	if not _has_fled and flees_at_low_health and (current_state == State.CHASE or current_state == State.ATTACK) \
+			and combat_node.current_hp > 0 and combat_node.current_hp <= int(combat_node.max_hp * LOW_HEALTH_FLEE_FRACTION):
+		_start_low_health_flee()
+
 	# State machine
 	match current_state:
 		State.IDLE:
@@ -896,11 +910,27 @@ func state_attack(delta: float) -> void:
 # fear gets its own real behavior per the user's spec: run in a random
 # direction, picking a new one every FLEE_DIRECTION_INTERVAL seconds, for the
 # spell's full duration, then resume whatever it was doing before.
+func _start_low_health_flee() -> void:
+	_has_fled = true
+	var threat := get_current_target()
+	_flee_from = threat as Node3D
+	_pre_flee_state = current_state
+	_flee_time_remaining = LOW_HEALTH_FLEE_SECONDS
+	_flee_direction_timer = 0.0
+	var desc: String = monster_description if monster_description != "" else get_monster_name()
+	var text := "[color=#ffcc66]%s turns to flee![/color]" % desc.capitalize()
+	GameLog.log_combat(text, global_position)
+	if Net.is_multiplayer_game and multiplayer.has_multiplayer_peer():
+		Net.broadcast_combat_message(text, global_position)
+	change_state(State.FLEEING)
+
+
 func apply_fear(duration: float) -> void:
 	if current_state == State.DEAD:
 		return
 	if current_state != State.FLEEING:
 		_pre_flee_state = current_state
+	_flee_from = null   # a fear spell: it runs blindly, not from anyone in particular
 	_flee_time_remaining = duration
 	_flee_direction_timer = 0.0  # forces an immediate direction pick this frame
 	change_state(State.FLEEING)
@@ -909,6 +939,7 @@ func apply_fear(duration: float) -> void:
 func state_fleeing(delta: float) -> void:
 	_flee_time_remaining -= delta
 	if _flee_time_remaining <= 0.0:
+		_flee_from = null
 		change_state(State.CHASE if not aggro_table.is_empty() else _pre_flee_state)
 		return
 
@@ -917,6 +948,12 @@ func state_fleeing(delta: float) -> void:
 		_flee_direction_timer = FLEE_DIRECTION_INTERVAL
 		var angle := randf() * TAU
 		_flee_direction = Vector3(cos(angle), 0, sin(angle))
+		if is_instance_valid(_flee_from):
+			# Running for its life: straight away from the threat (a little off-line so it does not look ruled), not a random heading.
+			var away := global_position - _flee_from.global_position
+			away.y = 0.0
+			if away.length() > 0.01:
+				_flee_direction = away.normalized().rotated(Vector3.UP, randf_range(-0.5, 0.5))
 
 	# Direct movement, not nav_agent pathing — fleeing has no destination, just
 	# a heading, and doesn't need to be graceful about it (same reasoning
@@ -926,6 +963,8 @@ func state_fleeing(delta: float) -> void:
 	if _flee_direction != Vector3.ZERO:
 		look_at_target(global_position + _flee_direction)
 		var speed_3d: float = (speed / 10.0) * (1.0 - combat_node.get_modifier("speed_slow"))
+		if is_instance_valid(_flee_from):
+			speed_3d *= LOW_HEALTH_FLEE_SPEED
 		velocity.x = _flee_direction.x * speed_3d
 		velocity.z = _flee_direction.z * speed_3d
 	if not is_on_floor():

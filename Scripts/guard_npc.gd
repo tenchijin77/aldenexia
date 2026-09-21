@@ -62,6 +62,9 @@ const TOPICS_PATH := "res://Data/guard_topics.json"
 var combat_node: CombatNode
 var level: int = 8  # mirrors combat_node.level; exposed at the top level like monster3d.gd's `level`
 var home_position: Vector3 = Vector3.ZERO
+var _home_yaw: float = 0.0   # which way the post faces: restored after a fight
+const POST_RETURN_DISTANCE := 1.5   # a stationary guard further than this from its post walks back to it
+const POST_ARRIVAL := 0.8
 var state: GuardState = GuardState.IDLE
 var _default_state: GuardState = GuardState.IDLE  # what to return to once combat ends — IDLE for stationary guards, PATROL for patrolling ones
 var attack_target: Node = null
@@ -118,6 +121,7 @@ func _ready() -> void:
 		name_label.text = npc_name
 	_flavor = NPCFlavorText.new(flavor_text_path)
 	home_position = global_position
+	_home_yaw = rotation.y
 	NPCRespawner.register_home(self)
 	_banter_interval = randf_range(BANTER_MIN_INTERVAL, BANTER_MAX_INTERVAL)
 	_setup_conversation()
@@ -523,9 +527,13 @@ func _physics_process(delta: float) -> void:
 			if _scan_timer >= SCAN_INTERVAL:
 				_scan_timer = 0.0
 				_scan_for_targets()
-			_apply_gravity(delta)
-			velocity.x = 0.0
-			velocity.z = 0.0
+			if state == GuardState.IDLE and Vector2(global_position.x - home_position.x, global_position.z - home_position.z).length() > POST_RETURN_DISTANCE:
+				_move_toward(home_position, POST_ARRIVAL, delta)   # a fight (or a raid) drew this guard off its post: walk back
+			else:
+				_apply_gravity(delta)
+				velocity.x = 0.0
+				velocity.z = 0.0
+				rotation.y = lerp_angle(rotation.y, _home_yaw, minf(4.0 * delta, 1.0))   # and face the way it was posted
 		GuardState.PATROL:
 			_scan_timer += delta
 			if _scan_timer >= SCAN_INTERVAL:

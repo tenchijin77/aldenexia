@@ -35,7 +35,11 @@ var player_sex := "male"
 # Dev/staff flag shown as a "<game master>" nameplate tag (TargetFrame.
 # nameplate_name()) — no in-game way to grant this yet, it's set by editing
 # the save file's "is_game_master" key directly.
-var is_game_master := false
+var is_game_master := false:
+	set(value):
+		is_game_master = value
+		if is_inside_tree():
+			_refresh_nameplate()   # /gm enable shows "<Name>" in orange at once, on this screen and (replicated) on everyone else's
 var known_spells: Array = []
 var known_skills: Array = []
 var skill_levels: Dictionary = {}
@@ -1322,6 +1326,7 @@ func _physics_process(delta: float) -> void:
 		# in can change independently of the name itself.
 		if has_node("NameLabel"):
 			$NameLabel.text = TargetFrame.nameplate_name(self)
+			$NameLabel.modulate = TargetFrame.nameplate_color(self)
 			$NameLabel.visible = Global.settings.get("show_name_tags", true) and not hidden
 		# player_race/player_sex replicate in the same delayed way as
 		# player_name — rebuild the model once they arrive (a no-op once the
@@ -2923,6 +2928,12 @@ func _apply_baseline_weapon_skill() -> void:
 				combat_node.weapon_skill = 4
 
 
+func _refresh_nameplate() -> void:
+	if has_node("NameLabel"):
+		$NameLabel.text = "<%s>" % player_name if is_game_master else player_name
+		$NameLabel.modulate = TargetFrame.nameplate_color(self)
+
+
 func load_character_data(data: Dictionary) -> void:
 	if typeof(data) != TYPE_DICTIONARY:
 		push_error("❌ Invalid character data type")
@@ -2937,8 +2948,7 @@ func load_character_data(data: Dictionary) -> void:
 
 	_build_character_model()
 
-	if has_node("NameLabel"):
-		$NameLabel.text = player_name
+	_refresh_nameplate()
 
 	data["resistances"] = data.get("resistances", {
 		"acid": 0, "cold": 0, "fire": 0, "magic": 0, "psychic": 0

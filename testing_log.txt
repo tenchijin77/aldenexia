@@ -37,6 +37,9 @@ T4  2026-09-20  Public-server test, build f799051
 T5  2026-09-21  Public-server test, build 24015c8
     Characters: Zozuur (Voidknight)
 
+T7  2026-09-21  Public-server test, build 597043a
+    Characters: Zozuur (Voidknight)
+
 
 GENERAL (not class specific)
 ================================================================================
@@ -107,6 +110,12 @@ T5 (2026-09-21)
 - [FIXED]  After the T5 update the server showed as offline and nobody could connect (found by: T5 update). The GM commands had added RPCs to the Net autoload, which breaks the RPC
            checksum against a client on the previous build and hides the "Update needed" button. Moved to a scene node; Net is frozen; the menu also offers the update when a server looks
            offline. change_log: HOTFIX.
+- [FIXED]  Rain was just patches in the sky (found by: T7): the roof collider I added thinned the rain everywhere. Rebuilt with a CPU roof map + shader: full rain everywhere, none under roofs.
+- [FIXED]  Rain always fell straight down (asked by: T7). A random wind (direction + slant) is rolled every time rain starts and synced to everyone.
+- [FIXED]  GM nameplate did not change (found by: T7). Shows "<Name>" in orange for a game master, immediately and for everyone else too.
+- [FIXED]  After a raid the guards stayed where the fight ended (asked by: T7). Guards walk back to their posts and face the way they were posted.
+- [FIXED]  Monsters never fled (asked by: T7). Non-undead monsters run for 7 s at 10% health, once per fight.
+- [NOT A BUG] "Level 1 Spirit" in the spell book: Spirit is the spell's school (which resistance applies); "Level N" is the new badge beside it.
 - [OPEN]   Anyone can type /gm enable. DECISION: how should real GM access be granted (server-side list, password)?
 
 Server and connection

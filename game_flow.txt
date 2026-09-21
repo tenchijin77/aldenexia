@@ -1467,9 +1467,10 @@ Scene: Scenes/player3d.tscn (contains CameraRig → CameraController + Camera3D)
     a GPUParticles3D rain box that follows the local player, fog, DayNightCycle.set_weather_dim()
     (overcast_light_scale/overcast_sky_color exports) and the looping rain sound on the SFX bus.
     /weather rain|clear forces it (host/single-player). rain_start_text / rain_stop_text exports.
-    Drops HIDE ON CONTACT with the world (roofs, walls, ground): a GPUParticlesCollisionHeightField3D with follow_camera_enabled
-    (child of the WeatherManager, NOT of the rain node: as a child of the moving node it hides nothing). The rain sound drops 9 dB
-    while something is overhead (_is_under_cover). Any roof you add to a zone keeps the rain off automatically.
+    Roofs: NOT a particle collider (the GPU height-field one thinned the rain everywhere): RainCover (inner class) caches, per 1.25 m world cell, the height of
+    anything solid overhead (vertical physics rays vs the level's StaticBody collision); the rain shader (RAIN_SHADER) discards the part of a streak below that height.
+    Any roof or arch you add to a zone keeps the rain off automatically. Each rain start rolls a wind (seed synced by _rpc_set_raining): direction + slant; the
+    streaks turn to the fall direction. The rain sound drops 9 dB while something is overhead (_is_under_cover).
   Dark Sight: see the "DARK SIGHT / IMPROVED DARK SIGHT" section — DayNightCycle reads the
     local player's race traits (improved_dark_sight 1.0 / dark_sight 0.5) and lifts night
     lighting for that viewer only.

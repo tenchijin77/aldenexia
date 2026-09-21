@@ -40,6 +40,48 @@ signal rain_changed(raining: bool)
 @export var world_environment_path: NodePath = ^"../WorldEnvironment"
 @export var rain_sound: AudioStream = preload("res://Assets/boons_freak-rain-sound-188158.mp3")
 
+const RAIN_TILT_MIN := 0.12      # slant of the rain: horizontal speed / fall speed, rolled per rain
+const RAIN_TILT_MAX := 0.55
+const RAIN_MEAN_SPEED := 23.0    # initial speed of a drop (Data: pm.initial_velocity 20..26)
+const RAIN_MEAN_FALL := 28.0     # about its average downward speed over its fall (initial + gravity), for the streak's angle
+const RAIN_SHADER := """
+shader_type spatial;
+render_mode unshaded, cull_disabled, depth_draw_never, shadows_disabled;
+
+uniform vec4 rain_color : source_color = vec4(0.78, 0.86, 1.0, 0.5);
+uniform vec3 fall_dir = vec3(0.0, -1.0, 0.0);
+uniform sampler2D cover_tex : filter_nearest, repeat_disable;
+uniform vec2 grid_origin = vec2(0.0);
+uniform float grid_span = 40.0;
+
+varying vec3 wpos;
+
+void vertex() {
+	// Long axis along the fall direction, turned to face the camera around that axis.
+	vec3 axis = -normalize(fall_dir);
+	vec3 centre = MODEL_MATRIX[3].xyz;
+	vec3 to_cam = normalize(INV_VIEW_MATRIX[3].xyz - centre);
+	vec3 side = cross(axis, to_cam);
+	side = length(side) < 0.001 ? INV_VIEW_MATRIX[0].xyz : normalize(side);
+	vec3 face = cross(side, axis);
+	mat4 m = mat4(vec4(side, 0.0), vec4(axis, 0.0), vec4(face, 0.0), vec4(centre, 1.0));
+	MODELVIEW_MATRIX = VIEW_MATRIX * m;
+	wpos = (m * vec4(VERTEX, 1.0)).xyz;
+}
+
+void fragment() {
+	vec2 uv = (wpos.xz - grid_origin) / grid_span;
+	if (uv.x >= 0.0 && uv.x <= 1.0 && uv.y >= 0.0 && uv.y <= 1.0) {
+		float roof = texture(cover_tex, uv).r;
+		if (wpos.y < roof) {
+			discard;
+		}
+	}
+	ALBEDO = rain_color.rgb;
+	ALPHA = rain_color.a;
+}
+"""
+
 var raining: bool = false
 var intensity: float = 0.0
 
@@ -50,6 +92,10 @@ var _orig_fog_enabled: bool = false
 var _orig_fog_density: float = 0.01
 var _orig_fog_color: Color = Color.WHITE
 var _rain: GPUParticles3D = null
+var _rain_material: ShaderMaterial = null
+var _cover := RainCover.new()
+var _wind_seed := 0
+var _wind_horizontal := Vector2.ZERO   # horizontal fall speed (m/s, x/z): the wind of this rain, rolled each time rain starts
 var _sound: AudioStreamPlayer = null
 var _sheltered := false
 var _shelter_timer := 0.0
@@ -78,32 +124,51 @@ func _ready() -> void:
 func set_weather(on: bool) -> void:
 	if not is_multiplayer_authority():
 		return
-	_apply_raining(on, true)
+	var seed := randi()   # the wind of this rain: every peer derives the same direction and slant from it
+	_apply_raining(on, true, seed)
 	_time_to_next_change = randf_range(min_rain_seconds, max_rain_seconds) if on \
 			else randf_range(min_clear_seconds, max_clear_seconds)
 	if Net.is_multiplayer_game and multiplayer.has_multiplayer_peer():
-		_rpc_set_raining.rpc(on, true)
+		_rpc_set_raining.rpc(on, true, seed)
 
 
 @rpc("authority", "call_remote", "reliable")
-func _rpc_set_raining(on: bool, announce: bool) -> void:
-	_apply_raining(on, announce)
+func _rpc_set_raining(on: bool, announce: bool, wind_seed: int) -> void:
+	_apply_raining(on, announce, wind_seed)
 
 
 func _on_peer_connected(peer_id: int) -> void:
 	if raining:
-		_rpc_set_raining.rpc_id(peer_id, true, false)  # silent — they just arrived
+		_rpc_set_raining.rpc_id(peer_id, true, false, _wind_seed)  # silent — they just arrived
 
 
-func _apply_raining(on: bool, announce: bool) -> void:
+func _apply_raining(on: bool, announce: bool, wind_seed: int = 0) -> void:
 	if on == raining:
 		return
 	raining = on
+	if on:
+		_roll_wind(wind_seed)
 	if announce:
 		var text := rain_start_text if on else rain_stop_text
 		if not text.is_empty():
 			GameLog.log_general("[color=#9fc5e8]%s[/color]" % text)
 	rain_changed.emit(on)
+
+
+# A new wind for every rain: a random compass direction and a random slant (RAIN_TILT_MIN..MAX = horizontal / vertical speed).
+func _roll_wind(wind_seed: int) -> void:
+	_wind_seed = wind_seed
+	var rng := RandomNumberGenerator.new()
+	rng.seed = wind_seed
+	var angle := rng.randf() * TAU
+	var tilt := rng.randf_range(RAIN_TILT_MIN, RAIN_TILT_MAX)
+	var fall_speed := RAIN_MEAN_SPEED * 1.0
+	_wind_horizontal = Vector2(sin(angle), cos(angle)) * tilt * fall_speed
+	if _rain == null:
+		return
+	var direction := Vector3(_wind_horizontal.x, -fall_speed, _wind_horizontal.y).normalized()
+	(_rain.process_material as ParticleProcessMaterial).direction = direction
+	_rain_material.set_shader_parameter("fall_dir", Vector3(_wind_horizontal.x, -RAIN_MEAN_FALL, _wind_horizontal.y).normalized())
 
 
 # ── Per-frame ──────────────────────────────────────────────────────────────
@@ -140,7 +205,11 @@ func _apply_visuals() -> void:
 		_rain.amount_ratio = clampf(intensity, 0.05, 1.0)
 		var p := TargetFrame.local_player()
 		if is_instance_valid(p):
-			_rain.global_position = p.global_position + Vector3(0, 13, 0)
+			# Wind carries the drops sideways during their fall: start the box upwind so they land around the player.
+			_rain.global_position = p.global_position + Vector3(-_wind_horizontal.x, 0.0, -_wind_horizontal.y) * 0.45 + Vector3(0, 13, 0)
+			if active:
+				_cover.update(p.get_world_3d().direct_space_state, p.global_position)
+				_rain_material.set_shader_parameter("grid_origin", _cover.origin)
 			_shelter_timer -= get_process_delta_time()
 			if active and _shelter_timer <= 0.0:
 				_shelter_timer = 0.3
@@ -184,26 +253,20 @@ func _build_rain_particles() -> void:
 	pm.initial_velocity_min = 20.0
 	pm.initial_velocity_max = 26.0
 	pm.gravity = Vector3(0, -12, 0)
-	# Drops that hit something are hidden — the town gate's roof, walls, the ground — so it does not rain indoors. The collider
-	# below reads the scene's shapes from above (a height map) around the camera.
-	pm.collision_mode = ParticleProcessMaterial.COLLISION_HIDE_ON_CONTACT
 	_rain.process_material = pm
-	var collider := GPUParticlesCollisionHeightField3D.new()
-	collider.name = "RainRoofCollider"
-	collider.size = Vector3(48, 60, 48)   # reaches 24 m around the camera (the rain box is 16 m around the player) and 30 m up and down
-	collider.resolution = GPUParticlesCollisionHeightField3D.RESOLUTION_256
-	collider.update_mode = GPUParticlesCollisionHeightField3D.UPDATE_MODE_ALWAYS
-	collider.follow_camera_enabled = true   # it has to follow the camera itself: moved by hand, or as a child of the rain node, it hid every drop or none
-	add_child(collider)
 
+	# The streak: a thin quad drawn by RAIN_SHADER, which (1) turns it along the way it is falling (the wind slants it), and
+	# (2) hides the part of it that is below a roof, an arch or a wall: RainCover keeps a small height map of what is overhead
+	# (physics rays, cached: the level does not move), so it does not rain indoors and rain everywhere else is untouched.
 	var streak := QuadMesh.new()
 	streak.size = Vector2(0.012, 0.55)
-	var mat := StandardMaterial3D.new()
-	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	mat.albedo_color = Color(0.78, 0.86, 1.0, 0.5)
-	mat.billboard_mode = BaseMaterial3D.BILLBOARD_FIXED_Y
-	streak.material = mat
+	var shader := Shader.new()
+	shader.code = RAIN_SHADER
+	_rain_material = ShaderMaterial.new()
+	_rain_material.shader = shader
+	_rain_material.set_shader_parameter("cover_tex", _cover.texture)
+	_rain_material.set_shader_parameter("grid_span", RainCover.N * RainCover.CELL)
+	streak.material = _rain_material
 	_rain.draw_pass_1 = streak
 	add_child(_rain)
 
@@ -219,3 +282,67 @@ func _build_sound() -> void:
 	_sound.bus = &"SFX"
 	_sound.volume_db = -80.0
 	add_child(_sound)
+
+
+# What is overhead, as a small height map around the player: for every 1.25 m cell, the height of the highest solid surface if it is
+# at least 1.8 m above the lowest one in that column (a roof, an arch, a wall, a ledge), else "none". Found with vertical physics rays
+# against the level's static collision (creatures are skipped) and CACHED per world cell, since the level does not move: each cell is probed
+# once, a few hundred per frame at most, so it costs nothing after the first moments. The rain shader reads it to hide drops below it.
+class RainCover extends RefCounted:
+	const CELL := 1.25
+	const N := 32
+	const NONE := -1000.0
+	const MIN_HEIGHT := 1.8
+	const PER_UPDATE := 250
+
+	var origin := Vector2.ZERO          # world x/z of the texture's corner
+	var texture: ImageTexture
+	var _image: Image
+	var _cache: Dictionary = {}         # Vector2i cell -> covering height (or NONE)
+	var _last_key := Vector2i(1 << 30, 1 << 30)
+	var _pending := 0                   # cells in the window that are still unknown
+
+	func _init() -> void:
+		_image = Image.create(N, N, false, Image.FORMAT_RF)
+		_image.fill(Color(NONE, 0.0, 0.0, 1.0))
+		texture = ImageTexture.create_from_image(_image)
+
+	func update(space: PhysicsDirectSpaceState3D, centre: Vector3) -> void:
+		var cx := int(floor(centre.x / CELL)) - N / 2
+		var cz := int(floor(centre.z / CELL)) - N / 2
+		var key := Vector2i(cx, cz)
+		if key == _last_key and _pending == 0:
+			return
+		_last_key = key
+		origin = Vector2(cx * CELL, cz * CELL)
+		var budget := PER_UPDATE
+		_pending = 0
+		for iz in N:
+			for ix in N:
+				var cell := Vector2i(cx + ix, cz + iz)
+				var value: float = NONE
+				if _cache.has(cell):
+					value = _cache[cell]
+				elif budget > 0:
+					value = _probe(space, (cell.x + 0.5) * CELL, (cell.y + 0.5) * CELL, centre.y)
+					_cache[cell] = value
+					budget -= 1
+				else:
+					_pending += 1
+				_image.set_pixel(ix, iz, Color(value, 0.0, 0.0, 1.0))
+		texture.update(_image)
+
+	func _probe(space: PhysicsDirectSpaceState3D, x: float, z: float, ref_y: float) -> float:
+		var surfaces: Array[float] = []
+		var y := ref_y + 45.0
+		var bottom := ref_y - 45.0
+		for i in 8:
+			var hit := space.intersect_ray(PhysicsRayQueryParameters3D.create(Vector3(x, y, z), Vector3(x, bottom, z)))
+			if hit.is_empty():
+				break
+			y = hit.position.y - 0.02
+			if hit.collider is StaticBody3D:
+				surfaces.append(hit.position.y)
+		if surfaces.size() >= 2 and surfaces[0] - surfaces[surfaces.size() - 1] >= MIN_HEIGHT:
+			return surfaces[0]
+		return NONE

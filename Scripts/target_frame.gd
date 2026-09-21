@@ -197,6 +197,14 @@ static func is_hidden_from_local_player(entity: Node) -> bool:
 # flavor description, or a generic placeholder for a player, since players
 # don't have an equivalent flavor-text field. Otherwise appends the
 # game-master/stealth tags to the normal name.
+const GM_NAME_COLOR := Color(1.0, 0.6, 0.15)
+
+
+# Colour of a 3D nameplate: game masters orange, everyone else the default white.
+static func nameplate_color(entity: Node) -> Color:
+	return GM_NAME_COLOR if "is_game_master" in entity and entity.is_game_master else Color.WHITE
+
+
 static func nameplate_name(entity: Node) -> String:
 	var cn = entity.get("combat_node") if "combat_node" in entity else null
 	if cn is CombatNode and cn.is_currently_invisible():
@@ -209,7 +217,7 @@ static func nameplate_name(entity: Node) -> String:
 
 	var text := display_name(entity)
 	if "is_game_master" in entity and entity.is_game_master:
-		text += " <game master>"
+		text = "<%s>" % text   # a game master's name is shown in angle brackets (and orange, see nameplate_color)
 	if cn is CombatNode and cn.is_stealthed():
 		text += " [stealth]"
 	return text

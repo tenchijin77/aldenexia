@@ -104,9 +104,9 @@ for plat in $PLATFORM_LIST; do platform_setup "$plat"; mkdir -p "$BASE_DIR/$plat
 # tools/net_rpc_released.txt is the list of the build players run; --new-base (a fresh full build for everyone) rewrites it.
 if [ "$NEW_BASE" = 1 ]; then
 	tools/net_rpc_signature.sh > tools/net_rpc_released.txt
-elif [ -f tools/net_rpc_released.txt ] && ! tools/net_rpc_signature.sh | diff -q - tools/net_rpc_released.txt >/dev/null; then
+elif [ -f tools/net_rpc_released.txt ] && [ "$(tools/net_rpc_signature.sh)" != "$(cat tools/net_rpc_released.txt)" ]; then
 	echo "The RPC declarations of an autoload (Net, Global...) changed since the released build:" >&2
-	tools/net_rpc_signature.sh | diff - tools/net_rpc_released.txt >&2 || true
+	diff <(tools/net_rpc_signature.sh) tools/net_rpc_released.txt >&2 || true
 	[ "${ALDENEXIA_ALLOW_RPC_CHANGE:-0}" = 1 ] || die "Publishing this would make every existing client see the server as offline (RPC checksum mismatch on Net). Move the new RPC to a scene node, or make a --new-base build for everyone (ALDENEXIA_ALLOW_RPC_CHANGE=1 skips this check)."
 fi
 [ "$DO_STAMP" = 1 ] && tools/stamp_build.sh
