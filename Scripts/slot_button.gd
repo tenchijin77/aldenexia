@@ -114,6 +114,10 @@ func _learn_from_scroll() -> void:
 	var player := TargetFrame.local_player()
 	if not is_instance_valid(player):
 		return
+	# Everything below that needs the scene tree goes through the PLAYER, not this button: removing the scroll makes the inventory
+	# windows rebuild their slots, and the character sheet takes this very button out of the tree at once, so get_tree() on it
+	# returns null afterwards ("Parameter data.tree is null" — the crash when learning Taunt from the character sheet's bags).
+	var tree := player.get_tree()
 
 	var known: Array = player.get("known_spells") if "known_spells" in player else []
 	if spell_name in known:
@@ -136,7 +140,7 @@ func _learn_from_scroll() -> void:
 	GameLog.log_general("[color=#ffdd44]You have learned [b]%s[/b]![/color]" % spell_name.replace("_", " ").capitalize())
 
 	# Refresh the abilities book if it's open
-	for node in get_tree().root.get_children():
+	for node in tree.root.get_children():
 		if node is AbilitiesBook:
 			node.set_player(player)
 			break

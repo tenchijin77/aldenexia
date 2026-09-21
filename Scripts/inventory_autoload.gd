@@ -419,6 +419,7 @@ func load_inventory_data(data: Dictionary):
 	refresh_item_icons(bag_contents)
 	refresh_item_icons(bank_storage)
 	refresh_item_icons(equipped)
+	_rescue_orphaned_items()
 	print("✅ Inventory data loaded")
 
 
@@ -478,18 +479,88 @@ func _swap_basic_slots(a: int, b: int) -> void:
 	basic_inventory[a] = basic_inventory[b]
 	basic_inventory[b] = tmp
 
-func _move_basic_to_bag(src_slot: int, bag_slot: int) -> void:
+# Drag from a character-sheet slot into the backpack. `target_bag` is the bag of the backpack slot it was dropped on, or -1 when that
+# slot was EMPTY (an empty backpack tile belongs to no particular bag). It used to file the item under bag "-1" — a bag that does not
+# exist — so the dagger vanished from every window (its data sat in bag_contents["-1"]). Now: the bag it was dropped on if that bag has
+# room, otherwise the first bag that does; a bag may only go into another bag when it is empty; when nothing fits the item stays put.
+func _move_basic_to_bag(src_slot: int, target_bag: int) -> void:
 	if src_slot < 0 or src_slot >= BASIC_INVENTORY_SIZE:
 		return
 	var item = basic_inventory[src_slot]
 	if item == null:
 		return
+	if is_bag(item) and not bag_contents.get(str(src_slot), []).is_empty():
+		GameLog.log_general("[color=#ff8866]Empty that bag before putting it inside another.[/color]")
+		return
+	var dest := _bag_with_room_for(item, src_slot, target_bag)
+	if dest < 0:
+		GameLog.log_general("[color=#ff8866]There is no room in your bags for that.[/color]")
+		return
 	basic_inventory[src_slot] = null
-
-	var key := str(bag_slot)
+	if is_bag(item):
+		bag_contents.erase(str(src_slot))
+	var key := str(dest)
 	if not bag_contents.has(key):
 		bag_contents[key] = []
+	if item.get("stackable", false):
+		for existing in bag_contents[key]:
+			if existing.get("item_id") == item.get("item_id"):
+				existing["quantity"] = int(existing.get("quantity", 1)) + int(item.get("quantity", 1))
+				return
 	bag_contents[key].append(item)
+
+
+# The bag (a basic_inventory slot number) this item can go into: `preferred` first, then every other bag in order. -1 when none can
+# take it. A stackable item also fits a full bag if the stack it joins is there.
+func _bag_with_room_for(item: Dictionary, src_slot: int, preferred: int) -> int:
+	var order: Array = []
+	if preferred >= 0:
+		order.append(preferred)
+	for i in range(BASIC_INVENTORY_SIZE):
+		if i != preferred:
+			order.append(i)
+	for i in order:
+		if i == src_slot or i < 0 or i >= BASIC_INVENTORY_SIZE:
+			continue
+		var bag = basic_inventory[i]
+		if bag == null or not is_bag(bag):
+			continue
+		var contents: Array = bag_contents.get(str(i), [])
+		if item.get("stackable", false):
+			for existing in contents:
+				if existing.get("item_id") == item.get("item_id"):
+					return i
+		if contents.size() < get_bag_size(bag):
+			return i
+	return -1
+
+
+# Items stranded under a bag that does not exist (the bug above filed them under bag "-1"): put each in a bag with room, else a free
+# character-sheet slot. Anything that fits nowhere stays where it is (never deleted) and is tried again at the next login.
+func _rescue_orphaned_items() -> void:
+	for key in bag_contents.keys():
+		var idx := int(key) if str(key).is_valid_int() else -1
+		var valid := idx >= 0 and idx < BASIC_INVENTORY_SIZE and basic_inventory[idx] != null and is_bag(basic_inventory[idx])
+		if valid:
+			continue
+		var stranded: Array = bag_contents[key]
+		for item in stranded.duplicate():
+			var dest := _bag_with_room_for(item, -1, -1)
+			if dest >= 0:
+				if not bag_contents.has(str(dest)):
+					bag_contents[str(dest)] = []
+				bag_contents[str(dest)].append(item)
+			else:
+				var free := basic_inventory.find(null)
+				if free < 0:
+					continue
+				basic_inventory[free] = item
+			stranded.erase(item)
+			print("🎒 Recovered %s from a lost bag slot" % str(item.get("name", "an item")))
+			GameLog.log_general.call_deferred("[color=#ffdd88]You find %s at the bottom of your pack.[/color]" % str(item.get("name", "an item")))
+		if stranded.is_empty():
+			bag_contents.erase(key)
+
 
 func _move_bag_to_basic(bag_slot: int, item_index: int, dst_slot: int) -> void:
 	var key := str(bag_slot)
