@@ -99,6 +99,16 @@ fi
 for plat in $PLATFORM_LIST; do platform_setup "$plat"; mkdir -p "$BASE_DIR/$plat" "$P_DIR"; done  # Godot will not create an export folder itself
 
 # ── preflight ────────────────────────────────────────────────────────────────
+# The RPC lists of the autoloads (Net above all) must not change between released builds: an older client could no longer complete the
+# handshake, would show the server as "offline" and could never be offered this update. New RPCs belong on scene nodes.
+# tools/net_rpc_released.txt is the list of the build players run; --new-base (a fresh full build for everyone) rewrites it.
+if [ "$NEW_BASE" = 1 ]; then
+	tools/net_rpc_signature.sh > tools/net_rpc_released.txt
+elif [ -f tools/net_rpc_released.txt ] && ! tools/net_rpc_signature.sh | diff -q - tools/net_rpc_released.txt >/dev/null; then
+	echo "The RPC declarations of an autoload (Net, Global...) changed since the released build:" >&2
+	tools/net_rpc_signature.sh | diff - tools/net_rpc_released.txt >&2 || true
+	[ "${ALDENEXIA_ALLOW_RPC_CHANGE:-0}" = 1 ] || die "Publishing this would make every existing client see the server as offline (RPC checksum mismatch on Net). Move the new RPC to a scene node, or make a --new-base build for everyone (ALDENEXIA_ALLOW_RPC_CHANGE=1 skips this check)."
+fi
 [ "$DO_STAMP" = 1 ] && tools/stamp_build.sh
 [ -f Data/build_info.json ] || die "No build stamp. Run tools/stamp_build.sh (or add --stamp) after committing."
 STAMP="$(json Data/build_info.json build)"; COUNT="$(json Data/build_info.json commit_count)"

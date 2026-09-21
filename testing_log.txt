@@ -104,6 +104,9 @@ T5 (2026-09-21)
 - [FIXED]  Meditation did not improve when sitting, and did nothing noticeable (found by: T5). Sitting trains it every tick; each point adds 5% mana per tick while sitting.
 - [FIXED]  "(drag it onto her)" in the wagon-crash quest text broke immersion (found by: T5). Removed from all quest/guard/Sahren texts. Also: "Dessik was a great fight though!"
 - [FIXED]  Dead bodies lingered (found by: T5). A looted corpse goes 2 s after everyone who fought it has looted; an ignored one after 5 minutes.
+- [FIXED]  After the T5 update the server showed as offline and nobody could connect (found by: T5 update). The GM commands had added RPCs to the Net autoload, which breaks the RPC
+           checksum against a client on the previous build and hides the "Update needed" button. Moved to a scene node; Net is frozen; the menu also offers the update when a server looks
+           offline. change_log: HOTFIX.
 - [OPEN]   Anyone can type /gm enable. DECISION: how should real GM access be granted (server-side list, password)?
 
 Server and connection

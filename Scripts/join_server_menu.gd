@@ -325,8 +325,27 @@ func _apply_probe_result(index: int, ok: bool, kind: String, reason: String, inf
 		_apply_status(index, "version", "Update needed — this server runs %s" % info.get("version", "another version"), "(update needed)")
 	elif kind == "offline":
 		_apply_status(index, "offline", "Offline or unreachable", "(offline)")
+		_offer_update_if_published(index)
 	else:
 		_apply_status(index, "offline", reason, "(unavailable)")
+
+
+# A build that is behind can be unable to complete the server's handshake at all (Godot refuses RPCs whose lists differ between the two
+# sides), so its probe reads "offline" and the "Update needed" state never comes. So when a server looks offline, also ask its update address
+# (plain HTTP, no game connection) whether a different build is published, and if so offer the update button.
+func _offer_update_if_published(index: int) -> void:
+	if _updating or not is_inside_tree():
+		return
+	if _updater == null:
+		_updater = GameUpdater.new()
+		_updater.progress.connect(_on_update_progress)
+		add_child(_updater)
+	var checked: Dictionary = await _updater.check(_update_url_for(index))
+	if _updating or not is_inside_tree() or checked.get("status", "") != "available":
+		return
+	if index >= _status.size() or _status[index]["state"] != "offline":
+		return  # something else answered in the meantime
+	_apply_status(index, "version", "Can't reach the server, and a different build is published (%s). Try updating." % _updater.entry_stamp(), "(update?)")
 
 
 # Records a server's state and paints it on its dropdown item (a colored dot + short suffix) and, if it is

@@ -1100,9 +1100,14 @@ Scene: Scenes/player3d.tscn (contains CameraRig → CameraController + Camera3D)
   Data/vendor_shop.json. Harbour Master Tobias Sandcrest (harbour_master.gd, a shop that sells the ferry token) comments on where
   Sahren is and talks on his own. NPCRaceModel builds NPC bodies from race models. Sahren reacts to a Ceramic Water-Token.
 
+--- RULE: the RPC list of the Net autoload is FROZEN between released builds (2026-09-21) ---
+  Godot compares every node's RPC list between the two peers and refuses all RPCs on a node whose list differs. Net carries the version handshake, so a changed Net makes a client on the previous build
+  see the server as "offline" and never get the "Update needed" button. Put new RPCs on other nodes (scene nodes such as GMRelay / WeatherManager; those only matter between same-build peers, which the
+  handshake guarantees). Check before releasing: `git diff <released build> -- Scripts/net.gd` must show no @rpc changes (also Global, GameLog, Inventory).
+
 --- GM mode, corpses, meditation, spell book (2026-09-21) ---
-  GMCommands (gm_commands.gd, preload()ed, no class_name): Player3D.is_game_master (saved, replicated) gates /weather and /raid; non-host clients send them to the server (Net.gm_command ->
-  _rpc_gm_command), which checks the sender's flag itself. Corpses (monster3d.gd die()): the server waits until every player who fought it has reported "looted" (_rpc_looted), then 2 s, or 5 min;
+  GMCommands (gm_commands.gd, preload()ed, no class_name): Player3D.is_game_master (saved, replicated) gates /weather and /raid; non-host clients send them to the server through the zone's GMRelay node
+  (gm_relay.gd), which checks the sender's flag itself. Corpses (monster3d.gd die()): the server waits until every player who fought it has reported "looted" (_rpc_looted), then 2 s, or 5 min;
   guard kills vanish at once. Meditation: Player3D.meditation_regen_multiplier() (+5% mana/tick per point sitting, a quarter standing); sitting trains it each tick. The K book sorts by
   SpellInfo.required_level (class-specific) and marks spells above your level.
 

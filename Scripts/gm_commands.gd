@@ -4,7 +4,7 @@
 # do nothing for anyone else.
 #
 # How a command runs: the chat window calls request(). On the host / single-player it runs right there; on a dedicated server (or any
-# other client) it goes to the SERVER over Net.gm_command(), which looks up the sender's player, checks THEIR GM flag, runs it and sends
+# other client) it goes to the SERVER over the zone's GMRelay node (gm_relay.gd), which looks up the sender's player, checks THEIR GM flag, runs it and sends
 # the answer back. Every command lives in run(): add a match arm and a line in the help (pause_menu.gd) and a GM can use it anywhere.
 extends RefCounted   # no class_name on purpose: net.gd (an autoload) uses it, and a brand-new class name is not known to Godot until its class cache is rebuilt; users preload() it instead
 
@@ -45,7 +45,11 @@ static func request(player: Node, command: String, arg: String, tree: SceneTree)
 		if not reply.is_empty():
 			GameLog.log_general(reply)
 	else:
-		Net.gm_command(command, arg)
+		var relay := tree.get_first_node_in_group("gm_relay")
+		if relay == null:
+			GameLog.log_general("Game master commands are not available here.")
+		else:
+			relay.send(command, arg)
 
 
 # Runs a command for `player` where the game world is authoritative (host, single-player, or the dedicated server). Returns the

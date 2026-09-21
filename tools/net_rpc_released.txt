@@ -1,0 +1,53 @@
+## Scripts/net.gd
+@rpc("any_peer", "call_remote", "reliable")
+func _rpc_receive_tell(sender_name: String, message: String) -> void:
+@rpc("any_peer", "call_remote", "reliable")
+func _rpc_receive_party_message(sender_name: String, message: String) -> void:
+@rpc("any_peer", "call_remote", "reliable")
+func _rpc_receive_say(sender_name: String, message: String) -> void:
+@rpc("any_peer", "call_remote", "reliable")
+func _rpc_receive_zone_message(sender_name: String, message: String) -> void:
+@rpc("any_peer", "call_remote", "reliable")
+func _rpc_receive_combat_message(text: String, position: Vector3) -> void:
+@rpc("any_peer", "call_remote", "reliable")
+func _rpc_receive_world_announce(kind: String, pname: String, level: int, cls: String, variant: int) -> void:
+@rpc("any_peer", "call_remote", "reliable")
+func _rpc_receive_group_invite(inviter_name: String) -> void:
+@rpc("any_peer", "call_remote", "reliable")
+func _rpc_receive_group_invite_response(accepted: bool) -> void:
+@rpc("any_peer", "call_remote", "reliable")
+func _rpc_receive_group_roster(peer_ids: Array) -> void:
+@rpc("any_peer", "call_remote", "reliable")
+func _rpc_receive_group_removed(reason: String) -> void:
+@rpc("any_peer", "call_remote", "reliable")
+func _rpc_submit_version(client_version: String, client_build: String) -> void:
+@rpc("authority", "call_remote", "reliable")
+func _rpc_version_accepted(host_is_dedicated: bool, host_server_name: String, players: int, host_max_players: int, host_version: String) -> void:
+@rpc("authority", "call_remote", "reliable")
+func _rpc_version_rejected(host_display: String) -> void:
+@rpc("any_peer", "call_remote", "reliable")
+func _rpc_login(character_name: String, password: String, creation_json: String) -> void:
+@rpc("any_peer", "call_remote", "reliable")
+func _rpc_delete_character(character_name: String, password: String) -> void:
+@rpc("authority", "call_remote", "reliable")
+func _rpc_delete_done(message: String) -> void:
+@rpc("authority", "call_remote", "reliable")
+func _rpc_login_failed(kind: String, reason: String) -> void:
+@rpc("authority", "call_remote", "reliable")
+func _rpc_login_ok(json_text: String, status: String) -> void:
+@rpc("any_peer", "call_remote", "reliable")
+func _rpc_login_ready() -> void:
+@rpc("any_peer", "call_remote", "reliable")
+func _rpc_save_character(json_text: String) -> void:
+@rpc("authority", "call_remote", "reliable")
+func _rpc_save_acknowledged() -> void:
+@rpc("authority", "call_remote", "reliable")
+func _rpc_server_shutting_down() -> void:
+@rpc("any_peer", "call_remote", "reliable")
+func _rpc_shutdown_ready() -> void:
+## Scripts/global.gd
+@rpc("authority", "call_remote", "reliable")
+func _rpc_sync_game_time(server_time: Dictionary, server_accumulator: float) -> void:
+## Scripts/game_log.gd
+## Scripts/inventory_autoload.gd
+## Scripts/patch_loader.gd

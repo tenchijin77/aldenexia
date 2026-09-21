@@ -805,3 +805,28 @@ Ask about desert dangers
   4. Try a level-1 character during a raid.
 
 
+
+
+  Fixes
+  - /raid on the server: I added game master mode. /gm enable and /gm disable toggle it, and /gm alone shows the status. It's saved with the
+    character and shows as "<game master>" on the nameplate, which already existed.
+    - /weather and /raid now need it. A non-host client sends the command to the server, and the server checks that player's own GM flag.
+    - New GM commands are one match arm in gm_commands.gd plus a help line.
+    - Anyone can type /gm enable for now, as you asked. A real gate (a server-side list or password) is the follow-up.
+  - Spell book (K): every spell shows "Level N", green if you can cast it now and red with a dimmed name if not. The list runs lowest level
+    first, and the tooltip says "Requires level N (you are level M)".
+  - Meditation: sitting now trains it every 6 s tick, even at full mana. Before, it only trained while mana was missing. Each point adds 5% mana
+    per tick while sitting, so at skill 16 a tick goes from 21 to 38 mana. Standing gets a quarter of that bonus and doesn't train it.
+  - Wagon quest wording: I removed "drag it onto her" and the same phrase everywhere else it appeared: all the new quests, the guards' lines,
+    and Sahren's token quest. Dragging onto an NPC still works, but no text mentions it.
+  - Corpses: a body goes 2 seconds after everyone who fought it has looted, or after 5 minutes if it's ignored. Guard kills still vanish at
+    once. A body removed by the server now also closes any loot window still open for it.
+  - Dessik: glad he was a good fight.
+
+  Verification
+  - GM mode: single-player checks pass. Against a real dedicated server with a joined client, a forged request without the flag was refused by
+    the server. With the flag, /raid started the raid and /weather rain and clear worked.
+  - Corpses: offline checks pass for looted, empty, emptied, timed-out and ignored bodies. On the dedicated server, a client killed and looted a
+    rat, and the server removed it 2.3 s later while the one it ignored stayed.
+  - Spell book and meditation: both checked in scripted runs.
+  - Test data: I deleted the throwaway test characters I created, including the test server's. Your real characters weren't touched.
