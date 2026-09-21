@@ -21,13 +21,9 @@ extends Node3D
 # so Monster._ready() loads the correct JSON stats automatically.
 const MONSTER_TEMPLATE := "res://Scenes/monster_template.tscn"
 
-# Valid mob_type keys (must match monsters.json keys)
-const VALID_MOB_TYPES: Array = [
-	"rat", "snake", "slime", "spider", "bat", "dune_scarab",
-	"skeleton", "bandit", "goblin", "ghost", "mummy", "mirage_phantom", "sunmaddened_wanderer",
-	# Variants and named mobs (Data/monsters.json, "model_from")
-	"blighted_spider", "dessik_coinhand", "rask_ironjaw", "grukka_bonechewer", "sergeant_halvek", "weavemother_vhessa",
-]
+# A spawn entry's mob_type is valid when Data/monsters.json defines it (so a new monster needs no second list to keep in sync).
+const MONSTERS_PATH := "res://Data/monsters.json"
+var _valid_mob_types: Dictionary = {}
 
 @onready var spawner: MultiplayerSpawner = $MobSpawner
 @onready var spawned_mobs: Node3D = $SpawnedMobs
@@ -50,8 +46,19 @@ var _next_mob_id: int = 0
 
 func _ready() -> void:
 	spawner.spawn_function = _build_mob
+	_load_valid_mob_types()
 	_load_data()
 	print("✅ MobSpawner3D: %d spawn entries loaded." % _entries.size())
+
+func _load_valid_mob_types() -> void:
+	var parsed = JSON.parse_string(FileAccess.get_file_as_string(MONSTERS_PATH))
+	if typeof(parsed) == TYPE_DICTIONARY:
+		for key in parsed:
+			if not str(key).begins_with("_"):
+				_valid_mob_types[str(key)] = true
+	else:
+		push_error("❌ MobSpawner3D: cannot read %s" % MONSTERS_PATH)
+
 
 func _load_data() -> void:
 	var file := FileAccess.open(spawn_data_path, FileAccess.READ)
@@ -96,7 +103,7 @@ func _try_spawn() -> void:
 		if _activation_range > 0.0 and not _player_within_range(entry, player_spots):
 			continue
 		var mob_type: String = entry.get("mob_type", "")
-		if mob_type.is_empty() or mob_type not in VALID_MOB_TYPES:
+		if mob_type.is_empty() or not _valid_mob_types.has(mob_type):
 			continue
 		if _active.get(i, 0) >= _entry_cap(entry):
 			continue

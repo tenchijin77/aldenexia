@@ -731,6 +731,7 @@
     {
         "spell_id": 27,
         "spell_name": "master_block",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "Block has 10% chance to negate all damage, cooldown reduced by 1 second.",
         "caster_proficiency": "intelligence",
         "mana_cost": 25.0,
@@ -1375,6 +1376,7 @@
     {
         "spell_id": 50,
         "spell_name": "enhanced_block",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
         "description": "Block reduces magic damage by 10%, lasts 1 second longer.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -3120,6 +3122,7 @@
     {
         "spell_id": 113,
         "spell_name": "improved_cleave",
+        "icon": "res://Assets/icons/spells/aoephysical.png",
         "description": "Cleave hits 3 enemies, +10% damage.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -9756,6 +9759,7 @@
     {
         "spell_id": 352,
         "spell_name": "improved_fan_of_knives",
+        "icon": "res://Assets/icons/spells/aoephysical.png",
         "description": "Fan of Knives hits 3 enemies, +10% damage.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -10085,7 +10089,7 @@
         "blockable": true,
         "dispellable": true,
         "spell_type": "beneficial",
-          "cast_message": "The ballad makes you feel a bit better.",
+        "cast_message": "The ballad makes you feel a bit better.",
         "interruptable": true,
         "class_level_requirements": {
             "Troubadour": 3
@@ -15531,6 +15535,7 @@
     {
         "spell_id": 559,
         "spell_name": "taunt",
+        "icon": "res://Assets/icons/spells/taunt.png",
         "description": "A furious challenge that forces an enemy's full attention onto you, guaranteeing your threat overtakes whoever else has been hitting it.",
         "caster_proficiency": "none",
         "mana_cost": 10.0,

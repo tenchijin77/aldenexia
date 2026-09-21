@@ -1105,6 +1105,10 @@ Scene: Scenes/player3d.tscn (contains CameraRig → CameraController + Camera3D)
   see the server as "offline" and never get the "Update needed" button. Put new RPCs on other nodes (scene nodes such as GMRelay / WeatherManager; those only matter between same-build peers, which the
   handshake guarantees). Check before releasing: `git diff <released build> -- Scripts/net.gd` must show no @rpc changes (also Global, GameLog, Inventory).
 
+--- GAME MASTER ACCESS (2026-09-21) ---
+  Dedicated server: /gm enable <password> -> GMRelay._rpc_gm_login (server) -> GMCommands.check_password() reads Net.gm_password_file (first non-empty, non-# line; fresh at every attempt) -> the peer id goes into GMRelay._authorized -> GM.run(..., authorized) for
+  every /weather /raid /announce /maintenance. The client's own is_game_master flag is only for its UI/nameplate and is reset at login on a server. Single-player / host: no password. Set/change: tools/set_gm_password.sh user@host.
+
 --- MONSTER DEATH + CLIENT PUPPETS (2026-09-21) ---
   A joined client's copy of a monster is a puppet: it may nudge its local health (cosmetic), but only the authority (server / host) runs die(), threat (add_threat / taunt) and ally calls. Anything a client does to a monster's server-side state goes through an
   apply_networked_* RPC on the monster (damage, effect, disable, fear, taunt). die() runs once (_death_handled). The camera ignores right-clicks and wheel turns that land on a UI control (CameraController._pointer_over_ui()).

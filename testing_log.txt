@@ -160,6 +160,10 @@ T5 (2026-09-21)
 - [DONE]   Owned spells are marked: green tick on the scroll in the backpack, "✔ known" in the vendor list (asked by: T11).
 - [DONE]   Game master commands are listed on the Controls & Commands page for game masters only (asked by: T12 talk).
 - [FIXED]  Dragging an item from a character-sheet slot onto an empty backpack tile made it vanish (found by: T12 play, a dagger). It was filed under a bag that does not exist. Now it goes into a bag with room; anything already lost is recovered at the next login ("You find X at the bottom of your pack").
+- [DONE]   Real GM gate (asked): /gm enable <password> on a server; password file on the server, changeable without a restart (tools/set_gm_password.sh). See change_log.
+- [DONE]   All monsters in monsters.json can spawn; goblin_warrior / goblin_scout / spiderling entries in Lumora now spawn; 12 monsters got stand-in looks.
+- [FIXED]  Taunt had no icon (found by: T12). New bullhorn icon.
+- [DONE]   Action bar: drag a slot to move / swap it, drag it off the bar to remove it (asked by: T12). Slots fire on mouse release.
 - [FIXED]  Right-click on items / chat tabs turned the camera (mouse look) and the wheel zoomed over panels (found by: T12). The camera ignores clicks and wheel turns that land on a window.
 - [OPEN]   Female human's jump animation looks strange (found by: T8): the user will replace the animation.
 - [OPEN]   Anyone can type /gm enable. DECISION: how should real GM access be granted (server-side list, password)?

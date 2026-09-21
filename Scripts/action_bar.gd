@@ -1,6 +1,29 @@
 # action_bar.gd — Bottom-center HUD bar showing ability slots (spells + skills)
+# Arranging: drag an ability from the Abilities Book onto a slot to place it; drag a slot onto another slot to MOVE it (if the other slot
+# has something, the two swap); drag a slot off the bar (drop it anywhere that is not a slot) to REMOVE it. A slot fires on mouse-RELEASE,
+# so picking one up to drag it does not cast it.
 extends CanvasLayer
 class_name ActionBar
+
+
+# One slot of the bar. A plain Panel cannot receive the "drag ended" notification, so the slot is its own small class.
+class ActionSlot extends Panel:
+	var bar: ActionBar = null
+	var index := 0
+
+	func _get_drag_data(_at: Vector2) -> Variant:
+		return bar._begin_slot_drag(index, self)
+
+	func _can_drop_data(_at: Vector2, data: Variant) -> bool:
+		return typeof(data) == TYPE_DICTIONARY and data.has("type") and data.has("name")
+
+	func _drop_data(_at: Vector2, data: Variant) -> void:
+		bar._on_slot_drop(index, data)
+
+	func _notification(what: int) -> void:
+		if what == NOTIFICATION_DRAG_END and bar != null:
+			bar._on_any_drag_end(get_viewport().gui_is_drag_successful())
+
 
 const SLOT_COUNT  := 12
 const SLOT_SIZE   := 62
@@ -11,6 +34,7 @@ var _player: Node = null
 var _slot_panels: Array[Control] = []
 var _panel: Panel = null
 var _dragging := false
+var _drag_from := -1   # the slot being dragged right now (-1: none, or the drag came from the Abilities Book)
 
 
 func _ready() -> void:
@@ -79,7 +103,9 @@ func _build_ui() -> void:
 	for i in range(SLOT_COUNT):
 		var key_text: String = KEY_LABELS[i]
 
-		var slot_panel := Panel.new()
+		var slot_panel := ActionSlot.new()
+		slot_panel.bar = self
+		slot_panel.index = i
 		slot_panel.custom_minimum_size = Vector2(SLOT_SIZE, SLOT_SIZE)
 		slot_panel.mouse_filter = Control.MOUSE_FILTER_PASS
 
@@ -163,19 +189,12 @@ func _build_ui() -> void:
 		# Stop clicks here so they don't bubble up and drag the whole bar
 		slot_panel.mouse_filter = Control.MOUSE_FILTER_STOP
 
-		# Wire drop target
+		# Left-click fires the slotted ability — on RELEASE, so that pressing and dragging (to move or remove it) does not cast it
 		var slot_idx := i
-		slot_panel.set_drag_forwarding(
-			Callable(),
-			func(_pos, data): return typeof(data) == TYPE_DICTIONARY and data.has("type") and data.has("name"),
-			func(_pos, data): _on_slot_drop(slot_idx, data)
-		)
-
-		# Left-click fires the slotted ability
 		slot_panel.gui_input.connect(func(event: InputEvent) -> void:
 			if event is InputEventMouseButton \
 					and event.button_index == MOUSE_BUTTON_LEFT \
-					and event.pressed:
+					and not event.pressed:
 				_activate_slot(slot_idx)
 		)
 
@@ -216,13 +235,62 @@ func _activate_slot(idx: int) -> void:
 func _on_slot_drop(idx: int, data: Dictionary) -> void:
 	var atype: String = data.get("type", "")
 	var aname: String = data.get("name", "")
+	var from_slot := int(data.get("from_slot", -1))
+	if from_slot >= 0 and from_slot < SLOT_COUNT:
+		if from_slot == idx:
+			return
+		# a slot dragged onto another one: they trade places (an empty target simply receives it)
+		_set_slot(from_slot, _slots[idx]["type"], _slots[idx]["ability"])
+	_set_slot(idx, atype, aname)
+
+
+func _set_slot(idx: int, atype: String, aname: String) -> void:
 	_slots[idx]["type"]    = atype
 	_slots[idx]["ability"] = aname
+	_slots[idx]["cd_overlay"].visible = false
+	_slots[idx]["cd_lbl"].visible     = false
 	_update_slot_display(idx)
-
 	# Persist to player's action_bar_slots
 	if is_instance_valid(_player) and "action_bar_slots" in _player:
+		while _player.action_bar_slots.size() <= idx:
+			_player.action_bar_slots.append({"type": "", "name": ""})
 		_player.action_bar_slots[idx] = {"type": atype, "name": aname}
+
+
+# Picking a slot up: the payload is what the Abilities Book gives (type + name) plus where it came from.
+func _begin_slot_drag(idx: int, slot: Control) -> Variant:
+	var atype: String = _slots[idx]["type"]
+	var aname: String = _slots[idx]["ability"]
+	if aname.is_empty():
+		return null
+	_drag_from = idx
+	var icon_rect: TextureRect = _slots[idx]["icon_rect"]
+	if icon_rect.texture != null:
+		var preview := TextureRect.new()
+		preview.texture = icon_rect.texture
+		preview.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		preview.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		preview.custom_minimum_size = Vector2(SLOT_SIZE - 8, SLOT_SIZE - 8)
+		preview.size = preview.custom_minimum_size
+		preview.modulate = Color(1, 1, 1, 0.85)
+		slot.set_drag_preview(preview)
+	else:
+		var label := Label.new()
+		label.text = Player3D.spell_display_name(aname)
+		label.add_theme_font_size_override("font_size", 12)
+		slot.set_drag_preview(label)
+	return {"type": atype, "name": aname, "from_slot": idx}
+
+
+# Every slot hears "a drag ended". If it was one of OUR slots being dragged and nothing accepted it (it was let go off the bar), the
+# ability is taken off the bar.
+func _on_any_drag_end(accepted: bool) -> void:
+	if _drag_from < 0:
+		return
+	var idx := _drag_from
+	_drag_from = -1
+	if not accepted:
+		_set_slot(idx, "", "")
 
 
 func _update_slot_display(i: int) -> void:

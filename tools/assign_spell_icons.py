@@ -55,6 +55,8 @@ def classify(s):
 
     if st == "teleport":
         return "teleport", ""
+    if eff == "taunt" and "taunt" in have:
+        return "taunt", ""
     if re.search(r"resurrect|revival", name):
         return "resurrect", ""
     if "totem" in name:

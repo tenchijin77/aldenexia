@@ -32,9 +32,9 @@ var player_name := "Default Hero"
 var player_class := ""
 var player_race := ""
 var player_sex := "male"
-# Dev/staff flag shown as a "<game master>" nameplate tag (TargetFrame.
-# nameplate_name()) — no in-game way to grant this yet, it's set by editing
-# the save file's "is_game_master" key directly.
+# Dev/staff flag shown as an orange "<Name>" nameplate tag (TargetFrame.
+# nameplate_name()). Single-player / host: /gm enable, saved in
+# the save file's "is_game_master" key; on a dedicated server /gm enable <password> grants it for the session (gm_commands.gd).
 var is_game_master := false:
 	set(value):
 		is_game_master = value
@@ -3122,7 +3122,8 @@ func load_character_data(data: Dictionary) -> void:
 	player_race  = data.get("player_race",  "Human")
 	player_sex   = data.get("player_sex",   "male")
 	stats        = data.get("stats",        {})
-	is_game_master = data.get("is_game_master", false)
+	# On a server the flag is granted per session by the server's password (gm_commands.gd), never restored from the save.
+	is_game_master = bool(data.get("is_game_master", false)) and not (Net.is_multiplayer_game and multiplayer.has_multiplayer_peer() and not multiplayer.is_server())
 
 	_build_character_model()
 

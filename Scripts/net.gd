@@ -93,6 +93,7 @@ var _login_failures: Dictionary = {}
 var tls_dir := "user://server_tls"
 var stop_file := "user://server_stop"
 var maintenance_file := "user://server_maintenance"   # the update script writes the minutes to wait here (see server_notice.gd)
+var gm_password_file := "user://gm_password"           # the game-master password (dedicated server): the first non-empty line; read at every attempt, so changing it needs no restart (see gm_commands.gd)
 var maintenance_pending := false                        # an update countdown is running: new logins are refused
 var _shutting_down := false
 var _shutdown_done := false
@@ -216,6 +217,7 @@ func _start_dedicated_server() -> void:
 	tls_dir = _cmdline_value("tls-dir", tls_dir)
 	stop_file = _cmdline_value("stop-file", stop_file)
 	maintenance_file = _cmdline_value("maintenance-file", maintenance_file)
+	gm_password_file = _cmdline_value("gm-password-file", gm_password_file)
 	get_tree().auto_accept_quit = false  # a close request starts a graceful shutdown instead of dropping everyone
 	var wanted_name := _cmdline_value("name", server_name)
 	server_name = sanitize_name(wanted_name)
@@ -231,6 +233,11 @@ func _start_dedicated_server() -> void:
 	_slog("'%s' — Aldenexia %s listening on UDP %d (encrypted), up to %d players." % [server_name, GameVersion.display(), port, max_players])
 	_slog("Stop it gracefully by creating the file %s (tools/run_server.sh does this on Ctrl-C / SIGTERM)." % ProjectSettings.globalize_path(stop_file))
 	_slog("Update countdown: write the minutes to wait into %s (tools/server_maintenance.sh does this), or a GM types /maintenance." % ProjectSettings.globalize_path(maintenance_file))
+	var gm_path := ProjectSettings.globalize_path(gm_password_file)
+	if FileAccess.file_exists(gm_password_file):
+		_slog("Game master password: read from %s (edit that file to change it; no restart needed)." % gm_path)
+	else:
+		_slog("Game master password: NOT SET. Nobody can become a game master until you create %s (tools/set_gm_password.sh does it)." % gm_path)
 	get_tree().change_scene_to_file(pending_zone_path)
 	_run_world_check()
 

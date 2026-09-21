@@ -198,6 +198,7 @@ const KEYBIND_GROUPS := [
 		["` (backtick)", "Attack current target"],
 		["Right Mouse", "Ranged attack (or interact — see below)"],
 		["1-9, 0, -, =", "Use action bar slot"],
+		["Drag a slot", "Move an ability on the action bar (dropping on a full slot swaps them); drag it off the bar to remove it"],
 		["Escape", "Clear target, close windows, or open this menu"],
 		["F1-F6", "Target group member 1-6"],
 	]],
@@ -257,7 +258,7 @@ const CHAT_COMMANDS := [
 
 # Shown on the Controls & Commands page ONLY to a game master (Player3D.is_game_master, turned on with /gm enable).
 const GM_COMMANDS := [
-	["/gm enable|disable", "Turn game master mode off (or back on)"],
+	["/gm enable <password> | disable", "Leave game master mode (on a server, /gm enable <password> gets you back in; single-player needs no password)"],
 	["/weather rain|clear", "Start or stop rain"],
 	["/raid [bandits|goblins]", "Start a gate raid now"],
 	["/announce <text>", "A red message in the middle of everyone's screen"],

@@ -939,8 +939,7 @@ Ask about desert dangers
   - update.sh:
     - Steps: a --reboot-in 5 option would upload as usual, write the maintenance file, wait for the server to exit, then run your restart
       command.
-    - Decision for you: how do you start the server on the VM: ./run_aldenexia.sh typed into a tmux session? That decides whether the script can
-      restart it automatically. I'd also want a few banner wordings for you to choose from.
+    - Decision for you: how do you start the server on the VM: ./run_aldenexia.sh typed into a tmux session? That decides whether the script can restart it automatically. I'd also want a few banner wordings for you to choose from.
 
   Chat tabs and filters
 
@@ -1032,3 +1031,33 @@ hat tabs with filters are built and tested, and the docs and memory notes are up
   because the old build can't listen for the maintenance request.
 
 
+tools/update.sh --reboot-in 5
+
+  Run it from the repo on your PC, not on the VM. The ~/update.sh on the VM is your apt-upgrade script.
+  1. Upload: it exports and uploads as usual. The running server is untouched, because the new binary goes up under a temporary name.
+  2. Announce: it then tells the server, which immediately shows the red centre-screen message and puts it in chat. New logins are refused, and
+     reminders come at 3 minutes, 1 minute, 30 s and 10 s.
+  3. Go down: the server saves everyone and exits the moment the last player logs out, or at 5 minutes. If nobody is on, it goes down at once.
+     The script waits for it to exit (up to 8 minutes).
+  4. Restart: nothing restarts it. Your terminal just returns to the prompt. For an automatic restart add --restart, for example:
+     tools/update.sh --reboot-in 5 --restart 'tmux kill-session -t game 2>/dev/null; tmux new-session -d -s game "$HOME/run_aldenexia.sh"'
+     The new server then runs in a tmux session called game, which you can view with tmux attach -t game. I haven't tried that restart command
+     against your real server, so try it once when you're watching.
+
+  GM password
+
+  - Setting it: I set it on the server, in ~/.local/share/godot/app_userdata/Aldenexia-Lightfall/gm_password (readable only by you). The current
+    password is JfC7nwGDtCbYq6JAsLJ1. It shows in this conversation, so change it if you share your screen.
+  - Changing it: run tools/set_gm_password.sh rwilkinson@192.168.77.100 from your PC and it asks twice. The options --generate, --show and
+    --remove also work. You can edit the file directly too. The server re-reads it at every attempt, so there's no restart.
+  - Using it: type /gm enable <password> in game. GM lasts for that session and isn't remembered.
+  - Server-side checks: the server now keeps its own list of logged-in GMs and checks every command against that. The old check believed a flag
+    the client sent, which could be faked. Five wrong passwords lock that connection out until it reconnects. The server log shows GM logins,
+    failures and commands, never the password.
+  - Single-player and host: no password needed. The new code only takes effect once the server restarts onto the new build.
+
+  Missing mobs
+
+  The spawner now accepts every monster in monsters.json instead of a hand-kept list. That switched on the three Lumora entries that never
+  spawned: goblin warrior, goblin scout and spiderling. Twelve monsters had no model, so each borrows an existing one, scaled and tinted (the
+  humanoids use the bandit model). These are stand-ins until you have art.
