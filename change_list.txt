@@ -1061,3 +1061,14 @@ tools/update.sh --reboot-in 5
   The spawner now accepts every monster in monsters.json instead of a hand-kept list. That switched on the three Lumora entries that never
   spawned: goblin warrior, goblin scout and spiderling. Twelve monsters had no model, so each borrows an existing one, scaled and tinted (the
   humanoids use the bandit model). These are stand-ins until you have art.
+
+to set gm password:
+
+  rwilkinson@fedora:~/Documents/GitHub/aldenexia/tools % ./set_gm_password.sh
+set_gm_password.sh — set or change the game-master password on the game server, from your own PC.
+
+  tools/set_gm_password.sh user@host                 ask for the new password (typed twice, not shown)
+  tools/set_gm_password.sh user@host --generate      make a random one and print it
+  tools/set_gm_password.sh user@host --show          print the password that is set now
+  tools/set_gm_password.sh user@host --remove        delete it: nobody can become a game master until you set one again
+

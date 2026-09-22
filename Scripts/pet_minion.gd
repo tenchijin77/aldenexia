@@ -36,7 +36,7 @@ const DEFEND_REACTION_WINDOW_MS := 1500
 # Same idea for Assist's "join the owner's fight" reaction — how recently the
 # owner must have actually landed an attack (not just have autoattack
 # toggled on) for the pet to jump in on their current target.
-const ASSIST_REACTION_WINDOW_MS := 1500
+const ASSIST_REACTION_WINDOW_MS := 4000   # was 1500: a caster's swings/casts are further apart than that, so the pet dropped out between them
 const AUTO_ENGAGE_SCAN_INTERVAL := 0.5
 const GRAVITY := 20.0
 const ATTACK_ANIMS := ["attack_horizontal", "attack_downward"]
@@ -475,19 +475,6 @@ func _follow_spot() -> Vector3:
 	return _cached_follow_spot
 
 
-# Same idea as _follow_spot() but behind whatever the pet is attacking —
-# ATTACK_RANGE * 0.6 puts the pet within melee range of the target once it
-# arrives, on the far side from wherever the target is currently facing.
-func _attack_flank_spot(target: Node) -> Vector3:
-	var forward: Vector3 = -target.global_transform.basis.z.normalized()
-	var raw_spot: Vector3 = target.global_position - forward * (ATTACK_RANGE * 0.6)
-	if not is_inside_tree():
-		return raw_spot
-	var map_rid: RID = get_world_3d().navigation_map
-	var snapped: Vector3 = NavigationServer3D.map_get_closest_point(map_rid, raw_spot)
-	return snapped if snapped != Vector3.ZERO else raw_spot
-
-
 func _move_toward(target_pos: Vector3, stop_distance: float, delta: float) -> void:
 	_apply_gravity(delta)
 	_tick_stuck_detector(delta)
@@ -612,13 +599,12 @@ func _process_attack(delta: float) -> void:
 
 	var distance := global_position.distance_to(attack_target.global_position)
 	if distance > ATTACK_RANGE:
-		# Aim for a spot behind the target rather than its bare position —
-		# combatnode.gd's positional combat now skips block/parry/dodge/riposte
-		# entirely for a rear attack, so flanking actually lands more hits, not
-		# just looks better. Still just a preference: if that spot turns out to
-		# be unreachable, _move_toward()'s own stuck-recovery/navmesh-snap
-		# fallback gets the pet close enough to fight anyway.
-		_move_toward(_attack_flank_spot(attack_target), ATTACK_RANGE * 0.8, delta)
+		# Straight at the target's own position (same pattern as GuardNPC.gd's chase), not a flank spot behind it — a flank spot is
+		# recomputed every frame from the target's FACING, so against an enemy that is turning (chasing the player, as most do) that spot
+		# orbits it in a circle. The pet then chased the circling point instead of the enemy and could go the whole rest of a fight
+		# without ever landing within its own attack range: it stood still in Attack mode, never swinging ("the pet keeps dropping out of
+		# attacking"). Reproduced headlessly against a turning boss and confirmed fixed the same way.
+		_move_toward(attack_target.global_position, ATTACK_RANGE * 0.85, delta)
 		return
 
 	_apply_gravity(delta)

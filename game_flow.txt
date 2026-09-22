@@ -1105,6 +1105,10 @@ Scene: Scenes/player3d.tscn (contains CameraRig → CameraController + Camera3D)
   see the server as "offline" and never get the "Update needed" button. Put new RPCs on other nodes (scene nodes such as GMRelay / WeatherManager; those only matter between same-build peers, which the
   handshake guarantees). Check before releasing: `git diff <released build> -- Scripts/net.gd` must show no @rpc changes (also Global, GameLog, Inventory).
 
+--- PET AI (updated 2026-09-21) ---
+  pet_minion.gd's _process_attack(): out of melee range, it walks straight at attack_target.global_position (ATTACK_RANGE * 0.85 stop distance) — same pattern as guard_npc.gd's chase. Do NOT reintroduce a computed offset point (a "flank spot") as the movement GOAL against a target that can turn: it orbits the target every frame it is recomputed and the pet never lands in range (this was the 2026-09-21 "pet stops attacking" bug). Known separate edge case, not yet fixed: the pet's obstacle raycast explicitly excludes the owner (_ray_blocked), so it never steers around them, but real CharacterBody3D collision with the owner's capsule still applies — a pet whose straight line to its target passes through where the owner is standing can get physically blocked there.
+  _apply_saved_pet_mode() must int() the saved pet_mode (JSON numbers load as float; match against int enum values silently never matches a float).
+
 --- GAME MASTER ACCESS (2026-09-21) ---
   Dedicated server: /gm enable <password> -> GMRelay._rpc_gm_login (server) -> GMCommands.check_password() reads Net.gm_password_file (first non-empty, non-# line; fresh at every attempt) -> the peer id goes into GMRelay._authorized -> GM.run(..., authorized) for
   every /weather /raid /announce /maintenance. The client's own is_game_master flag is only for its UI/nameplate and is reset at login on a server. Single-player / host: no password. Set/change: tools/set_gm_password.sh user@host.

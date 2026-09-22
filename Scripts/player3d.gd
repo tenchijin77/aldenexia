@@ -4784,7 +4784,9 @@ func _build_pet(data: Dictionary) -> Node:
 # never actually persisted (see _persist_mode()), so it's covered by the
 # same default-to-Follow branch as an unset value.
 func _apply_saved_pet_mode(pet: Node) -> void:
-	match Global.player_data.get("pet_mode", 0):
+	# int(): a mode read back from the save file is a float (JSON has only one kind of number), and a float never matches these int cases,
+	# so every login used to put the pet back in Follow whatever it was in when you logged out.
+	match int(Global.player_data.get("pet_mode", 0)):
 		2: pet.cmd_sit()
 		3: pet.cmd_guard()
 		4: pet.cmd_assist()

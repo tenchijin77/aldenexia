@@ -163,6 +163,8 @@ T5 (2026-09-21)
 - [DONE]   Real GM gate (asked): /gm enable <password> on a server; password file on the server, changeable without a restart (tools/set_gm_password.sh). See change_log.
 - [DONE]   All monsters in monsters.json can spawn; goblin_warrior / goblin_scout / spiderling entries in Lumora now spawn; 12 monsters got stand-in looks.
 - [FIXED]  Taunt had no icon (found by: T12). New bullhorn icon.
+- [FIXED]  Pet dropped out of attacking mid-fight, needing a manual Assist/Attack click to resume (found by: T13, Sergeant Halvek). It was chasing a "flank spot" that orbits a turning enemy; it now goes straight at the target. Verified with a real server and a real fight to the boss's death.
+- [FIXED]  A saved pet stance (Assist/Guard/Sit) reset to Follow on every login — a save-file numeric type mismatch. Found while chasing the pet bug above.
 - [DONE]   Action bar: drag a slot to move / swap it, drag it off the bar to remove it (asked by: T12). Slots fire on mouse release.
 - [FIXED]  Right-click on items / chat tabs turned the camera (mouse look) and the wheel zoomed over panels (found by: T12). The camera ignores clicks and wheel turns that land on a window.
 - [OPEN]   Female human's jump animation looks strange (found by: T8): the user will replace the animation.
