@@ -172,6 +172,7 @@ navigation_mesh = ExtResource("12_navmesh")
 [node name="LumoraOutskirts" parent="NavigationRegion3D" unique_id=287588538 instance=ExtResource("3_axp1o")]
 
 [node name="LumoraOutskirts_Collision" type="StaticBody3D" parent="NavigationRegion3D" unique_id=1441045215]
+collision_layer = 65
 
 [node name="City Wall_shape" type="CollisionShape3D" parent="NavigationRegion3D/LumoraOutskirts_Collision" unique_id=374344879]
 transform = Transform3D(5.0, 0.0, 0.0, 0.0, -5.0, -0.00000043711393, 0.0, 0.00000043711393, -5.0, 7.02280044555664, 5.0, 35.0295181274414)

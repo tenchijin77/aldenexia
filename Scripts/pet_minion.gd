@@ -63,6 +63,7 @@ var attack_timer: float = 0.0
 var attack_cooldown: float = 2.0
 
 var _guard_scan_timer: float = 0.0
+var _fall_timer: float = 0.0
 var _regen_timer: float = 0.0
 var _attack_anim_timer: float = 0.0
 
@@ -132,6 +133,11 @@ var _stuck_repath_requested: bool = false
 const DIRECT_FALLBACK_MS := 4000
 var _consecutive_stuck_count: int = 0
 var _direct_fallback_until_ms: int = 0
+
+
+# Layer 7 (bit value 64): "solid world geometry only" — see setup() below for why the pet's own collision_mask is set to
+# exactly this, instead of the default (layer 1, shared by players/guards/pets/world alike).
+const WORLD_ONLY_MASK := 1 << 6
 
 
 func _ready() -> void:
@@ -212,6 +218,21 @@ func setup(p_owner: Node, preset_name: String = "") -> void:
 	owner_player = p_owner
 	global_position = p_owner.global_position + p_owner.global_transform.basis.x * 1.5
 	guard_position = global_position
+
+	# The pet no longer physically collides with players (owner or party) — found 2026-09-21: in a tight melee (everyone wanting
+	# to be within ~2.5m of the same target) there just isn't always room to route AROUND a body via the raycast steering above,
+	# and the pet would end up permanently a step short of its own attack range, physically wedged against whoever was closest.
+	# collision_layer stays the default (1) — monsters, world, anything else that currently detects a pet on layer 1 is
+	# unaffected — but collision_mask becomes WORLD_ONLY_MASK: the pet's OWN move_and_slide only resolves against bodies on
+	# THAT bit, which only real solid geometry carries (see lumora_outskirts3d.tscn's LumoraOutskirts_Collision:
+	# collision_layer = 65 = 1 | WORLD_ONLY_MASK — the +1 keeps it detectable by everything that already expected world
+	# geometry on layer 1, e.g. monster3d.gd's own mask). Players/pets/guards were never retagged, so this excludes them from
+	# the pet's own collision resolution while leaving the ground/walls fully solid. ANY NEW ZONE'S terrain StaticBody3D MUST
+	# be tagged the same way (collision_layer = 65, or at minimum include WORLD_ONLY_MASK) or a pet there will fall through the
+	# floor — if that's ever missed, _tick_fall_recovery() below is the safety net that brings it back rather than losing it.
+	# The raycast-based obstacle steering (_ray_blocked) is untouched and independent of this: it still "sees" players and
+	# steers around them whenever there is room to, this only removes the HARD physical block when there is not.
+	collision_mask = WORLD_ONLY_MASK
 	pet_name = preset_name if not preset_name.is_empty() else _pick_random_name()
 	if has_node("NameLabel"):
 		$NameLabel.text = pet_name
@@ -367,8 +388,30 @@ func _play_attack_animation() -> void:
 func _apply_gravity(delta: float) -> void:
 	if not is_on_floor():
 		velocity.y -= GRAVITY * delta
+		_tick_fall_recovery(delta)
 	else:
 		velocity.y = 0.0
+		_fall_timer = 0.0
+
+
+# Safety net for a genuine off-navmesh drop (a cliff edge, a gap the baked navmesh doesn't cover) — chasing straight at a moving
+# target's exact position (see _process_attack()) can walk the pet off one the same way a player could, and with nothing below
+# it, is_on_floor() never becomes true again and velocity.y grows without limit: the pet would otherwise fall forever, lost.
+# Found in a live-server test: a pet chasing a boss that wandered near map geometry fell to y=-55000+ over about a minute and
+# was never seen again. After falling this long uninterrupted, it teleports back to the owner instead.
+const FALL_RECOVERY_SECONDS := 4.0
+
+func _tick_fall_recovery(delta: float) -> void:
+	_fall_timer += delta
+	if _fall_timer < FALL_RECOVERY_SECONDS:
+		return
+	_fall_timer = 0.0
+	if not is_instance_valid(owner_player):
+		return
+	global_position = owner_player.global_position + owner_player.global_transform.basis.x * 1.5
+	velocity = Vector3.ZERO
+	_nav_path.clear()
+	_say("...falls back in beside you, having gone somewhere it shouldn't have.")
 
 
 # A point FOLLOW_DISTANCE behind wherever the player is currently facing,
@@ -475,7 +518,11 @@ func _follow_spot() -> Vector3:
 	return _cached_follow_spot
 
 
-func _move_toward(target_pos: Vector3, stop_distance: float, delta: float) -> void:
+# `dodge_owner`: true routes around the owner's own body like any other obstacle instead of ignoring it — used while chasing an
+# enemy (ATTACK), where the owner is neither the destination nor (with Assist in particular) unlikely to be standing between the
+# pet and its target. Follow/Guard/the owner-proximity catch-up movement always pass false: there the owner often IS the
+# destination (or right next to it), and dodging them there is either meaningless or actively wrong.
+func _move_toward(target_pos: Vector3, stop_distance: float, delta: float, dodge_owner: bool = false) -> void:
 	_apply_gravity(delta)
 	_tick_stuck_detector(delta)
 
@@ -538,18 +585,18 @@ func _tick_stuck_detector(delta: float) -> void:
 
 # Short forward raycast; if something's directly ahead, try a handful of
 # alternate headings and take the first one that's actually clear.
-func _steer_around_obstacles(direction: Vector3) -> Vector3:
+func _steer_around_obstacles(direction: Vector3, dodge_owner: bool = false) -> Vector3:
 	if not is_inside_tree():
 		return direction
 	var space := get_world_3d().direct_space_state
 	var origin := global_position + Vector3(0, 0.9, 0)
 
-	if not _ray_blocked(space, origin, direction):
+	if not _ray_blocked(space, origin, direction, dodge_owner):
 		return direction
 
 	for angle_deg in OBSTACLE_AVOID_ANGLES_DEG:
 		var candidate := direction.rotated(Vector3.UP, deg_to_rad(angle_deg))
-		if not _ray_blocked(space, origin, candidate):
+		if not _ray_blocked(space, origin, candidate, dodge_owner):
 			return candidate
 
 	return direction
@@ -560,13 +607,17 @@ func _steer_around_obstacles(direction: Vector3) -> Vector3:
 # slopes, ramps), and treating that as an "obstacle" made the pet zigzag
 # constantly on any open terrain with a slope, cutting its effective speed
 # well below move_speed and letting the player outrun it.
-func _ray_blocked(space: PhysicsDirectSpaceState3D, origin: Vector3, direction: Vector3) -> bool:
+func _ray_blocked(space: PhysicsDirectSpaceState3D, origin: Vector3, direction: Vector3, dodge_owner: bool = false) -> bool:
 	var query := PhysicsRayQueryParameters3D.create(origin, origin + direction * OBSTACLE_CHECK_DISTANCE)
-	# Never treat the owner as an "obstacle" — the whole point of Follow/Guard
-	# is to end up near them, so a route that grazes their own collision
-	# capsule shouldn't be dodged (or worse, get stuck endlessly trying to
-	# route around a body that's the destination itself).
-	query.exclude = [self, owner_player] if is_instance_valid(owner_player) else [self]
+	# The owner is excluded from being flagged as an "obstacle" by default — Follow/Guard end up right next to them (often
+	# closer than a dodge-and-detour would ever settle for), so a route that grazes their collision capsule shouldn't be
+	# dodged, or worse, get the pet stuck endlessly trying to route around a body that IS (or is right next to) the
+	# destination. When chasing an enemy instead (dodge_owner=true — see _move_toward()), the owner is neither the
+	# destination nor unlikely to be standing in the way (Assist puts the pet right where the owner is already fighting), so
+	# the owner is treated like anyone else this pet isn't its own — a real body to walk around rather than push against.
+	# The pet itself is always excluded, and other players/pets/NPCs were never excluded, so this already worked for a party
+	# member standing in the way; only the owner's own special case needed narrowing.
+	query.exclude = [self] if (dodge_owner or not is_instance_valid(owner_player)) else [self, owner_player]
 	var result := space.intersect_ray(query)
 	if result.is_empty():
 		return false
@@ -604,7 +655,7 @@ func _process_attack(delta: float) -> void:
 		# orbits it in a circle. The pet then chased the circling point instead of the enemy and could go the whole rest of a fight
 		# without ever landing within its own attack range: it stood still in Attack mode, never swinging ("the pet keeps dropping out of
 		# attacking"). Reproduced headlessly against a turning boss and confirmed fixed the same way.
-		_move_toward(attack_target.global_position, ATTACK_RANGE * 0.85, delta)
+		_move_toward(attack_target.global_position, ATTACK_RANGE * 0.85, delta, true)
 		return
 
 	_apply_gravity(delta)

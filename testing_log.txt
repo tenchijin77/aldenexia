@@ -163,6 +163,9 @@ T5 (2026-09-21)
 - [DONE]   Real GM gate (asked): /gm enable <password> on a server; password file on the server, changeable without a restart (tools/set_gm_password.sh). See change_log.
 - [DONE]   All monsters in monsters.json can spawn; goblin_warrior / goblin_scout / spiderling entries in Lumora now spawn; 12 monsters got stand-in looks.
 - [FIXED]  Taunt had no icon (found by: T12). New bullhorn icon.
+- [DONE]   Pet routes around its own owner while chasing an enemy, not just other party members (asked: "look at pet collisions, so they will move around party members"); party members already worked. Followed up per the user's own call: pets no longer physically collide with players at all (a dedicated collision layer), so even a crowded melee that leaves no room to route around no longer wedges the pet short of range.
+- [FIXED]  A pet chasing a target near a map edge could fall forever and be lost for good (found while testing the above). It now recovers back to its owner after 4 s of falling.
+- [DONE]   Pet window buttons are icons now, sized like the vendor list (asked: "use icons for the pet window options... make them smaller, like the vendor window").
 - [FIXED]  Pet dropped out of attacking mid-fight, needing a manual Assist/Attack click to resume (found by: T13, Sergeant Halvek). It was chasing a "flank spot" that orbits a turning enemy; it now goes straight at the target. Verified with a real server and a real fight to the boss's death.
 - [FIXED]  A saved pet stance (Assist/Guard/Sit) reset to Follow on every login — a save-file numeric type mismatch. Found while chasing the pet bug above.
 - [DONE]   Action bar: drag a slot to move / swap it, drag it off the bar to remove it (asked by: T12). Slots fire on mouse release.

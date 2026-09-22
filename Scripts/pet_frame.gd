@@ -7,7 +7,11 @@ class_name PetFrame
 
 const PANEL_WIDTH := 220
 const BAR_HEIGHT := 16
-const BTN_HEIGHT := 26
+# Icon buttons (added 2026-09-21) — small, like ItemIcon's vendor-row icons (ItemIcon.DEFAULT_SIZE, 30px), not the much bigger
+# action-bar-slot size. Each command's icon + full label/description live in COMMAND_ICONS below; the button's own text is empty
+# (name is in the tooltip) so the icon is the whole tile, same idea as slot_button.gd's item tiles.
+const BTN_SIZE := 44
+const ICON_SIZE := 28
 
 var _pet: Node = null
 var _player: Node = null
@@ -47,7 +51,7 @@ func _build_ui() -> void:
 	panel.offset_left   = 16
 	panel.offset_top    = 150
 	panel.offset_right  = 16 + PANEL_WIDTH
-	panel.offset_bottom = 150 + 200  # +20 over the old height for the new MP row
+	panel.offset_bottom = 150 + 232  # tall enough for the name/HP/MP rows plus the 3x3 grid of icon buttons
 	panel.gui_input.connect(_on_panel_gui_input)
 	_panel = panel
 	add_child(panel)
@@ -126,26 +130,53 @@ func _build_ui() -> void:
 	# PetMinion.PetState: FOLLOW=0, ATTACK=1, SIT=2, GUARD=3, ASSIST=4 — the
 	# four persistent-mode entries below record their state value so
 	# _process() can look up which button to ring-highlight.
+	# [tooltip label, tooltip description, icon path, action, mode state value (-1 = one-shot, not a mode)]
 	var commands := [
-		["Attack", func(): _on_attack_pressed(), -1],
-		["Assist", func(): _on_simple_command("cmd_assist"), 4],
-		["Back",   func(): _on_simple_command("cmd_back"), -1],
-		["Protect", func(): _on_simple_command("cmd_follow"), 0],
-		["Sit",    func(): _on_simple_command("cmd_sit"), 2],
-		["Guard",  func(): _on_simple_command("cmd_guard"), 3],
-		["Gear",   func(): _on_gear_pressed(), -1],
-		["Dismiss", func(): _on_simple_command("cmd_dismiss"), -1],
+		["Attack", "attack your target", "res://Assets/icons/items/sword.png", func(): _on_attack_pressed(), -1],
+		["Assist", "join whatever you are fighting", "res://Assets/icons/pet/assist.png", func(): _on_simple_command("cmd_assist"), 4],
+		["Back", "stop attacking and return to you", "res://Assets/icons/pet/back.png", func(): _on_simple_command("cmd_back"), -1],
+		["Protect", "stays close and defends you", "res://Assets/icons/items/shield.png", func(): _on_simple_command("cmd_follow"), 0],
+		["Sit", "rests in place", "res://Assets/icons/pet/sit.png", func(): _on_simple_command("cmd_sit"), 2],
+		["Guard", "holds this spot and attacks anything that comes near", "res://Assets/icons/pet/guard.png", func(): _on_simple_command("cmd_guard"), 3],
+		["Gear", "open its equipment", "res://Assets/icons/items/trunk.png", func(): _on_gear_pressed(), -1],
+		["Dismiss", "sends it away", "res://Assets/icons/pet/dismiss.png", func(): _on_simple_command("cmd_dismiss"), -1],
 	]
 	for entry in commands:
-		var btn := Button.new()
-		btn.text = entry[0]
-		btn.custom_minimum_size = Vector2(0, BTN_HEIGHT)
-		btn.pressed.connect(entry[1])
-		var state_value: int = entry[2]
+		var btn := TextureButton.new()
+		btn.custom_minimum_size = Vector2(BTN_SIZE, BTN_SIZE)
+		btn.ignore_texture_size = true
+		btn.stretch_mode = TextureButton.STRETCH_KEEP_ASPECT_CENTERED
+		btn.tooltip_text = "%s — %s" % [entry[0], entry[1]]
+
+		var bg := StyleBoxFlat.new()
+		bg.bg_color = Color(0.10, 0.10, 0.13, 0.9)
+		bg.set_corner_radius_all(4)
+		bg.border_color = Color(0.35, 0.35, 0.42)
+		bg.set_border_width_all(1)
+		var panel_bg := PanelContainer.new()
+		panel_bg.add_theme_stylebox_override("panel", bg)
+		panel_bg.custom_minimum_size = Vector2(BTN_SIZE, BTN_SIZE)
+		panel_bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		btn.add_child(panel_bg)
+
+		var icon := TextureRect.new()
+		icon.texture = load(entry[2])
+		icon.custom_minimum_size = Vector2(ICON_SIZE, ICON_SIZE)
+		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		icon.set_anchors_preset(Control.PRESET_CENTER)
+		icon.offset_left = -ICON_SIZE / 2.0
+		icon.offset_top = -ICON_SIZE / 2.0
+		icon.offset_right = ICON_SIZE / 2.0
+		icon.offset_bottom = ICON_SIZE / 2.0
+		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		btn.add_child(icon)
+
+		btn.pressed.connect(entry[3])
+		var state_value: int = entry[4]
 		if state_value >= 0:
-			btn.add_theme_stylebox_override("normal", _mode_style_off)
-			btn.add_theme_stylebox_override("hover", _mode_style_off)
-			_mode_buttons[state_value] = btn
+			panel_bg.add_theme_stylebox_override("panel", _mode_style_off)
+			_mode_buttons[state_value] = panel_bg
 		btn_grid.add_child(btn)
 
 	_load_position()
@@ -249,6 +280,5 @@ func _process(_delta: float) -> void:
 
 	var active_state: int = _pet.command
 	for state_value in _mode_buttons:
-		var btn: Button = _mode_buttons[state_value]
-		btn.add_theme_stylebox_override("normal", _mode_style_on if state_value == active_state else _mode_style_off)
-		btn.add_theme_stylebox_override("hover", _mode_style_on if state_value == active_state else _mode_style_off)
+		var panel_bg: PanelContainer = _mode_buttons[state_value]
+		panel_bg.add_theme_stylebox_override("panel", _mode_style_on if state_value == active_state else _mode_style_off)
