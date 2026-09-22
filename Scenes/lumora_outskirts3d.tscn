@@ -17,6 +17,7 @@
 [ext_resource type="AudioStream" uid="uid://canimf824sbt2" path="res://Assets/wind woosh loop.ogg" id="14_windamb"]
 [ext_resource type="Script" uid="uid://c1gpx5b7imou1" path="res://Scripts/multiplayer_player_spawner.gd" id="15_mpspawn"]
 [ext_resource type="PackedScene" path="res://Scenes/harbour_master.tscn" id="harbour_master_scn"]
+[ext_resource type="PackedScene" path="res://Scenes/tobble_npc.tscn" id="tobble_npc_scn"]
 [ext_resource type="PackedScene" path="res://Scenes/kenji_npc.tscn" id="kenji_npc_scn"]
 [ext_resource type="Script" uid="uid://b71mdxjt0jesx" path="res://Scripts/ambient_water_sound.gd" id="ocean_script"]
 [ext_resource type="AudioStream" uid="uid://cviqr1e8477s3" path="res://Assets/soundsforyou-ocean-sea-soft-waves-121349.mp3" id="ocean_stream"]
@@ -335,6 +336,9 @@ transform = Transform3D(-0.994645, 0, 0.103347, 0, 1, 0, -0.103347, 0, -0.994645
 npc_name = "the Apothecary"
 shop_id = "lumora_apothecary"
 vendor_model_key = "female"
+
+[node name="TobbleTinkerer" parent="." instance=ExtResource("tobble_npc_scn")]
+transform = Transform3D(0.809, 0, 0.588, 0, 1, 0, -0.588, 0, 0.809, 40.9, 0, -12.6)
 
 [node name="Kenji" parent="." unique_id=1817547243 instance=ExtResource("kenji_npc_scn")]
 transform = Transform3D(0.97146577, 0, 0.23718, 0, 1, 0, -0.23718, 0, 0.97146577, 6, 0, 19.098156)

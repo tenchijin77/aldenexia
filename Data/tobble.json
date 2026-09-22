@@ -1,0 +1,66 @@
+{
+  "_comment": "Tobble Cogfarrow, gnome tinkerer of Lumora (Scripts/tobble_npc.gd, Scenes/tobble_npc.tscn). Same shape as Data/harbour_master.json: greeting/ambient/secret/topics are the user's text, said to whoever hails him or is nearby; {word} in a line is a clickable keyword (Scripts/npc_conversation.gd). He does not teach the Tinkering skill yet — no tradeskill recipes exist for it — so his own lines are the in-fiction reason why: everything he makes is still 'nearly ready.' The one thing he does sell (a compass) is the one thing he considers finished. All lines are DRAFTS for the user to change.",
+  "ambient_minutes": [3, 6],
+  "ambient_secret_chance_at_night": 0.2,
+  "greeting": [
+    "One moment — nearly — there. Oh! A customer. Welcome, welcome.",
+    "You'll forgive the mess. Genius rarely tidies up after itself.",
+    "Ah, a witness! Good. Tell me honestly if you hear it {tick}."
+  ],
+  "shop_intro": [
+    "Only the compass is finished. Everything else on the bench still has opinions of its own.",
+    "I'll sell you what I'm SURE of. The rest of it is still arguing with me."
+  ],
+  "ambient": [
+    "Sixth {prototype} this month. Sixth. It will work. It simply hasn't been told yet.",
+    "No, no — carry the two, not the three. Start again.",
+    "If a thing hasn't failed at least five times, you haven't tested it. You've guessed.",
+    "Someday I'll teach {tinkering} properly. Someday it will stop teaching ME first.",
+    "Hold still — no, not you, the {gear}. Sorry. Carry on."
+  ],
+  "secret": [
+    "Between us: I built something last winter that I have never once turned back off.",
+    "There's a gear in my third drawer that doesn't belong to anything I own. It still turns.",
+    "I dream in {schematics}. I'm told that isn't normal. I've stopped asking."
+  ],
+  "topics": [
+    {
+      "id": "hail",
+      "keywords": ["hail", "hello", "greetings", "hey"],
+      "then": {"hail": true}
+    },
+    {
+      "id": "tinkering",
+      "keywords": ["tinkering", "tinker", "profession", "craft", "trade", "teach"],
+      "lines": [
+        "Tinkering? I'll teach it the day I'd trust my own work with your coin. That day is close. It is not today."
+      ]
+    },
+    {
+      "id": "gear",
+      "keywords": ["gear", "gears", "cog", "cogs", "workshop", "bench", "prototype", "prototypes"],
+      "lines": [
+        "Every gear on that bench turns for a reason. I may not have found the reason yet, but it's there."
+      ]
+    },
+    {
+      "id": "tick",
+      "keywords": ["tick", "ticking", "sound", "noise"],
+      "sequence": [
+        "You hear it too. Good. I was beginning to think it was only in my head.",
+        "It's supposed to do that. Probably."
+      ]
+    },
+    {
+      "id": "compass",
+      "keywords": ["compass", "buy", "shop"],
+      "lines": ["The compass, now — THAT one I'll stand behind. Have a look."],
+      "then": {"open_shop": true}
+    },
+    {
+      "id": "schematics",
+      "keywords": ["schematics", "dream", "drawer"],
+      "lines": ["Best not to ask what's in the third drawer. I've stopped asking, myself."]
+    }
+  ]
+}

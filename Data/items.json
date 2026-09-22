@@ -7375,8 +7375,12 @@
     "delay": 0,
     "weight": 0.2,
     "size": "small",
-    "class": ["all"],
-    "race": ["all"],
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
@@ -7398,8 +7402,12 @@
     "delay": 0,
     "weight": 0.1,
     "size": "small",
-    "class": ["all"],
-    "race": ["all"],
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
@@ -7421,8 +7429,12 @@
     "delay": 0,
     "weight": 0.2,
     "size": "small",
-    "class": ["all"],
-    "race": ["all"],
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
@@ -7796,5 +7808,86 @@
     "range": 0,
     "stat_modifiers": null,
     "effect": null
+  },
+  "scrap_metal": {
+    "name": "Scrap Metal",
+    "icon": "res://Assets/icons/items/scrap_metal.png",
+    "description": "Bent, salvageable bits of metal — buckles, blades, fittings. Useful for tinkering.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 2,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.7,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "cog_trinket": {
+    "name": "Tinkered Cog Trinket",
+    "icon": "res://Assets/icons/items/cog_trinket.png",
+    "description": "A fitted brass cog on a cord, tuned and re-tuned until it stopped needing to be. Tobble Cogfarrow's first finished design.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 15,
+    "type": "armor",
+    "armor_class": 0,
+    "slot": "trinket",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": {
+      "dexterity": 1
+    },
+    "effect": null
+  },
+  "basic_tinkering_kit": {
+    "name": "Basic Tinkering Kit",
+    "icon": "res://Assets/icons/items/tinkering_kit.png",
+    "description": "A small satchel of gnomish hand tools. Right-click to open and assemble scrap into something useful.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 25,
+    "type": "tool",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "tinkering",
+    "damage": 0,
+    "delay": 0,
+    "weight": 3.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "tradeskill_station": "basic_tinkering_kit"
   }
 }

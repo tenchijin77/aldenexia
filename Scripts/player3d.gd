@@ -3323,6 +3323,7 @@ func apply_equipment(equipment: Dictionary) -> void:
 
 	var weapon_dmg := 0
 	var bonus_ac   := 0
+	var stat_totals: Dictionary = {}
 
 	for slot in equipment:
 		var item_key: String = equipment[slot]
@@ -3335,11 +3336,37 @@ func apply_equipment(equipment: Dictionary) -> void:
 			weapon_dmg = item.get("damage", 0)
 		else:
 			bonus_ac += item.get("armor_class", 0)
+		_add_gear_stat_modifiers(item, stat_totals)
 
 	combat_node.weapon_damage = weapon_dmg
 	combat_node.gear_ac       = bonus_ac
+	_apply_gear_stat_totals(stat_totals)
 	combat_node._stats_dirty  = true
 	combat_node.recalculate_derived_stats()
+
+
+# A single equipped item's own "stat_modifiers" (items.json — e.g. a ring's {"dexterity": 1}) folded into `totals`. Shared by
+# apply_equipment() (the legacy save path above) and _apply_equipment_from_inventory() (the live one below) so both feed the
+# same 7 combat_node.gear_<stat> fields the same way — see their declaration in combatnode.gd for why this exists.
+func _add_gear_stat_modifiers(item: Dictionary, totals: Dictionary) -> void:
+	# item.get("stat_modifiers", {}) is not enough on its own — most items have the KEY present with a literal JSON `null`
+	# (no bonus), and Dictionary.get()'s default only applies when the key is missing entirely, not when it's there but null.
+	var raw: Variant = item.get("stat_modifiers")
+	if typeof(raw) != TYPE_DICTIONARY:
+		return
+	var mods: Dictionary = raw
+	for stat_name in mods:
+		totals[stat_name] = int(totals.get(stat_name, 0)) + int(mods[stat_name])
+
+
+const GEAR_STAT_FIELDS := {
+	"strength": "gear_strength", "constitution": "gear_constitution", "dexterity": "gear_dexterity",
+	"intelligence": "gear_intelligence", "wisdom": "gear_wisdom", "charisma": "gear_charisma", "luck": "gear_luck",
+}
+
+func _apply_gear_stat_totals(totals: Dictionary) -> void:
+	for stat_name in GEAR_STAT_FIELDS:
+		combat_node.set(GEAR_STAT_FIELDS[stat_name], int(totals.get(stat_name, 0)))
 
 
 func _on_equipment_changed() -> void:
@@ -3372,6 +3399,7 @@ func _tick_weapon_poison(delta: float) -> void:
 func _apply_equipment_from_inventory() -> void:
 	var weapon_dmg := 0
 	var bonus_ac   := 0
+	var stat_totals: Dictionary = {}
 
 	for slot in Inventory.EQUIPMENT_SLOTS:
 		var item: Variant = Inventory.equipped.get(slot, null)
@@ -3381,7 +3409,9 @@ func _apply_equipment_from_inventory() -> void:
 			weapon_dmg = item.get("damage", 0) + item.get("poison_bonus_damage", 0)
 		else:
 			bonus_ac += item.get("armor_class", 0)
+		_add_gear_stat_modifiers(item, stat_totals)
 
+	_apply_gear_stat_totals(stat_totals)
 	combat_node.weapon_damage = weapon_dmg
 	combat_node.gear_ac       = bonus_ac
 	# Swapping weapons swaps which skill counts (and unarmed uses hand_to_hand) — this used to stay on the old weapon's skill until relog.

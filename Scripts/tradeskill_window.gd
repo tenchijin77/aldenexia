@@ -232,6 +232,7 @@ func _stop_crafting(message: String) -> void:
 const STATION_SKILLS := {
 	"campfire": "cooking",
 	"basic_alchemy_kit": "alchemy",
+	"basic_tinkering_kit": "tinkering",
 }
 
 func _tick_tradeskill() -> void:

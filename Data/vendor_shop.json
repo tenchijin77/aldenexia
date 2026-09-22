@@ -242,5 +242,15 @@
     "stock": [
       "bastion_ferry_token"
     ]
+  },
+  "lumora_tinkering": {
+    "_comment": "Tobble Cogfarrow's stock (added 2026-09-21; kit + first recipe added same day). The compass is the one thing he was already sure of; the Basic Tinkering Kit is the profession itself, finally finished enough to sell. Data/tradeskill_recipes.json's basic_tinkering_kit list is the recipe sheet — one recipe so far (2 Scrap Metal -> a Tinkered Cog Trinket). More as the profession grows.",
+    "vendor_name": "Tobble Cogfarrow",
+    "buy_price_multiplier": 1.0,
+    "sell_price_multiplier": 0.5,
+    "stock": [
+      "compass",
+      "basic_tinkering_kit"
+    ]
   }
 }

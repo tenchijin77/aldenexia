@@ -44,6 +44,20 @@ var gear_spirit_resist: int = 0  # Spirit resist bonus
 var gear_hp: int = 0             # HP bonus
 var gear_mana: int = 0           # Mana bonus
 
+# Sum of every equipped item's own "stat_modifiers" (items.json) — e.g. a ring's +1 Dexterity. Found 2026-09-21 while adding
+# the first tinkered item: stat_modifiers was read for the inventory tooltip's comparison text (item_inspector.gd) and
+# nowhere else — no equipped item's own listed stat bonus has ever actually applied to anything. Recomputed from scratch by
+# player3d.gd's _apply_equipment_from_inventory() every time equipment changes, same as gear_ac/gear_atk above; added into
+# the effective stat below rather than the raw base stat, so it never gets saved into the character (matches how race's
+# own stat bonus already works, and means re-gearing can't accumulate stale bonuses).
+var gear_strength: int = 0
+var gear_constitution: int = 0
+var gear_dexterity: int = 0
+var gear_intelligence: int = 0
+var gear_wisdom: int = 0
+var gear_charisma: int = 0  # tracked for symmetry, but charisma itself has no effective-stat use anywhere yet (no cha_eff) — nothing to add it into
+var gear_luck: int = 0
+
 # ================================================================================
 # ⭐ WEAPON STATS
 # ================================================================================
@@ -356,12 +370,12 @@ func recalculate_derived_stats():
 	# Effective base stats — race_all_stats_mult (e.g. Half-Elf's +5%) scales
 	# every base stat's CONTRIBUTION to derived stats below, without mutating
 	# the stored base stat itself (keeps saved character data clean).
-	var str_eff: float  = strength     * (1.0 + race_all_stats_mult)
-	var con_eff: float  = constitution * (1.0 + race_all_stats_mult)
-	var dex_eff: float  = dexterity    * (1.0 + race_all_stats_mult)
-	var int_eff: float  = intelligence * (1.0 + race_all_stats_mult)
-	var wis_eff: float  = wisdom       * (1.0 + race_all_stats_mult)
-	var luck_eff: float = luck         * (1.0 + race_all_stats_mult)
+	var str_eff: float  = strength     * (1.0 + race_all_stats_mult) + gear_strength
+	var con_eff: float  = constitution * (1.0 + race_all_stats_mult) + gear_constitution
+	var dex_eff: float  = dexterity    * (1.0 + race_all_stats_mult) + gear_dexterity
+	var int_eff: float  = intelligence * (1.0 + race_all_stats_mult) + gear_intelligence
+	var wis_eff: float  = wisdom       * (1.0 + race_all_stats_mult) + gear_wisdom
+	var luck_eff: float = luck         * (1.0 + race_all_stats_mult) + gear_luck
 
 	# Health (HP)
 	var base_hp = 50  # Base for level 1
