@@ -5,7 +5,7 @@
     "dodge": "Improves evasion from melee and ranged attacks.",
     "parry": "Enables deflection of melee attacks with weapons.",
     "riposte": "Allows counterattacks after a successful parry.",
-    "block": "Raises passive defense and damage absorption when using weapons, fists, or shields.",
+    "block": "Raises passive defense and damage absorption when wielding a shield.",
     "shield_defense": "Improves blocking effectiveness and damage reduction specifically when wielding a shield.",
     "dual_wield": "Allows effective use of two one-handed weapons simultaneously.",
     "double_attack": "Grants a chance to strike twice in a single action.",

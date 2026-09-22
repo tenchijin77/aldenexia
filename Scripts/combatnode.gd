@@ -910,8 +910,15 @@ func resolve_attack(target: CombatNode) -> Dictionary:
 	# skips straight to the hit roll, bypassing all four defensive checks.
 	var from_behind := is_attacked_from_behind(target)
 
+	# One parry roll shared by both the riposte gate and the plain-parry check below — roll_parry() re-rolls fresh random
+	# numbers every call, so calling it twice (once per check) used to give the defender a second, independent, unintended
+	# shot at parrying whenever the first roll succeeded but riposte didn't proc (the defender's true parry rate ended up
+	# parry_chance * (1 - parry_chance * riposte_chance) instead of the intended parry_chance * (1 - riposte_chance) — a real
+	# but easy-to-miss discrepancy: found and fixed 2026-09-21, confirmed against 20,000 simulated swings).
+	var parried := not from_behind and target.roll_parry()
+
 	# 2. RIPOSTE CHECK (Defender)
-	if not from_behind and target.roll_parry():
+	if parried:
 		if target.roll_riposte():
 			var riposte_damage = target.calculate_melee_damage(self)
 			var riposte_crit = target.roll_crit()
@@ -928,7 +935,7 @@ func resolve_attack(target: CombatNode) -> Dictionary:
 			}
 
 	# 3. PARRY CHECK (Defender)
-	if not from_behind and target.roll_parry():
+	if parried:
 		return {
 			"result": "PARRY",
 			"damage": 0,

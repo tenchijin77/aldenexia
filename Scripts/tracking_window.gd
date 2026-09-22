@@ -16,6 +16,12 @@ const MIN_WIDTH := 200.0
 const MIN_HEIGHT := 160.0
 const TRACK_RANGE := 50.0
 const REFRESH_INTERVAL := 0.5
+# "Use it to raise it," same idea as meditation/defense/offense elsewhere — but tracking has no single discrete action (a
+# swing, a cast) to hang training off of, so instead: every SKILL_TICK_INTERVAL seconds the window is open AND actually
+# showing something (not the empty "Nothing within Xm" case — passively leaving the window open with nothing around doesn't
+# count as using it), it gets the same skill-up roll as everything else. Same 6s cadence as player3d.gd's REGEN_INTERVAL,
+# so it doesn't level faster than other passively-trained skills just because this window refreshes twice a second.
+const SKILL_TICK_INTERVAL := 6.0
 
 @onready var panel: Panel = $Panel
 @onready var title_label: Label = $Panel/TitleLabel
@@ -27,6 +33,8 @@ var _player: Node = null
 var _dragging := false
 var _resizing := false
 var _refresh_timer := 0.0
+var _skill_tick_timer := 0.0
+var _showing_anything := false
 
 
 func _ready() -> void:
@@ -48,10 +56,15 @@ func set_player(p: Node) -> void:
 
 func _process(delta: float) -> void:
 	_refresh_timer += delta
-	if _refresh_timer < REFRESH_INTERVAL:
-		return
-	_refresh_timer = 0.0
-	_refresh()
+	if _refresh_timer >= REFRESH_INTERVAL:
+		_refresh_timer = 0.0
+		_refresh()
+
+	_skill_tick_timer += delta
+	if _skill_tick_timer >= SKILL_TICK_INTERVAL:
+		_skill_tick_timer = 0.0
+		if _showing_anything and is_instance_valid(_player) and _player.has_method("_tick_skill"):
+			_player._tick_skill("tracking")
 
 
 func _refresh() -> void:
@@ -59,6 +72,7 @@ func _refresh() -> void:
 		c.queue_free()
 
 	if not is_instance_valid(_player):
+		_showing_anything = false
 		return
 
 	var origin: Vector3 = _player.global_position
@@ -87,6 +101,7 @@ func _refresh() -> void:
 		nearby.append({"node": m, "dist": dist})
 
 	nearby.sort_custom(func(a, b): return a["dist"] < b["dist"])
+	_showing_anything = not nearby.is_empty()
 
 	if nearby.is_empty():
 		var empty_lbl := Label.new()

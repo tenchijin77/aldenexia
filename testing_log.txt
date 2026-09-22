@@ -59,6 +59,8 @@ T12 2026-09-21  Public-server test, build 983fe73
 GENERAL (not class specific)
 ================================================================================
 Combat and stats
+- [FIXED]  Full skill mechanics audit (asked: "check all of the skill mechanics, like dodge, parry, etc and make sure they're working"). Parry/riposte were being rolled twice per attack (a real, if subtle, accuracy bug — fixed). Leopard Strike (Aetherfist) and disarm_traps (Shadowblade's disabling_trap/crippling_trap) were tagged to the wrong or a nonexistent skill and never trained or did anything — retagged. Everything else audited (dodge, block, defense, offense, weapon skills, double/triple attack, concentration, meditation, all magic schools, ...) confirmed already working correctly. The skills book now shows each skill's live computed effect, not just its raw level. See change_log.
+- [DONE]   Tracking trains while its window is open and showing something nearby (asked: "make tracking level go up when the window is open and used"). Nothing in range = no training.
 - [FIXED]  Melee hit chance far too low at level 1 (about 20%, ~30 s to land a hit) while spells one-shot
            everything (found by: T0). Combat numbers now live in Data/combat_balance.json (player_hit_bonus 35,
            player_spell_damage_mult 0.5, monster HP/damage +12% per level above base). change_log: COMBAT TUNING.

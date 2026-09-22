@@ -318,6 +318,20 @@ func _make_spell_row(spell_name: String, info: Dictionary, required_level: int =
 
 # ── General Skills ────────────────────────────────────────────────────────────
 
+# The set of skill_categories any real spell in the game uses (dodge, parry, bash, mantis_fist, evocation, ...) — every one of
+# these skills boosts its OWN abilities' damage/potency via Data/skill_effects.json's "@category" entries (spell_potency_pct,
+# ability_damage_pct), on top of whatever it does directly. Built once from the player's own loaded spell database.
+var _skill_categories: Dictionary = {}
+
+func _build_skill_categories() -> void:
+	_skill_categories.clear()
+	var spells: Dictionary = _player.get("_spell_by_name") if "_spell_by_name" in _player else {}
+	for spell_name in spells:
+		var cat: String = str(spells[spell_name].get("skill_category", ""))
+		if not cat.is_empty():
+			_skill_categories[cat] = true
+
+
 func _fill_general_skills() -> void:
 	var vbox := get_node_or_null("BookPanel/Tabs/General Skills/GenVBox")
 	if not vbox:
@@ -329,6 +343,7 @@ func _fill_general_skills() -> void:
 	var skill_db: Dictionary = _player.get("_skill_data")   if "_skill_data"   in _player else {}
 	var levels: Dictionary   = _player.get("skill_levels")  if "skill_levels"  in _player else {}
 	var skill_max: int       = _player.get("_skill_max")    if "_skill_max"    in _player else 275
+	_build_skill_categories()
 
 	if skills.is_empty():
 		vbox.add_child(_empty_label("No general skills known."))
@@ -339,6 +354,58 @@ func _fill_general_skills() -> void:
 		var level: int    = levels.get(skill_name, 0)
 		var cap: int = int(_player.call("skill_cap_for", level)) if _player.has_method("skill_cap_for") else skill_max
 		vbox.add_child(_make_skill_row(skill_name, desc, level, cap))
+
+
+# What this skill is actually doing right now, at its current level, in the player's own numbers — reads the exact same
+# Data/skill_effects.json tables combatnode.gd's skill_bonus() uses, so this can never drift out of sync with the real math.
+# Direct effects (skill_name appears as a literal key in some stat's table) are always shown; two conditional ones are added
+# on top: "@weapon" (melee_damage_pct) only when this skill is the currently equipped weapon's own skill, and "@category"
+# (spell_potency_pct / ability_damage_pct) only when some real spell actually uses this skill as its skill_category — i.e.
+# only shown for skills that are genuinely live, never for one that would silently do nothing (see leopard_strike, fixed
+# 2026-09-21: it used to be exactly such a dead skill until stunning_fist's skill_category was corrected to point at it).
+const _STAT_LABELS := {
+	"dodge_chance": "dodge chance", "parry_chance": "parry chance", "block_chance": "block chance",
+	"riposte_chance": "riposte chance", "crit_chance": "crit chance", "attack_rating": "attack rating",
+	"melee_damage_pct": "melee damage", "spell_potency_pct": "spell potency", "concentration": "concentration",
+	"stamina_regen": "stamina regen", "stamina_drain_pct": "stamina drain reduction",
+	"bandage_heal_pct": "bandage healing", "double_attack_chance": "double attack chance",
+	"triple_attack_chance": "triple attack chance",
+}
+const _PCT_STATS := {
+	"dodge_chance": true, "parry_chance": true, "block_chance": true, "riposte_chance": true, "crit_chance": true,
+	"melee_damage_pct": true, "spell_potency_pct": true, "stamina_regen": true, "stamina_drain_pct": true,
+	"bandage_heal_pct": true, "double_attack_chance": true, "triple_attack_chance": true,
+}
+
+func _skill_effect_summary(skill_name: String, points: int) -> String:
+	if points <= 0:
+		return ""
+	var lines: Array[String] = []
+	for stat in _STAT_LABELS:
+		var table: Dictionary = SkillEffects.table(stat)
+		if table.has(skill_name):
+			var amount: float = points * float(table[skill_name])
+			lines.append("+%s %s" % [_fmt_amount(amount, _PCT_STATS.has(stat)), _STAT_LABELS[stat]])
+
+	var weapon_key: String = _player.call("_weapon_skill_key", Inventory.get_equipped_weapon()) if _player.has_method("_weapon_skill_key") else ""
+	if skill_name == weapon_key:
+		var per_weapon: float = SkillEffects.table("melee_damage_pct").get("@weapon", 0.0)
+		if per_weapon > 0.0:
+			lines.append("+%s melee damage with your equipped weapon" % _fmt_amount(points * per_weapon, true))
+
+	if _skill_categories.has(skill_name):
+		var per_cat_dmg: float = SkillEffects.table("ability_damage_pct").get("@category", 0.0)
+		var per_cat_pot: float = SkillEffects.table("spell_potency_pct").get("@category", 0.0)
+		var per_cat: float = maxf(per_cat_dmg, per_cat_pot)
+		if per_cat > 0.0:
+			lines.append("+%s to its own abilities' damage/effect" % _fmt_amount(points * per_cat, true))
+
+	return "  ·  ".join(lines)
+
+
+func _fmt_amount(amount: float, is_pct: bool) -> String:
+	var text := ("%.1f" % amount).rstrip("0").rstrip(".")
+	return text + "%" if is_pct else text
 
 
 func _make_skill_row(skill_name: String, desc: String, level: int, skill_max: int) -> Control:
@@ -394,6 +461,20 @@ func _make_skill_row(skill_name: String, desc: String, level: int, skill_max: in
 	desc_lbl.add_theme_color_override("font_color", Color(0.70, 0.70, 0.70))
 	desc_lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	vbox.add_child(desc_lbl)
+
+	# What it's actually doing for you right now, at this level — blank (and no row added) for a skill with genuinely no
+	# effect yet (0 points), or one this build has no numeric hook for at all (a real, if rarer, case: several skills — e.g.
+	# tracking, perception, lockpicking, safe_fall — exist as concepts but have no mechanic built yet; the skill still trains
+	# normally in case one is added later, it just has nothing to report here today).
+	var effect_text := _skill_effect_summary(skill_name, level)
+	if not effect_text.is_empty():
+		var effect_lbl := Label.new()
+		effect_lbl.text = effect_text
+		effect_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		effect_lbl.add_theme_font_size_override("font_size", 10)
+		effect_lbl.add_theme_color_override("font_color", Color(0.55, 0.85, 0.95))
+		effect_lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		vbox.add_child(effect_lbl)
 
 	# Progress bar
 	var bar := ProgressBar.new()
