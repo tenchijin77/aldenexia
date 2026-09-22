@@ -338,7 +338,7 @@ shop_id = "lumora_apothecary"
 vendor_model_key = "female"
 
 [node name="TobbleTinkerer" parent="." instance=ExtResource("tobble_npc_scn")]
-transform = Transform3D(0.809, 0, 0.588, 0, 1, 0, -0.588, 0, 0.809, 40.9, 0, -12.6)
+transform = Transform3D(-0.994645, 0, 0.103347, 0, 1, 0, -0.103347, 0, -0.994645, 40.575, 0, -14.43)
 
 [node name="Kenji" parent="." unique_id=1817547243 instance=ExtResource("kenji_npc_scn")]
 transform = Transform3D(0.97146577, 0, 0.23718, 0, 1, 0, -0.23718, 0, 0.97146577, 6, 0, 19.098156)

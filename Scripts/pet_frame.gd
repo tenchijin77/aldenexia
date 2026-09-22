@@ -51,7 +51,7 @@ func _build_ui() -> void:
 	panel.offset_left   = 16
 	panel.offset_top    = 150
 	panel.offset_right  = 16 + PANEL_WIDTH
-	panel.offset_bottom = 150 + 232  # tall enough for the name/HP/MP rows plus the 3x3 grid of icon buttons
+	panel.offset_bottom = 150 + 184  # tall enough for the name/HP/MP rows plus the 4x2 grid of icon buttons
 	panel.gui_input.connect(_on_panel_gui_input)
 	_panel = panel
 	add_child(panel)
@@ -122,7 +122,7 @@ func _build_ui() -> void:
 	_mode_style_on.set_corner_radius_all(3)
 
 	var btn_grid := GridContainer.new()
-	btn_grid.columns = 3
+	btn_grid.columns = 4  # 8 buttons as two even rows of 4, not 3+3+2 with the last row lonely
 	btn_grid.add_theme_constant_override("h_separation", 4)
 	btn_grid.add_theme_constant_override("v_separation", 4)
 	vbox.add_child(btn_grid)
