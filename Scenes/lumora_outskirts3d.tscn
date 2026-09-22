@@ -26,6 +26,7 @@
 [ext_resource type="Script" uid="uid://wqmn351jhvbo" path="res://Scripts/weather_manager.gd" id="weather_mgr_script"]
 [ext_resource type="Script" path="res://Scripts/world_note.gd" id="world_note_scr"]
 [ext_resource type="Script" path="res://Scripts/gate_raid_manager.gd" id="gate_raid_scr"]
+[ext_resource type="Script" path="res://Scripts/crafting_world_spawner.gd" id="crafting_world_scr"]
 [ext_resource type="Script" path="res://Scripts/gm_relay.gd" id="gm_relay_scr"]
 [ext_resource type="Script" path="res://Scripts/server_notice.gd" id="server_notice_scr"]
 
@@ -457,3 +458,7 @@ script = ExtResource("gm_relay_scr")
 
 [node name="ServerNotice" type="Node" parent="."]
 script = ExtResource("server_notice_scr")
+
+[node name="CraftingWorld" type="Node3D" parent="."]
+script = ExtResource("crafting_world_scr")
+zone_key = "lumora_outskirts"

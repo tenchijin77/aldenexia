@@ -145,6 +145,24 @@ func _learn_from_scroll() -> void:
 			node.set_player(player)
 			break
 
+# Learns the tradeskill recipe a recipe scroll teaches (Data/crafting_items.json "teaches_recipe") and uses the scroll up.
+# Anyone can learn any recipe; the recipe's min skill is checked when you try to craft it.
+func _learn_recipe_from_scroll() -> void:
+	var recipe_id: String = str(item_data.get("teaches_recipe", ""))
+	var player := TargetFrame.local_player()
+	if recipe_id.is_empty() or not is_instance_valid(player) or not player.has_method("learn_recipe"):
+		return
+	var recipe_name: String = str(item_data.get("name", recipe_id)).trim_prefix("Recipe: ")
+	if not player.learn_recipe(recipe_id):
+		GameLog.log_general("You already know how to make [b]%s[/b]." % recipe_name)
+		return
+	if slot_type == "basic":
+		Inventory.remove_from_basic_inventory(slot_index)
+	elif slot_type == "bag":
+		Inventory.remove_from_bag(bag_slot, item_index)
+	GameLog.log_general("[color=#ffdd44]You have learned how to make [b]%s[/b]![/color]" % recipe_name)
+
+
 func _consume_item() -> void:
 	var player := TargetFrame.local_player()
 	if not is_instance_valid(player):
@@ -278,7 +296,15 @@ func _show_inspect_popup() -> void:
 		)
 		btn_row.add_child(unequip_btn)
 
-	# Learn button (scrolls only)
+	# Learn button (spell scrolls and tradeskill recipe scrolls)
+	if item_data.get("type") == "scroll" and item_data.has("teaches_recipe"):
+		var learn_recipe_btn := Button.new()
+		learn_recipe_btn.text = "Learn"
+		learn_recipe_btn.pressed.connect(func():
+			layer.queue_free()
+			_learn_recipe_from_scroll()
+		)
+		btn_row.add_child(learn_recipe_btn)
 	if item_data.get("type") == "scroll" and item_data.has("teaches_spell"):
 		var learn_btn := Button.new()
 		learn_btn.text = "Learn"
@@ -297,6 +323,18 @@ func _show_inspect_popup() -> void:
 			_consume_item()
 		)
 		btn_row.add_child(consume_btn)
+
+	# Drink button (crafted potions and elixirs — player3d.gd's use_potion())
+	if item_data.get("type") == "potion":
+		var drink_btn := Button.new()
+		drink_btn.text = "Drink"
+		drink_btn.pressed.connect(func():
+			layer.queue_free()
+			var p := TargetFrame.local_player()
+			if is_instance_valid(p) and p.has_method("use_potion") and p.use_potion(item_data):
+				Inventory.consume_one(slot_type, slot_index, bag_slot, item_index)
+		)
+		btn_row.add_child(drink_btn)
 
 	# Use button (bandage-style consumables with a heal_amount — see
 	# _use_bandage(); food/drink already have their own Eat/Drink button above)

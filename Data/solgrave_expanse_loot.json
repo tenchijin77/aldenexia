@@ -29,6 +29,12 @@
                 "chance": 0.2,
                 "min": 1,
                 "max": 2
+            },
+            {
+                "item": "linen_cloth",
+                "chance": 0.25,
+                "min": 1,
+                "max": 2
             }
         ],
         "insect": [
@@ -72,16 +78,22 @@
                     "max": 1
                 },
                 {
-                    "item": "raw_meat",
-                    "chance": 0.25,
-                    "min": 1,
-                    "max": 1
-                },
-                {
                     "item": "copper_coin",
                     "chance": 0.15,
                     "min": 1,
                     "max": 3
+                },
+                {
+                    "item": "raw_rat_meat",
+                    "chance": 0.3,
+                    "min": 1,
+                    "max": 1
+                },
+                {
+                    "item": "raw_hide",
+                    "chance": 0.2,
+                    "min": 1,
+                    "max": 1
                 }
             ],
             "snake": [
@@ -102,6 +114,18 @@
                     "chance": 0.1,
                     "min": 1,
                     "max": 2
+                },
+                {
+                    "item": "raw_snake_meat",
+                    "chance": 0.3,
+                    "min": 1,
+                    "max": 1
+                },
+                {
+                    "item": "raw_hide",
+                    "chance": 0.15,
+                    "min": 1,
+                    "max": 1
                 }
             ],
             "dune_scarab": [
@@ -168,6 +192,12 @@
                     "chance": 0.05,
                     "min": 1,
                     "max": 2
+                },
+                {
+                    "item": "raw_bat_meat",
+                    "chance": 0.3,
+                    "min": 1,
+                    "max": 1
                 }
             ],
             "mirage_phantom": [
@@ -194,6 +224,72 @@
                     "chance": 0.5,
                     "min": 5,
                     "max": 15
+                }
+            ],
+            "spiderling": [
+                {
+                    "item": "raw_spider_meat",
+                    "chance": 0.3,
+                    "min": 1,
+                    "max": 1
+                },
+                {
+                    "item": "spider_silk",
+                    "chance": 0.2,
+                    "min": 1,
+                    "max": 1
+                },
+                {
+                    "item": "venom_sac",
+                    "chance": 0.1,
+                    "min": 1,
+                    "max": 1
+                }
+            ],
+            "goblin_scout": [
+                {
+                    "item": "raw_goblin_meat",
+                    "chance": 0.3,
+                    "min": 1,
+                    "max": 1
+                },
+                {
+                    "item": "fletching_feathers",
+                    "chance": 0.35,
+                    "min": 1,
+                    "max": 3
+                },
+                {
+                    "item": "leather_scrap",
+                    "chance": 0.2,
+                    "min": 1,
+                    "max": 1
+                },
+                {
+                    "item": "copper_coin",
+                    "chance": 0.5,
+                    "min": 2,
+                    "max": 6
+                }
+            ],
+            "goblin_warrior": [
+                {
+                    "item": "raw_goblin_meat",
+                    "chance": 0.3,
+                    "min": 1,
+                    "max": 1
+                },
+                {
+                    "item": "leather_scrap",
+                    "chance": 0.25,
+                    "min": 1,
+                    "max": 1
+                },
+                {
+                    "item": "copper_coin",
+                    "chance": 0.55,
+                    "min": 2,
+                    "max": 8
                 }
             ]
         },
@@ -566,6 +662,18 @@
                     "chance": 0.08,
                     "min": 1,
                     "max": 1
+                },
+                {
+                    "item": "raw_human_meat",
+                    "chance": 0.25,
+                    "min": 1,
+                    "max": 1
+                },
+                {
+                    "item": "fletching_feathers",
+                    "chance": 0.25,
+                    "min": 1,
+                    "max": 3
                 }
             ],
             "goblin": [
@@ -604,6 +712,12 @@
                     "chance": 0.25,
                     "min": 1,
                     "max": 2
+                },
+                {
+                    "item": "raw_goblin_meat",
+                    "chance": 0.3,
+                    "min": 1,
+                    "max": 1
                 }
             ],
             "skeleton": [
@@ -694,6 +808,12 @@
                     "chance": 0.15,
                     "min": 1,
                     "max": 4
+                },
+                {
+                    "item": "raw_spider_meat",
+                    "chance": 0.3,
+                    "min": 1,
+                    "max": 1
                 }
             ]
         },
@@ -748,6 +868,12 @@
                     "chance": 0.15,
                     "min": 1,
                     "max": 1
+                },
+                {
+                    "item": "uncut_gem",
+                    "chance": 0.5,
+                    "min": 1,
+                    "max": 1
                 }
             ],
             "rask_ironjaw": [
@@ -762,6 +888,12 @@
                     "chance": 0.3,
                     "min": 1,
                     "max": 1
+                },
+                {
+                    "item": "uncut_gem",
+                    "chance": 0.5,
+                    "min": 1,
+                    "max": 1
                 }
             ],
             "grukka_bonechewer": [
@@ -774,6 +906,12 @@
                 {
                     "item": "goblin_hide_boots",
                     "chance": 0.3,
+                    "min": 1,
+                    "max": 1
+                },
+                {
+                    "item": "uncut_gem",
+                    "chance": 0.5,
                     "min": 1,
                     "max": 1
                 }
@@ -794,6 +932,12 @@
                 {
                     "item": "wardens_grave_blade",
                     "chance": 0.15,
+                    "min": 1,
+                    "max": 1
+                },
+                {
+                    "item": "uncut_gem",
+                    "chance": 0.5,
                     "min": 1,
                     "max": 1
                 }
@@ -820,6 +964,12 @@
                 {
                     "item": "venomfang_dagger",
                     "chance": 0.2,
+                    "min": 1,
+                    "max": 1
+                },
+                {
+                    "item": "uncut_gem",
+                    "chance": 0.5,
                     "min": 1,
                     "max": 1
                 }

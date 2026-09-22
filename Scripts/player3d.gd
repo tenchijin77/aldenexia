@@ -42,6 +42,7 @@ var is_game_master := false:
 			_refresh_nameplate()   # /gm enable shows "<Name>" in orange at once, on this screen and (replicated) on everyone else's
 var known_spells: Array = []
 var known_skills: Array = []
+var known_recipes: Array = []  # tradeskill recipe ids learned from scrolls/quests (innate recipes are always known)
 var skill_levels: Dictionary = {}
 var regen_bonus: int = 0  # Racial bonus HP added to each regen tick (e.g. Troll regeneration)
 var action_bar_slots: Array = []  # Array of {type, name} dicts, 12 elements
@@ -360,6 +361,10 @@ func _try_open_shop_or_loot() -> void:
 			return
 	if _try_open_campfire():
 		return
+	if _try_open_crafting_station():
+		return
+	if _try_gather():
+		return
 	if _try_read_world_note():
 		return
 	_try_loot_corpse()
@@ -402,6 +407,57 @@ func _try_open_campfire() -> bool:
 	if nearest == null:
 		return false
 	_open_tradeskill_window(nearest.STATION_ID, nearest.display_name, "Cook")
+	return true
+
+
+# Right-click near a town crafting station (crafting_station.gd: Forge, Oven, Tannery, ...) opens the crafting window for it.
+# Range-based, same as the campfire.
+func _try_open_crafting_station() -> bool:
+	var nearest: Node = null
+	var nearest_dist: float = INF
+	for node in get_tree().get_nodes_in_group("crafting_station"):
+		if not is_instance_valid(node):
+			continue
+		var dist := global_position.distance_to(node.global_position)
+		if dist <= node.use_range and dist < nearest_dist:
+			nearest_dist = dist
+			nearest = node
+	if nearest == null:
+		return false
+	_open_tradeskill_window(nearest.station_id, nearest.display_name, "Craft")
+	return true
+
+
+# Right-click near a gathering node (gathering_node.gd: thistle patch, ore vein, tree) starts gathering from it.
+func _try_gather() -> bool:
+	var nearest: Node = null
+	var nearest_dist: float = INF
+	for node in get_tree().get_nodes_in_group("gathering_node"):
+		if not is_instance_valid(node) or not node.is_available():
+			continue
+		var dist := global_position.distance_to(node.global_position)
+		if dist <= node.USE_RANGE and dist < nearest_dist:
+			nearest_dist = dist
+			nearest = node
+	if nearest == null:
+		return false
+	nearest.start_gather(self)
+	return true
+
+
+# True if the player knows a tradeskill recipe: innate recipes are always known, the rest must be learned
+# (recipe scrolls — slot_button.gd's Learn button — or quest rewards, both through learn_recipe()).
+func knows_recipe(recipe_id: String, recipe: Dictionary) -> bool:
+	return bool(recipe.get("innate", false)) or known_recipes.has(recipe_id)
+
+
+# Learns a tradeskill recipe and saves it. False if it was already known.
+func learn_recipe(recipe_id: String) -> bool:
+	if known_recipes.has(recipe_id):
+		return false
+	known_recipes.append(recipe_id)
+	Global.player_data["known_recipes"] = known_recipes
+	Global.save_player_data_to_file()
 	return true
 
 
@@ -1787,6 +1843,38 @@ func consume_food_or_drink(item: Dictionary) -> void:
 		_:
 			return
 	_update_well_fed_buff()
+	apply_consumable_effects(item)
+
+
+# Drinks a crafted potion or elixir (items with type "potion" — Data/crafting_items.json). Returns true if it was used up.
+func use_potion(item: Dictionary) -> bool:
+	GameLog.log_general("You drink %s." % item.get("name", "the potion"))
+	apply_consumable_effects(item)
+	return true
+
+
+# The extra effects crafted food, drink and potions carry on top of satiety/thirst (tools/export_crafting.py writes them):
+# an instant heal ("heal_amount"), a timed buff ("use_buff": regen bonuses, stat_<name> bonuses, damage_mult, heal over
+# time), and "cures_poison" (removes every damage-over-time effect with poison/venom in its name). A new buff from the same
+# item replaces the old one rather than stacking.
+func apply_consumable_effects(item: Dictionary) -> void:
+	var heal: int = int(item.get("heal_amount", 0))
+	if heal > 0:
+		var healed: int = combat_node.heal(heal)
+		if healed > 0:
+			GameLog.log_general("[color=#88ffaa]You are healed for [b]%d[/b].[/color]" % healed)
+	if bool(item.get("cures_poison", false)):
+		var cured := 0
+		for effect_name in combat_node.active_effects.keys():
+			var lowered: String = str(effect_name).to_lower()
+			if ("poison" in lowered or "venom" in lowered) and int(combat_node.active_effects[effect_name].get("tick_dmg", 0)) > 0:
+				combat_node.remove_effect(effect_name)
+				cured += 1
+		GameLog.log_general("[color=#88ffaa]The poison burns away.[/color]" if cured > 0 else "You feel no different.")
+	var buff: Variant = item.get("use_buff")
+	if typeof(buff) == TYPE_DICTIONARY:
+		combat_node.apply_effect(str(buff.get("effect_name", "consumable_buff")), float(buff.get("duration", 600.0)),
+				buff.get("modifiers", {}), 0, float(buff.get("tick_interval", 6.0)), int(buff.get("tick_heal", 0)))
 #endregion
 
 #region Movement handlers
@@ -3173,6 +3261,7 @@ func load_character_data(data: Dictionary) -> void:
 	apply_racial_modifiers(player_race)
 	known_spells     = data.get("known_spells", [])
 	known_skills     = data.get("known_skills", [])
+	known_recipes    = data.get("known_recipes", [])
 	skill_levels     = data.get("skill_levels", {})
 	_migrate_legacy_skills()
 	combat_node.skills = skill_levels  # Data/skill_effects.json reads the player's skills through the combat node
@@ -4991,7 +5080,8 @@ func is_dual_wielding() -> bool:
 			and typeof(off) == TYPE_DICTIONARY and str(off.get("type", "")) == "weapon"
 
 
-func _tick_skill(skill_name: String) -> void:
+# gain_mult scales the skill-up chance: tradeskills pass 1.0 for a success, 0.25 for a failed craft (Crafting.xlsx Rules).
+func _tick_skill(skill_name: String, gain_mult: float = 1.0) -> void:
 	if skill_name.is_empty() or skill_name == "none":
 		return
 	if skill_name == "dual_wield" and not is_dual_wielding():
@@ -5014,7 +5104,7 @@ func _tick_skill(skill_name: String) -> void:
 	var cap: int = skill_cap_for(current)
 	if current >= cap:
 		return
-	var chance: float = 0.15 * (1.0 - float(current) / float(cap))
+	var chance: float = 0.15 * (1.0 - float(current) / float(cap)) * gain_mult
 	if randf() < chance:
 		skill_levels[skill_name] += 1
 		GameLog.log_general("You've become better at [b]%s[/b]! (%d)" % [

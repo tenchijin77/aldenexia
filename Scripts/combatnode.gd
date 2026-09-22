@@ -213,6 +213,8 @@ func apply_effect(effect_name: String, duration: float, modifiers: Dictionary, t
 	"""Apply (or refresh) a named timed effect with a dict of additive modifiers.
 	tick_dmg/tick_heal are mutually-exclusive per-tick amounts (DoT/HoT) — heal
 	goes through heal() so it respects max_hp, unlike take_damage()."""
+	if _has_stat_modifiers(modifiers) or _has_stat_modifiers(active_effects.get(effect_name, {}).get("modifiers", {})):
+		_stats_dirty = true
 	active_effects[effect_name] = {
 		"remaining": duration,
 		"modifiers": modifiers,
@@ -223,7 +225,18 @@ func apply_effect(effect_name: String, duration: float, modifiers: Dictionary, t
 	}
 
 func remove_effect(effect_name: String) -> void:
+	if _has_stat_modifiers(active_effects.get(effect_name, {}).get("modifiers", {})):
+		_stats_dirty = true
 	active_effects.erase(effect_name)
+
+
+# Timed effects can raise stats with "stat_<name>" modifiers (crafted elixirs and brews, e.g. {"stat_strength": 2}); those
+# feed recalculate_derived_stats() the same way gear_<stat> does, so adding or removing one has to invalidate the cache.
+func _has_stat_modifiers(modifiers: Dictionary) -> bool:
+	for key in modifiers:
+		if str(key).begins_with("stat_"):
+			return true
+	return false
 
 func has_effect(effect_name: String) -> bool:
 	return active_effects.has(effect_name)
@@ -310,7 +323,7 @@ func _process(delta: float) -> void:
 			if effect["remaining"] <= 0.0:
 				expired.append(effect_name)
 	for effect_name in expired:
-		active_effects.erase(effect_name)
+		remove_effect(effect_name)
 
 # ================================================================================
 # ⭐ STAT MODIFICATION (Marks cache as dirty)
@@ -370,11 +383,11 @@ func recalculate_derived_stats():
 	# Effective base stats — race_all_stats_mult (e.g. Half-Elf's +5%) scales
 	# every base stat's CONTRIBUTION to derived stats below, without mutating
 	# the stored base stat itself (keeps saved character data clean).
-	var str_eff: float  = strength     * (1.0 + race_all_stats_mult) + gear_strength
-	var con_eff: float  = constitution * (1.0 + race_all_stats_mult) + gear_constitution
-	var dex_eff: float  = dexterity    * (1.0 + race_all_stats_mult) + gear_dexterity
-	var int_eff: float  = intelligence * (1.0 + race_all_stats_mult) + gear_intelligence
-	var wis_eff: float  = wisdom       * (1.0 + race_all_stats_mult) + gear_wisdom
+	var str_eff: float  = strength     * (1.0 + race_all_stats_mult) + gear_strength + get_modifier("stat_strength")
+	var con_eff: float  = constitution * (1.0 + race_all_stats_mult) + gear_constitution + get_modifier("stat_constitution")
+	var dex_eff: float  = dexterity    * (1.0 + race_all_stats_mult) + gear_dexterity + get_modifier("stat_dexterity")
+	var int_eff: float  = intelligence * (1.0 + race_all_stats_mult) + gear_intelligence + get_modifier("stat_intelligence")
+	var wis_eff: float  = wisdom       * (1.0 + race_all_stats_mult) + gear_wisdom + get_modifier("stat_wisdom")
 	var luck_eff: float = luck         * (1.0 + race_all_stats_mult) + gear_luck
 
 	# Health (HP)

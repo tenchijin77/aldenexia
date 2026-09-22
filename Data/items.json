@@ -520,7 +520,7 @@
     "ratio": 0,
     "range": 0,
     "stat_modifiers": {
-      "stamina": 1
+      "constitution": 1
     },
     "effect": null
   },
@@ -655,7 +655,7 @@
     "ratio": 0,
     "range": 0,
     "stat_modifiers": {
-      "agility": 1
+      "dexterity": 1
     },
     "effect": null
   },
@@ -946,7 +946,7 @@
     "ratio": 0,
     "range": 0,
     "stat_modifiers": {
-      "stealth": 2
+      "dexterity": 2
     },
     "effect": null
   },
@@ -1423,7 +1423,7 @@
     "ratio": 0,
     "range": 0,
     "stat_modifiers": {
-      "stamina": 1
+      "constitution": 1
     },
     "effect": null
   },
@@ -1897,7 +1897,7 @@
     "range": 0,
     "stat_modifiers": {
       "strength": 4,
-      "agility": 2
+      "dexterity": 2
     },
     "effect": null
   },
@@ -7495,7 +7495,7 @@
     "range": 0,
     "stat_modifiers": {
       "strength": 2,
-      "stamina": 1
+      "constitution": 1
     },
     "effect": null
   },
@@ -7523,8 +7523,7 @@
     "ratio": 0.45,
     "range": 0,
     "stat_modifiers": {
-      "dexterity": 3,
-      "agility": 1
+      "dexterity": 4
     },
     "effect": null
   },
@@ -7553,7 +7552,7 @@
     "range": 0,
     "stat_modifiers": {
       "strength": 1,
-      "stamina": 2
+      "constitution": 2
     },
     "effect": null
   },
@@ -7611,7 +7610,7 @@
     "range": 0,
     "stat_modifiers": {
       "strength": 2,
-      "stamina": 1
+      "constitution": 1
     },
     "effect": null
   },
@@ -7639,7 +7638,7 @@
     "ratio": 0,
     "range": 0,
     "stat_modifiers": {
-      "agility": 2
+      "dexterity": 2
     },
     "effect": null
   },
@@ -7667,7 +7666,7 @@
     "ratio": 0,
     "range": 0,
     "stat_modifiers": {
-      "stamina": 2,
+      "constitution": 2,
       "wisdom": 1
     },
     "effect": null
@@ -7696,8 +7695,7 @@
     "ratio": 0,
     "range": 0,
     "stat_modifiers": {
-      "agility": 2,
-      "dexterity": 1
+      "dexterity": 3
     },
     "effect": null
   },
@@ -7889,5 +7887,951 @@
     "stat_modifiers": null,
     "effect": null,
     "tradeskill_station": "basic_tinkering_kit"
+  },
+  "scorpion_leg": {
+    "name": "Scorpion Leg",
+    "icon": "res://Assets/icons/items/insectpart.png",
+    "description": "A jointed, bristled leg from a sand stinger.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 1,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "stinger_tail": {
+    "name": "Stinger Tail",
+    "icon": "res://Assets/icons/items/insectpart.png",
+    "description": "A sand stinger's tail, the venom barb still attached. Handle with care.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 4,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "toxic_residue": {
+    "name": "Toxic Residue",
+    "icon": "res://Assets/icons/items/reagent.png",
+    "description": "A sticky, foul-smelling residue scraped from a sand stinger's venom sac. Alchemists pay for it.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 6,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "scorpion_carapace": {
+    "name": "Scorpion Carapace",
+    "icon": "res://Assets/icons/items/insectpart.png",
+    "description": "A curved plate of sand stinger shell, hard as horn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 3,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.6,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "mangled_ear": {
+    "name": "Mangled Ear",
+    "icon": "res://Assets/icons/items/icon-ear.png",
+    "description": "A torn ear from a wild dog. Proof of the kill, and not much else.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 1,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "sharp_canine": {
+    "name": "Sharp Canine",
+    "icon": "res://Assets/icons/items/animalpart.png",
+    "description": "A long, yellowed fang from a wild dog.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 2,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "chewed_bone": {
+    "name": "Chewed Bone",
+    "icon": "res://Assets/icons/items/bonefragment.png",
+    "description": "A bone gnawed smooth. Best not to wonder what it came from.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 1,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "small_map": {
+    "name": "Small Map",
+    "icon": "res://Assets/icons/items/map-fragment.png",
+    "description": "A scout's hand-drawn map of the plateau trails, marked with symbols you don't recognise.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 5,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "light_leather": {
+    "name": "Light Leather",
+    "icon": "res://Assets/icons/items/leather.png",
+    "description": "A cured sheet of thin, supple leather. Useful to a leatherworker.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 4,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.5,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "worn_sandals": {
+    "name": "Worn Sandals",
+    "icon": "res://Assets/icons/items/cloth-shoes.png",
+    "description": "Desert sandals worn thin by long patrols.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 3,
+    "type": "armor",
+    "armor_class": 1,
+    "slot": "feet",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.6,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "leather_canteen": {
+    "name": "Leather Canteen",
+    "icon": "res://Assets/icons/items/waterskin.png",
+    "description": "An empty leather canteen, stitched and sealed with pitch.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 4,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.4,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "scout_whistle": {
+    "name": "Scout Whistle",
+    "icon": "res://Assets/icons/items/bonefragment.png",
+    "description": "A carved bone whistle that shrills like a hawk. Dustwalker scouts use them to signal.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 8,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "sharp_dagger": {
+    "name": "Sharp Dagger",
+    "icon": "res://Assets/icons/items/dagger.png",
+    "description": "A well-kept dagger with a keen, freshly honed edge.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "weapon",
+    "armor_class": 0,
+    "slot": "primary",
+    "skill": "piercing_weapons",
+    "damage": 6,
+    "delay": 20,
+    "weight": 2.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": {
+      "dexterity": 1
+    },
+    "effect": null
+  },
+  "heavy_leather": {
+    "name": "Heavy Leather",
+    "icon": "res://Assets/icons/items/leather.png",
+    "description": "A thick, stiff hide, cured hard. Useful to a leatherworker.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 6,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.8,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "ravager_earring": {
+    "name": "Ravager Earring",
+    "icon": "res://Assets/icons/items/gemstone.png",
+    "description": "A crude iron hoop, taken from a Dustwalker ravager.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 12,
+    "type": "armor",
+    "armor_class": 0,
+    "slot": "ear",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": {
+      "strength": 1
+    },
+    "effect": null
+  },
+  "notched_blade": {
+    "name": "Notched Blade",
+    "icon": "res://Assets/icons/items/sword.png",
+    "description": "A heavy blade, its edge notched from hard use. It still bites.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 9,
+    "type": "weapon",
+    "armor_class": 0,
+    "slot": "primary",
+    "skill": "slashing_weapons",
+    "damage": 8,
+    "delay": 28,
+    "weight": 3.2,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "combat_wraps": {
+    "name": "Combat Wraps",
+    "icon": "res://Assets/icons/items/cloth-bracers.png",
+    "description": "Hard leather wraps bound over the knuckles, stained from many fights.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "weapon",
+    "armor_class": 0,
+    "slot": "primary",
+    "skill": "hand_to_hand",
+    "damage": 6,
+    "delay": 18,
+    "weight": 0.6,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": {
+      "strength": 1
+    },
+    "effect": null
+  },
+  "small_tin_cup": {
+    "name": "Small Tin Cup",
+    "icon": "res://Assets/icons/items/cup.png",
+    "description": "A dented tin cup, rattling with sand.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 1,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.2,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "lock_of_hair": {
+    "name": "Lock of Hair",
+    "icon": "res://Assets/icons/items/cloth.png",
+    "description": "A lock of hair tied with faded ribbon. Someone kept it close for a long time.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 2,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "tough_hide": {
+    "name": "Tough Hide",
+    "icon": "res://Assets/icons/items/animal-pelt.png",
+    "description": "A thick, scaly hide from a thornback lizard.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 3,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.8,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "sharp_spine": {
+    "name": "Sharp Spine",
+    "icon": "res://Assets/icons/items/animalpart.png",
+    "description": "A needle-sharp spine plucked from a thornback lizard's back.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 2,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "thorned_scale": {
+    "name": "Thorned Scale",
+    "icon": "res://Assets/icons/items/snake-scale.png",
+    "description": "A hard scale ridged with small thorns.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 4,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "lizard_tail": {
+    "name": "Lizard Tail",
+    "icon": "res://Assets/icons/items/animal-tail.png",
+    "description": "A thornback lizard's tail. Still twitches, now and then.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 1,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "desert_root": {
+    "name": "Desert Root",
+    "icon": "res://Assets/icons/items/herb.png",
+    "description": "A bitter, fibrous root dug up by lizards. Some healers brew it.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 3,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "shifting_sand": {
+    "name": "Shifting Sand",
+    "icon": "res://Assets/icons/items/dust-pile.png",
+    "description": "A handful of sand that won't stay still in your palm.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 2,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "desert_essence": {
+    "name": "Desert Essence",
+    "icon": "res://Assets/icons/items/reagent.png",
+    "description": "A swirling mote of the desert's heat, bottled. A rare reagent.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 20,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "elemental_core_fragment": {
+    "name": "Elemental Core Fragment",
+    "icon": "res://Assets/icons/items/basalt-chunk.png",
+    "description": "A warm shard from the heart of a sandshifter. It pulses faintly.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.4,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "sand_vial": {
+    "name": "Sand Vial",
+    "icon": "res://Assets/icons/items/flask.png",
+    "description": "A stoppered vial of fine, glittering sand from a sandshifter.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 5,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.2,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "heavy_chitin": {
+    "name": "Heavy Chitin",
+    "icon": "res://Assets/icons/items/insectpart.png",
+    "description": "A thick plate of khepri beetle shell.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 4,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.8,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "gilded_wing": {
+    "name": "Gilded Wing",
+    "icon": "res://Assets/icons/items/insectpart.png",
+    "description": "A khepri beetle's wing case, shining like beaten gold. Jewelers prize it.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 25,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "stable_key": {
+    "name": "Stable Key",
+    "icon": "res://Assets/icons/items/key.png",
+    "description": "An iron key stamped with the Lumora stables' mark.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 3,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "outrider_insignia": {
+    "name": "Outrider Insignia",
+    "icon": "res://Assets/icons/items/token.png",
+    "description": "A tarnished badge worn by Lumora's outriders.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 6,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "standard_issue_spear": {
+    "name": "Standard-Issue Spear",
+    "icon": "res://Assets/icons/items/dagger.png",
+    "description": "A plain, sturdy spear, the kind Lumora hands its outriders.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 12,
+    "type": "weapon",
+    "armor_class": 0,
+    "slot": "primary",
+    "skill": "piercing_weapons",
+    "damage": 11,
+    "delay": 34,
+    "weight": 4.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "two_handed": true
+  },
+  "jeweled_hilt": {
+    "name": "Jeweled Hilt",
+    "icon": "res://Assets/icons/items/gemstone.png",
+    "description": "The hilt of a broken sword, set with small, dusty gems. Worth something to the right buyer.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 30,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.4,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "conqueror_map": {
+    "name": "Conqueror's Map",
+    "icon": "res://Assets/icons/items/map-fragment.png",
+    "description": "A war map of the plateaus, the Dustwalker warlord's raids marked in red.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 15,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "royal_sandals": {
+    "name": "Royal Sandals",
+    "icon": "res://Assets/icons/items/cloth-shoes.png",
+    "description": "Fine sandals with gilded straps, taken from a warlord who took them from someone else.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 20,
+    "type": "armor",
+    "armor_class": 2,
+    "slot": "feet",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.5,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": {
+      "dexterity": 1,
+      "charisma": 1
+    },
+    "effect": null
   }
 }
