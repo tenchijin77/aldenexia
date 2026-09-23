@@ -93,6 +93,10 @@ func restore_mouse_mode() -> void:
 # independently of which character is loaded/saved, and are available even
 # from the main menu before any character is loaded)
 const SETTINGS_PATH := "user://settings.json"
+# The zone new and loaded characters start in (character creation, load game, joining a server). Since 2026-09-22 this is the
+# Terrain3D rebuild of Lumora Outskirts; the old flat zone is archived as Scenes/lumora_outskirts3d_flat.tscn. The file name
+# matters: Data/compass.json and the zone announcement (world_announcer.gd) key off it.
+const START_ZONE_PATH := "res://Scenes/lumora_outskirts3d.tscn"
 
 var settings: Dictionary = {
 	"music_volume": 1.0,   # linear 0..1, applied to the "Music" audio bus

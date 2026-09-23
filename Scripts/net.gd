@@ -55,7 +55,7 @@ var is_multiplayer_game := false
 ## Why the last join attempt failed, when the host said so (e.g. a version mismatch).
 var last_failure_reason := ""
 var _unverified_peers: Dictionary = {}  # host only: peer_id -> true until they pass the version check
-var pending_zone_path := "res://Scenes/lumora_outskirts3d.tscn"
+var pending_zone_path := Global.START_ZONE_PATH
 
 ## True while the zone must NOT keep its pre-placed solo/host character: a joiner's own
 ## character comes from the host's PlayerSpawner instead, and a dedicated server has

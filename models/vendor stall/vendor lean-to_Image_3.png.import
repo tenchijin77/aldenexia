@@ -2,20 +2,20 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://o60qp16ngfid"
-path.s3tc="res://.godot/imported/city wall_plastered_stone_wall_rough_1k.png-1a5fa276fc68ecd4a0b60cc9265dfc41.s3tc.ctex"
+uid="uid://cscl28oe6teba"
+path.s3tc="res://.godot/imported/vendor lean-to_Image_3.png-6b02e83082648fe13e267b7c4904a7ae.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
 }
 generator_parameters={
-"md5": "5459977d32ba9896c8d28b3372269e2f"
+"md5": "c88a20bc4d1947910b337173f7c68426"
 }
 
 [deps]
 
-source_file="res://models/city wall/city wall_plastered_stone_wall_rough_1k.png"
-dest_files=["res://.godot/imported/city wall_plastered_stone_wall_rough_1k.png-1a5fa276fc68ecd4a0b60cc9265dfc41.s3tc.ctex"]
+source_file="res://models/vendor stall/vendor lean-to_Image_3.png"
+dest_files=["res://.godot/imported/vendor lean-to_Image_3.png-6b02e83082648fe13e267b7c4904a7ae.s3tc.ctex"]
 
 [params]
 

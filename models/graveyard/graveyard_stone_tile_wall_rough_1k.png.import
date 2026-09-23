@@ -2,20 +2,20 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bj8rg32o7jaqb"
-path.s3tc="res://.godot/imported/city wall_plastered_stone_wall_diff_1k.jpg-9cbad24a765019059bee446496e965d8.s3tc.ctex"
+uid="uid://biho5c2ncjsf3"
+path.s3tc="res://.godot/imported/graveyard_stone_tile_wall_rough_1k.png-f8ce1f36cb0eed37d0abe14e4d208ad4.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
 }
 generator_parameters={
-"md5": "4e9f0a00f0a040516c605dcbf9f977f7"
+"md5": "45c0f4dc4325dfa8a94a9a4228d64ccd"
 }
 
 [deps]
 
-source_file="res://models/city wall/city wall_plastered_stone_wall_diff_1k.jpg"
-dest_files=["res://.godot/imported/city wall_plastered_stone_wall_diff_1k.jpg-9cbad24a765019059bee446496e965d8.s3tc.ctex"]
+source_file="res://models/graveyard/graveyard_stone_tile_wall_rough_1k.png"
+dest_files=["res://.godot/imported/graveyard_stone_tile_wall_rough_1k.png-f8ce1f36cb0eed37d0abe14e4d208ad4.s3tc.ctex"]
 
 [params]
 

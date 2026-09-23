@@ -34,7 +34,7 @@
     {
       "mob_type": "rat",
       "position": [
-        95,
+        150,
         2,
         45
       ],
@@ -154,9 +154,9 @@
     {
       "mob_type": "dune_scarab",
       "position": [
-        65,
+        20,
         2,
-        10
+        -60
       ],
       "spawn_radius": 14.0,
       "spawn_chance": 0.5,

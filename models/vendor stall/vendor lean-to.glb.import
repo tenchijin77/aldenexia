@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://cxqivd5amihg7"
-path="res://.godot/imported/city wall.glb-5a3eab054c6277c251450ce30f5c0b57.scn"
+uid="uid://ganx16h2wx2b"
+path="res://.godot/imported/vendor lean-to.glb-4f4da1aae52ba32eca457e6026911d76.scn"
 
 [deps]
 
-source_file="res://models/city wall/city wall.glb"
-dest_files=["res://.godot/imported/city wall.glb-5a3eab054c6277c251450ce30f5c0b57.scn"]
+source_file="res://models/vendor stall/vendor lean-to.glb"
+dest_files=["res://.godot/imported/vendor lean-to.glb-4f4da1aae52ba32eca457e6026911d76.scn"]
 
 [params]
 

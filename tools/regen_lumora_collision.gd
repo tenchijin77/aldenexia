@@ -1,20 +1,20 @@
 # regen_lumora_collision.gd
 # Regenerates physics collision for the LumoraOutskirts zone from the current
 # zones/LumoraOutskirts.glb and text-splices the result into
-# Scenes/lumora_outskirts3d.tscn (a full PackedScene.pack()+save() strips
+# Scenes/lumora_outskirts3d_flat.tscn (a full PackedScene.pack()+save() strips
 # ext_resource UIDs and doesn't persist edits inside the instanced glb
 # sub-scene, so this edits the .tscn text directly instead).
 #
 # Run after every Blender re-export of LumoraOutskirts.glb:
 #   godot --headless --path . --script res://tools/regen_lumora_collision.gd
 # Then sanity-check physics didn't break:
-#   godot --headless --path . res://Scenes/lumora_outskirts3d.tscn --quit-after 60
+#   godot --headless --path . res://Scenes/lumora_outskirts3d_flat.tscn --quit-after 60
 # ...and check stderr for "det == 0" / "cannot be normalized" (singular
 # transform from a 0-scale axis on some Blender object — see game_flow.txt).
 extends SceneTree
 
 const GLB_PATH := "res://zones/LumoraOutskirts.glb"
-const SCENE_PATH := "res://Scenes/lumora_outskirts3d.tscn"
+const SCENE_PATH := "res://Scenes/lumora_outskirts3d_flat.tscn"
 const COLLISION_PARENT_PATH := "NavigationRegion3D/LumoraOutskirts_Collision"
 const SUBRES_ID_PREFIX := "ConcavePolygonShape3D_gen"
 

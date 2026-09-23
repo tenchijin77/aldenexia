@@ -73,10 +73,13 @@ func _ground_hit(x: float, z: float) -> Dictionary:
 	return get_world_3d().direct_space_state.intersect_ray(query)
 
 
-# True when a downward ray landed on the zone's floor rather than on a wall, building, rock or creature. The zone's
-# collision is one StaticBody3D with a shape per model (Floor_shape, City Wall_shape, Vendor_shape, ...).
+# True when a downward ray landed on open ground rather than on a wall, building, rock or creature: a Terrain3D surface
+# (the Terrain3D rebuild of the zone), or the old flat zone's floor — its collision is one StaticBody3D with a shape per
+# model (Floor_shape, City Wall_shape, Vendor_shape, ...), and only the Floor shape counts.
 func _is_open_ground(hit: Dictionary) -> bool:
 	var body: Object = hit.get("collider")
+	if body != null and body.is_class("Terrain3D"):
+		return true
 	if not (body is CollisionObject3D):
 		return false
 	var owner_id: int = body.shape_find_owner(int(hit.get("shape", 0)))

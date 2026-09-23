@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Run this after every Blender re-export of zones/LumoraOutskirts.glb.
-# Regenerates collision in Scenes/lumora_outskirts3d.tscn, re-bakes the navmesh from it
+# Regenerates collision in Scenes/lumora_outskirts3d_flat.tscn, re-bakes the navmesh from it
 # (Data/lumora_outskirts_navmesh.tres, ~6 s), then does a
 # headless run of the scene to catch the degenerate-transform gotcha
 # (a 0-scale axis on some Blender object silently corrupts physics —
@@ -18,7 +18,7 @@ godot --headless --path . --script res://tools/bake_lumora_navmesh.gd 2>&1 | gre
 echo
 echo "== Sanity-checking scene physics =="
 log="$(mktemp)"
-godot --headless --path . res://Scenes/lumora_outskirts3d.tscn --quit-after 60 > "$log" 2>&1 || true
+godot --headless --path . res://Scenes/lumora_outskirts3d_flat.tscn --quit-after 60 > "$log" 2>&1 || true
 
 if grep -qE "det == 0|cannot be normalized" "$log"; then
 	echo "!! Degenerate transform detected — a Blender object likely has a 0 scale on some axis."

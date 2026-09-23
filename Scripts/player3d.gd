@@ -3045,6 +3045,25 @@ func _restore_last_position() -> void:
 	var arr: Array = Global.player_data.get("last_position", [])
 	if arr.size() == 3:
 		global_position = Vector3(arr[0], arr[1], arr[2])
+		_lift_above_ground.call_deferred()
+
+
+# A saved position from before the ground changed (the flat zone -> the Terrain3D rebuild, or a re-sculpted hill) can now
+# be inside the terrain. If there's no ground just under the player, put them on the ground at that spot instead.
+func _lift_above_ground() -> void:
+	await get_tree().physics_frame
+	if not is_inside_tree():
+		return
+	var space := get_world_3d().direct_space_state
+	var near := PhysicsRayQueryParameters3D.create(global_position + Vector3(0, 0.5, 0), global_position + Vector3(0, -3.0, 0))
+	near.exclude = [get_rid()]
+	if not space.intersect_ray(near).is_empty():
+		return
+	var high := PhysicsRayQueryParameters3D.create(global_position + Vector3(0, 300.0, 0), global_position + Vector3(0, -300.0, 0))
+	high.exclude = [get_rid()]
+	var hit := space.intersect_ray(high)
+	if not hit.is_empty():
+		global_position = hit["position"] + Vector3(0, 0.2, 0)
 
 
 func get_bind_point() -> Vector3:

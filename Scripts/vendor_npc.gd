@@ -54,15 +54,23 @@ func _ready() -> void:
 	_setup_combat()
 
 
-# Where the solid ground is under a point: a ray from 3 m above it to 5 m below (so a roof higher up is never hit). Vendors have
-# no gravity, so one placed at a marker's y=0 on a raised dock would stand inside the deck; this finds the deck's top.
+# Where the solid ground is under a point: a ray from 1.5 m above it to 6.5 m below — high enough to find the top of a raised
+# dock deck (vendors have no gravity, so one placed at a marker's y=0 on a deck would stand inside it), low enough never to
+# hit the roof of the vendor lean-to they stand under (about 2.3 m).
 func floor_y_at(pos: Vector3, default_y: float) -> float:
 	if not is_inside_tree():
 		return default_y
-	var from := Vector3(pos.x, pos.y + 3.0, pos.z)
+	var from := Vector3(pos.x, pos.y + 1.5, pos.z)
 	var query := PhysicsRayQueryParameters3D.create(from, from + Vector3(0, -8.0, 0))
 	query.exclude = [get_rid()]
 	var hit := get_world_3d().direct_space_state.intersect_ray(query)
+	if hit:
+		return hit.position.y
+	# Nothing within that window: on hilly terrain the NPC may have been placed well above or below the ground. Look from high
+	# up instead (this can land on a roof, which is why it's only the fallback).
+	var high := PhysicsRayQueryParameters3D.create(Vector3(pos.x, pos.y + 200.0, pos.z), Vector3(pos.x, pos.y - 200.0, pos.z))
+	high.exclude = [get_rid()]
+	hit = get_world_3d().direct_space_state.intersect_ray(high)
 	return hit.position.y if hit else default_y
 
 

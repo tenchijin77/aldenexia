@@ -106,4 +106,4 @@ func _on_load_button_pressed() -> void:
 		return
 
 	Global.set_player_data(character_data)
-	get_tree().change_scene_to_file("res://Scenes/lumora_outskirts3d.tscn")
+	get_tree().change_scene_to_file(Global.START_ZONE_PATH)

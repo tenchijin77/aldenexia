@@ -565,7 +565,7 @@ func _on_begin_button_pressed() -> void:
 		get_tree().change_scene_to_file("res://Scenes/main_menu.tscn")
 		return
 
-	get_tree().change_scene_to_file("res://Scenes/lumora_outskirts3d.tscn")
+	get_tree().change_scene_to_file(Global.START_ZONE_PATH)
 
 
 # Sends the character built by Confirm to the server. The zone loads first and the server creates the

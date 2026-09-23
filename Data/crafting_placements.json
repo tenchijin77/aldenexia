@@ -1,21 +1,23 @@
 {
-  "_comment": "crafting_placements.json - where town crafting stations and gathering nodes appear in each zone (Scripts/crafting_world_spawner.gd). Hand-edited: move things freely. Positions are [x, z]; the height is found by dropping onto the ground. 'stations': one station each (station_id from Data/tradeskill_recipes.json / Crafting.xlsx Stations tab). 'keep_clear': rectangles ([x, z] min/max) no node may land in — the town inside its wall and the gate. Nodes also only land on open ground (never on a wall, building or rock); a spot that fails either check is re-rolled. 'nodes': 'count' copies of a Data/gathering_nodes.json node scattered within 'radius' metres of 'center' (the same spots every time). First pass placed by area from the spawn map (2026-09-22) — adjust once seen in game.",
+  "_comment": "crafting_placements.json - where town crafting stations and gathering nodes appear in each zone (Scripts/crafting_world_spawner.gd). Hand-edited: move things freely. Positions are [x, z]; the height is found by dropping onto the ground. 'stations': one station each — in the crafting box in the south-west corner of the Terrain3D rebuild's town (x 59-78, z 38-55), which is also inside the flat zone's old town (station_id from Data/tradeskill_recipes.json / Crafting.xlsx Stations tab). 'keep_clear': rectangles ([x, z] min/max) no node may land in — the town inside its wall and the gate. Nodes also only land on open ground (never on a wall, building or rock); a spot that fails either check is re-rolled. 'nodes': 'count' copies of a Data/gathering_nodes.json node scattered within 'radius' metres of 'center' (the same spots every time). First pass placed by area from the spawn map (2026-09-22) — adjust once seen in game.",
   "lumora_outskirts": {
     "stations": [
-      {"station_id": "forge", "name": "Forge", "position": [22, -3]},
-      {"station_id": "oven", "name": "Oven", "position": [26, -3]},
-      {"station_id": "alchemy_station", "name": "Alchemy Station", "position": [30, -3]},
-      {"station_id": "brewing_vat", "name": "Brewing Vat", "position": [34, -3]},
-      {"station_id": "tinkering_bench", "name": "Tinkering Bench", "position": [38, -3]},
-      {"station_id": "woodworking_station", "name": "Woodworking Station", "position": [42, -3]},
-      {"station_id": "fletching_station", "name": "Fletching Station", "position": [46, -3]},
-      {"station_id": "jewelcrafting_station", "name": "Jewelcrafting Station", "position": [50, -3]},
-      {"station_id": "tannery", "name": "Tannery", "position": [54, -3]},
-      {"station_id": "tailors_bench", "name": "Tailor's Bench", "position": [58, -3]}
+      {"station_id": "forge", "name": "Forge", "position": [62, 42]},
+      {"station_id": "oven", "name": "Oven", "position": [66, 42]},
+      {"station_id": "alchemy_station", "name": "Alchemy Station", "position": [70, 42]},
+      {"station_id": "brewing_vat", "name": "Brewing Vat", "position": [74, 42]},
+      {"station_id": "tinkering_bench", "name": "Tinkering Bench", "position": [77, 42]},
+      {"station_id": "woodworking_station", "name": "Woodworking Station", "position": [62, 50]},
+      {"station_id": "fletching_station", "name": "Fletching Station", "position": [66, 50]},
+      {"station_id": "jewelcrafting_station", "name": "Jewelcrafting Station", "position": [70, 50]},
+      {"station_id": "tannery", "name": "Tannery", "position": [74, 50]},
+      {"station_id": "tailors_bench", "name": "Tailor's Bench", "position": [77, 50]}
     ],
     "keep_clear": [
-      {"name": "Lumora (inside the town wall)", "min": [-2, -55], "max": [116, 74]},
-      {"name": "Town gate and towers", "min": [-46, -20], "max": [-2, 6]}
+      {"name": "New Lumora (inside the Terrain3D rebuild's wall)", "min": [54, -32], "max": [116, 60]},
+      {"name": "New Lumora gate front (guards)", "min": [40, -2], "max": [54, 28]},
+      {"name": "Old Lumora (inside the flat zone's town wall)", "min": [-2, -55], "max": [116, 74]},
+      {"name": "Old town gate and towers", "min": [-46, -20], "max": [-2, 6]}
     ],
     "nodes": [
       {"node": "thistle_patch", "center": [-65, 25], "radius": 20, "count": 5},
