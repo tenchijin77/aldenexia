@@ -190,8 +190,12 @@ const KEYBIND_GROUPS := [
 		["R", "Toggle autorun"],
 		["X", "Sit"],
 		["Ctrl", "Crouch"],
-		["F12", "Toggle mouselook"],
-		["Home", "Cycle camera mode"],
+	]],
+	["Camera", [
+		["F12", "Free look (mouselook): the mouse turns the camera and you all the way round; press again to get the cursor back"],
+		["Hold Right Mouse", "Look around (head-turn): glance up to 90° left/right and 45° up/down without moving"],
+		["Mouse wheel", "Zoom in / out (all the way in is first person)"],
+		["Home", "Cycle camera mode (behind / angled / first person)"],
 	]],
 	["Combat & Targeting", [
 		["Tab", "Target closest / cycle target"],

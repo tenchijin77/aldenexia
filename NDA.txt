@@ -1,0 +1,85 @@
+ALDENEXIA: LIGHTFALL — PLAYTEST CONFIDENTIALITY AGREEMENT (NDA)
+Kuro Neko Sama Games
+Last updated: 23 September 2026
+
+Aldenexia: Lightfall is an unreleased game in active development. You have been given a
+private test copy so you can help us make it better. Before you play, please read this.
+
+BY DOWNLOADING, INSTALLING, OR PLAYING THIS TEST BUILD, YOU AGREE TO THESE TERMS.
+If you do not agree, do not install or play the game, and delete your copy.
+
+
+1. WHAT IS CONFIDENTIAL
+
+"Confidential Information" means everything about this unreleased game that you see or
+receive as a tester, including:
+  - the game itself: its builds, files, and updates;
+  - its content: story, quests, characters, classes, spells, items, maps, art, music,
+    sounds, and user interface;
+  - its features, systems, and balance, including anything unfinished, placeholder, or
+    changed later;
+  - the test server, its address, and anything said or shared in the test group;
+  - any bugs, problems, or known issues you come across.
+
+It does not include anything the developer has already made public, or anything you
+knew before joining the test from another source.
+
+
+2. WHAT YOU AGREE TO
+
+You agree that you will:
+  - keep the Confidential Information to yourself and not share it publicly;
+  - not post screenshots, video, streams, recordings, or detailed descriptions of the
+    game anywhere public (social media, forums, video sites, streaming platforms, public
+    chat servers) without written permission from the developer;
+  - not give, sell, upload, or share the game files, download link, or server address with
+    anyone who has not been invited to the test by the developer;
+  - not copy, decompile, reverse-engineer, extract, or modify the game or its files, and
+    not use cheats, bots, or exploits except to report them;
+  - tell the developer promptly if you learn that any Confidential Information has leaked.
+
+You MAY talk about the game privately with the developer and with other invited testers,
+and you may tell people in general terms that you are testing an unreleased game.
+
+
+3. YOUR FEEDBACK
+
+Bug reports, suggestions, and ideas you send ("Feedback") help shape the game. You agree
+that the developer may use, change, and build on any Feedback freely, without owing you
+payment or credit, and that the developer owns anything made from it. We will gladly
+credit testers where we can, but it is not guaranteed.
+
+
+4. THE TEST ITSELF
+
+  - The game is provided "as is", for testing only. It may crash, contain errors, or lose
+    data, and it may change or be taken down at any time.
+  - Characters, items, and progress may be reset or deleted between test rounds.
+  - Your access to the test may be ended at any time, for any reason.
+  - To the fullest extent allowed by law, the developer is not responsible for any loss or
+    damage arising from your use of the test build.
+  - Everything in the game remains the property of Kuro Neko Sama Games. Taking part in the
+    test gives you no ownership of or rights to the game beyond playing it for testing.
+
+
+5. HOW LONG THIS LASTS
+
+These terms apply from the moment you download, install, or play the test build, and
+continue until the developer makes the relevant information public (for example, at the
+game's public release) or releases you from them in writing — whichever comes first.
+Your obligations continue after the test ends or your access is removed.
+
+
+6. IF YOU STOP TESTING
+
+If your access ends, or the developer asks, delete every copy of the test build and any
+screenshots or recordings you made of it.
+
+
+7. CONTACT
+
+Questions about these terms, or requests to share something (a screenshot or clip, say),
+go to the developer who invited you. When in doubt, ask first.
+
+
+Thank you for testing Aldenexia: Lightfall.

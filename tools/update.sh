@@ -28,6 +28,7 @@
 #   * the executable, the Terrain3D library or the Godot version changes;
 #   * the patch has grown large (each patch holds EVERYTHING changed since the base, not just the last commit).
 # After --new-base, share Builds/Windows (and run Builds/Linux yourself) — the only time players get the whole game again.
+# NDA.txt (the playtest confidentiality terms, project root) is copied next to the game in each full build.
 #
 # The server binary is always a full export (155 MB; rsync only sends the parts that changed) and is uploaded under a
 # temporary name then renamed, so a RUNNING server is never disturbed — it keeps the old file until you restart it.
@@ -179,6 +180,7 @@ if [ "$DO_CLIENT" = 1 ]; then
 		BD="$BASE_DIR/$plat"
 		if [ "$NEW_BASE" = 1 ]; then
 			[ "$DO_EXPORT" = 1 ] && export_logged "Exporting the FULL $plat client (new base)" "$P_PCK" --export-release "$P_PRESET" "$P_BIN"
+			cp NDA.txt "$P_DIR/NDA.txt"  # the playtest NDA ships next to the game in every full build players are given
 			[ -f "$P_PCK" ] || die "No $plat client pack at $P_PCK."
 			cp -f "$P_PCK" "$BD/base.pck"
 			python3 - "$BD/base.json" "$STAMP" "$VERSION" "$PROJECT_SHA" <<'PY'

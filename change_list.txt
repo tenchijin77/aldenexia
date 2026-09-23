@@ -1192,3 +1192,5 @@ set_gm_password.sh — set or change the game-master password on the game server
 
   Harbour bell: now only audible within 15 m of the dock.
 
+
+  Testing document link: https://claude.ai/artifact/GJACXeD3LDGRqRsUrWEgc6
