@@ -96,6 +96,8 @@ candidates instead of guessing; a typo that matches nothing prints "Unknown comm
 - `T` — toggle tracking window (added 2026-09-17, Session 44) — only if you have the
   tracking skill (Elf/Half-Elf by race, Woodstalker/Wildspeaker/Troubadour by class);
   otherwise just logs that you haven't learned to track.
+- `J` — toggle the quest journal (added 2026-09-22): every quest you've been given, Pending / Completed, with its lore, objective progress and rewards
+- `L` — toggle the recipe book (added 2026-09-22): every tradeskill recipe you know, with its ingredients, skill level and where to make it
 - `H` — hail nearby guard or vendor NPC. Hailing a guard gives a random flavor line;
   hailing a vendor (e.g. Aldric the Provisioner) now opens their shop window directly
   (changed 2026-09-14, Session 42 — used to just print a greeting line, so you still had
@@ -1776,6 +1778,14 @@ GATE RAIDS (`Scripts/gate_raid_manager.gd`, `Data/gate_raids.json`, node "GateRa
 - Cause: the "Linux Server" export preset's exclude_filter contained addons/terrain_3d/* (from before the zone used Terrain3D), so the server build had no Terrain3D; the client presets include it. Removed it from the filter — the server export now also writes libterrain.linux.release.x86_64.so next to the binary.
 - tools/update.sh uploaded only the server binary; it now also uploads the .so files next to it (and warns if none are there).
 - Verified: exported the Linux Server preset and ran the build (its own user-data folder, port 8997): it loads the zone, 23 structures solid, 10 stations / 82 nodes, "World check: ground under spawn OK, navmesh OK".
+
+### Test 18: quest journal, recipe book, signpost, vendors, Kenji, mirage phantom (2026-09-22)
+- QUEST JOURNAL (J, new Scripts/quest_journal.gd): every quest the character has been given (Quests.journal_entries()) in Pending / Completed tabs — pending newest first, completed most recently finished first — with the giver, the lore (summary), the objective with hand-in progress, the rewards, and for a finished quest its outcome text. Quests are added automatically when started (the "Quest started" message now says "added to your journal — press J"); quests.gd records "started"/"completed" times for the sort. Refreshes while open.
+- RECIPE BOOK (L — K is the abilities book; new Scripts/recipe_book.gd): every recipe the character knows (innate + learned), grouped by skill: output icon, name, "makes N", the skill and level (green = can make, red = skill too low, grey = trivial), each ingredient's icon and quantity ("Any Cooked Meat" for the group), and where it's made ("Cooking Kit or Oven"). Skill filter + search; refreshes when a recipe is learned.
+- Both windows are built in code on a new shared base, Scripts/game_window.gd (GameWindow: window background, title bar + close, drag, bottom-right resize, remembered position/size). New input actions toggle_quest_journal (J) and toggle_recipe_book (L) in project.godot; listed in the pause menu's Controls and the Commands & Controls section above. They don't fire while typing (handle_combat only runs without a focused text box).
+- VENDORS in front of their lean-tos (about 0.9 m past the counter, facing out) instead of under the roof, so the stall art shows. KENJI back under the town gate: in the gateway under the arch at its north side (59.5, 20) — the opening runs z 6-22, 16 m wide. SIGNPOST: a WorldNote at the signpost ("North — Lumora. West — Sandcrest Landing and the docks. East — the goblin camps.") — its floating label shows the three directions when you're close, right-click reads it. world_note.gd gained show_paper (off for a sign), label_text and label_height.
+- MIRAGE PHANTOM ("a shimmering desert ghost") had no model: monsters.json now gives it the ghost's Tormented Spirit model (model_from) tinted sandy gold, 5% larger.
+- Verified headless: journal tabs/progress/detail/outcome, recipe book (28 known, filter, search, ingredients, stations), signpost label, NPC positions.
 
 ## 2026-09-17 — Session 45: Generic spell-effect engine, 7 more classes brought to parity, tradeskills (cooking/alchemy), Wildspeaker pet, fear/charm mechanics, multiplayer CC/heal relay, UI theme + resize pass, 5 new mob models, network widget
 

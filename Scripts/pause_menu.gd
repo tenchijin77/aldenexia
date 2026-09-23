@@ -208,6 +208,8 @@ const KEYBIND_GROUPS := [
 		["C", "Character Sheet"],
 		["P", "Pet Gear"],
 		["T", "Tracking Window"],
+		["J", "Quest Journal"],
+		["L", "Recipe Book"],
 		["N", "Show / hide the compass (needs a Compass)"],
 		["F11", "Network diagnostics widget"],
 	]],

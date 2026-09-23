@@ -14,6 +14,12 @@ const TEXT_COLOR := "#e8dcc0"
 @export_multiline var note_text: String = ""
 ## Quest id (Data/quests.json) started the first time this is read; empty = none.
 @export var start_quest: String = ""
+## Draw the scrap of paper and its glow (off for a sign, whose model is placed separately in the scene).
+@export var show_paper: bool = true
+## Shown by the floating label when you are close, instead of the title (e.g. a signpost's directions). Empty = the title.
+@export_multiline var label_text: String = ""
+## Height of the floating label above this node.
+@export var label_height: float = 0.55
 
 var _label: Label3D
 var _light: OmniLight3D
@@ -23,6 +29,23 @@ var _label_timer := 0.0
 
 func _ready() -> void:
 	add_to_group("world_note")
+	if show_paper:
+		_build_paper()
+	_label = Label3D.new()
+	_label.text = label_text if not label_text.is_empty() else title
+	_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	_label.no_depth_test = true
+	_label.font_size = 40
+	_label.pixel_size = 0.004
+	_label.modulate = Color(1.0, 0.92, 0.65)
+	_label.outline_size = 8
+	_label.position = Vector3(0, label_height, 0)
+	_label.visible = false
+	add_child(_label)
+
+
+# The paper lying on the ground, plus a faint warm light that breathes so the eye finds it.
+func _build_paper() -> void:
 	var paper := MeshInstance3D.new()
 	var quad := QuadMesh.new()
 	quad.size = Vector2(0.55, 0.7)
@@ -50,18 +73,6 @@ func _ready() -> void:
 	_light.position = Vector3(0, 0.5, 0)
 	_light.shadow_enabled = false
 	add_child(_light)
-
-	_label = Label3D.new()
-	_label.text = title
-	_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	_label.no_depth_test = true
-	_label.font_size = 40
-	_label.pixel_size = 0.004
-	_label.modulate = Color(1.0, 0.92, 0.65)
-	_label.outline_size = 8
-	_label.position = Vector3(0, 0.55, 0)
-	_label.visible = false
-	add_child(_label)
 
 
 func _process(delta: float) -> void:

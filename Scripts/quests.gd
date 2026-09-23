@@ -38,9 +38,9 @@ static func needed(id: String) -> int:
 static func start(id: String) -> bool:
 	if definition(id).is_empty() or state(id) != "none":
 		return false
-	_quests()[id] = {"state": "active", "progress": 0}
+	_quests()[id] = {"state": "active", "progress": 0, "started": Time.get_unix_time_from_system()}
 	Global.save_player_data_to_file()
-	GameLog.log_general("[color=#ffdd44][b]Quest started:[/b] %s[/color]" % definition(id).get("name", id))
+	GameLog.log_general("[color=#ffdd44][b]Quest started:[/b] %s[/color] [color=#aaaaaa](added to your journal — press J)[/color]" % definition(id).get("name", id))
 	GameLog.log_general("[color=#cccccc]%s[/color]" % definition(id).get("summary", ""))
 	return true
 
@@ -105,6 +105,7 @@ static func try_hand_in(giver: String, item_id: String, player: Node) -> Diction
 		return {"result": "progress", "quest_id": involved, "given": progress(involved), "need": need, "taken": taken,
 				"text": str(texts.get("progress", "")).replace("{given}", str(progress(involved))).replace("{need}", str(need)).replace("{left}", str(need - progress(involved)))}
 	_entry(involved)["state"] = "complete"
+	_entry(involved)["completed"] = Time.get_unix_time_from_system()
 	_give_rewards(def.get("rewards", {}), player)
 	GameLog.log_general("[color=#ffdd44][b]Quest complete:[/b] %s[/color]" % def.get("name", involved))
 	return {"result": "complete", "quest_id": involved, "given": need, "need": need, "taken": taken, "text": str(texts.get("complete", ""))}
@@ -140,3 +141,17 @@ static func _quests() -> Dictionary:
 static func _entry(id: String) -> Dictionary:
 	var q := _quests()
 	return q[id] if q.has(id) and typeof(q[id]) == TYPE_DICTIONARY else {}
+
+
+# Every quest the character has been given, for the journal (quest_journal.gd): [{id, def, state, progress, needed,
+# started, completed}]. "started"/"completed" are unix times (0 for quests started before they were recorded).
+static func journal_entries() -> Array:
+	var out: Array = []
+	for id in _quests():
+		var entry := _entry(id)
+		var def := definition(id)
+		if def.is_empty():
+			continue
+		out.append({"id": id, "def": def, "state": state(id), "progress": progress(id), "needed": needed(id),
+				"started": float(entry.get("started", 0.0)), "completed": float(entry.get("completed", 0.0))})
+	return out

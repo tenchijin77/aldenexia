@@ -403,6 +403,9 @@
   },
   "mirage_phantom": {
     "description": "a shimmering desert ghost",
+    "model_from": "ghost",
+    "model_scale": 1.05,
+    "tint": [1.0, 0.86, 0.55],
     "speed": 55.0,
     "health": 105,
     "damage": 15,

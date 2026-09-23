@@ -2188,6 +2188,10 @@ func handle_combat() -> void:
 		toggle_pet_gear_window()
 	if Input.is_action_just_pressed("toggle_tracking"):
 		toggle_tracking_window()
+	if Input.is_action_just_pressed("toggle_quest_journal"):
+		toggle_quest_journal()
+	if Input.is_action_just_pressed("toggle_recipe_book"):
+		toggle_recipe_book()
 	if is_instance_valid(_deathly_visage_light):
 		_deathly_visage_light.visible = combat_node.has_effect("deathly_visage")
 	if is_instance_valid(_shadowlight_light):
@@ -5340,6 +5344,29 @@ func toggle_tracking_window() -> void:
 	window.name = "TrackingWindow"
 	get_tree().root.add_child(window)
 	window.set_player(self)
+
+
+# J — the quest journal (quest_journal.gd): every quest you've been given, Pending / Completed.
+func toggle_quest_journal() -> void:
+	var existing := get_tree().root.get_node_or_null("QuestJournal")
+	if existing:
+		existing.queue_free()
+		return
+	var journal := QuestJournal.new()
+	journal.name = "QuestJournal"
+	get_tree().root.add_child(journal)
+
+
+# L — the recipe book (recipe_book.gd): every tradeskill recipe you know, with its ingredients.
+func toggle_recipe_book() -> void:
+	var existing := get_tree().root.get_node_or_null("RecipeBook")
+	if existing:
+		existing.queue_free()
+		return
+	var book := RecipeBook.new()
+	book.name = "RecipeBook"
+	get_tree().root.add_child(book)
+	book.set_player(self)
 
 
 func toggle_abilities_book() -> void:
