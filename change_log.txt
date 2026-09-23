@@ -1808,6 +1808,12 @@ GATE RAIDS (`Scripts/gate_raid_manager.gd`, `Data/gate_raids.json`, node "GateRa
 - NAVMESH UID: rebaking from a script dropped the navmesh file's uid (the scene refers to it by uid); restored, and tools/bake_lumora_navmesh.gd now puts the old uid back after saving.
 - Verified: single-player drop -> pouch -> pickup -> destroy; the bank (deposit, withdraw, slot count, closes when you walk away); crafting bag rules; can_fit_all with a full pack; and on a local dedicated server with two headless players: A's pouch seen and picked up by B, then a trade (a sword + 25 copper for 2 tin ore) completed on both sides with the server's trade log line.
 
+### Test 20: bags in the bank, trade window sizing, crafting-window leftovers (2026-09-23)
+- BAGS IN THE BANK work like bags on the character sheet: a bag in a bank slot opens its own slots under the bank grid ("Traveler's Pack — 3 / 8"), a FULL bag can be deposited or withdrawn whole (its contents travel with it, in bank_storage["bags"]), items drag in and out of bank bags, and a kit / Large Crafting Bag keeps its material rules in the bank. inventory_autoload.gd's bank moves are now one routine (_move_any) for character-sheet slots, bags, bank slots and bank-bag slots; a bag with things in it still can't go inside another bag.
+- TRADE WINDOW cut off / overlapping: every code-built window (GameWindow: trade, bank, quest journal, recipe book) now grows to fit its contents whenever they change, and stays on screen. The trade window's coin boxes are two labelled rows (Platinum/Gold, Silver/Copper), and offered stacks show their count in the tile's corner instead of as button text that pushed the icon aside.
+- CRAFTING WINDOW LEFTOVERS: closing the window returns whatever is still in the ingredient slots to your bags. It didn't when the window closed mid-batch some other way (walking off, logging out), and a full pack lost the items; now it always returns them, and anything that doesn't fit is set down at your feet in a pouch.
+- Verified headless: full bag / kit into and out of the bank with contents, items into a bank bag, the kit refusing other materials in the bank; trade and bank windows fit their contents on a 1280x720 screen.
+
 ## 2026-09-17 — Session 45: Generic spell-effect engine, 7 more classes brought to parity, tradeskills (cooking/alchemy), Wildspeaker pet, fear/charm mechanics, multiplayer CC/heal relay, UI theme + resize pass, 5 new mob models, network widget
 
 ### Generic, data-driven spell-effect engine (the foundation for everything else this session)

@@ -76,6 +76,9 @@ Combat and stats
            "Long frame" stalls (far-off monsters stay dormant), innate recipes needing skill 1, all 5 quests in the journal,
            discovered-recipe tracking, nameplates only within 20 m. NEW: drop/destroy items (ground pouches), the bank
            (Oswin Coinwright), crafting bags (kits + Large Crafting Bag), player-to-player trading.
+- [FIXED]  Test 20: bank and trading confirmed working. Bags now work inside the bank (full bags bank whole, their slots
+           show under the bank grid); trade window cut off/overlapping (windows now fit their contents); crafting-window
+           ingredients always return on close (a full pack gets a pouch at your feet). Quest journal + recipe book: loved.
 - [FIXED]  Equipped items' stat_modifiers (e.g. a ring's +1 to a stat) never applied to anything, for any item in the game — found while adding the trinket above. combatnode.gd/player3d.gd now sum them into the player's effective stats on every equip/unequip.
 - [FIXED]  Melee hit chance far too low at level 1 (about 20%, ~30 s to land a hit) while spells one-shot
            everything (found by: T0). Combat numbers now live in Data/combat_balance.json (player_hit_bonus 35,

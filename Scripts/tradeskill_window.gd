@@ -59,17 +59,22 @@ func _ready() -> void:
 
 
 func _exit_tree() -> void:
-	# Crafting is blocked from closing (see _on_close_pressed), but if the
-	# window is force-freed some other way, refund whatever's staged rather
-	# than silently destroying the player's items.
-	if _crafting:
-		var player := TargetFrame.local_player()
-		if is_instance_valid(player) and player.has_method("clear_task_progress"):
-			player.clear_task_progress()
-	if not _crafting:
-		for slot in slot_row.get_children():
-			if slot is TradeskillSlot and not slot.is_empty():
-				Inventory.add_item(slot.held_item_id, slot.held_quantity)
+	# Whatever is still in the ingredient slots goes back to the bags when the window closes — however it closes (the ✕,
+	# walking away, logging out, even mid-batch: a batch only uses up one set per item as each one finishes). If the bags
+	# are full, the rest is put down at your feet in a pouch (world_items.gd) instead of being lost.
+	var player := TargetFrame.local_player() as Node3D
+	if _crafting and is_instance_valid(player) and player.has_method("clear_task_progress"):
+		player.clear_task_progress()
+	var dropped: Array = []
+	for slot in slot_row.get_children():
+		if slot is TradeskillSlot and not slot.is_empty():
+			if not Inventory.add_item(slot.held_item_id, slot.held_quantity):
+				dropped.append(Inventory.create_item_instance(slot.held_item_id, slot.held_quantity))
+	var world_items := get_tree().get_first_node_in_group("world_items") if is_inside_tree() else null
+	for item in dropped:
+		if world_items != null and is_instance_valid(player):
+			world_items.drop(item, player.global_position, str(player.get("player_name")))
+			GameLog.log_general("[color=#ff8866]Your bags are full — you set %s down at your feet.[/color]" % str(item.get("name", "it")))
 
 
 func setup(station_id: String, title: String, action_label: String) -> void:

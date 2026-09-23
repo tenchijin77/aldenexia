@@ -13,6 +13,7 @@ var _position_key := ""
 var _min_size := Vector2(320, 240)
 var _dragging := false
 var _resizing := false
+var _outer: VBoxContainer
 
 
 func build_frame(title: String, position_key: String, default_size: Vector2, min_size: Vector2 = Vector2(320, 240)) -> void:
@@ -57,6 +58,22 @@ func build_frame(title: String, position_key: String, default_size: Vector2, min
 	body.add_theme_constant_override("separation", 6)
 	outer.add_child(body)
 	WindowPosition.load_full_into(_position_key, panel)
+	# The window grows to fit whatever it holds (never cut off or overlapping), and stays on screen.
+	_outer = outer
+	outer.minimum_size_changed.connect(fit_to_content)
+	fit_to_content.call_deferred()
+
+
+# Grows the window (never shrinks it) so everything in it fits, and keeps it on screen. Called whenever the contents'
+# minimum size changes; a subclass can call it too after rebuilding its contents.
+func fit_to_content() -> void:
+	if not is_instance_valid(panel) or not is_instance_valid(_outer):
+		return
+	var needed := _outer.get_combined_minimum_size() + Vector2(16, 16)  # the 8 px margin on each side
+	_min_size = _min_size.max(needed)
+	var screen := panel.get_viewport_rect().size
+	panel.size = panel.size.max(needed).min(screen)
+	panel.position = panel.position.clamp(Vector2.ZERO, (screen - panel.size).max(Vector2.ZERO))
 
 
 # Drag from anywhere on the frame; resize from the bottom-right corner. Saved when the mouse is released.

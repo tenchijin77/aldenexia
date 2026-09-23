@@ -391,7 +391,7 @@ func _show_inspect_popup() -> void:
 		item_row.add_child(destroy_btn)
 
 	# In the bank an item can only be looked at (take it out to use, equip or eat it).
-	if slot_type == "bank":
+	if slot_type in ["bank", "bank_bag"]:
 		for action in btn_row.get_children():
 			action.queue_free()
 

@@ -56,15 +56,21 @@ func _ready() -> void:
 	# Anywhere on your side takes a dropped item, not just the tiles.
 	mine.set_drag_forwarding(Callable(), _can_drop_offer, _drop_offer)
 	_my_grid.set_drag_forwarding(Callable(), _can_drop_offer, _drop_offer)
-	var coins := HBoxContainer.new()
+	mine.add_child(header("Your coin"))
+	var coins := GridContainer.new()
+	coins.columns = 4  # two rows: platinum, gold / silver, copper — each a name and a number box
+	coins.add_theme_constant_override("h_separation", 6)
 	mine.add_child(coins)
 	for i in COIN_NAMES.size():
+		var coin_label := Label.new()
+		coin_label.text = str(COIN_NAMES[i]).capitalize()
+		coin_label.add_theme_font_size_override("font_size", 12)
+		coins.add_child(coin_label)
 		var box := SpinBox.new()
 		box.min_value = 0
 		box.max_value = 99999
-		box.suffix = str(COIN_NAMES[i]).substr(0, 1)
 		box.tooltip_text = str(COIN_NAMES[i]).capitalize()
-		box.custom_minimum_size = Vector2(62, 0)
+		box.custom_minimum_size = Vector2(80, 0)
 		box.value_changed.connect(func(_v: float): _on_coin_changed())
 		coins.add_child(box)
 		_coin_boxes.append(box)
@@ -78,10 +84,13 @@ func _ready() -> void:
 	theirs.add_child(_their_grid)
 	_their_coin = Label.new()
 	_their_coin.text = "Coin: none"
+	_their_coin.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_their_coin.custom_minimum_size = Vector2(190, 0)
 	theirs.add_child(_their_coin)
 
 	_status = Label.new()
 	_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_status.custom_minimum_size = Vector2(300, 0)
 	_status.add_theme_color_override("font_color", Color(0.85, 0.8, 0.6))
 	body.add_child(_status)
 	var buttons := HBoxContainer.new()
@@ -145,7 +154,17 @@ func _fill(grid: GridContainer, items: Array, mine: bool) -> void:
 			var def := Inventory.get_item_definition(str(items[i]["item_id"]))
 			tile.icon = ItemIcon.texture(def)
 			var qty := int(items[i]["quantity"])
-			tile.text = str(qty) if qty > 1 else ""
+			if qty > 1:  # the count in the corner, over the icon (as text on the button it pushed the icon aside)
+				var count := Label.new()
+				count.text = str(qty)
+				count.add_theme_font_size_override("font_size", 11)
+				count.add_theme_constant_override("outline_size", 3)
+				count.add_theme_color_override("font_outline_color", Color(0, 0, 0))
+				count.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT)
+				count.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+				count.grow_vertical = Control.GROW_DIRECTION_BEGIN
+				count.mouse_filter = Control.MOUSE_FILTER_IGNORE
+				tile.add_child(count)
 			tile.tooltip_text = "%s%s" % [def.get("name", items[i]["item_id"]), (" x%d" % qty) if qty > 1 else ""]
 			if mine:
 				tile.tooltip_text += "\n(click to take it back)"
