@@ -73,7 +73,7 @@ func _ground(xz: Array) -> Vector3:
 # The first thing a ray dropped straight down onto [x, z] hits ({} if nothing).
 func _ground_hit(x: float, z: float) -> Dictionary:
 	var query := PhysicsRayQueryParameters3D.create(Vector3(x, RAY_TOP, z), Vector3(x, RAY_BOTTOM, z))
-	return get_world_3d().direct_space_state.intersect_ray(query)
+	return Global.ground_ray(get_world_3d().direct_space_state, query)
 
 
 # True when a downward ray landed on open ground rather than on a wall, building, rock or creature: a Terrain3D surface

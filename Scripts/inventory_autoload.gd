@@ -47,12 +47,123 @@ var bag_contents: Dictionary = {}
 #endregion
 
 #region Bank Storage
+# The bank (banker_npc.gd opens bank_window.gd): BANK_SIZE slots per character, keyed "0".."23" -> item, saved with the
+# character like the bags. Items move in and out by drag and drop while the bank window is open (move_item_between_slots()).
+const BANK_SIZE := 24
 var bank_storage: Dictionary = {}
+
+func get_bank_slot(index: int) -> Dictionary:
+	var item: Variant = bank_storage.get(str(index))
+	return item if typeof(item) == TYPE_DICTIONARY else {}
+
+
+func _set_bank_slot(index: int, item: Variant) -> void:
+	if item == null or (typeof(item) == TYPE_DICTIONARY and item.is_empty()):
+		bank_storage.erase(str(index))
+	else:
+		bank_storage[str(index)] = item
+
+
+# Where an item dragged from (src_type, ...) currently is, and a way to put something back there. Used by the bank moves so
+# bank <-> character-sheet slot <-> bag all go through one swap routine.
+func _slot_get(t: String, index: int, bag_slot: int, item_index: int) -> Dictionary:
+	match t:
+		"basic":
+			return get_basic_inventory_slot(index)
+		"bag":
+			var contents: Array = bag_contents.get(str(bag_slot), [])
+			return contents[item_index] if item_index >= 0 and item_index < contents.size() else {}
+		"bank":
+			return get_bank_slot(index)
+	return {}
+
+
+# Moves/swaps between the bank and a basic slot or a bag (either direction), or two bank slots. Same stackable items merge.
+# A bag holding things can't go into the bank; a restricted bag (kit) only takes its materials.
+func _bank_move(src_t: String, src_i: int, src_bag: int, src_idx: int, dst_t: String, dst_i: int, dst_bag: int, dst_idx: int) -> void:
+	var moving := _slot_get(src_t, src_i, src_bag, src_idx)
+	if moving.is_empty():
+		return
+	if src_t == "basic" and is_bag(moving) and not bag_contents.get(str(src_i), []).is_empty():
+		GameLog.log_general("[color=#ff8866]Empty the %s before putting it in the bank.[/color]" % str(moving.get("name", "bag")))
+		return
+	var target := _slot_get(dst_t, dst_i, dst_bag, dst_idx)
+	# Merge a stack onto the same item.
+	if not target.is_empty() and moving.get("stackable", false) and target.get("item_id") == moving.get("item_id"):
+		target["quantity"] = int(target.get("quantity", 1)) + int(moving.get("quantity", 1))
+		_slot_clear(src_t, src_i, src_bag, src_idx)
+		return
+	if dst_t == "bag":
+		if dst_bag < 0:  # an empty backpack tile belongs to no particular bag: any bag with room
+			dst_bag = _bag_with_room_for(moving, -1, -1)
+			dst_idx = -1
+			if dst_bag < 0:
+				GameLog.log_general("[color=#ff8866]There is no room in your bags for that.[/color]")
+				return
+		var bag := get_basic_inventory_slot(dst_bag)
+		if not is_bag(bag):
+			return
+		if not bag_accepts(bag, moving):
+			GameLog.log_general("[color=#ff8866]The %s only holds %s.[/color]" % [str(bag.get("name", "bag")), bag_holds_text(bag)])
+			return
+		if target.is_empty():
+			if bag_contents.get(str(dst_bag), []).size() >= get_bag_size(bag):
+				var other := _bag_with_room_for(moving, -1, dst_bag)
+				if other < 0:
+					GameLog.log_general("[color=#ff8866]There is no room in your bags for that.[/color]")
+					return
+				dst_bag = other
+			if not bag_contents.has(str(dst_bag)):
+				bag_contents[str(dst_bag)] = []
+			bag_contents[str(dst_bag)].append(moving)
+			_slot_clear(src_t, src_i, src_bag, src_idx)
+			return
+	if dst_t == "basic" and is_bag(target) and not bag_contents.get(str(dst_i), []).is_empty():
+		GameLog.log_general("[color=#ff8866]Empty the %s before putting it in the bank.[/color]" % str(target.get("name", "bag")))
+		return
+	if src_t == "bag" and not target.is_empty() and not bag_accepts(get_basic_inventory_slot(src_bag), target):
+		GameLog.log_general("[color=#ff8866]That won't fit in the %s.[/color]" % str(get_basic_inventory_slot(src_bag).get("name", "bag")))
+		return
+	# Swap (or plain move when the target is empty).
+	_slot_put(dst_t, dst_i, dst_bag, dst_idx, moving)
+	if target.is_empty():
+		_slot_clear(src_t, src_i, src_bag, src_idx)
+	else:
+		_slot_put(src_t, src_i, src_bag, src_idx, target)
+
+
+func _slot_put(t: String, index: int, bag_slot: int, item_index: int, item: Dictionary) -> void:
+	match t:
+		"basic":
+			basic_inventory[index] = item
+		"bag":
+			var contents: Array = bag_contents.get(str(bag_slot), [])
+			if item_index >= 0 and item_index < contents.size():
+				contents[item_index] = item
+			else:
+				contents.append(item)
+				bag_contents[str(bag_slot)] = contents
+		"bank":
+			_set_bank_slot(index, item)
+
+
+func _slot_clear(t: String, index: int, bag_slot: int, item_index: int) -> void:
+	match t:
+		"basic":
+			basic_inventory[index] = null
+		"bag":
+			var contents: Array = bag_contents.get(str(bag_slot), [])
+			if item_index >= 0 and item_index < contents.size():
+				contents.remove_at(item_index)
+		"bank":
+			_set_bank_slot(index, null)
 #endregion
 
 #region Initialization
 func _ready():
+	inventory_changed.connect(_retry_orphans)
 	load_item_data()
+	_load_crafting_materials()
 	initialize_basic_inventory()
 	_initialize_equipment()
 	print("✅ Inventory system initialized")
@@ -124,13 +235,79 @@ func get_item_definition(item_id: String) -> Dictionary:
 #endregion
 
 #region Bag Utilities
+# CRAFTING BAGS. A portable crafting kit (any item with a "tradeskill_station") is also a KIT_BAG_SIZE-slot bag, but it only
+# holds that craft's materials: the ingredients of every recipe that can be made with the kit (Data/tradeskill_recipes.json).
+# A bag with "bag_accepts": "crafting" (the Large Crafting Bag) holds any crafting material at all: every recipe ingredient
+# and everything a gathering node gives. Worked out from the recipe data at startup, so new recipes need no list updating.
+const KIT_BAG_SIZE := 8
+const RECIPES_PATH := "res://Data/tradeskill_recipes.json"
+const GATHERING_PATH := "res://Data/gathering_nodes.json"
+var _kit_materials := {}        # kit station id -> {item_id: true}
+var _crafting_materials := {}   # {item_id: true}
+
+
 func is_bag(item: Dictionary) -> bool:
-	# Checks if an item is a bag
-	return item.get("type") == "bag"
+	# Checks if an item is a bag (a crafting kit counts: it holds its craft's materials)
+	return item.get("type") == "bag" or item.has("tradeskill_station")
 
 func get_bag_size(item: Dictionary) -> int:
 	# Returns bag's slot capacity
-	return item.get("bag_size", 0) if is_bag(item) else 0
+	if not is_bag(item):
+		return 0
+	return int(item.get("bag_size", KIT_BAG_SIZE if item.has("tradeskill_station") else 0))
+
+
+# Whether `bag` may hold `item`. An ordinary bag takes anything; a kit only its craft's materials; a "crafting" bag any
+# crafting material. A restricted bag never takes another bag.
+func bag_accepts(bag: Dictionary, item: Dictionary) -> bool:
+	var item_id := str(item.get("item_id", ""))
+	if bag.has("tradeskill_station"):
+		return not is_bag(item) and _kit_materials.get(str(bag["tradeskill_station"]), {}).has(item_id)
+	if str(bag.get("bag_accepts", "")) == "crafting":
+		return not is_bag(item) and _crafting_materials.has(item_id)
+	return true
+
+
+# "tailoring materials" / "crafting materials" — for messages and tooltips ("" for an ordinary bag).
+func bag_holds_text(bag: Dictionary) -> String:
+	if bag.has("tradeskill_station"):
+		return "%s materials" % str(bag.get("skill", "crafting"))
+	if str(bag.get("bag_accepts", "")) == "crafting":
+		return "crafting materials"
+	return ""
+
+
+func is_restricted_bag(bag: Dictionary) -> bool:
+	return bag.has("tradeskill_station") or not str(bag.get("bag_accepts", "")).is_empty()
+
+
+# What each crafting bag may hold (see CRAFTING BAGS above).
+func _load_crafting_materials() -> void:
+	var recipes_file: Variant = JSON.parse_string(FileAccess.get_file_as_string(RECIPES_PATH)) if FileAccess.file_exists(RECIPES_PATH) else null
+	if typeof(recipes_file) != TYPE_DICTIONARY:
+		return
+	var groups: Dictionary = recipes_file.get("ingredient_groups", {})
+	var recipes: Dictionary = recipes_file.get("recipes", {})
+	for recipe_id in recipes:
+		var recipe: Dictionary = recipes[recipe_id]
+		var ids: Array = []
+		for ingredient in recipe.get("ingredients", {}):
+			if groups.has(ingredient):
+				ids.append_array(groups[ingredient])
+			else:
+				ids.append(ingredient)
+		for id in ids:
+			_crafting_materials[id] = true
+			for station in recipe.get("stations", []):
+				if not _kit_materials.has(station):
+					_kit_materials[station] = {}
+				_kit_materials[station][id] = true
+	var nodes_file: Variant = JSON.parse_string(FileAccess.get_file_as_string(GATHERING_PATH)) if FileAccess.file_exists(GATHERING_PATH) else null
+	if typeof(nodes_file) == TYPE_DICTIONARY:
+		for node_id in nodes_file.get("nodes", {}):
+			var gives := str(nodes_file["nodes"][node_id].get("item", ""))
+			if not gives.is_empty():
+				_crafting_materials[gives] = true
 
 func calculate_total_bag_slots() -> int:
 	# Calculates total available backpack slots from equipped bags
@@ -218,6 +395,13 @@ func get_basic_inventory_slot(slot_index: int) -> Dictionary:
 # (add_to_basic_inventory's return value being ignored at several call sites
 # was why "You receive X" could log while the item silently failed to fit).
 func add_item(item_id: String, quantity: int = 1) -> bool:
+	var added := _add_item(item_id, quantity)
+	if added and not Net.is_dedicated_server:
+		Quests.on_item_gained.call_deferred(item_id)  # picking up a quest item can start its quest (deferred: never mid-load)
+	return added
+
+
+func _add_item(item_id: String, quantity: int = 1) -> bool:
 	if not item_data.has(item_id):
 		push_error("❌ Item not found: %s" % item_id)
 		return false
@@ -238,6 +422,15 @@ func add_item(item_id: String, quantity: int = 1) -> bool:
 					sync_to_global()
 					inventory_changed.emit()
 					return true
+
+	# A crafting material goes straight into a crafting bag (a kit or the Large Crafting Bag) that takes it and has room.
+	for bag_slot in range(BASIC_INVENTORY_SIZE):
+		var bag = basic_inventory[bag_slot]
+		if bag == null or not is_restricted_bag(bag) or not bag_accepts(bag, def.merged({"item_id": item_id})):
+			continue
+		if bag_contents.get(str(bag_slot), []).size() < get_bag_size(bag) and add_to_bag(bag_slot, item_id, quantity):
+			inventory_changed.emit()
+			return true
 
 	# Per user feedback (2026-09-17): free basic-inventory slots (not bags)
 	# fill first, THEN bags in order — previously bags were filled first and
@@ -279,6 +472,9 @@ func add_to_bag(bag_slot_index: int, item_id: String, quantity: int = 1) -> bool
 		return false
 
 	var item = create_item_instance(item_id, quantity)
+
+	if not bag_accepts(bag, item):
+		return false
 
 	if is_bag(item) and not can_place_bag_in_bag(item, bag_slot_index):
 		print("❌ Cannot place bag inside another unless it's empty!")
@@ -355,6 +551,96 @@ func consume_amount(slot_type: String, slot_index: int, bag_slot: int, item_inde
 			item.quantity -= amount
 			sync_to_global()
 			inventory_changed.emit()
+
+# Takes the whole entry (the full stack) out of a character-sheet slot ("basic") or a bag slot ("bag") and returns it — for
+# dropping it on the ground or destroying it (slot_button.gd). {} if the slot no longer holds `expected_id` (it changed
+# since the player picked it up) or it is a bag that still has things in it.
+func take_from_slot(slot_type: String, slot_index: int, bag_slot: int, item_index: int, expected_id: String) -> Dictionary:
+	if slot_type == "basic":
+		var item := get_basic_inventory_slot(slot_index)
+		if item.is_empty() or str(item.get("item_id", "")) != expected_id:
+			return {}
+		if is_bag(item) and not bag_contents.get(str(slot_index), []).is_empty():
+			GameLog.log_general("[color=#ff8866]Empty the %s first.[/color]" % str(item.get("name", "bag")))
+			return {}
+		return remove_from_basic_inventory(slot_index)
+	if slot_type == "bag":
+		var contents: Array = bag_contents.get(str(bag_slot), [])
+		if item_index < 0 or item_index >= contents.size() or str(contents[item_index].get("item_id", "")) != expected_id:
+			return {}
+		return remove_from_bag(bag_slot, item_index)
+	return {}
+
+
+# Whether everything in `incoming` ([{item_id, quantity}]) would fit after `outgoing` (same shape) has been taken out — worked
+# out on a copy, nothing changes. Used by a trade before it commits (trade_relay.gd), so a full pack can't lose the items.
+func can_fit_all(incoming: Array, outgoing: Array = []) -> bool:
+	var basic: Array = basic_inventory.duplicate(true)
+	var bags: Dictionary = bag_contents.duplicate(true)
+	for entry in outgoing:
+		var left := int(entry.get("quantity", 1))
+		var id := str(entry.get("item_id", ""))
+		for i in basic.size():
+			if left > 0 and basic[i] != null and basic[i].get("item_id") == id and not is_bag(basic[i]):
+				var q := int(basic[i].get("quantity", 1)) if basic[i].get("stackable", false) else 1
+				if q <= left:
+					basic[i] = null
+				else:
+					basic[i]["quantity"] = q - left
+				left -= mini(q, left)
+		for key in bags:
+			var contents: Array = bags[key]
+			for j in range(contents.size() - 1, -1, -1):
+				if left > 0 and contents[j].get("item_id") == id:
+					var q := int(contents[j].get("quantity", 1)) if contents[j].get("stackable", false) else 1
+					if q <= left:
+						contents.remove_at(j)
+					else:
+						contents[j]["quantity"] = q - left
+					left -= mini(q, left)
+	for entry in incoming:
+		var id := str(entry.get("item_id", ""))
+		if not item_data.has(id):
+			return false
+		var item := create_item_instance(id, int(entry.get("quantity", 1)))
+		if item.get("stackable", false) and _sim_has_stack(basic, bags, id):
+			continue
+		if _sim_place(basic, bags, item):
+			continue
+		return false
+	return true
+
+
+func _sim_has_stack(basic: Array, bags: Dictionary, id: String) -> bool:
+	for slot in basic:
+		if slot != null and not is_bag(slot) and slot.get("item_id") == id:
+			return true
+	for key in bags:
+		for existing in bags[key]:
+			if existing.get("item_id") == id:
+				return true
+	return false
+
+
+# Same order as add_item(): a crafting bag that takes it, a free character-sheet slot, then any bag with room.
+func _sim_place(basic: Array, bags: Dictionary, item: Dictionary) -> bool:
+	for restricted_pass in [true, false]:
+		for i in basic.size():
+			var bag = basic[i]
+			if bag == null or not is_bag(bag) or is_restricted_bag(bag) != restricted_pass or not bag_accepts(bag, item):
+				continue
+			var contents: Array = bags.get(str(i), [])
+			if contents.size() < get_bag_size(bag):
+				contents.append(item)
+				bags[str(i)] = contents
+				return true
+		if restricted_pass:
+			var free := basic.find(null)
+			if free >= 0:
+				basic[free] = item
+				return true
+	return false
+
 
 func get_bag_contents(bag_slot_index: int) -> Array:
 	# Returns array of items in a bag
@@ -461,6 +747,9 @@ func refresh_item_icons(node: Variant) -> void:
 			var icon: String = str(item_data[item_id].get("icon", ""))
 			if not icon.is_empty():
 				node["icon"] = icon
+			# The description too (so an old kit tells you it is now a crafting bag); like the icon, it is only text.
+			if item_data[item_id].has("description"):
+				node["description"] = item_data[item_id]["description"]
 		else:
 			for key in node:
 				var value: Variant = node[key]
@@ -481,24 +770,41 @@ func move_item_between_slots(target_slot: Node, data: Dictionary) -> void:
 	var dst_bag_slot: int = target_slot.bag_slot
 	var dst_item_index: int = target_slot.item_index
 
-	if src_type == "basic" and dst_type == "basic":
+	if src_type == "bank" or dst_type == "bank":
+		if src_type in ["basic", "bag", "bank"] and dst_type in ["basic", "bag", "bank"]:
+			_bank_move(src_type, src_basic_index, src_bag_slot, src_item_index, dst_type, dst_basic_index, dst_bag_slot, dst_item_index)
+	elif src_type == "basic" and dst_type == "basic":
 		_swap_basic_slots(src_basic_index, dst_basic_index)
 	elif src_type == "basic" and dst_type == "bag":
 		_move_basic_to_bag(src_basic_index, dst_bag_slot)
 	elif src_type == "bag" and dst_type == "basic":
 		_move_bag_to_basic(src_bag_slot, src_item_index, dst_basic_index)
 	elif src_type == "bag" and dst_type == "bag":
-		_swap_bag_items(src_bag_slot, src_item_index, dst_bag_slot, dst_item_index)
+		if dst_item_index < 0 and dst_bag_slot >= 0 and dst_bag_slot != src_bag_slot:
+			_move_bag_to_bag(src_bag_slot, src_item_index, dst_bag_slot)  # onto an empty slot of a particular bag
+		else:
+			_swap_bag_items(src_bag_slot, src_item_index, dst_bag_slot, dst_item_index)
 
 	sync_to_global()
 	inventory_changed.emit()
 
+# A bag's contents are filed under the basic slot the bag sits in (bag_contents["<slot>"]), so moving a bag between slots has
+# to move its contents with it. It didn't: dragging a bag to another slot left its contents under the old slot number, where
+# nothing shows them — the items vanished until the next login's orphan rescue (test 19: "10 tanning oil disappeared").
 func _swap_basic_slots(a: int, b: int) -> void:
-	if a < 0 or b < 0 or a >= BASIC_INVENTORY_SIZE or b >= BASIC_INVENTORY_SIZE:
+	if a < 0 or b < 0 or a >= BASIC_INVENTORY_SIZE or b >= BASIC_INVENTORY_SIZE or a == b:
 		return
 	var tmp = basic_inventory[a]
 	basic_inventory[a] = basic_inventory[b]
 	basic_inventory[b] = tmp
+	var contents_a: Variant = bag_contents.get(str(a))
+	var contents_b: Variant = bag_contents.get(str(b))
+	bag_contents.erase(str(a))
+	bag_contents.erase(str(b))
+	if contents_a != null:
+		bag_contents[str(b)] = contents_a
+	if contents_b != null:
+		bag_contents[str(a)] = contents_b
 
 # Drag from a character-sheet slot into the backpack. `target_bag` is the bag of the backpack slot it was dropped on, or -1 when that
 # slot was EMPTY (an empty backpack tile belongs to no particular bag). It used to file the item under bag "-1" — a bag that does not
@@ -544,7 +850,7 @@ func _bag_with_room_for(item: Dictionary, src_slot: int, preferred: int) -> int:
 		if i == src_slot or i < 0 or i >= BASIC_INVENTORY_SIZE:
 			continue
 		var bag = basic_inventory[i]
-		if bag == null or not is_bag(bag):
+		if bag == null or not is_bag(bag) or not bag_accepts(bag, item):
 			continue
 		var contents: Array = bag_contents.get(str(i), [])
 		if item.get("stackable", false):
@@ -559,6 +865,7 @@ func _bag_with_room_for(item: Dictionary, src_slot: int, preferred: int) -> int:
 # Items stranded under a bag that does not exist (the bug above filed them under bag "-1"): put each in a bag with room, else a free
 # character-sheet slot. Anything that fits nowhere stays where it is (never deleted) and is tried again at the next login.
 func _rescue_orphaned_items() -> void:
+	var waiting := 0
 	for key in bag_contents.keys():
 		var idx := int(key) if str(key).is_valid_int() else -1
 		var valid := idx >= 0 and idx < BASIC_INVENTORY_SIZE and basic_inventory[idx] != null and is_bag(basic_inventory[idx])
@@ -566,21 +873,67 @@ func _rescue_orphaned_items() -> void:
 			continue
 		var stranded: Array = bag_contents[key]
 		for item in stranded.duplicate():
-			var dest := _bag_with_room_for(item, -1, -1)
-			if dest >= 0:
-				if not bag_contents.has(str(dest)):
-					bag_contents[str(dest)] = []
-				bag_contents[str(dest)].append(item)
+			if _merge_into_existing_stack(item):
+				pass
 			else:
-				var free := basic_inventory.find(null)
-				if free < 0:
-					continue
-				basic_inventory[free] = item
+				var dest := _bag_with_room_for(item, -1, -1)
+				if dest >= 0:
+					if not bag_contents.has(str(dest)):
+						bag_contents[str(dest)] = []
+					bag_contents[str(dest)].append(item)
+				else:
+					var free := basic_inventory.find(null)
+					if free < 0:
+						waiting += 1
+						continue
+					basic_inventory[free] = item
 			stranded.erase(item)
 			print("🎒 Recovered %s from a lost bag slot" % str(item.get("name", "an item")))
 			GameLog.log_general.call_deferred("[color=#ffdd88]You find %s at the bottom of your pack.[/color]" % str(item.get("name", "an item")))
 		if stranded.is_empty():
 			bag_contents.erase(key)
+	_orphans_waiting = waiting
+	if waiting > 0 and not _orphan_notice_shown:
+		_orphan_notice_shown = true
+		GameLog.log_general.call_deferred("[color=#ffdd88]%d item%s at the bottom of your pack need%s room — free a bag slot and %s drop in.[/color]" % [
+			waiting, "" if waiting == 1 else "s", "s" if waiting == 1 else "", "it will" if waiting == 1 else "they will"])
+
+
+# A stranded stackable item joins a stack of the same item already in the basic slots or a bag (needs no free slot).
+func _merge_into_existing_stack(item: Dictionary) -> bool:
+	if not item.get("stackable", false):
+		return false
+	var id: String = str(item.get("item_id", ""))
+	for slot in basic_inventory:
+		if slot != null and not is_bag(slot) and slot.get("item_id") == id:
+			slot["quantity"] = int(slot.get("quantity", 1)) + int(item.get("quantity", 1))
+			return true
+	for bag_slot in range(BASIC_INVENTORY_SIZE):
+		var bag = basic_inventory[bag_slot]
+		if bag == null or not is_bag(bag):
+			continue
+		for existing in bag_contents.get(str(bag_slot), []):
+			if existing.get("item_id") == id:
+				existing["quantity"] = int(existing.get("quantity", 1)) + int(item.get("quantity", 1))
+				return true
+	return false
+
+
+# Stranded items that had no room at login wait until there is some: every inventory change tries again.
+var _orphans_waiting := 0
+var _orphan_notice_shown := false
+var _rescuing := false
+
+func _retry_orphans() -> void:
+	if _orphans_waiting <= 0 or _rescuing:
+		return
+	_rescuing = true
+	var before := _orphans_waiting
+	_rescue_orphaned_items()
+	if _orphans_waiting < before:
+		sync_to_global()
+		inventory_changed.emit()  # redraw the bags with what just dropped in (the _rescuing guard stops a loop)
+	_rescuing = false
 
 
 func _move_bag_to_basic(bag_slot: int, item_index: int, dst_slot: int) -> void:
@@ -599,6 +952,26 @@ func _move_bag_to_basic(bag_slot: int, item_index: int, dst_slot: int) -> void:
 	bag_items.remove_at(item_index)
 	basic_inventory[dst_slot] = item
 
+# Moves an item into another bag's empty slot (the character sheet shows each bag separately), if that bag takes it and has room.
+func _move_bag_to_bag(src_bag: int, index: int, dst_bag: int) -> void:
+	var src: Array = bag_contents.get(str(src_bag), [])
+	var bag := get_basic_inventory_slot(dst_bag)
+	if index < 0 or index >= src.size() or not is_bag(bag):
+		return
+	var item: Dictionary = src[index]
+	if not bag_accepts(bag, item):
+		GameLog.log_general("[color=#ff8866]The %s only holds %s.[/color]" % [str(bag.get("name", "bag")), bag_holds_text(bag)])
+		return
+	var key := str(dst_bag)
+	if not bag_contents.has(key):
+		bag_contents[key] = []
+	if bag_contents[key].size() >= get_bag_size(bag):
+		GameLog.log_general("[color=#ff8866]The %s is full.[/color]" % str(bag.get("name", "bag")))
+		return
+	src.remove_at(index)
+	bag_contents[key].append(item)
+
+
 func _swap_bag_items(bag_a: int, index_a: int, bag_b: int, index_b: int) -> void:
 	var key_a := str(bag_a)
 	var key_b := str(bag_b)
@@ -613,6 +986,10 @@ func _swap_bag_items(bag_a: int, index_a: int, bag_b: int, index_b: int) -> void
 	if index_b < 0 or index_b >= items_b.size():
 		return
 
+	if bag_a != bag_b and (not bag_accepts(get_basic_inventory_slot(bag_b), items_a[index_a]) \
+			or not bag_accepts(get_basic_inventory_slot(bag_a), items_b[index_b])):
+		GameLog.log_general("[color=#ff8866]That bag only holds %s.[/color]" % bag_holds_text(get_basic_inventory_slot(bag_b) if not bag_accepts(get_basic_inventory_slot(bag_b), items_a[index_a]) else get_basic_inventory_slot(bag_a)))
+		return
 	var tmp = items_a[index_a]
 	items_a[index_a] = items_b[index_b]
 	items_b[index_b] = tmp

@@ -337,7 +337,7 @@ class RainCover extends RefCounted:
 		var y := ref_y + 45.0
 		var bottom := ref_y - 45.0
 		for i in 8:
-			var hit := space.intersect_ray(PhysicsRayQueryParameters3D.create(Vector3(x, y, z), Vector3(x, bottom, z)))
+			var hit := Global.ground_ray(space, PhysicsRayQueryParameters3D.create(Vector3(x, y, z), Vector3(x, bottom, z)))
 			if hit.is_empty():
 				break
 			y = hit.position.y - 0.02

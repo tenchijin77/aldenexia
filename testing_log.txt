@@ -69,6 +69,13 @@ Combat and stats
 - [OPEN]   Sahren "could not reach his stop in time" repeating in the log — not reproduced headless on the spawn->dock leg.
 - [FIXED]  Test 17: crash on a freed target (target_key_of), zone lag (mobs re-planned their path every frame), loot window overlap, dock + water raised above ground level.
 - [DONE]   Test 18: quest journal (J), recipe book (L), signpost directions, vendors in front of stalls, Kenji under the gate, mirage phantom model.
+- [FIXED]  Test 19: items lost when a bag was moved between slots (and the 12 Tanning Oil: found in the server save, they
+           return once a bag slot is free), J/L not working in patched builds, "walking through hills" (collision verified solid
+           on every raised spot; ground rays hardened), Sahren stuck (stale navmesh — rebaked, update.sh now rebakes
+           automatically; hillsides no longer count as walls), ocean sound at the gate (the forge's quench trough), server
+           "Long frame" stalls (far-off monsters stay dormant), innate recipes needing skill 1, all 5 quests in the journal,
+           discovered-recipe tracking, nameplates only within 20 m. NEW: drop/destroy items (ground pouches), the bank
+           (Oswin Coinwright), crafting bags (kits + Large Crafting Bag), player-to-player trading.
 - [FIXED]  Equipped items' stat_modifiers (e.g. a ring's +1 to a stat) never applied to anything, for any item in the game — found while adding the trinket above. combatnode.gd/player3d.gd now sum them into the player's effective stats on every equip/unequip.
 - [FIXED]  Melee hit chance far too low at level 1 (about 20%, ~30 s to land a hit) while spells one-shot
            everything (found by: T0). Combat numbers now live in Data/combat_balance.json (player_hit_bonus 35,

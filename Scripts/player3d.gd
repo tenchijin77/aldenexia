@@ -3,6 +3,7 @@ extends CharacterBody3D
 class_name Player3D
 
 #region Movement configuration
+const NAMEPLATE_DISTANCE := 20.0  # metres: another player's nameplate shows only within this distance of your own player
 const WALK_SPEED: float = 5.0
 const RUN_SPEED: float = 8.0
 const CROUCH_SPEED: float = 2.5
@@ -364,6 +365,9 @@ func _try_open_shop_or_loot() -> void:
 		if hit is Player3D and hit != self and hit.dying:
 			_try_bandage(hit)
 			return
+		if hit is Player3D and hit != self:
+			request_trade(hit)  # right-click another player: ask them to trade (trade_relay.gd)
+			return
 	if _try_open_campfire():
 		return
 	if _try_open_crafting_station():
@@ -372,7 +376,38 @@ func _try_open_shop_or_loot() -> void:
 		return
 	if _try_read_world_note():
 		return
+	if _try_pickup_pouch():
+		return
 	_try_loot_corpse()
+
+
+# Ask another player to trade (right-click them, or /trade). With no argument /trade uses the current target.
+func request_trade(target: Node) -> void:
+	var relay := get_tree().get_first_node_in_group("trade_relay")
+	if relay == null:
+		GameLog.log_general("You can't trade here.")
+		return
+	relay.request_trade(target)
+
+
+func request_trade_by_name(player_name_query: String) -> void:
+	var target := _find_player_by_name(player_name_query)
+	if target == null:
+		GameLog.log_general("No player named '%s' is currently online." % player_name_query)
+		return
+	request_trade(target)
+
+
+# Right-click near a pouch on the ground (world_items.gd): pick it up.
+func _try_pickup_pouch() -> bool:
+	var world_items := get_tree().get_first_node_in_group("world_items")
+	if world_items == null:
+		return false
+	var id: int = world_items.nearest_pouch(global_position)
+	if id < 0:
+		return false
+	world_items.pick_up(id)
+	return true
 
 
 # Right-click near a readable object in the world (world_note.gd: the note at the wagon wreck): range-based like the campfire.
@@ -477,6 +512,18 @@ func learn_recipe(recipe_id: String) -> bool:
 	Global.player_data["known_recipes"] = known_recipes
 	Global.save_player_data_to_file()
 	return true
+
+
+# Counts a successful craft of `recipe_id` (Global.player_data["crafted_recipes"] = {recipe id: times made}, which the
+# recipe book shows). The first time a recipe is made it is "discovered" and says so in the log. True on that first time.
+func record_craft(recipe_id: String, item_name: String) -> bool:
+	var crafted: Dictionary = Global.player_data.get("crafted_recipes", {})
+	var first := not crafted.has(recipe_id)
+	crafted[recipe_id] = int(crafted.get(recipe_id, 0)) + 1
+	Global.player_data["crafted_recipes"] = crafted
+	if first:
+		GameLog.log_general("[color=#ffd966]✦ %s has discovered the recipe for [b]%s[/b]![/color] [color=#aaaaaa](Recipe book: L)[/color]" % [player_name, item_name])
+	return first
 
 
 var _charm_control_frame: Node = null
@@ -1427,7 +1474,9 @@ func _physics_process(delta: float) -> void:
 		if has_node("NameLabel"):
 			$NameLabel.text = TargetFrame.nameplate_name(self)
 			$NameLabel.modulate = TargetFrame.nameplate_color(self)
-			$NameLabel.visible = Global.settings.get("show_name_tags", true) and not hidden
+			var me := TargetFrame.local_player()
+			var near := not is_instance_valid(me) or global_position.distance_squared_to(me.global_position) <= NAMEPLATE_DISTANCE * NAMEPLATE_DISTANCE
+			$NameLabel.visible = Global.settings.get("show_name_tags", true) and not hidden and near
 		# player_race/player_sex replicate in the same delayed way as
 		# player_name — rebuild the model once they arrive (a no-op once the
 		# key stops changing, see _build_character_model()).
@@ -3063,11 +3112,11 @@ func _lift_above_ground() -> void:
 	var space := get_world_3d().direct_space_state
 	var near := PhysicsRayQueryParameters3D.create(global_position + Vector3(0, 0.5, 0), global_position + Vector3(0, -3.0, 0))
 	near.exclude = [get_rid()]
-	if not space.intersect_ray(near).is_empty():
+	if not Global.ground_ray(space, near).is_empty():
 		return
 	var high := PhysicsRayQueryParameters3D.create(global_position + Vector3(0, 300.0, 0), global_position + Vector3(0, -300.0, 0))
 	high.exclude = [get_rid()]
-	var hit := space.intersect_ray(high)
+	var hit := Global.ground_ray(space, high)
 	if not hit.is_empty():
 		global_position = hit["position"] + Vector3(0, 0.2, 0)
 

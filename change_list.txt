@@ -1095,5 +1095,48 @@ set_gm_password.sh — set or change the game-master password on the game server
   - To give an item hand-drawn art in place of its tint, save it as <item_id>.png and delete its line from the table. Otherwise the next run of
     the tint script will overwrite it.
 
-  Commit message:
+ Test 19 is done: drop and destroy, the bank, crafting bags and player trading are all built and tested. The trade and pouch tests ran on a
+  local dedicated server with two headless players; nothing has been played in the real game yet.
+
+  Your quest question: no new character needed. The journal reads whatever your save holds. Zozuur's save on the server has only "The Wreck on
+  the South Road", completed, so it will show under Completed. The other four were never started on Zozuur, so they'll appear once you pick them
+  up:
+  - Release the Hollowed: talk to Sahren.
+  - The Silent Den: ask the guards about the den.
+  - A Warden Not at Rest: pick up the Warden's medal.
+  - The Weavemother's Mark: unlocks after The Silent Den.
+
+  The CPU change worked: the server now reports the real Intel Xeon E5-2609 v4 instead of the generic QEMU model.
+
+  Drop and destroy:
+  - Drop: drag an item out of a bag window onto the ground and the whole stack drops at your feet in a small leather pouch. Dropping onto an NPC
+    still hands it to them.
+  - Destroy: the right-click menu now has Drop and Destroy, and Destroy asks before deleting.
+  - Pouches: every player sees them, and the first to right-click one within 3 m gets it. They vanish after 15 minutes.
+  - Limits: a bag with things in it can't be dropped. A picked-up item comes back as a fresh copy, like loot, so something like a half-burnt
+    torch returns as new.
+
+  The bank:
+  - Banker: Oswin Coinwright, "Keeper of the Lumora Vault", at the east end of the vendor row. Right-click him, hail him, or say "bank".
+  - Storage: 24 slots per character, saved with the character.
+  - Using it: drag items in and out; the same items stack. The window closes if you walk away.
+
+  Crafting bags:
+  - Kits: every kit placed in a character-sheet slot becomes an 8-slot bag that only holds that craft's materials. The leatherworking kit, for
+    example, takes hides, tanning oil, thread and the like. The list comes from the recipes, so new recipes are covered automatically.
+  - Large Crafting Bag: 16 slots for any crafting material, sold by Tobble for 3 silver.
+  - Filling: new materials go straight into a matching crafting bag. The character sheet shows what each bag holds, and you can drag an item
+    into an empty slot of a specific bag.
+
+  Trading:
+  - Starting: right-click another player, or type /trade or /trade <name>. They get Trade/Decline buttons.
+  - Offering: drag up to 8 items onto your side (a stack asks how many) and set any coin.
+  - Safety: any change clears both Accepts. Before anything moves, each side checks it still has what it offered, has the coin, and has room for
+    what's coming in, so a failed check can't lose items.
+  - Cancelling: walking more than 12 m apart or closing the window cancels the trade. The server logs every completed trade.
+
+  Scene warning: your Godot editor has the zone scene open and saved over it twice while I was working, and one save removed a node I'd added.
+  Trading no longer needs a scene edit, and the banker and pouch nodes are in the file now. Reload the scene from disk before saving it again,
+  or you may lose the banker.
+
 

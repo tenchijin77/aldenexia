@@ -241,6 +241,7 @@ const CHAT_COMMANDS := [
 	["/exit", "Camp out and close the game completely (same as /camp desktop)"],
 	["/log", "Toggle saving chat to a log file"],
 	["/invite [name]", "Invite your target, or a named player, to your group"],
+	["/trade [name]", "Trade items and coin with your target or a named player (or right-click them)"],
 	["/disband [name]", "Leave your group, or kick a named member"],
 	["/say [message]", "Talk to players within 10 m (yellow) — also switches the chat channel"],
 	["/party [message]", "Talk to your group (blue) — also switches the chat channel"],

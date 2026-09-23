@@ -763,17 +763,22 @@ func _steer_around_obstacles(direction: Vector3) -> Vector3:
 
 	var query := PhysicsRayQueryParameters3D.create(origin, origin + direction * OBSTACLE_CHECK_DISTANCE)
 	query.exclude = [self]
-	if not space.intersect_ray(query):
-		return direction  # clear ahead, no steering needed
+	if _clear_or_walkable(space.intersect_ray(query)):
+		return direction  # clear ahead (or just a hillside to walk up), no steering needed
 
 	for angle_deg in OBSTACLE_AVOID_ANGLES_DEG:
 		var candidate := direction.rotated(Vector3.UP, deg_to_rad(angle_deg))
 		var candidate_query := PhysicsRayQueryParameters3D.create(origin, origin + candidate * OBSTACLE_CHECK_DISTANCE)
 		candidate_query.exclude = [self]
-		if not space.intersect_ray(candidate_query):
+		if _clear_or_walkable(space.intersect_ray(candidate_query)):
 			return candidate
 
 	return direction  # nothing clear found — keep the original heading rather than freeze; the stuck-detector will recover if this doesn't work out
+
+
+# A ray result that doesn't block: nothing hit, or a surface flat enough to walk up (a hillside on the Terrain3D ground).
+func _clear_or_walkable(hit: Dictionary) -> bool:
+	return hit.is_empty() or hit["normal"].y >= 0.6
 
 
 func _recompute_path(target_pos: Vector3) -> void:

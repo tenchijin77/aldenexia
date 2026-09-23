@@ -33,6 +33,7 @@ var _resizing := false
 var _crafting := false
 var _craft_elapsed := 0.0        # seconds into the item being made right now
 var _craft_recipe: Dictionary = {}
+var _craft_recipe_id := ""
 var _craft_uses: Dictionary = {}  # {staged item id: qty per craft} for the recipe being made
 var _craft_multiplier := 1       # how many items this batch makes in total
 var _craft_done := 0             # how many are finished so far
@@ -200,6 +201,7 @@ func _on_action_pressed() -> void:
 	if not _blocked_reason(found["id"], found["recipe"]).is_empty():
 		return
 	_craft_recipe = found["recipe"]
+	_craft_recipe_id = found["id"]
 	_craft_uses = found["uses"]
 	_craft_multiplier = found["multiplier"]
 	_crafting = true
@@ -275,6 +277,8 @@ func _make_one() -> bool:
 		GameLog.log_general("[color=#88ffaa]You create [b]%d %s[/b].[/color]" % [output_qty, display_name])
 	if success and _craft_done == 0 and not str(_craft_recipe.get("craft_message", "")).is_empty():
 		GameLog.log_general("[color=#b8b0a0]%s[/color]" % _craft_recipe["craft_message"])
+	if success and is_instance_valid(player) and player.has_method("record_craft"):
+		player.record_craft(_craft_recipe_id, display_name)
 	_tick_tradeskill(skill, 1.0 if success else FAIL_GAIN_MULT)  # one skill roll per item made
 	return true
 

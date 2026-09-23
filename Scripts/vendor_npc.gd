@@ -63,14 +63,14 @@ func floor_y_at(pos: Vector3, default_y: float) -> float:
 	var from := Vector3(pos.x, pos.y + 1.5, pos.z)
 	var query := PhysicsRayQueryParameters3D.create(from, from + Vector3(0, -8.0, 0))
 	query.exclude = [get_rid()]
-	var hit := get_world_3d().direct_space_state.intersect_ray(query)
+	var hit := Global.ground_ray(get_world_3d().direct_space_state, query)
 	if hit:
 		return hit.position.y
 	# Nothing within that window: on hilly terrain the NPC may have been placed well above or below the ground. Look from high
 	# up instead (this can land on a roof, which is why it's only the fallback).
 	var high := PhysicsRayQueryParameters3D.create(Vector3(pos.x, pos.y + 200.0, pos.z), Vector3(pos.x, pos.y - 200.0, pos.z))
 	high.exclude = [get_rid()]
-	hit = get_world_3d().direct_space_state.intersect_ray(high)
+	hit = Global.ground_ray(get_world_3d().direct_space_state, high)
 	return hit.position.y if hit else default_y
 
 

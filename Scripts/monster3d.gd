@@ -239,6 +239,7 @@ var monster_description: String = ""
 ## Set by GateRaidManager: while this is set the monster marches straight there (a brisk walk) instead of wandering, and it
 ## clears itself on arrival, after which the monster mills about that spot. Anything that sees a player still chases first.
 var march_target: Vector3 = Vector3.INF
+var _nameplate_timer := 0.0
 const MARCH_SPEED_MULTIPLIER: float = 1.6
 var model_from: String = ""        # monsters.json "model_from": borrow this type's model (see the stats block in _ready)
 var model_scale: float = 1.0
@@ -253,6 +254,9 @@ var attack_cooldown: float = 1.5
 # encounter that's actually hard. Only ticks while IDLE/PATROL (see
 # _physics_process below).
 const REGEN_INTERVAL := 6.0
+const NAMEPLATE_DISTANCE := 20.0  # metres: a mob's nameplate shows only within this distance of your own player
+const NAMEPLATE_REFRESH := 0.2   # seconds between nameplate/visibility refreshes on a client
+const DORMANT_DISTANCE := 120.0  # metres from the nearest player beyond which an idle/patrolling monster stops running its AI
 var _regen_timer: float = 0.0
 # Personal/instanced loot (2026-09-17) — each player gets their own
 # independently-rolled loot from the same corpse, rather than one shared
@@ -696,16 +700,17 @@ func _physics_process(delta: float) -> void:
 	# this is a no-op today; it's here so a future invisible-mob ability just
 	# works without touching rendering code again. Runs regardless of
 	# authority/DEAD state — even a corpse should respect see-invisible.
-	if has_node("Character"):
-		$Character.visible = not TargetFrame.is_hidden_from_local_player(self)
-
 	# Nameplate above the mob's head, same pattern as player3d.gd's own
 	# $NameLabel — reuses TargetFrame.nameplate_name() so stealth/invisibility
 	# text formatting ("(a shadowy figure)") stays in one place instead of
-	# being duplicated per entity type.
-	if has_node("NameLabel"):
-		$NameLabel.visible = not TargetFrame.is_hidden_from_local_player(self)
-		$NameLabel.text = TargetFrame.nameplate_name(self)
+	# being duplicated per entity type. A dedicated server shows nothing, so it
+	# skips all of this; a client refreshes it a few times a second and only
+	# shows a nameplate within NAMEPLATE_DISTANCE of its own player.
+	if not Net.is_dedicated_server:
+		_nameplate_timer -= delta
+		if _nameplate_timer <= 0.0:
+			_nameplate_timer = NAMEPLATE_REFRESH
+			_refresh_nameplate()
 
 	# Non-authoritative peers (every client but the server, in a multiplayer
 	# game — always true in single-player, see project_multiplayer_netcode
@@ -763,6 +768,18 @@ func _physics_process(delta: float) -> void:
 	if fighting != target_key:
 		target_key = fighting
 
+	# Dormant while no player is anywhere near: an idle/wandering monster far from every player skips its AI, pathing and
+	# physics entirely (it can only notice someone within MAX_AGGRO_DISTANCE anyway). With one player online every monster
+	# on the map used to wander and path each frame — ~10 ms of server physics for 64 mobs, enough on a slow VM to pile up
+	# into the "Long frame: 0.5 s" stalls. Raiders marching on the gate keep marching; anything in a fight keeps fighting.
+	if (current_state == State.IDLE or current_state == State.PATROL) and march_target == Vector3.INF and is_on_floor() \
+			and global_position.distance_squared_to(player.global_position) > DORMANT_DISTANCE * DORMANT_DISTANCE:
+		if current_state == State.PATROL:
+			change_state(State.IDLE)
+		velocity = Vector3.ZERO
+		_update_animation()
+		return
+
 
 	if not _has_fled and flees_at_low_health and (current_state == State.CHASE or current_state == State.ATTACK) \
 			and combat_node.current_hp > 0 and combat_node.current_hp <= int(combat_node.max_hp * LOW_HEALTH_FLEE_FRACTION):
@@ -788,10 +805,14 @@ func _physics_process(delta: float) -> void:
 		handle_movement(delta)
 	elif current_state == State.FLEEING:
 		pass  # state_fleeing() above already moved it this frame
+	elif is_on_floor() and velocity.is_zero_approx():
+		pass  # standing still on the ground: nothing to slide (move_and_slide() on the terrain is the costliest part of a mob's frame)
 	else:
 		# Always apply gravity so monsters don't float when idle or attacking
 		if not is_on_floor():
 			velocity.y -= 20.0 * delta
+		else:
+			velocity.y = 0.0
 		move_and_slide()
 
 	_update_animation()
@@ -1894,6 +1915,24 @@ func force_disengage() -> void:
 # character and every connected peer's puppet exist there identically on the
 # server) and returns whichever is physically closest, ignoring anyone
 # currently bled-out/dead (same as the old can_see_player() dying check).
+# Hides the model from a viewer who can't see it (stealth/invisibility, see TargetFrame.is_hidden_from_local_player()) and
+# shows the nameplate only while this client's player is within NAMEPLATE_DISTANCE (the target frame still names a mob
+# further away).
+func _refresh_nameplate() -> void:
+	var hidden := TargetFrame.is_hidden_from_local_player(self)
+	var character := get_node_or_null("Character") as Node3D
+	if character:
+		character.visible = not hidden
+	var label := get_node_or_null("NameLabel") as Label3D
+	if label == null:
+		return
+	var me := TargetFrame.local_player()
+	var near := is_instance_valid(me) and global_position.distance_squared_to(me.global_position) <= NAMEPLATE_DISTANCE * NAMEPLATE_DISTANCE
+	label.visible = near and not hidden
+	if label.visible:
+		label.text = TargetFrame.nameplate_name(self)
+
+
 func _nearest_player() -> Node:
 	var best: Node = null
 	var best_dist: float = INF

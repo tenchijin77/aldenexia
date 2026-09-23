@@ -16,6 +16,7 @@ extends Node
 @export var fade_db_per_second: float = 24.0
 
 const SILENT_DB := -60.0
+const MIN_SEA_AREA := 400.0  # m²: a water mesh smaller than this (20 m x 20 m) is part of a model, not the sea
 
 var _sound: AudioStreamPlayer
 var _water_rects: Array = []   # Rect2 in the ground plane (x, z) for each water mesh
@@ -65,6 +66,8 @@ func _find_water() -> void:
 			if mi.mesh == null:
 				continue
 			var box: AABB = mi.global_transform * mi.get_aabb()
+			if box.size.x * box.size.z < MIN_SEA_AREA:
+				continue  # a prop's water (the forge's quench trough, a bucket), not the sea
 			_water_rects.append(Rect2(box.position.x, box.position.z, box.size.x, box.size.z))
 
 

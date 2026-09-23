@@ -121,6 +121,7 @@
     "sell_price_multiplier": 0.5,
     "stock": [
       "compass",
+      "large_crafting_bag",
       "basic_tinkering_kit",
       "recipe_tink_copper_pickaxe",
       "recipe_tink_copper_wrist_cuff",

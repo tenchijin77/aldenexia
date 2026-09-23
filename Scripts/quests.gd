@@ -1,7 +1,7 @@
 # quests.gd — The small, data-driven quest piece (Data/quests.json). Static, no autoload (patches can't add autoloads): the
 # state lives in the character's own save (Global.player_data["quests"]), so it persists per character, on the server too.
 # State per quest: not present = never started, "active" (with hand-in progress), "complete".
-# Optional per quest: "auto_start": true (handing the item in starts it), "requires_quest": id (a chain: that quest must be complete).
+# Optional per quest: "auto_start": true (picking up or handing in the item starts it), "requires_quest": id (a chain: that quest must be complete).
 # v1 supports one objective type, "hand_in": bring N of an item to the quest giver — by dragging the items onto the NPC (the
 # EverQuest-style Give window) — which is what "Release the Hollowed" needs. More types (kill counts, reach a spot) come later.
 class_name Quests
@@ -108,7 +108,26 @@ static func try_hand_in(giver: String, item_id: String, player: Node) -> Diction
 	_entry(involved)["completed"] = Time.get_unix_time_from_system()
 	_give_rewards(def.get("rewards", {}), player)
 	GameLog.log_general("[color=#ffdd44][b]Quest complete:[/b] %s[/color]" % def.get("name", involved))
+	for next_id in _all_ids():  # the next step of a chain, if you already carry its item
+		if str(definition(next_id).get("requires_quest", "")) == involved:
+			var next_item := str(definition(next_id).get("objective", {}).get("item", ""))
+			if not next_item.is_empty() and ItemHelper.count(next_item) > 0:
+				on_item_gained(next_item)
 	return {"result": "complete", "quest_id": involved, "given": need, "need": need, "taken": taken, "text": str(texts.get("complete", ""))}
+
+
+# Picking up a quest's hand-in item starts an "auto_start" quest (inventory_autoload.gd add_item()), so it is in the journal
+# as soon as you have the thing — not only once you hand it in (a one-item hand-in would start and finish in the same
+# moment and never show as pending). A later step of a chain waits until the earlier quest is complete.
+static func on_item_gained(item_id: String) -> void:
+	for id in _all_ids():
+		var def := definition(id)
+		if state(id) != "none" or not bool(def.get("auto_start", false)) or def.get("objective", {}).get("item", "") != item_id:
+			continue
+		var prerequisite := str(def.get("requires_quest", ""))
+		if not prerequisite.is_empty() and state(prerequisite) != "complete":
+			continue
+		start(id)
 
 
 # Whether a quest has been started (or finished) — for world objects that only react the first time.

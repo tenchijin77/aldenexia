@@ -1,0 +1,25 @@
+{
+ "_comment": "banker.json - what Oswin Coinwright, the Lumora banker (Scripts/banker_npc.gd on a talking_vendor.tscn), says. Same shape as the scribes' files: greeting (when the bank opens), ambient/secret (said to anyone nearby every few minutes; secret only at night), topics (keywords said near him). A topic whose 'then' has hail: true opens the bank.",
+ "ambient_minutes": [4, 8],
+ "ambient_secret_chance_at_night": 0.2,
+ "greeting": [
+  "Your vault, as you left it. I count everything twice.",
+  "Deposits on the left, withdrawals on the right. Mind the ink.",
+  "Welcome back. Nothing has gone missing. Nothing ever goes missing here."
+ ],
+ "shop_intro": [],
+ "ambient": [
+  "Safe storage! Your goods kept dry, counted and guarded.",
+  "A traveler's pack is a fine thing until it is full. Then it is a burden.",
+  "Every copper counted, every crate sealed. Lumora's vault never sleeps."
+ ],
+ "secret": [
+  "The vault is older than the wall, you know. Some of the boxes down there have no owners left to claim them.",
+  "Between us, the Wardens bank here too. They pay extra for the bottom shelf."
+ ],
+ "topics": [
+  {"id": "hail", "keywords": ["hail", "hello", "greetings", "hey"], "then": {"hail": true}},
+  {"id": "bank", "keywords": ["bank", "vault", "deposit", "withdraw", "storage", "store"],
+   "lines": ["Of course. Let me fetch your box."], "then": {"hail": true}}
+ ]
+}

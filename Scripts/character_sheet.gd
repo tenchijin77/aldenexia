@@ -569,7 +569,8 @@ func refresh_storage_slots() -> void:
 		else:
 			slot.item_data = item
 			slot.texture_normal = ItemIcon.texture(item)
-			slot.tooltip_text = ItemIcon.tooltip(item) + ("\n(bag — equip it to add storage)" if Inventory.is_bag(item) else "")
+			var holds_text := Inventory.bag_holds_text(item)
+			slot.tooltip_text = ItemIcon.tooltip(item) + (("\n(%d-slot bag%s)" % [Inventory.get_bag_size(item), (" for " + holds_text) if not holds_text.is_empty() else ""]) if Inventory.is_bag(item) else "")
 		slot.queue_redraw()
 
 	_rebuild_bag_sections()
@@ -604,7 +605,8 @@ func _rebuild_bag_sections() -> void:
 		var bag_items := Inventory.get_bag_contents(bag_slot)
 		var capacity: int = Inventory.get_bag_size(bag)
 		var cap_lbl := Label.new()
-		cap_lbl.text = "%d / %d slots used" % [bag_items.size(), capacity]
+		var holds := Inventory.bag_holds_text(bag)
+		cap_lbl.text = "%d / %d slots used%s" % [bag_items.size(), capacity, ("  •  holds %s only" % holds) if not holds.is_empty() else ""]
 		cap_lbl.add_theme_font_size_override("font_size", 9)
 		cap_lbl.add_theme_color_override("font_color", Color(0.55, 0.55, 0.58))
 		header.add_child(cap_lbl)

@@ -113,7 +113,7 @@
       "ingredients": {
         "raw_snake_meat": 1
       },
-      "min_skill": 1,
+      "min_skill": 0,
       "max_level": 16,
       "base_success": 0.96,
       "crit_chance": 0.05,
@@ -136,7 +136,7 @@
       "ingredients": {
         "raw_goblin_meat": 1
       },
-      "min_skill": 1,
+      "min_skill": 0,
       "max_level": 16,
       "base_success": 0.96,
       "crit_chance": 0.05,
@@ -159,7 +159,7 @@
       "ingredients": {
         "raw_human_meat": 1
       },
-      "min_skill": 2,
+      "min_skill": 0,
       "max_level": 17,
       "base_success": 0.95,
       "crit_chance": 0.05,
@@ -433,7 +433,7 @@
         "desert_thistle": 2,
         "spring_water": 1
       },
-      "min_skill": 1,
+      "min_skill": 0,
       "max_level": 16,
       "base_success": 0.97,
       "crit_chance": 0.05,
@@ -628,7 +628,7 @@
       "ingredients": {
         "copper_ingot": 1
       },
-      "min_skill": 3,
+      "min_skill": 0,
       "max_level": 18,
       "base_success": 0.93,
       "crit_chance": 0.08,
@@ -847,7 +847,7 @@
       "ingredients": {
         "tin_ore": 1
       },
-      "min_skill": 1,
+      "min_skill": 0,
       "max_level": 16,
       "base_success": 0.97,
       "crit_chance": 0.05,
@@ -869,7 +869,7 @@
         "tin_ingot": 1,
         "fir_planks": 1
       },
-      "min_skill": 1,
+      "min_skill": 0,
       "max_level": 16,
       "base_success": 0.93,
       "crit_chance": 0.08,
@@ -1077,7 +1077,7 @@
       "ingredients": {
         "fir_log": 1
       },
-      "min_skill": 1,
+      "min_skill": 0,
       "max_level": 16,
       "base_success": 0.98,
       "crit_chance": 0.05,
@@ -1100,7 +1100,7 @@
         "fir_planks": 1,
         "linen_cloth": 1
       },
-      "min_skill": 1,
+      "min_skill": 0,
       "max_level": 16,
       "base_success": 0.96,
       "crit_chance": 0.08,
@@ -1123,7 +1123,7 @@
         "fir_log": 3,
         "flint": 1
       },
-      "min_skill": 2,
+      "min_skill": 0,
       "max_level": 17,
       "base_success": 0.95,
       "crit_chance": 0.08,
@@ -1146,7 +1146,7 @@
         "fir_planks": 3,
         "bowstring": 1
       },
-      "min_skill": 2,
+      "min_skill": 0,
       "max_level": 17,
       "base_success": 0.94,
       "crit_chance": 0.08,
@@ -1432,7 +1432,7 @@
       "ingredients": {
         "thread": 2
       },
-      "min_skill": 1,
+      "min_skill": 0,
       "max_level": 16,
       "base_success": 0.95,
       "crit_chance": 0.08,
@@ -1605,7 +1605,7 @@
       "ingredients": {
         "uncut_gem": 1
       },
-      "min_skill": 2,
+      "min_skill": 0,
       "max_level": 17,
       "base_success": 0.96,
       "crit_chance": 0.08,
@@ -1627,7 +1627,7 @@
       "ingredients": {
         "tin_ingot": 2
       },
-      "min_skill": 2,
+      "min_skill": 0,
       "max_level": 17,
       "base_success": 0.96,
       "crit_chance": 0.06,
@@ -1795,7 +1795,7 @@
         "raw_hide": 1,
         "tanning_oil": 1
       },
-      "min_skill": 1,
+      "min_skill": 0,
       "max_level": 16,
       "base_success": 0.97,
       "crit_chance": 0.05,
@@ -1818,7 +1818,7 @@
         "soft_leather": 2,
         "thread": 1
       },
-      "min_skill": 2,
+      "min_skill": 0,
       "max_level": 17,
       "base_success": 0.94,
       "crit_chance": 0.08,
@@ -1842,7 +1842,7 @@
         "fir_planks": 1,
         "thread": 1
       },
-      "min_skill": 2,
+      "min_skill": 0,
       "max_level": 17,
       "base_success": 0.95,
       "crit_chance": 0.08,
@@ -2032,7 +2032,7 @@
         "linen_cloth": 3,
         "thread": 1
       },
-      "min_skill": 1,
+      "min_skill": 0,
       "max_level": 16,
       "base_success": 0.96,
       "crit_chance": 0.06,
@@ -2056,7 +2056,7 @@
         "thread": 1,
         "dye": 1
       },
-      "min_skill": 1,
+      "min_skill": 0,
       "max_level": 16,
       "base_success": 0.95,
       "crit_chance": 0.08,
@@ -2079,7 +2079,7 @@
         "woven_cloth": 1,
         "thread": 1
       },
-      "min_skill": 2,
+      "min_skill": 0,
       "max_level": 17,
       "base_success": 0.96,
       "crit_chance": 0.08,

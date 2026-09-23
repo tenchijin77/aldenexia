@@ -19,6 +19,7 @@ const CORNER_ARRIVAL := 1.5
 const ARRIVAL := 1.0              # how close counts as "reached" a stop
 const GRAVITY := 20.0
 const HOP_HEIGHT := 1.4           # a ledge up to about this high he hops onto (the dock's deck is 1 m up and the navmesh does not join it to the shore)
+const WALKABLE_NORMAL_Y := 0.6   # a surface this upright or flatter (slopes up to ~53°) is ground to walk up, not an obstacle
 const STALL_SECONDS := 20.0       # no progress toward the stop for this long -> repath / skip a corner
 const TRAVEL_SLACK := 2.5         # a leg may take this many times its expected time before he is simply placed at the stop
 const LEAVING_SECONDS := 4.0      # after the farewell, before he is gone
@@ -412,7 +413,8 @@ func _recompute_path() -> void:
 		_path_i = 1  # path[0] is just where he already is
 
 
-# A short ray ahead: if something solid is in the way, sidestep to the first clear heading.
+# A short ray ahead: if something solid is in the way, sidestep to the first clear heading. A walkable slope (a hillside
+# rising ahead) is not "in the way" — he walks up it; only a wall-steep surface counts.
 func _steer(direction: Vector3) -> Vector3:
 	var space := get_world_3d().direct_space_state
 	var origin := global_position + Vector3(0, 0.9, 0)
@@ -420,7 +422,8 @@ func _steer(direction: Vector3) -> Vector3:
 		var candidate := direction.rotated(Vector3.UP, deg_to_rad(angle))
 		var query := PhysicsRayQueryParameters3D.create(origin, origin + candidate * 1.5)
 		query.exclude = [self]
-		if not space.intersect_ray(query):
+		var hit := space.intersect_ray(query)
+		if hit.is_empty() or hit["normal"].y >= WALKABLE_NORMAL_Y:
 			return candidate
 	return direction
 

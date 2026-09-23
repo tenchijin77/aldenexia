@@ -370,6 +370,31 @@ func _show_inspect_popup() -> void:
 		)
 		btn_row.add_child(poison_btn)
 
+	# Drop (at your feet, in a pouch) and Destroy, for anything in your bags or character-sheet slots
+	if slot_type in ["basic", "bag"]:
+		var item_row := HBoxContainer.new()
+		item_row.add_theme_constant_override("separation", 6)
+		vbox.add_child(item_row)
+		var drop_btn := Button.new()
+		drop_btn.text = "Drop"
+		drop_btn.tooltip_text = "Put it on the ground in a pouch (anyone can pick it up; it vanishes after 15 minutes).\nYou can also drag it out of the window onto the ground."
+		drop_btn.pressed.connect(func():
+			layer.queue_free()
+			_drop_on_ground(item_data))
+		item_row.add_child(drop_btn)
+		var destroy_btn := Button.new()
+		destroy_btn.text = "Destroy"
+		destroy_btn.add_theme_color_override("font_color", Color(1.0, 0.55, 0.45))
+		destroy_btn.pressed.connect(func():
+			layer.queue_free()
+			_confirm_destroy())
+		item_row.add_child(destroy_btn)
+
+	# In the bank an item can only be looked at (take it out to use, equip or eat it).
+	if slot_type == "bank":
+		for action in btn_row.get_children():
+			action.queue_free()
+
 	# Close button
 	var close_btn := Button.new()
 	close_btn.text = "Close"
@@ -481,10 +506,55 @@ func _notification(what: int) -> void:
 	_offer_item_to_world(item, vp.get_mouse_position())
 
 
+# Released over the world: an NPC under the cursor is offered it; otherwise it is dropped on the ground as a pouch.
 func _offer_item_to_world(item: Dictionary, screen_pos: Vector2) -> void:
 	var player := TargetFrame.local_player()
-	if is_instance_valid(player) and player.has_method("try_offer_item_to_npc_at"):
-		player.try_offer_item_to_npc_at(screen_pos, item)
+	if not is_instance_valid(player):
+		return
+	if player.has_method("try_offer_item_to_npc_at") and player.try_offer_item_to_npc_at(screen_pos, item):
+		return
+	_drop_on_ground(item)
+
+
+# Takes this slot's item (the whole stack) out of the bags and puts it at the player's feet in a pouch (world_items.gd).
+func _drop_on_ground(item: Dictionary) -> void:
+	var player := TargetFrame.local_player() as Node3D
+	var world_items := get_tree().get_first_node_in_group("world_items")
+	if not is_instance_valid(player) or world_items == null:
+		return
+	var taken := Inventory.take_from_slot(slot_type, slot_index, bag_slot, item_index, str(item.get("item_id", "")))
+	if taken.is_empty():
+		return
+	var forward := -player.global_transform.basis.z
+	world_items.drop(taken, player.global_position + Vector3(forward.x, 0.0, forward.z).normalized() * 0.8, str(player.get("player_name")))
+	GameLog.log_general("You drop %s on the ground." % _stack_name(taken))
+	Global.save_player_data_to_file()
+
+
+# Right-click menu > Destroy: asks first, then the item is gone for good.
+func _confirm_destroy() -> void:
+	var item := item_data.duplicate(true)
+	var dialog := ConfirmationDialog.new()
+	dialog.title = "Destroy item"
+	dialog.dialog_text = "Destroy %s? This can't be undone." % _stack_name(item)
+	dialog.ok_button_text = "Destroy"
+	var layer := CanvasLayer.new()
+	layer.layer = 20
+	get_tree().root.add_child(layer)
+	layer.add_child(dialog)
+	dialog.confirmed.connect(func():
+		var taken := Inventory.take_from_slot(slot_type, slot_index, bag_slot, item_index, str(item.get("item_id", "")))
+		if not taken.is_empty():
+			GameLog.log_general("[color=#ff8866]You destroy %s.[/color]" % _stack_name(taken))
+			Global.save_player_data_to_file()
+		layer.queue_free())
+	dialog.canceled.connect(layer.queue_free)
+	dialog.popup_centered()
+
+
+static func _stack_name(item: Dictionary) -> String:
+	var qty := int(item.get("quantity", 1)) if item.get("stackable", false) else 1
+	return ("%d %s" % [qty, str(item.get("name", "item"))]) if qty > 1 else str(item.get("name", "the item"))
 
 
 func _get_drag_data(at_position: Vector2) -> Variant:

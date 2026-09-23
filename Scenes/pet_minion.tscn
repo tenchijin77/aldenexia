@@ -35,6 +35,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
 shape = SubResource("CapsuleShape3D_pet01")
 
 [node name="NameLabel" type="Label3D" parent="."]
+visibility_range_end = 20.0
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.4, 0)
 billboard = 1
 alpha_cut = 2

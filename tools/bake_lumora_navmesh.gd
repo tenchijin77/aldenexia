@@ -29,6 +29,7 @@ func _initialize() -> void:
 	var region := zone.get_node("NavigationRegion3D") as NavigationRegion3D
 	var nav_mesh: NavigationMesh = region.navigation_mesh
 	var save_path := nav_mesh.resource_path
+	var old_uid := _file_uid(save_path)
 	print("Baking %s -> %s (before: %d polygons)" % [scene_path, save_path, nav_mesh.get_polygon_count()])
 	var started := Time.get_ticks_msec()
 
@@ -54,7 +55,28 @@ func _initialize() -> void:
 		quit(1)
 		return
 	var err := ResourceSaver.save(nav_mesh, save_path)
+	if err == OK and not old_uid.is_empty():
+		_restore_uid(save_path, old_uid)
 	print("Navmesh baked in %.1f s (%d Terrain3D surface%s included): %d vertices, %d polygons. Saved: %s" % [
 		(Time.get_ticks_msec() - started) / 1000.0, terrains, "" if terrains == 1 else "s",
 		nav_mesh.get_vertices().size(), nav_mesh.get_polygon_count(), str(err == OK)])
 	quit(0 if err == OK else 1)
+
+
+# A script run (--script) saves without the editor's UID cache, which drops the file's uid="..." — and the zone scene
+# refers to the navmesh by that uid. Put the old one back into the saved file's header.
+func _file_uid(path: String) -> String:
+	var header := FileAccess.get_file_as_string(path).get_slice("\n", 0)
+	var found := RegEx.create_from_string('uid="(uid://[a-z0-9]+)"').search(header)
+	return found.get_string(1) if found else ""
+
+
+func _restore_uid(path: String, uid: String) -> void:
+	var text := FileAccess.get_file_as_string(path)
+	var header := text.get_slice("\n", 0)
+	if header.contains("uid="):
+		return
+	var fixed := header.trim_suffix("]") + ' uid="%s"]' % uid
+	var f := FileAccess.open(path, FileAccess.WRITE)
+	f.store_string(fixed + text.substr(header.length()))
+	f.close()

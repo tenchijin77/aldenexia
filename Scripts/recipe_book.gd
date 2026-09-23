@@ -2,7 +2,9 @@
 # (innate ones plus those learned from recipe scrolls — player3d.gd knows_recipe()), from Data/tradeskill_recipes.json,
 # like the abilities book does for spells: the finished item's icon, its ingredients (icon + quantity), the skill and level
 # it needs, and where it can be made. Filter by skill or search by name. The skill line is green when you can make it,
-# red when your skill is too low, and grey once it is trivial (no more skill-ups). Refreshes when a recipe is learned.
+# red when your skill is too low, and grey once it is trivial (no more skill-ups). Each recipe also shows how many times
+# you have made it (player3d.gd record_craft(): the first success "discovers" it); "Discovered only" narrows the book to
+# the things you have actually made, as a reference. Refreshes when a recipe is learned or made.
 extends GameWindow
 class_name RecipeBook
 
@@ -17,6 +19,7 @@ var _recipes: Dictionary = {}
 var _groups: Dictionary = {}
 var _skill_filter: OptionButton
 var _search: LineEdit
+var _discovered_only: CheckBox
 var _count: Label
 var _list: VBoxContainer
 var _skills: Array = []
@@ -41,6 +44,11 @@ func _ready() -> void:
 	_search.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_search.text_changed.connect(func(_t: String): _rebuild())
 	filters.add_child(_search)
+	_discovered_only = CheckBox.new()
+	_discovered_only.text = "Discovered only"
+	_discovered_only.tooltip_text = "Only recipes you have made at least once."
+	_discovered_only.toggled.connect(func(_on: bool): _rebuild())
+	filters.add_child(_discovered_only)
 	_count = header("")
 	body.add_child(_count)
 	var scroll := ScrollContainer.new()
@@ -64,9 +72,17 @@ func _process(delta: float) -> void:
 	if _refresh > 0.0:
 		return
 	_refresh = 1.0
-	if is_instance_valid(_player) and JSON.stringify(_player.known_recipes) != _known_signature:
+	if is_instance_valid(_player) and _signature() != _known_signature:
 		_rebuild_skills()
 		_rebuild()
+
+
+func _signature() -> String:
+	return JSON.stringify([_player.known_recipes, Global.player_data.get("crafted_recipes", {})])
+
+
+func _crafted(id: String) -> int:
+	return int(Global.player_data.get("crafted_recipes", {}).get(id, 0))
 
 
 func _known() -> Array:
@@ -81,7 +97,7 @@ func _known() -> Array:
 
 # The skill dropdown: "All skills" plus every skill the character knows a recipe for.
 func _rebuild_skills() -> void:
-	_known_signature = JSON.stringify(_player.known_recipes)
+	_known_signature = _signature()
 	var keep := _skill_filter.get_item_text(_skill_filter.selected) if _skill_filter.selected >= 0 else "All skills"
 	_skills = []
 	for id in _known():
@@ -108,7 +124,8 @@ func _rebuild() -> void:
 	var search := _search.text.strip_edges().to_lower()
 	var ids := _known().filter(func(id):
 		var r: Dictionary = _recipes[id]
-		return (skill_pick.is_empty() or r.get("skill", "") == skill_pick) and (search.is_empty() or search in str(r.get("name", "")).to_lower()))
+		return (skill_pick.is_empty() or r.get("skill", "") == skill_pick) and (search.is_empty() or search in str(r.get("name", "")).to_lower()) \
+			and (not _discovered_only.button_pressed or _crafted(id) > 0))
 	ids.sort_custom(func(a, b):
 		var ra: Dictionary = _recipes[a]; var rb: Dictionary = _recipes[b]
 		if ra.get("skill", "") != rb.get("skill", ""):
@@ -116,7 +133,8 @@ func _rebuild() -> void:
 		if int(ra.get("min_skill", 0)) != int(rb.get("min_skill", 0)):
 			return int(ra.get("min_skill", 0)) < int(rb.get("min_skill", 0))
 		return str(ra.get("name", "")) < str(rb.get("name", "")))
-	_count.text = "%d recipe%s known%s" % [ids.size(), "" if ids.size() == 1 else "s", "" if search.is_empty() and skill_pick.is_empty() else " (filtered)"]
+	var discovered := _known().filter(func(id): return _crafted(id) > 0).size()
+	_count.text = "%d recipe%s shown%s  •  %d of %d known recipes discovered" % [ids.size(), "" if ids.size() == 1 else "s", "" if search.is_empty() and skill_pick.is_empty() and not _discovered_only.button_pressed else " (filtered)", discovered, _known().size()]
 	var last_skill := ""
 	for id in ids:
 		var skill := str(_recipes[id].get("skill", ""))
@@ -129,7 +147,7 @@ func _rebuild() -> void:
 		_list.add_child(_row(id, _recipes[id]))
 
 
-func _row(_id: String, r: Dictionary) -> Control:
+func _row(id: String, r: Dictionary) -> Control:
 	var out_def := Inventory.get_item_definition(str(r.get("output", "")))
 	var row := PanelContainer.new()
 	var style := StyleBoxFlat.new()
@@ -158,7 +176,9 @@ func _row(_id: String, r: Dictionary) -> Control:
 	var need := int(r.get("min_skill", 0))
 	var colour := "#ff7766" if have < need else ("#9a9a9a" if have >= int(r.get("max_level", 9999)) else "#88dd88")
 	var makes := int(r.get("yield", 1))
-	name_line.text = "[b]%s[/b]%s   [color=%s]%s %d[/color]" % [r.get("name", ""), (" [color=#aaaaaa](makes %d)[/color]" % makes) if makes > 1 else "", colour, skill_name.capitalize(), need]
+	var made := _crafted(id)
+	var made_text := ("   [color=#ffd966]✦ crafted %d×[/color]" % made) if made > 0 else "   [color=#777777]not yet discovered[/color]"
+	name_line.text = "[b]%s[/b]%s   [color=%s]%s %d[/color]%s" % [r.get("name", ""), (" [color=#aaaaaa](makes %d)[/color]" % makes) if makes > 1 else "", colour, skill_name.capitalize(), need, made_text]
 	col.add_child(name_line)
 
 	var ingredients := HFlowContainer.new()

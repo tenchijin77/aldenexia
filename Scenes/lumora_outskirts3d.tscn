@@ -25,6 +25,7 @@
 [ext_resource type="PackedScene" uid="uid://ganx16h2wx2b" path="res://models/vendor stall/vendor lean-to.glb" id="37_dkm3m"]
 [ext_resource type="PackedScene" uid="uid://b7sf31uujrgmq" path="res://models/Camp/bandit tent.glb" id="38_77hfu"]
 [ext_resource type="PackedScene" uid="uid://dybbqslv008aw" path="res://models/large skull.glb" id="40_hucdx"]
+[ext_resource type="Script" uid="uid://beryflf0x6wbj" path="res://Scripts/banker_npc.gd" id="banker_scr"]
 [ext_resource type="Script" uid="uid://bo5m5prkrbmj3" path="res://Scripts/crafting_world_spawner.gd" id="crafting_world_scr"]
 [ext_resource type="Script" uid="uid://fwiciia4xgfe" path="res://Scripts/gate_raid_manager.gd" id="gate_raid_scr"]
 [ext_resource type="Script" uid="uid://bdfun3bs24dfy" path="res://Scripts/gm_relay.gd" id="gm_relay_scr"]
@@ -40,6 +41,7 @@
 [ext_resource type="Script" uid="uid://o0ptow04njqn" path="res://Scripts/traveling_merchant_spawner.gd" id="tm_spawner_scr"]
 [ext_resource type="PackedScene" path="res://Scenes/tobble_npc.tscn" id="tobble_npc_scn"]
 [ext_resource type="Script" uid="uid://wqmn351jhvbo" path="res://Scripts/weather_manager.gd" id="weather_mgr_script"]
+[ext_resource type="Script" uid="uid://bgf2lkk12k3hx" path="res://Scripts/world_items.gd" id="world_items_scr"]
 [ext_resource type="Script" uid="uid://t6wjhuirmwsb" path="res://Scripts/world_note.gd" id="world_note_scr"]
 
 [sub_resource type="Gradient" id="Gradient_6a7en"]
@@ -312,6 +314,9 @@ script = ExtResource("gate_raid_scr")
 [node name="GMRelay" type="Node" parent="." unique_id=570970204]
 script = ExtResource("gm_relay_scr")
 
+[node name="WorldItems" type="Node" parent="." unique_id=339181915]
+script = ExtResource("world_items_scr")
+
 [node name="ServerNotice" type="Node" parent="." unique_id=1689316217]
 script = ExtResource("server_notice_scr")
 
@@ -339,6 +344,13 @@ model_key = "half_elf_female"
 title = "Archivist of the Oasis Wardens"
 npc_name = "Ilsabet Thornmere"
 shop_id = "lumora_scribe_light"
+
+[node name="BankerOswin" parent="NPCs" unique_id=2067820927 instance=ExtResource("talking_vendor_scn")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 84, 0, -21.4)
+script = ExtResource("banker_scr")
+config_path = "res://Data/banker.json"
+title = "Keeper of the Lumora Vault"
+npc_name = "Oswin Coinwright"
 
 [node name="ScribeXalvyr" parent="NPCs" unique_id=726775322 instance=ExtResource("talking_vendor_scn")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 62, 0, -12)

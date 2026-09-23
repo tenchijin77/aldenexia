@@ -255,7 +255,7 @@ func _run_world_check() -> void:
 	var spawn: Vector3 = zone.get("spawn_position") if zone.get("spawn_position") != null else Vector3.ZERO
 	var world: World3D = get_tree().root.world_3d
 	var query := PhysicsRayQueryParameters3D.create(spawn + Vector3(0, 60, 0), spawn - Vector3(0, 80, 0))
-	var hit: Dictionary = world.direct_space_state.intersect_ray(query)
+	var hit: Dictionary = Global.ground_ray(world.direct_space_state, query)
 	var nav_map: RID = world.navigation_map
 	var here: Vector3 = NavigationServer3D.map_get_closest_point(nav_map, spawn)
 	var there: Vector3 = NavigationServer3D.map_get_closest_point(nav_map, spawn + Vector3(25, 0, 25))

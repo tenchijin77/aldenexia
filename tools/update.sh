@@ -14,6 +14,7 @@
 #                                       log out, let the server save and exit, then run the --restart command if there is one
 #                                       (tools/server_maintenance.sh; needs the server to already run a build with the feature)
 #   tools/update.sh --host user@host --dir aldenexia     where to upload (defaults below)
+#   (Before exporting, the Lumora navmesh is rebaked automatically if the terrain or zone scene changed since it was baked.)
 #   tools/update.sh --local DIR         "upload" into a local folder instead — for testing this script
 #
 # HOW CLIENT UPDATES WORK. Players install one FULL client build per platform (Builds/Windows: exe + .pck + dll, Builds/Linux:
@@ -148,6 +149,15 @@ export_logged() {
 }
 
 # ── build ────────────────────────────────────────────────────────────────────
+# A navmesh baked before the last terrain/scene edit would ship with walkable areas that no longer match the ground (NPCs
+# snag on new hills). If anything under zones/lumora_terrain/ or the zone scene is newer than the navmesh, rebake it first.
+NAVMESH="Data/lumora_outskirts_terrain_navmesh.tres"
+if [ "$DO_EXPORT" = 1 ] && [ -n "$(find zones/lumora_terrain Scenes/lumora_outskirts3d.tscn -newer "$NAVMESH" -print -quit 2>/dev/null)" ]; then
+	echo "Terrain changed since the navmesh was baked — rebaking $NAVMESH..."
+	"$GODOT" --headless --path . --script res://tools/bake_lumora_navmesh.gd >"$UPD_DIR/navmesh_bake.log" 2>&1 \
+		|| { tail -20 "$UPD_DIR/navmesh_bake.log" >&2; die "Navmesh bake failed — full output in $UPD_DIR/navmesh_bake.log"; }
+	echo "  navmesh rebaked (commit $NAVMESH afterwards)."
+fi
 if [ "$DO_SERVER" = 1 ] && [ "$DO_EXPORT" = 1 ]; then
 	export_logged "Exporting the dedicated server" "$SERVER_BIN" --export-release "$SERVER_PRESET"
 fi

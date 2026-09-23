@@ -546,7 +546,7 @@ func _on_chat_input_gui_input(event: InputEvent) -> void:
 # and "/location" both resolve to "/location" since no other command starts
 # with "loc"; "/f" would be ambiguous if two commands both started with "f".
 const GMCommandsScript := preload("res://Scripts/gm_commands.gd")
-const COMMANDS := ["/location", "/hail", "/appraise", "/time", "/follow", "/camp", "/exit", "/log", "/invite", "/disband", "/say", "/tell", "/party", "/zone", "/played", "/resetui", "/who", "/weather", "/pet", "/quests", "/compass", "/raid", "/gm", "/focus", "/assist", "/announce", "/maintenance"]
+const COMMANDS := ["/location", "/hail", "/appraise", "/time", "/follow", "/camp", "/exit", "/log", "/invite", "/disband", "/say", "/tell", "/party", "/zone", "/played", "/resetui", "/who", "/weather", "/pet", "/quests", "/compass", "/raid", "/gm", "/focus", "/assist", "/announce", "/maintenance", "/trade"]
 
 
 func _handle_slash_command(text: String) -> void:
@@ -598,6 +598,11 @@ func _handle_slash_command(text: String) -> void:
 				player.invite_to_group(player.current_target)
 			else:
 				player.invite_to_group_by_name(arg)
+		"/trade":
+			if arg.is_empty():
+				player.request_trade(player.current_target)
+			else:
+				player.request_trade_by_name(arg)
 		"/disband":
 			if arg.is_empty():
 				player.disband_or_kick_from_group(player.current_target)

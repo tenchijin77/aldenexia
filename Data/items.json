@@ -1841,6 +1841,30 @@
     "stat_modifiers": null,
     "effect": "Restores 8 Thirst"
   },
+  "large_crafting_bag": {
+    "name": "Large Crafting Bag",
+    "icon": "res://Assets/icons/items/traveler_pack.png",
+    "description": "A deep satchel of oiled canvas, stitched with a dozen little pockets. It holds 16 crafting materials of any kind (ore, hides, herbs, wood, thread...) but nothing else.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 300,
+    "type": "bag",
+    "bag_size": 16,
+    "bag_accepts": "crafting",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 1.5,
+    "size": "medium",
+    "class": ["all"],
+    "race": ["all"],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
   "traveler_pack": {
     "name": "Traveler's Pack",
     "icon": "res://Assets/icons/items/traveler_pack.png",
@@ -3825,7 +3849,7 @@
   "basic_alchemy_kit": {
     "name": "Basic Alchemy Kit",
     "icon": "res://Assets/icons/items/basic_alchemy_kit.png",
-    "description": "A simple set of vials and tools for basic alchemy. Right-click to open and mix reagents.",
+    "description": "A simple set of vials and tools for basic alchemy. Right-click to open and mix reagents. In a character-sheet slot it is also an 8-slot bag for alchemy materials.",
     "stackable": false,
     "currency_type": "copper",
     "value": 25,
@@ -7864,7 +7888,7 @@
   "basic_tinkering_kit": {
     "name": "Basic Tinkering Kit",
     "icon": "res://Assets/icons/items/tinkering_kit.png",
-    "description": "A small satchel of gnomish hand tools. Right-click to open and assemble scrap into something useful.",
+    "description": "A small satchel of gnomish hand tools. Right-click to open and assemble scrap into something useful. In a character-sheet slot it is also an 8-slot bag for tinkering materials.",
     "stackable": false,
     "currency_type": "copper",
     "value": 25,

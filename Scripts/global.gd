@@ -250,6 +250,7 @@ var total_playtime_seconds: int = 0
 #endregion
 
 func _ready():
+	_ensure_input_actions()
 	_warm_up_audio()
 	load_xp_table()
 	load_character_options()
@@ -636,3 +637,53 @@ func serialize_player_data() -> String:
 	# sheet's display, so every save kept "playtime_seconds": 0 no matter how long you played.
 	player_data["playtime_seconds"] = get_total_playtime()
 	return JSON.stringify(player_data, "\t")
+
+
+# Key bindings added after the base build. The input map lives in project.godot, which an update PATCH can't change (see
+# patch_loader.gd), so a key added to project.godot later only exists in the editor and in fresh full builds — J and L did
+# nothing for patched players (test 19). Adding them here at startup makes them work everywhere; an action already in the
+# input map (a full build, or the player's own rebinding) is left alone.
+const GROUND_PROBE_RADIUS := 0.05
+const RUNTIME_ACTIONS := {
+	"toggle_quest_journal": KEY_J,
+	"toggle_recipe_book": KEY_L,
+}
+
+func _ensure_input_actions() -> void:
+	for action in RUNTIME_ACTIONS:
+		if InputMap.has_action(action):
+			continue
+		InputMap.add_action(action)
+		var key := InputEventKey.new()
+		key.physical_keycode = RUNTIME_ACTIONS[action]
+		InputMap.action_add_event(action, key)
+
+
+# intersect_ray() for rays dropped straight down (or up) onto the ground. Godot's built-in physics can miss a
+# HeightMapShape — every Terrain3D region is one — with a perfectly vertical ray, so a straight-down ray over the
+# terrain sometimes reports nothing even though the ground is there (bodies still stand on it fine). When the ray finds
+# nothing, a tiny sphere is swept along the same line instead, which never misses; the result has the same keys the
+# callers use ("position", "normal", "collider", "rid"). Used by everything that looks for the ground under a point.
+func ground_ray(space: PhysicsDirectSpaceState3D, query: PhysicsRayQueryParameters3D) -> Dictionary:
+	var hit := space.intersect_ray(query)
+	if not hit.is_empty():
+		return hit
+	var sphere := SphereShape3D.new()
+	sphere.radius = GROUND_PROBE_RADIUS
+	var sweep := PhysicsShapeQueryParameters3D.new()
+	sweep.shape = sphere
+	sweep.transform = Transform3D(Basis(), query.from)
+	sweep.motion = query.to - query.from
+	sweep.collision_mask = query.collision_mask
+	sweep.exclude = query.exclude
+	sweep.collide_with_areas = query.collide_with_areas
+	sweep.collide_with_bodies = query.collide_with_bodies
+	var fractions := space.cast_motion(sweep)
+	if fractions.size() < 2 or fractions[1] >= 1.0:
+		return {}
+	sweep.transform.origin = query.from + sweep.motion * fractions[1]
+	var rest := space.get_rest_info(sweep)
+	if rest.is_empty():
+		return {}
+	return {"position": rest["point"], "normal": rest["normal"], "collider": instance_from_id(rest["collider_id"]),
+		"collider_id": rest["collider_id"], "rid": rest["rid"], "shape": rest["shape"]}

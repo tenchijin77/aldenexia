@@ -387,7 +387,8 @@ def main():
         if kit_id in hand_items:
             continue
         name = " ".join(w.capitalize() for w in kit_id.split("_"))
-        kit = base_item(kit_id, name, f"A portable {skill} kit. Right-click and Open to craft anywhere.", "tool", 25)
+        kit = base_item(kit_id, name, f"A portable {skill} kit. Right-click and Open to craft anywhere. In a character-sheet slot it is also an "
+                         f"8-slot bag for {skill} materials.", "tool", 25)
         kit.update({"stackable": False, "skill": skill, "weight": 3.0, "tradeskill_station": kit_id})
         if not os.path.exists(os.path.join(ICON_DIR, kit_id + ".png")):
             kit["icon"] = f"res://Assets/icons/items/{KIT_ICONS.get(kit_id, 'pouch.png')}"
