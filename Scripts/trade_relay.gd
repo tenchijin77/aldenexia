@@ -389,27 +389,12 @@ func _entry_text(entry: Dictionary) -> String:
 	return ("%d %s" % [int(entry["quantity"]), item_name]) if int(entry["quantity"]) > 1 else item_name
 
 
-# "<Name> would like to trade with you." — Accept / Decline (declines itself after INVITE_SECONDS).
+# "<Name> would like to trade with you." — Trade / Decline, in the same popup as a group invite (group_invite_popup.gd,
+# centred and draggable); it declines itself after INVITE_SECONDS.
 func _show_invite_popup(from_name: String) -> void:
-	var dialog := ConfirmationDialog.new()
-	dialog.title = "Trade"
-	dialog.dialog_text = "%s would like to trade with you." % from_name
-	dialog.ok_button_text = "Trade"
-	dialog.cancel_button_text = "Decline"
-	var layer := CanvasLayer.new()
-	layer.layer = 20
-	get_tree().root.add_child(layer)
-	layer.add_child(dialog)
-	var answered := [false]
-	var answer := func(yes: bool) -> void:
-		if answered[0]:
-			return
-		answered[0] = true
-		answer_invite(yes)
-		layer.queue_free()
-	dialog.confirmed.connect(answer.bind(true))
-	dialog.canceled.connect(answer.bind(false))
-	dialog.popup_centered()
+	var popup: Node = load("res://Scenes/group_invite_popup.tscn").instantiate()
+	get_tree().root.add_child(popup)
+	popup.ask("%s would like to trade with you." % from_name, "Trade", "Decline", answer_invite)
 	get_tree().create_timer(INVITE_SECONDS).timeout.connect(func():
-		if is_instance_valid(layer):
-			answer.call(false))
+		if is_instance_valid(popup):
+			popup.expire())

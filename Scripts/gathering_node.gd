@@ -8,7 +8,7 @@
 # node until it respawns. Skill-ups stop at the node's max level, and a failure never trains.
 #
 # Built and gathered locally by each player's own client (crafting_world_spawner.gd places the same nodes in the same
-# spots everywhere), so every player sees their own copy of each node — no networking needed.
+# spots everywhere, moving them to new random spots each in-game day), so every player sees their own copy of each node — no networking needed.
 extends Node3D
 class_name GatheringNode
 
@@ -49,6 +49,11 @@ func _ready() -> void:
 	_respawn_timer.timeout.connect(_on_respawn)
 	add_child(_respawn_timer)
 	set_process(false)
+
+
+# True while someone is in the middle of gathering it (crafting_world_spawner.gd doesn't move it then).
+func is_being_gathered() -> bool:
+	return is_instance_valid(_gatherer)
 
 
 func is_available() -> bool:

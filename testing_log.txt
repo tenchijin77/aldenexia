@@ -82,6 +82,9 @@ Combat and stats
 - [FIXED]  Test 21 (aca3ec7): right-click > Deposit / Withdraw while the bank is open; a Sort button (character sheet +
            backpack) that puts crafting materials into crafting bags and joins split stacks. Version 0.4.5 (new base).
            Trade window resizing still to be tried.
+- [FIXED]  Test 22 (0.4.5, 350921b): sorting and the resized trade window confirmed. Gathering nodes weren't random (same
+           spots every session) — they now move to new random spots every in-game day, the same for every player. The trade
+           invite uses the group invite's look; both popups open centred and are draggable.
 - [FIXED]  Equipped items' stat_modifiers (e.g. a ring's +1 to a stat) never applied to anything, for any item in the game — found while adding the trinket above. combatnode.gd/player3d.gd now sum them into the player's effective stats on every equip/unequip.
 - [FIXED]  Melee hit chance far too low at level 1 (about 20%, ~30 s to land a hit) while spells one-shot
            everything (found by: T0). Combat numbers now live in Data/combat_balance.json (player_hit_bonus 35,

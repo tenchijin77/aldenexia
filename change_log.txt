@@ -1821,6 +1821,10 @@ GATE RAIDS (`Scripts/gate_raid_manager.gd`, `Data/gate_raids.json`, node "GateRa
 - Kits before the Large Crafting Bag: when an item fits both, it now goes into its craft's kit (the more specific bag) — for new loot, Sort, Deposit/Withdraw and a trade's room check alike (Inventory.bag_rank()).
 - Verified headless: Sort (split tin ore joined, tanning oil into the leatherworking kit, ore and logs into the Large Crafting Bag, rat tails left alone), Deposit of a sword and of a full kit, Withdraw back into the right bags; both Sort buttons and the Deposit button appear in the real windows.
 
+### Test 22: gathering nodes move every day, invite popups (2026-09-23)
+- GATHERING NODES RANDOMISED: each cluster's nodes used to be scattered from a fixed seed, so they were in exactly the same spots every session. crafting_world_spawner.gd now seeds the scatter with the in-game day as well: every in-game day (24 real minutes) every node moves to a new random spot inside its cluster (still never in town or on walls/rocks). The day comes from the server's clock, so every player sees the same layout; a joining client re-lays its nodes once the server's clock arrives. A node someone is gathering stays put until the next change. Verified: all 82 nodes move on a new day, the same day always gives the same layout, none in town.
+- INVITE POPUPS: the trade invite now uses the group invite's popup (group_invite_popup.gd gained ask(text, accept, decline, callback) and expire()) — same dark panel and gold border instead of the plain grey dialog — and both open in the middle of the screen and can be dragged anywhere by the panel.
+
 ## 2026-09-17 — Session 45: Generic spell-effect engine, 7 more classes brought to parity, tradeskills (cooking/alchemy), Wildspeaker pet, fear/charm mechanics, multiplayer CC/heal relay, UI theme + resize pass, 5 new mob models, network widget
 
 ### Generic, data-driven spell-effect engine (the foundation for everything else this session)
