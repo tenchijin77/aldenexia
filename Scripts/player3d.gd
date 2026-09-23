@@ -59,6 +59,11 @@ var _skill_cooldowns: Dictionary = {}
 # below. casting_spell_name is public so cast_bar.gd can read it without
 # duplicating the spell-name lookup.
 var casting_spell_name: String = ""
+# A non-spell timed task shown on the cast bar (gathering, crafting): cast_bar.gd shows it whenever no spell is being
+# cast. Set through set_task_progress() / clear_task_progress().
+var task_name: String = ""
+var task_progress: float = 0.0
+var task_seconds_left: float = 0.0
 var _athletics_run_time: float = 0.0  # seconds spent sprinting since the last athletics skill roll
 var _pending_cast_spell: String = ""
 var _spell_skill_category: String = ""  # the spell being resolved right now: which skill it belongs to (evocation, backstab, ...) — feeds Data/skill_effects.json
@@ -443,6 +448,19 @@ func _try_gather() -> bool:
 		return false
 	nearest.start_gather(self)
 	return true
+
+
+# Shows a gathering/crafting task on the cast bar: name, 0..1 progress, and seconds left.
+func set_task_progress(title: String, progress: float, seconds_left: float) -> void:
+	task_name = title
+	task_progress = clampf(progress, 0.0, 1.0)
+	task_seconds_left = maxf(seconds_left, 0.0)
+
+
+func clear_task_progress() -> void:
+	task_name = ""
+	task_progress = 0.0
+	task_seconds_left = 0.0
 
 
 # True if the player knows a tradeskill recipe: innate recipes are always known, the rest must be learned

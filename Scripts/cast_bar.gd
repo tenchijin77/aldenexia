@@ -1,6 +1,7 @@
 # cast_bar.gd — Shows the local player's own spell cast: name on the left,
 # a fill bar that completes when the spell resolves, and time remaining on
-# the right. Hidden entirely except while combat_node.is_casting is true.
+# the right. Also shows gathering/crafting progress (player3d.gd's task_name).
+# Hidden while neither is running.
 # Built in code, same pattern as stance_bar.gd/action_bar.gd. Polls the
 # player's combat_node every frame rather than using a signal, same reasoning
 # as player_frame.gd's HP/MP bars — casting state changes too often (every
@@ -120,7 +121,13 @@ func _process(_delta: float) -> void:
 
 	var cn = _player.get("combat_node")
 	if not (cn is CombatNode) or not cn.is_casting:
-		visible = false
+		# Gathering and crafting (player3d.gd set_task_progress()) use the same bar when no spell is being cast.
+		var task: String = str(_player.get("task_name")) if "task_name" in _player else ""
+		visible = not task.is_empty()
+		if visible:
+			_bar.value = float(_player.task_progress)
+			_name_label.text = task
+			_time_label.text = "%.1fs" % float(_player.task_seconds_left)
 		return
 
 	visible = true

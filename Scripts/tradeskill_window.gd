@@ -61,6 +61,10 @@ func _exit_tree() -> void:
 	# Crafting is blocked from closing (see _on_close_pressed), but if the
 	# window is force-freed some other way, refund whatever's staged rather
 	# than silently destroying the player's items.
+	if _crafting:
+		var player := TargetFrame.local_player()
+		if is_instance_valid(player) and player.has_method("clear_task_progress"):
+			player.clear_task_progress()
 	if not _crafting:
 		for slot in slot_row.get_children():
 			if slot is TradeskillSlot and not slot.is_empty():
@@ -222,6 +226,11 @@ func _process(delta: float) -> void:
 	_craft_elapsed += delta
 	var craft_time: float = maxf(float(_craft_recipe.get("craft_time", 3.0)), 0.1)
 	progress_bar.value = (float(_craft_done) + clampf(_craft_elapsed / craft_time, 0.0, 1.0)) / float(_craft_multiplier) * 100.0
+	if is_instance_valid(player) and player.has_method("set_task_progress"):
+		var title: String = str(_craft_recipe.get("name", "Crafting"))
+		if _craft_multiplier > 1:
+			title += " (%d/%d)" % [_craft_done + 1, _craft_multiplier]
+		player.set_task_progress(title, _craft_elapsed / craft_time, craft_time - _craft_elapsed)
 	if _craft_elapsed >= craft_time:
 		_craft_elapsed -= craft_time
 		if not _make_one():
@@ -284,6 +293,9 @@ func _stop_crafting(message: String) -> void:
 	_crafting = false
 	_craft_recipe = {}
 	_craft_uses = {}
+	var player := TargetFrame.local_player()
+	if is_instance_valid(player) and player.has_method("clear_task_progress"):
+		player.clear_task_progress()
 	_craft_multiplier = 1
 	_craft_done = 0
 	_craft_elapsed = 0.0

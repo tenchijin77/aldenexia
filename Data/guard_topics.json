@@ -69,12 +69,13 @@
     "supplies",
     "provisioner",
     "apothecary",
+    "lira",
     "aldric",
     "stalls",
     "market"
    ],
    "lines": [
-    "Aldric the Provisioner and the Apothecary keep their stalls near the gate: food, water, torches, scrolls. Aldric's honest, if not cheap."
+    "Aldric the Provisioner and Lira Solarpetal, the apothecary, keep their stalls near the gate: food, water, torches, potions. Aldric's honest, if not cheap. Lira patches up folk who can't pay a healer."
    ]
   },
   {

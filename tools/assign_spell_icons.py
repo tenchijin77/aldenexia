@@ -18,7 +18,9 @@ Usage:  python3 tools/assign_spell_icons.py           (dry run: prints a report)
 Re-run after adding icon files or changing a spell's target/effect_type.
 
 Kind (which picture) comes from effect_type / description; damage kinds come
-from spell_school.  Anything with no matching icon file gets no icon field.
+from spell_school.  A dedicated icon named after the spell itself
+(Assets/icons/spells/<spell_name>.png) always wins over the family icon, and an
+improved_/master_ upgrade without its own file uses its base spell's.  Anything with no matching icon file gets no icon field.
 """
 import json, os, re, sys, collections
 
@@ -53,6 +55,8 @@ def classify(s):
     school, desc, name = s["spell_school"], s["description"], s["spell_name"]
     dmg_words = bool(re.search(r"\bdeals?\b", desc, re.I))
 
+    if name in have:
+        return name, "own"  # a dedicated icon named after the spell (Assets/icons/spells/<spell_name>.png) always wins
     if st == "teleport":
         return "teleport", ""
     if eff == "taunt" and "taunt" in have:
@@ -155,7 +159,9 @@ def resolve_all(data):
     final = {}
     for n, (stem, note) in own.items():
         m = UPGRADE.match(n)
-        if m and m.group(2) in names:
+        if note == "own":
+            final[n] = (stem, note)
+        elif m and m.group(2) in names:
             base = m.group(2)
             bstem = own[base][0]
             # chase chains like master_improved_x

@@ -219,7 +219,6 @@
       "basic_fletching_kit",
       "basic_leatherworking_kit",
       "basic_tailoring_kit",
-      "basic_jewelcrafting_kit",
       "recipe_smith_tin_shortsword",
       "recipe_smith_copper_ingot",
       "recipe_smith_copper_sword",
@@ -245,12 +244,6 @@
       "recipe_fle_silk_bowstring",
       "recipe_fle_quiver_broadhead_arrows",
       "recipe_fle_quiver_palm_arrows",
-      "recipe_jc_simple_amulet",
-      "recipe_jc_copper_ring",
-      "recipe_jc_gem_setting",
-      "recipe_jc_copper_pendant",
-      "recipe_jc_bronze_ring",
-      "recipe_jc_bronze_amulet",
       "recipe_lw_leather_bracers",
       "recipe_lw_leather_armor",
       "recipe_lw_hardened_leather",
@@ -261,12 +254,15 @@
       "recipe_tl_reinforced_cloth",
       "recipe_tl_mages_robe",
       "recipe_tl_silken_cloth",
-      "recipe_tl_archmages_robe"
+      "recipe_tl_archmages_robe",
+      "recipe_cook_desert_thistle_salad",
+      "recipe_cook_sandroot_stew",
+      "recipe_cook_viper_kebab"
     ]
   },
   "lumora_apothecary": {
     "_comment": "Placeholder stock for the new Apothecary vendor (added 2026-09-16) — no potion/elixir items exist in items.json yet to stock her properly. User said she'll customize this later.",
-    "vendor_name": "the Apothecary",
+    "vendor_name": "Lira Solarpetal",
     "buy_price_multiplier": 1.0,
     "sell_price_multiplier": 0.5,
     "stock": [
@@ -276,9 +272,6 @@
       "basic_alchemy_kit",
       "basic_brewing_kit",
       "crystal_vial",
-      "recipe_cook_desert_thistle_salad",
-      "recipe_cook_sandroot_stew",
-      "recipe_cook_viper_kebab",
       "recipe_alch_viper_poison",
       "recipe_alch_minor_healing_potion",
       "recipe_alch_antidote_essence",
@@ -330,7 +323,14 @@
       "recipe_tink_bronze_woodcutters_axe",
       "recipe_tink_bronze_charm",
       "recipe_tink_explosive_device",
-      "recipe_tink_bronze_lockpick_set"
+      "recipe_tink_bronze_lockpick_set",
+      "recipe_jc_simple_amulet",
+      "recipe_jc_copper_ring",
+      "recipe_jc_gem_setting",
+      "recipe_jc_copper_pendant",
+      "recipe_jc_bronze_ring",
+      "recipe_jc_bronze_amulet",
+      "basic_jewelcrafting_kit"
     ]
   }
 }

@@ -57,6 +57,12 @@ layout_mode = 2
 text = "Only show items I can use"
 theme_override_font_sizes/font_size = 11
 
+[node name="SearchBox" type="LineEdit" parent="Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+placeholder_text = "Search for an item..."
+clear_button_enabled = true
+
 [node name="BuyScroll" type="ScrollContainer" parent="Panel/Margin/VBox"]
 layout_mode = 2
 size_flags_vertical = 3

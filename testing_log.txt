@@ -65,6 +65,8 @@ Combat and stats
 - [DONE]   Tinkering profession started: a kit, a lootable ingredient (Scrap Metal, humanoids), and the first craftable item (Tinkered Cog Trinket, +1 Dex, the first item to fill either trinket slot). Verified 15/15 crafts, skill training, and the trinket's stat bonus actually applying.
 - [DONE]   Crafting system: all 12 tradeskills from Crafting.xlsx (tools/export_crafting.py), recipe scrolls, success/fail/crit rolls, skill-ups to each recipe's max level, 10 town stations and 82 gathering nodes in Lumora (placeholder look). Verified headless. TO CHECK IN GAME: station/node positions, placeholder visuals, vendor lists.
 - [FIXED]  11 items' agility/stamina bonuses did nothing (not engine stats) — now dexterity/constitution. 36 loot-table items had no definition and could never drop — all added (other zones + Outrider/Warlord).
+- [DONE]   Test 15: gathering/crafting progress on the cast bar; nodes kept out of town and off walls/buildings; recipe scrolls split across Aldric / Apothecary / Tobble; vendor search box. Forage training checked — working (15% per gather).
+- [OPEN]   Sahren "could not reach his stop in time" repeating in the log — not reproduced headless on the spawn->dock leg.
 - [FIXED]  Equipped items' stat_modifiers (e.g. a ring's +1 to a stat) never applied to anything, for any item in the game — found while adding the trinket above. combatnode.gd/player3d.gd now sum them into the player's effective stats on every equip/unequip.
 - [FIXED]  Melee hit chance far too low at level 1 (about 20%, ~30 s to land a hit) while spells one-shot
            everything (found by: T0). Combat numbers now live in Data/combat_balance.json (player_hit_bonus 35,

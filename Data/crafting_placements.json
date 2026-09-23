@@ -1,5 +1,5 @@
 {
-  "_comment": "crafting_placements.json - where town crafting stations and gathering nodes appear in each zone (Scripts/crafting_world_spawner.gd). Hand-edited: move things freely. Positions are [x, z]; the height is found by dropping onto the ground. 'stations': one station each (station_id from Data/tradeskill_recipes.json / Crafting.xlsx Stations tab). 'nodes': 'count' copies of a Data/gathering_nodes.json node scattered within 'radius' metres of 'center' (the same spots every time). First pass placed by area from the spawn map (2026-09-22) — adjust once seen in game.",
+  "_comment": "crafting_placements.json - where town crafting stations and gathering nodes appear in each zone (Scripts/crafting_world_spawner.gd). Hand-edited: move things freely. Positions are [x, z]; the height is found by dropping onto the ground. 'stations': one station each (station_id from Data/tradeskill_recipes.json / Crafting.xlsx Stations tab). 'keep_clear': rectangles ([x, z] min/max) no node may land in — the town inside its wall and the gate. Nodes also only land on open ground (never on a wall, building or rock); a spot that fails either check is re-rolled. 'nodes': 'count' copies of a Data/gathering_nodes.json node scattered within 'radius' metres of 'center' (the same spots every time). First pass placed by area from the spawn map (2026-09-22) — adjust once seen in game.",
   "lumora_outskirts": {
     "stations": [
       {"station_id": "forge", "name": "Forge", "position": [22, -3]},
@@ -13,19 +13,23 @@
       {"station_id": "tannery", "name": "Tannery", "position": [54, -3]},
       {"station_id": "tailors_bench", "name": "Tailor's Bench", "position": [58, -3]}
     ],
+    "keep_clear": [
+      {"name": "Lumora (inside the town wall)", "min": [-2, -55], "max": [116, 74]},
+      {"name": "Town gate and towers", "min": [-46, -20], "max": [-2, 6]}
+    ],
     "nodes": [
-      {"node": "thistle_patch", "center": [30, 40], "radius": 20, "count": 5},
+      {"node": "thistle_patch", "center": [-65, 25], "radius": 20, "count": 5},
       {"node": "thistle_patch", "center": [-40, -30], "radius": 20, "count": 5},
-      {"node": "thistle_patch", "center": [80, -50], "radius": 20, "count": 4},
+      {"node": "thistle_patch", "center": [60, -95], "radius": 20, "count": 4},
       {"node": "sandroot_mound", "center": [-100, 140], "radius": 25, "count": 4},
       {"node": "sandroot_mound", "center": [-150, 20], "radius": 25, "count": 4},
-      {"node": "sandroot_mound", "center": [95, 45], "radius": 20, "count": 3},
+      {"node": "sandroot_mound", "center": [150, 20], "radius": 20, "count": 3},
       {"node": "venom_cactus", "center": [-60, -110], "radius": 20, "count": 3},
       {"node": "venom_cactus", "center": [-250, -30], "radius": 25, "count": 3},
       {"node": "venom_cactus", "center": [-150, 220], "radius": 25, "count": 3},
       {"node": "moonpetal_sage", "center": [20, -250], "radius": 15, "count": 2},
       {"node": "moonpetal_sage", "center": [70, -300], "radius": 15, "count": 2},
-      {"node": "tin_vein", "center": [50, -35], "radius": 20, "count": 3},
+      {"node": "tin_vein", "center": [100, -100], "radius": 20, "count": 3},
       {"node": "tin_vein", "center": [-30, 55], "radius": 20, "count": 3},
       {"node": "tin_vein", "center": [20, -80], "radius": 20, "count": 3},
       {"node": "copper_vein", "center": [-100, -60], "radius": 25, "count": 3},
@@ -34,7 +38,7 @@
       {"node": "glittering_vein", "center": [65, -262], "radius": 10, "count": 1},
       {"node": "glittering_vein", "center": [-45, -250], "radius": 10, "count": 1},
       {"node": "fir_tree", "center": [-60, 60], "radius": 25, "count": 5},
-      {"node": "fir_tree", "center": [60, 70], "radius": 25, "count": 4},
+      {"node": "fir_tree", "center": [60, 115], "radius": 25, "count": 4},
       {"node": "fir_tree", "center": [-20, -100], "radius": 20, "count": 4},
       {"node": "ironwood_tree", "center": [-300, -300], "radius": 30, "count": 3},
       {"node": "ironwood_tree", "center": [-120, -150], "radius": 25, "count": 3},

@@ -22,6 +22,7 @@ var def: Dictionary = {}
 var _available := true
 var _gatherer: Node3D = null
 var _gather_left := 0.0
+var _gather_total := 0.0
 var _gather_start_pos := Vector3.ZERO
 var _gather_started_msec := 0
 var _visual: Node3D = null
@@ -71,6 +72,7 @@ func start_gather(player: Node3D) -> void:
 			return
 	_gatherer = player
 	_gather_left = float(def.get("gather_seconds", 3.0)) * (1.0 - float(tool.get("gather_speed_bonus", 0.0)))
+	_gather_total = _gather_left
 	_gather_start_pos = player.global_position
 	_gather_started_msec = Time.get_ticks_msec()
 	GameLog.log_general("You begin gathering from the %s..." % def.get("name", "node"))
@@ -88,11 +90,15 @@ func _process(delta: float) -> void:
 		_cancel("You are attacked and stop gathering.")
 		return
 	_gather_left -= delta
+	if _gatherer.has_method("set_task_progress"):
+		_gatherer.set_task_progress("Gathering: %s" % def.get("name", "node"), 1.0 - _gather_left / maxf(_gather_total, 0.01), _gather_left)
 	if _gather_left <= 0.0:
 		_finish()
 
 
 func _cancel(message: String) -> void:
+	if is_instance_valid(_gatherer) and _gatherer.has_method("clear_task_progress"):
+		_gatherer.clear_task_progress()
 	_gatherer = null
 	set_process(false)
 	if not message.is_empty():
@@ -103,6 +109,8 @@ func _cancel(message: String) -> void:
 func _finish() -> void:
 	var player := _gatherer
 	_gatherer = null
+	if player.has_method("clear_task_progress"):
+		player.clear_task_progress()
 	set_process(false)
 	var skill: int = _skill_of(player)
 	var tool: Dictionary = ItemHelper.best_gather_tool(str(def.get("tool", ""))) if not str(def.get("tool", "")).is_empty() else {}

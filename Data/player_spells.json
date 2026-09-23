@@ -731,7 +731,7 @@
     {
         "spell_id": 27,
         "spell_name": "master_block",
-        "icon": "res://Assets/icons/spells/selfbuff.png",
+        "icon": "res://Assets/icons/spells/master_block.png",
         "description": "Block has 10% chance to negate all damage, cooldown reduced by 1 second.",
         "caster_proficiency": "intelligence",
         "mana_cost": 25.0,
@@ -1376,7 +1376,7 @@
     {
         "spell_id": 50,
         "spell_name": "enhanced_block",
-        "icon": "res://Assets/icons/spells/selfbuff.png",
+        "icon": "res://Assets/icons/spells/enhanced_block.png",
         "description": "Block reduces magic damage by 10%, lasts 1 second longer.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -2266,6 +2266,7 @@
     {
         "spell_id": 82,
         "spell_name": "power_strike",
+        "icon": "res://Assets/icons/spells/power_strike.png",
         "description": "Deals 70 damage, knocks back target 3m.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -2374,6 +2375,7 @@
     {
         "spell_id": 86,
         "spell_name": "sunder_armor",
+        "icon": "res://Assets/icons/spells/sunder_armor.png",
         "description": "Reduces target armor by 10% for 10 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -2484,7 +2486,7 @@
     {
         "spell_id": 90,
         "spell_name": "cleave",
-        "icon": "res://Assets/icons/spells/aoephysical.png",
+        "icon": "res://Assets/icons/spells/cleave.png",
         "description": "Deals 50 damage to 2 enemies in 5m arc.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -2568,7 +2570,7 @@
     {
         "spell_id": 93,
         "spell_name": "whirlwind",
-        "icon": "res://Assets/icons/spells/aoephysical.png",
+        "icon": "res://Assets/icons/spells/whirlwind.png",
         "description": "Deals 70 damage to all enemies in 5m.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -2651,6 +2653,7 @@
     {
         "spell_id": 96,
         "spell_name": "war_cry",
+        "icon": "res://Assets/icons/spells/war_cry.png",
         "description": "Reduces enemy attack speed by 15% in 10m for 6 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -2762,6 +2765,7 @@
     {
         "spell_id": 100,
         "spell_name": "rend",
+        "icon": "res://Assets/icons/spells/rend.png",
         "description": "Deals 80 damage, inflicts 10 damage/sec DoT for 6 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -2817,6 +2821,7 @@
     {
         "spell_id": 102,
         "spell_name": "precision_strike",
+        "icon": "res://Assets/icons/spells/precision_strike.png",
         "description": "Deals 100 damage, guaranteed critical hit.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -2925,7 +2930,7 @@
     {
         "spell_id": 106,
         "spell_name": "blade_storm",
-        "icon": "res://Assets/icons/spells/aoephysical.png",
+        "icon": "res://Assets/icons/spells/blade_storm.png",
         "description": "Deals 100 damage to all enemies in 6m, reduces armor by 5%.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -2982,7 +2987,7 @@
     {
         "spell_id": 108,
         "spell_name": "defiant_roar",
-        "icon": "res://Assets/icons/spells/aoephysical.png",
+        "icon": "res://Assets/icons/spells/defiant_roar.png",
         "description": "Taunts all enemies in 10m for 4 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -3122,7 +3127,7 @@
     {
         "spell_id": 113,
         "spell_name": "improved_cleave",
-        "icon": "res://Assets/icons/spells/aoephysical.png",
+        "icon": "res://Assets/icons/spells/improved_cleave.png",
         "description": "Cleave hits 3 enemies, +10% damage.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -3149,6 +3154,7 @@
     {
         "spell_id": 114,
         "spell_name": "titans_strike",
+        "icon": "res://Assets/icons/spells/titans_strike.png",
         "description": "Deals 200 damage in 8m, knocks back enemies 5m.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -6730,6 +6736,7 @@
     {
         "spell_id": 242,
         "spell_name": "flurry_of_blows",
+        "icon": "res://Assets/icons/spells/flurry_of_blows.png",
         "description": "Deals 3x 40 damage attacks (D&D-inspired).",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -6810,6 +6817,7 @@
     {
         "spell_id": 245,
         "spell_name": "pressure_point",
+        "icon": "res://Assets/icons/spells/pressure_point.png",
         "description": "Reduces enemy attack speed by 15% for 6 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -7117,6 +7125,7 @@
     {
         "spell_id": 256,
         "spell_name": "flying_kick",
+        "icon": "res://Assets/icons/spells/flying_kick.png",
         "description": "Leaps to enemy, deals 90 damage.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -7171,6 +7180,7 @@
     {
         "spell_id": 258,
         "spell_name": "improved_flurry",
+        "icon": "res://Assets/icons/spells/improved_flurry.png",
         "description": "Flurry of Blows hits 4 times, +5% damage.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -7308,6 +7318,7 @@
     {
         "spell_id": 263,
         "spell_name": "quivering_palm",
+        "icon": "res://Assets/icons/spells/quivering_palm.png",
         "description": "Deals 150 damage, 5% chance to instantly kill weak enemies.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -7470,6 +7481,7 @@
     {
         "spell_id": 269,
         "spell_name": "improved_quivering_palm",
+        "icon": "res://Assets/icons/spells/improved_quivering_palm.png",
         "description": "Quivering Palm has 10% instant-kill chance, deals 200 damage.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -7827,6 +7839,7 @@
     {
         "spell_id": 282,
         "spell_name": "aimed_shot",
+        "icon": "res://Assets/icons/spells/aimed_shot.png",
         "description": "Deals 80 damage, +15% critical chance.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -7968,6 +7981,7 @@
     {
         "spell_id": 287,
         "spell_name": "rapid_shot",
+        "icon": "res://Assets/icons/spells/rapid_shot.png",
         "description": "Fires 2 arrows, each dealing 50 damage.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -8022,6 +8036,7 @@
     {
         "spell_id": 289,
         "spell_name": "poison_arrow",
+        "icon": "res://Assets/icons/spells/poison_arrow.png",
         "description": "Deals 60 damage, +5 damage/sec for 5 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -8050,6 +8065,7 @@
     {
         "spell_id": 290,
         "spell_name": "enhanced_poison_making",
+        "icon": "res://Assets/icons/spells/enhanced_poison_making.png",
         "description": "Poisons last 25% longer, +5% damage.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -8078,6 +8094,7 @@
     {
         "spell_id": 291,
         "spell_name": "barrage",
+        "icon": "res://Assets/icons/spells/barrage.png",
         "description": "Fires 3 arrows, each dealing 40 damage in 6m.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -8160,6 +8177,7 @@
     {
         "spell_id": 294,
         "spell_name": "improved_pickpocket",
+        "icon": "res://Assets/icons/spells/improved_pickpocket.png",
         "description": "Pickpocket yields 10% better loot, 5% lower detection.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -8301,6 +8319,7 @@
     {
         "spell_id": 299,
         "spell_name": "improved_barrage",
+        "icon": "res://Assets/icons/spells/improved_barrage.png",
         "description": "Barrage hits 4 targets, +5% critical chance.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -8327,6 +8346,7 @@
     {
         "spell_id": 300,
         "spell_name": "master_stealth",
+        "icon": "res://Assets/icons/spells/master_stealth.png",
         "description": "First attack from stealth doesn't break invisibility.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -8355,6 +8375,7 @@
     {
         "spell_id": 301,
         "spell_name": "deadly_aim",
+        "icon": "res://Assets/icons/spells/deadly_aim.png",
         "description": "Deals 150 damage, ignores 25% armor.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -8463,6 +8484,7 @@
     {
         "spell_id": 305,
         "spell_name": "sniper_shot",
+        "icon": "res://Assets/icons/spells/sniper_shot.png",
         "description": "Deals 120 damage, +20% critical damage.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -8517,6 +8539,7 @@
     {
         "spell_id": 307,
         "spell_name": "improved_aimed_shot",
+        "icon": "res://Assets/icons/spells/improved_aimed_shot.png",
         "description": "Aimed Shot deals 100 damage, +20% critical chance.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -8543,6 +8566,7 @@
     {
         "spell_id": 308,
         "spell_name": "master_pickpocket",
+        "icon": "res://Assets/icons/spells/master_pickpocket.png",
         "description": "Pickpocket steals enemy buffs, 10% chance.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -8571,6 +8595,7 @@
     {
         "spell_id": 309,
         "spell_name": "volley",
+        "icon": "res://Assets/icons/spells/volley.png",
         "description": "Fires 5 arrows, each dealing 50 damage in 8m.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -8652,6 +8677,7 @@
     {
         "spell_id": 312,
         "spell_name": "improved_deadly_aim",
+        "icon": "res://Assets/icons/spells/improved_deadly_aim.png",
         "description": "Deadly Aim hits 2 targets, ignores 50% armor.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -8762,6 +8788,7 @@
     {
         "spell_id": 316,
         "spell_name": "improved_volley",
+        "icon": "res://Assets/icons/spells/improved_volley.png",
         "description": "Volley fires 7 arrows, +10% damage.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -8955,6 +8982,7 @@
     {
         "spell_id": 323,
         "spell_name": "backstab",
+        "icon": "res://Assets/icons/spells/backstab.png",
         "description": "Deals 100 damage from stealth/behind target.",
         "caster_proficiency": "none",
         "mana_cost": 0.0,
@@ -9149,6 +9177,7 @@
     {
         "spell_id": 330,
         "spell_name": "garrote",
+        "icon": "res://Assets/icons/spells/garrote.png",
         "description": "Deals 15 damage/sec, silences enemy for 5 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -9233,7 +9262,7 @@
     {
         "spell_id": 333,
         "spell_name": "fan_of_knives",
-        "icon": "res://Assets/icons/spells/aoephysical.png",
+        "icon": "res://Assets/icons/spells/fan_of_knives.png",
         "description": "Deals 60 damage to all enemies in 5m.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -9289,6 +9318,7 @@
     {
         "spell_id": 335,
         "spell_name": "vanish",
+        "icon": "res://Assets/icons/spells/vanish.png",
         "description": "Instantly enters stealth, removes aggro.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -9315,6 +9345,7 @@
     {
         "spell_id": 336,
         "spell_name": "shiv",
+        "icon": "res://Assets/icons/spells/shiv.png",
         "description": "Deals 70 damage, removes one enemy buff.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -9396,6 +9427,7 @@
     {
         "spell_id": 339,
         "spell_name": "poison_cloud",
+        "icon": "res://Assets/icons/spells/poison_cloud.png",
         "description": "Creates 5m cloud dealing 15 damage/sec, slows by 15% for 8 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -9451,6 +9483,7 @@
     {
         "spell_id": 341,
         "spell_name": "nights_embrace",
+        "icon": "res://Assets/icons/spells/nights_embrace.png",
         "description": "Resets ability cooldowns once per encounter.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -9561,7 +9594,7 @@
     {
         "spell_id": 345,
         "spell_name": "blade_flurry",
-        "icon": "res://Assets/icons/spells/aoephysical.png",
+        "icon": "res://Assets/icons/spells/blade_flurry.png",
         "description": "Deals 100 damage to 2 enemies in 5m, +5% critical chance.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -9759,7 +9792,7 @@
     {
         "spell_id": 352,
         "spell_name": "improved_fan_of_knives",
-        "icon": "res://Assets/icons/spells/aoephysical.png",
+        "icon": "res://Assets/icons/spells/improved_fan_of_knives.png",
         "description": "Fan of Knives hits 3 enemies, +10% damage.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -9927,6 +9960,7 @@
     {
         "spell_id": 358,
         "spell_name": "toxic_apocalypse",
+        "icon": "res://Assets/icons/spells/toxic_apocalypse.png",
         "description": "Creates 15m cloud dealing 40 damage/sec, slows by 30% for 10 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -10013,7 +10047,7 @@
     {
         "spell_id": 361,
         "spell_name": "blade_dance",
-        "icon": "res://Assets/icons/spells/aoephysical.png",
+        "icon": "res://Assets/icons/spells/blade_dance.png",
         "description": "Deals damage to all enemies within 5m.",
         "caster_proficiency": "none",
         "mana_cost": 0.0,
@@ -10268,6 +10302,7 @@
     {
         "spell_id": 370,
         "spell_name": "harmony_blade",
+        "icon": "res://Assets/icons/spells/harmony_blade.png",
         "description": "Deals 80 damage, heals self for 5% damage dealt.",
         "caster_proficiency": "none",
         "mana_cost": 0.0,

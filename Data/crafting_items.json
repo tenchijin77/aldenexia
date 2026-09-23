@@ -3,7 +3,7 @@
   "items": {
     "desert_thistle": {
       "name": "Desert Thistle",
-      "icon": "res://Assets/icons/items/herb.png",
+      "icon": "res://Assets/icons/items/desert_thistle.png",
       "description": "A spiky purple flower blooming across the rocky dunes of Lumora Outskirts. The most common foraged ingredient, sweet and slightly bitter. Used as a base for many beginner recipes.",
       "stackable": true,
       "currency_type": "copper",
@@ -29,7 +29,7 @@
     },
     "sandroot": {
       "name": "Sandroot",
-      "icon": "res://Assets/icons/items/herb.png",
+      "icon": "res://Assets/icons/items/sandroot.png",
       "description": "An underground tuber with medicinal properties, found buried beneath the sand in nutrient-rich pockets. Earthy aroma when fresh. A step up from Desert Thistle, used in more potent brews and remedies.",
       "stackable": true,
       "currency_type": "copper",
@@ -55,7 +55,7 @@
     },
     "venom_cactus_flower": {
       "name": "Venom Cactus Flower",
-      "icon": "res://Assets/icons/items/herb.png",
+      "icon": "res://Assets/icons/items/venom_cactus_flower.png",
       "description": "A striking red bloom from a thorny desert cactus, potent and dangerous. The flower's nectar carries mild venom that becomes a powerful ingredient when properly processed. Requires careful handling to avoid burns.",
       "stackable": true,
       "currency_type": "copper",
@@ -81,7 +81,7 @@
     },
     "moonpetal_sage": {
       "name": "Moonpetal Sage",
-      "icon": "res://Assets/icons/items/herb.png",
+      "icon": "res://Assets/icons/items/moonpetal_sage.png",
       "description": "A rare and precious herb with silvery leaves that shimmer faintly in moonlight. Grows only in protected areas near ancient ruins. Highly sought by alchemists and master chefs. One of the rarest ingredients available in Lumora.",
       "stackable": true,
       "currency_type": "copper",
@@ -107,7 +107,7 @@
     },
     "tin_ore": {
       "name": "Tin Ore",
-      "icon": "res://Assets/icons/items/ore.png",
+      "icon": "res://Assets/icons/items/tin_ore.png",
       "description": "Pale silvery-white metal easily mined from surface deposits and shallow veins. Soft and workable, perfect for beginners learning blacksmithing and metalcraft.",
       "stackable": true,
       "currency_type": "copper",
@@ -133,7 +133,7 @@
     },
     "copper_ore": {
       "name": "Copper Ore",
-      "icon": "res://Assets/icons/items/copper-ore.png",
+      "icon": "res://Assets/icons/items/copper_ore.png",
       "description": "A reddish-orange ore with excellent conductivity and malleability. Found in deeper deposits throughout the desert foothills. More valuable than tin, copper takes longer to harvest but yields stronger tools and weapons.",
       "stackable": true,
       "currency_type": "copper",
@@ -159,7 +159,7 @@
     },
     "flint": {
       "name": "Flint",
-      "icon": "res://Assets/icons/items/basalt-chunk.png",
+      "icon": "res://Assets/icons/items/flint.png",
       "description": "Stone. 20% bonus drop from Tin Veins.",
       "stackable": true,
       "currency_type": "copper",
@@ -185,7 +185,7 @@
     },
     "uncut_gem": {
       "name": "Uncut Gem",
-      "icon": "res://Assets/icons/items/gemstone.png",
+      "icon": "res://Assets/icons/items/uncut_gem.png",
       "description": "A rough, cloudy stone hiding a spark of colour. Found in the old veins beneath Lumora's ruins, where the ancients mined before the sands came.",
       "stackable": true,
       "currency_type": "copper",
@@ -211,7 +211,7 @@
     },
     "fir_log": {
       "name": "Fir Log",
-      "icon": "res://Assets/icons/items/totemfragment.png",
+      "icon": "res://Assets/icons/items/fir_log.png",
       "description": "Common softwood harvested from scrubby fir trees scattered across Lumora's dunes and foothills. Light and workable, though not particularly durable. The most abundant wood source for beginning woodworkers.",
       "stackable": true,
       "currency_type": "copper",
@@ -237,7 +237,7 @@
     },
     "ironwood_log": {
       "name": "Ironwood Log",
-      "icon": "res://Assets/icons/items/totemfragment.png",
+      "icon": "res://Assets/icons/items/ironwood_log.png",
       "description": "A dense, dark wood found in older trees deeper within the desert regions. Named for its exceptional hardness and durability. Ironwood resists splitting and takes a fine finish, making it ideal for quality crafted goods.",
       "stackable": true,
       "currency_type": "copper",
@@ -263,7 +263,7 @@
     },
     "palm_log": {
       "name": "Palm Log",
-      "icon": "res://Assets/icons/items/totemfragment.png",
+      "icon": "res://Assets/icons/items/palm_log.png",
       "description": "Rare and exotic wood from palm trees growing near hidden oasis areas on the edge of Lumora. Palm wood is light yet strong, with beautiful natural grain patterns. Highly prized for creating elegant weapons and fine furnishings.",
       "stackable": true,
       "currency_type": "copper",
@@ -289,7 +289,7 @@
     },
     "oasis_date": {
       "name": "Oasis Date",
-      "icon": "res://Assets/icons/items/food.png",
+      "icon": "res://Assets/icons/items/oasis_date.png",
       "description": "Fruit. 10% bonus drop from Palm Trees.",
       "stackable": true,
       "currency_type": "copper",
@@ -315,7 +315,7 @@
     },
     "raw_spider_meat": {
       "name": "Raw Spider Meat",
-      "icon": "res://Assets/icons/items/food.png",
+      "icon": "res://Assets/icons/items/raw_spider_meat.png",
       "description": "Raw spider meat. Cook it before you eat it.",
       "stackable": true,
       "currency_type": "copper",
@@ -341,7 +341,7 @@
     },
     "raw_rat_meat": {
       "name": "Raw Rat Meat",
-      "icon": "res://Assets/icons/items/food.png",
+      "icon": "res://Assets/icons/items/raw_rat_meat.png",
       "description": "Raw rat meat. Cook it before you eat it.",
       "stackable": true,
       "currency_type": "copper",
@@ -367,7 +367,7 @@
     },
     "raw_bat_meat": {
       "name": "Raw Bat Meat",
-      "icon": "res://Assets/icons/items/food.png",
+      "icon": "res://Assets/icons/items/raw_bat_meat.png",
       "description": "Raw bat meat. Cook it before you eat it.",
       "stackable": true,
       "currency_type": "copper",
@@ -393,7 +393,7 @@
     },
     "raw_goblin_meat": {
       "name": "Raw Goblin Meat",
-      "icon": "res://Assets/icons/items/food.png",
+      "icon": "res://Assets/icons/items/raw_goblin_meat.png",
       "description": "Raw goblin meat. Cook it before you eat it.",
       "stackable": true,
       "currency_type": "copper",
@@ -419,7 +419,7 @@
     },
     "raw_human_meat": {
       "name": "Raw Human Meat",
-      "icon": "res://Assets/icons/items/food.png",
+      "icon": "res://Assets/icons/items/raw_human_meat.png",
       "description": "Raw human meat. Cook it before you eat it.",
       "stackable": true,
       "currency_type": "copper",
@@ -445,7 +445,7 @@
     },
     "raw_snake_meat": {
       "name": "Raw Snake Meat",
-      "icon": "res://Assets/icons/items/food.png",
+      "icon": "res://Assets/icons/items/raw_snake_meat.png",
       "description": "Raw snake meat. Cook it before you eat it.",
       "stackable": true,
       "currency_type": "copper",
@@ -471,7 +471,7 @@
     },
     "raw_hide": {
       "name": "Raw Hide",
-      "icon": "res://Assets/icons/items/animal-pelt.png",
+      "icon": "res://Assets/icons/items/raw_hide.png",
       "description": "Hide. Rats, snakes.",
       "stackable": true,
       "currency_type": "copper",
@@ -497,7 +497,7 @@
     },
     "fletching_feathers": {
       "name": "Fletching Feathers",
-      "icon": "res://Assets/icons/items/bat-wing.png",
+      "icon": "res://Assets/icons/items/fletching_feathers.png",
       "description": "Feather. Bandits, goblin scouts (they carry fletching supplies).",
       "stackable": true,
       "currency_type": "copper",
@@ -523,7 +523,7 @@
     },
     "tanning_oil": {
       "name": "Tanning Oil",
-      "icon": "res://Assets/icons/items/flask.png",
+      "icon": "res://Assets/icons/items/tanning_oil.png",
       "description": "A stoppered flask of oil for curing raw hides into leather.",
       "stackable": true,
       "currency_type": "copper",
@@ -549,7 +549,7 @@
     },
     "dye": {
       "name": "Dye",
-      "icon": "res://Assets/icons/items/reagent.png",
+      "icon": "res://Assets/icons/items/dye.png",
       "description": "A small pot of desert dye, ground from ochre and cactus pulp.",
       "stackable": true,
       "currency_type": "copper",
@@ -575,7 +575,7 @@
     },
     "crystal_vial": {
       "name": "Crystal Vial",
-      "icon": "res://Assets/icons/items/flask.png",
+      "icon": "res://Assets/icons/items/crystal_vial.png",
       "description": "An empty glass vial. Every potion and poison needs one.",
       "stackable": true,
       "currency_type": "copper",
@@ -601,7 +601,7 @@
     },
     "tin_ingot": {
       "name": "Tin Ingot",
-      "icon": "res://Assets/icons/items/ore.png",
+      "icon": "res://Assets/icons/items/tin_ingot.png",
       "description": "Raw tin ore melted down into a workable ingot. The simplest refining process, perfect for beginners.",
       "stackable": true,
       "currency_type": "copper",
@@ -627,7 +627,7 @@
     },
     "copper_ingot": {
       "name": "Copper Ingot",
-      "icon": "res://Assets/icons/items/copper-ore.png",
+      "icon": "res://Assets/icons/items/copper_ingot.png",
       "description": "Copper ore refined into a reddish ingot. More valuable than tin, requires more heat and skill.",
       "stackable": true,
       "currency_type": "copper",
@@ -653,7 +653,7 @@
     },
     "bronze_ingot": {
       "name": "Bronze Ingot",
-      "icon": "res://Assets/icons/items/ore.png",
+      "icon": "res://Assets/icons/items/bronze_ingot.png",
       "description": "An alloy of copper and a little tin, harder than either metal alone. The finest metal a Lumora smith can make.",
       "stackable": true,
       "currency_type": "copper",
@@ -679,7 +679,7 @@
     },
     "fir_planks": {
       "name": "Fir Planks",
-      "icon": "res://Assets/icons/items/totemfragment.png",
+      "icon": "res://Assets/icons/items/fir_planks.png",
       "description": "Raw fir wood processed into workable planks. The refining process removes bark, splits the wood into usable sections, and prepares it for crafting.",
       "stackable": true,
       "currency_type": "copper",
@@ -705,7 +705,7 @@
     },
     "ironwood_planks": {
       "name": "Ironwood Planks",
-      "icon": "res://Assets/icons/items/totemfragment.png",
+      "icon": "res://Assets/icons/items/ironwood_planks.png",
       "description": "Dense ironwood processed into strong, durable planks. The refining requires more skill and effort than fir, as ironwood resists splitting and shaping.",
       "stackable": true,
       "currency_type": "copper",
@@ -731,7 +731,7 @@
     },
     "palm_planks": {
       "name": "Palm Planks",
-      "icon": "res://Assets/icons/items/totemfragment.png",
+      "icon": "res://Assets/icons/items/palm_planks.png",
       "description": "Exotic palm wood refined into elegant, lightweight planks. The beautiful golden grain is preserved during refining, making these planks prized by master craftspeople.",
       "stackable": true,
       "currency_type": "copper",
@@ -757,7 +757,7 @@
     },
     "soft_leather": {
       "name": "Soft Leather",
-      "icon": "res://Assets/icons/items/leather.png",
+      "icon": "res://Assets/icons/items/soft_leather.png",
       "description": "Raw hide tanned into workable soft leather. The most common leather, perfect for beginners.",
       "stackable": true,
       "currency_type": "copper",
@@ -783,7 +783,7 @@
     },
     "hardened_leather": {
       "name": "Hardened Leather",
-      "icon": "res://Assets/icons/items/leather.png",
+      "icon": "res://Assets/icons/items/hardened_leather.png",
       "description": "Hide tanned with sandroot creates a tougher, more durable leather.",
       "stackable": true,
       "currency_type": "copper",
@@ -809,7 +809,7 @@
     },
     "reinforced_leather": {
       "name": "Reinforced Leather",
-      "icon": "res://Assets/icons/items/leather.png",
+      "icon": "res://Assets/icons/items/reinforced_leather.png",
       "description": "Hardened leather layered with scarab chitin plates. Flexible as leather, tough as shell.",
       "stackable": true,
       "currency_type": "copper",
@@ -835,7 +835,7 @@
     },
     "thread": {
       "name": "Thread",
-      "icon": "res://Assets/icons/items/spider-web.png",
+      "icon": "res://Assets/icons/items/thread.png",
       "description": "Spider silk spun into strong, fine thread.",
       "stackable": true,
       "currency_type": "copper",
@@ -861,7 +861,7 @@
     },
     "woven_cloth": {
       "name": "Woven Cloth",
-      "icon": "res://Assets/icons/items/cloth.png",
+      "icon": "res://Assets/icons/items/woven_cloth.png",
       "description": "Basic cloth woven from scraps. The foundation of all cloth armor.",
       "stackable": true,
       "currency_type": "copper",
@@ -887,7 +887,7 @@
     },
     "reinforced_cloth": {
       "name": "Reinforced Cloth",
-      "icon": "res://Assets/icons/items/cloth.png",
+      "icon": "res://Assets/icons/items/reinforced_cloth.png",
       "description": "Cloth reinforced with sandroot extract creates a more durable fabric.",
       "stackable": true,
       "currency_type": "copper",
@@ -913,7 +913,7 @@
     },
     "silken_cloth": {
       "name": "Silken Cloth",
-      "icon": "res://Assets/icons/items/cloth.png",
+      "icon": "res://Assets/icons/items/silken_cloth.png",
       "description": "Rare silken cloth for the finest robes.",
       "stackable": true,
       "currency_type": "copper",
@@ -939,7 +939,7 @@
     },
     "polished_gem": {
       "name": "Polished Gem",
-      "icon": "res://Assets/icons/items/gemstone.png",
+      "icon": "res://Assets/icons/items/polished_gem.png",
       "description": "A raw gem polished into a usable component.",
       "stackable": true,
       "currency_type": "copper",
@@ -965,7 +965,7 @@
     },
     "gem_setting": {
       "name": "Gem Setting",
-      "icon": "res://Assets/icons/items/gemstone.png",
+      "icon": "res://Assets/icons/items/gem_setting.png",
       "description": "A finished gem setting ready to be fitted to jewelry or weapons.",
       "stackable": true,
       "currency_type": "copper",
@@ -991,7 +991,7 @@
     },
     "tinkered_spring": {
       "name": "Tinkered Spring",
-      "icon": "res://Assets/icons/items/scrap_metal.png",
+      "icon": "res://Assets/icons/items/tinkered_spring.png",
       "description": "A precision-crafted spring component used in other tinkering recipes.",
       "stackable": true,
       "currency_type": "copper",
@@ -1017,7 +1017,7 @@
     },
     "bowstring": {
       "name": "Bowstring",
-      "icon": "res://Assets/icons/items/spider-web.png",
+      "icon": "res://Assets/icons/items/bowstring.png",
       "description": "A twisted cord of spider-silk thread, waxed and tested.",
       "stackable": true,
       "currency_type": "copper",
@@ -1043,7 +1043,7 @@
     },
     "silk_bowstring": {
       "name": "Silk Bowstring",
-      "icon": "res://Assets/icons/items/spider-web.png",
+      "icon": "res://Assets/icons/items/silk_bowstring.png",
       "description": "A bowstring braided from ordinary and blighted spider silk. It never frays.",
       "stackable": true,
       "currency_type": "copper",
@@ -1069,7 +1069,7 @@
     },
     "broadhead_arrowheads": {
       "name": "Broadhead Arrowheads",
-      "icon": "res://Assets/icons/items/basalt-chunk.png",
+      "icon": "res://Assets/icons/items/broadhead_arrowheads.png",
       "description": "Wide, wicked arrowheads for hunting or warfare.",
       "stackable": true,
       "currency_type": "copper",
@@ -1095,7 +1095,7 @@
     },
     "cooked_bat_meat": {
       "name": "Cooked Bat Meat",
-      "icon": "res://Assets/icons/items/food.png",
+      "icon": "res://Assets/icons/items/cooked_bat_meat.png",
       "description": "Small delicate meat from dusk bats. Cooks quickly and has a mild flavor. Preferred by those with refined palates.",
       "stackable": true,
       "currency_type": "copper",
@@ -1123,7 +1123,7 @@
     },
     "cooked_rat_meat": {
       "name": "Cooked Rat Meat",
-      "icon": "res://Assets/icons/items/food.png",
+      "icon": "res://Assets/icons/items/cooked_rat_meat.png",
       "description": "Lean meat from desert rodents. Quick to cook and easier to digest than spider meat. A staple food for desert travelers.",
       "stackable": true,
       "currency_type": "copper",
@@ -1151,7 +1151,7 @@
     },
     "cooked_spider_meat": {
       "name": "Cooked Spider Meat",
-      "icon": "res://Assets/icons/items/food.png",
+      "icon": "res://Assets/icons/items/cooked_spider_meat.png",
       "description": "Raw spider meat seared over a fire until the venom cooks out. Tough and chewy, but it knits small wounds.",
       "stackable": true,
       "currency_type": "copper",
@@ -1180,7 +1180,7 @@
     },
     "cooked_snake_meat": {
       "name": "Cooked Snake Meat",
-      "icon": "res://Assets/icons/items/food.png",
+      "icon": "res://Assets/icons/items/cooked_snake_meat.png",
       "description": "Pale, firm meat from sand vipers. Mild once the venom glands are cut away.",
       "stackable": true,
       "currency_type": "copper",
@@ -1208,7 +1208,7 @@
     },
     "cooked_goblin_meat": {
       "name": "Cooked Goblin Meat",
-      "icon": "res://Assets/icons/items/food.png",
+      "icon": "res://Assets/icons/items/cooked_goblin_meat.png",
       "description": "Darker, richer meat from humanoid goblins. More substantial than other meats, provides greater satiation but has a stronger taste. A pragmatic choice for those who can stomach it.",
       "stackable": true,
       "currency_type": "copper",
@@ -1236,7 +1236,7 @@
     },
     "cooked_human_meat": {
       "name": "Cooked Human Meat",
-      "icon": "res://Assets/icons/items/food.png",
+      "icon": "res://Assets/icons/items/cooked_human_meat.png",
       "description": "Meat from fallen bandits and human adversaries. Most humans find this distasteful, but survival in the desert often demands dark choices. Trolls and other races consider it sustenance. Highly nutritious.",
       "stackable": true,
       "currency_type": "copper",
@@ -1264,7 +1264,7 @@
     },
     "desert_thistle_salad": {
       "name": "Desert Thistle Salad",
-      "icon": "res://Assets/icons/items/reagent.png",
+      "icon": "res://Assets/icons/items/desert_thistle_salad.png",
       "description": "Cooked meat combined with fresh desert thistles for a balanced meal. The thistles add freshness and slight medicinal properties. A favorite among desert merchants and travelers.",
       "stackable": true,
       "currency_type": "copper",
@@ -1326,7 +1326,7 @@
     },
     "sandroot_stew": {
       "name": "Sandroot & Meat Stew",
-      "icon": "res://Assets/icons/items/reagent.png",
+      "icon": "res://Assets/icons/items/sandroot_stew.png",
       "description": "A hearty stew combining cooked meat with medicinal sandroot and desert thistles. The sandroot gives it earthy depth and healing properties. This is sustenance for those planning long journeys.",
       "stackable": true,
       "currency_type": "copper",
@@ -1388,7 +1388,7 @@
     },
     "viper_kebab": {
       "name": "Fire-Roasted Viper Kebab",
-      "icon": "res://Assets/icons/items/reagent.png",
+      "icon": "res://Assets/icons/items/viper_kebab.png",
       "description": "A dangerous and delicious dish. Snake meat seasoned with venom cactus flower creates a paradoxical flavor—fiery and cooling at once. Only expert cooks can balance the venom without creating an actual poison. A dish fit for adventurers.",
       "stackable": true,
       "currency_type": "copper",
@@ -1443,7 +1443,7 @@
     },
     "viper_poison": {
       "name": "Viper Poison",
-      "icon": "res://Assets/icons/items/reagent.png",
+      "icon": "res://Assets/icons/items/viper_poison.png",
       "description": "More potent poison from venom cactus and snake venom.",
       "stackable": true,
       "currency_type": "copper",
@@ -1498,7 +1498,7 @@
     },
     "minor_healing_potion": {
       "name": "Minor Healing Potion",
-      "icon": "res://Assets/icons/items/reagent.png",
+      "icon": "res://Assets/icons/items/minor_healing_potion.png",
       "description": "Basic healing elixir.",
       "stackable": true,
       "currency_type": "copper",
@@ -1552,7 +1552,7 @@
     },
     "antidote_essence": {
       "name": "Antidote Essence",
-      "icon": "res://Assets/icons/items/reagent.png",
+      "icon": "res://Assets/icons/items/antidote_essence.png",
       "description": "Counteracts venom and poison effects.",
       "stackable": true,
       "currency_type": "copper",
@@ -1606,7 +1606,7 @@
     },
     "stamina_elixir": {
       "name": "Stamina Elixir",
-      "icon": "res://Assets/icons/items/reagent.png",
+      "icon": "res://Assets/icons/items/stamina_elixir.png",
       "description": "Energizing potion.",
       "stackable": true,
       "currency_type": "copper",
@@ -1668,7 +1668,7 @@
     },
     "moonpetal_essence": {
       "name": "Moonpetal Essence",
-      "icon": "res://Assets/icons/items/reagent.png",
+      "icon": "res://Assets/icons/items/moonpetal_essence.png",
       "description": "Powerful healing potion using rare Moonpetal Sage. Also used by Tailors for the Archmage's Robe.",
       "stackable": true,
       "currency_type": "copper",
@@ -1729,7 +1729,7 @@
     },
     "elixir_of_insight": {
       "name": "Elixir of Insight",
-      "icon": "res://Assets/icons/items/reagent.png",
+      "icon": "res://Assets/icons/items/elixir_of_insight.png",
       "description": "Rare potion that sharpens intuition.",
       "stackable": true,
       "currency_type": "copper",
@@ -1791,7 +1791,7 @@
     },
     "desert_tea": {
       "name": "Desert Tea",
-      "icon": "res://Assets/icons/items/reagent.png",
+      "icon": "res://Assets/icons/items/desert_tea.png",
       "description": "A simple herbal tea from desert thistles. Refreshing and mildly restorative.",
       "stackable": true,
       "currency_type": "copper",
@@ -1828,7 +1828,7 @@
     },
     "energy_brew": {
       "name": "Energy Brew",
-      "icon": "res://Assets/icons/items/reagent.png",
+      "icon": "res://Assets/icons/items/energy_brew.png",
       "description": "A stimulating brew that sharpens reflexes and provides combat advantage.",
       "stackable": true,
       "currency_type": "copper",
@@ -1892,7 +1892,7 @@
     },
     "courage_draught": {
       "name": "Courage Draught",
-      "icon": "res://Assets/icons/items/reagent.png",
+      "icon": "res://Assets/icons/items/courage_draught.png",
       "description": "A bold, meaty brew that increases confidence and damage output in combat.",
       "stackable": true,
       "currency_type": "copper",
@@ -1957,7 +1957,7 @@
     },
     "fortified_tonic": {
       "name": "Fortified Tonic",
-      "icon": "res://Assets/icons/items/reagent.png",
+      "icon": "res://Assets/icons/items/fortified_tonic.png",
       "description": "A more potent tonic combining sandroot with thistle. Requires fermentation to develop properly.",
       "stackable": true,
       "currency_type": "copper",
@@ -2022,7 +2022,7 @@
     },
     "resistance_elixir": {
       "name": "Resistance Elixir",
-      "icon": "res://Assets/icons/items/reagent.png",
+      "icon": "res://Assets/icons/items/resistance_elixir.png",
       "description": "A protective potion that grants elemental resistance and poison immunity.",
       "stackable": true,
       "currency_type": "copper",
@@ -2075,7 +2075,7 @@
     },
     "clarity_draught": {
       "name": "Clarity Draught",
-      "icon": "res://Assets/icons/items/reagent.png",
+      "icon": "res://Assets/icons/items/clarity_draught.png",
       "description": "A mental enhancement brew that sharpens focus and perception.",
       "stackable": true,
       "currency_type": "copper",
@@ -2139,7 +2139,7 @@
     },
     "starlight_cordial": {
       "name": "Starlight Cordial",
-      "icon": "res://Assets/icons/items/reagent.png",
+      "icon": "res://Assets/icons/items/starlight_cordial.png",
       "description": "A rare and precious cordial infused with Moonpetal Sage. The most potent brewing creation in Lumora.",
       "stackable": true,
       "currency_type": "copper",
@@ -2209,7 +2209,7 @@
     },
     "copper_pickaxe": {
       "name": "Copper Pickaxe",
-      "icon": "res://Assets/icons/items/axe.png",
+      "icon": "res://Assets/icons/items/copper_pickaxe.png",
       "description": "An upgraded mining tool. Consumes your vendor Miner's Pick.",
       "stackable": false,
       "currency_type": "copper",
@@ -2266,7 +2266,7 @@
     },
     "copper_wrist_cuff": {
       "name": "Copper Wrist Cuff",
-      "icon": "res://Assets/icons/items/chain-bracers.png",
+      "icon": "res://Assets/icons/items/copper_wrist_cuff.png",
       "description": "A decorative yet functional wrist cuff. The copper keeps its shine in the desert sun.",
       "stackable": false,
       "currency_type": "copper",
@@ -2321,7 +2321,7 @@
     },
     "smoke_grenade": {
       "name": "Smoke Grenade",
-      "icon": "res://Assets/icons/items/pouch.png",
+      "icon": "res://Assets/icons/items/smoke_grenade.png",
       "description": "A throwable smoke grenade that creates cover for escape. Consumable.",
       "stackable": true,
       "currency_type": "copper",
@@ -2374,7 +2374,7 @@
     },
     "copper_lantern": {
       "name": "Copper Lantern",
-      "icon": "res://Assets/icons/items/torch.png",
+      "icon": "res://Assets/icons/items/copper_lantern.png",
       "description": "A hooded copper lantern with a self-trimming wick. Dimmer than a good torch, but it never needs replacing.",
       "stackable": false,
       "currency_type": "copper",
@@ -2443,7 +2443,7 @@
     },
     "bronze_woodcutters_axe": {
       "name": "Bronze Woodcutter's Axe",
-      "icon": "res://Assets/icons/items/axe.png",
+      "icon": "res://Assets/icons/items/bronze_woodcutters_axe.png",
       "description": "A sturdy woodcutter's axe with a bronze head. Consumes your vendor Woodcutter's Axe.",
       "stackable": false,
       "currency_type": "copper",
@@ -2500,7 +2500,7 @@
     },
     "bronze_charm": {
       "name": "Bronze Charm",
-      "icon": "res://Assets/icons/items/cog_trinket.png",
+      "icon": "res://Assets/icons/items/bronze_charm.png",
       "description": "A small bronze charm set with a polished stone. It hums gently.",
       "stackable": false,
       "currency_type": "copper",
@@ -2555,7 +2555,7 @@
     },
     "explosive_device": {
       "name": "Explosive Device",
-      "icon": "res://Assets/icons/items/pouch.png",
+      "icon": "res://Assets/icons/items/explosive_device.png",
       "description": "A dangerous throwable explosive. Very fun when it goes wrong.",
       "stackable": true,
       "currency_type": "copper",
@@ -2608,7 +2608,7 @@
     },
     "bronze_lockpick_set": {
       "name": "Bronze Lockpick Set",
-      "icon": "res://Assets/icons/items/key.png",
+      "icon": "res://Assets/icons/items/bronze_lockpick_set.png",
       "description": "A set of finely-crafted bronze lockpicks. Permanent.",
       "stackable": false,
       "currency_type": "copper",
@@ -2661,7 +2661,7 @@
     },
     "tin_dagger": {
       "name": "Tin Dagger",
-      "icon": "res://Assets/icons/items/dagger.png",
+      "icon": "res://Assets/icons/items/tin_dagger.png",
       "description": "A basic tin dagger, perfect for new adventurers. Light and easy to handle, though not particularly durable.",
       "stackable": false,
       "currency_type": "copper",
@@ -2689,7 +2689,7 @@
     },
     "tin_shortsword": {
       "name": "Tin Shortsword",
-      "icon": "res://Assets/icons/items/sword.png",
+      "icon": "res://Assets/icons/items/tin_shortsword.png",
       "description": "A respectable tin shortsword. Better than a dagger, useful for both offense and defense.",
       "stackable": false,
       "currency_type": "copper",
@@ -2771,7 +2771,7 @@
     },
     "copper_sword": {
       "name": "Copper Sword",
-      "icon": "res://Assets/icons/items/sword.png",
+      "icon": "res://Assets/icons/items/copper_sword.png",
       "description": "A quality copper sword, significantly better than tin. The copper holds an edge well and feels substantial in hand.",
       "stackable": false,
       "currency_type": "copper",
@@ -2827,7 +2827,7 @@
     },
     "copper_war_axe": {
       "name": "Copper War Axe",
-      "icon": "res://Assets/icons/items/axe.png",
+      "icon": "res://Assets/icons/items/copper_war_axe.png",
       "description": "A copper war axe for two-handed combat. Slower, harder hits.",
       "stackable": false,
       "currency_type": "copper",
@@ -2883,7 +2883,7 @@
     },
     "copper_armor_plating": {
       "name": "Copper Armor Plating",
-      "icon": "res://Assets/icons/items/plate-breastplate.png",
+      "icon": "res://Assets/icons/items/copper_armor_plating.png",
       "description": "Copper breastplate armor. Better than cloth, reasonable weight.",
       "stackable": false,
       "currency_type": "copper",
@@ -2965,7 +2965,7 @@
     },
     "bronze_shield": {
       "name": "Bronze Shield",
-      "icon": "res://Assets/icons/items/shield.png",
+      "icon": "res://Assets/icons/items/bronze_shield.png",
       "description": "A sturdy bronze shield on an ironwood frame.",
       "stackable": false,
       "currency_type": "copper",
@@ -3020,7 +3020,7 @@
     },
     "bronze_longsword": {
       "name": "Bronze Longsword",
-      "icon": "res://Assets/icons/items/sword.png",
+      "icon": "res://Assets/icons/items/bronze_longsword.png",
       "description": "The finest blade a Lumora smith can make. It will serve through multiple zones.",
       "stackable": false,
       "currency_type": "copper",
@@ -3076,7 +3076,7 @@
     },
     "pitch_torch": {
       "name": "Pitch Torch",
-      "icon": "res://Assets/icons/items/torch.png",
+      "icon": "res://Assets/icons/items/pitch_torch.png",
       "description": "A fir stave wrapped in pitch-soaked linen. Burns longer and brighter than a vendor torch.",
       "stackable": true,
       "currency_type": "copper",
@@ -3118,7 +3118,7 @@
     },
     "fir_firewood_bundle": {
       "name": "Fir Firewood Bundle",
-      "icon": "res://Assets/icons/items/reagent.png",
+      "icon": "res://Assets/icons/items/fir_firewood_bundle.png",
       "description": "Split fir logs and a flint striker, tied for carrying. Light it anywhere outside town to make camp.",
       "stackable": true,
       "currency_type": "copper",
@@ -3144,7 +3144,7 @@
     },
     "fir_shortbow": {
       "name": "Fir Shortbow",
-      "icon": "res://Assets/icons/items/totemfragment.png",
+      "icon": "res://Assets/icons/items/fir_shortbow.png",
       "description": "A basic bow for ranged combat. Light and easy to handle, good for beginners learning to shoot.",
       "stackable": false,
       "currency_type": "copper",
@@ -3170,7 +3170,7 @@
     },
     "fir_staff": {
       "name": "Fir Staff",
-      "icon": "res://Assets/icons/items/sword.png",
+      "icon": "res://Assets/icons/items/fir_staff.png",
       "description": "A plain walking staff, favoured by apprentice casters.",
       "stackable": false,
       "currency_type": "copper",
@@ -3253,7 +3253,7 @@
     },
     "ironwood_bow": {
       "name": "Ironwood Bow",
-      "icon": "res://Assets/icons/items/totemfragment.png",
+      "icon": "res://Assets/icons/items/ironwood_bow.png",
       "description": "A quality bow made from ironwood. More powerful than a fir bow, with better damage.",
       "stackable": false,
       "currency_type": "copper",
@@ -3306,7 +3306,7 @@
     },
     "ironwood_torch": {
       "name": "Ironwood Torch",
-      "icon": "res://Assets/icons/items/torch.png",
+      "icon": "res://Assets/icons/items/ironwood_torch.png",
       "description": "A dense ironwood torch soaked in oil. Slow-burning and bright.",
       "stackable": true,
       "currency_type": "copper",
@@ -3375,7 +3375,7 @@
     },
     "ironwood_firewood_bundle": {
       "name": "Ironwood Firewood Bundle",
-      "icon": "res://Assets/icons/items/reagent.png",
+      "icon": "res://Assets/icons/items/ironwood_firewood_bundle.png",
       "description": "Dense ironwood that burns long and hot. A proper camp for a proper hunt.",
       "stackable": true,
       "currency_type": "copper",
@@ -3428,7 +3428,7 @@
     },
     "ironwood_staff": {
       "name": "Ironwood Staff",
-      "icon": "res://Assets/icons/items/sword.png",
+      "icon": "res://Assets/icons/items/ironwood_staff.png",
       "description": "A dense ironwood staff capped with a copper ferrule.",
       "stackable": false,
       "currency_type": "copper",
@@ -3512,7 +3512,7 @@
     },
     "palm_resin_torch": {
       "name": "Palm-Resin Torch",
-      "icon": "res://Assets/icons/items/torch.png",
+      "icon": "res://Assets/icons/items/palm_resin_torch.png",
       "description": "A palm torch sealed in the tree's own golden resin. Rain beads off it.",
       "stackable": true,
       "currency_type": "copper",
@@ -3581,7 +3581,7 @@
     },
     "palm_longbow": {
       "name": "Palm Longbow",
-      "icon": "res://Assets/icons/items/totemfragment.png",
+      "icon": "res://Assets/icons/items/palm_longbow.png",
       "description": "The finest bow in Lumora. Fewer shots, but devastating.",
       "stackable": false,
       "currency_type": "copper",
@@ -3634,7 +3634,7 @@
     },
     "palm_firewood_bundle": {
       "name": "Palm Firewood Bundle",
-      "icon": "res://Assets/icons/items/reagent.png",
+      "icon": "res://Assets/icons/items/palm_firewood_bundle.png",
       "description": "Fragrant palm wood that burns sweet and bright. Groups fight over a good palm fire.",
       "stackable": true,
       "currency_type": "copper",
@@ -3687,7 +3687,7 @@
     },
     "masters_staff": {
       "name": "Master's Staff",
-      "icon": "res://Assets/icons/items/sword.png",
+      "icon": "res://Assets/icons/items/masters_staff.png",
       "description": "A golden palm staff bound in bronze and crowned with a polished gem.",
       "stackable": false,
       "currency_type": "copper",
@@ -3744,7 +3744,7 @@
     },
     "quiver_of_fir_arrows": {
       "name": "Quiver of Fir Arrows",
-      "icon": "res://Assets/icons/items/pouch.png",
+      "icon": "res://Assets/icons/items/quiver_of_fir_arrows.png",
       "description": "A full quiver of fir arrows with flint heads. You'll re-fletch and recover them as you go, so it never runs dry.",
       "stackable": false,
       "currency_type": "copper",
@@ -3825,7 +3825,7 @@
     },
     "quiver_of_ironwood_arrows": {
       "name": "Quiver of Ironwood Arrows",
-      "icon": "res://Assets/icons/items/pouch.png",
+      "icon": "res://Assets/icons/items/quiver_of_ironwood_arrows.png",
       "description": "High-quality arrows with ironwood shafts and copper tips. These arrows fly true and hit hard.",
       "stackable": false,
       "currency_type": "copper",
@@ -3906,7 +3906,7 @@
     },
     "quiver_of_broadhead_arrows": {
       "name": "Quiver of Broadhead Arrows",
-      "icon": "res://Assets/icons/items/pouch.png",
+      "icon": "res://Assets/icons/items/quiver_of_broadhead_arrows.png",
       "description": "Hunting arrows with broad, wicked heads that leave wounds that won't close.",
       "stackable": false,
       "currency_type": "copper",
@@ -3960,7 +3960,7 @@
     },
     "quiver_of_palm_arrows": {
       "name": "Quiver of Palm Arrows",
-      "icon": "res://Assets/icons/items/pouch.png",
+      "icon": "res://Assets/icons/items/quiver_of_palm_arrows.png",
       "description": "The finest arrows in Lumora. Palm shafts, bronze tips. Works of art.",
       "stackable": false,
       "currency_type": "copper",
@@ -4014,7 +4014,7 @@
     },
     "tin_ring": {
       "name": "Tin Ring",
-      "icon": "res://Assets/icons/items/gemstone.png",
+      "icon": "res://Assets/icons/items/tin_ring.png",
       "description": "A simple tin band.",
       "stackable": false,
       "currency_type": "copper",
@@ -4042,7 +4042,7 @@
     },
     "simple_amulet": {
       "name": "Simple Amulet",
-      "icon": "res://Assets/icons/items/gemstone.png",
+      "icon": "res://Assets/icons/items/simple_amulet.png",
       "description": "A tin pendant set with a snake scale, hung from a leather cord.",
       "stackable": false,
       "currency_type": "copper",
@@ -4095,7 +4095,7 @@
     },
     "copper_ring": {
       "name": "Copper Ring",
-      "icon": "res://Assets/icons/items/gemstone.png",
+      "icon": "res://Assets/icons/items/copper_ring.png",
       "description": "A copper ring with a gem setting.",
       "stackable": false,
       "currency_type": "copper",
@@ -4177,7 +4177,7 @@
     },
     "copper_pendant": {
       "name": "Copper Pendant",
-      "icon": "res://Assets/icons/items/gemstone.png",
+      "icon": "res://Assets/icons/items/copper_pendant.png",
       "description": "A copper pendant on a silk-thread cord.",
       "stackable": false,
       "currency_type": "copper",
@@ -4232,7 +4232,7 @@
     },
     "bronze_ring": {
       "name": "Bronze Ring",
-      "icon": "res://Assets/icons/items/gemstone.png",
+      "icon": "res://Assets/icons/items/bronze_ring.png",
       "description": "The finest ring in Lumora.",
       "stackable": false,
       "currency_type": "copper",
@@ -4287,7 +4287,7 @@
     },
     "bronze_amulet": {
       "name": "Bronze Amulet",
-      "icon": "res://Assets/icons/items/gemstone.png",
+      "icon": "res://Assets/icons/items/bronze_amulet.png",
       "description": "The finest amulet in Lumora, hung on a cord of blighted silk.",
       "stackable": false,
       "currency_type": "copper",
@@ -4340,7 +4340,7 @@
     },
     "leather_jerkin": {
       "name": "Leather Jerkin",
-      "icon": "res://Assets/icons/items/leather-chestpiece.png",
+      "icon": "res://Assets/icons/items/leather_jerkin.png",
       "description": "A simple leather jerkin for light protection. Easy to move in, good for rogues and rangers.",
       "stackable": false,
       "currency_type": "copper",
@@ -4368,7 +4368,7 @@
     },
     "leather_boots": {
       "name": "Leather Boots",
-      "icon": "res://Assets/icons/items/leather-boots.png",
+      "icon": "res://Assets/icons/items/leather_boots.png",
       "description": "Comfortable leather boots suitable for desert travel.",
       "stackable": false,
       "currency_type": "copper",
@@ -4394,7 +4394,7 @@
     },
     "leather_bracers": {
       "name": "Leather Bracers",
-      "icon": "res://Assets/icons/items/leather-bracers.png",
+      "icon": "res://Assets/icons/items/leather_bracers.png",
       "description": "Protective bracers that help turn aside blows.",
       "stackable": false,
       "currency_type": "copper",
@@ -4447,7 +4447,7 @@
     },
     "leather_armor": {
       "name": "Leather Armor",
-      "icon": "res://Assets/icons/items/leather-chestpiece.png",
+      "icon": "res://Assets/icons/items/leather_armor.png",
       "description": "Improved leather armor with better protection and durability than a jerkin.",
       "stackable": false,
       "currency_type": "copper",
@@ -4529,7 +4529,7 @@
     },
     "hardened_leather_armor": {
       "name": "Hardened Leather Armor",
-      "icon": "res://Assets/icons/items/leather-chestpiece.png",
+      "icon": "res://Assets/icons/items/hardened_leather_armor.png",
       "description": "Hardened leather armor gives excellent protection while keeping you mobile.",
       "stackable": false,
       "currency_type": "copper",
@@ -4612,7 +4612,7 @@
     },
     "reinforced_leather_armor": {
       "name": "Reinforced Leather Armor",
-      "icon": "res://Assets/icons/items/leather-chestpiece.png",
+      "icon": "res://Assets/icons/items/reinforced_leather_armor.png",
       "description": "The finest leather armor in Lumora, riveted with bronze.",
       "stackable": false,
       "currency_type": "copper",
@@ -4667,7 +4667,7 @@
     },
     "simple_robe": {
       "name": "Simple Robe",
-      "icon": "res://Assets/icons/items/leather-chestpiece.png",
+      "icon": "res://Assets/icons/items/simple_robe.png",
       "description": "A simple cloth robe for casters. Minimal protection but good for spellcasting.",
       "stackable": false,
       "currency_type": "copper",
@@ -4693,7 +4693,7 @@
     },
     "cloth_gloves": {
       "name": "Cloth Gloves",
-      "icon": "res://Assets/icons/items/cloth-bracers.png",
+      "icon": "res://Assets/icons/items/cloth_gloves.png",
       "description": "Simple cloth gloves that improve your grip.",
       "stackable": false,
       "currency_type": "copper",
@@ -4721,7 +4721,7 @@
     },
     "apprentice_robe": {
       "name": "Apprentice Robe",
-      "icon": "res://Assets/icons/items/leather-chestpiece.png",
+      "icon": "res://Assets/icons/items/apprentice_robe.png",
       "description": "A robe for apprentice mages and scholars.",
       "stackable": false,
       "currency_type": "copper",
@@ -4803,7 +4803,7 @@
     },
     "mages_robe": {
       "name": "Mage's Robe",
-      "icon": "res://Assets/icons/items/leather-chestpiece.png",
+      "icon": "res://Assets/icons/items/mages_robe.png",
       "description": "A quality robe for experienced mages.",
       "stackable": false,
       "currency_type": "copper",
@@ -4883,7 +4883,7 @@
     },
     "archmages_robe": {
       "name": "Archmage's Robe",
-      "icon": "res://Assets/icons/items/leather-chestpiece.png",
+      "icon": "res://Assets/icons/items/archmages_robe.png",
       "description": "The finest robe in Lumora, infused with an alchemist's Moonpetal Essence.",
       "stackable": false,
       "currency_type": "copper",
@@ -4936,7 +4936,7 @@
     },
     "miners_pick": {
       "name": "Miner's Pick",
-      "icon": "res://Assets/icons/items/axe.png",
+      "icon": "res://Assets/icons/items/miners_pick.png",
       "description": "A plain iron pick. Needed to mine ore veins. A tinker can upgrade it.",
       "stackable": false,
       "currency_type": "copper",
@@ -4964,7 +4964,7 @@
     },
     "woodcutters_axe": {
       "name": "Woodcutter's Axe",
-      "icon": "res://Assets/icons/items/axe.png",
+      "icon": "res://Assets/icons/items/woodcutters_axe.png",
       "description": "A plain iron hatchet. Needed to cut trees. A tinker can upgrade it.",
       "stackable": false,
       "currency_type": "copper",
@@ -4992,7 +4992,7 @@
     },
     "quiver_of_rough_arrows": {
       "name": "Quiver of Rough Arrows",
-      "icon": "res://Assets/icons/items/pouch.png",
+      "icon": "res://Assets/icons/items/quiver_of_rough_arrows.png",
       "description": "A quiver of rough arrows you recover and re-fletch as you go. It never runs out.",
       "stackable": false,
       "currency_type": "copper",
@@ -5019,7 +5019,7 @@
     },
     "case_of_rough_bolts": {
       "name": "Case of Rough Bolts",
-      "icon": "res://Assets/icons/items/pouch.png",
+      "icon": "res://Assets/icons/items/case_of_rough_bolts.png",
       "description": "A case of rough crossbow bolts you recover as you go. It never runs out.",
       "stackable": false,
       "currency_type": "copper",
@@ -5046,7 +5046,7 @@
     },
     "basic_cooking_kit": {
       "name": "Basic Cooking Kit",
-      "icon": "res://Assets/icons/items/pouch.png",
+      "icon": "res://Assets/icons/items/basic_cooking_kit.png",
       "description": "A portable cooking kit. Right-click and Open to craft anywhere.",
       "stackable": false,
       "currency_type": "copper",
@@ -5073,7 +5073,7 @@
     },
     "basic_brewing_kit": {
       "name": "Basic Brewing Kit",
-      "icon": "res://Assets/icons/items/goblet.png",
+      "icon": "res://Assets/icons/items/basic_brewing_kit.png",
       "description": "A portable brewing kit. Right-click and Open to craft anywhere.",
       "stackable": false,
       "currency_type": "copper",
@@ -5100,7 +5100,7 @@
     },
     "basic_fletching_kit": {
       "name": "Basic Fletching Kit",
-      "icon": "res://Assets/icons/items/pouch.png",
+      "icon": "res://Assets/icons/items/basic_fletching_kit.png",
       "description": "A portable fletching kit. Right-click and Open to craft anywhere.",
       "stackable": false,
       "currency_type": "copper",
@@ -5127,7 +5127,7 @@
     },
     "basic_jewelcrafting_kit": {
       "name": "Basic Jewelcrafting Kit",
-      "icon": "res://Assets/icons/items/pouch.png",
+      "icon": "res://Assets/icons/items/basic_jewelcrafting_kit.png",
       "description": "A portable jewelcrafting kit. Right-click and Open to craft anywhere.",
       "stackable": false,
       "currency_type": "copper",
@@ -5154,7 +5154,7 @@
     },
     "basic_leatherworking_kit": {
       "name": "Basic Leatherworking Kit",
-      "icon": "res://Assets/icons/items/leather.png",
+      "icon": "res://Assets/icons/items/basic_leatherworking_kit.png",
       "description": "A portable leatherworking kit. Right-click and Open to craft anywhere.",
       "stackable": false,
       "currency_type": "copper",
@@ -5181,7 +5181,7 @@
     },
     "basic_tailoring_kit": {
       "name": "Basic Tailoring Kit",
-      "icon": "res://Assets/icons/items/cloth.png",
+      "icon": "res://Assets/icons/items/basic_tailoring_kit.png",
       "description": "A portable tailoring kit. Right-click and Open to craft anywhere.",
       "stackable": false,
       "currency_type": "copper",
@@ -5208,7 +5208,7 @@
     },
     "basic_woodworking_kit": {
       "name": "Basic Woodworking Kit",
-      "icon": "res://Assets/icons/items/trunk.png",
+      "icon": "res://Assets/icons/items/basic_woodworking_kit.png",
       "description": "A portable woodworking kit. Right-click and Open to craft anywhere.",
       "stackable": false,
       "currency_type": "copper",

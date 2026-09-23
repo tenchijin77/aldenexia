@@ -334,7 +334,7 @@ transform = Transform3D(-0.994645, 0, 0.103347, 0, 1, 0, -0.103347, 0, -0.994645
 
 [node name="VendorNPC2" parent="." unique_id=59779779 instance=ExtResource("13_vendor1")]
 transform = Transform3D(-0.994645, 0, 0.103347, 0, 1, 0, -0.103347, 0, -0.994645, 49.575, 0, -15.68)
-npc_name = "the Apothecary"
+npc_name = "Lira Solarpetal"
 shop_id = "lumora_apothecary"
 vendor_model_key = "female"
 

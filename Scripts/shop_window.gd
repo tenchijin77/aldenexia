@@ -30,6 +30,7 @@ var _player: Node = null
 @onready var vbox: VBoxContainer = $Panel/Margin/VBox
 @onready var coin_label: Label = $Panel/Margin/VBox/CoinLabel
 @onready var usable_only_check: CheckBox = $Panel/Margin/VBox/UsableOnlyCheck
+@onready var search_box: LineEdit = $Panel/Margin/VBox/SearchBox
 @onready var buy_scroll: ScrollContainer = $Panel/Margin/VBox/BuyScroll
 @onready var buy_list: VBoxContainer = $Panel/Margin/VBox/BuyScroll/BuyList
 @onready var sell_scroll: ScrollContainer = $Panel/Margin/VBox/SellScroll
@@ -47,6 +48,7 @@ func _ready() -> void:
 	Global.currency_changed.connect(_refresh_coin_label)
 	Inventory.inventory_changed.connect(_rebuild_sell_list)
 	usable_only_check.toggled.connect(func(_pressed: bool): _rebuild_buy_list())
+	search_box.text_changed.connect(func(_text: String): _rebuild_buy_list())
 	_player = TargetFrame.local_player()
 
 
@@ -95,10 +97,14 @@ func _rebuild_buy_list() -> void:
 	var stock: Array = _vendor.get_shop_stock()
 	if usable_only_check.button_pressed:
 		stock = stock.filter(func(entry): return _is_usable_by_player(entry["item_def"]))
+	# Search box: keeps items whose name contains what's typed (any case).
+	var search: String = search_box.text.strip_edges().to_lower()
+	if not search.is_empty():
+		stock = stock.filter(func(entry): return search in str(entry["item_def"].get("name", "")).to_lower())
 
 	if stock.is_empty():
 		var empty_lbl := Label.new()
-		empty_lbl.text = "Nothing here you can use."
+		empty_lbl.text = "No items match your search." if not search.is_empty() else "Nothing here you can use."
 		empty_lbl.add_theme_color_override("font_color", Color(0.55, 0.55, 0.55))
 		buy_list.add_child(empty_lbl)
 	else:
@@ -343,8 +349,8 @@ func _resize_to_content() -> void:
 	# update regardless; they only set each LIST's own floor, which the
 	# window's real size (possibly now bigger, via manual resize) simply
 	# has room for.
-	if _user_resized:
-		return
+	if _user_resized or not search_box.text.strip_edges().is_empty():
+		return  # (and don't shrink the window under the player's cursor on every search keystroke)
 
 	var widest: float = maxf(buy_min.x, sell_min.x)
 	var target_width: float = clamp(widest + 32.0, MIN_PANEL_WIDTH, MAX_PANEL_WIDTH)

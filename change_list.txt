@@ -1072,3 +1072,28 @@ set_gm_password.sh — set or change the game-master password on the game server
   tools/set_gm_password.sh user@host --show          print the password that is set now
   tools/set_gm_password.sh user@host --remove        delete it: nobody can become a game master until you set one again
 
+
+  What changed:
+  - Tint tool: a new script, tools/make_icon_variants.py, makes coloured versions of an icon from one base picture. It only recolours the glow
+    and the object, and leaves the stone frame and outlines alone. It made 139 icons:
+    - Bows, staves and quivers in fir, ironwood and palm
+    - Rings, amulets, swords, axes and shields in tin, copper and bronze
+    - A different liquid colour per potion, and teas in the mug, combat brews in the goblet
+    - Six browned cooked meats, a colour per crafting kit, darker hardened and reinforced leather, and blue, purple and gold robes
+  - Crafting items: all 188 now have their own icon. The crafted robes had been showing a leather chestpiece; that's fixed.
+  - items.json: 52 older items now point at their own icon. That covers all the gear, jewelry, bags, food, drinks and bandages, plus 20
+    materials that match your new art (leathers, pelts, cloth, venoms, water, silks).
+  - Duplicates again: your new batch brought back the old raw_meat_*.png files and the spells/hardened_leather.png copy. They were identical to
+    the correctly named files, so I removed them. When you copy a batch in, skip those, or rename them to raw_<x>_meat.png first.
+
+  Still sharing generic art: 67 older items. They're mostly creature trophies (ears, fangs, wings, shells), reagents and quest papers, plus the
+  Standard-Issue Spear. Each has an existing icon, so nothing looks broken. The list is in ~/NCT/Aldenexia-Lightfall/Icon Checklist.txt.
+
+  Going forward:
+  - A new item icon goes in Assets/icons/items/<item_id>.png.
+  - A new base picture that should have tinted versions: add a line to the table in make_icon_variants.py, then run it and export_crafting.py.
+  - To give an item hand-drawn art in place of its tint, save it as <item_id>.png and delete its line from the table. Otherwise the next run of
+    the tint script will overwrite it.
+
+  Commit message:
+
