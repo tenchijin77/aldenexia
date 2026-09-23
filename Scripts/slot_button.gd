@@ -390,10 +390,27 @@ func _show_inspect_popup() -> void:
 			_confirm_destroy())
 		item_row.add_child(destroy_btn)
 
-	# In the bank an item can only be looked at (take it out to use, equip or eat it).
+	# In the bank an item can only be looked at (take it out to use, equip or eat it) — or withdrawn.
+	var bank_open := not get_tree().get_nodes_in_group("bank_window").is_empty()
 	if slot_type in ["bank", "bank_bag"]:
 		for action in btn_row.get_children():
 			action.queue_free()
+		if bank_open:
+			var withdraw_btn := Button.new()
+			withdraw_btn.text = "Withdraw"
+			withdraw_btn.tooltip_text = "Take it out of the bank into your bags."
+			withdraw_btn.pressed.connect(func():
+				layer.queue_free()
+				Inventory.quick_bank_move(slot_type, slot_index, bag_slot, item_index))
+			btn_row.add_child(withdraw_btn)
+	elif slot_type in ["basic", "bag"] and bank_open:
+		var deposit_btn := Button.new()
+		deposit_btn.text = "Deposit"
+		deposit_btn.tooltip_text = "Put it in the bank (a bag goes in with everything in it)."
+		deposit_btn.pressed.connect(func():
+			layer.queue_free()
+			Inventory.quick_bank_move(slot_type, slot_index, bag_slot, item_index))
+		btn_row.add_child(deposit_btn)
 
 	# Close button
 	var close_btn := Button.new()

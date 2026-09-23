@@ -143,6 +143,154 @@ func _container_with_room(container_t: String, item: Dictionary, preferred: int)
 	return -1
 
 
+# ── One-click moves: Deposit / Withdraw (right-click menu while the bank is open) and Sort ──
+
+# Where `item` should go on one side ("pack": character-sheet slots + bags, "bank": bank slots + bank bags), as
+# {t, i, b, x} for _move_any(), or {} when there is no room. In order: onto a stack of the same item, into a crafting bag
+# (kit / Large Crafting Bag) that takes it, a free top-level slot, then any ordinary bag with room. A bag with things in it
+# can only go to a free top-level slot.
+func _find_destination(side: String, item: Dictionary, has_contents: bool) -> Dictionary:
+	var top_t := "basic" if side == "pack" else "bank"
+	var in_t := "bag" if side == "pack" else "bank_bag"
+	var slots := BASIC_INVENTORY_SIZE if side == "pack" else BANK_SIZE
+	var home: Dictionary = bag_contents if side == "pack" else _bank_bags()
+	var id := str(item.get("item_id", ""))
+	if not has_contents and item.get("stackable", false):
+		for i in slots:
+			var top := _slot_get(top_t, i, -1, -1)
+			if not top.is_empty() and not is_bag(top) and top.get("item_id") == id:
+				return {"t": top_t, "i": i, "b": -1, "x": -1}
+			if is_bag(top) and bag_accepts(top, item):
+				var contents: Array = home.get(str(i), [])
+				for x in contents.size():
+					if contents[x].get("item_id") == id:
+						return {"t": in_t, "i": -1, "b": i, "x": x}
+	var free_top := {}
+	for i in slots:
+		if _slot_get(top_t, i, -1, -1).is_empty():
+			free_top = {"t": top_t, "i": i, "b": -1, "x": -1}
+			break
+	if has_contents:
+		return free_top
+	for restricted_pass in [true, false]:
+		for i in _slots_by_bag_rank(slots, func(n): return _slot_get(top_t, n, -1, -1)):
+			var bag := _slot_get(top_t, i, -1, -1)
+			if not is_bag(bag) or is_restricted_bag(bag) != restricted_pass or not bag_accepts(bag, item):
+				continue
+			if home.get(str(i), []).size() < get_bag_size(bag):
+				return {"t": in_t, "i": -1, "b": i, "x": -1}
+		if restricted_pass and not free_top.is_empty():
+			return free_top
+	return {}
+
+
+# Right-click > Deposit (from the pack into the bank) or Withdraw (from the bank into the pack) — the whole stack, or the
+# whole bag with what is in it. False (and says why) when there's no room on the other side.
+func quick_bank_move(t: String, i: int, b: int, x: int) -> bool:
+	var item := _slot_get(t, i, b, x)
+	if item.is_empty():
+		return false
+	var to_bank := t in ["basic", "bag"]
+	var home: Variant = _contents_home(t)
+	var has_contents: bool = home != null and not (home as Dictionary).get(str(i), []).is_empty()
+	var dst := _find_destination("bank" if to_bank else "pack", item, has_contents)
+	if dst.is_empty():
+		GameLog.log_general("[color=#ff8866]There is no room %s for that.[/color]" % ("in your bank" if to_bank else "in your bags"))
+		return false
+	_move_any(t, i, b, x, dst["t"], dst["i"], dst["b"], dst["x"])
+	sync_to_global()
+	inventory_changed.emit()
+	return true
+
+
+# The Sort button (character sheet / backpack): every crafting material that a crafting bag (a kit or the Large Crafting
+# Bag in a character-sheet slot) will take goes into it, and split stacks of the same item are joined. Returns how many
+# items moved.
+func sort_pack() -> int:
+	var moved := 0
+	# 1. Join split stacks (the later stack is added to the first one of the same item).
+	var seen := {}
+	for loc in _pack_locations():
+		var item := _slot_get(loc["t"], loc["i"], loc["b"], loc["x"])
+		if item.is_empty() or not item.get("stackable", false) or is_bag(item):
+			continue
+		var id := str(item.get("item_id"))
+		if not seen.has(id):
+			seen[id] = item
+			continue
+		var first: Dictionary = seen[id]
+		first["quantity"] = int(first.get("quantity", 1)) + int(item.get("quantity", 1))
+		item["quantity"] = 0
+	_drop_empty_stacks()
+	# 2. Crafting materials out of character-sheet slots and ordinary bags, into crafting bags with room. Plan every move
+	# first (so indexes stay put), then take the items out and put them in.
+	var room := {}
+	for bag_slot in _slots_by_bag_rank(BASIC_INVENTORY_SIZE, get_basic_inventory_slot):
+		var bag := get_basic_inventory_slot(bag_slot)
+		if is_restricted_bag(bag):
+			room[bag_slot] = get_bag_size(bag) - bag_contents.get(str(bag_slot), []).size()
+	var moves: Array = []
+	for loc in _pack_locations():
+		var item := _slot_get(loc["t"], loc["i"], loc["b"], loc["x"])
+		if item.is_empty() or is_bag(item):
+			continue
+		if loc["t"] == "bag" and is_restricted_bag(get_basic_inventory_slot(loc["b"])):
+			continue  # already in a crafting bag
+		for bag_slot in room:
+			if int(room[bag_slot]) > 0 and bag_accepts(get_basic_inventory_slot(bag_slot), item):
+				room[bag_slot] = int(room[bag_slot]) - 1
+				moves.append({"loc": loc, "item": item, "to": bag_slot})
+				break
+	var from_bags := {}  # bag slot -> indexes to take out
+	for m in moves:
+		if m["loc"]["t"] == "basic":
+			basic_inventory[m["loc"]["i"]] = null
+		else:
+			var key := str(m["loc"]["b"])
+			if not from_bags.has(key):
+				from_bags[key] = []
+			from_bags[key].append(int(m["loc"]["x"]))
+	for key in from_bags:
+		var indexes: Array = from_bags[key]
+		indexes.sort()
+		indexes.reverse()
+		for x in indexes:
+			bag_contents[key].remove_at(x)
+	for m in moves:
+		var key := str(m["to"])
+		if not bag_contents.has(key):
+			bag_contents[key] = []
+		bag_contents[key].append(m["item"])
+	moved = moves.size()
+	sync_to_global()
+	inventory_changed.emit()
+	return moved
+
+
+# Every place in the pack that can hold an item: character-sheet slots, then each bag's items.
+func _pack_locations() -> Array:
+	var out: Array = []
+	for i in BASIC_INVENTORY_SIZE:
+		out.append({"t": "basic", "i": i, "b": -1, "x": -1})
+	for i in BASIC_INVENTORY_SIZE:
+		if is_bag(get_basic_inventory_slot(i)):
+			for x in bag_contents.get(str(i), []).size():
+				out.append({"t": "bag", "i": -1, "b": i, "x": x})
+	return out
+
+
+func _drop_empty_stacks() -> void:
+	for i in BASIC_INVENTORY_SIZE:
+		var item = basic_inventory[i]
+		if item != null and item.get("stackable", false) and int(item.get("quantity", 1)) <= 0:
+			basic_inventory[i] = null
+	for key in bag_contents:
+		var contents: Array = bag_contents[key]
+		for x in range(contents.size() - 1, -1, -1):
+			if contents[x].get("stackable", false) and int(contents[x].get("quantity", 1)) <= 0:
+				contents.remove_at(x)
+
+
 # One move between any two of: character-sheet slot, bag slot, bank slot, bank-bag slot (used whenever the bank is involved).
 # The same stackable item merges; otherwise the two swap (or it simply moves into an empty slot). A bag's contents always
 # travel with it between top-level slots (character sheet <-> bank); a bag with things in it can't go inside another bag.
@@ -324,6 +472,24 @@ func bag_holds_text(bag: Dictionary) -> String:
 	return ""
 
 
+# How specific a bag is, for choosing where an item goes: 0 = a kit (one craft's materials), 1 = the Large Crafting Bag
+# (any material), 2 = an ordinary bag. Items go to the most specific bag that takes them.
+func bag_rank(bag: Dictionary) -> int:
+	if bag.has("tradeskill_station"):
+		return 0
+	return 1 if is_restricted_bag(bag) else 2
+
+
+# Slot numbers 0..count-1 ordered by the rank of the bag in them (kits first); `get_item` returns what's in a slot.
+func _slots_by_bag_rank(count: int, get_item: Callable) -> Array:
+	var order: Array = range(count)
+	order.sort_custom(func(a, b):
+		var ra := bag_rank(get_item.call(a)) if is_bag(get_item.call(a)) else 3
+		var rb := bag_rank(get_item.call(b)) if is_bag(get_item.call(b)) else 3
+		return ra < rb or (ra == rb and a < b))
+	return order
+
+
 func is_restricted_bag(bag: Dictionary) -> bool:
 	return bag.has("tradeskill_station") or not str(bag.get("bag_accepts", "")).is_empty()
 
@@ -470,8 +636,8 @@ func _add_item(item_id: String, quantity: int = 1) -> bool:
 					inventory_changed.emit()
 					return true
 
-	# A crafting material goes straight into a crafting bag (a kit or the Large Crafting Bag) that takes it and has room.
-	for bag_slot in range(BASIC_INVENTORY_SIZE):
+	# A crafting material goes straight into a crafting bag (its kit first, then the Large Crafting Bag) that takes it and has room.
+	for bag_slot in _slots_by_bag_rank(BASIC_INVENTORY_SIZE, get_basic_inventory_slot):
 		var bag = basic_inventory[bag_slot]
 		if bag == null or not is_restricted_bag(bag) or not bag_accepts(bag, def.merged({"item_id": item_id})):
 			continue
@@ -672,7 +838,7 @@ func _sim_has_stack(basic: Array, bags: Dictionary, id: String) -> bool:
 # Same order as add_item(): a crafting bag that takes it, a free character-sheet slot, then any bag with room.
 func _sim_place(basic: Array, bags: Dictionary, item: Dictionary) -> bool:
 	for restricted_pass in [true, false]:
-		for i in basic.size():
+		for i in _slots_by_bag_rank(basic.size(), func(n): return basic[n] if basic[n] != null else {}):
 			var bag = basic[i]
 			if bag == null or not is_bag(bag) or is_restricted_bag(bag) != restricted_pass or not bag_accepts(bag, item):
 				continue

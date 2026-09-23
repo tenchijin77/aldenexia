@@ -548,9 +548,23 @@ func _build_inventory_panel() -> void:
 		root_grid.add_child(slot)
 		storage_slots.append(slot)
 
+	var sort_row := HBoxContainer.new()
+	sort_row.alignment = BoxContainer.ALIGNMENT_END
+	var sort_btn := Button.new()
+	sort_btn.text = "Sort"
+	sort_btn.tooltip_text = "Put crafting materials into your crafting bags (kits, Large Crafting Bag) and join split stacks."
+	sort_btn.pressed.connect(_on_sort_pressed)
+	sort_row.add_child(sort_btn)
+	inventory_panel.add_child(sort_row)
+
 	_bag_sections = VBoxContainer.new()
 	_bag_sections.add_theme_constant_override("separation", 10)
 	inventory_panel.add_child(_bag_sections)
+
+
+static func _on_sort_pressed() -> void:
+	var moved := Inventory.sort_pack()
+	GameLog.log_general("You tidy your pack%s." % ((": %d item%s into your crafting bags" % [moved, "" if moved == 1 else "s"]) if moved > 0 else ""))
 
 
 func refresh_storage_slots() -> void:

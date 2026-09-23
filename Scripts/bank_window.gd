@@ -17,6 +17,7 @@ var _bag_sections: VBoxContainer
 
 
 func _ready() -> void:
+	add_to_group("bank_window")  # while it's open, right-clicking an item offers Deposit / Withdraw (slot_button.gd)
 	build_frame("Bank", POSITION_KEY, Vector2(380, 420), Vector2(360, 300))
 	_count = header("")
 	body.add_child(_count)
@@ -36,7 +37,7 @@ func _ready() -> void:
 	_bag_sections.add_theme_constant_override("separation", 8)
 	content.add_child(_bag_sections)
 	scroll.custom_minimum_size = Vector2(COLUMNS * (SLOT_SIZE.x + 6) + 14, 230)
-	var hint := header("Drag items here from your bags, and back again.")
+	var hint := header("Drag items here from your bags and back, or right-click an item > Deposit / Withdraw.")
 	hint.add_theme_color_override("font_color", Color(0.6, 0.58, 0.52))
 	body.add_child(hint)
 	Inventory.inventory_changed.connect(_refresh)

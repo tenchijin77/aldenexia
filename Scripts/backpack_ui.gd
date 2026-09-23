@@ -53,6 +53,19 @@ func _ready():
 
 	if search_bar:
 		search_bar.text_changed.connect(_on_search_text_changed)
+		# Sort, next to the search box (same as the character sheet's Sort button).
+		var row := HBoxContainer.new()
+		search_bar.get_parent().add_child(row)
+		search_bar.get_parent().move_child(row, search_bar.get_index())
+		search_bar.reparent(row)
+		search_bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		var sort_btn := Button.new()
+		sort_btn.text = "Sort"
+		sort_btn.tooltip_text = "Put crafting materials into your crafting bags (kits, Large Crafting Bag) and join split stacks."
+		sort_btn.pressed.connect(func():
+			var moved := Inventory.sort_pack()
+			GameLog.log_general("You tidy your pack%s." % ((": %d item%s into your crafting bags" % [moved, "" if moved == 1 else "s"]) if moved > 0 else "")))
+		row.add_child(sort_btn)
 	if Inventory.inventory_changed.is_connected(_on_inventory_changed) == false:
 		Inventory.inventory_changed.connect(_on_inventory_changed)
 	refresh_backpack()

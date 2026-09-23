@@ -79,6 +79,9 @@ Combat and stats
 - [FIXED]  Test 20: bank and trading confirmed working. Bags now work inside the bank (full bags bank whole, their slots
            show under the bank grid); trade window cut off/overlapping (windows now fit their contents); crafting-window
            ingredients always return on close (a full pack gets a pouch at your feet). Quest journal + recipe book: loved.
+- [FIXED]  Test 21 (aca3ec7): right-click > Deposit / Withdraw while the bank is open; a Sort button (character sheet +
+           backpack) that puts crafting materials into crafting bags and joins split stacks. Version 0.4.5 (new base).
+           Trade window resizing still to be tried.
 - [FIXED]  Equipped items' stat_modifiers (e.g. a ring's +1 to a stat) never applied to anything, for any item in the game — found while adding the trinket above. combatnode.gd/player3d.gd now sum them into the player's effective stats on every equip/unequip.
 - [FIXED]  Melee hit chance far too low at level 1 (about 20%, ~30 s to land a hit) while spells one-shot
            everything (found by: T0). Combat numbers now live in Data/combat_balance.json (player_hit_bonus 35,
