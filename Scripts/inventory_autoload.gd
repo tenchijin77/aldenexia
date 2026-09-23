@@ -1209,7 +1209,22 @@ func _swap_bag_items(bag_a: int, index_a: int, bag_b: int, index_b: int) -> void
 #endregion
 
 #region Equipment Management
+# Equipping or taking something off plays the equip sound when it works.
 func equip_item(item: Dictionary, src_type: String, src_basic_idx: int = -1, src_bag_slot: int = -1, src_item_idx: int = -1) -> bool:
+	var done := _equip_item(item, src_type, src_basic_idx, src_bag_slot, src_item_idx)
+	if done:
+		Sfx.play("equip")
+	return done
+
+
+func unequip_item(equip_slot: String) -> bool:
+	var done := _unequip_item(equip_slot)
+	if done:
+		Sfx.play("equip")
+	return done
+
+
+func _equip_item(item: Dictionary, src_type: String, src_basic_idx: int = -1, src_bag_slot: int = -1, src_item_idx: int = -1) -> bool:
 	var item_slot: String = item.get("slot", "none")
 	var equip_slot: String = ITEM_SLOT_MAP.get(item_slot, "")
 	if equip_slot.is_empty():
@@ -1264,7 +1279,7 @@ func equip_item(item: Dictionary, src_type: String, src_basic_idx: int = -1, src
 	print("✅ Equipped %s → %s slot" % [item.get("name", "?"), equip_slot])
 	return true
 
-func unequip_item(equip_slot: String) -> bool:
+func _unequip_item(equip_slot: String) -> bool:
 	var item: Variant = equipped.get(equip_slot, null)
 	if item == null:
 		return false

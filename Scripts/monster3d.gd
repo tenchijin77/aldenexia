@@ -1399,6 +1399,10 @@ func _resolve_attack_on(target: Node, relayed: bool = false) -> void:
 				target.on_attacked(self)
 			if target.has_method("_tick_defense_skill"):
 				target._tick_defense_skill(result.get("result", ""))
+			if target.has_method("play_swung_at_sound"):
+				target.play_swung_at_sound(str(result.get("result", "")), int(result.get("damage", 0)), self)
+			if str(result.get("result", "")) == "HIT" and monster_name.contains("spider"):
+				Sfx.play("spider_attack", self)
 			if result.get("damage", 0) > 0 and target.has_method("on_combat_node_hit"):
 				target.on_combat_node_hit(self)
 		else:

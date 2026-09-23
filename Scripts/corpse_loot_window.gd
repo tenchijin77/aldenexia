@@ -288,6 +288,7 @@ func _apply_drop(drop: Dictionary) -> bool:
 	else:
 		var display_name: String = item_id.replace("_", " ").capitalize()
 		if Inventory.add_item(item_id, qty):
+			Sfx.play("pickup")
 			GameLog.log_general("You receive %s%s." % [display_name, (" x%d" % qty) if qty > 1 else ""])
 			return true
 		else:

@@ -9,7 +9,7 @@
 [ext_resource type="Texture2D" uid="uid://cl2eyawk2117b" path="res://Assets/torch/frame_5_delay-0.1s.png" id="7_8dnnj"]
 [ext_resource type="Texture2D" uid="uid://ccw8ogjrvchh" path="res://Assets/torch/frame_6_delay-0.1s.png" id="8_m3bi6"]
 [ext_resource type="Texture2D" uid="uid://bme41grnrw5qp" path="res://Assets/torch/frame_7_delay-0.1s.png" id="9_wyh8j"]
-[ext_resource type="AudioStream" uid="uid://dmynysams58t8" path="res://Assets/Torch Loop.ogg" id="11_vr1f0"]
+[ext_resource type="AudioStream" uid="uid://dmynysams58t8" path="res://Assets/sounds/ambient/torch_loop.ogg" id="11_vr1f0"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_ujyyl"]
 animations = [{

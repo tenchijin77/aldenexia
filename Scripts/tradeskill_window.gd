@@ -26,6 +26,12 @@ const MAX_SUCCESS := 0.98
 const FAIL_GAIN_MULT := 0.25
 
 var _station_id: String = ""
+# The sound of each craft while a batch is being made (Data/sounds.json). Brewing shares alchemy's pour, woodworking the
+# woodcutting chop and tinkering the forge hammer until they have their own.
+const CRAFT_SOUNDS := {"blacksmithing": "craft_forge", "tinkering": "craft_forge", "cooking": "craft_cooking",
+		"alchemy": "craft_alchemy", "brewing": "craft_alchemy", "leatherworking": "craft_tanning", "tailoring": "craft_sewing",
+		"jewelcrafting": "craft_gems", "fletching": "craft_fletching", "woodworking": "gather_wood"}
+var _craft_sound: Node = null
 var _recipes: Array = []          # [{id, recipe}] — every recipe that can be made at this station
 var _groups: Dictionary = {}      # ingredient group id (e.g. cooked_meat_any) -> Array of item ids it accepts
 var _dragging := false
@@ -214,6 +220,8 @@ func _on_action_pressed() -> void:
 	_craft_done = 0
 	_craft_started_msec = Time.get_ticks_msec()
 	action_btn.text = "Stop"
+	Sfx.stop(_craft_sound)
+	_craft_sound = Sfx.start_loop(str(CRAFT_SOUNDS.get(str(_craft_recipe.get("skill", "")), "")), self) if CRAFT_SOUNDS.has(str(_craft_recipe.get("skill", ""))) else null
 	close_btn.disabled = true
 	progress_bar.visible = true
 	progress_bar.value = 0.0
@@ -274,6 +282,7 @@ func _make_one() -> bool:
 				left[slot.held_item_id] = int(left[slot.held_item_id]) - take
 				slot.remove_quantity(take)
 	var display_name: String = Inventory.get_item_definition(output).get("name", output)
+	Sfx.play("craft_success" if success else "craft_fail")
 	if not success:
 		GameLog.log_general("[color=#ff8866]You fail to make %s. The ingredients are ruined.[/color]" % display_name)
 	elif crit:
@@ -299,6 +308,8 @@ static func success_chance(recipe: Dictionary, skill: int) -> float:
 func _stop_crafting(message: String) -> void:
 	if not _crafting:
 		return
+	Sfx.stop(_craft_sound)
+	_craft_sound = null
 	_crafting = false
 	_craft_recipe = {}
 	_craft_uses = {}

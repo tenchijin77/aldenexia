@@ -14,10 +14,13 @@ var _min_size := Vector2(320, 240)
 var _dragging := false
 var _resizing := false
 var _outer: VBoxContainer
+var open_sound := "window"   # Data/sounds.json id played when the window opens (the bank uses its vault door)
 
 
 func build_frame(title: String, position_key: String, default_size: Vector2, min_size: Vector2 = Vector2(320, 240)) -> void:
 	layer = 5
+	Sfx.play(open_sound)
+	tree_exiting.connect(func(): Sfx.play("window"))
 	_position_key = position_key
 	_min_size = min_size
 	panel = Panel.new()

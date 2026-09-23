@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://d1ev05d84hpcr"]
 
-[ext_resource type="AudioStream" uid="uid://c6weks5o8uyvg" path="res://Assets/Loading Screen Loop.wav" id="1_u048c"]
+[ext_resource type="AudioStream" uid="uid://c6weks5o8uyvg" path="res://Assets/music/loading_screen_loop.wav" id="1_u048c"]
 [ext_resource type="Script" uid="uid://btarhyxcd3p6t" path="res://Scripts/global_background_music.gd" id="2_7ckel"]
 
 [node name="background_music" type="AudioStreamPlayer"]

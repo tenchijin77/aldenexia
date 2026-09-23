@@ -27,6 +27,11 @@ var _target_db := -80.0
 
 
 func _ready() -> void:
+	if not Net.is_dedicated_server:
+		var nature := Node.new()
+		nature.name = "NatureAmbience"
+		nature.set_script(load("res://Scripts/ambient_nature.gd"))
+		add_child(nature)  # birds by day, crickets by night (ambient_nature.gd)
 	if stream == null or Net.is_dedicated_server:
 		set_process(false)
 		return

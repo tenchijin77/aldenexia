@@ -27,6 +27,8 @@ var _gather_start_pos := Vector3.ZERO
 var _gather_started_msec := 0
 var _visual: Node3D = null
 var _respawn_timer: Timer = Timer.new()
+var _sound: Node = null   # the gathering sound loop (sfx.gd) while someone gathers here
+const GATHER_SOUNDS := {"prospecting": "gather_mining", "woodworking": "gather_wood", "fishing": "gather_fishing"}
 
 
 var model_config: Dictionary = {}  # Data/crafting_models.json entry ({} = placeholder shape)
@@ -86,6 +88,8 @@ func start_gather(player: Node3D) -> void:
 	_gather_start_pos = player.global_position
 	_gather_started_msec = Time.get_ticks_msec()
 	GameLog.log_general("You begin gathering from the %s..." % def.get("name", "node"))
+	if GATHER_SOUNDS.has(skill_name):
+		_sound = Sfx.start_loop(GATHER_SOUNDS[skill_name], self)
 	set_process(true)
 
 
@@ -107,6 +111,8 @@ func _process(delta: float) -> void:
 
 
 func _cancel(message: String) -> void:
+	Sfx.stop(_sound)
+	_sound = null
 	if is_instance_valid(_gatherer) and _gatherer.has_method("clear_task_progress"):
 		_gatherer.clear_task_progress()
 	_gatherer = null
@@ -117,6 +123,8 @@ func _cancel(message: String) -> void:
 
 # Rolls the gather: success gives the item (crit: the crit yield) plus any bonus drop and uses the node up.
 func _finish() -> void:
+	Sfx.stop(_sound)
+	_sound = null
 	var player := _gatherer
 	_gatherer = null
 	if player.has_method("clear_task_progress"):
@@ -147,6 +155,7 @@ func _give(item_id: String, qty: int, crit: bool) -> void:
 	if not Inventory.add_item(item_id, qty):
 		GameLog.log_general("[color=#ffaa66]Your bags are full — you leave the %s behind.[/color]" % item_name)
 		return
+	Sfx.play("pickup")
 	if crit:
 		GameLog.log_general("[color=#ffdd44]A fine find! You gather [b]%d %s[/b].[/color]" % [qty, item_name])
 	else:

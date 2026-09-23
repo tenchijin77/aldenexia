@@ -38,7 +38,7 @@ signal rain_changed(raining: bool)
 @export_group("Nodes / assets")
 @export var day_night_path: NodePath = ^"../DayNightCycle"
 @export var world_environment_path: NodePath = ^"../WorldEnvironment"
-@export var rain_sound: AudioStream = preload("res://Assets/boons_freak-rain-sound-188158.mp3")
+@export var rain_sound: AudioStream = preload("res://Assets/sounds/ambient/rain_loop.mp3")
 
 const RAIN_TILT_MIN := 0.12      # slant of the rain: horizontal speed / fall speed, rolled per rain
 const RAIN_TILT_MAX := 0.55

@@ -8,6 +8,11 @@ const WALK_SPEED: float = 5.0
 const RUN_SPEED: float = 8.0
 const CROUCH_SPEED: float = 2.5
 const JUMP_VELOCITY: float = 6.0
+const SPELL_PROJECTILE := preload("res://Scripts/spell_projectile.gd")
+const FALL_SAFE_HEIGHT := 6.0          # metres you can drop without getting hurt
+const FALL_DAMAGE_PER_METRE := 0.05    # of max health, for every metre past FALL_SAFE_HEIGHT
+const FALL_GRACE_MS := 5000            # no fall damage this long after logging in or respawning (being placed on the ground)
+const LOW_HEALTH_FRACTION := 0.25      # the heartbeat plays below this much health
 const TURN_SPEED: float = PI
 
 const BACKWARD_SPEED_MULT: float = 0.75
@@ -195,6 +200,13 @@ var group_members: Array = []
 var is_running: bool = true
 var is_crouching: bool = false
 var is_in_air: bool = false
+var _projectile_landing := false       # true while a spell's projectile has arrived and its effect is being applied
+var _fall_top_y := 0.0                 # the highest point of the current time in the air (for fall damage)
+var _fall_grace_until_ms := 0
+var _body_sound_timer := 0.0
+var _footsteps_loop: Node = null       # sfx.gd loops, started/stopped by _update_body_sounds()
+var _footsteps_kind := ""
+var _heartbeat_loop: Node = null
 var stumble_timer: float = 0.0
 var movement_direction: Vector3 = Vector3.ZERO
 var current_speed: float = 0.0
@@ -938,6 +950,7 @@ func _enter_tree() -> void:
 
 
 func _ready() -> void:
+	_fall_grace_until_ms = Time.get_ticks_msec() + FALL_GRACE_MS  # the game drops you onto the ground when you arrive
 	if is_queued_for_deletion():
 		return
 	add_to_group("player")
@@ -1498,10 +1511,13 @@ func _physics_process(delta: float) -> void:
 
 	if not is_on_floor():
 		velocity.y -= ProjectSettings.get_setting("physics/3d/default_gravity") * delta
+		_fall_top_y = maxf(_fall_top_y, global_position.y) if is_in_air else global_position.y
 		is_in_air = true
 	else:
 		if is_in_air and velocity.y < -10.0:
 			stumble_timer = STUMBLE_DURATION
+		if is_in_air:
+			_on_landed(_fall_top_y - global_position.y)
 		is_in_air = false
 
 	if chat_focused:
@@ -1524,6 +1540,70 @@ func _physics_process(delta: float) -> void:
 
 	move_and_slide()
 	_update_animation()
+	_update_body_sounds(delta)
+
+
+# Landing after `height` metres of drop: past FALL_SAFE_HEIGHT it hurts (FALL_DAMAGE_PER_METRE of max health a metre)
+# with the fall-impact sound. Not right after logging in or respawning, when the game itself drops you onto the ground.
+func _on_landed(height: float) -> void:
+	if height <= FALL_SAFE_HEIGHT or Time.get_ticks_msec() < _fall_grace_until_ms or dying:
+		return
+	var damage := int(ceil(combat_node.max_hp * FALL_DAMAGE_PER_METRE * (height - FALL_SAFE_HEIGHT)))
+	Sfx.play("fall_impact")
+	GameLog.log_combat("[color=#ff8866]You fall %d metres and take [b]%d[/b] damage.[/color]" % [int(round(height)), damage])
+	_last_attacker_desc = "a long fall"
+	take_damage(damage)
+
+
+# Footsteps (walking or running) while you move on the ground, the swim sound while you're in the sea, and a heartbeat
+# while your health is low. Checked a few times a second; each is a loop that starts and stops as things change.
+func _update_body_sounds(delta: float) -> void:
+	_body_sound_timer -= delta
+	if _body_sound_timer > 0.0:
+		return
+	_body_sound_timer = 0.15
+	var flat_speed := Vector2(velocity.x, velocity.z).length()
+	var kind := ""
+	if not dying and flat_speed > 0.6:
+		if _in_water():
+			kind = "swim"
+		elif is_on_floor():
+			kind = "footsteps_run" if flat_speed > WALK_SPEED + 0.5 else "footsteps_walk"
+	if kind != _footsteps_kind:
+		Sfx.stop(_footsteps_loop)
+		_footsteps_loop = Sfx.start_loop(kind, self) if not kind.is_empty() else null
+		_footsteps_kind = kind
+	var low := not dying and combat_node.max_hp > 0 and combat_node.current_hp > 0 \
+			and float(combat_node.current_hp) / float(combat_node.max_hp) < LOW_HEALTH_FRACTION
+	if low and not is_instance_valid(_heartbeat_loop):
+		_heartbeat_loop = Sfx.start_loop("heartbeat", self)
+	elif not low and is_instance_valid(_heartbeat_loop):
+		Sfx.stop(_heartbeat_loop)
+		_heartbeat_loop = null
+
+
+# In the sea: below the water's surface inside the area of the zone's water mesh (ambient_water_sound.gd finds it).
+var _water_rects: Array = []
+var _water_surface := INF
+var _water_looked := false
+
+func _in_water() -> bool:
+	if not _water_looked:
+		_water_looked = true
+		var scene := get_tree().current_scene
+		if scene != null:
+			for node in scene.find_children("*", "MeshInstance3D", true, false):
+				if String(node.name).to_lower().contains("water") and (node as MeshInstance3D).mesh != null:
+					var box: AABB = node.global_transform * (node as MeshInstance3D).get_aabb()
+					if box.size.x * box.size.z >= 400.0:  # the sea, not a prop's water
+						_water_rects.append(Rect2(box.position.x, box.position.z, box.size.x, box.size.z))
+						_water_surface = minf(_water_surface, box.position.y + box.size.y)
+	if global_position.y > _water_surface - 0.5:
+		return false
+	for rect in _water_rects:
+		if (rect as Rect2).has_point(Vector2(global_position.x, global_position.z)):
+			return true
+	return false
 #endregion
 
 #region Process (regen / vitals / cooldowns)
@@ -1976,6 +2056,7 @@ func handle_jump() -> void:
 		current_stamina = max(current_stamina, 0.0)
 		_tick_skill("athletics")
 		velocity.y = JUMP_VELOCITY
+		Sfx.play("jump")
 
 
 func handle_movement(delta: float) -> void:
@@ -2740,6 +2821,7 @@ func attack_current_target() -> void:
 		if not msg.is_empty():
 			GameLog.log_combat(msg)
 			_broadcast_combat(CombatLogFormatter.player_attack_broadcast(player_name, result, target_desc, weapon_name, dmg_type))
+		play_swing_sound(str(result.get("result", "")), weapon, current_target)
 		if result["result"] == "HIT":
 			var skey: String = _weapon_skill_key(weapon)
 			_tick_skill(skey)
@@ -2843,6 +2925,7 @@ func perform_melee_attack() -> void:
 			if not msg.is_empty():
 				GameLog.log_combat(msg)
 				_broadcast_combat(CombatLogFormatter.player_attack_broadcast(player_name, result, target_desc, weapon_name, dmg_type))
+			play_swing_sound(str(result.get("result", "")), weapon, target)
 			if result["result"] == "HIT":
 				var skey: String = _weapon_skill_key(weapon)
 				_tick_skill(skey)
@@ -3038,6 +3121,7 @@ func _tick_bleedout(delta: float) -> void:
 func _die_for_real() -> void:
 	is_incapacitated = false
 	combat_node.current_hp = DEATH_HP
+	Sfx.play("death_female" if player_sex.to_lower() == "female" else "death_male")
 	GameLog.log_combat("[color=#ff4444]You have been defeated by %s![/color]" % _last_attacker_desc.capitalize())
 	if _death_flavor:
 		var line := _death_flavor.get_line("death")
@@ -3072,6 +3156,7 @@ func _respawn() -> void:
 	_death_screen = null
 
 	global_position = get_bind_point()
+	_fall_grace_until_ms = Time.get_ticks_msec() + FALL_GRACE_MS
 	combat_node.current_hp = combat_node.max_hp
 	combat_node.current_mana = combat_node.max_mana
 	current_stamina = max_stamina
@@ -3097,6 +3182,7 @@ func _ensure_bind_point() -> void:
 # character (no "last_position" saved yet), which just keeps the zone's
 # default spawn.
 func _restore_last_position() -> void:
+	_fall_grace_until_ms = Time.get_ticks_msec() + FALL_GRACE_MS
 	var arr: Array = Global.player_data.get("last_position", [])
 	if arr.size() == 3:
 		global_position = Vector3(arr[0], arr[1], arr[2])
@@ -3135,6 +3221,7 @@ func _set_target_frame(target: Node) -> void:
 
 #region Character sheet management
 func toggle_character_sheet() -> void:
+	Sfx.play("window")
 	if character_sheet_instance:
 		character_sheet_instance.queue_free()
 		character_sheet_instance = null
@@ -3855,6 +3942,12 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 	var base_damage: int = spell.get("damage", 0)
 	var effect_type_raw  = spell.get("effect_type", "")
 	var effect_type: String = effect_type_raw if effect_type_raw is String else ""
+	# A bolt or arrow spell cast at an enemy flies there first (spell_projectile.gd) and lands — damage, effects and its
+	# sound at the target — when it arrives: this function runs again then, with _projectile_landing set.
+	var flies: bool = not _projectile_landing and str(spell.get("target", "enemy")) in ["enemy", "line"] \
+			and target_node is Node3D and SPELL_PROJECTILE.flies(spell)
+	if not flies:
+		Sfx.play(spell_sound(spell), target_node if is_instance_valid(target_node) else self)
 
 	# "reactive" spells (e.g. Improved Parry, Spell Ward) are defensive
 	# self-effects by design — some have a mis-authored "enemy" target in the
@@ -3915,10 +4008,19 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 			if TargetFrame.faction_status(target_node) == "Ally":
 				GameLog.log_general("You can't target an ally with [b]%s[/b]." % display_name)
 				return
-			if _target_out_of_range(spell, target_node):
+			if not _projectile_landing and _target_out_of_range(spell, target_node):
 				GameLog.log_general("[color=#ff8866]Your target moved out of range of [b]%s[/b].[/color]" % display_name)
 				return
 			if not target_node.has_method("apply_damage"):
+				return
+			if flies:
+				var bolt_target: Node3D = target_node
+				SPELL_PROJECTILE.launch(self, bolt_target, spell, func() -> void:
+					if not is_instance_valid(self) or not is_instance_valid(bolt_target) or dying:
+						return
+					_projectile_landing = true
+					_resolve_spell_cast(spell_name, spell, bolt_target)
+					_projectile_landing = false)
 				return
 
 			combat_node.break_invisibility()
@@ -5104,6 +5206,7 @@ func _check_spell_interrupt(attacker: Node) -> void:
 			_tick_skill("channeling")
 		"CONCENTRATION_FAILURE":
 			GameLog.log_general("[color=#ff8866]%s[/color]" % result.get("message", ""))
+			Sfx.play("spell_fizzle")
 			_pending_cast_spell = ""
 			_pending_cast_spell_data = {}
 			_pending_cast_target = null
@@ -5243,6 +5346,64 @@ func _resolve_melee_attack(target_cn: CombatNode) -> Dictionary:
 # defending against our own swing.
 # Called by a monster every time it swings at you (hit, miss, dodge, parry...): an attack is an attack even when it does no damage.
 # It stands you up (you cannot rest through a fight) and interrupts camping and crafting (they watch last_attacked_msec).
+# ── Combat sounds ──
+# Which sound a spell makes when it goes off (Data/sounds.json ids), from its player_spells.json fields: stealth,
+# summons, healing / cures / dispels, weapon and archery skills, elemental schools (fire, cold, lightning, poison,
+# disease), other harmful magic, and everything helpful as a buff.
+static func spell_sound(spell: Dictionary) -> String:
+	var category := str(spell.get("skill_category", ""))
+	var effect := str(spell.get("effect_type", "")) if spell.get("effect_type") is String else ""
+	var kind := str(spell.get("spell_type", ""))
+	var school := str(spell.get("spell_school", ""))
+	var spell_name := str(spell.get("spell_name", "")).to_lower()
+	if category == "stealth" or spell_name.contains("invis") or spell_name.contains("stealth"):
+		return "spell_stealth"
+	if kind == "summon" or effect == "summon":
+		return "spell_summon"
+	if effect in ["heal", "hot", "cure"] or kind == "dispel":
+		return "spell_heal"
+	if category == "archery":
+		return "arrow_shot"
+	if category == "mantis_fist":
+		return "unarmed_hit"
+	if category in ["slashing_weapons", "piercing_weapons", "blunt_weapons", "offense"]:
+		return "weapon_hit"
+	if kind in ["beneficial", "self-beneficial", "reactive"] or effect in ["buff", "absorb", "light"]:
+		return "spell_buff"
+	if school in ["fire", "cold", "lightning", "poison", "disease"]:
+		return "spell_elemental"
+	return "spell_damage"
+
+
+# Our own swing: a hit (weapon, or fists for an unarmed swing / an Aetherfist), a miss or dodge (a whoosh), or the
+# target's block / parry / riposte.
+func play_swing_sound(result: String, weapon: Dictionary, target: Node) -> void:
+	match result:
+		"HIT":
+			var unarmed := weapon.is_empty() or player_class == "Aetherfist"
+			Sfx.play("unarmed_hit" if unarmed else "weapon_hit", target)
+		"MISS", "DODGE":
+			Sfx.play("miss", target)
+		"BLOCK":
+			Sfx.play("block", target)
+		"PARRY", "RIPOSTE":
+			Sfx.play("parry", target)
+
+
+# A monster's swing at us (monster3d.gd, on this player's own machine): hurt when it lands, otherwise how we avoided it.
+func play_swung_at_sound(result: String, damage: int, attacker: Node) -> void:
+	match result:
+		"MISS", "DODGE":
+			Sfx.play("miss", attacker)
+		"BLOCK":
+			Sfx.play("block", self)
+		"PARRY", "RIPOSTE":
+			Sfx.play("parry", self)
+		_:
+			if damage > 0:
+				Sfx.play("hurt_female" if player_sex.to_lower() == "female" else "hurt_male")
+
+
 func on_attacked(_attacker: Node) -> void:
 	last_attacked_msec = Time.get_ticks_msec()
 	if is_sitting:
@@ -5307,6 +5468,7 @@ func _sync_weapon_skill() -> void:
 
 
 func on_level_up(new_level: int) -> void:
+	Sfx.play("level_up")
 	combat_node.set_base_stat("level", new_level)
 	combat_node.recalculate_derived_stats()
 	combat_node.current_hp   = combat_node.max_hp
@@ -5419,6 +5581,7 @@ func toggle_recipe_book() -> void:
 
 
 func toggle_abilities_book() -> void:
+	Sfx.play("window")
 	if abilities_book_instance:
 		abilities_book_instance.queue_free()
 		abilities_book_instance = null
@@ -5430,6 +5593,7 @@ func toggle_abilities_book() -> void:
 
 
 func toggle_backpack() -> void:
+	Sfx.play("bag_open")
 	if backpack_instance:
 		backpack_instance.queue_free()
 		backpack_instance = null

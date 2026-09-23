@@ -19,13 +19,13 @@ extends AudioStreamPlayer
 # Keyed by scene_file_path — add a new zone's ambient track here, no other
 # code changes needed.
 const SCENE_MUSIC := {
-	"res://Scenes/lumora_outskirts3d.tscn": "res://Assets/Sands of Lumora.ogg",
+	"res://Scenes/lumora_outskirts3d.tscn": "res://Assets/music/sands_of_lumora.ogg",
 }
 
 var _menu_stream: AudioStream
 var _current_scene_path: String = ""
 
-const COMBAT_TRACK := "res://Assets/Tomb of the Lost.ogg"
+const COMBAT_TRACK := "res://Assets/music/tomb_of_the_lost.ogg"
 const COMBAT_FADE := 1.5        # crossfade length, both directions (seconds)
 const COMBAT_LINGER := 8.0      # quiet seconds before the zone music returns
 const COMBAT_START_WINDOW := 1.0  # a blow this recent starts combat music
@@ -37,6 +37,23 @@ var _combat_active := false
 var _zone_base_db := 0.0
 var _poll_accum := 0.0
 var _fade_tween: Tween
+var _music_gain := {}   # track path -> volume_db from Data/sounds.json "music" (tools/balance_sounds.py): every track equally loud
+
+
+# The balanced volume of a track (0 dB when it isn't listed).
+func _gain(track: AudioStream) -> float:
+	if _music_gain.is_empty():
+		var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string("res://Data/sounds.json"))
+		var music: Dictionary = parsed.get("music", {}) if typeof(parsed) == TYPE_DICTIONARY else {}
+		for path in music:
+			_music_gain[path] = float(music[path].get("volume_db", 0.0))
+		_music_gain["_loaded"] = 0.0
+	return float(_music_gain.get(track.resource_path, 0.0)) if track else 0.0
+
+
+# The zone track's volume: the scene's own setting plus the current track's balance.
+func _zone_db() -> float:
+	return _zone_base_db + _gain(stream)
 
 
 func _ready():
@@ -72,7 +89,7 @@ func _check_and_play_music():
 			stream = track
 			stream_paused = false
 			if not _combat_active:
-				volume_db = _zone_base_db
+				volume_db = _zone_db()
 			play()
 			print("✅ Music playing:", scene_path)
 	else:
@@ -127,14 +144,14 @@ func _start_combat_music() -> void:
 	_combat_active = true
 	if not _combat_player.playing:
 		_combat_player.play()
-	_crossfade(SILENT_DB, 0.0, func(): if _combat_active: stream_paused = true)
+	_crossfade(SILENT_DB, _zone_base_db + _gain(_combat_player.stream), func(): if _combat_active: stream_paused = true)
 	print("⚔️ Combat music on")
 
 
 func _end_combat_music() -> void:
 	_combat_active = false
 	stream_paused = false  # zone track resumes from where it was paused
-	_crossfade(_zone_base_db, SILENT_DB, func(): if not _combat_active: _combat_player.stop())
+	_crossfade(_zone_db(), SILENT_DB, func(): if not _combat_active: _combat_player.stop())
 	print("🕊️ Combat music off")
 
 

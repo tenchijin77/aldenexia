@@ -1,0 +1,80 @@
+ALDENEXIA — SOUND EFFECTS (Assets/sounds) and MUSIC (Assets/music)
+What each file is for, and the file it was downloaded as (kept for credits: the prefix is the author's name on the
+site it came from). Music tracks live in Assets/music.
+
+ambient/
+  campfire_crackle.mp3   campfires, torches            soundsforyou-campfire-crackling-fireplace-sound-119594.mp3
+  ocean_waves.mp3        the sea near the shore        soundsforyou-ocean-sea-soft-waves-121349.mp3
+  rain_loop.mp3          rain (weather)                boons_freak-rain-sound-188158.mp3
+  torch_loop.ogg         main menu torch               Torch Loop.ogg
+  wind_loop.ogg          zone wind                     wind woosh loop.ogg
+  birds_day.mp3          daytime birds                 freesound_community-birds-chirping-75156.mp3
+  crickets_night.mp3     night crickets                blender_abstract-crickets-395138.mp3
+
+combat/
+  weapon_hit.mp3         player hits with a weapon     yodguard-sword_slashing-2-382396.mp3
+  unarmed_hit.mp3        unarmed attacks, monk skills  universfield-punch-140236.mp3
+  miss_swish.mp3         player misses                 djartmusic-arrow-swish_03-306040.mp3
+  arrow_shot.mp3         shooting arrows               freesound_community-arrow-impact-87260.mp3
+  bow_release.ogg        (older) ranged attack         arrow shoot.ogg
+  sword_hit_short.ogg    (older) sword hit             sword hit.ogg
+  damage_thud.ogg        (older) damage                damage.ogg
+  whiff_1.mp3            a miss                        freesound_community-whiff-88697.mp3 (its first whoosh)
+  block.mp3              a shield block                yodguard-shield_impact-3-382411.mp3 (trimmed to the hit)
+  parry.mp3              a parry (blade on blade)      voicebosch-sword-deflection-the-ballad-of-the-blades-255962.mp3
+
+gathering/
+  mining.mp3             mining ore                    alex_jauk-mining-ambience-224917.mp3
+  woodcutting.mp3        chopping trees / woodworking  freesound_community-chopping-logs-73222.mp3
+  fishing_reel.mp3       fishing                       freesound_community-reel-78063.mp3
+
+player/
+  hurt_male.mp3          male character takes damage   freesound_community-male_hurt7-48124.mp3
+  hurt_female.mp3        female character takes damage cookiecheese-hurt-sound-2-531759.mp3
+  jump.mp3               jumping                       freesound_community-jumping-human-45745.mp3
+  swim.mp3               swimming                      flutie8211-swimming-in-pool-435068.mp3
+  death_male.mp3         male character dies           vinodadora-male-death-sound-128357.mp3
+  death_female.mp3       female character dies         freesound_gamestudio-female-character-death-vocal-3-408450.mp3
+  fall_impact.mp3        damage from a fall            universfield-character-fall-impact-352287.mp3
+  footsteps_walk.mp3     walking                       u_6jboiezarw-sound-of-walking-out-in-nature-446986.mp3
+  footsteps_run.mp3      running                       freesound_community-running-6358.mp3
+  heartbeat_low_health.mp3 low health                    dragon-studio-thudding-heartbeat-372487.mp3
+
+spells/
+  heal.mp3               healing, curing, dispels      coghezzi-holy-healing-spell-533279.mp3
+  magic_damage.mp3       magic damage spells           freesound_community-magic-smite-6012.mp3
+  elemental.mp3          elemental spells              yodguard-fire-magic-5-378639.mp3
+  buff.mp3               casting a buff                koiroylers-magic-spell-353606.mp3
+  stealth.mp3            invisibility / stealth        universfield-magic-twinkle-244951.mp3
+  summon.mp3             summoning pets                yodguard-dark-spell-chant-3-533018.mp3
+  fireball.wav           (older) magic missile         Fireball 1.wav
+  fizzle.mp3             spell fizzles / is interrupted freesound_community-fizzle-101872.mp3
+
+ui/
+  coins.mp3              buying, selling, looting coin yodguard-coin-collect-3-540190.mp3
+  pickup.ogg             picking up an item            pickup.ogg
+  quest_complete.mp3     quest completed               36505577-pop-up-notify-smooth-modern-332448.mp3
+  quest_received.mp3     quest received                36505577-smooth-completed-notify-starting-alert-274739.mp3
+  window_open_close.mp3  open / close a window         juniorsoundays-ui-sound-41-527814.mp3
+  button_click.mp3       button click                  dragon-studio-button-press-382713.mp3
+  bag_open.mp3           open a bag                    freesound_community-open-bag-sound-39216.mp3
+  equip.mp3              equip / remove an item        davidgallie-item-removed-from-box-140495.mp3
+  level_up.mp3           level up                      universfield-level-up-08-402152.mp3
+  bank_vault.mp3         bank opens                    freesound_community-bank-vault-100469.mp3
+
+crafting/
+  forge_hammer.mp3       blacksmithing (forge)         freesound_community-hammer-6145.mp3
+  cooking.mp3            cooking                       justsomesounds-cooking-sound-442650.mp3
+  alchemy_pour.mp3       alchemy                       freesound_community-quick-pour-86306.mp3
+  tanning_scrape.mp3     tanning / leatherworking      bfcmusic-blade-scrape-sfx-5-311551.mp3
+  sewing.mp3             tailoring                     freesound_community-crochet-needles-hooks-and-fabric-54399.mp3
+  gem_tapping.mp3        jewelcrafting                 arunangshubanerjee-wooden-mallet-hitting-metal-surface-real-workshop-repair-359576.mp3
+  fletching.mp3          fletching                     kai_audio-paint-brush-bristles-texture-480747.mp3
+  craft_success.mp3      crafting success              freesound_community-success-fanfare-trumpets-6185.mp3
+  craft_fail.mp3         crafting failure              freesound_community-failfare-86009.mp3
+
+monsters/
+  spider_attack.mp3      spider attacks                yodguard-spider-attack-2-482539.mp3
+
+world/
+  door_close.mp3         a door or gate closing        hasin2004-close-door-sound-247450.mp3

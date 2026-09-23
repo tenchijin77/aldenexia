@@ -17,7 +17,8 @@ var _bag_sections: VBoxContainer
 
 
 func _ready() -> void:
-	add_to_group("bank_window")  # while it's open, right-clicking an item offers Deposit / Withdraw (slot_button.gd)
+	add_to_group("bank_window")
+	open_sound = "bank_vault"  # while it's open, right-clicking an item offers Deposit / Withdraw (slot_button.gd)
 	build_frame("Bank", POSITION_KEY, Vector2(380, 420), Vector2(360, 300))
 	_count = header("")
 	body.add_child(_count)

@@ -190,6 +190,7 @@ func _receive_item(item: Dictionary) -> void:
 	var player := TargetFrame.local_player() as Node3D
 	if Inventory.add_item(item_id, qty):
 		GameLog.log_general("[color=#88ffaa]You pick up %s.[/color]" % _label_for(item))
+		Sfx.play("pickup")
 	else:
 		GameLog.log_general("[color=#ff8866]Your bags are full — the pouch stays on the ground.[/color]")
 		if is_instance_valid(player):

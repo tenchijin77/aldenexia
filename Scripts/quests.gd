@@ -41,6 +41,7 @@ static func start(id: String) -> bool:
 	_quests()[id] = {"state": "active", "progress": 0, "started": Time.get_unix_time_from_system()}
 	Global.save_player_data_to_file()
 	GameLog.log_general("[color=#ffdd44][b]Quest started:[/b] %s[/color] [color=#aaaaaa](added to your journal — press J)[/color]" % definition(id).get("name", id))
+	Sfx.play("quest_received")
 	GameLog.log_general("[color=#cccccc]%s[/color]" % definition(id).get("summary", ""))
 	return true
 
@@ -108,6 +109,7 @@ static func try_hand_in(giver: String, item_id: String, player: Node) -> Diction
 	_entry(involved)["completed"] = Time.get_unix_time_from_system()
 	_give_rewards(def.get("rewards", {}), player)
 	GameLog.log_general("[color=#ffdd44][b]Quest complete:[/b] %s[/color]" % def.get("name", involved))
+	Sfx.play("quest_complete")
 	for next_id in _all_ids():  # the next step of a chain, if you already carry its item
 		if str(definition(next_id).get("requires_quest", "")) == involved:
 			var next_item := str(definition(next_id).get("objective", {}).get("item", ""))

@@ -11,7 +11,7 @@ signal currency_changed
 #endregion
 
 #region SFX (one-shot, non-positional — UI/feedback sounds, not 3D-positioned combat SFX)
-const COIN_SOUND: AudioStream = preload("res://Assets/yodguard-coin-collect-3-540190.mp3")
+const COIN_SOUND: AudioStream = preload("res://Assets/sounds/ui/coins.mp3")
 
 # Spawns a short-lived AudioStreamPlayer on the "SFX" bus (respects the
 # Options menu's SFX volume slider) and frees itself when done — a fresh
@@ -30,7 +30,7 @@ func play_sfx(stream: AudioStream, volume_db: float = 0.0) -> void:
 	player.finished.connect(player.queue_free)
 
 func play_coin_sound() -> void:
-	play_sfx(COIN_SOUND)
+	Sfx.play("coins")  # balanced volume (Data/sounds.json)
 
 
 # Investigated 2026-09-14: reported "title music takes 5-10s to start on the
@@ -250,6 +250,7 @@ var total_playtime_seconds: int = 0
 #endregion
 
 func _ready():
+	Sfx.install(get_tree())  # every Button clicks (sfx.gd)
 	_ensure_input_actions()
 	_warm_up_audio()
 	load_xp_table()

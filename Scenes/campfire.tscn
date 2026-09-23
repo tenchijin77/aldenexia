@@ -4,7 +4,7 @@
 [ext_resource type="PackedScene" uid="uid://0eob0gqo1uay" path="res://models/Campfire.glb" id="1_qcxes"]
 [ext_resource type="Texture2D" uid="uid://br23vq18l8bh3" path="res://Assets/toppng.com-swirling-fire-effect-with-high-glow-530x600.png" id="2_a7vrp"]
 [ext_resource type="Texture2D" uid="uid://ol3fgehyr2gl" path="res://Assets/toppng.com-realistic-smoke-texture-with-soft-particle-edges-png-399x385.png" id="3_a7vrp"]
-[ext_resource type="AudioStream" uid="uid://ddoo8b2k3noxl" path="res://Assets/soundsforyou-campfire-crackling-fireplace-sound-119594.mp3" id="4_qycku"]
+[ext_resource type="AudioStream" uid="uid://ddoo8b2k3noxl" path="res://Assets/sounds/ambient/campfire_crackle.mp3" id="4_qycku"]
 
 [sub_resource type="Gradient" id="Gradient_qycku"]
 offsets = PackedFloat32Array(0, 0.83431953)
