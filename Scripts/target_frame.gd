@@ -172,9 +172,12 @@ static func local_player() -> Node:
 # ── Who is targeting whom ("target of target") ──
 # Players and monsters publish who they are targeting as a short replicated key, so every client can show "target's target" (who the boss
 # is hitting, what the tank is fighting): "p:<peer id>" a player, "m:<node name>" a monster, "n:<npc name>" a guard or vendor.
-static func target_key_of(node: Node) -> String:
-	if node == null or not is_instance_valid(node):
+# node is untyped on purpose: a typed Node parameter makes Godot reject a FREED object (a mob that died and despawned
+# while still targeted) before the validity check below can run — that was a crash (test 17).
+static func target_key_of(node_or_freed) -> String:
+	if node_or_freed == null or not is_instance_valid(node_or_freed):
 		return ""
+	var node: Node = node_or_freed
 	if node.is_in_group("player"):
 		return "p:%d" % node.get_multiplayer_authority()
 	if node.is_in_group("monsters"):
@@ -207,9 +210,10 @@ static func resolve_target_key(key: String) -> Node:
 
 
 # What `node` is targeting right now (null when nothing, or it is gone or dead).
-static func target_of(node: Node) -> Node:
-	if node == null or not is_instance_valid(node) or not ("target_key" in node):
+static func target_of(node_or_freed) -> Node:  # untyped for the same reason as target_key_of()
+	if node_or_freed == null or not is_instance_valid(node_or_freed) or not ("target_key" in node_or_freed):
 		return null
+	var node: Node = node_or_freed
 	var t := resolve_target_key(str(node.get("target_key")))
 	if t == null or not is_instance_valid(t):
 		return null

@@ -677,6 +677,18 @@ func get_monster_name() -> String:
 	return "monster"
 
 # ===== PHYSICS PROCESS =====
+# Every AI state used to set nav_agent.target_position EVERY physics frame, and NavigationAgent3D re-plans the whole path on
+# every assignment even when the point hasn't changed — 60 mobs doing a full path search each frame. Cheap on the old flat
+# zone's 391-polygon navmesh, the main source of lag on the Terrain3D zone's ~7,000 (test 17). Now the target only changes
+# when it has moved more than NAV_RETARGET_DISTANCE, so a fixed patrol point is planned once and a chased player about
+# every metre they move.
+const NAV_RETARGET_DISTANCE := 1.0
+
+func _set_nav_target(pos: Vector3) -> void:
+	if nav_agent.target_position.distance_to(pos) > NAV_RETARGET_DISTANCE:
+		nav_agent.target_position = pos
+
+
 func _physics_process(delta: float) -> void:
 	# Per-viewer, not networked — see TargetFrame.is_hidden_from_local_player().
 	# No monster data actually grants invisibility yet (nothing calls
@@ -869,7 +881,7 @@ func state_patrol(delta: float) -> void:
 			return
 
 	if is_inside_tree() and nav_agent:
-		nav_agent.target_position = patrol_target
+		_set_nav_target(patrol_target)
 
 func state_chase(delta: float) -> void:
 	if not player:
@@ -890,8 +902,7 @@ func state_chase(delta: float) -> void:
 		return
 
 	if is_inside_tree() and nav_agent:
-		nav_agent.target_position = target.global_position
-		print("CHASE: target =", nav_agent.target_position)
+		_set_nav_target(target.global_position)
 
 func state_attack(delta: float) -> void:
 	if not player:
@@ -1055,19 +1066,19 @@ func state_charmed(delta: float) -> void:
 	match command:
 		0:  # FOLLOW
 			if nav_agent:
-				nav_agent.target_position = charm_owner.global_position
+				_set_nav_target(charm_owner.global_position)
 		1:  # ATTACK
 			_charm_pursue_and_attack(charm_attack_target, delta)
 		2:  # SIT
 			if nav_agent:
-				nav_agent.target_position = global_position
+				_set_nav_target(global_position)
 		3:  # GUARD
 			if not (is_instance_valid(charm_attack_target) and _target_alive_generic(charm_attack_target)):
 				charm_attack_target = _find_nearest_hostile_to(charm_owner, CHARM_GUARD_SCAN_RADIUS)
 			if is_instance_valid(charm_attack_target):
 				_charm_pursue_and_attack(charm_attack_target, delta)
 			elif nav_agent:
-				nav_agent.target_position = guard_position
+				_set_nav_target(guard_position)
 		4:  # ASSIST
 			if "current_target" in charm_owner and is_instance_valid(charm_owner.current_target):
 				charm_attack_target = charm_owner.current_target
@@ -1081,12 +1092,12 @@ func _charm_pursue_and_attack(target: Node, _delta: float) -> void:
 	var distance := global_position.distance_to(target.global_position)
 	if distance <= attack_range:
 		if nav_agent:
-			nav_agent.target_position = global_position
+			_set_nav_target(global_position)
 		look_at_target(target.global_position)
 		if can_attack:
 			_perform_charmed_attack(target)
 	elif nav_agent:
-		nav_agent.target_position = target.global_position
+		_set_nav_target(target.global_position)
 
 
 func _target_alive_generic(target: Node) -> bool:

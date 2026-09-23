@@ -1697,6 +1697,8 @@ func _process(delta: float) -> void:
 	if not is_multiplayer_authority():
 		return
 	_update_light_logic()
+	if current_target != null and not is_instance_valid(current_target):
+		current_target = null  # it died and was freed while targeted
 	var key := TargetFrame.target_key_of(current_target)
 	if key != target_key:
 		target_key = key

@@ -1,0 +1,27 @@
+{
+ "_comment": "crafting_models.json - which 3D model each gathering node (Data/gathering_nodes.json ids) and town crafting station (station ids) uses; read by Scripts/crafting_world_spawner.gd. Hand-edited. 'rotation' is [x, y, z] degrees applied to the model on top of the orientation it was exported with. Every model is currently exported the right way up ([0, 0, 0]); a model that comes out of Blender tipped over can be corrected here (e.g. [180, 0, 0] for upside down) without re-exporting. Every model is then lifted so its lowest point sits on the ground. 'scale' multiplies the model's size. Anything not listed keeps the placeholder shape.",
+ "nodes": {
+  "thistle_patch": {"model": "res://models/desert thistle.glb", "rotation": [0, 0, 0], "scale": 1.0},
+  "sandroot_mound": {"model": "res://models/sand root.glb", "rotation": [0, 0, 0], "scale": 1.0},
+  "venom_cactus": {"model": "res://models/venom cactus flower.glb", "rotation": [0, 0, 0], "scale": 1.0},
+  "moonpetal_sage": {"model": "res://models/moonpetal sage plant.glb", "rotation": [0, 0, 0], "scale": 1.0},
+  "tin_vein": {"model": "res://models/tin node.glb", "rotation": [0, 0, 0], "scale": 1.0},
+  "copper_vein": {"model": "res://models/copper node.glb", "rotation": [0, 0, 0], "scale": 1.0},
+  "glittering_vein": {"model": "res://models/uncut gem deposit.glb", "rotation": [0, 0, 0], "scale": 1.0},
+  "fir_tree": {"model": "res://models/fir tree.glb", "rotation": [0, 0, 0], "scale": 1.0},
+  "ironwood_tree": {"model": "res://models/ironwood tree.glb", "rotation": [0, 0, 0], "scale": 1.0},
+  "palm_tree": {"model": "res://models/palm tree.glb", "rotation": [0, 0, 0], "scale": 1.0}
+ },
+ "stations": {
+  "oven": {"model": "res://models/oven.glb", "rotation": [0, 0, 0], "scale": 1.0},
+  "alchemy_station": {"model": "res://models/alchemy table.glb", "rotation": [0, 0, 0], "scale": 1.0},
+  "brewing_vat": {"model": "res://models/brewing vat.glb", "rotation": [0, 0, 0], "scale": 1.0},
+  "woodworking_station": {"model": "res://models/woodworking table.glb", "rotation": [0, 0, 0], "scale": 1.0},
+  "fletching_station": {"model": "res://models/fletching table.glb", "rotation": [0, 0, 0], "scale": 1.0},
+  "jewelcrafting_station": {"model": "res://models/jewelcrafting table.glb", "rotation": [0, 0, 0], "scale": 1.0},
+  "tailors_bench": {"model": "res://models/tailors table.glb", "rotation": [0, 0, 0], "scale": 1.0},
+  "forge": {"model": "res://models/forge.glb", "rotation": [0, 0, 0], "scale": 1.0},
+  "tinkering_bench": {"model": "res://models/tinkering bench.glb", "rotation": [0, 0, 0], "scale": 1.0},
+  "tannery": {"model": "res://models/tanning station.glb", "rotation": [0, 0, 0], "scale": 1.0}
+ }
+}

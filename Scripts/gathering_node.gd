@@ -29,10 +29,15 @@ var _visual: Node3D = null
 var _respawn_timer: Timer = Timer.new()
 
 
-# Sets the node type (a key in Data/gathering_nodes.json) and builds its placeholder look. Call before adding to the tree.
-func setup(id: String, definition: Dictionary) -> void:
+var model_config: Dictionary = {}  # Data/crafting_models.json entry ({} = placeholder shape)
+
+
+# Sets the node type (a key in Data/gathering_nodes.json) and its model (Data/crafting_models.json). Call before adding
+# to the tree.
+func setup(id: String, definition: Dictionary, model_cfg: Dictionary = {}) -> void:
 	node_id = id
 	def = definition
+	model_config = model_cfg
 	name = "Gather_%s" % id
 
 
@@ -166,10 +171,19 @@ func _skill_of(player: Node) -> int:
 	return int(player.skill_levels.get(str(def.get("skill", "")), 0))
 
 
-# Placeholder look until the Meshy models exist: a small plant, a rock, or a tree, tinted per node, with a name label.
+# The node's model from Data/crafting_models.json, or a placeholder (a small plant, a rock, or a tree, tinted per node),
+# with a name label above it.
 func _build_visual() -> Node3D:
 	var root := Node3D.new()
 	var skill: String = str(def.get("skill", ""))
+	if not model_config.is_empty():
+		add_child(root)  # CraftingStation.add_model() measures the model in place
+		var height := CraftingStation.add_model(root, model_config)
+		remove_child(root)
+		if height > 0.0:
+			root.add_child(_name_label(height + 0.4))
+			return root
+	root.add_child(_name_label(6.2 if skill == "woodworking" else 1.6))
 	var color: Color = NODE_COLORS.get(node_id, Color(0.5, 0.5, 0.5))
 	if skill == "forage":
 		root.add_child(_mesh(_sphere(0.45, 0.6), color, Vector3(0, 0.3, 0)))
@@ -182,15 +196,18 @@ func _build_visual() -> Node3D:
 		trunk.height = 4.0
 		root.add_child(_mesh(trunk, Color(0.35, 0.24, 0.14), Vector3(0, 2.0, 0)))
 		root.add_child(_mesh(_sphere(1.6, 2.2), color, Vector3(0, 4.4, 0)))
+	return root
+
+
+func _name_label(height: float) -> Label3D:
 	var label := Label3D.new()
 	label.text = str(def.get("name", node_id))
 	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	label.pixel_size = 0.006
-	label.position = Vector3(0, 6.2 if skill == "woodworking" else 1.6, 0)
+	label.position = Vector3(0, height, 0)
 	label.visibility_range_end = 25.0
 	label.modulate = Color(0.85, 1.0, 0.8)
-	root.add_child(label)
-	return root
+	return label
 
 
 const NODE_COLORS := {

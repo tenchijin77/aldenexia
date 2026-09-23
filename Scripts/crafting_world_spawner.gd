@@ -7,6 +7,7 @@ extends Node3D
 
 const PLACEMENTS_PATH := "res://Data/crafting_placements.json"
 const NODES_PATH := "res://Data/gathering_nodes.json"
+const MODELS_PATH := "res://Data/crafting_models.json"  # which model each node / station uses
 const RAY_TOP := 300.0
 const RAY_BOTTOM := -100.0
 const PLACE_ATTEMPTS := 12  # re-rolls for a node whose spot is in a keep_clear area or not on open ground
@@ -20,9 +21,11 @@ func _ready() -> void:
 	await get_tree().physics_frame
 	var placements: Dictionary = _load(PLACEMENTS_PATH).get(zone_key, {})
 	var node_defs: Dictionary = _load(NODES_PATH).get("nodes", {})
+	var models: Dictionary = _load(MODELS_PATH)
 	for entry in placements.get("stations", []):
 		var station := CraftingStation.new()
-		station.setup(str(entry.get("station_id", "")), str(entry.get("name", "Crafting Station")))
+		var station_id := str(entry.get("station_id", ""))
+		station.setup(station_id, str(entry.get("name", "Crafting Station")), models.get("stations", {}).get(station_id, {}))
 		add_child(station)
 		station.global_position = _ground(entry.get("position", [0, 0]))
 	var placed := 0
@@ -53,7 +56,7 @@ func _ready() -> void:
 				push_warning("crafting_placements.json: no open ground for a %s near %s — skipped" % [id, str(center)])
 				continue
 			var node := GatheringNode.new()
-			node.setup(id, node_defs[id])
+			node.setup(id, node_defs[id], models.get("nodes", {}).get(id, {}))
 			add_child(node)
 			node.global_position = spot
 			node.rotation.y = rng.randf() * TAU

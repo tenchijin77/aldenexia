@@ -67,6 +67,7 @@ Combat and stats
 - [FIXED]  11 items' agility/stamina bonuses did nothing (not engine stats) — now dexterity/constitution. 36 loot-table items had no definition and could never drop — all added (other zones + Outrider/Warlord).
 - [DONE]   Test 15: gathering/crafting progress on the cast bar; nodes kept out of town and off walls/buildings; recipe scrolls split across Aldric / Apothecary / Tobble; vendor search box. Forage training checked — working (15% per gather).
 - [OPEN]   Sahren "could not reach his stop in time" repeating in the log — not reproduced headless on the spawn->dock leg.
+- [FIXED]  Test 17: crash on a freed target (target_key_of), zone lag (mobs re-planned their path every frame), loot window overlap, dock + water raised above ground level.
 - [FIXED]  Equipped items' stat_modifiers (e.g. a ring's +1 to a stat) never applied to anything, for any item in the game — found while adding the trinket above. combatnode.gd/player3d.gd now sum them into the player's effective stats on every equip/unequip.
 - [FIXED]  Melee hit chance far too low at level 1 (about 20%, ~30 s to land a hit) while spells one-shot
            everything (found by: T0). Combat numbers now live in Data/combat_balance.json (player_hit_bonus 35,

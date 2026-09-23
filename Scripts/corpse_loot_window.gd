@@ -22,7 +22,6 @@ const CURRENCY_LABELS: Dictionary = {
 }
 
 const MIN_PANEL_WIDTH := 220.0
-const MAX_PANEL_WIDTH := 420.0
 const MIN_PANEL_HEIGHT := 150.0
 const MAX_LIST_HEIGHT := 260.0  # beyond this many px of rows, the list scrolls instead of the window growing further
 const POSITION_KEY := "corpse_loot_window"
@@ -86,23 +85,30 @@ func _rebuild_list() -> void:
 	_resize_to_content()
 
 
-# Grows (or shrinks) the window to fit whatever's actually in the list, up to
-# MAX_PANEL_WIDTH/MAX_LIST_HEIGHT — beyond that the list scrolls instead.
-# get_combined_minimum_size() is a bottom-up calculation from each row's own
-# minimum size, so it's accurate immediately after rebuilding the list, no
-# frame delay needed.
+# Fits the window to whatever's in the list (test 17: rows overlapped). Width always grows to the widest row — an icon, a
+# long name, the Loot/Ignore/Sell toggles and Take can be wider than the old 420 px cap — and height grows to
+# MAX_LIST_HEIGHT of rows, beyond which the list scrolls. A window the player dragged keeps its position, and one they made
+# BIGGER keeps that size, but it is never left smaller than its content any more (that was the overlap: after any drag or
+# resize the window stopped fitting itself at all). It is also kept on screen.
+# get_combined_minimum_size() is a bottom-up calculation from each row's own minimum size, so it's accurate immediately
+# after rebuilding the list, no frame delay needed.
 func _resize_to_content() -> void:
 	var list_min: Vector2 = loot_list.get_combined_minimum_size()
-	scroll.custom_minimum_size.y = minf(list_min.y, MAX_LIST_HEIGHT)
-
-	if _user_resized:
-		return
-
-	var target_width: float = clamp(list_min.x + 32.0, MIN_PANEL_WIDTH, MAX_PANEL_WIDTH)
-	panel.offset_right = panel.offset_left + target_width
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.custom_minimum_size = Vector2(list_min.x, minf(list_min.y, MAX_LIST_HEIGHT))
 
 	var vbox_min: Vector2 = vbox.get_combined_minimum_size()
-	panel.offset_bottom = panel.offset_top + vbox_min.y + 16.0  # + top/bottom margin
+	var fit_w: float = maxf(vbox_min.x + 16.0, MIN_PANEL_WIDTH)   # + left/right margin
+	var fit_h: float = maxf(vbox_min.y + 16.0, MIN_PANEL_HEIGHT)  # + top/bottom margin
+	var w: float = maxf(fit_w, panel.size.x) if _user_resized else fit_w
+	var h: float = maxf(fit_h, panel.size.y) if _user_resized else fit_h
+	var screen: Vector2 = panel.get_viewport_rect().size
+	w = minf(w, screen.x - 20.0)
+	h = minf(h, screen.y - 20.0)
+	panel.offset_left = clampf(panel.offset_left, 10.0, maxf(10.0, screen.x - w - 10.0))
+	panel.offset_top = clampf(panel.offset_top, 10.0, maxf(10.0, screen.y - h - 10.0))
+	panel.offset_right = panel.offset_left + w
+	panel.offset_bottom = panel.offset_top + h
 
 func _make_row(drop: Dictionary) -> Control:
 	var item_id: String = drop["item"]
