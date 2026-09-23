@@ -1182,3 +1182,13 @@ set_gm_password.sh — set or change the game-master password on the game server
   - Mining is still the only open item: it needs a plain "pickaxe hitting rock" file to replace the mining-ambience recording.
   - Wind magic isn't on your list. I've filed it as spells/wind.mp3 but not used it; tell me what it's for.
   - Positions: the crowd and forge spots use map coordinates. If either sounds like it's in the wrong place, the positions are easy to adjust.
+
+    Mining: the mining ambience stays, and I found the real cause of the double sound. Right-clicking again while you were already gathering
+  started the next nearby vein as well, because the one you were working was skipped as busy. That gave two mining loops playing at once,
+  slightly out of step, which sounded like extra tapping. A right-click mid-gather now does nothing. In the test, three quick right-clicks next
+  to two veins started only one.
+
+  Forge fire: now only audible within 5 m of the forge.
+
+  Harbour bell: now only audible within 15 m of the dock.
+
