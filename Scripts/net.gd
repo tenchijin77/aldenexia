@@ -72,6 +72,7 @@ var server_name := "server"
 # and the character key each logged-in peer owns (peer_id -> "test_zozuur").
 var _awaiting_login: Dictionary = {}
 var _peer_character: Dictionary = {}
+var _last_ip: Dictionary = {}   # peer_id -> address, kept so the disconnect line can still say where they were
 ## Client side: True while this machine is playing a character that lives on a dedicated server.
 ## Global.save_player_data_to_file() then uploads to the server instead of writing user://saves.
 var remote_character_mode := false
@@ -93,6 +94,7 @@ var _login_failures: Dictionary = {}
 var tls_dir := "user://server_tls"
 var stop_file := "user://server_stop"
 var maintenance_file := "user://server_maintenance"   # the update script writes the minutes to wait here (see server_notice.gd)
+var banned_ips_file := "user://banned_ips"             # one IP per line (# comments allowed): refused on connect; GMs manage it with /ban, /unban, /bans (gm_commands.gd)
 var gm_password_file := "user://gm_password"           # the game-master password (dedicated server): the first non-empty line; read at every attempt, so changing it needs no restart (see gm_commands.gd)
 var maintenance_pending := false                        # an update countdown is running: new logins are refused
 var _shutting_down := false
@@ -218,6 +220,7 @@ func _start_dedicated_server() -> void:
 	stop_file = _cmdline_value("stop-file", stop_file)
 	maintenance_file = _cmdline_value("maintenance-file", maintenance_file)
 	gm_password_file = _cmdline_value("gm-password-file", gm_password_file)
+	banned_ips_file = _cmdline_value("banned-ips-file", banned_ips_file)
 	get_tree().auto_accept_quit = false  # a close request starts a graceful shutdown instead of dropping everyone
 	var wanted_name := _cmdline_value("name", server_name)
 	server_name = sanitize_name(wanted_name)
@@ -553,6 +556,11 @@ func send_group_removed(target_peer_id: int, reason: String) -> void:
 func _on_peer_connected(id: int) -> void:
 	if is_multiplayer_game or is_dedicated_server:
 		_relax_timeouts(id)
+	if multiplayer.is_server() and is_ip_banned(peer_ip(id)):
+		_last_ip[id] = peer_ip(id)
+		_slog("Refused %s — the IP address is banned (peer %d)." % [peer_ip(id), id])
+		_kick.call_deferred(id)
+		return
 	if multiplayer.is_server():
 		# The host holds player_connected (which spawns the newcomer's puppet)
 		# until they've proven they run a compatible build — see below.
@@ -564,7 +572,9 @@ func _on_peer_connected(id: int) -> void:
 
 func _on_peer_disconnected(id: int) -> void:
 	if is_dedicated_server:
-		_slog("Peer %d disconnected (%d/%d)." % [id, multiplayer.get_peers().size(), max_players])
+		# Name the character (the key is "<server>_<name>"); a peer that never logged one in says so.
+		_slog("%s disconnected — peer %d, %s (%d/%d)." % [_character_label(id), id, _last_ip.get(id, "?"), multiplayer.get_peers().size(), max_players])
+	_last_ip.erase(id)
 	_unverified_peers.erase(id)
 	_awaiting_login.erase(id)
 	_peer_character.erase(id)
@@ -599,7 +609,8 @@ func _rpc_submit_version(client_version: String, client_build: String) -> void:
 		if is_dedicated_server:
 			# A dedicated server has no character of its own to lean on: the joiner must now log one
 			# in (see _rpc_login) before their puppet is spawned.
-			_slog("Peer %d connected (%d/%d), waiting for a character." % [id, multiplayer.get_peers().size(), max_players])
+			_last_ip[id] = peer_ip(id)
+			_slog("Peer %d connected from %s (%d/%d), waiting for a character." % [id, _last_ip[id], multiplayer.get_peers().size(), max_players])
 			_awaiting_login[id] = true
 			get_tree().create_timer(LOGIN_TIMEOUT).timeout.connect(_on_login_timeout.bind(id))
 		else:
@@ -659,6 +670,81 @@ func _on_version_check_timeout(id: int) -> void:
 	if _unverified_peers.has(id):
 		print("Peer %d never sent a version (an older build?) — dropped." % id)
 		_kick(id)
+
+
+# ── IP addresses and bans (server) ──
+# The address a connected peer is talking to us from ("" if unknown, e.g. offline).
+func peer_ip(id: int) -> String:
+	var enet := multiplayer.multiplayer_peer as ENetMultiplayerPeer
+	if enet == null:
+		return ""
+	var packet_peer := enet.get_peer(id)
+	return packet_peer.get_remote_address() if packet_peer != null else ""
+
+
+# The banned addresses, read fresh from banned_ips_file every time (edit the file by hand too; no restart needed).
+func banned_ips() -> Array:
+	var out: Array = []
+	for line in FileAccess.get_file_as_string(banned_ips_file).split("\n"):
+		var ip := line.get_slice("#", 0).strip_edges()
+		if not ip.is_empty():
+			out.append(ip)
+	return out
+
+
+func is_ip_banned(ip: String) -> bool:
+	return not ip.is_empty() and ip in banned_ips()
+
+
+# Adds a ban (with a note: who banned it, when, whom) and disconnects everyone on that address. Returns how many were kicked.
+func ban_ip(ip: String, note: String) -> int:
+	if not is_ip_banned(ip):
+		var text := FileAccess.get_file_as_string(banned_ips_file)
+		var f := FileAccess.open(banned_ips_file, FileAccess.WRITE)
+		f.store_string(text + ("" if text.is_empty() or text.ends_with("\n") else "\n") + "%s  # %s\n" % [ip, note])
+		f.close()
+	var kicked := 0
+	for id in multiplayer.get_peers():
+		if peer_ip(id) == ip:
+			_slog("Kicked %s (peer %d, %s): banned." % [_character_label(id), id, ip])
+			_kick(id)
+			kicked += 1
+	return kicked
+
+
+func unban_ip(ip: String) -> bool:
+	var lines: PackedStringArray = FileAccess.get_file_as_string(banned_ips_file).split("\n")
+	var kept: Array = []
+	var found := false
+	for line in lines:
+		if line.get_slice("#", 0).strip_edges() == ip:
+			found = true
+		elif not line.is_empty():
+			kept.append(line)
+	if found:
+		var f := FileAccess.open(banned_ips_file, FileAccess.WRITE)
+		f.store_string("\n".join(kept) + ("\n" if not kept.is_empty() else ""))
+		f.close()
+	return found
+
+
+# The peer playing a character called `player_name` (case-insensitive), or 0.
+func peer_for_character(player_name: String) -> int:
+	var wanted := "%s_%s" % [server_name, sanitize_name(player_name)]
+	for id in _peer_character:
+		if str(_peer_character[id]) == wanted:
+			return id
+	return 0
+
+
+func _character_label(id: int) -> String:
+	var key := str(_peer_character.get(id, ""))
+	return _display_name(key.trim_prefix(server_name + "_")) if not key.is_empty() else "(not logged in)"
+
+
+# "zozuur" -> "Zozuur" (capitalize() would also split letters from digits: "zzbot79053" -> "Zzbot 79053").
+static func _display_name(character: String) -> String:
+	return character.substr(0, 1).to_upper() + character.substr(1)
 
 
 func _kick(id: int) -> void:
@@ -956,7 +1042,7 @@ func _rpc_login(character_name: String, password: String, creation_json: String)
 		DirAccess.copy_absolute(path, path.get_basename() + ".bak")  # last known-good copy, refreshed every login
 	_awaiting_login.erase(id)
 	_peer_character[id] = key
-	_slog("Peer %d logged in as %s%s." % [id, key, " (new character)" if status == "created" else (" (password set)" if status == "password_set" else "")])
+	_slog("%s logged in — peer %d, %s%s." % [_display_name(key.trim_prefix(server_name + "_")), id, peer_ip(id), " (new character)" if status == "created" else (" (password set)" if status == "password_set" else "")])
 	_rpc_login_ok.rpc_id(id, json_text, status)
 
 

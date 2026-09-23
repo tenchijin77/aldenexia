@@ -228,7 +228,7 @@ func _make_spell_row(spell_name: String, info: Dictionary, required_level: int =
 
 	# Name
 	var name_lbl := Label.new()
-	name_lbl.text = spell_name.replace("_", " ").capitalize()
+	name_lbl.text = Player3D.spell_display_name(spell_name)
 	name_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	name_lbl.add_theme_font_size_override("font_size", 12)
 	name_lbl.add_theme_color_override("font_color", Color(1.0, 0.85, 0.5) if can_cast else Color(0.62, 0.55, 0.42))
@@ -298,7 +298,7 @@ func _make_spell_row(spell_name: String, info: Dictionary, required_level: int =
 				row.set_drag_preview(prev_icon)
 			else:
 				var prev := Label.new()
-				prev.text = spell_name.replace("_", " ").capitalize()
+				prev.text = Player3D.spell_display_name(spell_name)
 				prev.add_theme_color_override("font_color", Color(1.0, 0.9, 0.5))
 				prev.add_theme_font_size_override("font_size", 12)
 				row.set_drag_preview(prev)

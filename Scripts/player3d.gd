@@ -1302,6 +1302,21 @@ func _trigger_attack_animation() -> void:
 # 0.3s if the current model's library doesn't have this clip for some reason.
 # Mirrors the pattern monster3d.gd/guard_npc.gd already use for their own
 # attack timers (animation_player.get_animation(name).length).
+# Seconds between melee swings: the equipped weapon's "delay" (tenths of a second, EverQuest style: 28 = 2.8 s), or
+# bare-handed UNARMED_DELAY (an Aetherfist's trained fists: AETHERFIST_UNARMED_DELAY), made shorter by haste
+# ("attack_speed_bonus": 0.10 = 10% faster — Wind stance, buffs). The swing animation still plays each time; it no
+# longer sets the pace (it used to, which made everyone swing every 0.3-1 s).
+const UNARMED_DELAY := 3.0
+const AETHERFIST_UNARMED_DELAY := 2.0
+
+func attack_interval() -> float:
+	var weapon: Dictionary = Inventory.get_equipped_weapon()
+	var delay := float(weapon.get("delay", 0)) / 10.0 if int(weapon.get("delay", 0)) > 0 else 0.0
+	if delay <= 0.0:
+		delay = AETHERFIST_UNARMED_DELAY if player_class == "Aetherfist" else UNARMED_DELAY
+	return delay * clampf(1.0 - combat_node.get_modifier("attack_speed_bonus"), 0.4, 2.0)
+
+
 func _attack_animation_duration() -> float:
 	if animation_player and animation_player.has_animation(_current_attack_anim):
 		return animation_player.get_animation(_current_attack_anim).length
@@ -1833,8 +1848,10 @@ func _build_light_visual(src: Dictionary) -> void:
 
 func _process(delta: float) -> void:
 	_update_light_visual(delta)  # everyone sees a lit torch (driven by the replicated light_item_id)
+	_update_stance_aura()        # and a stance's aura (driven by the replicated current_stance)
 	if not is_multiplayer_authority():
 		return
+	_tick_stance_group(delta)
 	_update_light_logic()
 	if current_target != null and not is_instance_valid(current_target):
 		current_target = null  # it died and was freed while targeted
@@ -2116,6 +2133,7 @@ func handle_movement(delta: float) -> void:
 		target_speed = RUN_SPEED
 	else:
 		target_speed = WALK_SPEED
+	target_speed *= maxf(0.2, 1.0 + combat_node.get_modifier("move_speed_bonus") - combat_node.get_modifier("speed_slow"))  # Swift Step, stances, snares
 
 	if forward < 0.0:
 		target_speed *= BACKWARD_SPEED_MULT
@@ -2803,7 +2821,7 @@ func attack_current_target() -> void:
 	last_attack_time_ms = Time.get_ticks_msec()
 	_trigger_attack_animation()
 	var swing_duration := _attack_animation_duration()
-	attack_cooldown = swing_duration
+	attack_cooldown = attack_interval()  # the weapon's speed, not the animation's length
 	_attack_generation += 1
 	var my_attack_generation := _attack_generation
 
@@ -2835,6 +2853,8 @@ func attack_current_target() -> void:
 			GameLog.log_combat(msg)
 			_broadcast_combat(CombatLogFormatter.player_attack_broadcast(player_name, result, target_desc, weapon_name, dmg_type))
 		play_swing_sound(str(result.get("result", "")), weapon, current_target)
+		if str(result.get("result", "")) == "HIT":
+			_stance_on_hit(current_target, int(result.get("damage", 0)))
 		if result["result"] == "HIT":
 			var skey: String = _weapon_skill_key(weapon)
 			_tick_skill(skey)
@@ -2891,7 +2911,7 @@ func perform_melee_attack() -> void:
 	last_attack_time_ms = Time.get_ticks_msec()
 	_trigger_attack_animation()
 	var swing_duration := _attack_animation_duration()
-	attack_cooldown = swing_duration
+	attack_cooldown = attack_interval()  # the weapon's speed, not the animation's length
 	_attack_generation += 1
 	var my_attack_generation := _attack_generation
 
@@ -2939,6 +2959,8 @@ func perform_melee_attack() -> void:
 				GameLog.log_combat(msg)
 				_broadcast_combat(CombatLogFormatter.player_attack_broadcast(player_name, result, target_desc, weapon_name, dmg_type))
 			play_swing_sound(str(result.get("result", "")), weapon, target)
+			if str(result.get("result", "")) == "HIT":
+				_stance_on_hit(target, int(result.get("damage", 0)))
 			if result["result"] == "HIT":
 				var skey: String = _weapon_skill_key(weapon)
 				_tick_skill(skey)
@@ -3454,6 +3476,8 @@ func load_character_data(data: Dictionary) -> void:
 	known_spells     = data.get("known_spells", [])
 	known_skills     = data.get("known_skills", [])
 	known_recipes    = data.get("known_recipes", [])
+	if player_class == "Aetherfist":
+		known_spells.erase("wind_stance")  # retired as an ability: the Aetherfist's Wind Stance is a stance on the stance bar now
 	skill_levels     = data.get("skill_levels", {})
 	_migrate_legacy_skills()
 	combat_node.skills = skill_levels  # Data/skill_effects.json reads the player's skills through the combat node
@@ -3792,6 +3816,9 @@ const SPELL_DISPLAY_NAMES := {
 	"lit_torch": "Lit Torch",
 	"curse_of_weakness": "Curse of Weakness",
 	"deaths_echo": "Death's Echo",
+	"mountains_challenge": "Mountain's Challenge",
+	"improved_ki_strike": "Ki Strike",          # an "improvement" of a Ki Strike the Aetherfist never had: it IS the strike
+	"enhanced_mend_wounds": "Mend Wounds",      # likewise the Aetherfist's group heal itself
 }
 
 static func spell_display_name(spell_name: String) -> String:
@@ -3953,6 +3980,8 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 	_spell_skill_category = str(spell.get("skill_category", ""))
 	var spell_target    := spell.get("target", "enemy") as String
 	var base_damage: int = spell.get("damage", 0)
+	if stance_boosts(spell_name):
+		base_damage = int(round(base_damage * (1.0 + STANCE_BOOST)))  # the stance's own element: 25% stronger
 	var effect_type_raw  = spell.get("effect_type", "")
 	var effect_type: String = effect_type_raw if effect_type_raw is String else ""
 	# A bolt or arrow spell cast at an enemy flies there first (spell_projectile.gd) and lands — damage, effects and its
@@ -4012,6 +4041,14 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 				var stealth_duration: float = float(spell.get("duration", 30.0))
 				combat_node.apply_effect("invisibility", stealth_duration, {"invisible": 1.0})
 				GameLog.log_combat("[color=#8866ff]You vanish into the shadows behind %s.[/color]" % TargetFrame.display_name(target_node))
+			elif spell_name == "swift_step":
+				# Dash "dash_distance" metres the way you face (stopping at anything solid), then run faster for the duration.
+				var ahead := -global_transform.basis.z
+				ahead.y = 0.0
+				move_and_collide(ahead.normalized() * float(spell.get("dash_distance", 8.0)) * (1.0 + STANCE_BOOST if stance_boosts(spell_name) else 1.0))
+				combat_node.apply_effect("swift_step", float(spell.get("duration", 4.0)), spell.get("modifiers", {"move_speed_bonus": 0.15}))
+				GameLog.log_combat("[color=#88ffcc]You dash forward, light on your feet.[/color]")
+				_broadcast_combat("[color=#88ffcc]%s dashes forward.[/color]" % player_name)
 			return
 
 		"enemy", "corpse", "line":
@@ -4029,6 +4066,16 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 				return
 			if not target_node.has_method("apply_damage"):
 				return
+			if spell.get("leap", false) and target_node is Node3D:
+				# Flying Kick: leap to the target (stopping at anything solid in the way) and land the blow.
+				var to_target: Vector3 = (target_node as Node3D).global_position - global_position
+				to_target.y = 0.0
+				if to_target.length() > 1.6:
+					move_and_collide(to_target.normalized() * (to_target.length() - 1.4))
+				var face: Vector3 = (target_node as Node3D).global_position
+				face.y = global_position.y
+				if face.distance_to(global_position) > 0.1:
+					look_at(face, Vector3.UP)
 			if flies:
 				var bolt_target: Node3D = target_node
 				SPELL_PROJECTILE.launch(self, bolt_target, spell, func() -> void:
@@ -4152,13 +4199,13 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 						_broadcast_combat("[color=#ffcc66]%s disarms %s, disrupting their attack![/color]" % [player_name, target_desc])
 					else:
 						GameLog.log_combat("Your disarm attempt on %s fails." % target_desc)
-				"taunt":
+				"taunt", "mountains_challenge":
 					if target_node is Monster and not target_node.is_multiplayer_authority():
 						target_node.apply_networked_taunt.rpc_id(1, multiplayer.get_unique_id())   # the server owns the threat table
 						GameLog.log_combat("[color=#ffcc66]You bellow a challenge — %s's fury turns on you![/color]" % target_desc)
 						_broadcast_combat("[color=#ffcc66]%s bellows a challenge — %s's fury turns to them![/color]" % [player_name, target_desc])
 					elif target_node.has_method("taunt"):
-						target_node.taunt(self)
+						target_node.taunt(self, 50.0 if stance_boosts(spell_name) else 1.0)  # Earth Stance: holds it on you harder
 						GameLog.log_combat("[color=#ffcc66]You bellow a challenge — %s's fury turns on you![/color]" % target_desc)
 						_broadcast_combat("[color=#ffcc66]%s bellows a challenge — %s's fury turns to them![/color]" % [player_name, target_desc])
 				_:
@@ -4608,7 +4655,14 @@ func _apply_generic_spell_effect(effect_type: String, spell: Dictionary, caster_
 	var effect_name: String = spell.get("spell_name", "spell_effect")
 	var duration_raw = spell.get("duration", 0)
 	var duration: float = 0.0 if duration_raw is String else float(duration_raw)
-	var magnitude: int = int(spell.get("damage", 0))
+	# "effect_amount" (optional) is the effect's own size when it differs from the hit's "damage" (Fire Strike: a 60-damage
+	# hit plus a 25-damage burn); "heal_pct_max_hp" makes a heal a share of the target's max health (Inner Focus: 0.15).
+	var magnitude: int = int(spell.get("effect_amount", spell.get("damage", 0)))
+	if spell.has("heal_pct_max_hp") and target_cn is CombatNode:
+		magnitude = int(round(float(target_cn.max_hp) * float(spell["heal_pct_max_hp"])))
+	# "modifiers" (optional): what a buff / debuff / snare actually changes (e.g. {"dodge_bonus": 10}); without it the
+	# old defaults apply (+/-5% damage, 15% slow).
+	var spell_mods: Dictionary = spell.get("modifiers", {}) if spell.get("modifiers") is Dictionary else {}
 	if effect_type == "heal" or effect_type == "hot":
 		magnitude = int(magnitude * (1.0 + combat_node.skill_bonus("spell_potency_pct", str(spell.get("skill_category", ""))) / 100.0))
 
@@ -4683,7 +4737,7 @@ func _apply_generic_spell_effect(effect_type: String, spell: Dictionary, caster_
 		"buff":
 			if duration <= 0.0:
 				return false
-			_buff_target(target_node, target_cn, effect_name, duration, {"damage_mult": 0.05})
+			_buff_target(target_node, target_cn, effect_name, duration, spell_mods if not spell_mods.is_empty() else {"damage_mult": 0.05})
 			var buff_msg: String = self_cast_message if not self_cast_message.is_empty() \
 				else "[color=#88ffcc]%s is empowered.[/color]" % target_desc.capitalize()
 			GameLog.log_combat(buff_msg)
@@ -4692,14 +4746,14 @@ func _apply_generic_spell_effect(effect_type: String, spell: Dictionary, caster_
 		"debuff":
 			if duration <= 0.0:
 				return false
-			_buff_target(target_node, target_cn, effect_name, duration, {"damage_mult": -0.05})
+			_buff_target(target_node, target_cn, effect_name, duration, spell_mods if not spell_mods.is_empty() else {"damage_mult": -0.05})
 			GameLog.log_combat("[color=#8866ff]%s is weakened.[/color]" % target_desc.capitalize())
 			_broadcast_combat("[color=#8866ff]%s is weakened.[/color]" % bcast_desc.capitalize())
 			return true
 		"snare":
 			if duration <= 0.0:
 				return false
-			_buff_target(target_node, target_cn, effect_name, duration, {"speed_slow": 0.15, "attack_speed_slow": 0.15})
+			_buff_target(target_node, target_cn, effect_name, duration, spell_mods if not spell_mods.is_empty() else {"speed_slow": 0.15, "attack_speed_slow": 0.15})
 			GameLog.log_combat("[color=#8866ff]%s is slowed.[/color]" % target_desc.capitalize())
 			_broadcast_combat("[color=#8866ff]%s is slowed.[/color]" % bcast_desc.capitalize())
 			return true
@@ -5362,6 +5416,161 @@ func _resolve_melee_attack(target_cn: CombatNode) -> Dictionary:
 # defending against our own swing.
 # Called by a monster every time it swings at you (hit, miss, dodge, parry...): an attack is an attack even when it does no damage.
 # It stands you up (you cannot rest through a fight) and interrupts camping and crafting (they watch last_attacked_msec).
+# ── Stances (class_stances.json): procs, boosts, group benefit, aura ──
+# The current stance's data, the extras a class_stances.json stance can carry beyond its modifiers (the Aetherfist's
+# elemental stances): procs on auto-attack hits, abilities it boosts, a benefit for nearby group members and a visible aura.
+const STANCE_BOOST := 0.25          # an ability of the stance's own element is this much stronger
+const PROC_STUN_IMMUNE_MS := 15000  # a monster stunned by a proc can't be proc-stunned again for this long
+const STANCE_GROUP_RANGE := 10.0    # group members this close get the stance's group benefit
+const STANCE_GROUP_TICK := 2.0
+static var _stance_cache := {}      # class -> {stance_id: stance dict}
+var _stance_group_timer := 0.0
+var _stance_aura: Node3D = null
+var _stance_aura_for := ""
+
+
+func _stance_data(stance_id: String = current_stance) -> Dictionary:
+	if stance_id.is_empty():
+		return {}
+	if not _stance_cache.has(player_class):
+		var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string("res://Data/class_stances.json"))
+		var list: Array = parsed.get(player_class, []) if typeof(parsed) == TYPE_DICTIONARY and parsed.get(player_class) is Array else []
+		var by_id := {}
+		for st in list:
+			by_id[str(st.get("stance_id", ""))] = st
+		_stance_cache[player_class] = by_id
+	return _stance_cache[player_class].get(stance_id, {})
+
+
+func stance_boosts(ability: String) -> bool:
+	return ability in _stance_data().get("boosts", [])
+
+
+# An auto-attack landed: the stance's procs (never from abilities).
+func _stance_on_hit(target: Node, damage: int) -> void:
+	var procs: Dictionary = _stance_data().get("procs", {})
+	if procs.is_empty() or not is_instance_valid(target) or not ("combat_node" in target):
+		return
+	var target_cn = target.combat_node
+	var desc := TargetFrame.display_name(target)
+	if procs.has("stun") and randf() < float(procs["stun"].get("chance", 0.0)):
+		_proc_stun(target, desc, float(procs["stun"].get("min", 3.0)), float(procs["stun"].get("max", 5.0)))
+	if procs.has("lifesteal") and damage > 0 and randf() < float(procs["lifesteal"].get("chance", 0.0)):
+		var healed: int = combat_node.heal(maxi(1, int(round(damage * float(procs["lifesteal"].get("pct", 0.3))))))
+		if healed > 0:
+			GameLog.log_combat("[color=#66ccff]The tide flows back into you: [b]+%d[/b] health.[/color]" % healed)
+	if procs.has("burn") and randf() < float(procs["burn"].get("chance", 0.0)):
+		var burn: Dictionary = procs["burn"]
+		var stacks := int(burn.get("stacks", 3))
+		var slot := 1
+		for i in range(1, stacks + 1):  # the first free stack, else refresh the first one
+			if not target_cn.active_effects.has("ember_burn_%d" % i):
+				slot = i
+				break
+		_buff_target(target, target_cn, "ember_burn_%d" % slot, float(burn.get("seconds", 4.0)), {}, int(burn.get("dps", 3)), 1.0)
+		GameLog.log_combat("[color=#ff8844]%s is set burning.[/color]" % desc.capitalize())
+	if procs.has("void") and randf() < float(procs["void"].get("chance", 0.0)):
+		match randi() % 5:
+			0:
+				_buff_target(target, target_cn, "void_weaken", 6.0, {"damage_mult": -0.10})
+				GameLog.log_combat("[color=#aa77ff]The void saps %s's strength.[/color]" % desc)
+			1:
+				_buff_target(target, target_cn, "void_blind", 6.0, {"hit_chance": -25.0})
+				GameLog.log_combat("[color=#aa77ff]The void blinds %s.[/color]" % desc)
+			2:
+				_buff_target(target, target_cn, "void_silence", 4.0, {"silenced": 1.0})
+				GameLog.log_combat("[color=#aa77ff]The void silences %s.[/color]" % desc)
+			3:
+				var drained := int(minf(target_cn.current_mana, 10.0 + combat_node.level * 2.0))
+				target_cn.current_mana = maxf(0.0, target_cn.current_mana - drained)
+				combat_node.current_mana = minf(combat_node.max_mana, combat_node.current_mana + drained)
+				GameLog.log_combat("[color=#aa77ff]The void drains %d mana from %s.[/color]" % [drained, desc])
+			_:
+				_proc_stun(target, desc, 3.0, 5.0)
+
+
+func _proc_stun(target: Node, desc: String, min_s: float, max_s: float) -> void:
+	var now := Time.get_ticks_msec()
+	if int(target.get_meta("proc_stun_immune_until", 0)) > now:
+		return
+	target.set_meta("proc_stun_immune_until", now + PROC_STUN_IMMUNE_MS)
+	_apply_disable_effect(randf_range(min_s, max_s), target, desc, "is stunned!")
+
+
+# Every STANCE_GROUP_TICK seconds: the stance's group benefit to group members within STANCE_GROUP_RANGE (a short effect
+# that keeps being refreshed). Named by stance, so two monks in the same stance don't stack, and in different ones do.
+func _tick_stance_group(delta: float) -> void:
+	_stance_group_timer -= delta
+	if _stance_group_timer > 0.0:
+		return
+	_stance_group_timer = STANCE_GROUP_TICK
+	var mods: Dictionary = _stance_data().get("group", {})
+	if mods.is_empty():
+		return
+	for peer in group_members:
+		var member := _peer_id_to_player_node(peer)
+		if not is_instance_valid(member) or member == self or not ("combat_node" in member):
+			continue
+		if (member as Node3D).global_position.distance_to(global_position) <= STANCE_GROUP_RANGE:
+			_buff_target(member, member.combat_node, "group_stance_%s" % current_stance, STANCE_GROUP_TICK + 1.0, mods)
+
+
+# The stance's aura: a soft glow and rising motes in its colour, on every peer (current_stance is replicated).
+func _update_stance_aura() -> void:
+	if current_stance == _stance_aura_for:
+		return
+	_stance_aura_for = current_stance
+	if is_instance_valid(_stance_aura):
+		_stance_aura.queue_free()
+	_stance_aura = null
+	var colour_list: Array = _stance_data().get("aura", [])
+	if colour_list.size() != 3:
+		return
+	var colour := Color(float(colour_list[0]), float(colour_list[1]), float(colour_list[2]))
+	var aura := Node3D.new()
+	aura.name = "StanceAura"
+	add_child(aura)
+	var light := OmniLight3D.new()
+	light.light_color = colour
+	light.light_energy = 0.8
+	light.omni_range = 2.5
+	light.position = Vector3(0, 1.0, 0)
+	aura.add_child(light)
+	var motes := CPUParticles3D.new()
+	motes.amount = 28
+	motes.lifetime = 1.4
+	motes.emission_shape = CPUParticles3D.EMISSION_SHAPE_RING
+	motes.emission_ring_axis = Vector3.UP
+	motes.emission_ring_radius = 0.55
+	motes.emission_ring_inner_radius = 0.3
+	motes.emission_ring_height = 0.1
+	motes.direction = Vector3.UP
+	motes.spread = 12.0
+	motes.gravity = Vector3.ZERO
+	motes.initial_velocity_min = 0.5
+	motes.initial_velocity_max = 1.0
+	motes.scale_amount_min = 0.6
+	motes.scale_amount_max = 1.0
+	var fade := Curve.new()
+	fade.add_point(Vector2(0, 1))
+	fade.add_point(Vector2(1, 0))
+	motes.scale_amount_curve = fade
+	var mat := StandardMaterial3D.new()
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	mat.albedo_color = colour
+	mat.emission_enabled = true
+	mat.emission = colour
+	mat.emission_energy_multiplier = 2.0
+	var dot := SphereMesh.new()
+	dot.radius = 0.035
+	dot.height = 0.07
+	dot.material = mat
+	motes.mesh = dot
+	motes.position = Vector3(0, 0.15, 0)
+	aura.add_child(motes)
+	_stance_aura = aura
+
+
 # ── Combat sounds ──
 # Which sound a spell makes when it goes off (Data/sounds.json ids), from its player_spells.json fields: stealth,
 # summons, healing / cures / dispels, weapon and archery skills, everything helpful as a buff, and harmful spells by

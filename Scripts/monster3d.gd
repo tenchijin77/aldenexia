@@ -1371,6 +1371,8 @@ func _resolve_attack_on(target: Node, relayed: bool = false) -> void:
 			combat_node.current_hp = monster_hp_before
 			if result.get("result", "") == "RIPOSTE":
 				apply_networked_damage.rpc_id(1, int(result.get("damage", 0)), multiplayer.get_unique_id())
+			elif int(result.get("reflected", 0)) > 0:
+				apply_networked_damage.rpc_id(1, int(result["reflected"]), multiplayer.get_unique_id())  # Improved Parry
 		# resolve_attack() already applies the hit directly to
 		# target.combat_node.current_hp ("target.current_hp -= damage" inside
 		# combatnode.gd) — do NOT also call target.take_damage()/apply_damage()
@@ -1399,6 +1401,8 @@ func _resolve_attack_on(target: Node, relayed: bool = false) -> void:
 				target.on_attacked(self)
 			if target.has_method("_tick_defense_skill"):
 				target._tick_defense_skill(result.get("result", ""))
+			if int(result.get("reflected", 0)) > 0:
+				GameLog.log_combat("[color=#ffdd88]You parry and strike back at %s for [b]%d[/b] damage.[/color]" % [desc, int(result["reflected"])])
 			if target.has_method("play_swung_at_sound"):
 				target.play_swung_at_sound(str(result.get("result", "")), int(result.get("damage", 0)), self)
 			if str(result.get("result", "")) == "HIT" and monster_name.contains("spider"):

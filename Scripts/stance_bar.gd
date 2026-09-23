@@ -11,6 +11,8 @@ const GAP_ABOVE_ACTION_BAR := 4
 
 var _player: Node = null
 var _stances: Array = []
+var _check_timer := 0.0
+const SWITCH_COOLDOWN_MS := 3000   # one stance change every 3 s (no swapping for every single hit)
 var _slot_panels: Array[Control] = []
 var _panel: Panel = null
 
@@ -19,19 +21,30 @@ func _ready() -> void:
 	layer = 4
 
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	if _panel != null:
-		return  # already built (or determined not to build)
+		# A stance with a "level" appears once you reach it: rebuild when the unlocked set changes (a level up).
+		_check_timer -= delta
+		if _check_timer <= 0.0:
+			_check_timer = 1.0
+			if is_instance_valid(_player) and _load_stances_for_class(str(_player.get("player_class"))).size() != _stances.size():
+				_panel.queue_free()
+				_panel = null
+				_slot_panels.clear()
+		return
 
 	if not is_instance_valid(_player):
 		_player = TargetFrame.local_player()
 		if not is_instance_valid(_player):
 			return
+	_check_timer -= delta
+	if _check_timer > 0.0:
+		return
+	_check_timer = 2.0  # no stances (yet): look again in a moment, not every frame
 
 	_stances = _load_stances_for_class(_player.get("player_class") if "player_class" in _player else "")
 	if _stances.is_empty():
-		queue_free()
-		return
+		return  # none (yet): a class with levelled stances gets its bar at the first unlock; others simply never show one
 
 	_build_ui()
 	_refresh_highlight()  # in case current_stance was already restored from a save
@@ -47,7 +60,8 @@ func _load_stances_for_class(class_name_str: String) -> Array:
 	file.close()
 	if typeof(data) != TYPE_DICTIONARY:
 		return []
-	return data.get(class_name_str, [])
+	var level := int(_player.combat_node.level) if is_instance_valid(_player) and "combat_node" in _player else 1
+	return (data.get(class_name_str, []) as Array).filter(func(s): return int(s.get("level", 1)) <= level)
 
 
 func _build_ui() -> void:
@@ -112,7 +126,8 @@ func _build_ui() -> void:
 		name_lbl.set_anchors_preset(Control.PRESET_FULL_RECT)
 		name_lbl.text = stance.get("name", "").replace(" Stance", "")
 		name_lbl.add_theme_font_size_override("font_size", 9)
-		name_lbl.add_theme_color_override("font_color", Color(0.9, 0.85, 0.7))
+		var aura: Array = stance.get("aura", [])
+		name_lbl.add_theme_color_override("font_color", Color(float(aura[0]), float(aura[1]), float(aura[2])) if aura.size() == 3 else Color(0.9, 0.85, 0.7))
 		name_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		name_lbl.vertical_alignment   = VERTICAL_ALIGNMENT_CENTER
 		name_lbl.autowrap_mode        = TextServer.AUTOWRAP_WORD_SMART
@@ -140,6 +155,12 @@ func _on_slot_clicked(stance_id: String, bg: StyleBoxFlat) -> void:
 
 	var combat_node = _player.combat_node
 
+	var now := Time.get_ticks_msec()
+	if now - int(_player.get_meta("stance_switch_ms", -100000)) < SWITCH_COOLDOWN_MS:
+		GameLog.log_general("You can't change stance again so soon.")
+		return
+	_player.set_meta("stance_switch_ms", now)
+
 	if _player.current_stance == stance_id:
 		# Toggle off
 		combat_node.remove_effect("stance_" + stance_id)
@@ -162,7 +183,8 @@ func _on_slot_clicked(stance_id: String, bg: StyleBoxFlat) -> void:
 
 		combat_node.apply_effect("stance_" + stance_id, INF, stance.get("modifiers", {}))
 		_player.current_stance = stance_id
-		GameLog.log_general("[color=#ffcc66]You assume the %s stance.[/color]" % stance.get("name", ""))
+		GameLog.log_general("[color=#ffcc66]You assume %s.[/color]" % stance.get("name", ""))
+		Sfx.play("spell_buff")
 
 	_refresh_highlight()
 

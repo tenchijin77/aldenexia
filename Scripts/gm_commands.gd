@@ -14,7 +14,7 @@
 extends RefCounted   # no class_name on purpose: net.gd (an autoload) uses it, and a brand-new class name is not known to Godot until its class cache is rebuilt; users preload() it instead
 
 const DENIED := "[color=red]Only game masters can do that.[/color]"
-const COMMANDS := ["weather", "raid", "announce", "maintenance"]
+const COMMANDS := ["weather", "raid", "announce", "maintenance", "ban", "unban", "bans"]
 
 
 static func is_gm(player: Node) -> bool:
@@ -146,6 +146,8 @@ static func run(_player: Node, command: String, arg: String, tree: SceneTree, au
 			if not rm.start_raid(arg.strip_edges().to_lower()):
 				return "Usage: /raid [bandits | goblins]"
 			return "[color=#88ccff]Raid started.[/color]"
+	if command in ["ban", "unban", "bans"]:
+		return _bans(command, arg.strip_edges(), _player)
 	if command == "announce" or command == "maintenance":
 		var notice := tree.get_first_node_in_group("server_notice")
 		if notice == null:
@@ -161,3 +163,32 @@ static func run(_player: Node, command: String, arg: String, tree: SceneTree, au
 		var minutes: float = word.to_float() if word.is_valid_float() else 5.0
 		return notice.start_maintenance(minutes)
 	return "Unknown GM command: /%s" % command
+
+
+# /ban <ip | player name> — refuse that address from now on and disconnect anyone on it (a player's name bans the address
+# they are connected from). /unban <ip>. /bans lists them. Kept in the server's banned_ips file (Net.banned_ips_file) —
+# one address per line with a note, editable by hand. Everyone behind the same home router shares one address.
+static func _bans(command: String, arg: String, gm: Node) -> String:
+	match command:
+		"bans":
+			var list: Array = Net.banned_ips()
+			return "Banned addresses: %s" % (", ".join(list) if not list.is_empty() else "none")
+		"unban":
+			if arg.is_empty():
+				return "Usage: /unban <ip address>"
+			return ("[color=#88ccff]Unbanned %s.[/color]" % arg) if Net.unban_ip(arg) else "%s isn't banned." % arg
+	if arg.is_empty():
+		return "Usage: /ban <ip address | player name>"
+	var ip := arg
+	var who := ""
+	if not arg.is_valid_ip_address():
+		var peer := Net.peer_for_character(arg)
+		if peer == 0:
+			return "No player named '%s' is online (to ban an address, give the IP)." % arg
+		ip = Net.peer_ip(peer)
+		who = arg.capitalize()
+	var by := str(gm.get("player_name")) if is_instance_valid(gm) else "a game master"
+	var note := "banned by %s on %s%s" % [by, Time.get_date_string_from_system(), (" (was playing %s)" % who) if not who.is_empty() else ""]
+	var kicked := Net.ban_ip(ip, note)
+	Net._slog("Ban: %s — %s." % [ip, note])
+	return "[color=#88ccff]Banned %s%s; %d disconnected.[/color]" % [ip, (" (%s)" % who) if not who.is_empty() else "", kicked]

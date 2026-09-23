@@ -443,7 +443,7 @@ const STARTING_SPELLS := {
 	"Gravecaller":  ["shadow_bolt", "raise_skeleton"],
 	"Runecaster":   ["charm", "illusionary_bolt"],
 	"Arcanist":     ["magic_missile", "arcane_armor"],
-	"Aetherfist":   ["flurry_of_blows", "wind_stance"],
+	"Aetherfist":   ["flurry_of_blows"],  # Wind Stance is now a stance (stance bar), not a spell
 	"Chaosborn":    ["chaos_bolt", "wild_surge"],
 }
 

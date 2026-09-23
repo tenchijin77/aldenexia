@@ -236,12 +236,16 @@ const ENVIRONMENTAL_EFFECT_ITEM_ICONS := {
 func _resolve_effect_display(effect_name: String) -> Dictionary:
 	if effect_name.begins_with(WEAPON_POISON_PREFIX):
 		return _weapon_poison_display(effect_name)
-	if effect_name.begins_with("stance_"):
-		var stance_id := effect_name.substr(len("stance_"))
+	if effect_name.begins_with("stance_") or effect_name.begins_with("group_stance_"):
+		var from_group := effect_name.begins_with("group_stance_")
+		var stance_id := effect_name.trim_prefix("group_stance_").trim_prefix("stance_")
 		for class_stances in _class_stances.values():
+			if not (class_stances is Array):
+				continue  # the file's "_comment"
 			for stance in class_stances:
 				if stance.get("stance_id", "") == stance_id:
-					return {"name": stance.get("name", stance_id), "description": stance.get("description", ""), "is_debuff": false, "icon": SpellInfo.icon_texture(stance)}
+					var shown: String = str(stance.get("name", stance_id)) + (" (from your group)" if from_group else "")
+					return {"name": shown, "description": stance.get("description", ""), "is_debuff": false, "icon": SpellInfo.icon_texture(stance)}
 
 	if "_spell_by_name" in _player:
 		var spell: Dictionary = _player._spell_by_name.get(effect_name, {})

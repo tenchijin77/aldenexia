@@ -2765,10 +2765,37 @@
     "effect": null,
     "teaches_spell": "fire_strike"
   },
-  "scroll_of_improved_ki_strike": {
-    "name": "Scroll of Improved Ki Strike",
+  "scroll_of_mountains_challenge": {
+    "name": "Scroll of Mountain's Challenge",
     "icon": "res://Assets/icons/items/scroll.png",
-    "description": "A scroll bearing the Improved Ki Strike technique. Right-Click to learn.",
+    "description": "A scroll bearing the Mountain's Challenge technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "aetherfist"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "mountains_challenge"
+  },
+  "scroll_of_improved_ki_strike": {
+    "name": "Scroll of Ki Strike",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Ki Strike technique. Right-Click to learn.",
     "stackable": true,
     "currency_type": "copper",
     "value": 10,
@@ -2847,9 +2874,9 @@
     "teaches_spell": "stunning_fist"
   },
   "scroll_of_enhanced_mend_wounds": {
-    "name": "Scroll of Enhanced Mend Wounds",
+    "name": "Scroll of Mend Wounds",
     "icon": "res://Assets/icons/items/scroll.png",
-    "description": "A scroll bearing the Enhanced Mend Wounds technique. Right-Click to learn.",
+    "description": "A scroll bearing the Mend Wounds technique. Right-Click to learn.",
     "stackable": true,
     "currency_type": "copper",
     "value": 10,

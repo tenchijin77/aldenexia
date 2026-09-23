@@ -270,6 +270,9 @@ const GM_COMMANDS := [
 	["/raid [bandits|goblins]", "Start a gate raid now"],
 	["/announce <text>", "A red message in the middle of everyone's screen"],
 	["/maintenance [minutes|cancel]", "Warn everyone, refuse new logins, and take the server down for an update"],
+	["/ban <ip | name>", "Ban an IP address (or the address a named player is on) and disconnect them"],
+	["/unban <ip>", "Lift a ban"],
+	["/bans", "List banned addresses"],
 ]
 
 

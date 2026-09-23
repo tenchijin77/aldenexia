@@ -234,7 +234,7 @@ func remove_effect(effect_name: String) -> void:
 # feed recalculate_derived_stats() the same way gear_<stat> does, so adding or removing one has to invalidate the cache.
 func _has_stat_modifiers(modifiers: Dictionary) -> bool:
 	for key in modifiers:
-		if str(key).begins_with("stat_"):
+		if str(key).begins_with("stat_") or key in ["dodge_bonus", "parry_bonus"]:  # these feed the cached dodge/parry chance too
 			return true
 	return false
 
@@ -271,6 +271,8 @@ func is_stealthed() -> bool:
 func break_invisibility() -> void:
 	if active_effects.has("invisibility"):
 		remove_effect("invisibility")
+
+const PARRY_REFLECT := 0.05  # Improved Parry: share of the parried blow sent back to the attacker
 
 func has_passive(spell_name: String) -> bool:
 	"""Check whether this CombatNode's owner (player/pet) knows a non-cast passive spell."""
@@ -440,12 +442,12 @@ func recalculate_derived_stats():
 	_cached_stats["riposte_chance"] = riposte
 
 	# Dodge Chance
-	var dodge = class_dodge_base + int(dex_eff * 0.5) + race_dodge_bonus + int(skill_bonus("dodge_chance"))
+	var dodge = class_dodge_base + int(dex_eff * 0.5) + race_dodge_bonus + int(skill_bonus("dodge_chance")) + int(get_modifier("dodge_bonus"))
 	dodge = clamp(dodge, 0, 50)  # Soft cap at 50%
 	_cached_stats["dodge_chance"] = dodge
 
 	# Parry Chance
-	var parry = class_parry_base + int(dex_eff * 0.3) + int(weapon_skill * 0.1) + race_parry_bonus + int(skill_bonus("parry_chance"))
+	var parry = class_parry_base + int(dex_eff * 0.3) + int(weapon_skill * 0.1) + race_parry_bonus + int(skill_bonus("parry_chance")) + int(get_modifier("parry_bonus"))
 	parry = clamp(parry, 0, 50)  # Soft cap at 50%
 	_cached_stats["parry_chance"] = parry
 
@@ -963,9 +965,16 @@ func resolve_attack(target: CombatNode) -> Dictionary:
 
 	# 3. PARRY CHECK (Defender)
 	if parried:
+		# Improved Parry (a passive: Lightsworn, Aetherfist, other tanks): a parry strikes back for PARRY_REFLECT of the damage
+		# the blow would have done ("reflected" — monster3d.gd relays it to the real monster when this runs on a puppet).
+		var reflected := 0
+		if target.has_passive("improved_parry"):
+			reflected = maxi(1, int(round(calculate_melee_damage(target) * PARRY_REFLECT)))
+			current_hp -= reflected
 		return {
 			"result": "PARRY",
 			"damage": 0,
+			"reflected": reflected,
 			"message": "Your attack is parried!"
 		}
 

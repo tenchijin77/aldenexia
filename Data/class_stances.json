@@ -1,34 +1,196 @@
 {
-  "Voidknight": [
-    {
-      "stance_id": "shadow_ascendant",
-      "name": "Shadow Ascendant",
-      "description": "+15% damage, -10% block chance, -35% threat generation. DPS or solo play; not recommended for group tanking.",
-      "icon": "res://Assets/icons/items/sword.png",
-      "modifiers": { "damage_mult": 0.15, "block_chance": -10.0, "threat_mult": -0.35 }
-    },
-    {
-      "stance_id": "necrotic_bastion",
-      "name": "Necrotic Bastion",
-      "description": "+15% block chance, -10% damage, +25% Life Drain healing. Offsets the damage loss with life steal and maintains threat through healing — ideal for group tanking.",
-      "icon": "res://Assets/icons/items/shield.png",
-      "modifiers": { "damage_mult": -0.10, "block_chance": 15.0, "life_drain_heal_mult": 0.25 }
-    },
-    {
-      "stance_id": "dusk_walker",
-      "name": "Dusk Walker",
-      "description": "+7% damage, +7% block chance. Flexible for mixed scenarios, solo or group content.",
-      "icon": "res://Assets/icons/spells/selfbuff.png",
-      "modifiers": { "damage_mult": 0.07, "block_chance": 7.0 }
+ "Voidknight": [
+  {
+   "stance_id": "shadow_ascendant",
+   "name": "Shadow Ascendant",
+   "description": "+15% damage, -10% block chance, -35% threat generation. DPS or solo play; not recommended for group tanking.",
+   "icon": "res://Assets/icons/items/sword.png",
+   "modifiers": {
+    "damage_mult": 0.15,
+    "block_chance": -10.0,
+    "threat_mult": -0.35
+   }
+  },
+  {
+   "stance_id": "necrotic_bastion",
+   "name": "Necrotic Bastion",
+   "description": "+15% block chance, -10% damage, +25% Life Drain healing. Offsets the damage loss with life steal and maintains threat through healing — ideal for group tanking.",
+   "icon": "res://Assets/icons/items/shield.png",
+   "modifiers": {
+    "damage_mult": -0.1,
+    "block_chance": 15.0,
+    "life_drain_heal_mult": 0.25
+   }
+  },
+  {
+   "stance_id": "dusk_walker",
+   "name": "Dusk Walker",
+   "description": "+7% damage, +7% block chance. Flexible for mixed scenarios, solo or group content.",
+   "icon": "res://Assets/icons/spells/selfbuff.png",
+   "modifiers": {
+    "damage_mult": 0.07,
+    "block_chance": 7.0
+   }
+  }
+ ],
+ "Shadowblade": [
+  {
+   "stance_id": "stealth",
+   "name": "Stealth",
+   "description": "Move unseen. Satisfies Backstab's \"from stealth\" requirement regardless of facing. Toggle off (or the stance bar again) to come out of hiding.",
+   "icon": "res://Assets/icons/spells/selfward.png",
+   "modifiers": {
+    "stealthed": 1.0
+   }
+  }
+ ],
+ "_comment": "class_stances.json - each class's stances (stance_bar.gd shows them; one at a time, applied as a permanent effect). Per stance: stance_id, name, description, icon, modifiers (combat modifiers while it's up). Optional (Aetherfist): level (unlocks at), procs (auto-attack hits only: stun {chance,min,max} seconds, lifesteal {chance,pct}, burn {chance,dps,seconds,stacks}, void {chance}), boosts (ability ids that are 25% stronger in this stance), group (modifiers given to group members within 10 m; the same element from two monks doesn't stack), aura ([r,g,b] colour of the glow and particles everyone sees).",
+ "Aetherfist": [
+  {
+   "stance_id": "wind",
+   "name": "Wind Stance",
+   "level": 1,
+   "icon": "",
+   "description": "Gale Step: +8 dodge, +10% movement and attack speed, -5% damage. Hits have a 5% chance to stun for 3-5 seconds. Swift Step and Flying Kick are stronger. Group: +5% movement speed.",
+   "modifiers": {
+    "dodge_bonus": 8,
+    "move_speed_bonus": 0.1,
+    "attack_speed_bonus": 0.1,
+    "damage_mult": -0.05
+   },
+   "procs": {
+    "stun": {
+     "chance": 0.05,
+     "min": 3,
+     "max": 5
     }
-  ],
-  "Shadowblade": [
-    {
-      "stance_id": "stealth",
-      "name": "Stealth",
-      "description": "Move unseen. Satisfies Backstab's \"from stealth\" requirement regardless of facing. Toggle off (or the stance bar again) to come out of hiding.",
-      "icon": "res://Assets/icons/spells/selfward.png",
-      "modifiers": { "stealthed": 1.0 }
+   },
+   "boosts": [
+    "swift_step",
+    "flying_kick"
+   ],
+   "group": {
+    "move_speed_bonus": 0.05
+   },
+   "aura": [
+    0.65,
+    1.0,
+    0.8
+   ]
+  },
+  {
+   "stance_id": "earth",
+   "name": "Earth Stance",
+   "level": 3,
+   "icon": "",
+   "description": "Stone Root (backup tank): take 20% less damage, +50% threat, +5 parry; -15% damage and -10% attack speed. Earth Strike and Mountain's Challenge are stronger. Group: take 3% less damage.",
+   "modifiers": {
+    "damage_taken_mult": 0.2,
+    "threat_mult": 0.5,
+    "parry_bonus": 5,
+    "damage_mult": -0.15,
+    "attack_speed_bonus": -0.1
+   },
+   "boosts": [
+    "earth_strike",
+    "mountains_challenge"
+   ],
+   "group": {
+    "damage_taken_mult": 0.03
+   },
+   "aura": [
+    0.75,
+    0.55,
+    0.3
+   ]
+  },
+  {
+   "stance_id": "water",
+   "name": "Water Stance",
+   "level": 5,
+   "icon": "",
+   "description": "Flowing Tide: +8 parry, +3 health regen, -5% damage. Hits have a 15% chance to heal you for 30% of the damage. Water Strike and Mend Wounds are stronger. Group: +1 health regen.",
+   "modifiers": {
+    "parry_bonus": 8,
+    "hp_regen_bonus": 3,
+    "damage_mult": -0.05
+   },
+   "procs": {
+    "lifesteal": {
+     "chance": 0.15,
+     "pct": 0.3
     }
-  ]
+   },
+   "boosts": [
+    "water_strike",
+    "enhanced_mend_wounds"
+   ],
+   "group": {
+    "hp_regen_bonus": 1
+   },
+   "aura": [
+    0.35,
+    0.65,
+    1.0
+   ]
+  },
+  {
+   "stance_id": "fire",
+   "name": "Fire Stance",
+   "level": 7,
+   "icon": "",
+   "description": "Ember Fist: +12% damage, -5 dodge and parry. Hits have a 20% chance to set the target burning (3 damage a second for 4 seconds, stacks 3 times). Fire Strike is stronger. Group: +3% damage.",
+   "modifiers": {
+    "damage_mult": 0.12,
+    "dodge_bonus": -5,
+    "parry_bonus": -5
+   },
+   "procs": {
+    "burn": {
+     "chance": 0.2,
+     "dps": 3,
+     "seconds": 4,
+     "stacks": 3
+    }
+   },
+   "boosts": [
+    "fire_strike"
+   ],
+   "group": {
+    "damage_mult": 0.03
+   },
+   "aura": [
+    1.0,
+    0.45,
+    0.12
+   ]
+  },
+  {
+   "stance_id": "void",
+   "name": "Void Stance",
+   "level": 10,
+   "icon": "",
+   "description": "Hollow Palm: +5% damage, take 10% more damage. Hits have a 15% chance to add a random effect: weaken, blind, silence, drain mana, or stun for 3-5 seconds. Ki Strike is stronger. Group: +5 magic resistance.",
+   "modifiers": {
+    "damage_mult": 0.05,
+    "damage_taken_mult": -0.1
+   },
+   "procs": {
+    "void": {
+     "chance": 0.15
+    }
+   },
+   "boosts": [
+    "improved_ki_strike"
+   ],
+   "group": {
+    "magic_resist_bonus": 5
+   },
+   "aura": [
+    0.62,
+    0.3,
+    1.0
+   ]
+  }
+ ]
 }

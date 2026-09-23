@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>body{margin:0}</style>
+<title>Lightfall Tester's Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Alegreya+Sans:ital,wght@0,400;0,500;0,700;1,400&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+  :root {
+    --ground: #ECEFEA;
+    --surface: #F8F9F6;
+    --ink: #1D272A;
+    --muted: #56656A;
+    --rule: #CCD4D0;
+    --accent: #1C6A66;
+    --accent-soft: #D5E6E2;
+    --brass: #9A6F1E;
+    --brass-soft: #F1E5CB;
+    --key-bg: #FFFFFF;
+    --key-edge: #B7C2BE;
+    --display: "Marcellus", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+    --body: "Alegreya Sans", "Segoe UI", system-ui, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --ground: #121A1C;
+      --surface: #1A2427;
+      --ink: #E4EAE6;
+      --muted: #9AA9A6;
+      --rule: #2E3C3F;
+      --accent: #63BFB4;
+      --accent-soft: #1D3634;
+      --brass: #D9B05C;
+      --brass-soft: #32291A;
+      --key-bg: #22302F;
+      --key-edge: #3F504F;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --ground: #121A1C;
+    --surface: #1A2427;
+    --ink: #E4EAE6;
+    --muted: #9AA9A6;
+    --rule: #2E3C3F;
+    --accent: #63BFB4;
+    --accent-soft: #1D3634;
+    --brass: #D9B05C;
+    --brass-soft: #32291A;
+    --key-bg: #22302F;
+    --key-edge: #3F504F;
+  }
+
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 17px;
+    line-height: 1.55;
+    padding-inline: 16px;
+    padding-block: 32px 64px;
+  }
+  .page { max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 44px; }
+
+  header { display: flex; flex-direction: column; gap: 10px; }
+  .eyebrow { font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); font-weight: 700; }
+  h1 { font-family: var(--display); font-weight: 400; font-size: clamp(34px, 6vw, 48px); line-height: 1.1; margin: 0; text-wrap: balance; }
+  .lede { color: var(--muted); max-width: 62ch; margin: 0; }
+
+  section { display: flex; flex-direction: column; gap: 14px; }
+  h2 { font-family: var(--display); font-weight: 400; font-size: 26px; margin: 0; text-wrap: balance; border-bottom: 1px solid var(--rule); padding-bottom: 8px; }
+  h3 { font-size: 17px; margin: 0; font-weight: 700; }
+  p { margin: 0; max-width: 66ch; }
+  a { color: var(--accent); }
+
+  ol.steps { list-style: none; counter-reset: step; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+  ol.steps > li { counter-increment: step; display: grid; grid-template-columns: 34px 1fr; gap: 12px; align-items: start; }
+  ol.steps > li::before {
+    content: counter(step);
+    font-family: var(--display); font-size: 18px;
+    width: 30px; height: 30px; border-radius: 50%;
+    display: grid; place-items: center;
+    background: var(--accent-soft); color: var(--accent);
+  }
+  ol.steps > li > div { display: flex; flex-direction: column; gap: 4px; padding-top: 3px; }
+  .ui { font-weight: 700; }
+
+  .version {
+    background: var(--brass-soft);
+    border: 1px solid color-mix(in srgb, var(--brass) 40%, transparent);
+    border-radius: 10px;
+    padding: 18px 20px;
+    display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: center;
+  }
+  .version h2 { border: 0; padding: 0; font-size: 22px; }
+  .version p { margin-top: 6px; }
+  .screen {
+    width: 190px; aspect-ratio: 16 / 9; max-width: 100%;
+    border-radius: 6px; position: relative;
+    background: linear-gradient(160deg, #3b2a1d, #1d1712 70%);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08);
+  }
+  .screen .title { position: absolute; top: 14%; left: 0; right: 0; text-align: center; font-family: var(--display); color: #e9d8b0; font-size: 13px; }
+  .screen .ver { position: absolute; right: 7px; bottom: 6px; font-family: var(--mono); font-size: 9px; color: #d5c49a;
+    outline: 2px solid var(--brass); outline-offset: 2px; border-radius: 2px; padding: 0 2px; }
+  code, .mono { font-family: var(--mono); font-size: 0.86em; }
+
+  .keys { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  .keys td { padding: 7px 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  .keys td:first-child { width: 42%; padding-right: 14px; }
+  .keys tr:last-child td { border-bottom: 0; }
+  kbd {
+    font-family: var(--mono); font-size: 13px;
+    background: var(--key-bg); border: 1px solid var(--key-edge); border-bottom-width: 2px;
+    border-radius: 5px; padding: 1px 7px; white-space: nowrap; display: inline-block; margin: 1px 2px 1px 0;
+  }
+  .keygroups { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 8px 32px; }
+  .keygroups h3 { color: var(--accent); font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 4px; }
+
+  ul.plain { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; max-width: 66ch; }
+
+  .report { background: var(--surface); border: 1px solid var(--rule); border-radius: 10px; overflow: hidden; }
+  .report-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 14px; border-bottom: 1px solid var(--rule); flex-wrap: wrap; }
+  .report-head span { font-size: 14px; color: var(--muted); }
+  pre#template { margin: 0; padding: 14px 16px; font-family: var(--mono); font-size: 13.5px; line-height: 1.6; white-space: pre-wrap; overflow-x: auto; color: var(--ink); }
+  button#copy {
+    font-family: var(--body); font-weight: 700; font-size: 15px;
+    background: var(--accent); color: var(--surface); border: 0; border-radius: 6px; padding: 7px 14px; cursor: pointer;
+  }
+  button#copy:focus-visible { outline: 3px solid var(--brass); outline-offset: 2px; }
+  .example { font-size: 15px; color: var(--muted); }
+  .example b { color: var(--ink); }
+
+  .ndatext { background: var(--surface); border: 1px solid var(--rule); border-radius: 10px; overflow: hidden; }
+  .ndatext summary { cursor: pointer; padding: 12px 16px; font-weight: 700; color: var(--accent); }
+  .ndatext summary:focus-visible { outline: 3px solid var(--brass); outline-offset: -3px; }
+  .ndatext[open] summary { border-bottom: 1px solid var(--rule); }
+  .ndatext .report-head { border-bottom: 1px solid var(--rule); }
+  pre#nda-text { margin: 0; padding: 14px 16px; font-family: var(--mono); font-size: 12.5px; line-height: 1.6; white-space: pre-wrap; max-height: 460px; overflow: auto; color: var(--ink); }
+  button#copy-nda { font-family: var(--body); font-weight: 700; font-size: 15px; background: var(--accent); color: var(--surface); border: 0; border-radius: 6px; padding: 7px 14px; cursor: pointer; }
+  button#copy-nda:focus-visible { outline: 3px solid var(--brass); outline-offset: 2px; }
+  .sendto { display: flex; flex-direction: column; gap: 8px; background: var(--accent-soft); border-radius: 10px; padding: 12px 16px; }
+  .sendto > div { display: flex; gap: 12px; align-items: baseline; flex-wrap: wrap; }
+  .sendto .label { font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); font-weight: 700; min-width: 70px; }
+  .sendto .mono { user-select: all; }
+  button#copy-email { font-family: var(--body); font-weight: 700; font-size: 13px; background: transparent; color: var(--accent); border: 1px solid var(--accent); border-radius: 5px; padding: 1px 9px; cursor: pointer; margin-left: 6px; }
+  button#copy-email:focus-visible { outline: 3px solid var(--brass); outline-offset: 2px; }
+  footer { color: var(--muted); font-size: 14px; border-top: 1px solid var(--rule); padding-top: 14px; }
+
+  @media (max-width: 520px) {
+    .version { grid-template-columns: 1fr; }
+    .keys td:first-child { width: 46%; }
+  }
+</style>
+
+<div class="page">
+  <header>
+    <div class="eyebrow">Aldenexia: Lightfall · Playtest</div>
+    <h1>Welcome to the desert of Lumora, tester!</h1>
+    <p class="lede">Thank you for helping test Aldenexia: Lightfall. This page covers getting in, the handful of keys worth knowing, and how to send a report the developer can actually act on. Things will break — that's the point. Tell us when they do.</p>
+  </header>
+
+  <section>
+    <h2>Getting in</h2>
+    <ol class="steps">
+      <li><div><h3>Download the game</h3><p>Open the download page: <a href="http://gofile.me/6Jpm4/4Wu7E5z7O" target="_blank" rel="noopener">gofile.me/6Jpm4/4Wu7E5z7O</a>. It shows two folders, <b>Windows</b> and <b>Linux</b>. Select the one for your computer and click <span class="ui">Download folder</span> — the whole folder downloads as a single <b>.zip</b> file.</p></div></li>
+      <li><div><h3>Extract it, then run it</h3>
+        <p><b>Windows:</b> right-click the zip, choose <span class="ui">Extract All…</span> into its own folder (the game won't run from inside the zip), then run <code>Aldenexia_Lightfall.exe</code> and keep the other files next to it. Windows may warn about an unrecognised app — choose <span class="ui">More info → Run anyway</span>.</p>
+        <p><b>Linux:</b> extract the zip into its own folder (<code>unzip</code> or your file manager's <span class="ui">Extract Here</span>), then run <code>./Aldenexia_Lightfall.sh</code> from that folder. If it won't start, make it runnable first: <code>chmod +x Aldenexia_Lightfall.sh Aldenexia_Lightfall.x86_64</code>.</p>
+        <p>Both folders include <code>NDA.txt</code> — <a href="#nda">read it here too</a>.</p>
+      </div></li>
+      <li><div><h3>Choose the public test server</h3><p>On the main menu, choose <span class="ui">Join a Server</span> and select <b>test-public</b> from the list. (<span class="ui">Multiplayer</span> on the main menu is for games on your own home network (LAN), not the public test; ignore the other server named <b>test</b> too — that one is the developer's own.)</p></div></li>
+      <li><div><h3>Update if asked</h3><p>If the server runs a newer build, press <span class="ui">Download update</span>. The game restarts itself into the new version — updates are small and only the first install is a big download.</p></div></li>
+      <li><div><h3>Make your character</h3><p>Press <span class="ui">+ Create New Character</span>. Names use letters and numbers only (2–16), and the password needs at least 4 characters. Your character lives on the server, so use the same name and password on any computer.</p></div></li>
+      <li><div><h3>Enter the world</h3><p>Pick your character and press <span class="ui">Enter World</span>. You start outside Lumora's gate.</p></div></li>
+    </ol>
+  </section>
+
+  <section class="nda" aria-labelledby="nda-h">
+    <h2 id="nda-h">Keep it between us</h2>
+    <p>Lightfall is unreleased. The game folder includes <code>NDA.txt</code> (the full text is below) — by downloading, installing or playing the test build you agree to it. In short: no public screenshots, videos or streams without asking first, and don't pass the game, the download link or the server address to anyone who wasn't invited. Talking about it with the other testers is fine.</p>
+  </section>
+
+  <section id="nda" aria-labelledby="nda-full-h">
+    <details class="ndatext">
+      <summary><span id="nda-full-h">Read the full NDA</span></summary>
+      <div class="report-head"><span>NDA.txt — the same text as in your game folder</span><button id="copy-nda" type="button">Copy NDA text</button></div>
+<pre id="nda-text">ALDENEXIA: LIGHTFALL — PLAYTEST CONFIDENTIALITY AGREEMENT (NDA)
+Kuro Neko Sama Games
+Last updated: 23 September 2026
+
+Aldenexia: Lightfall is an unreleased game in active development. You have been given a
+private test copy so you can help us make it better. Before you play, please read this.
+
+BY DOWNLOADING, INSTALLING, OR PLAYING THIS TEST BUILD, YOU AGREE TO THESE TERMS.
+If you do not agree, do not install or play the game, and delete your copy.
+
+
+1. WHAT IS CONFIDENTIAL
+
+&quot;Confidential Information&quot; means everything about this unreleased game that you see or
+receive as a tester, including:
+  - the game itself: its builds, files, and updates;
+  - its content: story, quests, characters, classes, spells, items, maps, art, music,
+    sounds, and user interface;
+  - its features, systems, and balance, including anything unfinished, placeholder, or
+    changed later;
+  - the test server, its address, and anything said or shared in the test group;
+  - any bugs, problems, or known issues you come across.
+
+It does not include anything the developer has already made public, or anything you
+knew before joining the test from another source.
+
+
+2. WHAT YOU AGREE TO
+
+You agree that you will:
+  - keep the Confidential Information to yourself and not share it publicly;
+  - not post screenshots, video, streams, recordings, or detailed descriptions of the
+    game anywhere public (social media, forums, video sites, streaming platforms, public
+    chat servers) without written permission from the developer;
+  - not give, sell, upload, or share the game files, download link, or server address with
+    anyone who has not been invited to the test by the developer;
+  - not copy, decompile, reverse-engineer, extract, or modify the game or its files, and
+    not use cheats, bots, or exploits except to report them;
+  - tell the developer promptly if you learn that any Confidential Information has leaked.
+
+You MAY talk about the game privately with the developer and with other invited testers,
+and you may tell people in general terms that you are testing an unreleased game.
+
+
+3. YOUR FEEDBACK
+
+Bug reports, suggestions, and ideas you send (&quot;Feedback&quot;) help shape the game. You agree
+that the developer may use, change, and build on any Feedback freely, without owing you
+payment or credit, and that the developer owns anything made from it. We will gladly
+credit testers where we can, but it is not guaranteed.
+
+
+4. THE TEST ITSELF
+
+  - The game is provided &quot;as is&quot;, for testing only. It may crash, contain errors, or lose
+    data, and it may change or be taken down at any time.
+  - Characters, items, and progress may be reset or deleted between test rounds.
+  - Your access to the test may be ended at any time, for any reason.
+  - To the fullest extent allowed by law, the developer is not responsible for any loss or
+    damage arising from your use of the test build.
+  - Everything in the game remains the property of Kuro Neko Sama Games. Taking part in the
+    test gives you no ownership of or rights to the game beyond playing it for testing.
+
+
+5. HOW LONG THIS LASTS
+
+These terms apply from the moment you download, install, or play the test build, and
+continue until the developer makes the relevant information public (for example, at the
+game&#x27;s public release) or releases you from them in writing — whichever comes first.
+Your obligations continue after the test ends or your access is removed.
+
+
+6. IF YOU STOP TESTING
+
+If your access ends, or the developer asks, delete every copy of the test build and any
+screenshots or recordings you made of it.
+
+
+7. CONTACT
+
+Questions about these terms, or requests to share something (a screenshot or clip, say),
+go to the developer who invited you. When in doubt, ask first.
+
+
+Thank you for testing Aldenexia: Lightfall.</pre>
+    </details>
+  </section>
+
+  <section class="version" aria-labelledby="ver-h">
+    <div>
+      <h2 id="ver-h">Note your version number</h2>
+      <p>Every report needs it. It's in the <b>lower-right corner of the main menu</b> and looks like <span class="mono">v0.4.5 (a434b99)</span> — the number in brackets is the exact build, so copy both parts.</p>
+    </div>
+    <div class="screen" role="img" aria-label="The main menu with the version shown in the lower-right corner">
+      <div class="title">Aldenexia: Lightfall</div>
+      <div class="ver">v0.4.5 (a434b99)</div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Keys worth knowing</h2>
+    <p>Press <kbd>Esc</kbd> in game for the full list of controls and chat commands.</p>
+    <div class="keygroups">
+      <div>
+        <h3>Moving &amp; fighting</h3>
+        <table class="keys">
+          <tr><td><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></td><td>Move and turn (<kbd>Q</kbd>/<kbd>E</kbd> strafe)</td></tr>
+          <tr><td><kbd>Shift</kbd></td><td>Toggle running</td></tr>
+          <tr><td><kbd>Space</kbd></td><td>Jump — long falls hurt</td></tr>
+          <tr><td><kbd>F12</kbd></td><td>Free look: the mouse steers the camera; press again for the cursor</td></tr>
+          <tr><td>Hold <kbd>Right Mouse</kbd></td><td>Look around (head-turn) without moving</td></tr>
+          <tr><td>Mouse wheel</td><td>Zoom (all the way in is first person)</td></tr>
+          <tr><td><kbd>Tab</kbd></td><td>Target the nearest enemy</td></tr>
+          <tr><td><kbd>`</kbd></td><td>Attack your target</td></tr>
+          <tr><td><kbd>1</kbd>–<kbd>0</kbd></td><td>Use abilities on your action bar</td></tr>
+          <tr><td><kbd>H</kbd></td><td>Hail the nearest NPC</td></tr>
+        </table>
+      </div>
+      <div>
+        <h3>Windows</h3>
+        <table class="keys">
+          <tr><td><kbd>C</kbd></td><td>Character sheet &amp; bags (has a <span class="ui">Sort</span> button)</td></tr>
+          <tr><td><kbd>B</kbd></td><td>Backpack</td></tr>
+          <tr><td><kbd>K</kbd></td><td>Abilities book</td></tr>
+          <tr><td><kbd>J</kbd></td><td>Quest journal</td></tr>
+          <tr><td><kbd>L</kbd></td><td>Recipe book</td></tr>
+          <tr><td><kbd>Esc</kbd></td><td>Close windows / game menu</td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="keygroups">
+      <div>
+        <h3>Right-click does a lot</h3>
+        <table class="keys">
+          <tr><td>A vendor or NPC</td><td>Shop or talk (the banker opens your bank)</td></tr>
+          <tr><td>A corpse</td><td>Loot it</td></tr>
+          <tr><td>Ore, trees, plants</td><td>Gather (ore needs a pick, trees an axe)</td></tr>
+          <tr><td>A crafting station</td><td>Open it to craft</td></tr>
+          <tr><td>Another player</td><td>Ask them to trade</td></tr>
+          <tr><td>An item in your bags</td><td>Use, equip, drop or destroy it</td></tr>
+        </table>
+      </div>
+      <div>
+        <h3>Useful chat commands</h3>
+        <table class="keys">
+          <tr><td><code>/say</code> <code>/tell</code> <code>/zone</code></td><td>Talk nearby, privately, or to everyone</td></tr>
+          <tr><td><code>/invite name</code></td><td>Invite someone to your group</td></tr>
+          <tr><td><code>/trade name</code></td><td>Trade items and coin</td></tr>
+          <tr><td><code>/location</code></td><td>Your coordinates — great for bug reports</td></tr>
+          <tr><td><code>/camp</code></td><td>Log out safely (15 s)</td></tr>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>What to look at</h2>
+    <ul class="plain">
+      <li><b>How your class feels</b> through the first levels — too strong, too weak, anything that never seems to work.</li>
+      <li><b>Quests</b> (J) — talk to the guards and the wandering merchant, and read the note at the wrecked wagon.</li>
+      <li><b>Crafting &amp; gathering</b> — buy a kit or tools from the vendors, gather, craft, and see what your recipe book (L) fills in.</li>
+      <li><b>Playing together</b> — grouping, trading, the bank, dropping items for each other.</li>
+      <li><b>Sound and music</b> — anything too loud, too quiet, or missing.</li>
+      <li><b>Anything confusing.</b> If you didn't know what to do next, that's a finding too.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Sending a report</h2>
+    <p>One report per problem is ideal. Copy this, fill it in, and send it — a screenshot helps a lot.</p>
+    <div class="sendto">
+      <div><span class="label">Discord</span><span>Post it in the <b>#aldenexia:lightfall</b> channel.</span></div>
+      <div><span class="label">Email</span><span><span class="mono" id="email">rwilkinson@nctlv.org</span> <button id="copy-email" type="button">Copy address</button></span></div>
+    </div>
+    <div class="report">
+      <div class="report-head">
+        <span>Report template</span>
+        <button id="copy" type="button">Copy template</button>
+      </div>
+<pre id="template">Version:   (lower-right of the main menu, e.g. v0.4.5 (a434b99))
+Character: (name, class, level)
+Where:     (area, or type /location and paste it)
+What I did:
+What happened:
+What I expected:
+Happens every time? (yes / sometimes / once)</pre>
+    </div>
+    <p class="example"><b>Example:</b> v0.4.5 (a434b99) · Maedianie, Wildspeaker 4 · spider den · Cast a heal on my pet during a fight; it said "no target" · Expected the pet to be healed · Every time.</p>
+  </section>
+
+  <footer>Aldenexia: Lightfall is in active development — your progress may occasionally be reset between test rounds, and things you report may be fixed within a day. Thank you for playing.</footer>
+</div>
+
+<script>
+  function wireCopy(btnId, preId, label) {
+    var btn = document.getElementById(btnId);
+    var pre = document.getElementById(preId);
+    btn.addEventListener("click", function () {
+      var text = pre.textContent;
+      var done = function () { btn.textContent = "Copied"; setTimeout(function () { btn.textContent = label; }, 1800); };
+      var select = function () {
+        var r = document.createRange(); r.selectNodeContents(pre);
+        var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+        btn.textContent = "Selected — press Ctrl+C";
+      };
+      try {
+        navigator.clipboard.writeText(text).then(done, select);
+      } catch (e) { select(); }
+    });
+  }
+  wireCopy("copy", "template", "Copy template");
+  wireCopy("copy-nda", "nda-text", "Copy NDA text");
+  wireCopy("copy-email", "email", "Copy address");
+  if (location.hash === "#nda") { document.querySelector(".ndatext").open = true; }
+  document.querySelectorAll('a[href="#nda"]').forEach(function (a) {
+    a.addEventListener("click", function () { document.querySelector(".ndatext").open = true; });
+  });
+</script>
