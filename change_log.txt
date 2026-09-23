@@ -1771,6 +1771,12 @@ GATE RAIDS (`Scripts/gate_raid_manager.gd`, `Data/gate_raids.json`, node "GateRa
 - New hand-edited `Data/crafting_models.json`: model, rotation and scale per node / station; crafting_world_spawner.gd passes each entry to gathering_node.gd / crafting_station.gd, and CraftingStation.add_model() instances the model, applies the rotation/scale and lifts it so its lowest point sits on the ground; the name label goes just above the model's top.
 - ORIENTATION: every one of these .glb files has a "world" node carrying Blender's Z-up->Y-up correction. The gathering models are upright as exported (rotation [0,0,0]). The 7 tables were exported UPSIDE DOWN (their correction is +90 on X instead of -90 — e.g. the oven's "top" piece sits below its "base"), so they got [180,0,0] — then the user re-exported all 10 station models the right way up (plus the forge, tinkering bench and tanning station), so every entry is now [0,0,0]. The signpost, wagon crash and large skull (placed by hand) are fine as exported. Measured in game: fir 8.6 m, ironwood 6.4, palm 5.7, ore/plants 0.8-1.4, tables 0.9-1.7, all on the ground.
 
+### Dedicated server couldn't load the Terrain3D zone (2026-09-22)
+- Symptom: joining the dedicated server hung at "connecting" (hosting from a client worked). Server log: "Cannot get class 'Terrain3DMaterial'", "Failed loading resource ... lumora_outskirts3d.scn", then "World check: ground under spawn MISSING, navmesh BROKEN".
+- Cause: the "Linux Server" export preset's exclude_filter contained addons/terrain_3d/* (from before the zone used Terrain3D), so the server build had no Terrain3D; the client presets include it. Removed it from the filter — the server export now also writes libterrain.linux.release.x86_64.so next to the binary.
+- tools/update.sh uploaded only the server binary; it now also uploads the .so files next to it (and warns if none are there).
+- Verified: exported the Linux Server preset and ran the build (its own user-data folder, port 8997): it loads the zone, 23 structures solid, 10 stations / 82 nodes, "World check: ground under spawn OK, navmesh OK".
+
 ## 2026-09-17 — Session 45: Generic spell-effect engine, 7 more classes brought to parity, tradeskills (cooking/alchemy), Wildspeaker pet, fear/charm mechanics, multiplayer CC/heal relay, UI theme + resize pass, 5 new mob models, network widget
 
 ### Generic, data-driven spell-effect engine (the foundation for everything else this session)

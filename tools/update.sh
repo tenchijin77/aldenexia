@@ -235,7 +235,12 @@ RS=(rsync -rlt --partial --info=stats1,progress2 -h)
 
 if [ "$DO_SERVER" = 1 ]; then
 	# rsync writes each file under a temporary name and renames it into place: a running server binary is never overwritten.
-	"${RS[@]}" "${RSH[@]}" --chmod=F755 "$SERVER_BIN" tools/run_server.sh tools/run_update_server.sh "$DEST/"
+	# Native libraries the export puts next to the binary (Terrain3D's libterrain.linux.release.x86_64.so) must travel with
+	# it — without it the server can't load the Terrain3D zone ("Cannot get class 'Terrain3DMaterial'").
+	SERVER_LIBS=("$(dirname "$SERVER_BIN")"/*.so)
+	[ -e "${SERVER_LIBS[0]}" ] || SERVER_LIBS=()
+	[ "${#SERVER_LIBS[@]}" -gt 0 ] || warn "no .so next to $SERVER_BIN — a Terrain3D zone will not load on the server."
+	"${RS[@]}" "${RSH[@]}" --chmod=F755 "$SERVER_BIN" "${SERVER_LIBS[@]}" tools/run_server.sh tools/run_update_server.sh "$DEST/"
 fi
 if [ "$DO_CLIENT" = 1 ]; then
 	if [ "${#PATCH_FILES[@]}" -gt 0 ]; then "${RS[@]}" "${RSH[@]}" "${PATCH_FILES[@]}" "$DEST/updates/"; fi
