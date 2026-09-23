@@ -1,0 +1,21 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://Scripts/talking_vendor_npc.gd" id="1_talkvendor"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_talkvendor"]
+radius = 0.45
+height = 1.9
+
+[node name="TalkingVendor" type="CharacterBody3D" groups=["npc_vendor"]]
+script = ExtResource("1_talkvendor")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+shape = SubResource("CapsuleShape3D_talkvendor")
+
+[node name="NameLabel" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.3, 0)
+billboard = 1
+alpha_cut = 2
+text = "Vendor"
+outline_size = 6

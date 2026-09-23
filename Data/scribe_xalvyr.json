@@ -1,0 +1,39 @@
+{
+ "_comment": "Xalvyr Tenn, dark elf copyist of the Sandveil Bazaar (Scripts/talking_vendor_npc.gd; placed in lumora_outskirts3d.tscn). Sells the spell and skill scrolls of the dark classes — Voidknight, Gravecaller, Shadowblade, Chaosborn (Data/vendor_shop.json 'lumora_scribe_dark'). A Shadowfen outsider in a town openly hostile to Shadowfen; tolerated only under Zyra Sandveil's protection. Smooth, amoral, amused: 'Coin acknowledges no gods.' {word} in a line is a clickable keyword. ALL LINES ARE DRAFTS for the user to change.",
+ "ambient_minutes": [3, 6],
+ "ambient_secret_chance_at_night": 0.3,
+ "greeting": [
+  "Ah. You found me. Most people pretend not to see the stall.",
+  "Welcome. Whatever the {Wardens} told you about me, it is probably true. It is also irrelevant.",
+  "Come closer. The ink does not bite. Well. Not all of it."
+ ],
+ "shop_intro": [
+  "Copies of things the archive will not keep. Accurate copies. I take pride in that much.",
+  "Coin acknowledges no gods. Neither do these pages.",
+  "Void rites, grave-songs, shadow work, a little chaos. Nothing you cannot handle. Probably."
+ ],
+ "ambient": [
+  "The archivist glares at me every morning. I have started waving back.",
+  "Lumora hates Shadowfen. Lumora also buys from Shadowfen. I find that very restful.",
+  "Knowledge is only dangerous to the people who do not have it.",
+  "Another guard asked where I am from. I told him the bazaar. It is true enough.",
+  "{Zyra} says I am good for business. Zyra is rarely wrong about business."
+ ],
+ "secret": [
+  "At night, the dunes sing. Where I come from, the dark sings back.",
+  "I have copied texts that asked to be finished. I did not finish them. Not yet.",
+  "The Moribund Order pays very well for some pages. I tell them I have never heard of those pages."
+ ],
+ "topics": [
+  {"id": "hail", "keywords": ["hail", "hello", "greetings", "hey"], "then": {"hail": true}},
+  {"id": "scrolls", "keywords": ["scrolls", "scroll", "pages", "copies", "buy", "shop"],
+   "lines": ["Take your time. The pages are patient. I am less so."],
+   "then": {"open_shop": true}},
+  {"id": "wardens", "keywords": ["wardens", "warden", "ilsabet", "archivist", "archive", "light"],
+   "lines": ["Ilsabet keeps the Wardens' pretty texts and refuses the rest. Someone has to keep the rest. Someone might as well be paid for it."]},
+  {"id": "zyra", "keywords": ["zyra", "sandveil", "bazaar", "protection"],
+   "lines": ["Zyra Sandveil keeps me alive in a town that would rather I were not. I keep her ledgers balanced. We understand each other."]},
+  {"id": "shadowfen", "keywords": ["shadowfen", "home", "dark elf", "where"],
+   "lines": ["Shadowfen? I left. Shadowfen did not notice. Lumora noticed immediately."]}
+ ]
+}

@@ -1727,6 +1727,11 @@ GATE RAIDS (`Scripts/gate_raid_manager.gd`, `Data/gate_raids.json`, node "GateRa
 - Every crafting item (tools/export_crafting.py picks up <item_id>.png automatically) and 52 Data/items.json items (all gear, jewelry, bags, food/drink/consumables, and 20 materials matching the new art — leathers, pelts, cloth, venoms, water, silks) now have their own icon instead of a shared placeholder. The crafted robes were showing a leather chestpiece — fixed. Removed the re-added duplicates (raw_meat_<x>.png, spells/hardened_leather.png).
 - Still on shared art: 67 older trophies/reagents/papers + Standard-Issue Spear — listed in ~/NCT/Aldenexia-Lightfall/Icon Checklist.txt.
 
+### Two scribes: light and dark spell scrolls (2026-09-22)
+- ARCHIVIST ILSABET THORNMERE (half-elf woman, "Archivist of the Oasis Wardens") sells the spell/skill scrolls of every class except the four dark ones (139, shop `lumora_scribe_light`); XALVYR TENN (dark elf man, "Copyist of the Bazaar", kept by the Sandveil Order) sells the Voidknight, Gravecaller, Shadowblade and Chaosborn scrolls (57, `lumora_scribe_dark`). The 2 scrolls shared by a light and a dark class are sold by both. All 196 spell scrolls moved off Aldric (253 -> 59 items: food, water, bags, torches, tools, supplies, kits, crafting recipes).
+- New generic `Scripts/talking_vendor_npc.gd` + `Scenes/talking_vendor.tscn`: a vendor who greets, chats ambiently (server-relayed), answers keywords, with the model, name, nameplate title and dialogue file set per instance — the same behaviour as Tobble/the harbour master without another copy of their script. Nameplate shows "Name / <Title>". Dialogue: `Data/scribe_ilsabet.json`, `Data/scribe_xalvyr.json` — ALL DRAFTS; they mention each other, the Wardens, Zyra Sandveil and Shadowfen.
+- Placed with the vendors: Ilsabet beside Tobble (36.3, -14.0), Xalvyr past Lira (54.3, -16.2). Verified headless: models and nameplates, stock counts, greetings, keyword replies.
+
 ## 2026-09-17 — Session 45: Generic spell-effect engine, 7 more classes brought to parity, tradeskills (cooking/alchemy), Wildspeaker pet, fear/charm mechanics, multiplayer CC/heal relay, UI theme + resize pass, 5 new mob models, network widget
 
 ### Generic, data-driven spell-effect engine (the foundation for everything else this session)

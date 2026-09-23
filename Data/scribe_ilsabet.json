@@ -1,0 +1,37 @@
+{
+ "_comment": "Archivist Ilsabet Thornmere, half-elf scribe of the Oasis Wardens (Scripts/talking_vendor_npc.gd; placed in lumora_outskirts3d.tscn). Sells the spell and skill scrolls of the light and neutral classes (Data/vendor_shop.json 'lumora_scribe_light'); she will not copy the dark classes' texts — Xalvyr Tenn at the bazaar does. Precise, formal, quietly proud of the archive; corrects people's spelling. {word} in a line is a clickable keyword (Scripts/npc_conversation.gd). ALL LINES ARE DRAFTS for the user to change.",
+ "ambient_minutes": [3, 6],
+ "ambient_secret_chance_at_night": 0.2,
+ "greeting": [
+  "Welcome to the Wardens' {archive}. Mind the ink; it is older than you are.",
+  "Good day. If you are here to learn, you are in the right place. If you are here to browse, kindly browse quietly.",
+  "Ah, a reader. They are rarer than you would think, in a desert."
+ ],
+ "shop_intro": [
+  "Every scroll here is copied by hand from the Wardens' own texts. Every word is checked twice.",
+  "Choose carefully. A technique learned badly is worse than one never learned at all.",
+  "These are the disciplines of the {light}, and of every honest trade besides. Anything darker, you will not find on my shelves."
+ ],
+ "ambient": [
+  "Fourteen copies of the same prayer this week, and not one smudge. Aurethiel be thanked.",
+  "No, it is spelled with two L's. It has always been spelled with two L's.",
+  "The sand gets into everything. The pages, the ink, my patience.",
+  "Half of what I copy is sword drills. The other half is people asking me to explain them.",
+  "If you see a {dark elf} with inky fingers down by the stalls, you did not buy anything from me."
+ ],
+ "secret": [
+  "Some nights I copy the old texts just to hear the pages turn. The archive is very quiet after dark.",
+  "My mother's people kept their histories in song. I keep mine in ink. I am not sure which of us chose better.",
+  "There is a shelf in the archive the Wardens keep locked. I have the key. I have never used it."
+ ],
+ "topics": [
+  {"id": "hail", "keywords": ["hail", "hello", "greetings", "hey"], "then": {"hail": true}},
+  {"id": "archive", "keywords": ["archive", "archives", "scrolls", "scroll", "library", "books"],
+   "lines": ["The Oasis Wardens have kept records since before Lumora had walls. I keep the copies, so the originals survive the rest of you."],
+   "then": {"open_shop": true}},
+  {"id": "light", "keywords": ["light", "aurethiel", "wardens", "warden", "solara"],
+   "lines": ["The Wardens guard the Light of Solara. I guard what they have learned about using it. It is less glamorous, but it lasts longer."]},
+  {"id": "dark_elf", "keywords": ["dark elf", "xalvyr", "bazaar", "sandveil", "copyist", "necromancy", "dark"],
+   "lines": ["Xalvyr Tenn. The Sandveil Order keeps him, and he copies whatever they are paid for. I would not trust a single line he writes, and I would not stand downwind of his ink either."]}
+ ]
+}

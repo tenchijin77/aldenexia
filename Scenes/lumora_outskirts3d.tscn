@@ -18,6 +18,7 @@
 [ext_resource type="Script" uid="uid://c1gpx5b7imou1" path="res://Scripts/multiplayer_player_spawner.gd" id="15_mpspawn"]
 [ext_resource type="PackedScene" path="res://Scenes/harbour_master.tscn" id="harbour_master_scn"]
 [ext_resource type="PackedScene" path="res://Scenes/tobble_npc.tscn" id="tobble_npc_scn"]
+[ext_resource type="PackedScene" path="res://Scenes/talking_vendor.tscn" id="talking_vendor_scn"]
 [ext_resource type="PackedScene" path="res://Scenes/kenji_npc.tscn" id="kenji_npc_scn"]
 [ext_resource type="Script" uid="uid://b71mdxjt0jesx" path="res://Scripts/ambient_water_sound.gd" id="ocean_script"]
 [ext_resource type="AudioStream" uid="uid://cviqr1e8477s3" path="res://Assets/soundsforyou-ocean-sea-soft-waves-121349.mp3" id="ocean_stream"]
@@ -340,6 +341,22 @@ vendor_model_key = "female"
 
 [node name="TobbleTinkerer" parent="." instance=ExtResource("tobble_npc_scn")]
 transform = Transform3D(-0.994645, 0, 0.103347, 0, 1, 0, -0.103347, 0, -0.994645, 40.575, 0, -14.43)
+
+[node name="ScribeIlsabet" parent="." instance=ExtResource("talking_vendor_scn")]
+transform = Transform3D(-0.994645, 0, 0.103347, 0, 1, 0, -0.103347, 0, -0.994645, 36.3, 0, -14.0)
+npc_name = "Ilsabet Thornmere"
+shop_id = "lumora_scribe_light"
+config_path = "res://Data/scribe_ilsabet.json"
+model_key = "half_elf_female"
+title = "Archivist of the Oasis Wardens"
+
+[node name="ScribeXalvyr" parent="." instance=ExtResource("talking_vendor_scn")]
+transform = Transform3D(-0.994645, 0, 0.103347, 0, 1, 0, -0.103347, 0, -0.994645, 54.3, 0, -16.2)
+npc_name = "Xalvyr Tenn"
+shop_id = "lumora_scribe_dark"
+config_path = "res://Data/scribe_xalvyr.json"
+model_key = "dark_elf_male"
+title = "Copyist of the Bazaar"
 
 [node name="Kenji" parent="." unique_id=1817547243 instance=ExtResource("kenji_npc_scn")]
 transform = Transform3D(0.97146577, 0, 0.23718, 0, 1, 0, -0.23718, 0, 0.97146577, 6, 0, 19.098156)
