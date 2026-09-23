@@ -1835,6 +1835,22 @@ GATE RAIDS (`Scripts/gate_raid_manager.gd`, `Data/gate_raids.json`, node "GateRa
 - LEGACY: every old 2D scene and script (19 scenes, 35 scripts: the 2D player, mobs, zone, missiles...) moved to legacy/ with an "-old" suffix, together with the old archive-2d/ folder (its "-OLD" files renamed "-old"). legacy/.gdignore makes Godot skip the folder entirely (no import, no classes, never exported); the server export filter names legacy/ instead of archive-2d/.
 - Verified headless: each hook requests the right sound (a test drives falls, movement, low health, swings, monster swings, spells, windows, equip, quests, level up, gathering, ambience); a Fireball launched a bolt and the monster's health only dropped when it arrived; music plays at its balanced level; a dedicated server and the main menu start with no script errors.
 
+### Test 23: unequip, bank sound, nature ambience, foraging sound (2026-09-23)
+- UNEQUIP DID NOTHING: taking gear off only looked for a free character-sheet slot and quietly gave up when all 12 were full (Zozuur's are). It now falls back to any bag with room, and says so when there is nowhere to put it.
+- BANK SOUND CUT SHORT: the vault recording is silent for its first 1.15 s and the sound was stopped at 1.3 s. It now starts where the sound does (the heavy clunk). Other sounds that began with dead air now skip it too: magic damage (0.6 s), stealth, heal, fall impact, both deaths, the miss whoosh.
+- BIRDS AND CRICKETS were a constant loop all day / all night. Now every 25-70 s one 8-12 s burst plays from a random part of the recording, faded in and out, coming from a random direction 10-22 m away (ambient_nature.gd, Sfx.play_clip()).
+- SELF-CAST SPELLS (e.g. Aura of the Shadow, Shadowlight) play their sound straight in your ears instead of as a 3D sound at your own feet, which could be faint with the camera pulled back. (Both already requested the buff sound in a headless test.)
+- FORAGING SOUND: the new "espremendo" file is gathering/forage.mp3, looping while you gather plants (thistle, sandroot, venom cactus, moonpetal sage).
+- Mining: only the mining loop plays (checked); the recording itself is a "mining ambience" with metal tapping in it, which is what sounds like the gem-tapping craft sound.
+- MORE SOUNDS (the rest of the test 23 list), filed by use in Assets/sounds (sounds.txt lists the sources) and balanced:
+  - crafting: brewing (moka pot), woodworking (sawing), tinkering (metallic work) — each craft now has its own loop.
+  - spells: a whoosh as a bolt leaves the caster (spell_projectile.gd), and impacts by school — frost for cold, lightning for lightning, holy light for divine; fire/poison/disease keep the elemental impact. Buffs use the magic twinkle (the same file as stealth).
+  - player: eating, drinking, potions, bandaging (yourself or a downed ally), and a splash when you step or fall into the sea.
+  - world: rolls of thunder every 40-120 s while the rain is heavy (weather_manager.gd); and sounds tied to places, listed per zone in Data/sounds.json "emitters" and started by ambient_nature.gd: a crowd murmur in town, fire crackling at the forge, and the harbour's ship bell every 1-2.5 minutes (heard up to ~140 m).
+  - spells/wind.mp3 is filed but not used yet.
+- MINING "PLAYING TWO SOUNDS": right-clicking again while gathering started the next nearby vein as well (the busy one is skipped), so two mining loops overlapped. A right-click mid-gather now does nothing. The mining ambience stays as the mining sound.
+- Emitter ranges: the forge's fire is heard within 5 m, the harbour bell within 15 m of the dock.
+
 ## 2026-09-17 — Session 45: Generic spell-effect engine, 7 more classes brought to parity, tradeskills (cooking/alchemy), Wildspeaker pet, fear/charm mechanics, multiplayer CC/heal relay, UI theme + resize pass, 5 new mob models, network widget
 
 ### Generic, data-driven spell-effect engine (the foundation for everything else this session)

@@ -84,6 +84,7 @@ void fragment() {
 
 var raining: bool = false
 var intensity: float = 0.0
+var _thunder_in := 20.0   # seconds until the next roll of thunder (only while the rain is heavy)
 
 var _time_to_next_change: float = 0.0
 var _day_night: Node = null
@@ -173,6 +174,11 @@ func _roll_wind(wind_seed: int) -> void:
 
 # ── Per-frame ──────────────────────────────────────────────────────────────
 func _process(delta: float) -> void:
+	_thunder_in -= delta
+	if _thunder_in <= 0.0:
+		_thunder_in = randf_range(40.0, 120.0)
+		if intensity > 0.6:
+			Sfx.play("thunder")  # each player hears their own rolls of thunder in a heavy storm
 	if is_multiplayer_authority():
 		_time_to_next_change -= delta
 		if _time_to_next_change <= 0.0:

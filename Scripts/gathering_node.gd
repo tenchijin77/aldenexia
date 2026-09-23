@@ -28,7 +28,7 @@ var _gather_started_msec := 0
 var _visual: Node3D = null
 var _respawn_timer: Timer = Timer.new()
 var _sound: Node = null   # the gathering sound loop (sfx.gd) while someone gathers here
-const GATHER_SOUNDS := {"prospecting": "gather_mining", "woodworking": "gather_wood", "fishing": "gather_fishing"}
+const GATHER_SOUNDS := {"prospecting": "gather_mining", "woodworking": "gather_wood", "fishing": "gather_fishing", "forage": "gather_forage"}
 
 
 var model_config: Dictionary = {}  # Data/crafting_models.json entry ({} = placeholder shape)

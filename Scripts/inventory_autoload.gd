@@ -1283,6 +1283,23 @@ func _unequip_item(equip_slot: String) -> bool:
 	var item: Variant = equipped.get(equip_slot, null)
 	if item == null:
 		return false
+	if item is Dictionary:
+		(item as Dictionary).erase("lit")  # taking a light off snuffs it (burn_remaining is kept)
+	# A free character-sheet slot first (as before), else any bag with room — it used to give up when the character-sheet
+	# slots were full, so Unequip silently did nothing (test 23).
+	if basic_inventory.find(null) < 0:
+		var bag := _bag_with_room_for(item, -1, -1)
+		if bag < 0:
+			GameLog.log_general("[color=#ff8866]There is no room in your bags to take off the %s.[/color]" % str(item.get("name", "item")))
+			return false
+		if not bag_contents.has(str(bag)):
+			bag_contents[str(bag)] = []
+		bag_contents[str(bag)].append(item)
+		equipped[equip_slot] = null
+		sync_to_global()
+		equipment_changed.emit()
+		inventory_changed.emit()
+		return true
 	for i in range(BASIC_INVENTORY_SIZE):
 		if basic_inventory[i] == null:
 			if item is Dictionary:

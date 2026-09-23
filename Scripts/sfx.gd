@@ -59,6 +59,55 @@ static func start_loop(id: String, owner: Node) -> Node:
 	return player
 
 
+# A slice of a longer sound (`seconds` long, from a random point in the file) heard from `position` in the world, faded
+# in and out — for occasional ambience such as a burst of birdsong (ambient_nature.gd).
+static func play_clip(id: String, position: Vector3, seconds: float, fade_in: float = 1.0, fade_out: float = 2.0) -> Node:
+	var cfg := _config(id)
+	_note("clip:" + id)
+	var tree := Engine.get_main_loop() as SceneTree
+	if cfg.is_empty() or not _can_play() or tree == null or tree.current_scene == null:
+		return null
+	var stream := _stream(cfg)
+	if stream == null:
+		return null
+	var volume := float(cfg.get("volume_db", 0.0))
+	var p3 := AudioStreamPlayer3D.new()
+	p3.stream = stream
+	p3.bus = &"SFX"
+	p3.volume_db = -40.0
+	p3.unit_size = 15.0
+	p3.max_distance = 70.0
+	tree.current_scene.add_child(p3)
+	p3.global_position = position
+	p3.play(randf() * maxf(stream.get_length() - seconds - 0.5, 0.0))
+	var tween := p3.create_tween()
+	tween.tween_property(p3, "volume_db", volume, fade_in)
+	tween.tween_interval(maxf(seconds - fade_in - fade_out, 0.0))
+	tween.tween_property(p3, "volume_db", -40.0, fade_out)
+	tween.tween_callback(p3.queue_free)
+	return p3
+
+
+# A looping sound placed at `position` in the world (a forge's fire, a town's crowd): heard near it, fading out by
+# `max_distance`. `unit_size` sets how quickly it gets quieter with distance (bigger = carries further).
+static func start_loop_at(id: String, position: Vector3, max_distance: float, unit_size: float) -> Node:
+	var cfg := _config(id)
+	_note("loop_at:" + id)
+	var tree := Engine.get_main_loop() as SceneTree
+	if cfg.is_empty() or not _can_play() or tree == null or tree.current_scene == null:
+		return null
+	var p3 := AudioStreamPlayer3D.new()
+	p3.stream = _looping(_stream(cfg))
+	p3.bus = &"SFX"
+	p3.volume_db = float(cfg.get("volume_db", 0.0))
+	p3.max_distance = max_distance
+	p3.unit_size = unit_size
+	tree.current_scene.add_child(p3)
+	p3.global_position = position
+	p3.play(randf() * maxf(p3.stream.get_length() - 1.0, 0.0) if p3.stream else 0.0)
+	return p3
+
+
 # Stops a loop from start_loop() with a short fade. Safe to call with null or an already-stopped handle.
 static func stop(handle: Variant) -> void:
 	if not is_instance_valid(handle):

@@ -184,6 +184,7 @@ func _use_bandage() -> void:
 		return
 	var healed: int = player.combat_node.heal(int(item_data.get("heal_amount", 0)))
 	if healed > 0:
+		Sfx.play("bandage")
 		GameLog.log_general("[color=#88ffaa]You bandage your wounds, healing [b]%d[/b].[/color]" % healed)
 	else:
 		GameLog.log_general("You are already at full health.")

@@ -207,6 +207,7 @@ var _body_sound_timer := 0.0
 var _footsteps_loop: Node = null       # sfx.gd loops, started/stopped by _update_body_sounds()
 var _footsteps_kind := ""
 var _heartbeat_loop: Node = null
+var _was_in_water := false
 var stumble_timer: float = 0.0
 var movement_direction: Vector3 = Vector3.ZERO
 var current_speed: float = 0.0
@@ -482,6 +483,10 @@ func _try_open_crafting_station() -> bool:
 
 # Right-click near a gathering node (gathering_node.gd: thistle patch, ore vein, tree) starts gathering from it.
 func _try_gather() -> bool:
+	# One node at a time: right-clicking again mid-gather used to start the next vein too (two mining sounds at once).
+	for node in get_tree().get_nodes_in_group("gathering_node"):
+		if is_instance_valid(node) and node.get("_gatherer") == self:
+			return true
 	var nearest: Node = null
 	var nearest_dist: float = INF
 	for node in get_tree().get_nodes_in_group("gathering_node"):
@@ -636,6 +641,7 @@ func _try_bandage(target: Node) -> void:
 	if bandage.is_empty():
 		GameLog.log_general("You don't have a bandage to use.")
 		return
+	Sfx.play("bandage")
 	var heal_amount: int = int(bandage["item"].get("heal_amount", 0))
 	heal_amount = int(heal_amount * (1.0 + combat_node.skill_bonus("bandage_heal_pct") / 100.0))
 	_tick_skill("bind_wound")
@@ -1563,9 +1569,13 @@ func _update_body_sounds(delta: float) -> void:
 		return
 	_body_sound_timer = 0.15
 	var flat_speed := Vector2(velocity.x, velocity.z).length()
+	var wet := _in_water()
+	if wet and not _was_in_water:
+		Sfx.play("water_splash")  # stepping (or falling) into the sea
+	_was_in_water = wet
 	var kind := ""
 	if not dying and flat_speed > 0.6:
-		if _in_water():
+		if wet:
 			kind = "swim"
 		elif is_on_floor():
 			kind = "footsteps_run" if flat_speed > WALK_SPEED + 0.5 else "footsteps_walk"
@@ -1982,10 +1992,12 @@ func consume_food_or_drink(item: Dictionary) -> void:
 	var item_name: String = item.get("name", "item")
 	match restores:
 		"satiety":
+			Sfx.play("eat")
 			satiety = mini(satiety + amount, 100)
 			var line: String = _food_drink_flavor.get_line("eat") if _food_drink_flavor else ""
 			GameLog.log_general(line % item_name if not line.is_empty() else "You eat %s." % item_name)
 		"thirst":
+			Sfx.play("drink")
 			thirst = mini(thirst + amount, 100)
 			var line: String = _food_drink_flavor.get_line("drink") if _food_drink_flavor else ""
 			GameLog.log_general(line % item_name if not line.is_empty() else "You drink %s." % item_name)
@@ -1997,6 +2009,7 @@ func consume_food_or_drink(item: Dictionary) -> void:
 
 # Drinks a crafted potion or elixir (items with type "potion" — Data/crafting_items.json). Returns true if it was used up.
 func use_potion(item: Dictionary) -> bool:
+	Sfx.play("potion")
 	GameLog.log_general("You drink %s." % item.get("name", "the potion"))
 	apply_consumable_effects(item)
 	return true
@@ -3947,7 +3960,10 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 	var flies: bool = not _projectile_landing and str(spell.get("target", "enemy")) in ["enemy", "line"] \
 			and target_node is Node3D and SPELL_PROJECTILE.flies(spell)
 	if not flies:
-		Sfx.play(spell_sound(spell), target_node if is_instance_valid(target_node) else self)
+		# A spell on someone else sounds from them; one on yourself plays straight in your ears (as a 3D sound at your own
+		# feet it could be faint with the camera pulled back).
+		var on_other: bool = is_instance_valid(target_node) and target_node != self
+		Sfx.play(spell_sound(spell), target_node if on_other else null)
 
 	# "reactive" spells (e.g. Improved Parry, Spell Ward) are defensive
 	# self-effects by design — some have a mis-authored "enemy" target in the
@@ -5348,8 +5364,8 @@ func _resolve_melee_attack(target_cn: CombatNode) -> Dictionary:
 # It stands you up (you cannot rest through a fight) and interrupts camping and crafting (they watch last_attacked_msec).
 # ── Combat sounds ──
 # Which sound a spell makes when it goes off (Data/sounds.json ids), from its player_spells.json fields: stealth,
-# summons, healing / cures / dispels, weapon and archery skills, elemental schools (fire, cold, lightning, poison,
-# disease), other harmful magic, and everything helpful as a buff.
+# summons, healing / cures / dispels, weapon and archery skills, everything helpful as a buff, and harmful spells by
+# school (frost, lightning, holy, fire/poison/disease, other magic).
 static func spell_sound(spell: Dictionary) -> String:
 	var category := str(spell.get("skill_category", ""))
 	var effect := str(spell.get("effect_type", "")) if spell.get("effect_type") is String else ""
@@ -5370,8 +5386,15 @@ static func spell_sound(spell: Dictionary) -> String:
 		return "weapon_hit"
 	if kind in ["beneficial", "self-beneficial", "reactive"] or effect in ["buff", "absorb", "light"]:
 		return "spell_buff"
-	if school in ["fire", "cold", "lightning", "poison", "disease"]:
-		return "spell_elemental"
+	match school:
+		"cold":
+			return "spell_frost"
+		"lightning":
+			return "spell_lightning"
+		"divine":
+			return "spell_holy"
+		"fire", "poison", "disease":
+			return "spell_elemental"
 	return "spell_damage"
 
 

@@ -26,11 +26,10 @@ const MAX_SUCCESS := 0.98
 const FAIL_GAIN_MULT := 0.25
 
 var _station_id: String = ""
-# The sound of each craft while a batch is being made (Data/sounds.json). Brewing shares alchemy's pour, woodworking the
-# woodcutting chop and tinkering the forge hammer until they have their own.
-const CRAFT_SOUNDS := {"blacksmithing": "craft_forge", "tinkering": "craft_forge", "cooking": "craft_cooking",
-		"alchemy": "craft_alchemy", "brewing": "craft_alchemy", "leatherworking": "craft_tanning", "tailoring": "craft_sewing",
-		"jewelcrafting": "craft_gems", "fletching": "craft_fletching", "woodworking": "gather_wood"}
+# The sound of each craft while a batch is being made (Data/sounds.json).
+const CRAFT_SOUNDS := {"blacksmithing": "craft_forge", "tinkering": "craft_tinkering", "cooking": "craft_cooking",
+		"alchemy": "craft_alchemy", "brewing": "craft_brewing", "leatherworking": "craft_tanning", "tailoring": "craft_sewing",
+		"jewelcrafting": "craft_gems", "fletching": "craft_fletching", "woodworking": "craft_woodworking"}
 var _craft_sound: Node = null
 var _recipes: Array = []          # [{id, recipe}] — every recipe that can be made at this station
 var _groups: Dictionary = {}      # ingredient group id (e.g. cooked_meat_any) -> Array of item ids it accepts

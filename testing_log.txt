@@ -85,6 +85,11 @@ Combat and stats
 - [FIXED]  Test 22 (0.4.5, 350921b): sorting and the resized trade window confirmed. Gathering nodes weren't random (same
            spots every session) — they now move to new random spots every in-game day, the same for every player. The trade
            invite uses the group invite's look; both popups open centred and are draggable.
+- [FIXED]  Test 23 (d6f14f1): Unequip did nothing with a full character sheet (now goes to a bag); bank vault sound cut off
+           (started in its silent lead-in); birds/crickets constant (now occasional directional bursts); shadow aura /
+           shadowlight sound (self-casts now play in your ears); foraging sound added.
+- [OPEN]   Mining sounds like gem tapping + mining: only the mining loop plays; the "mining ambience" file itself has metal
+           tapping in it. A plain "pickaxe on rock" sound would fix it.
 - [FIXED]  Equipped items' stat_modifiers (e.g. a ring's +1 to a stat) never applied to anything, for any item in the game — found while adding the trinket above. combatnode.gd/player3d.gd now sum them into the player's effective stats on every equip/unequip.
 - [FIXED]  Melee hit chance far too low at level 1 (about 20%, ~30 s to land a hit) while spells one-shot
            everything (found by: T0). Combat numbers now live in Data/combat_balance.json (player_hit_bonus 35,

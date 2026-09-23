@@ -60,6 +60,8 @@ static func launch(caster: Node3D, target: Node3D, spell: Dictionary, on_arrive:
 	scene.add_child(bolt)
 	var forward := -caster.global_transform.basis.z
 	bolt.global_position = caster.global_position + Vector3(0, 1.4, 0) + forward * 0.6  # from the caster's hands
+	if not bolt.get("_arrow"):
+		Sfx.play("spell_launch", caster)  # the whoosh of it leaving; the impact sound plays when it lands
 
 
 func _ready() -> void:

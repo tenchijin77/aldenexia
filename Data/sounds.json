@@ -1,5 +1,5 @@
 {
- "_comment": "sounds.json - every sound effect the game plays by name through Scripts/sfx.gd (Sfx.play(\"weapon_hit\") ...). files: one is picked at random each time. target: how loud that kind of sound should be (LUFS) - tools/balance_sounds.py measures the files and writes volume_db to reach it, so every sound sits at a consistent level whatever its file's own loudness (re-run it after adding or replacing a file). Optional: loop (keeps playing until stopped), max_seconds (plays only the start, with a short fade), start (skip silence at the start, seconds), pitch (random pitch change each play, e.g. 0.08 = +/-8%, so repeats don't sound identical), positional (heard from where it happens in the world rather than in your ears). music: every music track (by path) with the same target/volume_db balancing; Scripts/global_background_music.gd plays each at its volume_db.",
+ "_comment": "sounds.json - every sound effect the game plays by name through Scripts/sfx.gd (Sfx.play(\"weapon_hit\") ...). files: one is picked at random each time. target: how loud that kind of sound should be (LUFS) - tools/balance_sounds.py measures the files and writes volume_db to reach it, so every sound sits at a consistent level whatever its file's own loudness (re-run it after adding or replacing a file). Optional: loop (keeps playing until stopped), max_seconds (plays only the start, with a short fade), start (skip silence at the start, seconds; loops always start at a random point), pitch (random pitch change each play, e.g. 0.08 = +/-8%, so repeats don't sound identical), positional (heard from where it happens in the world rather than in your ears). music: every music track (by path) with the same target/volume_db balancing; Scripts/global_background_music.gd plays each at its volume_db.",
  "sounds": {
   "click": {
    "files": [
@@ -74,8 +74,9 @@
     "res://Assets/sounds/ui/bank_vault.mp3"
    ],
    "target": -21,
-   "max_seconds": 1.3,
-   "volume_db": 4.5
+   "max_seconds": 1.35,
+   "volume_db": 4.5,
+   "start": 1.12
   },
   "weapon_hit": {
    "files": [
@@ -104,7 +105,8 @@
    "target": -21,
    "pitch": 0.12,
    "positional": true,
-   "volume_db": 2.2
+   "volume_db": 2.2,
+   "start": 0.12
   },
   "block": {
    "files": [
@@ -164,14 +166,16 @@
     "res://Assets/sounds/player/death_male.mp3"
    ],
    "target": -16,
-   "volume_db": 0.5
+   "volume_db": 0.5,
+   "start": 0.17
   },
   "death_female": {
    "files": [
     "res://Assets/sounds/player/death_female.mp3"
    ],
    "target": -16,
-   "volume_db": -4.8
+   "volume_db": -4.8,
+   "start": 0.18
   },
   "fall_impact": {
    "files": [
@@ -179,7 +183,8 @@
    ],
    "target": -16,
    "max_seconds": 1.0,
-   "volume_db": 0.4
+   "volume_db": 0.4,
+   "start": 0.27
   },
   "jump": {
    "files": [
@@ -228,7 +233,8 @@
    ],
    "target": -19,
    "positional": true,
-   "volume_db": 4.2
+   "volume_db": 4.2,
+   "start": 0.22
   },
   "spell_damage": {
    "files": [
@@ -236,7 +242,8 @@
    ],
    "target": -18,
    "positional": true,
-   "volume_db": 5.8
+   "volume_db": 5.8,
+   "start": 0.6
   },
   "spell_elemental": {
    "files": [
@@ -249,11 +256,11 @@
   },
   "spell_buff": {
    "files": [
-    "res://Assets/sounds/spells/buff.mp3"
+    "res://Assets/sounds/spells/stealth.mp3"
    ],
    "target": -19,
    "positional": true,
-   "volume_db": -4.4
+   "volume_db": 2.7
   },
   "spell_stealth": {
    "files": [
@@ -261,7 +268,8 @@
    ],
    "target": -19,
    "positional": true,
-   "volume_db": 2.7
+   "volume_db": 2.7,
+   "start": 0.27
   },
   "spell_summon": {
    "files": [
@@ -379,17 +387,161 @@
    "files": [
     "res://Assets/sounds/ambient/birds_day.mp3"
    ],
-   "target": -33,
-   "loop": true,
-   "volume_db": -2.1
+   "target": -29,
+   "volume_db": 1.9
   },
   "ambient_crickets": {
    "files": [
     "res://Assets/sounds/ambient/crickets_night.mp3"
    ],
-   "target": -33,
+   "target": -29,
+   "volume_db": 10.2
+  },
+  "gather_forage": {
+   "files": [
+    "res://Assets/sounds/gathering/forage.mp3"
+   ],
+   "target": -23,
    "loop": true,
-   "volume_db": 6.2
+   "volume_db": 2.6
+  },
+  "craft_brewing": {
+   "files": [
+    "res://Assets/sounds/crafting/brewing.mp3"
+   ],
+   "target": -24,
+   "loop": true,
+   "volume_db": 16.0
+  },
+  "craft_woodworking": {
+   "files": [
+    "res://Assets/sounds/crafting/wood_sawing.mp3"
+   ],
+   "target": -24,
+   "loop": true,
+   "volume_db": -5.7
+  },
+  "craft_tinkering": {
+   "files": [
+    "res://Assets/sounds/crafting/tinkering.mp3"
+   ],
+   "target": -24,
+   "loop": true,
+   "volume_db": -5.3
+  },
+  "spell_launch": {
+   "files": [
+    "res://Assets/sounds/spells/bolt_launch.mp3"
+   ],
+   "target": -21,
+   "max_seconds": 1.2,
+   "pitch": 0.06,
+   "positional": true,
+   "volume_db": -8.6
+  },
+  "spell_frost": {
+   "files": [
+    "res://Assets/sounds/spells/frost.mp3"
+   ],
+   "target": -18,
+   "max_seconds": 2.5,
+   "positional": true,
+   "volume_db": -8.2
+  },
+  "spell_lightning": {
+   "files": [
+    "res://Assets/sounds/spells/lightning.mp3"
+   ],
+   "target": -18,
+   "start": 2.9,
+   "max_seconds": 2.5,
+   "positional": true,
+   "volume_db": -1.5
+  },
+  "spell_holy": {
+   "files": [
+    "res://Assets/sounds/spells/holy.mp3"
+   ],
+   "target": -18,
+   "max_seconds": 2.5,
+   "positional": true,
+   "volume_db": -4.6
+  },
+  "eat": {
+   "files": [
+    "res://Assets/sounds/player/eat.mp3"
+   ],
+   "target": -21,
+   "pitch": 0.05,
+   "volume_db": -0.9
+  },
+  "drink": {
+   "files": [
+    "res://Assets/sounds/player/drink.mp3"
+   ],
+   "target": -22,
+   "start": 0.56,
+   "max_seconds": 2.6,
+   "volume_db": 12.2
+  },
+  "potion": {
+   "files": [
+    "res://Assets/sounds/player/potion.mp3"
+   ],
+   "target": -20,
+   "pitch": 0.04,
+   "volume_db": -0.5
+  },
+  "bandage": {
+   "files": [
+    "res://Assets/sounds/player/bandage.mp3"
+   ],
+   "target": -21,
+   "max_seconds": 1.5,
+   "volume_db": 1.5
+  },
+  "water_splash": {
+   "files": [
+    "res://Assets/sounds/player/water_splash.mp3"
+   ],
+   "target": -20,
+   "max_seconds": 1.3,
+   "pitch": 0.08,
+   "volume_db": -5.0
+  },
+  "thunder": {
+   "files": [
+    "res://Assets/sounds/ambient/thunder.mp3"
+   ],
+   "target": -18,
+   "max_seconds": 9.6,
+   "volume_db": 2.1
+  },
+  "town_crowd": {
+   "files": [
+    "res://Assets/sounds/ambient/town_crowd.mp3"
+   ],
+   "target": -26,
+   "loop": true,
+   "volume_db": 4.1
+  },
+  "forge_fire": {
+   "files": [
+    "res://Assets/sounds/ambient/forge_fire.mp3"
+   ],
+   "target": -24,
+   "loop": true,
+   "volume_db": -3.6
+  },
+  "ship_bell": {
+   "files": [
+    "res://Assets/sounds/world/ship_bell.mp3"
+   ],
+   "target": -19,
+   "start": 0.4,
+   "max_seconds": 1.4,
+   "volume_db": 4.5,
+   "positional": true
   }
  },
  "music": {
@@ -445,5 +597,44 @@
    "target": -20,
    "volume_db": -7.0
   }
+ },
+ "emitters": {
+  "_comment": "Sounds tied to a place in a zone (ambient_nature.gd): a loop that is heard near position (fading out by max_distance), or with every: [min, max] a one-shot repeated at random intervals (seconds).",
+  "res://Scenes/lumora_outskirts3d.tscn": [
+   {
+    "sound": "town_crowd",
+    "position": [
+     85,
+     2,
+     14
+    ],
+    "max_distance": 45,
+    "unit_size": 14
+   },
+   {
+    "sound": "forge_fire",
+    "position": [
+     62,
+     1,
+     42
+    ],
+    "max_distance": 5,
+    "unit_size": 1.5
+   },
+   {
+    "sound": "ship_bell",
+    "position": [
+     -759.6,
+     3,
+     -1020.2
+    ],
+    "max_distance": 15,
+    "unit_size": 5,
+    "every": [
+     60,
+     150
+    ]
+   }
+  ]
  }
 }

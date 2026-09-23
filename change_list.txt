@@ -1140,3 +1140,45 @@ set_gm_password.sh — set or change the game-master password on the game server
   or you may lose the banker.
 
 
+ - Unequip: taking gear off only looked for a free character-sheet slot. All 12 of yours are full, so it quietly gave up. Unequipped items now
+    go into any bag with room, and you get a message if there's nowhere to put them.
+  - Bank sound: the vault recording is silent for its first 1.15 seconds, and I was cutting it off at 1.3 seconds, so you heard almost nothing.
+    It now starts right at the heavy clunk. I checked every file for the same problem, and a few others now skip their silent start too: magic
+    damage (0.6 s), stealth, heal, fall impact, both death sounds and the miss whoosh.
+  - Birds and crickets: every 25–70 seconds, one 8–12 second clip plays from a random part of the recording. It fades in and out and comes from
+    a random direction 10–22 m away.
+  - Aura of the Shadow and Shadowlight: in my test both already triggered the buff sound. It was playing as a 3D sound at your character's feet,
+    which can be faint with the camera pulled back. Spells you cast on yourself now play straight in your ears, which should make them clearly
+    audible. Tell me if they're still silent.
+  - Foraging: the espremendo sound is now gathering/forage.mp3. It loops while you pick thistle, sandroot, venom cactus and moonpetal sage.
+  - Mining (not fixed): only the mining sound plays. The file itself is a "mining ambience" recording with metal tapping mixed in, which is why
+    it sounds like the gem-tapping sound on top. A plain "pickaxe hitting rock" sound, a few seconds long, would fix it. Drop one in and I'll
+    swap it.
+
+
+  Crafting: brewing (the moka pot), woodworking (sawing) and tinkering (the metallic sound) each have their own loop now instead of borrowing
+  others.
+
+  Spells:
+  - Bolt launch: a bolt spell now makes a whoosh as it leaves your hands, then its impact sound when it lands.
+  - Impacts by school: frost for cold spells, lightning for lightning, the light impact for holy (divine) spells. Fire, poison and disease keep
+    the elemental impact.
+  - Buffs: they use the magic twinkle. That file is byte-for-byte the same as the stealth sound, so buffs and stealth currently sound alike. If
+    you want stealth to sound different, find another file for it.
+
+  Player:
+  - eating, drinking and potions;
+  - bandaging, both yourself and a downed ally;
+  - a splash when you step or fall into the sea.
+
+  World:
+  - Thunder: rolls every 40–120 seconds while the rain is heavy. Each player hears their own, so the timing isn't synced between players.
+  - Sounds tied to places: listed per zone in Data/sounds.json:
+    - a crowd murmur centred in town;
+    - fire crackling at the forge, audible within about 16 m;
+    - the ship's bell at the harbour, every 1–2.5 minutes, carrying up to about 140 m.
+
+  A few things to check or decide:
+  - Mining is still the only open item: it needs a plain "pickaxe hitting rock" file to replace the mining-ambience recording.
+  - Wind magic isn't on your list. I've filed it as spells/wind.mp3 but not used it; tell me what it's for.
+  - Positions: the crowd and forge spots use map coordinates. If either sounds like it's in the wrong place, the positions are easy to adjust.

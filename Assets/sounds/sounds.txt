@@ -10,6 +10,9 @@ ambient/
   wind_loop.ogg          zone wind                     wind woosh loop.ogg
   birds_day.mp3          daytime birds                 freesound_community-birds-chirping-75156.mp3
   crickets_night.mp3     night crickets                blender_abstract-crickets-395138.mp3
+  thunder.mp3            thunder in storms             universfield-thunder-strike-124463.mp3
+  forge_fire.mp3         fire crackling by the forge   dragon-studio-fire-crackling-sounds-427410.mp3
+  town_crowd.mp3         town crowd                    freesound_community-bar-crowd-in-belgrade-6060.mp3
 
 combat/
   weapon_hit.mp3         player hits with a weapon     yodguard-sword_slashing-2-382396.mp3
@@ -27,6 +30,7 @@ gathering/
   mining.mp3             mining ore                    alex_jauk-mining-ambience-224917.mp3
   woodcutting.mp3        chopping trees / woodworking  freesound_community-chopping-logs-73222.mp3
   fishing_reel.mp3       fishing                       freesound_community-reel-78063.mp3
+  forage.mp3             foraging plants               magiaz-espremendo-449744.mp3
 
 player/
   hurt_male.mp3          male character takes damage   freesound_community-male_hurt7-48124.mp3
@@ -39,6 +43,11 @@ player/
   footsteps_walk.mp3     walking                       u_6jboiezarw-sound-of-walking-out-in-nature-446986.mp3
   footsteps_run.mp3      running                       freesound_community-running-6358.mp3
   heartbeat_low_health.mp3 low health                    dragon-studio-thudding-heartbeat-372487.mp3
+  eat.mp3                eating                        freesound_community-eating-sound-effect-36186.mp3
+  drink.mp3              drinking                      freesound_community-drinking-water-7173.mp3
+  potion.mp3             drinking a potion             yodguard-potion-drink-3-540167.mp3
+  bandage.mp3            bandaging                     freesound_community-fabric-rip-91844.mp3
+  water_splash.mp3       stepping into water           dragon-studio-water-splash-effect-443133.mp3
 
 spells/
   heal.mp3               healing, curing, dispels      coghezzi-holy-healing-spell-533279.mp3
@@ -49,6 +58,12 @@ spells/
   summon.mp3             summoning pets                yodguard-dark-spell-chant-3-533018.mp3
   fireball.wav           (older) magic missile         Fireball 1.wav
   fizzle.mp3             spell fizzles / is interrupted freesound_community-fizzle-101872.mp3
+  bolt_launch.mp3        a bolt leaving the caster     rescopicsound-elemental-magic-spell-impact-incoming-228343.mp3
+  frost.mp3              ice / cold spells             dragon-studio-frost-spell-impact-499662.mp3
+  lightning.mp3          lightning spells              yodguard-lightning-magic-3-378649.mp3
+  holy.mp3               holy / divine spells          dragon-studio-elemental-spell-impact-light-478379.mp3
+  (buff spells use stealth.mp3 — the "magic twinkle" download is the same file)
+  wind.mp3               (not assigned yet)            yodguard-wind-magic-5-378630.mp3
 
 ui/
   coins.mp3              buying, selling, looting coin yodguard-coin-collect-3-540190.mp3
@@ -72,9 +87,13 @@ crafting/
   fletching.mp3          fletching                     kai_audio-paint-brush-bristles-texture-480747.mp3
   craft_success.mp3      crafting success              freesound_community-success-fanfare-trumpets-6185.mp3
   craft_fail.mp3         crafting failure              freesound_community-failfare-86009.mp3
+  tinkering.mp3          tinkering                     arunangshubanerjee-subtle-metallic-sounds-from-fabrication-work-359575.mp3
+  brewing.mp3            brewing                       freesound_community-moka-express-brewing-27875.mp3
+  wood_sawing.mp3        woodworking                   universfield-wood-sawing-143484.mp3
 
 monsters/
   spider_attack.mp3      spider attacks                yodguard-spider-attack-2-482539.mp3
 
 world/
   door_close.mp3         a door or gate closing        hasin2004-close-door-sound-247450.mp3
+  ship_bell.mp3          ship's bell at the harbour    freesound_community-ship-bell-two-chimes-102730.mp3
