@@ -119,25 +119,16 @@ func _learn_from_scroll() -> void:
 	# returns null afterwards ("Parameter data.tree is null" — the crash when learning Taunt from the character sheet's bags).
 	var tree := player.get_tree()
 
-	var known: Array = player.get("known_spells") if "known_spells" in player else []
-	if spell_name in known:
-		GameLog.log_general("You already know [b]%s[/b]." % spell_name.replace("_", " ").capitalize())
+	# Learning (and an upgrade replacing the spell it improves) is the player's job — see Player3D.learn_spell().
+	if not player.learn_spell(spell_name):
 		return
-
-	# Learn the spell
-	known.append(spell_name)
-	player.known_spells = known
-	Global.player_data["known_spells"] = known
 
 	# Remove the scroll from inventory
 	if slot_type == "basic":
 		Inventory.remove_from_basic_inventory(slot_index)
 	elif slot_type == "bag":
 		Inventory.remove_from_bag(bag_slot, item_index)
-
 	Global.save_player_data_to_file()
-
-	GameLog.log_general("[color=#ffdd44]You have learned [b]%s[/b]![/color]" % spell_name.replace("_", " ").capitalize())
 
 	# Refresh the abilities book if it's open
 	for node in tree.root.get_children():

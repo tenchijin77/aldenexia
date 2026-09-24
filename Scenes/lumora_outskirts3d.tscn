@@ -26,8 +26,8 @@
 [ext_resource type="PackedScene" uid="uid://b7sf31uujrgmq" path="res://models/Camp/bandit tent.glb" id="38_77hfu"]
 [ext_resource type="PackedScene" uid="uid://dybbqslv008aw" path="res://models/large skull.glb" id="40_hucdx"]
 [ext_resource type="Script" uid="uid://beryflf0x6wbj" path="res://Scripts/banker_npc.gd" id="banker_scr"]
+[ext_resource type="Script" uid="uid://c2p4g23o1f8j4" path="res://Scripts/crafting_station.gd" id="crafting_station_scr"]
 [ext_resource type="Script" uid="uid://bo5m5prkrbmj3" path="res://Scripts/crafting_world_spawner.gd" id="crafting_world_scr"]
-[ext_resource type="Script" path="res://Scripts/crafting_station.gd" id="crafting_station_scr"]
 [ext_resource type="Script" uid="uid://fwiciia4xgfe" path="res://Scripts/gate_raid_manager.gd" id="gate_raid_scr"]
 [ext_resource type="Script" uid="uid://bdfun3bs24dfy" path="res://Scripts/gm_relay.gd" id="gm_relay_scr"]
 [ext_resource type="PackedScene" path="res://Scenes/harbour_master.tscn" id="harbour_master_scn"]
@@ -324,64 +324,64 @@ script = ExtResource("server_notice_scr")
 [node name="CraftingWorld" type="Node3D" parent="." unique_id=1724644799]
 script = ExtResource("crafting_world_scr")
 
-[node name="CraftingStations" type="Node3D" parent="."]
+[node name="CraftingStations" type="Node3D" parent="." unique_id=1566127812]
 
-[node name="Forge" type="Node3D" parent="CraftingStations"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 62, 0, 42)
+[node name="Forge" type="Node3D" parent="CraftingStations" unique_id=1756544879]
+transform = Transform3D(-0.92050487, 0, -0.39073116, 0, 1, 0, 0.39073116, 0, -0.92050487, 100.51355, 1.1920929e-07, 54.40592)
 script = ExtResource("crafting_station_scr")
 station_id = "forge"
 display_name = "Forge"
 
-[node name="Oven" type="Node3D" parent="CraftingStations"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 66, 0, 42)
+[node name="Oven" type="Node3D" parent="CraftingStations" unique_id=1230398041]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 69.58141, 0, 36.05017)
 script = ExtResource("crafting_station_scr")
 station_id = "oven"
 display_name = "Oven"
 
-[node name="AlchemyStation" type="Node3D" parent="CraftingStations"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 70, 0, 42)
+[node name="AlchemyStation" type="Node3D" parent="CraftingStations" unique_id=1527952897]
+transform = Transform3D(-0.98713624, 0, 0.15988113, 0, 1, 0, -0.15988113, 0, -0.98713624, 63.22425, 0, 36.527363)
 script = ExtResource("crafting_station_scr")
 station_id = "alchemy_station"
 display_name = "Alchemy Station"
 
-[node name="BrewingVat" type="Node3D" parent="CraftingStations"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 74, 0, 42)
+[node name="BrewingVat" type="Node3D" parent="CraftingStations" unique_id=260767412]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 76.0535, 0, 39.620026)
 script = ExtResource("crafting_station_scr")
 station_id = "brewing_vat"
 display_name = "Brewing Vat"
 
-[node name="TinkeringBench" type="Node3D" parent="CraftingStations"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 77, 0, 42)
+[node name="TinkeringBench" type="Node3D" parent="CraftingStations" unique_id=234956485]
+transform = Transform3D(0.42893517, 0, 0.9033353, 0, 1, 0, -0.9033353, 0, 0.42893517, 62.591522, 0, 41.13431)
 script = ExtResource("crafting_station_scr")
 station_id = "tinkering_bench"
 display_name = "Tinkering Bench"
 
-[node name="WoodworkingStation" type="Node3D" parent="CraftingStations"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 62, 0, 50)
+[node name="WoodworkingStation" type="Node3D" parent="CraftingStations" unique_id=2033717223]
+transform = Transform3D(0.034899496, 0, -0.99939084, 0, 1, 0, 0.99939084, 0, 0.034899496, 61.770535, 0, 50.938965)
 script = ExtResource("crafting_station_scr")
 station_id = "woodworking_station"
 display_name = "Woodworking Station"
 
-[node name="FletchingStation" type="Node3D" parent="CraftingStations"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 66, 0, 50)
+[node name="FletchingStation" type="Node3D" parent="CraftingStations" unique_id=671162126]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.0251, 0, 54.40239)
 script = ExtResource("crafting_station_scr")
 station_id = "fletching_station"
 display_name = "Fletching Station"
 
-[node name="JewelcraftingStation" type="Node3D" parent="CraftingStations"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 70, 0, 50)
+[node name="JewelcraftingStation" type="Node3D" parent="CraftingStations" unique_id=677552702]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 70.535385, 0, 39.497868)
 script = ExtResource("crafting_station_scr")
 station_id = "jewelcrafting_station"
 display_name = "Jewelcrafting Station"
 
-[node name="Tannery" type="Node3D" parent="CraftingStations"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 74, 0, 50)
+[node name="Tannery" type="Node3D" parent="CraftingStations" unique_id=616404787]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 74.65614, 0, 53.543613)
 script = ExtResource("crafting_station_scr")
 station_id = "tannery"
 display_name = "Tannery"
 
-[node name="TailorsBench" type="Node3D" parent="CraftingStations"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 77, 0, 50)
+[node name="TailorsBench" type="Node3D" parent="CraftingStations" unique_id=1158421181]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 81.68025, 0, 54.253025)
 script = ExtResource("crafting_station_scr")
 station_id = "tailors_bench"
 display_name = "Tailor's Bench"

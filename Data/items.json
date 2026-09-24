@@ -1858,8 +1858,12 @@
     "delay": 0,
     "weight": 1.5,
     "size": "medium",
-    "class": ["all"],
-    "race": ["all"],
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
@@ -8965,5 +8969,2009 @@
       "charisma": 1
     },
     "effect": null
+  },
+  "scroll_of_improved_shadow_aura": {
+    "name": "Scroll of Improved Shadow Aura",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Improved Shadow Aura technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 90,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "voidknight"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "improved_shadow_aura"
+  },
+  "scroll_of_master_riposte": {
+    "name": "Scroll of Master Riposte",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Master Riposte technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 100,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "voidknight",
+      "blademaster"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "master_riposte"
+  },
+  "scroll_of_improved_plague_strike": {
+    "name": "Scroll of Improved Plague Strike",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Improved Plague Strike technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 130,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "voidknight"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "improved_plague_strike"
+  },
+  "scroll_of_master_block": {
+    "name": "Scroll of Master Block",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Master Block technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 100,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "voidknight",
+      "lightsworn"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "master_block"
+  },
+  "scroll_of_improved_soul_leech": {
+    "name": "Scroll of Improved Soul Leech",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Improved Soul Leech technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 160,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "voidknight"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "improved_soul_leech"
+  },
+  "scroll_of_master_wraith": {
+    "name": "Scroll of Master Wraith",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Master Wraith technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 190,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "voidknight"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "master_wraith"
+  },
+  "scroll_of_improved_blessing": {
+    "name": "Scroll of Improved Blessing",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Improved Blessing technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 90,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "lightsworn"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "improved_blessing"
+  },
+  "scroll_of_master_parry": {
+    "name": "Scroll of Master Parry",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Master Parry technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 130,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "lightsworn"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "master_parry"
+  },
+  "scroll_of_improved_resurrection": {
+    "name": "Scroll of Improved Resurrection",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Improved Resurrection technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 160,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "lightsworn"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "improved_resurrection"
+  },
+  "scroll_of_improved_divine_judgment": {
+    "name": "Scroll of Improved Divine Judgment",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Improved Divine Judgment technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 180,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "lightsworn"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "improved_divine_judgment"
+  },
+  "scroll_of_improved_battle_shout": {
+    "name": "Scroll of Improved Battle Shout",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Improved Battle Shout technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 90,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "blademaster"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "improved_battle_shout"
+  },
+  "scroll_of_master_disarm": {
+    "name": "Scroll of Master Disarm",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Master Disarm technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 140,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "blademaster"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "master_disarm"
+  },
+  "scroll_of_improved_shatter": {
+    "name": "Scroll of Improved Shatter",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Improved Shatter technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 160,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "blademaster"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "improved_shatter"
+  },
+  "scroll_of_improved_cleave": {
+    "name": "Scroll of Improved Cleave",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Improved Cleave technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 180,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "blademaster"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "improved_cleave"
+  },
+  "scroll_of_master_weapon_mastery": {
+    "name": "Scroll of Master Weapon Mastery",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Master Weapon Mastery technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 190,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "blademaster"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "master_weapon_mastery"
+  },
+  "scroll_of_improved_cure_wounds": {
+    "name": "Scroll of Improved Cure Wounds",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Improved Cure Wounds technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 90,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "lightmender"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "improved_cure_wounds"
+  },
+  "scroll_of_improved_prayer": {
+    "name": "Scroll of Improved Prayer",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Improved Prayer technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 130,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "lightmender"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "improved_prayer"
+  },
+  "scroll_of_greater_mass_cure": {
+    "name": "Scroll of Greater Mass Cure",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Greater Mass Cure technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 140,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "lightmender"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "greater_mass_cure"
+  },
+  "scroll_of_improved_divine_intervention": {
+    "name": "Scroll of Improved Divine Intervention",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Improved Divine Intervention technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 160,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "lightmender"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "improved_divine_intervention"
+  },
+  "scroll_of_improved_holy_word": {
+    "name": "Scroll of Improved Holy Word",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Improved Holy Word technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 180,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "lightmender"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "improved_holy_word"
+  },
+  "scroll_of_greater_sanctuary": {
+    "name": "Scroll of Greater Sanctuary",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Greater Sanctuary technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 190,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "lightmender"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "greater_sanctuary"
+  },
+  "scroll_of_improved_healing_wave": {
+    "name": "Scroll of Improved Healing Wave",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Improved Healing Wave technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 120,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "spiritweaver"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "improved_healing_wave"
+  },
+  "scroll_of_greater_mass_healing": {
+    "name": "Scroll of Greater Mass Healing",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Greater Mass Healing technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 140,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "spiritweaver"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "greater_mass_healing"
+  },
+  "scroll_of_improved_ancestral_revival": {
+    "name": "Scroll of Improved Ancestral Revival",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Improved Ancestral Revival technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 150,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "spiritweaver"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "improved_ancestral_revival"
+  },
+  "scroll_of_improved_elemental_wrath": {
+    "name": "Scroll of Improved Elemental Wrath",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Improved Elemental Wrath technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 170,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "spiritweaver"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "improved_elemental_wrath"
+  },
+  "scroll_of_greater_totem_of_harmony": {
+    "name": "Scroll of Greater Totem Of Harmony",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Greater Totem Of Harmony technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 190,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "spiritweaver"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "greater_totem_of_harmony"
+  },
+  "scroll_of_improved_regrowth": {
+    "name": "Scroll of Improved Regrowth",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Improved Regrowth technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 90,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "wildspeaker"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "improved_regrowth"
+  },
+  "scroll_of_improved_wild_growth": {
+    "name": "Scroll of Improved Wild Growth",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Improved Wild Growth technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 130,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "wildspeaker"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "improved_wild_growth"
+  },
+  "scroll_of_greater_tranquility": {
+    "name": "Scroll of Greater Tranquility",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Greater Tranquility technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 140,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "wildspeaker"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "greater_tranquility"
+  },
+  "scroll_of_improved_natures_bounty": {
+    "name": "Scroll of Improved Natures Bounty",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Improved Natures Bounty technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 160,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "wildspeaker"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "improved_natures_bounty"
+  },
+  "scroll_of_improved_starfall": {
+    "name": "Scroll of Improved Starfall",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Improved Starfall technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 180,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "wildspeaker"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "improved_starfall"
+  },
+  "scroll_of_greater_thorn_shield": {
+    "name": "Scroll of Greater Thorn Shield",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Greater Thorn Shield technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 190,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "wildspeaker"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "greater_thorn_shield"
+  },
+  "scroll_of_improved_flurry": {
+    "name": "Scroll of Improved Flurry",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Improved Flurry technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 90,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "aetherfist"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "improved_flurry"
+  },
+  "scroll_of_master_ki_strike": {
+    "name": "Scroll of Master Ki Strike",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Master Ki Strike technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 100,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "aetherfist"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "master_ki_strike"
+  },
+  "scroll_of_improved_quivering_palm": {
+    "name": "Scroll of Improved Quivering Palm",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Improved Quivering Palm technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 150,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "aetherfist"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "improved_quivering_palm"
+  },
+  "scroll_of_improved_void_strike": {
+    "name": "Scroll of Improved Void Strike",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Improved Void Strike technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 170,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "aetherfist"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "improved_void_strike"
+  },
+  "scroll_of_master_balance": {
+    "name": "Scroll of Master Balance",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Master Balance technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 190,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "aetherfist"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "master_balance"
+  },
+  "scroll_of_improved_barrage": {
+    "name": "Scroll of Improved Barrage",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Improved Barrage technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 90,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "woodstalker"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "improved_barrage"
+  },
+  "scroll_of_master_stealth": {
+    "name": "Scroll of Master Stealth",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Master Stealth technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 100,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "woodstalker",
+      "shadowblade",
+      "troubadour"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "master_stealth"
+  },
+  "scroll_of_improved_aimed_shot": {
+    "name": "Scroll of Improved Aimed Shot",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Improved Aimed Shot technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 130,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "woodstalker"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "improved_aimed_shot"
+  },
+  "scroll_of_master_pickpocket": {
+    "name": "Scroll of Master Pickpocket",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Master Pickpocket technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 140,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "woodstalker",
+      "shadowblade",
+      "troubadour"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "master_pickpocket"
+  },
+  "scroll_of_improved_deadly_aim": {
+    "name": "Scroll of Improved Deadly Aim",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Improved Deadly Aim technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 160,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "woodstalker"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "improved_deadly_aim"
+  },
+  "scroll_of_improved_volley": {
+    "name": "Scroll of Improved Volley",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Improved Volley technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 180,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "woodstalker"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "improved_volley"
+  },
+  "scroll_of_master_beast_bond": {
+    "name": "Scroll of Master Beast Bond",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Master Beast Bond technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 190,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "woodstalker"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "master_beast_bond"
+  },
+  "scroll_of_improved_ambush": {
+    "name": "Scroll of Improved Ambush",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Improved Ambush technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 90,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "shadowblade"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "improved_ambush"
+  },
+  "scroll_of_improved_assassinate": {
+    "name": "Scroll of Improved Assassinate",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Improved Assassinate technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 160,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "shadowblade"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "improved_assassinate"
+  },
+  "scroll_of_improved_fan_of_knives": {
+    "name": "Scroll of Improved Fan Of Knives",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Improved Fan Of Knives technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 180,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "shadowblade"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "improved_fan_of_knives"
+  },
+  "scroll_of_master_shadow_dance": {
+    "name": "Scroll of Master Shadow Dance",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Master Shadow Dance technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 190,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "shadowblade"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "master_shadow_dance"
+  },
+  "scroll_of_improved_song_of_courage": {
+    "name": "Scroll of Improved Song Of Courage",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Improved Song Of Courage technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 90,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "troubadour"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "improved_song_of_courage"
+  },
+  "scroll_of_improved_symphony": {
+    "name": "Scroll of Improved Symphony",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Improved Symphony technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 170,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "troubadour"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "improved_symphony"
+  },
+  "scroll_of_master_anthem": {
+    "name": "Scroll of Master Anthem",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Master Anthem technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 190,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "troubadour"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "master_anthem"
+  },
+  "scroll_of_improved_shadow_bolt": {
+    "name": "Scroll of Improved Shadow Bolt",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Improved Shadow Bolt technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 90,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "gravecaller"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "improved_shadow_bolt"
+  },
+  "scroll_of_improved_plague_cloud": {
+    "name": "Scroll of Improved Plague Cloud",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Improved Plague Cloud technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 120,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "gravecaller"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "improved_plague_cloud"
+  },
+  "scroll_of_improved_abomination": {
+    "name": "Scroll of Improved Abomination",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Improved Abomination technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 140,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "gravecaller"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "improved_abomination"
+  },
+  "scroll_of_improved_death_and_decay": {
+    "name": "Scroll of Improved Death And Decay",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Improved Death And Decay technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 160,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "gravecaller"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "improved_death_and_decay"
+  },
+  "scroll_of_improved_soul_reaper": {
+    "name": "Scroll of Improved Soul Reaper",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Improved Soul Reaper technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 180,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "gravecaller"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "improved_soul_reaper"
+  },
+  "scroll_of_master_necrotic_aura": {
+    "name": "Scroll of Master Necrotic Aura",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Master Necrotic Aura technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 190,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "gravecaller"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "master_necrotic_aura"
+  },
+  "scroll_of_improved_charm": {
+    "name": "Scroll of Improved Charm",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Improved Charm technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 90,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "runecaster"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "improved_charm"
+  },
+  "scroll_of_improved_mesmerize": {
+    "name": "Scroll of Improved Mesmerize",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Improved Mesmerize technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 130,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "runecaster"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "improved_mesmerize"
+  },
+  "scroll_of_improved_mind_flay": {
+    "name": "Scroll of Improved Mind Flay",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Improved Mind Flay technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 160,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "runecaster"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "improved_mind_flay"
+  },
+  "scroll_of_improved_phantasmal_force": {
+    "name": "Scroll of Improved Phantasmal Force",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Improved Phantasmal Force technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 180,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "runecaster"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "improved_phantasmal_force"
+  },
+  "scroll_of_master_clarity": {
+    "name": "Scroll of Master Clarity",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Master Clarity technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 190,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "runecaster"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "master_clarity"
+  },
+  "scroll_of_improved_magic_missile": {
+    "name": "Scroll of Improved Magic Missile",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Improved Magic Missile technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 90,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "arcanist"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "improved_magic_missile"
+  },
+  "scroll_of_improved_fireball": {
+    "name": "Scroll of Improved Fireball",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Improved Fireball technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 120,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "arcanist"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "improved_fireball"
+  },
+  "scroll_of_improved_polymorph": {
+    "name": "Scroll of Improved Polymorph",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Improved Polymorph technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 140,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "arcanist"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "improved_polymorph"
+  },
+  "scroll_of_improved_meteor": {
+    "name": "Scroll of Improved Meteor",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Improved Meteor technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 160,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "arcanist"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "improved_meteor"
+  },
+  "scroll_of_improved_time_warp": {
+    "name": "Scroll of Improved Time Warp",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Improved Time Warp technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 180,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "arcanist"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "improved_time_warp"
+  },
+  "scroll_of_master_arcane_intellect": {
+    "name": "Scroll of Master Arcane Intellect",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Master Arcane Intellect technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 190,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "arcanist"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "master_arcane_intellect"
+  },
+  "scroll_of_improved_chaos_bolt": {
+    "name": "Scroll of Improved Chaos Bolt",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Improved Chaos Bolt technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 90,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "chaosborn"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "improved_chaos_bolt"
+  },
+  "scroll_of_improved_arcane_flux": {
+    "name": "Scroll of Improved Arcane Flux",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Improved Arcane Flux technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 120,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "chaosborn"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "improved_arcane_flux"
+  },
+  "scroll_of_improved_polymorphic_surge": {
+    "name": "Scroll of Improved Polymorphic Surge",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Improved Polymorphic Surge technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 140,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "chaosborn"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "improved_polymorphic_surge"
+  },
+  "scroll_of_improved_chaos_storm": {
+    "name": "Scroll of Improved Chaos Storm",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Improved Chaos Storm technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 160,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "chaosborn"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "improved_chaos_storm"
+  },
+  "scroll_of_improved_arcane_anomaly": {
+    "name": "Scroll of Improved Arcane Anomaly",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Improved Arcane Anomaly technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 180,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "chaosborn"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "improved_arcane_anomaly"
+  },
+  "scroll_of_master_chaos_weave": {
+    "name": "Scroll of Master Chaos Weave",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Master Chaos Weave technique. It improves a spell you already know. Right-click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 190,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "chaosborn"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "master_chaos_weave"
   }
 }

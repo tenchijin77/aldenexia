@@ -21,7 +21,19 @@ var luck: int = 10               # Crit chance, crit damage, loot, lucky rolls
 var character_name: String = "Player"
 var level: int = 1
 var character_class: String = "Blademaster"  # Blademaster, Aetherfist, etc.
-var current_hp: int = 50
+var current_hp: int = 50:
+	set(value):
+		# Guardian Spirit ("cheat_death" modifier): a blow that would kill leaves you at 20% health instead, once. Checked
+		# here so every damage path (melee, spells, DoTs, reflects) is covered.
+		if value <= 0 and current_hp > 0:
+			var saver := _cheat_death_effect()
+			if not saver.is_empty():
+				value = maxi(1, int(max_hp * CHEAT_DEATH_HEALTH))
+				remove_effect(saver)
+				var owner_node := get_parent()
+				if owner_node and owner_node.is_in_group("player") and owner_node.is_multiplayer_authority():
+					GameLog.log_combat("[color=#ffee88]A guardian spirit catches you at the brink of death![/color]")
+		current_hp = value
 var max_hp: int = 50
 var current_mana: int = 30
 var max_mana: int = 30
@@ -215,6 +227,8 @@ func apply_effect(effect_name: String, duration: float, modifiers: Dictionary, t
 	goes through heal() so it respects max_hp, unlike take_damage()."""
 	if _has_stat_modifiers(modifiers) or _has_stat_modifiers(active_effects.get(effect_name, {}).get("modifiers", {})):
 		_stats_dirty = true
+	if float(modifiers.get("invisible", 0.0)) > 0.0:
+		_stealth_opener_spent = false
 	active_effects[effect_name] = {
 		"remaining": duration,
 		"modifiers": modifiers,
@@ -230,6 +244,15 @@ func apply_effect(effect_name: String, duration: float, modifiers: Dictionary, t
 	if modifiers.has("decoy_charges"):
 		active_effects[effect_name]["decoys_remaining"] = int(modifiers["decoy_charges"])
 
+const CHEAT_DEATH_HEALTH := 0.20
+
+func _cheat_death_effect() -> String:
+	for effect_name in active_effects:
+		if float(active_effects[effect_name].get("modifiers", {}).get("cheat_death", 0.0)) > 0.0:
+			return effect_name
+	return ""
+
+
 func remove_effect(effect_name: String) -> void:
 	if _has_stat_modifiers(active_effects.get(effect_name, {}).get("modifiers", {})):
 		_stats_dirty = true
@@ -240,7 +263,7 @@ func remove_effect(effect_name: String) -> void:
 # feed recalculate_derived_stats() the same way gear_<stat> does, so adding or removing one has to invalidate the cache.
 func _has_stat_modifiers(modifiers: Dictionary) -> bool:
 	for key in modifiers:
-		if str(key).begins_with("stat_") or key in ["dodge_bonus", "parry_bonus", "crit_bonus"]:  # these feed the cached dodge/parry chance too
+		if str(key).begins_with("stat_") or key in ["dodge_bonus", "parry_bonus", "crit_bonus", "armor_bonus"]:  # these feed cached derived stats too
 			return true
 	return false
 
@@ -274,9 +297,22 @@ func is_stealthed() -> bool:
 # Called from resolve_attack() below (melee) and player3d.gd's
 # _resolve_spell_cast() (spell damage) — attacking of any kind reveals you,
 # same rule for players and monsters alike.
+# Attacking reveals you: every effect that hides you ends (Invisibility, Vanish, Shadow Cloak, Camouflage... — only
+# "invisibility" used to). Master Stealth: the first attack after hiding doesn't.
+var _stealth_opener_spent := false
+
 func break_invisibility() -> void:
-	if active_effects.has("invisibility"):
-		remove_effect("invisibility")
+	var hiding: Array = []
+	for effect_name in active_effects:
+		if effect_name == "invisibility" or float(active_effects[effect_name].get("modifiers", {}).get("invisible", 0.0)) > 0.0:
+			hiding.append(effect_name)
+	if hiding.is_empty():
+		return
+	if has_passive("master_stealth") and not _stealth_opener_spent:
+		_stealth_opener_spent = true
+		return
+	for effect_name in hiding:
+		remove_effect(effect_name)
 
 const PARRY_REFLECT := 0.05  # Improved Parry: share of the parried blow sent back to the attacker
 
@@ -284,7 +320,9 @@ func has_passive(spell_name: String) -> bool:
 	"""Check whether this CombatNode's owner (player/pet) knows a non-cast passive spell."""
 	var owner_node: Node = get_parent()
 	if owner_node and "known_spells" in owner_node:
-		return spell_name in owner_node.known_spells
+		for known in owner_node.known_spells:
+			if known == spell_name or SpellInfo.counts_as(str(known)).has(spell_name):
+				return true  # an upgrade (Master Block) counts as the passive it replaced (Improved Block)
 	return false
 
 # Reduces incoming damage against any active effect carrying an
@@ -450,7 +488,7 @@ func recalculate_derived_stats():
 	_cached_stats["attack_rating"] = atk
 
 	# Armor Class (AC)
-	var ac = 10 + gear_ac + int(dex_eff / 2.0) + class_ac_bonus
+	var ac = 10 + gear_ac + int(dex_eff / 2.0) + class_ac_bonus + int(get_modifier("armor_bonus"))  # armor_bonus: Rallying Cry
 	if has_shield and shield_bonus_map.has(shield_type):
 		ac += shield_bonus_map[shield_type]
 	_cached_stats["armor_class"] = ac
@@ -458,7 +496,7 @@ func recalculate_derived_stats():
 	# Crit Chance
 	var base_crit = 5
 	var class_crit_bonus = _get_class_crit_bonus()
-	var crit_chance = base_crit + int((dex_eff + luck_eff) / 2.0) + class_crit_bonus + gear_crit + race_crit_bonus + int(skill_bonus("crit_chance")) + int(get_modifier("crit_bonus"))
+	var crit_chance = base_crit + int((dex_eff + luck_eff) / 2.0) + class_crit_bonus + gear_crit + race_crit_bonus + int(skill_bonus("crit_chance")) + int(get_modifier("crit_bonus")) + (5 if has_passive("master_weapon_mastery") else 0)
 	crit_chance = clamp(crit_chance, 0, 60)  # Hard cap at 60%
 	_cached_stats["crit_chance"] = crit_chance
 
@@ -682,7 +720,8 @@ func get_parry_chance() -> int:
 	return get_derived_stat("parry_chance")
 
 func get_block_chance() -> int:
-	var passive_bonus := 10 if has_passive("improved_block") else 0
+	var passive_bonus := (10 if has_passive("improved_block") else 0) + (5 if has_passive("master_block") else 0) \
+			+ (10 if has_passive("enhanced_block") else 0)
 	return get_derived_stat("block_chance") + int(get_modifier("block_chance")) + passive_bonus
 
 func get_riposte_chance() -> int:
@@ -734,6 +773,10 @@ func calculate_melee_damage(target: CombatNode = null, is_crit: bool = false) ->
 
 	# Apply active buff/debuff damage modifiers (e.g. blood_ritual)
 	raw_damage = int(raw_damage * (1.0 + get_modifier("damage_mult")))
+	if has_passive("master_weapon_mastery"):
+		raw_damage = int(raw_damage * 1.15)  # Blademaster passive (Master Weapon Mastery replaces Weapon Mastery's 5%)
+	elif has_passive("weapon_mastery"):
+		raw_damage = int(raw_damage * 1.05)
 
 	# Tunable melee damage (Data/combat_balance.json): players, and monsters (+ their per-level scaling)
 	match CombatBalance.role_of(self):
@@ -786,6 +829,8 @@ func calculate_spell_damage(base_spell_damage: int, resist_type: String = "magic
 	# during the 2026-09-14 monster balance pass.
 	if target:
 		var target_resist := target.get_resistance(resist_type) + int(target.get_modifier("magic_resist_bonus"))
+		if resist_type != "physical" and target.has_passive("enhanced_block"):
+			target_resist += 10  # Enhanced Block: 10% less magic damage (for when monsters cast spells)
 		damage = int(damage * (1.0 - (target_resist / 100.0)))
 
 	damage = int(damage * (1.0 + get_modifier("damage_mult")))
@@ -984,6 +1029,14 @@ func resolve_attack(target: CombatNode) -> Dictionary:
 			if riposte_crit:
 				riposte_damage = target.calculate_melee_damage(self, true)
 			riposte_damage += int(target.get_modifier("riposte_bonus_damage"))
+			if target.has_passive("enhanced_riposte"):
+				riposte_damage += 10  # Voidknight passive: +10 necrotic on every riposte
+			if target.has_passive("master_riposte"):
+				riposte_damage += 5
+			if target.has_passive("improved_riposte"):
+				target.heal(maxi(1, int(target.max_hp * 0.03)))  # Lightsworn passive: a riposte heals 3% of max health
+			if target.has_passive("enhanced_parry"):
+				target.apply_effect("enhanced_parry", 5.0, {"crit_bonus": 10})
 			riposte_damage = apply_ac_mitigation(riposte_damage, self)
 			riposte_damage = absorb_incoming_damage(riposte_damage)
 			current_hp -= riposte_damage
@@ -998,8 +1051,10 @@ func resolve_attack(target: CombatNode) -> Dictionary:
 		# Improved Parry (a passive: Lightsworn, Aetherfist, other tanks): a parry strikes back for PARRY_REFLECT of the damage
 		# the blow would have done ("reflected" — monster3d.gd relays it to the real monster when this runs on a puppet).
 		var reflected := 0
+		if target.has_passive("enhanced_parry"):
+			target.apply_effect("enhanced_parry", 5.0, {"crit_bonus": 10})  # Blademaster passive: +10% crit for 5 s after a parry
 		if target.has_passive("improved_parry"):
-			reflected = maxi(1, int(round(calculate_melee_damage(target) * PARRY_REFLECT)))
+			reflected = maxi(1, int(round(calculate_melee_damage(target) * (PARRY_REFLECT * 2.0 if target.has_passive("master_parry") else PARRY_REFLECT))))
 			current_hp -= reflected
 		return {
 			"result": "PARRY",
@@ -1012,6 +1067,8 @@ func resolve_attack(target: CombatNode) -> Dictionary:
 	if not from_behind and target.roll_block():
 		var stagger_chance: float = target.get_modifier("stagger_chance")
 		if target.has_passive("improved_block"):
+			stagger_chance += 0.05
+		if target.has_passive("master_block"):
 			stagger_chance += 0.05
 		if stagger_chance > 0.0 and randf() < stagger_chance:
 			var attacker_node: Node = get_parent()
@@ -1304,6 +1361,7 @@ func take_damage(amount: int) -> int:
 
 func heal(amount: int) -> int:
 	"""Heal and return actual healing done"""
+	amount = int(round(amount * (1.0 + get_modifier("healing_received"))))  # Beacon of Hope
 	var healing_done = min(amount, max_hp - current_hp)
 	current_hp += healing_done
 	return healing_done

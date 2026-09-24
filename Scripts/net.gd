@@ -133,6 +133,20 @@ func _ready() -> void:
 		_start_dedicated_server.call_deferred()
 
 
+# Dedicated server: world replication (monsters, players, pets, guards...) only goes to peers that have logged a character
+# in. Menu errands (server-list probes, account requests) connect without ever loading a zone, and every monster spawn
+# and sync sent to them used to print "Node not found" / "not found in cache" errors on the player's console. A spawned
+# node follows its synchronizer's visibility, so filtering the synchronizers covers spawns too.
+func _on_node_added_server(node: Node) -> void:
+	if node is MultiplayerSynchronizer:
+		(node as MultiplayerSynchronizer).add_visibility_filter(_peer_in_world)
+		node.add_to_group("net_synchronizers")
+
+
+func _peer_in_world(peer_id: int) -> bool:
+	return peer_id == 1 or _peer_character.has(peer_id)
+
+
 func accounts() -> AccountRelay:
 	return get_node("Accounts") as AccountRelay
 
@@ -230,6 +244,7 @@ func _start_dedicated_server() -> void:
 	gm_password_file = _cmdline_value("gm-password-file", gm_password_file)
 	banned_ips_file = _cmdline_value("banned-ips-file", banned_ips_file)
 	get_tree().auto_accept_quit = false  # a close request starts a graceful shutdown instead of dropping everyone
+	get_tree().node_added.connect(_on_node_added_server)
 	var wanted_name := _cmdline_value("name", server_name)
 	server_name = sanitize_name(wanted_name)
 	if server_name.is_empty():
@@ -1085,6 +1100,7 @@ func _rpc_login(character_name: String, password: String, creation_json: String)
 		DirAccess.copy_absolute(path, path.get_basename() + ".bak")  # last known-good copy, refreshed every login
 	_awaiting_login.erase(id)
 	_peer_character[id] = key
+	get_tree().call_group("net_synchronizers", "update_visibility", id)  # the world now replicates to them (see _peer_in_world)
 	var notes := PackedStringArray()
 	if not account.is_empty():
 		notes.append("account " + account)

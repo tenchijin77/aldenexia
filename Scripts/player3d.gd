@@ -2153,7 +2153,8 @@ func handle_movement(delta: float) -> void:
 		target_speed = RUN_SPEED
 	else:
 		target_speed = WALK_SPEED
-	target_speed *= maxf(0.2, 1.0 + combat_node.get_modifier("move_speed_bonus") - combat_node.get_modifier("speed_slow"))  # Swift Step, stances, snares
+	var hidden_bonus := 0.10 if combat_node.has_passive("improved_stealth") and (combat_node.is_stealthed() or combat_node.is_currently_invisible()) else 0.0
+	target_speed *= maxf(0.2, 1.0 + combat_node.get_modifier("move_speed_bonus") + hidden_bonus - combat_node.get_modifier("speed_slow"))  # Swift Step, stances, snares, Improved Stealth
 
 	if forward < 0.0:
 		target_speed *= BACKWARD_SPEED_MULT
@@ -3115,6 +3116,15 @@ func _target_out_of_range(spell: Dictionary, target: Node) -> bool:
 	return reach > 0.0 and global_position.distance_to((target as Node3D).global_position) > reach + SPELL_RANGE_SLACK
 
 
+func _stop_all_casting_except_songs() -> void:
+	combat_node.is_casting = false
+	combat_node.current_cast_time = 0.0
+	_pending_cast_spell = ""
+	_pending_cast_spell_data = {}
+	_pending_cast_target = null
+	casting_spell_name = ""
+
+
 # Death ends all casting: the spell in progress, and every song that was playing (they used to resume after respawning).
 func _stop_all_casting() -> void:
 	if not _active_songs.is_empty():
@@ -3500,6 +3510,10 @@ func load_character_data(data: Dictionary) -> void:
 	known_spells     = data.get("known_spells", [])
 	known_skills     = data.get("known_skills", [])
 	known_recipes    = data.get("known_recipes", [])
+	# Pickpocket (added 2026-09-23) is innate for the sneaky classes: characters made before it get it here.
+	if player_class in ["Shadowblade", "Troubadour", "Woodstalker"] \
+			and not known_spells.any(func(k): return SpellInfo.counts_as(str(k)).has("pickpocket")):
+		known_spells.append("pickpocket")
 	if player_class == "Aetherfist":
 		if not known_spells.has("focused_strike"):
 			known_spells.append("focused_strike")  # the level-1 self-buff every Aetherfist starts with (added 2026-09-23)
@@ -3835,6 +3849,7 @@ func _apply_pet_gear_bonus() -> void:
 # spell_name via the usual replace("_"," ").capitalize() convention.
 const SPELL_DISPLAY_NAMES := {
 	"shadow_aura": "Aura of the Shadow",
+	"siphon_mana": "Siphon Essence",
 	"spectral_minion": "Morthan's Call",
 	"phantasmal_echo": "Phantasmal Echo",
 	"campfire_warmth": "Warmth of the Campfire",
@@ -3866,13 +3881,13 @@ static func spell_display_name(spell_name: String) -> String:
 # loop can tell a real failure (dead target, out of mana) from "still on
 # cooldown" and stop trying rather than spam every frame.
 func cast_spell(spell_name: String, is_auto_recast: bool = false) -> bool:
-	if spell_name == "improved_block":
-		GameLog.log_general("[b]Improved Block[/b] is passive — no need to cast it.")
-		return false
-
 	var spell: Dictionary = _spell_by_name.get(spell_name, {})
 	if spell.is_empty():
 		GameLog.log_general("Unknown spell or ability: [b]%s[/b]." % spell_display_name(spell_name))
+		return false
+	# Passives ("passive": true in player_spells.json) work just by being known — see CombatNode.has_passive().
+	if spell.get("passive", false):
+		GameLog.log_general("[b]%s[/b] is passive — it's always working, no need to cast it." % spell_display_name(spell_name))
 		return false
 
 	if player_class == "Troubadour" and not is_auto_recast:
@@ -3996,6 +4011,7 @@ func cast_spell(spell_name: String, is_auto_recast: bool = false) -> bool:
 	_pending_cast_target = target_node
 	casting_spell_name = display_name
 	combat_node.start_spell_cast(cast_time)
+	_cast_start_pos = global_position
 	return true
 
 
@@ -4005,23 +4021,41 @@ func cast_spell(spell_name: String, is_auto_recast: bool = false) -> bool:
 # anymore (see cast_spell() above).
 func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Node) -> void:
 	var display_name    := spell_display_name(spell_name)
+	# An upgrade (Improved Plague Strike) runs its base spell's special code; its own numbers come from its own data.
+	var spell_key := SpellInfo.root_name(spell_name)
 	var school: String   = spell.get("spell_school", "magic")
 	_spell_skill_category = str(spell.get("skill_category", ""))
 	var spell_target    := spell.get("target", "enemy") as String
 	var base_damage: int = spell.get("damage", 0)
-	if stance_boosts(spell_name):
+	if stance_boosts(spell_key):
 		base_damage = int(round(base_damage * (1.0 + STANCE_BOOST)))  # the stance's own element: 25% stronger
 	var effect_type_raw  = spell.get("effect_type", "")
 	var effect_type: String = effect_type_raw if effect_type_raw is String else ""
+	# An enemy spell with an "aoe_radius" also hits every other enemy that close to its target: resolved like a cone.
+	if spell_target == "enemy" and spell.has("aoe_radius"):
+		spell_target = "cone"
 	# A bolt or arrow spell cast at an enemy flies there first (spell_projectile.gd) and lands — damage, effects and its
 	# sound at the target — when it arrives: this function runs again then, with _projectile_landing set.
-	var flies: bool = not _projectile_landing and str(spell.get("target", "enemy")) in ["enemy", "line"] \
+	var flies: bool = not _projectile_landing and spell_target in ["enemy", "line"] \
 			and target_node is Node3D and SPELL_PROJECTILE.flies(spell)
 	if not flies:
 		# A spell on someone else sounds from them; one on yourself plays straight in your ears (as a 3D sound at your own
 		# feet it could be faint with the camera pulled back).
 		var on_other: bool = is_instance_valid(target_node) and target_node != self
 		Sfx.play(spell_sound(spell), target_node if on_other else null)
+
+	# Summons with a "pet_kind" and pet buffs ("pet_buff": Beast Bond) don't need a target of their own.
+	if spell.has("pet_kind"):
+		_summon_from_spell(spell)
+		_broadcast_combat(CombatLogFormatter.spell_cast(player_name, spell_name))
+		return
+	if spell.get("pet_buff", false):
+		if not is_instance_valid(active_pet) or not (active_pet.get("combat_node") is CombatNode):
+			GameLog.log_general("You have no companion to empower.")
+			return
+		active_pet.combat_node.apply_effect(spell_name, float(spell.get("duration", 15)), spell.get("modifiers", {}))
+		GameLog.log_combat("[color=#88ffcc]%s is empowered.[/color]" % active_pet.pet_name)
+		return
 
 	# "reactive" spells (e.g. Improved Parry, Spell Ward) are defensive
 	# self-effects by design — some have a mis-authored "enemy" target in the
@@ -4031,12 +4065,7 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 		spell_target = "self"
 
 	match spell_target:
-		# Teleport-style spells with no real target field wired up yet —
-		# swift_step/wind_dash (Aetherfist), blink (Arcanist), chaos_rift
-		# (Chaosborn) all share this "none" target and are still unbuilt
-		# (casting them currently just spends mana/cooldown and does
-		# nothing, same bug Shadowstep had); only Shadowstep is implemented
-		# so far, per the user's specific request.
+		# No target: Shadowstep (behind your target), Swift Step (a dash) and teleports (Blink, Chaos Rift — see _teleport()).
 		"none":
 			if spell_name == "shadowstep":
 				if target_node == null:
@@ -4074,10 +4103,14 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 				# Dash "dash_distance" metres the way you face (stopping at anything solid), then run faster for the duration.
 				var ahead := -global_transform.basis.z
 				ahead.y = 0.0
-				move_and_collide(ahead.normalized() * float(spell.get("dash_distance", 8.0)) * (1.0 + STANCE_BOOST if stance_boosts(spell_name) else 1.0))
+				move_and_collide(ahead.normalized() * float(spell.get("dash_distance", 8.0)) * (1.0 + STANCE_BOOST if stance_boosts(spell_key) else 1.0))
 				combat_node.apply_effect("swift_step", float(spell.get("duration", 4.0)), spell.get("modifiers", {"move_speed_bonus": 0.15}))
 				GameLog.log_combat("[color=#88ffcc]You dash forward, light on your feet.[/color]")
 				_broadcast_combat("[color=#88ffcc]%s dashes forward.[/color]" % player_name)
+			elif spell.get("spell_type", "") == "teleport":
+				_teleport(spell_name, spell)
+			else:
+				GameLog.log_combat("You use [b]%s[/b]." % display_name)
 			return
 
 		"enemy", "corpse", "line":
@@ -4094,6 +4127,21 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 				GameLog.log_general("[color=#ff8866]Your target moved out of range of [b]%s[/b].[/color]" % display_name)
 				return
 			if not target_node.has_method("apply_damage"):
+				return
+			if spell_key == "pickpocket":
+				_pickpocket(target_node, spell)
+				return
+			# Siphon Essence: drains mana from something that has it (a player, a spell-casting monster: "casts_spells");
+			# anything else loses life instead (the normal hit below, all of it returned to you by "drain_pct").
+			if spell_key == "siphon_mana" and (target_node.is_in_group("player") or target_node.get("casts_spells") == true):
+				var essence_cn = target_node.get("combat_node")
+				if essence_cn is CombatNode:
+					var siphoned := mini(int(essence_cn.current_mana), int(spell.get("effect_amount", 30)))
+					essence_cn.current_mana = maxf(0.0, essence_cn.current_mana - siphoned)
+					combat_node.current_mana = minf(float(combat_node.max_mana), combat_node.current_mana + siphoned)
+					GameLog.log_combat("[color=#8866ff]You siphon %d mana from %s.[/color]" % [siphoned, TargetFrame.display_name(target_node)])
+					if target_node.has_method("add_threat"):
+						target_node.add_threat(self, combat_node.generate_threat(NO_DAMAGE_THREAT))
 				return
 			if spell.get("leap", false) and target_node is Node3D:
 				# Flying Kick: leap to the target (stopping at anything solid in the way) and land the blow.
@@ -4155,8 +4203,14 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 					GameLog.log_general("[color=#ff8866]You must be behind %s to backstab![/color]" % target_desc)
 					return
 
-			var final_dmg: int
-			if school == "physical":
+			# "bonus_vs": {"undead": 0.25} — stronger against a monster category (monster3d.gd's `category`).
+			var bonus_vs: Dictionary = spell.get("bonus_vs", {}) if spell.get("bonus_vs") is Dictionary else {}
+			if not bonus_vs.is_empty() and "category" in target_node and bonus_vs.has(str(target_node.category)):
+				base_damage = int(round(base_damage * (1.0 + float(bonus_vs[str(target_node.category)]))))
+			var final_dmg: int = 0
+			if base_damage <= 0:
+				pass  # a debuff, snare or crowd-control spell: no hit of its own (spell power used to make every one hit for ~15)
+			elif school == "physical":
 				# Physical combat abilities scale with STR and are mitigated by AC
 				final_dmg = base_damage + int(combat_node.strength / 2.0)
 				final_dmg = int(final_dmg * (1.0 + combat_node.skill_bonus("ability_damage_pct", str(spell.get("skill_category", ""))) / 100.0))
@@ -4181,11 +4235,24 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 			if target_is_networked_monster and final_dmg > 0:
 				target_node.apply_networked_damage.rpc_id(1, final_dmg, multiplayer.get_unique_id())
 
-			GameLog.log_combat(CombatLogFormatter.spell_damage("You", spell_name, target_desc, final_dmg))
-			_broadcast_combat(CombatLogFormatter.spell_damage(player_name, spell_name, target_desc, final_dmg))
+			if final_dmg > 0:
+				GameLog.log_combat(CombatLogFormatter.spell_damage("You", spell_name, target_desc, final_dmg))
+				_broadcast_combat(CombatLogFormatter.spell_damage(player_name, spell_name, target_desc, final_dmg))
 
 			if target_node.has_method("add_threat"):
-				target_node.add_threat(self, combat_node.generate_threat(final_dmg))
+				target_node.add_threat(self, combat_node.generate_threat(final_dmg if final_dmg > 0 else NO_DAMAGE_THREAT))
+			# "drain_pct": the caster heals for that share of the damage dealt (Life Drain, Death Coil, Harmony Blade).
+			if spell.has("drain_pct") and final_dmg > 0:
+				var drained := combat_node.heal(maxi(1, int(round(final_dmg * float(spell["drain_pct"])))))
+				if drained > 0:
+					GameLog.log_combat("[color=#66ff99]You drain [b]%d[/b] health.[/color]" % drained)
+					_broadcast_combat("[color=#66ff99]%s drains [b]%d[/b] health.[/color]" % [player_name, drained])
+			if spell.has("knockback") and final_dmg > 0:
+				_knock_back(target_node, float(spell["knockback"]))
+			# "self_buff": {"duration", "modifiers"} — a landed hit also buffs the caster (Defensive Strike, Soul Shard).
+			if spell.get("self_buff") is Dictionary and final_dmg > 0:
+				var self_buff: Dictionary = spell["self_buff"]
+				combat_node.apply_effect(spell_name + "_self", float(self_buff.get("duration", 15.0)), self_buff.get("modifiers", {}))
 			if spell.get("interrupt", false):
 				# Earth Strike: cancel a spell the target is casting and hold back its next attack.
 				if target_cn is CombatNode and target_cn.is_casting:
@@ -4194,7 +4261,7 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 				_disable_target(target_node, INTERRUPT_DELAY)
 				GameLog.log_combat("[color=#ffcc66]%s is interrupted.[/color]" % target_desc.capitalize())
 
-			match spell_name:
+			match spell_key:
 				"life_siphon":
 					var heal_pct := randf_range(0.30, 0.70)
 					var heal_amount := int(final_dmg * heal_pct * (1.0 + combat_node.get_modifier("life_drain_heal_mult")))
@@ -4216,19 +4283,22 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 						_broadcast_combat("[color=#8866ff]%s is weakened, their attacks feeble.[/color]" % target_desc.capitalize())
 				"plague_strike":
 					if target_cn is CombatNode:
-						_buff_target(target_node, target_cn, "plague_strike", 8.0, {}, 5, 1.0)
+						var plague_secs := float(spell.get("duration", 8)) if spell.has("effect_amount") else 8.0
+						var plague_tick := maxi(1, int(round(float(spell["effect_amount"]) / plague_secs))) if spell.has("effect_amount") else 5
+						_buff_target(target_node, target_cn, "plague_strike", plague_secs, {}, plague_tick, 1.0)
 						GameLog.log_combat("[color=#77aa44]%s is wracked with plague.[/color]" % target_desc.capitalize())
 						_broadcast_combat("[color=#77aa44]%s is wracked with plague.[/color]" % target_desc.capitalize())
 				"soul_leech":
 					if target_cn is CombatNode:
-						var drained := int(target_cn.max_mana * 0.03)
+						var improved_leech := spell_name == "improved_soul_leech"
+						var drained := int(target_cn.max_mana * (0.05 if improved_leech else 0.03))
 						target_cn.current_mana = maxf(0.0, target_cn.current_mana - drained)
-						var healed := combat_node.heal(int(drained * 0.30))
+						var healed := combat_node.heal(int(drained * (0.50 if improved_leech else 0.30)))
 						if healed > 0:
 							GameLog.log_combat("[color=#66ff99]You leech %d mana from %s, healing yourself for [b]%d[/b].[/color]" % [drained, target_desc, healed])
 							_broadcast_combat("[color=#66ff99]%s leeches %d mana from %s, healing themself for [b]%d[/b].[/color]" % [player_name, drained, target_desc, healed])
 				"improved_disarm":
-					if randf() < 0.40:
+					if randf() < (0.60 if spell_name == "master_disarm" else 0.40):
 						if "attack_timer" in target_node and "attack_cooldown" in target_node:
 							_disable_target(target_node, 2.0)
 						GameLog.log_combat("[color=#ffcc66]You disarm %s, disrupting their attack![/color]" % target_desc)
@@ -4241,7 +4311,7 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 						GameLog.log_combat("[color=#ffcc66]You bellow a challenge — %s's fury turns on you![/color]" % target_desc)
 						_broadcast_combat("[color=#ffcc66]%s bellows a challenge — %s's fury turns to them![/color]" % [player_name, target_desc])
 					elif target_node.has_method("taunt"):
-						target_node.taunt(self, 50.0 if stance_boosts(spell_name) else 1.0)  # Earth Stance: holds it on you harder
+						target_node.taunt(self, 50.0 if stance_boosts(spell_key) else 1.0)  # Earth Stance: holds it on you harder
 						GameLog.log_combat("[color=#ffcc66]You bellow a challenge — %s's fury turns on you![/color]" % target_desc)
 						_broadcast_combat("[color=#ffcc66]%s bellows a challenge — %s's fury turns to them![/color]" % [player_name, target_desc])
 				_:
@@ -4277,10 +4347,20 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 			# _apply_generic_spell_effect (for spells that fall through to
 			# it) broadcast their own detail on top of this.
 			_broadcast_combat(CombatLogFormatter.spell_cast(player_name, spell_name))
-			match spell_name:
+			match spell_key:
 				"shadow_aura":
 					combat_node.apply_effect("shadow_aura", 900.0, {})
 					GameLog.log_combat("[color=#8888ff]Shadows coil around you, throwing off nearby enemies' aim.[/color]")
+				"death_pact":
+					# The "oh no" button: sacrifice a living pet close by to restore 35% of your health.
+					if not is_instance_valid(active_pet) or not (active_pet.get("combat_node") is CombatNode) \
+							or not active_pet.combat_node.is_alive() or global_position.distance_to(active_pet.global_position) > DEATH_PACT_RANGE:
+						GameLog.log_general("Your pet must be alive and within %d m to make a Death Pact." % int(DEATH_PACT_RANGE))
+						return
+					var sacrificed: String = active_pet.pet_name
+					active_pet.die()
+					var pact_healed := combat_node.heal(int(combat_node.max_hp * float(spell.get("heal_pct_max_hp", 0.35))))
+					GameLog.log_combat("[color=#aa66ff]You sacrifice %s, and its life floods into you: [b]%d[/b] health.[/color]" % [sacrificed, pact_healed])
 				"blood_ritual":
 					var cost_hp: int = maxi(1, int(combat_node.max_hp * 0.10))
 					combat_node.current_hp = maxi(1, combat_node.current_hp - cost_hp)
@@ -4350,7 +4430,7 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 					continue
 				if TargetFrame.faction_status(monster) == "Ally":
 					continue
-				if monster.global_position.distance_to(target_node.global_position) <= 4.0:
+				if monster.global_position.distance_to(target_node.global_position) <= _aoe_radius(spell, 4.0):
 					cone_targets.append(monster)
 
 			for hit_target in cone_targets:
@@ -4359,23 +4439,23 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 				var hit_cn = hit_target.get("combat_node")
 				var hit_desc: String = hit_target.get("monster_description") \
 					if hit_target.get("monster_description") != "" else hit_target.get_monster_name()
-				var cone_dmg: int = base_damage + int(combat_node.strength / 2.0)
-				if hit_cn is CombatNode:
-					cone_dmg = combat_node.apply_ac_mitigation(cone_dmg, hit_cn)
-				cone_dmg = max(1, cone_dmg)
-				hit_target.apply_damage(cone_dmg, "physical")
+				# Magic cones used to be computed as physical blows (strength, armour, never halved like other spells).
+				var cone_dmg: int = _compute_spell_damage(base_damage, school, hit_cn) if base_damage > 0 else 0
 
 				# Same networking relay as the "enemy" branch above — each
 				# cone target needs its own check/relay since they're
 				# independent monsters.
 				var hit_is_networked_monster: bool = hit_target is Monster and not hit_target.is_multiplayer_authority()
-				if hit_is_networked_monster and cone_dmg > 0:
-					hit_target.apply_networked_damage.rpc_id(1, cone_dmg, multiplayer.get_unique_id())
-
-				GameLog.log_combat(CombatLogFormatter.spell_damage("You", spell_name, hit_desc, cone_dmg))
-				_broadcast_combat(CombatLogFormatter.spell_damage(player_name, spell_name, hit_desc, cone_dmg))
+				if cone_dmg > 0:
+					hit_target.apply_damage(cone_dmg, "physical" if school == "physical" else "magic")
+					if hit_is_networked_monster:
+						hit_target.apply_networked_damage.rpc_id(1, cone_dmg, multiplayer.get_unique_id())
+					GameLog.log_combat(CombatLogFormatter.spell_damage("You", spell_name, hit_desc, cone_dmg))
+					_broadcast_combat(CombatLogFormatter.spell_damage(player_name, spell_name, hit_desc, cone_dmg))
 				if hit_target.has_method("add_threat"):
-					hit_target.add_threat(self, combat_node.generate_threat(cone_dmg))
+					hit_target.add_threat(self, combat_node.generate_threat(cone_dmg if cone_dmg > 0 else NO_DAMAGE_THREAT))
+				if spell.has("knockback") and cone_dmg > 0:
+					_knock_back(hit_target, float(spell["knockback"]))
 				if hit_cn is CombatNode:
 					# Data-driven per the spell's own effect_type — was
 					# previously hardcoded to always apply Gravechill's slow
@@ -4415,7 +4495,9 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 			# value — that's why this is gated on player_class rather than
 			# changing the generic fallback everyone else also falls
 			# through below.
-			if player_class == "Troubadour":
+			# Troubadour songs, and any group spell with an "aoe_radius" (group heals such as Holy Light or Meditation), reach
+			# every ally that close to the caster instead of one.
+			if player_class == "Troubadour" or spell.has("aoe_radius"):
 				_cast_troubadour_group_song(spell_name, spell, effect_type, base_damage, display_name)
 				return
 
@@ -4438,7 +4520,7 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 			# already sees.
 			var ally_bcast_desc: String = player_name if ally_target == self else ally_desc
 
-			match spell_name:
+			match spell_key:
 				"spirit_mend":
 					if ally_cn is CombatNode:
 						var healed: int = _heal_target(ally_target, ally_cn, base_damage)
@@ -4482,8 +4564,21 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 					continue
 				if TargetFrame.faction_status(monster) == "Ally":
 					continue
-				if global_position.distance_to(monster.global_position) <= 8.0:
+				if global_position.distance_to(monster.global_position) <= _aoe_radius(spell, 8.0):
 					pbaoe_targets.append(monster)
+			# "ally_heal": the burst also heals you and every ally in the same radius (Radiant Burst).
+			if spell.has("ally_heal"):
+				var healed_count := 0
+				var mended: Array = [self]
+				for node in get_tree().get_nodes_in_group("player") + get_tree().get_nodes_in_group("pets"):
+					if is_instance_valid(node) and not mended.has(node) and global_position.distance_to(node.global_position) <= _aoe_radius(spell, 8.0):
+						mended.append(node)
+				for node in mended:
+					var ally_cn = node.get("combat_node")
+					if ally_cn is CombatNode and ally_cn.is_alive() and _heal_target(node, ally_cn, int(spell["ally_heal"])) > 0:
+						healed_count += 1
+				if healed_count > 0:
+					GameLog.log_combat("[color=#66ff99]Radiant light mends %d %s.[/color]" % [healed_count, "ally" if healed_count == 1 else "allies"])
 			if pbaoe_targets.is_empty():
 				GameLog.log_general("Nothing is close enough to hit with [b]%s[/b]." % display_name)
 				return
@@ -4493,15 +4588,18 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 				var hit_cn = hit_target.get("combat_node")
 				var hit_desc: String = hit_target.get("monster_description") \
 					if hit_target.get("monster_description") != "" else hit_target.get_monster_name()
-				var pbaoe_dmg: int = _compute_spell_damage(base_damage, school, hit_cn)
-				hit_target.apply_damage(pbaoe_dmg, "physical" if school == "physical" else "magic")
+				var pbaoe_dmg: int = _compute_spell_damage(base_damage, school, hit_cn) if base_damage > 0 else 0
 				var hit_is_networked_monster: bool = hit_target is Monster and not hit_target.is_multiplayer_authority()
-				if hit_is_networked_monster and pbaoe_dmg > 0:
-					hit_target.apply_networked_damage.rpc_id(1, pbaoe_dmg, multiplayer.get_unique_id())
-				GameLog.log_combat(CombatLogFormatter.spell_damage("You", spell_name, hit_desc, pbaoe_dmg))
-				_broadcast_combat(CombatLogFormatter.spell_damage(player_name, spell_name, hit_desc, pbaoe_dmg))
+				if pbaoe_dmg > 0:
+					hit_target.apply_damage(pbaoe_dmg, "physical" if school == "physical" else "magic")
+					if hit_is_networked_monster:
+						hit_target.apply_networked_damage.rpc_id(1, pbaoe_dmg, multiplayer.get_unique_id())
+					GameLog.log_combat(CombatLogFormatter.spell_damage("You", spell_name, hit_desc, pbaoe_dmg))
+					_broadcast_combat(CombatLogFormatter.spell_damage(player_name, spell_name, hit_desc, pbaoe_dmg))
 				if hit_target.has_method("add_threat"):
-					hit_target.add_threat(self, combat_node.generate_threat(pbaoe_dmg))
+					hit_target.add_threat(self, combat_node.generate_threat(pbaoe_dmg if pbaoe_dmg > 0 else NO_DAMAGE_THREAT))
+				if spell.has("knockback") and pbaoe_dmg > 0:
+					_knock_back(hit_target, float(spell["knockback"]))
 				if hit_cn is CombatNode:
 					_apply_generic_spell_effect(effect_type, spell, combat_node, hit_cn, hit_target, hit_desc)
 					if not hit_cn.is_alive():
@@ -4574,21 +4672,6 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 							hit_target.die()
 				falloff *= 0.7
 
-		# No real target at all — utility spells like a short teleport
-		# (Blink, Swift Step). Distance comes from the spell's own "range"
-		# field (e.g. "15m") so it stays data-driven per spell.
-		"none":
-			if spell.get("spell_type", "") == "teleport":
-				var blink_distance: float = 10.0
-				var range_str: String = str(spell.get("range", ""))
-				if range_str.ends_with("m"):
-					blink_distance = range_str.trim_suffix("m").to_float()
-				var forward: Vector3 = -global_transform.basis.z
-				global_position += forward * blink_distance
-				GameLog.log_combat("[color=#8888ff]You blink forward in a flash.[/color]")
-			else:
-				GameLog.log_combat("You use [b]%s[/b]." % display_name)
-
 
 # Shared physical/magic damage math, factored out of the "enemy" branch above
 # so the newer "pbaoe"/"chain" branches don't duplicate it a third/fourth time.
@@ -4600,8 +4683,138 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 # earth_totem's existing radius-scan exactly, just generalized to run
 # through _apply_generic_spell_effect() per recipient instead of one
 # hardcoded modifier.
+# Pickpocket (Shadowblade, Troubadour, Woodstalker; improved/master versions raise the odds): steals one thing the target
+# would drop — a roll of its own loot table — or a few coins from a humanoid/undead with an empty roll. The chance is
+# "pick_chance", "pick_hidden_chance" while you are hidden, and certain from behind the target, even mid-fight. A failed
+# attempt reveals you and turns the target on you. Each enemy can be picked once per player.
+func _pickpocket(target: Node, spell: Dictionary) -> void:
+	var desc: String = TargetFrame.display_name(target)
+	var picked_key := "picked_by_%d" % (multiplayer.get_unique_id() if multiplayer.has_multiplayer_peer() else 1)
+	if target.has_meta(picked_key):
+		GameLog.log_general("You've already emptied %s's pockets." % desc)
+		return
+	var hidden: bool = combat_node.is_stealthed() or combat_node.is_currently_invisible()
+	var chance := float(spell.get("pick_hidden_chance" if hidden else "pick_chance", 0.4))
+	if _is_behind(target):
+		chance = 1.0
+	if randf() >= chance:
+		GameLog.log_combat("[color=#ff8866]You fumble at %s's pockets — it notices you![/color]" % desc)
+		combat_node.break_invisibility()
+		if target is Monster and not target.is_multiplayer_authority():
+			target.apply_networked_taunt.rpc_id(1, multiplayer.get_unique_id())
+		elif target.has_method("taunt"):
+			target.taunt(self, 1.0)
+		return
+	target.set_meta(picked_key, true)
+	var coin_bonus := float(spell.get("pick_coin_bonus", 0.0))
+	var times := 2 if randf() < float(spell.get("pick_twice_chance", 0.0)) else 1
+	for i in times:
+		var drops: Array = target.roll_loot() if target.has_method("roll_loot") else []
+		if drops.is_empty():
+			if str(target.get("category")) in ["humanoid", "undead"]:
+				drops = [{"item": "copper_coin", "quantity": randi_range(2, 6) * maxi(1, int(target.get("level")))}]
+			else:
+				GameLog.log_general("You find nothing worth stealing on %s." % desc)
+				return
+		var drop: Dictionary = drops.pick_random()
+		var item_id := str(drop["item"])
+		var qty := int(drop.get("quantity", 1))
+		if Monster.CURRENCY_MAP.has(item_id):
+			qty = maxi(1, int(round(qty * (1.0 + coin_bonus))))
+			Global.grant_currency(Monster.CURRENCY_MAP[item_id], qty)
+			Global.play_coin_sound()
+			GameLog.log_general("[color=#ffd966]You lift %d %s from %s.[/color]" % [qty, str(Monster.CURRENCY_MAP[item_id]).capitalize(), desc])
+		elif Inventory.add_item(item_id, qty):
+			var item_name := str(Inventory.get_item_definition(item_id).get("name", item_id.replace("_", " ").capitalize()))
+			GameLog.log_general("[color=#ffd966]You lift %s from %s.[/color]" % [item_name, desc])
+		else:
+			GameLog.log_general("You find something on %s, but your bags are full." % desc)
+
+
+# True when this player stands behind `target` (outside a 120° arc in front of it) — Backstab's rule.
+func _is_behind(target: Node) -> bool:
+	if not (target is Node3D):
+		return false
+	var to_me: Vector3 = global_position - (target as Node3D).global_position
+	to_me.y = 0.0
+	var facing: Vector3 = -(target as Node3D).global_transform.basis.z
+	facing.y = 0.0
+	return to_me.length() > 0.01 and facing.length() > 0.01 and facing.normalized().dot(to_me.normalized()) <= -0.5
+
+
+# Pushes a monster `distance` metres straight away from this player (monster3d.gd knockback()); the server moves it.
+func _knock_back(target: Node, distance: float) -> void:
+	if not (target is Monster) or not is_instance_valid(target):
+		return
+	if target.is_multiplayer_authority():
+		target.knockback(global_position, distance)
+	else:
+		target.apply_networked_knockback.rpc_id(1, global_position, distance)
+
+
+# A spell's "aoe_radius" ("5m" or 5) in metres, else `fallback`.
+static func _aoe_radius(spell: Dictionary, fallback: float) -> float:
+	var text := str(spell.get("aoe_radius", "")).strip_edges().to_lower().trim_suffix("m")
+	return text.to_float() if text.is_valid_float() else fallback
+
+
+# Learns a spell (from a scroll). An upgrade ("upgrades" in player_spells.json: Improved Flurry -> Flurry of Blows) REPLACES
+# the spell it improves: in the spell book, and on every action bar slot that held it. It can only be learned once you
+# are the level to cast it (the base would otherwise be gone before the upgrade works). Returns whether it was learned.
+func learn_spell(spell_name: String) -> bool:
+	var info: Dictionary = _spell_by_name.get(spell_name, {})
+	var shown := spell_display_name(spell_name)
+	if known_spells.has(spell_name):
+		GameLog.log_general("You already know [b]%s[/b]." % shown)
+		return false
+	for known in known_spells:
+		if SpellInfo.counts_as(str(known)).has(spell_name):
+			GameLog.log_general("You already know [b]%s[/b], which is stronger." % spell_display_name(str(known)))
+			return false
+	var replaces: Array = known_spells.filter(func(k): return SpellInfo.counts_as(spell_name).has(k))
+	var needed := SpellInfo.required_level(info, player_class)
+	var level := int(Global.player_data.get("player_level", 1))
+	if not replaces.is_empty() and level < needed:
+		GameLog.log_general("You must be level %d to learn [b]%s[/b] (it replaces %s)." % [needed, shown, spell_display_name(str(replaces[0]))])
+		return false
+	for old in replaces:
+		known_spells.erase(old)
+		_spell_cooldowns.erase(old)
+		for slot in action_bar_slots:
+			if slot is Dictionary and slot.get("type", "") == "spell" and slot.get("name", "") == old:
+				slot["name"] = spell_name
+	known_spells.append(spell_name)
+	Global.player_data["known_spells"] = known_spells
+	Global.player_data["action_bar_slots"] = action_bar_slots
+	combat_node._stats_dirty = true  # passive upgrades change derived stats (block, crit)
+	Global.save_player_data_to_file()
+	if replaces.is_empty():
+		GameLog.log_general("[color=#ffdd44]You have learned [b]%s[/b]![/color]" % shown)
+	else:
+		GameLog.log_general("[color=#ffdd44]You have learned [b]%s[/b]! It replaces %s.[/color]" % [shown, spell_display_name(str(replaces[0]))])
+	for bar in get_tree().root.find_children("*", "ActionBar", true, false):
+		bar._refresh_slots()
+	return true
+
+
+# Blink-style teleports: "range" metres the way you face (Chaos Rift: a random direction), stopping at anything solid.
+# Chaos Rift also has a 10% chance of +15% run speed for 4 s.
+func _teleport(spell_name: String, spell: Dictionary) -> void:
+	var distance: float = spell_range_m(spell)
+	var direction := -global_transform.basis.z
+	if spell_name == "chaos_rift":
+		direction = Vector3.FORWARD.rotated(Vector3.UP, randf() * TAU)
+	direction.y = 0.0
+	move_and_collide(direction.normalized() * distance)
+	GameLog.log_combat("[color=#8888ff]You blink away in a flash.[/color]")
+	_broadcast_combat("[color=#8888ff]%s blinks away in a flash.[/color]" % player_name)
+	if spell_name == "chaos_rift" and randf() < 0.10:
+		combat_node.apply_effect("chaos_rift", 4.0, {"move_speed_bonus": 0.15})
+		GameLog.log_combat("[color=#88ffcc]The rift's energy quickens your step.[/color]")
+
+
 func _cast_troubadour_group_song(spell_name: String, spell: Dictionary, effect_type: String, base_damage: int, display_name: String) -> void:
-	var radius: float = float(spell.get("aoe_radius", 8.0))
+	var radius: float = _aoe_radius(spell, 8.0)
 	var recipients: Array = [self]
 	for node in get_tree().get_nodes_in_group("player") + get_tree().get_nodes_in_group("pets") + get_tree().get_nodes_in_group("npc_guard"):
 		if is_instance_valid(node) and node != self and global_position.distance_to(node.global_position) <= radius:
@@ -4613,8 +4826,19 @@ func _cast_troubadour_group_song(spell_name: String, spell: Dictionary, effect_t
 		if not (recipient_cn is CombatNode):
 			continue
 		var recipient_desc: String = "yourself" if recipient == self else TargetFrame.display_name(recipient)
-		if _apply_generic_spell_effect(effect_type, spell, combat_node, recipient_cn, recipient, recipient_desc):
+		# "self_modifiers": the caster gets different modifiers from the rest (Commanding Presence: the group sheds threat,
+		# the Blademaster draws more).
+		var effect_spell := spell
+		if recipient == self and spell.get("self_modifiers") is Dictionary:
+			effect_spell = spell.duplicate()
+			effect_spell["modifiers"] = spell["self_modifiers"]
+		if _apply_generic_spell_effect(effect_type, effect_spell, combat_node, recipient_cn, recipient, recipient_desc):
 			applied_any = true
+	# "caster_buff": {"duration", "modifiers"} — an extra effect on the caster alone (Rallying Cry's armor).
+	if spell.get("caster_buff") is Dictionary:
+		var caster_buff: Dictionary = spell["caster_buff"]
+		combat_node.apply_effect(spell_name + "_self", float(caster_buff.get("duration", 15.0)), caster_buff.get("modifiers", {}))
+		applied_any = true
 
 	if not applied_any:
 		GameLog.log_combat("[color=#ffdd88]You use [b]%s[/b]! Your battle cry fills the air.[/color]" % display_name)
@@ -4717,6 +4941,13 @@ func _apply_generic_spell_effect(effect_type: String, spell: Dictionary, caster_
 	# "cure"/"absorb" are beneficial-or-neutral and never resistable this way.
 	const NEGATIVE_EFFECT_TYPES := ["debuff", "dot", "snare", "stun", "fear",
 		"charm", "mesmerize", "confuse", "root", "blind", "silence"]
+	# "affects_only": "undead" — the effect only takes hold on that monster category (Turn Undead).
+	if spell.has("affects_only") and target_node != self and str(target_node.get("category")) != str(spell["affects_only"]):
+		_log_effect("[color=#88ccff]%s is unaffected.[/color]" % target_desc.capitalize())
+		return false
+	# "effect_chance": 0.1 — the effect only takes hold that often (Smite's blind, Entropic Blast's stun). A miss is quiet.
+	if spell.has("effect_chance") and target_node != self and randf() >= float(spell["effect_chance"]):
+		return true
 	if effect_type in NEGATIVE_EFFECT_TYPES:
 		if effect_type in ["stun", "fear", "charm", "mesmerize", "confuse", "root", "snare", "blind", "silence"] and target_cn.is_cc_immune(effect_type):
 			_log_effect("[color=#88ccff]%s is immune.[/color]" % target_desc.capitalize())
@@ -4775,6 +5006,9 @@ func _apply_generic_spell_effect(effect_type: String, spell: Dictionary, caster_
 		"dot":
 			if duration <= 0.0:
 				return false
+			if str(spell.get("spell_school", "")) == "poison" and caster_cn.has_passive("enhanced_poison_making"):
+				duration *= 1.25
+				magnitude = int(round(magnitude * 1.25 * 1.05))  # the same damage per second for longer, plus 5%
 			var ticks := maxi(1, int(round(duration)))
 			var per_tick := maxi(1, int(round(float(magnitude) / ticks)))
 			# "stacks": N lets the same DoT land up to N times at once (Striking Serpent's venom); each stack is its own effect.
@@ -5166,6 +5400,7 @@ const PET_SCENES := {
 	"raised_skeleton": "res://Scenes/pet_minion.tscn",
 	"phantasmal_echo": "res://Scenes/phantasmal_echo_pet.tscn",
 	"spirit_of_the_woods": "res://Scenes/wildspeaker_pet.tscn",
+	"summoned": "res://Scenes/summoned_pet.tscn",  # every other summon: a borrowed monster model (summoned_pet.gd)
 }
 
 # Gravecaller's raise_skeleton spell is explicitly the same skeleton thrall
@@ -5183,13 +5418,26 @@ const PET_HP_PERCENT_OVERRIDES := {
 # of the pet — previously a remote player's pet was invisible to everyone
 # else. _build_pet() below (the spawn_function) does the actual node
 # construction, running on every peer alike.
-func _summon_pet(pet_type: String, preset_name: String = "") -> void:
+func _summon_pet(pet_type: String, preset_name: String = "", extra: Dictionary = {}) -> void:
 	if is_instance_valid(active_pet):
 		active_pet.queue_free()
 	if is_instance_valid(active_pet_frame):
 		active_pet_frame.queue_free()
 
-	$PetSpawner.spawn({"pet_type": pet_type, "preset_name": preset_name})
+	var data := {"pet_type": pet_type, "preset_name": preset_name}
+	data.merge(extra)
+	$PetSpawner.spawn(data)
+
+
+# A summon spell with a "pet_kind" (Summon Ghoul, Call Companion, Summon Wraith...): see summoned_pet.gd.
+func _summon_from_spell(spell: Dictionary) -> void:
+	_summon_pet("summoned", "", {
+		"kind": str(spell.get("pet_kind", "wolf")),
+		"hp_pct": float(spell.get("pet_hp_pct", 0.4)),
+		"duration": float(spell.get("pet_duration", 0.0)),
+		"damage_mult": float(spell.get("pet_damage_mult", 1.0)),
+		"crit_bonus": float(spell.get("pet_crit_bonus", 0.0)),
+	})
 
 
 func _summon_spectral_minion(preset_name: String = "") -> void:
@@ -5225,6 +5473,8 @@ func _build_pet(data: Dictionary) -> Node:
 	pet.set_multiplayer_authority(get_multiplayer_authority())
 	if PET_HP_PERCENT_OVERRIDES.has(pet_type):
 		pet.hp_percent_of_caster = PET_HP_PERCENT_OVERRIDES[pet_type]
+	if pet is SummonedPet:
+		pet.configure(data)
 	pet.setup(self, preset_name)
 	active_pet = pet
 	pet.dismissed.connect(_on_pet_gone)
@@ -5234,9 +5484,15 @@ func _build_pet(data: Dictionary) -> Node:
 	if is_multiplayer_authority():
 		_apply_pet_gear_bonus()
 
-		Global.player_data["pet_active"] = true
+		# A timed summon (a 20-second wolf) isn't brought back at the next login; a lasting one is, with its spawn data.
+		var timed: bool = pet is SummonedPet and pet.is_timed()
+		Global.player_data["pet_active"] = not timed
 		Global.player_data["pet_type"] = pet_type
 		Global.player_data["pet_name"] = pet.pet_name
+		var spawn_extra := data.duplicate()
+		spawn_extra.erase("pet_type")
+		spawn_extra.erase("preset_name")
+		Global.player_data["pet_spawn"] = spawn_extra
 		Global.save_player_data_to_file()
 		_apply_saved_pet_mode(pet)
 
@@ -5251,6 +5507,8 @@ func _build_pet(data: Dictionary) -> Node:
 				GameLog.log_general("[color=#aa88ff]You call forth a Phantasmal Echo — %s drifts to your side, ready to mend and strike.[/color]" % pet.pet_name)
 			"raised_skeleton":
 				GameLog.log_general("[color=#aa88ff]You tear %s from the grave to fight at your side.[/color]" % pet.pet_name)
+			"summoned":
+				GameLog.log_general("[color=#aa88ff]%s answers your call.[/color]" % pet.pet_name)
 			_:
 				GameLog.log_general("[color=#aa88ff]You invoke Morthan's Call — %s rises to fight at your side.[/color]" % pet.pet_name)
 
@@ -5306,7 +5564,7 @@ func _on_pet_died() -> void:
 # whatever it was at logout — pets aren't saved mid-fight, only "had one out."
 func _restore_pet_if_saved() -> void:
 	if Global.player_data.get("pet_active", false):
-		_summon_pet(Global.player_data.get("pet_type", "spectral_minion"), Global.player_data.get("pet_name", ""))
+		_summon_pet(Global.player_data.get("pet_type", "spectral_minion"), Global.player_data.get("pet_name", ""), Global.player_data.get("pet_spawn", {}))
 
 
 func _default_action_bar_slots() -> Array:
@@ -5337,6 +5595,12 @@ func use_skill(skill_name: String) -> void:
 # pattern as every other HUD bar polling player state.
 func _tick_spell_cast(delta: float) -> void:
 	if not combat_node.is_casting:
+		return
+	# Moving breaks a cast (walking, being knocked back, falling) — except for a Troubadour, whose songs are sung on the move.
+	if player_class != "Troubadour" and Vector2(global_position.x - _cast_start_pos.x, global_position.z - _cast_start_pos.z).length() > CAST_MOVE_TOLERANCE:
+		GameLog.log_general("[color=#ff8866]You moved, and your spell fizzles.[/color]")
+		Sfx.play("spell_fizzle")
+		_stop_all_casting_except_songs()
 		return
 	combat_node.current_cast_time += delta
 	if combat_node.current_cast_time < combat_node.total_cast_time:
@@ -5413,7 +5677,7 @@ func _tick_active_spell_effects(_delta: float) -> void:
 			if global_position.distance_to(monster.global_position) <= 10.0:
 				var mob_cn = monster.get("combat_node")
 				if mob_cn is CombatNode:
-					_buff_target(monster, mob_cn, "shadow_aura_debuff", 1.5, {"hit_chance": -5.0})
+					_buff_target(monster, mob_cn, "shadow_aura_debuff", 1.5, {"hit_chance": -5.0, "damage_mult": -0.05} if combat_node.has_passive("improved_shadow_aura") else {"hit_chance": -5.0})
 
 
 # How far a skill can be trained at the character's current level (Data/combat_balance.json: skill_cap_per_level,
@@ -5518,6 +5782,10 @@ func _resolve_melee_attack(target_cn: CombatNode) -> Dictionary:
 # elemental stances): procs on auto-attack hits, abilities it boosts, a benefit for nearby group members and a visible aura.
 const INTERRUPT_DELAY := 1.5      # seconds an interrupting blow holds back the target's next attack
 const STANCE_BOOST := 0.25          # an ability of the stance's own element is this much stronger
+const NO_DAMAGE_THREAT := 10
+const DEATH_PACT_RANGE := 15.0      # the pet must be this close to be sacrificed
+const CAST_MOVE_TOLERANCE := 0.25   # metres a caster may drift (a nudge, a slope) before a cast in progress breaks
+var _cast_start_pos := Vector3.ZERO        # threat from a spell that lands without a hit (a slow, a stun, a curse)
 const PROC_STUN_IMMUNE_MS := 15000  # a monster stunned by a proc can't be proc-stunned again for this long
 const STANCE_GROUP_RANGE := 10.0    # group members this close get the stance's group benefit
 const STANCE_GROUP_TICK := 2.0

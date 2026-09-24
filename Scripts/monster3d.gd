@@ -389,6 +389,7 @@ func _ready() -> void:
 		# A variant (a named mob, a blighted spider) reuses another type's model: "model_from" is that type, "model_scale" makes it
 		# bigger or smaller, "tint" ([r, g, b], multiplied into the texture) recolours it. No new art needed.
 		model_from      = str(stats.get("model_from", ""))
+		knockback_immune = bool(stats.get("knockback_immune", false))
 		model_scale     = float(stats.get("model_scale", 1.0))
 		var tint_arr = stats.get("tint", null)
 		if typeof(tint_arr) == TYPE_ARRAY and tint_arr.size() >= 3:
@@ -725,6 +726,15 @@ func _physics_process(delta: float) -> void:
 		return
 
 	if current_state == State.DEAD:
+		return
+
+	# Knocked back: slide away from the blow (walls stop it), nothing else happens meanwhile.
+	if _knockback_time > 0.0:
+		_knockback_time -= delta
+		velocity.x = _knockback_velocity.x
+		velocity.z = _knockback_velocity.z
+		velocity.y = 0.0 if is_on_floor() else velocity.y - KNOCKBACK_GRAVITY * delta
+		move_and_slide()
 		return
 
 	# Update attack cooldown
@@ -1683,6 +1693,35 @@ func apply_networked_damage(amount: int, attacker_peer_id: int) -> void:
 
 
 # A non-host player's Taunt: threat lives only in the server's aggro_table, so the caster's own puppet copy of the monster cannot be
+# Knockback (Power Strike, Earth Strike, Titan's Strike: "knockback" metres in player_spells.json): pushes the monster
+# straight away from `from` over KNOCKBACK_TIME. Only the authority moves it; a client's puppet asks the server
+# (apply_networked_knockback). monsters.json "knockback_immune": true opts a monster out.
+const KNOCKBACK_TIME := 0.25
+const KNOCKBACK_GRAVITY := 20.0
+var knockback_immune := false
+var _knockback_time := 0.0
+var _knockback_velocity := Vector3.ZERO
+
+func knockback(from: Vector3, distance: float) -> void:
+	if not is_multiplayer_authority() or current_state == State.DEAD or knockback_immune or distance <= 0.0:
+		return
+	var away := global_position - from
+	away.y = 0.0
+	if away.length() < 0.01:
+		away = global_transform.basis.z
+		away.y = 0.0
+	_knockback_velocity = away.normalized() * (distance / KNOCKBACK_TIME)
+	_knockback_time = KNOCKBACK_TIME
+	if combat_node and combat_node.is_casting:
+		combat_node.is_casting = false  # being moved breaks a cast (monsters don't cast yet; this is the rule for when they do)
+		combat_node.current_cast_time = 0.0
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func apply_networked_knockback(from: Vector3, distance: float) -> void:
+	knockback(from, clampf(distance, 0.0, 10.0))
+
+
 # taunted — the request goes to the server, which sets the caster's threat just above the highest (see taunt()).
 @rpc("any_peer", "call_remote", "reliable")
 func apply_networked_taunt(attacker_peer_id: int) -> void:

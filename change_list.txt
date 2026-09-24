@@ -1376,3 +1376,148 @@ set_gm_password.sh — set or change the game-master password on the game server
 
   Known issue, not new: menu connections to a server, including the online checks the server list already does, print a lot of harmless
   monster-replication errors to the console. The server sends monster data to every menu connection. It's easy to fix separately if you want.
+
+
+   Problems that affected every class (fixed in the engine)
+  - Slows, curses, stuns and fears did damage. Spell power was added even to 0-damage spells, so they all hit for about 15. They no longer hit;
+    they add a little threat instead.
+  - "Heal your group" spells healed one person. Holy Light, Prayer of Healing, Wild Growth, Tranquility and the mass heals now reach every ally
+    in range. Aetherfist's Meditation and Mend Wounds had the same bug; they now reach 10 m.
+  - Area spells ignored their size. Point-blank spells always reached 8 m and cones 4 m. Enemy spells with an area, like Fireball, Hurricane and
+    Plague Cloud, now also hit monsters near the target.
+  - Magic cones were treated as sword swings. Gravechill and Sonic Blast used strength and armour instead of spell damage.
+  - Drain spells healed the enemy. Life Drain, Death Coil and Harmony Blade now heal the caster.
+  - Chance effects always happened, for their full duration. "10% chance to blind" now means 10%; in testing, Smite blinded 7 of 60 casts.
+  - Blink and Chaos Rift did nothing. They now teleport 10 m and 8 m.
+  - Passives could be "cast". They now just work: Weapon Mastery, Enhanced Parry, Improved and Enhanced Riposte, Improved Stealth, Enhanced
+    Poison Making.
+  - Turn Undead now only affects undead. Holy Strike and Smite Evil do extra damage to undead.
+
+  Data fixes, about 180 spells
+  - Melee strikes now have 3 m reach instead of 15 m.
+  - About 20 self-buffs were aimed at enemies and just hit them for a small amount. Tactical Stance, Battle Focus, Sacred Oath, Evasion, Soul
+    Shard, Vanish and the Bear, Cat and Hawk forms are now real buffs.
+  - Hunter's Mark buffed the enemy; it now makes the target take 5% more melee damage. Sunder Armor, Slow, Disorient and Deadly Poison also do
+    what they describe now.
+  - Heals over time healed about a fifth of their stated rate. Damage-over-time spells repeated their hit damage. Both follow their descriptions
+    now.
+  - Healing Wave healed monsters. Hex, Polymorph and Pacify now put the target to sleep. Stuns and roots last their stated time.
+  - Some openers killed a level-1 monster in one hit, so I lowered them: Power Strike 70→35, Aimed Shot 80→40, Backstab 100→60, Ambush 120→70.
+    Two nukes were far too weak, so I raised them: Shadow Bolt 10→45, Chaos Bolt 20→45.
+  - One scaling fact behind these numbers: player spells are halved (player_spell_damage_mult 0.5) but physical abilities aren't. A melee
+    ability listed at 35 and a spell listed at 45 both land for about 35–40.
+
+
+
+  Questions for you
+  1. Cast times: melee classes' abilities still take 2 s to cast; Aetherfist's are 1.5 s. Should Blademaster, Shadowblade, Voidknight and
+     Lightsworn abilities also be 1.5 s, or instant?
+  2. "Improved / Master" spells (89): these describe upgrades to an earlier spell, for example "Flurry of Blows hits 4 times". They're separate
+     castable spells right now. Should they become passives that upgrade the original spell, or stay as separate spells?
+  3. Summons that aren't built: Ghoul, the Woodstalker's wolf, hawk and bear, and Spiritual Weapon. They need models. Should I build them now
+     with existing monster models (skeleton for the Ghoul, wild dog for the wolf)?
+  4. Pickpocket and Master Stealth: there's no pickpocketing in the game, so drop these or build pickpocketing?
+  5. Unclear spells:
+     - Commanding Presence lowers the Blademaster's own threat, which is odd for a tank. Was it meant to raise it?
+     - Rallying Cry restored stamina, which isn't used; I made it restore 5% health.
+     - Siphon Mana won't work because monsters have no mana.
+     - Death Pact sacrifices your minion. Guardian Spirit cheats death. Beacon of Hope increases healing received. Enhanced Block's effect
+       doesn't apply. Each needs new mechanics.
+  6. Troubadour songs cost no mana and repeat every 5 s, so Piercing Note hits for about 46 every 5 s for free. Is that intended?
+
+ 1. Melee abilities are instant. 51 abilities changed: every strike or melee skill within 5 m, the physical point-blank attacks and the taunts,
+  the Aetherfist's strikes included.
+
+  2. Upgrades replace the original.
+  - Learning: learning "Improved Flurry" swaps out Flurry of Blows in the spellbook and on the action bar. You must be the upgrade's level
+    first; below it, the scroll says "You must be level 9 to learn Improved Flurry (it replaces Flurry of Blows)".
+  - Icons: the original's icon, tinted gold for Improved/Greater and violet for Master.
+  - What each does: 73 upgrades, each the original spell plus its stated improvement. An upgrade still counts as the original for passives,
+    special spell code and stance boosts. The Master passives work too (Block, Parry, Riposte, Weapon Mastery, Stealth).
+  - Scrolls: 74 new scrolls at 10 copper × level. Xalvyr sells the dark classes' scrolls and Ilsabet sells everyone else's.
+
+  3. All 18 summons are built with temporary models; they're recolored and resized copies of monster models:
+
+  ┌──────────────────┬──────────────────────────────┐
+  │  Missing model   │           Stand-in           │
+  ├──────────────────┼──────────────────────────────┤
+  │ Wolf             │ Desert scavenger ×1.5        │
+  ├──────────────────┼──────────────────────────────┤
+  │ Hawk             │ Bat                          │
+  ├──────────────────┼──────────────────────────────┤
+  │ Bear             │ Desert scavenger ×2.2, brown │
+  ├──────────────────┼──────────────────────────────┤
+  │ Panther          │ Desert scavenger ×1.7, dark  │
+  ├──────────────────┼──────────────────────────────┤
+  │ Ghoul            │ Mummy, green                 │
+  ├──────────────────┼──────────────────────────────┤
+  │ Abomination      │ Bandit ×1.35, green          │
+  ├──────────────────┼──────────────────────────────┤
+  │ Wraith           │ Ghost, violet                │
+  ├──────────────────┼──────────────────────────────┤
+  │ Shade            │ Ghost, dark                  │
+  ├──────────────────┼──────────────────────────────┤
+  │ Spiritual Weapon │ Ghost, gold                  │
+  └──────────────────┴──────────────────────────────┘
+
+  - The animal stand-ins have no animations.
+  - Verdant Call, Wild Call and Wild Legion describe 2–3 animals, but you only get one because there's one pet at a time.
+  - Timed summons fade out and aren't restored at login; lasting ones are.
+  - Beast Bond now buffs your companion.
+
+  4. Pickpocketing is an instant ability all Shadowblades, Troubadours and Woodstalkers have; existing characters get it on login.
+  - Chance: 40% normally, 70% while hidden, and always from behind, even mid-fight. In testing, 73 of 200 front attempts worked, as intended.
+  - What you get: something the monster would drop, or a few coins from humanoids and undead.
+  - On a fail: you're revealed and the monster attacks you.
+  - Limit: each monster can be picked once.
+  - Upgrades: the Improved and Master versions raise the odds, and Master can steal twice.
+
+  Also fixed along the way: attacking now reveals you from Vanish, Shadow Cloak and Camouflage. Before, only Invisibility ended.
+
+  Commands list: the in-game list already had G and the GM commands. The tester guide now has a full, collapsible "Every control and chat
+  command" list copied from the in-game tables, plus G in the key highlights. I republished the tester page at the same link: ⧉
+  https://claude.ai/artifact/GJACXeD3LDGRqRsUrWEgc6. That also puts the account-login steps live for testers, so they'll show before the account
+  update reaches the server if it hasn't yet. Memory saved: any new or changed command or shortcut updates the in-game list, the tester guide
+  and the change-log reference.
+
+  5. The unclear spells, for discussion:
+  - Commanding Presence (Blademaster 6): it says "reduces enemy aggro on the Blademaster by 10%", the opposite of what a tank wants. I'd flip it
+    to +10% threat for 15 minutes, or make it a group buff.
+  - Rallying Cry (Blademaster 4): it restored stamina, which does nothing in the game. It now heals 5% health in 10 m. Is a small group heal on
+    a warrior right, or would you rather it give damage or armour?
+  - Siphon Mana (Gravecaller 4): it drains enemy mana, but monsters have none, so it can never work. Options: drain health into your mana
+    instead, or restore mana from a corpse.
+  - Death Pact (Gravecaller 8): it sacrifices your minion to restore 20% health and mana. That's buildable now that pets are general. Should the
+    pet have to be alive and nearby?
+  - Guardian Spirit (Lightmender 8): "absorbs fatal damage once". That needs a cheat-death mechanic: a killing blow leaves the ally at 1 HP and
+    uses up the effect. It's buildable.
+  - Beacon of Hope (Lightsworn 8): "+10% healing received". Healing received isn't tracked yet; it's a small engine addition.
+  - Enhanced Block (Lightsworn 5): "block reduces magic damage, lasts longer". Monsters don't cast spells and blocks have no duration, so it's a
+    placeholder passive (+5% block chance). Keep it like that, or replace it?
+
+      The other items:
+  - Commanding Presence: a 15-minute group buff. Allies within 10 m draw 10% less threat; the Blademaster draws 15% more.
+  - Rallying Cry: heals you and allies within 10 m for 5% of their health, and gives the Blademaster +10 armor for 15 seconds. In the test,
+    armor went from 29 to 39.
+  - Siphon Essence (renamed from Siphon Mana): drains 30 mana if the target has mana. No monster has mana today, so against monsters it drains
+    life instead, and all of it heals you. The internal name is unchanged so existing saves keep the spell.
+  - Death Pact: your pet must be alive and within 15 m. It's sacrificed and you get 35% of your health back. I gave it a 60-second recast so it
+    stays an emergency button. If the pet isn't there, you're told so, but the mana and recast are still spent.
+  - Guardian Spirit: cast on an ally, the first killing blow they take within 15 seconds leaves them at 20% health instead, and it's used up.
+    The 15 seconds follows your in-combat buff rule; say if you want it longer. In the test, a 500-damage hit left exactly 20% health, and the
+    next lethal hit killed.
+  - Healing received is new. Every heal and heal-over-time tick respects it.
+  - Beacon of Hope: you and allies within 10 m receive 25% more healing for 15 seconds. A 100-point heal became 125.
+  - Enhanced Block: +10% block chance, and 10% less magic damage, which takes effect once monsters cast spells.
+
+  Is everything outstanding covered? Your six answers and all seven unclear spells, yes. These known gaps are still open:
+  - Knockback isn't built (Earth Strike, and Perfect Balance's knockback immunity).
+  - Multi-target riders: effects like "chains to 1 enemy", "affects 3 allies" (the group spells hit everyone in range instead) and "spreads to 2
+    enemies" are still simplified.
+  - Summons that describe several animals (Verdant Call, Wild Call, Wild Legion) give one pet, and the nine temporary models still need real
+    art.
+  - Unbuilt effects: spell reflection, shields that explode when they break, Nights Embrace (cooldown reset) and Resurrection.
+  - Rats not fighting back: still waiting on your answers from test 26.
+  - Your cut-off "i'" message from earlier never got finished.
+
+

@@ -1,0 +1,54 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://Scripts/summoned_pet.gd" id="1_pet01"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_pet01"]
+radius = 0.35
+height = 1.8
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_pet01"]
+properties/0/path = NodePath(".:position")
+properties/0/spawn = true
+properties/0/replication_mode = 1
+properties/1/path = NodePath(".:rotation")
+properties/1/spawn = true
+properties/1/replication_mode = 1
+properties/2/path = NodePath(".:anim_state")
+properties/2/spawn = true
+properties/2/replication_mode = 1
+properties/3/path = NodePath(".:pet_name")
+properties/3/spawn = true
+properties/3/replication_mode = 2
+properties/4/path = NodePath("CombatNode:current_hp")
+properties/4/spawn = true
+properties/4/replication_mode = 2
+properties/5/path = NodePath("CombatNode:max_hp")
+properties/5/spawn = true
+properties/5/replication_mode = 2
+
+[node name="SummonedPet" type="CharacterBody3D" groups=["pets"]]
+top_level = true
+script = ExtResource("1_pet01")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+shape = SubResource("CapsuleShape3D_pet01")
+
+[node name="NameLabel" type="Label3D" parent="."]
+visibility_range_end = 20.0
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.4, 0)
+billboard = 1
+alpha_cut = 2
+outline_size = 6
+modulate = Color(0.8, 0.65, 1.0, 1.0)
+
+[node name="TitleLabel" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.1, 0)
+billboard = 1
+alpha_cut = 2
+outline_size = 4
+font_size = 28
+modulate = Color(1, 1, 1, 1)
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("SceneReplicationConfig_pet01")

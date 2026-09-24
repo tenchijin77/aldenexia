@@ -1,0 +1,62 @@
+ALDENEXIA: LIGHTFALL — OUTSTANDING ITEMS
+Everything decided or noticed but not finished yet, so nothing gets lost. Add to it whenever something is left open; strike
+an item (delete it, note it in change_log.txt) when it's done. Last updated 2026-09-23.
+
+
+== WAITING ON THE USER ==
+- Rats (desert scavengers) not fighting back (test 26, Shonuff, SW of the gate while looking for tin ore): could not be
+  reproduced in single-player, multiplayer, or with a fresh spawn. Need: did the log show them attacking, how were they
+  moving, were stuns used?
+- Languages: design discussion in progress (chat-bar language dropdown, racial starting languages, scrambled text you
+  don't understand, proficiency that grows). The user has language ideas to share. Nothing built yet.
+- Knockback on bosses: every monster can be knocked back today; monsters.json "knockback_immune": true opts one out.
+  Should the named/boss monsters be immune?
+- Guardian Spirit lasts 15 s (the in-combat buff rule). Longer?
+
+
+== SPELLS AND ABILITIES ==
+- Multi-target riders are simplified: "chains to 1 enemy" (Master Ki Strike, Volatile Spark, Master Riposte), "affects N
+  allies" (these reach everyone in range instead), "spreads to 2 enemies" (Plague Wave), "hits 2 enemies" (Improved
+  Shatter uses a 3 m splash), Mass Charm / Improved Mesmerize / Polymorphic Surge extra targets.
+- Summons that describe several animals give one pet (one pet at a time): Verdant Call (2), Wild Call (2), Wild Legion (3).
+- Summon extras not modelled: wraith accuracy/damage debuff aura, shade mana drain, lifesteal (Eternal Wraith, Eternal
+  Abomination), hawk "scouting".
+- Not built: spell reflection (Spell Ward, Prismatic Veil — monsters don't cast yet), shields that explode when they break
+  (Wild Barrier, Entropic Ward/Aegis), Nights Embrace (reset cooldowns), resurrection (Resurrection, Improved Resurrection,
+  Ancestral Revival, Improved Ancestral Revival), execute conditions (Assassinate, Soul Reaper "below 20% health"),
+  Quivering Palm instant kill, Void Strike mana drain, Deadly Aim armour ignore, Ice Lance +20% vs slowed targets,
+  Aimed Shot / Shadow Bolt / Chaos Bolt crit riders, Arcane Flux backfire, Chaos Weave mana penalty, charm/polymorph
+  "success rate" bonuses, Thorn Whip's pull, Radiant/Healing "chain" heals, Symphony/Crescendo's ally buff half,
+  Wild Surge "random effect" variety, Soul Harvest (targets corpses; corpse targeting isn't supported).
+- Monster spellcasting doesn't exist yet. When it's built: casts break when the monster moves (knockback already cancels
+  one), Enhanced Block's 10% magic reduction and spell reflection start to matter.
+- Perfect Balance / Master Balance knockback immunity: nothing knocks players back yet.
+- Death Pact spends its mana and recast even when there is no pet to sacrifice (it says so); a pre-check before the cast
+  would refund it.
+- 365 spells have no scroll (mostly levels 9-20). Upgrades have scrolls; base high-level spells mostly don't.
+- Data/player_spells.xlsx is stale (last saved 2026-09-16); Data/player_spells.json is the source of truth.
+- Pickpocket's "already picked" mark is per player on their own machine (resets if the monster respawns — intended).
+- Verify: the weapon poison coating (Session 50 note) "never wears off and a second application does not stack".
+
+
+== ART AND MODELS (stand-ins in use) ==
+- Pets (Scripts/summoned_pet.gd KINDS): wolf, hawk, bear, panther (static critter models — no animations), ghoul,
+  abomination, wraith, shade, spiritual weapon.
+- Spirit of the Woods (Wildspeaker pet) placeholder visual.
+- Sahren (traveling merchant) and Harbour Master Tobias use race models; Sunmaddened wanderer uses a tinted human model.
+- Placeholder icons: stance icons, environmental buff icons (Warmth of the Campfire, Kenji's Blessing), game icon.
+
+
+== CONTROLS AND UI ==
+- Ctrl+Tab "target_closest" is bound but not wired to anything.
+- /assist has no hotkey (F works; a patch can't add InputMap actions, so a new key would be a raw key).
+- Chat tabs: no filtering by a single sender, no colour per tab, no "hide from General" switch.
+
+
+== WORLD AND SYSTEMS ==
+- Gate raids: bandits/goblins don't attack the gate itself; no raid rewards beyond kills; no raids with named mobs; no
+  scaling to zone level.
+- Lockpicking (Shadowblade skill): no lockable containers exist. Safe Fall skill: fall damage exists now, but the skill
+  doesn't reduce it yet (verify).
+- Monster count grows during heavy fighting (~25 -> ~70: respawns plus lingering corpses) — watch server load.
+- Not yet verified across two real machines: another player seeing your carried light; ranged-pet projectiles.

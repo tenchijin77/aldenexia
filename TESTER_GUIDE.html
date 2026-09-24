@@ -155,6 +155,9 @@
     .version { grid-template-columns: 1fr; }
     .keys td:first-child { width: 46%; }
   }
+  .allkeys { margin-top: 1.25rem; }
+  .allkeys summary { cursor: pointer; font-weight: 600; }
+  .allkeys .fine { margin: 0.5rem 0 0.75rem; opacity: 0.8; }
 </style>
 
 <div class="page">
@@ -306,6 +309,7 @@ Thank you for testing Aldenexia: Lightfall.</pre>
           <tr><td><kbd>`</kbd></td><td>Attack your target</td></tr>
           <tr><td><kbd>1</kbd>–<kbd>0</kbd></td><td>Use abilities on your action bar</td></tr>
           <tr><td><kbd>H</kbd></td><td>Hail the nearest NPC</td></tr>
+          <tr><td><kbd>G</kbd></td><td>Loot every corpse within 10 m</td></tr>
         </table>
       </div>
       <div>
@@ -343,6 +347,110 @@ Thank you for testing Aldenexia: Lightfall.</pre>
         </table>
       </div>
     </div>
+    <details class="allkeys">
+      <summary>Every control and chat command</summary>
+      <p class="fine">The same list as <kbd>Esc</kbd> → Controls &amp; Commands in game.</p>
+      <div class="keygroups">
+        <div>
+          <h3>Movement</h3>
+          <table class="keys">
+            <tr><td>W / Up</td><td>Move forward</td></tr>
+            <tr><td>S / Down</td><td>Move backward</td></tr>
+            <tr><td>A / Left</td><td>Turn left</td></tr>
+            <tr><td>D / Right</td><td>Turn right</td></tr>
+            <tr><td>Q</td><td>Strafe left</td></tr>
+            <tr><td>E</td><td>Strafe right</td></tr>
+            <tr><td>Space</td><td>Jump</td></tr>
+            <tr><td>Shift</td><td>Toggle run</td></tr>
+            <tr><td>R</td><td>Toggle autorun</td></tr>
+            <tr><td>X</td><td>Sit</td></tr>
+            <tr><td>Ctrl</td><td>Crouch</td></tr>
+          </table>
+        </div>
+        <div>
+          <h3>Camera</h3>
+          <table class="keys">
+            <tr><td>F12</td><td>Free look (mouselook): the mouse turns the camera and you all the way round; press again to get the cursor back</td></tr>
+            <tr><td>Hold Right Mouse</td><td>Look around (head-turn): glance up to 90° left/right and 45° up/down without moving</td></tr>
+            <tr><td>Mouse wheel</td><td>Zoom in / out (all the way in is first person)</td></tr>
+            <tr><td>Home</td><td>Cycle camera mode (behind / angled / first person)</td></tr>
+          </table>
+        </div>
+        <div>
+          <h3>Combat &amp; Targeting</h3>
+          <table class="keys">
+            <tr><td>Tab</td><td>Target closest / cycle target</td></tr>
+            <tr><td>` (backtick)</td><td>Attack current target</td></tr>
+            <tr><td>Right Mouse</td><td>Ranged attack (or interact — see below)</td></tr>
+            <tr><td>1-9, 0, -, =</td><td>Use action bar slot</td></tr>
+            <tr><td>Drag a slot</td><td>Move an ability on the action bar (dropping on a full slot swaps them); drag it off the bar to remove it</td></tr>
+            <tr><td>Escape</td><td>Clear target, close windows, or open this menu</td></tr>
+            <tr><td>F1-F6</td><td>Target group member 1-6</td></tr>
+          </table>
+        </div>
+        <div>
+          <h3>Windows</h3>
+          <table class="keys">
+            <tr><td>K</td><td>Abilities Book</td></tr>
+            <tr><td>B</td><td>Backpack</td></tr>
+            <tr><td>C</td><td>Character Sheet</td></tr>
+            <tr><td>P</td><td>Pet Gear</td></tr>
+            <tr><td>T</td><td>Tracking Window</td></tr>
+            <tr><td>J</td><td>Quest Journal</td></tr>
+            <tr><td>L</td><td>Recipe Book</td></tr>
+            <tr><td>N</td><td>Show / hide the compass (needs a Compass)</td></tr>
+            <tr><td>F11</td><td>Network diagnostics widget</td></tr>
+          </table>
+        </div>
+        <div>
+          <h3>Chat window</h3>
+          <table class="keys">
+            <tr><td>+ button</td><td>Add a chat tab</td></tr>
+            <tr><td>Right-click a tab</td><td>Rename it, choose what it shows (say, tell, party, zone, loot, xp, skills, combat...), pop it out into its own window, or close it</td></tr>
+            <tr><td>Flashing tab name</td><td>Something new arrived in a tab you are not looking at</td></tr>
+            <tr><td>Right-click the title</td><td>Chat font size</td></tr>
+          </table>
+        </div>
+        <div>
+          <h3>Interacting with the World</h3>
+          <table class="keys">
+            <tr><td>H</td><td>Hail the nearest NPC</td></tr>
+            <tr><td>I</td><td>Appraise your current target</td></tr>
+            <tr><td>Right-click</td><td>Open a vendor&#x27;s shop, loot a corpse, or open a campfire/tradeskill window — whichever&#x27;s under your cursor or nearest in range</td></tr>
+            <tr><td>G</td><td>Loot every corpse within 10 m at once</td></tr>
+          </table>
+        </div>
+        <div>
+          <h3>Chat commands</h3>
+          <table class="keys">
+            <tr><td><code>/location</code></td><td>Show your current coordinates</td></tr>
+            <tr><td><code>/hail</code></td><td>Hail the nearest NPC</td></tr>
+            <tr><td><code>/appraise</code></td><td>Appraise your current target</td></tr>
+            <tr><td><code>/follow &lt;name&gt;</code></td><td>Follow a named player</td></tr>
+            <tr><td><code>/camp</code></td><td>Begin a 15-second camp-out to the main menu (interrupted by taking damage)</td></tr>
+            <tr><td><code>/camp desktop</code></td><td>Camp out and close the game completely (same as /exit)</td></tr>
+            <tr><td><code>/exit</code></td><td>Camp out and close the game completely (same as /camp desktop)</td></tr>
+            <tr><td><code>/log</code></td><td>Toggle saving chat to a log file</td></tr>
+            <tr><td><code>/invite [name]</code></td><td>Invite your target, or a named player, to your group</td></tr>
+            <tr><td><code>/trade [name]</code></td><td>Trade items and coin with your target or a named player (or right-click them)</td></tr>
+            <tr><td><code>/disband [name]</code></td><td>Leave your group, or kick a named member</td></tr>
+            <tr><td><code>/say [message]</code></td><td>Talk to players within 10 m (yellow) — also switches the chat channel</td></tr>
+            <tr><td><code>/party [message]</code></td><td>Talk to your group (blue) — also switches the chat channel</td></tr>
+            <tr><td><code>/zone [message]</code></td><td>Shout to everyone in the zone (orange) — also switches the chat channel</td></tr>
+            <tr><td><code>/tell &lt;name&gt; [message]</code></td><td>Private message to a player (purple) — later text keeps going to them</td></tr>
+            <tr><td><code>/played</code></td><td>Show your character&#x27;s birthday and time played</td></tr>
+            <tr><td><code>/quests</code></td><td>List your quests and their progress</td></tr>
+            <tr><td><code>/compass</code></td><td>Show / hide the compass (same as N; needs a Compass)</td></tr>
+            <tr><td><code>/resetui</code></td><td>Reset every UI window back to its default position</td></tr>
+            <tr><td><code>/time</code></td><td>Show the current in-game date/time</td></tr>
+            <tr><td><code>/who</code></td><td>List every connected player, their level, class and zone</td></tr>
+            <tr><td><code>/focus [clear|name]</code></td><td>Make your target (or a named group member) your FOCUS: beneficial spells go to them while you target an enemy</td></tr>
+            <tr><td><code>/assist  (or press F)</code></td><td>Target whatever your current target is targeting</td></tr>
+            <tr><td><code>/pet</code></td><td>Pet the cat you are targeting, or the nearest one</td></tr>
+          </table>
+        </div>
+      </div>
+    </details>
   </section>
 
   <section>
