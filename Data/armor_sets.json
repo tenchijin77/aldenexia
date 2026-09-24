@@ -1,0 +1,7 @@
+{
+ "_comment": "armor_sets.json - crafted armour sets (items.json 'armor_set'). Wearing every piece ('pieces') adds the bonus: 'ac' plus 'stats' (the same stat names as an item's stat_modifiers). Read by Scripts/armor_types.gd; applied in player3d.gd _apply_equipment_from_inventory(). Numbers are DRAFTS.",
+ "oasis_linen": {"name": "Oasis Linen", "pieces": 9, "ac": 2, "stats": {"intelligence": 2, "wisdom": 2}},
+ "dunehide": {"name": "Dunehide", "pieces": 9, "ac": 3, "stats": {"dexterity": 2}},
+ "copperlink": {"name": "Copperlink", "pieces": 9, "ac": 4, "stats": {"constitution": 1, "dexterity": 1}},
+ "bronzeguard": {"name": "Bronzeguard", "pieces": 9, "ac": 5, "stats": {"strength": 2, "constitution": 1}}
+}

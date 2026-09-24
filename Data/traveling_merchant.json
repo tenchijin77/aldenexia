@@ -105,6 +105,43 @@
  "ambient_secret_chance_at_night": 0.2,
  "topics": [
   {
+   "id": "belongings_start",
+   "keywords": [
+    "belongings",
+    "keepsakes",
+    "families",
+    "family"
+   ],
+   "requires": {
+    "quest": "what_the_sun_took",
+    "quest_state": "none",
+    "after_quest": "release_the_hollowed"
+   },
+   "sequence": [
+    "The Hollowed carried more than tokens. A lock of hair. A cup. A waterskin with nothing in it. The pages they scrawled on when the sun was loudest.",
+    "Their families have nothing left of them. Bring me one of each, and I will see them home."
+   ],
+   "then": {
+    "start_quest": "what_the_sun_took"
+   }
+  },
+  {
+   "id": "belongings_active",
+   "keywords": [
+    "belongings",
+    "keepsakes",
+    "families",
+    "family"
+   ],
+   "requires": {
+    "quest": "what_the_sun_took",
+    "quest_state": "active"
+   },
+   "lines": [
+    "A lock of hair, a small tin cup, an empty waterskin, a scrawled page. One of each, friend."
+   ]
+  },
+  {
    "id": "hail",
    "keywords": [
     "hail",
@@ -267,7 +304,7 @@
     "no_item": "ceramic_water_token"
    },
    "lines": [
-    "A clay disc stamped with our mark. A debt of {water}, made solid. If you ever find one far from the deep wells, bring it to me. Do not spend it. Do not sell it."
+    "A clay disc stamped with our mark. A debt of {water}, made solid. If you ever find one far from the deep wells, most likely on one of the {Hollowed}, bring it to me. Do not spend it. Do not sell it."
    ]
   },
   {

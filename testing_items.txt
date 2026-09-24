@@ -1,27 +1,20 @@
 ALDENEXIA: LIGHTFALL — TESTING CHECKLIST
-New features and fixes waiting for a real playtest. Tick them off here as they pass: [x] = passed (move a failure to
-outstanding_items.txt with what went wrong). Last updated 2026-09-24 (test 29). Everything below was built after test 26.
+New features and fixes waiting for a real playtest, in two parts: OUTSTANDING (not passed yet) and COMPLETED (passed).
+When an item passes, change [ ] to [x] and move it to the same section under COMPLETED (or just add "- working" and it
+gets moved). A failure goes to outstanding_items.txt with what went wrong. Last updated 2026-09-24 (test 30).
+Everything below was built after test 26.   Outstanding: 114   Completed: 16
 
+
+################################################################################
+  OUTSTANDING — still to test (114)
+################################################################################
 
 == ACCOUNTS AND JOINING ==
-[x] Log in as tenchijin / lightfall: Annadaeus, Maedianie, Shonuff, Zozuur are listed with portraits, level, race/class, zone.
 [ ] Epheo, Evangeline, Wanderer can each log in with their account (same name and old password).
-[x] Server log after the update shows the account import lines (seen 20:45: tenchijin, epheo, evangeline, wanderer).
-[x] Create a new account, create its first character from the big "Create Your First Character" button, enter the world.
-[x] Enter World by button and by double-clicking a row.
-[x] Two computers on tenchijin at once, different characters — both in the world, can see each other.
-[x] Same character entered from a second computer takes it over (the first is disconnected).
-[x] Delete a character (type its name to confirm) — gone from the list, kept in the server's deleted/ folder (Grep's is there).
 [ ] Add Existing Character with an old name + password (make a throwaway old-style character first, or skip).
-[ ] Wrong password 5 times locks the account for a minute.
-[ ] Log Out returns to the login form; camping out / a failed join returns straight to the character list.
-[x] Zone column shows "Lumora Outskirts" after a character has saved in the world.
 [ ] The Join a Server screen's console no longer fills with "Node not found" / "not found in cache" errors.
 
 == TEST 28 CHANGES ==
-[ ] Battle Shout lasts 15 minutes and shows the gold fist icon on the buff bar (other Blademaster buffs use it too). - working
-[ ] Blademaster abilities cost no mana and are instant (15-minute buffs still cast normally). Taunt is free for every class. - working
-
 [ ] Run out of food / drink: Starving / Thirsty appear on the status window (red icons, yellow border); they go when you eat/drink.
 [ ] Every debuff on the status window has a yellow border.
 [ ] Snakes and spiders sometimes poison you (5 every 6 s for a minute); it shows on the status window; a cure removes it.
@@ -38,24 +31,16 @@ outstanding_items.txt with what went wrong). Last updated 2026-09-24 (test 29). 
 [ ] Your client log no longer shows "Node 'CombatNode:current_hp' not found" when monsters appear.
 
 == TANK STANCES ==
-[ ] Blademaster (Hold the Line / Warpath / Veteran's Stance) and Lightsworn (Aegis of Dawn / Dawn's Wrath / Oathkeeper)
-    have a stance bar at level 1; Voidknight's three still work, with new icons.
 [ ] Each tank's aura looks different: Voidknight streaks pulled inward, Lightsworn rising light, Blademaster sparks;
     other players see them.
 [ ] Group bonuses reach group members within 10 m (check the status window): e.g. Hold the Line, Dawn's Wrath.
 [ ] Aegis of Dawn: melee hits sometimes heal you ("The light of dawn mends you"); Necrotic Bastion: melee hits sometimes
     lifetap ("Necrotic energy tears the life from...") — for the tank and for group members.
 
-== TEST 27 FIXES ==
-[x] Play a character, leave (camp, or get dropped by a server restart), make/enter another character in the same session:
-    no doubled windows, no old windows on character creation, the new character has only its own items and bank.
-[x] Grep has only his starter kit.
-
 == WHOLE-GAME COMBAT CHANGES ==
 [ ] Melee abilities cast instantly (Power Strike, Backstab, Holy Strike, the Aetherfist strikes, taunts).
 [ ] Moving during a spell cast fizzles it ("You moved, and your spell fizzles."); turning in place doesn't. Troubadour songs
     keep playing while moving.
-[x] Knockback: Power Strike / Earth Strike push the monster ~4m away; it walks back and fights. Works on the server too.
 [ ] Slows, curses, stuns and fears no longer do damage by themselves.
 [ ] Group heals heal everyone nearby (Holy Light, Prayer of Healing, Wild Growth, Tranquility, Aetherfist Meditation /
     Mend Wounds) — test in a group.
@@ -136,3 +121,119 @@ outstanding_items.txt with what went wrong). Last updated 2026-09-24 (test 29). 
 
 == TESTER GUIDE ==
 [ ] The tester page link shows the account login steps and the "Every control and chat command" list.
+
+
+== QUEST DISCOVERY (2026-09-24, after test 30) ==
+[ ] Hail Guard Reyna on a character without the wreck quest: she offers the {wagon}; click it and The Wreck on the South
+    Road starts. With it active, hails are the usual random lines again.
+[ ] Carrying the Lumoran strongbox (or Halvek's medal), hailing Reyna asks you to hand it over; drag it onto her to finish.
+[ ] Hail Private Corwin: he warns about the {spiders}; clicking it starts The Silent Den. Carrying blighted silk, he asks for it.
+[ ] After The Silent Den, Corwin's hail and his thank-you both link {den}; clicking it starts The Weavemother's Mark.
+[ ] Sahren, without a token: Djhanid -> water -> token now links {Hollowed} -> release, which starts Release the Hollowed.
+
+== RACIAL TRAITS (2026-09-24, every character, old and new) ==
+[ ] Abilities book (K) > General Skills: a Dwarf sees Blacksmithing and Prospecting with "Racial bonus: +15"; a Halfling
+    Forage +10 and Stealth +15; a Gnome Tinkering +20 — even before training them.
+[ ] Dwarf (Targon): forging at low skill succeeds more often than a human's; recipe minimums still use trained skill.
+[ ] Lizardkin (Shonuff): AC stays 2 higher after equipping/unequipping armour; charisma shows 8, not 6. Bare-handed hits
+    do a little more (the bite). At night, slightly less accurate.
+[ ] Vol'kyne (Epheo): regenerates half as fast by day as by night; necromancy spells hit ~10% harder.
+[ ] Gnome: now and then a damage spell says "Your spell strikes with unusual force! (critical)".
+[ ] Elf runs 10% faster; Human and Half-Elf regenerate slightly faster; appraise a guard: standing differs by race
+    (Human +10, Half-Elf +5, Troll/Vol'kyne -10, Gnome/Half-Orc -5).
+
+== QUEST JOURNAL ITEM TRACKING (2026-09-24) ==
+[ ] Journal (J) on an active hand-in quest (e.g. The Silent Den with some silk): the item shows its icon with the number
+    you carry on it, "given N / M · carrying K"; it turns yellow when you carry enough and green with a tick when done.
+[ ] Without the item the icon is dimmed; picking one up updates the open journal within a second.
+[ ] Handing in more than a quest still needs: the extras stay in your bags and the giver says they have enough.
+[ ] Old quests in progress from before the update (Release the Hollowed tokens) keep their count and finish normally.
+
+== ARMOUR TYPES (2026-09-24) ==
+[ ] A Gravecaller/Arcanist can't equip the Leather Jerkin ("You can't wear leather armour..."); a Voidknight can. Tooltips
+    say "Leather armour. You can wear it." / "... can't wear it". The shop's Usable filter hides armour you can't wear.
+[ ] Shields: a Gravecaller/Arcanist/Shadowblade/Woodstalker/Aetherfist can't equip one ("can't use a shield"); a tank,
+    Lightmender, Troubadour, Spiritweaver or Wildspeaker can.
+[ ] Chaosborn: Blood Recall (level 6) takes you to your bind point; Unstable Rift is gone from the spell list.
+[ ] A Wildspeaker can equip the Bone Shield but not the Tin or Bronze Shield ("wood or bone, never a metal shield").
+[ ] Gate names: Duskwalk, Long March, Ki Vortex, Song of Remembrance, Familiar Trail (scrolls at Ilsabet / Xalvyr).
+
+== THE GUILDMASTER'S NOTE, QUEST RECIPES (2026-09-24) ==
+[ ] Right-click the Faded Note in your bags > Read: the text shows and The Guildmaster's Note starts (old characters too).
+[ ] The Old Foundation Stone by the crypts: by day "the note said nightfall"; at night you get Aelric's Sealed Letter and
+    the Scroll of High Arcanum Basics, and the quest completes. The stone sits on the ground, not in a wall.
+[ ] Finishing The Wreck / Weavemother's Mark / Release the Hollowed / A Warden Not at Rest gives its recipe scroll;
+    those four scrolls are no longer sold.
+
+== CASTER TRAVEL, GATES, BINDING (2026-09-24) ==
+[ ] Three ley-stones exist (by the mausoleum, Sandcrest Landing, southern palms) and stand on the ground, not in a wall.
+    Right-click as an Arcanist/Wildspeaker/Chaosborn: attuned; as anyone else: flavour text.
+[ ] Spectral Bridge (Arcanist 6): destination menu, 15 s channel, a glowing bridge behind you; a GROUP member who runs to
+    its arch crosses first; you arrive at the stone when it ends. Moving cancels it and the bridge vanishes.
+[ ] Root-Tunnel (Wildspeaker 6): vines rise; group members within 8 m come along; everyone gets Nature's Ward.
+[ ] Chaos Rift (Chaosborn 6): 5-8 s cast; a violet tear behind you that group members can step into.
+[ ] Spatial Redoubt / Wormhole / Phase Snap (level 10): the group within 20 m lands outside the town gate; Phase Snap
+    shows its d20 and one of: mana burn, Aether-Sickness (slow), a junk item for everyone, a small heal.
+[ ] Attune Spirit (level 4): bind where you stand; again within an hour is refused; dying brings you back there.
+[ ] Every class's gate (level 6) takes you to your bind point; it can't be cast in combat; a Troubadour's isn't a song.
+
+== PERCEPTION (2026-09-24) ==
+[ ] Walk up to the town gate, the docks, the mausoleum...: now and then "You notice something. ..." appears in chat; a
+    notice never repeats; a higher-Wisdom character notices more. Perception rises in the abilities book.
+
+== NAMES AND SURNAMES (2026-09-24) ==
+[ ] Character creation: spaces and digits can't be typed; a one-letter name is refused with an explanation.
+[ ] /surname Name below level 10 is refused; at 10 it works once (nameplate, target frame and /who show it; other
+    players see it); a second /surname is refused. A GM can /surname <player> <Name> or clear it. /s still says.
+
+== ARMOUR SETS, SMITH, DECONSTRUCT (2026-09-24, overnight) ==
+[ ] Borgrim Emberforge stands by the forge (dwarf, not in a wall); hail and shop work; he sells the smithing patterns;
+    Aldric no longer does. Aldric and Lira now talk (greetings, ambient lines) and look like human NPCs.
+[ ] Tailor/Leatherworker: Oasis Linen / Dunehide gloves and boots are known from the start; the other patterns are at
+    Aldric. Smith: Copper Links (known at 5), Copperlink gloves/boots, Bronzeguard gauntlets/sabatons known; rest at Borgrim.
+[ ] Wear all 9 pieces of one set: "Your ... set is complete" and the AC/stat bonus; take one off and it goes away. The
+    tooltip shows "(N / 9 worn)".
+[ ] Deconstruct: at a tailoring kit put in a Ragged Tunic -> linen + thread; at the forge a Rusty Sword -> scrap metal;
+    a Tin Shield -> a tin ingot. A cloth item at the forge says to use a tailoring kit. Nothing trains a skill.
+[ ] Night-Eye Draught (Lira's pattern): drink at night — the world gets brighter for 10 minutes.
+[ ] Salvaged Linen: 3 rotten linen -> linen cloth (known from the start).
+
+== SEVEN NEW QUESTS (2026-09-24, overnight) ==
+[ ] Bryn: hail -> {bounty}; 10 goblin ears -> both scrolls; again -> coin only (repeatable).
+[ ] Halric: hail -> {arrows}; 6 spider fangs + 8 bone fragments -> Silk Bowstring pattern.
+[ ] Sahren (after Release the Hollowed): his thank-you links {belongings}; the four keepsakes -> Starlight Cordial.
+[ ] Ilsabet: hail -> {rites}; shards, salves, bandages (any order) -> Old Thallian primer + Oasis Linen Robe pattern.
+[ ] Lira: hail -> {reagents}; Tobble: hail -> {toy}; Aldric: hail -> {furs}. Each hands in by dragging the items onto them.
+[ ] The Silent Den now also gives the Copperlink Hauberk pattern.
+
+################################################################################
+  COMPLETED — passed (16)
+################################################################################
+
+== ACCOUNTS AND JOINING ==
+[x] Log in as tenchijin / lightfall: Annadaeus, Maedianie, Shonuff, Zozuur are listed with portraits, level, race/class, zone.
+[x] Server log after the update shows the account import lines (seen 20:45: tenchijin, epheo, evangeline, wanderer).
+[x] Create a new account, create its first character from the big "Create Your First Character" button, enter the world.
+[x] Enter World by button and by double-clicking a row.
+[x] Two computers on tenchijin at once, different characters — both in the world, can see each other.
+[x] Same character entered from a second computer takes it over (the first is disconnected).
+[x] Delete a character (type its name to confirm) — gone from the list, kept in the server's deleted/ folder (Grep's is there).
+[x] Zone column shows "Lumora Outskirts" after a character has saved in the world.
+[x] Wrong password 5 times locks the account for a minute.
+[x] Log Out returns to the login form; camping out / a failed join returns straight to the character list.
+
+== TEST 28 CHANGES ==
+[x] Battle Shout lasts 15 minutes and shows the gold fist icon on the buff bar (other Blademaster buffs use it too).
+[x] Blademaster abilities cost no mana and are instant (15-minute buffs still cast normally). Taunt is free for every class.
+
+== TEST 27 FIXES ==
+[x] Play a character, leave (camp, or get dropped by a server restart), make/enter another character in the same session:
+    no doubled windows, no old windows on character creation, the new character has only its own items and bank.
+[x] Grep has only his starter kit.
+
+== WHOLE-GAME COMBAT CHANGES ==
+[x] Knockback: Power Strike / Earth Strike push the monster ~4m away; it walks back and fights. Works on the server too.
+
+== TANK STANCES ==
+[x] Blademaster (Hold the Line / Warpath / Veteran's Stance) and Lightsworn (Aegis of Dawn / Dawn's Wrath / Oathkeeper)
+    have a stance bar at level 1; Voidknight's three still work, with new icons.

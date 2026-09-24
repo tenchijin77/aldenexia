@@ -132,7 +132,9 @@ func _finish() -> void:
 	set_process(false)
 	var skill: int = _skill_of(player)
 	var tool: Dictionary = ItemHelper.best_gather_tool(str(def.get("tool", ""))) if not str(def.get("tool", "")).is_empty() else {}
-	var success := randf() < success_chance(def, skill)
+	# Success counts a racial bonus (Dwarf +15 Prospecting, Halfling +10 Forage); the minimum and skill-ups use trained points.
+	var used_skill: int = player.effective_skill(str(def.get("skill", ""))) if player.has_method("effective_skill") else skill
+	var success := randf() < success_chance(def, used_skill)
 	if not success:
 		GameLog.log_general("[color=#ff8866]You search the %s but find nothing useful.[/color]" % def.get("name", "node"))
 		return

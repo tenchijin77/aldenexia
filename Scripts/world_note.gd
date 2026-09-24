@@ -20,6 +20,15 @@ const TEXT_COLOR := "#e8dcc0"
 @export_multiline var label_text: String = ""
 ## Height of the floating label above this node.
 @export var label_height: float = 0.55
+## Searching it gives this item once (a quest cache, e.g. the stone in The Guildmaster's Note). Empty = nothing.
+@export var give_item: String = ""
+## The item is only found at night (NPCConversation.is_night()); by day, day_text is said instead.
+@export var night_only: bool = false
+@export_multiline var day_text: String = ""
+## Said when give_item was already taken (you carry it, or the quest it finishes is done).
+@export_multiline var found_text: String = ""
+## Draw a low flat stone instead of the paper.
+@export var show_stone: bool = false
 
 var _label: Label3D
 var _light: OmniLight3D
@@ -29,7 +38,9 @@ var _label_timer := 0.0
 
 func _ready() -> void:
 	add_to_group("world_note")
-	if show_paper:
+	if show_stone:
+		_build_stone()
+	elif show_paper:
 		_build_paper()
 	_label = Label3D.new()
 	_label.text = label_text if not label_text.is_empty() else title
@@ -42,6 +53,20 @@ func _ready() -> void:
 	_label.position = Vector3(0, label_height, 0)
 	_label.visible = false
 	add_child(_label)
+
+
+# A worn, flat foundation stone (stand-in).
+func _build_stone() -> void:
+	var stone := MeshInstance3D.new()
+	var box := BoxMesh.new()
+	box.size = Vector3(1.6, 0.35, 1.2)
+	stone.mesh = box
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = Color(0.62, 0.55, 0.44)
+	stone.material_override = mat
+	stone.position = Vector3(0, 0.15, 0)
+	stone.rotation_degrees.y = randf() * 360.0
+	add_child(stone)
 
 
 # The paper lying on the ground, plus a faint warm light that breathes so the eye finds it.
@@ -88,8 +113,30 @@ func _process(delta: float) -> void:
 
 # Right-click within range.
 func read(_player: Node) -> void:
+	if not give_item.is_empty():
+		_search()
+		return
 	GameLog.log_general("[color=%s]You read the %s:[/color]" % [TEXT_COLOR, title.to_lower()])
 	for paragraph in note_text.split("\n", false):
 		GameLog.log_general("[color=%s][i]%s[/i][/color]" % [TEXT_COLOR, paragraph])
 	if not start_quest.is_empty() and not Quests.is_started(start_quest):
 		Quests.start(start_quest)
+
+
+# A cache: search it for give_item (once; at night only if night_only).
+func _search() -> void:
+	var taken := ItemHelper.count(give_item) > 0
+	for id in Quests._all_ids():
+		var objective: Dictionary = Quests.definition(id).get("objective", {})
+		if str(objective.get("item", "")) == give_item and Quests.state(id) == "complete":
+			taken = true
+	if taken:
+		GameLog.log_general("[color=%s]%s[/color]" % [TEXT_COLOR, found_text if not found_text.is_empty() else "There is nothing more here."])
+		return
+	if night_only and not NPCConversation.is_night(get_tree()):
+		GameLog.log_general("[color=%s]%s[/color]" % [TEXT_COLOR, day_text if not day_text.is_empty() else "You find nothing. Not now, anyway."])
+		return
+	for paragraph in note_text.split("\n", false):
+		GameLog.log_general("[color=%s][i]%s[/i][/color]" % [TEXT_COLOR, paragraph])
+	if not Inventory.add_item(give_item, 1):
+		GameLog.log_general("[color=#ff8866]Your bags are full. Make room and search again.[/color]")

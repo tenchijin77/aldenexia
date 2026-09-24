@@ -1,5 +1,5 @@
 {
- "_comment": "Keyword topics for the guards (Scripts/guard_npc.gd, npc_conversation.gd). 'by_name' topics are checked before 'shared', so a guard can have their own answer for something; 'merchant_lines' are picked by where Sahren is right now. Directions use the whiteboard map: Lumora is north, the docks southwest, the graveyard west, goblins and bandits southeast, spiders far west by the sea. All lines are DRAFTS awaiting approval. {word} = clickable keyword.",
+ "_comment": "Keyword topics for the guards (Scripts/guard_npc.gd, npc_conversation.gd). 'by_name' topics are checked before 'shared', so a guard can have their own answer for something; 'merchant_lines' are picked by where Sahren is right now. Directions use the whiteboard map: Lumora is north, the docks southwest, the graveyard west, goblins and bandits southeast, spiders far west by the sea. All lines are DRAFTS awaiting approval. {word} = clickable keyword. | 'hail_hooks' (by guard name): when you hail that guard, the first hook whose 'requires' hold (same conditions as a topic's) is said INSTEAD of a random hail line, so a guard with work for you says so and links the keyword that starts it. No hook matches -> the usual random hail line. DRAFT lines awaiting approval.",
  "shared": [
   {
    "id": "hail",
@@ -469,6 +469,66 @@
   ],
   "Sergeant Bryn": [
    {
+    "id": "bounty_start",
+    "keywords": [
+     "bounty",
+     "ears",
+     "goblin ears"
+    ],
+    "requires": {
+     "quest": "goblin_bounty",
+     "quest_state": "none"
+    },
+    "sequence": [
+     "The goblin camps to the southeast get bolder every week. The Wardens pay a bounty on their ears: ten at a time.",
+     "Bring me ten and I'll make it worth your while. The first time, better than coin. I've a favour owed by our {smith}."
+    ],
+    "then": {
+     "start_quest": "goblin_bounty"
+    }
+   },
+   {
+    "id": "bounty_active",
+    "keywords": [
+     "bounty",
+     "ears",
+     "goblin ears"
+    ],
+    "requires": {
+     "quest": "goblin_bounty",
+     "quest_state": "active"
+    },
+    "lines": [
+     "Ten ears. Hand them over when you have them."
+    ]
+   },
+   {
+    "id": "bounty_again",
+    "keywords": [
+     "bounty",
+     "ears",
+     "goblin ears"
+    ],
+    "requires": {
+     "quest": "goblin_bounty",
+     "quest_state": "complete"
+    },
+    "lines": [
+     "The bounty still stands. Ten more ears, same pay, fewer goblins."
+    ]
+   },
+   {
+    "id": "smith",
+    "keywords": [
+     "smith",
+     "borgrim",
+     "forge"
+    ],
+    "lines": [
+     "Borgrim Emberforge, by the forge. Dwarf. Grumbles. Best smith south of the Embercrag, and he knows it."
+    ]
+   },
+   {
     "id": "patrol",
     "keywords": [
      "patrol",
@@ -510,6 +570,40 @@
    }
   ],
   "Guard Halric": [
+   {
+    "id": "arrows_start",
+    "keywords": [
+     "arrows",
+     "practice",
+     "arrowheads"
+    ],
+    "requires": {
+     "quest": "halrics_arrows",
+     "quest_state": "none"
+    },
+    "sequence": [
+     "The range eats arrows faster than the quartermaster sends them. Spider fangs make sharp heads; bone makes cheap ones.",
+     "Bring me six fangs and eight bone fragments and I'll show you a fletcher's trick worth more than either."
+    ],
+    "then": {
+     "start_quest": "halrics_arrows"
+    }
+   },
+   {
+    "id": "arrows_active",
+    "keywords": [
+     "arrows",
+     "practice",
+     "arrowheads"
+    ],
+    "requires": {
+     "quest": "halrics_arrows",
+     "quest_state": "active"
+    },
+    "lines": [
+     "Six spider fangs, eight bone fragments. The recruits are waiting."
+    ]
+   },
    {
     "id": "archery",
     "keywords": [
@@ -566,6 +660,135 @@
   ],
   "none": [
    "A Djhanid peddler comes through now and then. Sahren, they call him. I couldn't give you a day."
+  ]
+ },
+ "hail_hooks": {
+  "Guard Reyna": [
+   {
+    "id": "medal_in_pack",
+    "requires": {
+     "quest": "wardens_medal",
+     "quest_state": "active",
+     "has_item": "wardens_tarnished_medal"
+    },
+    "lines": [
+     "Wait. Is that a Warden's {medal} you're carrying? Let me see it. Hand it here."
+    ]
+   },
+   {
+    "id": "strongbox_in_pack",
+    "requires": {
+     "quest": "wagon_crash",
+     "quest_state": "active",
+     "has_item": "lumoran_strongbox"
+    },
+    "lines": [
+     "That's a Lumoran seal on that {strongbox}. Hand it here, friend."
+    ]
+   },
+   {
+    "id": "wagon_offer",
+    "requires": {
+     "quest": "wagon_crash",
+     "quest_state": "none"
+    },
+    "lines": [
+     "Looking for work? A trading {wagon} was hit on the south road, and nobody's gone after it yet.",
+     "You've the look of someone who can handle a blade. Ask me about the {wagon} on the south road."
+    ]
+   }
+  ],
+  "Private Corwin": [
+   {
+    "id": "sigil_in_pack",
+    "requires": {
+     "quest": "the_weavemothers_mark",
+     "quest_state": "active",
+     "has_item": "moribund_sigil"
+    },
+    "lines": [
+     "You found her. What was she carrying? Hand it here, and tell me about the {Weavemother}."
+    ]
+   },
+   {
+    "id": "silk_in_pack",
+    "requires": {
+     "quest": "the_silent_den",
+     "quest_state": "active",
+     "has_item": "blighted_spider_silk"
+    },
+    "lines": [
+     "Is that the grey {silk}? Hand it here. I need six."
+    ]
+   },
+   {
+    "id": "mark_offer",
+    "requires": {
+     "quest": "the_weavemothers_mark",
+     "quest_state": "none",
+     "after_quest": "the_silent_den"
+    },
+    "lines": [
+     "There's more to that {den} than spiders. Ask me about it when you're ready."
+    ]
+   },
+   {
+    "id": "den_offer",
+    "requires": {
+     "quest": "the_silent_den",
+     "quest_state": "none"
+    },
+    "lines": [
+     "Stay clear of the {spiders} out west, if you value your skin. Something's wrong with them.",
+     "You're headed out? Ask me about the {spiders} first. I could use someone with sense."
+    ]
+   }
+  ],
+  "Sergeant Bryn": [
+   {
+    "id": "ears_in_pack",
+    "requires": {
+     "quest": "goblin_bounty",
+     "quest_state": "active",
+     "has_item": "goblin_ear"
+    },
+    "lines": [
+     "Goblin ears? Hand them here. I count them twice."
+    ]
+   },
+   {
+    "id": "bounty_offer",
+    "requires": {
+     "quest": "goblin_bounty",
+     "quest_state": "none"
+    },
+    "lines": [
+     "You look like you can swing a blade. There's a {bounty} on goblin ears, if you've the stomach."
+    ]
+   }
+  ],
+  "Guard Halric": [
+   {
+    "id": "fangs_in_pack",
+    "requires": {
+     "quest": "halrics_arrows",
+     "quest_state": "active",
+     "has_item": "spider_fang"
+    },
+    "lines": [
+     "Spider fangs! Hand them over, I'll put them to use."
+    ]
+   },
+   {
+    "id": "arrows_offer",
+    "requires": {
+     "quest": "halrics_arrows",
+     "quest_state": "none"
+    },
+    "lines": [
+     "Out of {arrows} again. You wouldn't be heading anywhere with spiders in it?"
+    ]
+   }
   ]
  }
 }

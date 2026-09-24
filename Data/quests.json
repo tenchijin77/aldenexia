@@ -13,11 +13,17 @@
    "xp": 75,
    "coin": {
     "silver": 5
-   }
+   },
+   "items": [
+    {
+     "id": "recipe_cook_viper_kebab",
+     "qty": 1
+    }
+   ]
   },
   "texts": {
    "progress": "He turns the disc over in his fingers, then closes his hand around it. \"One more resting. {given} of {need}. There are {left} still wandering.\"",
-   "complete": "Sahren holds the last token to the light, then lowers his head. \"Three released. The sands are quieter for it, and my people will hear that an outsider did what we could not. Take this, with my thanks.\"",
+   "complete": "Sahren holds the last token to the light, then lowers his head. \"Three released. The sands are quieter for it, and my people will hear that an outsider did what we could not. Take this, with my thanks. And if you ever find their {belongings}, bring them to me.\"",
    "not_started": "Sahren does not take it. \"Not yet, friend. Ask me first what it means, and why I would want it back.\"",
    "already_done": "Sahren shakes his head gently. \"You have done enough for the Hollowed. Keep it as a reminder.\""
   },
@@ -38,7 +44,13 @@
    "xp": 130,
    "coin": {
     "silver": 8
-   }
+   },
+   "items": [
+    {
+     "id": "recipe_jc_bronze_amulet",
+     "qty": 1
+    }
+   ]
   },
   "texts": {
    "progress": "",
@@ -63,7 +75,13 @@
    "xp": 70,
    "coin": {
     "silver": 5
-   }
+   },
+   "items": [
+    {
+     "id": "recipe_ww_palm_longbow",
+     "qty": 1
+    }
+   ]
   },
   "texts": {
    "progress": "",
@@ -88,13 +106,19 @@
    "xp": 100,
    "coin": {
     "silver": 6
-   }
+   },
+   "items": [
+    {
+     "id": "recipe_smith_copperlink_hauberk",
+     "qty": 1
+    }
+   ]
   },
   "texts": {
    "progress": "Warm. It shouldn't be warm. {given} of {need}. {left} more.",
-   "complete": "That's all the proof I need, and more than I wanted. Thank you. There's more to this, and I'll tell you when you're ready. Ask me about the den.",
+   "complete": "That's all the proof I need, and more than I wanted. Thank you. There's more to this, and I'll tell you when you're ready. Ask me about the {den}.",
    "not_started": "",
-   "already_done": "Enough silk. Ask me about the den, if you want the rest."
+   "already_done": "Enough silk. Ask me about the {den}, if you want the rest."
   },
   "_comment": "DRAFT texts and reward (100 XP + 6 silver), awaiting the user's approval. Step 1 of the Moribund Order line at the spider den."
  },
@@ -114,7 +138,13 @@
    "xp": 250,
    "coin": {
     "silver": 15
-   }
+   },
+   "items": [
+    {
+     "id": "recipe_tl_archmages_robe",
+     "qty": 1
+    }
+   ]
   },
   "texts": {
    "progress": "",
@@ -123,5 +153,262 @@
    "already_done": "The Captain has the sigil. What comes next isn't mine to say. Not yet."
   },
   "_comment": "DRAFT texts and reward (250 XP + 15 silver), awaiting the user's approval. Step 2 of the Moribund Order line; the Captain is the hook for what comes next."
+ },
+ "guildmasters_note": {
+  "name": "The Guildmaster's Note",
+  "giver": "Guildmaster Aelric",
+  "short": "Search beneath the old foundation stone in the ruins by the crypts, at nightfall.",
+  "summary": "The faded note you woke up with says: seek the ruins east of Lumora at nightfall; something is hidden beneath the old foundation stone; trust no one in the village. It is signed Guildmaster Aelric. You don't remember him.",
+  "objective": {
+   "type": "find",
+   "item": "aelrics_letter"
+  },
+  "rewards": {
+   "xp": 120,
+   "items": [
+    {
+     "id": "scroll_of_high_arcanum_basics",
+     "qty": 1
+    }
+   ]
+  },
+  "texts": {
+   "complete": "Under the stone, wrapped in oilcloth: a sealed letter, and a primer written in a script older than Lumora."
+  },
+  "_comment": "DRAFT (2026-09-24): the first step of the main story from the starting Faded Note. Aelric does not exist anywhere else yet; the letter (items.json aelrics_letter) is a placeholder for the user's story."
+ },
+ "goblin_bounty": {
+  "name": "Bounty on the Goblin Camps",
+  "giver": "Sergeant Bryn",
+  "short": "Bring Sergeant Bryn ten goblin ears. The bounty stands for as long as the camps do.",
+  "summary": "The goblin camps to the southeast grow bolder every week. Sergeant Bryn pays a bounty on their ears: ten at a time. The first time, he has something better than coin for you.",
+  "objective": {
+   "type": "hand_in",
+   "items": {
+    "goblin_ear": 10
+   }
+  },
+  "rewards": {
+   "xp": 150,
+   "coin": {
+    "silver": 6
+   },
+   "items": [
+    {
+     "id": "recipe_smith_bronze_longsword",
+     "qty": 1
+    },
+    {
+     "id": "recipe_smith_bronzeguard_breastplate",
+     "qty": 1
+    }
+   ]
+  },
+  "texts": {
+   "progress": "{given} of {need}. Keep at it.",
+   "complete": "Ten. Good work. Borgrim owes me, so here's his pattern for a proper breastplate, and a sword to go with it. The bounty still stands, if you want more of it."
+  },
+  "_comment": "DRAFT texts and rewards (2026-09-24), awaiting the user's approval.",
+  "repeatable": true,
+  "repeat_rewards": {
+   "xp": 60,
+   "coin": {
+    "silver": 4
+   }
+  }
+ },
+ "what_the_sun_took": {
+  "name": "What the Sun Took",
+  "giver": "Sahren of the Deep Wells",
+  "short": "Bring Sahren what the Hollowed carried: a lock of hair, a small tin cup, an empty waterskin and a scrawled page.",
+  "summary": "The Hollowed carried more than water-tokens. Their families have nothing left of them. Sahren asks you to bring him what they kept: a lock of hair, a small tin cup, an empty waterskin, and one of the pages they scrawled on in the sun.",
+  "objective": {
+   "type": "hand_in",
+   "items": {
+    "lock_of_hair": 1,
+    "small_tin_cup": 1,
+    "empty_waterskin": 1,
+    "delusional_scrawl": 1
+   }
+  },
+  "rewards": {
+   "xp": 150,
+   "coin": {
+    "silver": 6
+   },
+   "items": [
+    {
+     "id": "recipe_brew_starlight_cordial",
+     "qty": 1
+    }
+   ]
+  },
+  "texts": {
+   "progress": "He sets it beside the others, carefully. \"{left} more. The families will know whose it was.\"",
+   "complete": "Sahren wraps each thing in a strip of sand-silk. \"They will go home now, in a way. Take this: my mother's cordial, the one we drink under the stars when someone is remembered.\""
+  },
+  "_comment": "DRAFT texts and rewards (2026-09-24), awaiting the user's approval.",
+  "requires_quest": "release_the_hollowed"
+ },
+ "rites_of_the_dead": {
+  "name": "Rites of the Dead",
+  "giver": "Archivist Ilsabet Thornmere",
+  "short": "Bring Archivist Ilsabet four canopic jar fragments, two embalming salves and three ancient bandages from the mummies by the mausoleum.",
+  "summary": "The mummies by the mausoleum were buried by the old Lumoran rites, which the Archive has only in fragments. Ilsabet wants what they carry to reconstruct a burial jar and read what was written on it.",
+  "objective": {
+   "type": "hand_in",
+   "items": {
+    "canopic_jar_fragment": 4,
+    "embalming_salve": 2,
+    "ancient_bandage": 3
+   }
+  },
+  "rewards": {
+   "xp": 140,
+   "coin": {
+    "silver": 6
+   },
+   "items": [
+    {
+     "id": "scroll_of_old_thallian_basics",
+     "qty": 1
+    },
+    {
+     "id": "recipe_tl_oasis_linen_robe",
+     "qty": 1
+    }
+   ]
+  },
+  "texts": {
+   "progress": "\"{given} of {need}. Handle them gently. Please.\"",
+   "complete": "She fits the last shard and reads the rim aloud, in a language that isn't Common. \"Old Thallian. The Archive can spare a primer. And a Warden seamstress left this pattern with us; it should go to someone who goes where you go.\""
+  },
+  "_comment": "DRAFT texts and rewards (2026-09-24), awaiting the user's approval."
+ },
+ "liras_reagents": {
+  "name": "Lira's Reagents",
+  "giver": "Lira Solarpetal",
+  "short": "Bring Lira five scarab eyes, three echolocation glands and four slime gel.",
+  "summary": "Lira Solarpetal is out of the rarer things an apothecary needs: scarab eyes, bat echolocation glands and slime gel. She'll teach you a recipe for them.",
+  "objective": {
+   "type": "hand_in",
+   "items": {
+    "scarab_eye": 5,
+    "echolocation_gland": 3,
+    "slime_gel": 4
+   }
+  },
+  "rewards": {
+   "xp": 110,
+   "coin": {
+    "silver": 5
+   },
+   "items": [
+    {
+     "id": "recipe_alch_antidote_essence",
+     "qty": 1
+    }
+   ]
+  },
+  "texts": {
+   "progress": "\"Lovely. {left} more to go.\"",
+   "complete": "\"Perfect, every one. Here: the antidote I make for the caravans. The vipers out there don't care how brave you are.\""
+  },
+  "_comment": "DRAFT texts and rewards (2026-09-24), awaiting the user's approval."
+ },
+ "tobbles_toy": {
+  "name": "Tobble's Toy",
+  "giver": "Tobble Cogfarrow",
+  "short": "Bring Tobble five sticky residue, six beetle wings and five shiny pebbles for his flying toy.",
+  "summary": "Tobble is building a toy that flies, very nearly. He needs glue (sticky residue from slimes), wings (from dune scarabs) and something shiny to make it worth looking at.",
+  "objective": {
+   "type": "hand_in",
+   "items": {
+    "sticky_residue": 5,
+    "beetle_wing": 6,
+    "shiny_pebble": 5
+   }
+  },
+  "rewards": {
+   "xp": 110,
+   "coin": {
+    "silver": 5
+   },
+   "items": [
+    {
+     "id": "recipe_tink_bronze_charm",
+     "qty": 1
+    }
+   ]
+  },
+  "texts": {
+   "progress": "\"Oh! Yes! {left} more and it's nearly ready. Nearly!\"",
+   "complete": "The toy rises a hand's width, whirs, and lands on Tobble's foot. \"It flew! Mostly! You've earned this. It's a charm. It's finished. I checked twice.\""
+  },
+  "_comment": "DRAFT texts and rewards (2026-09-24), awaiting the user's approval."
+ },
+ "halrics_arrows": {
+  "name": "Halric's Practice Arrows",
+  "giver": "Guard Halric",
+  "short": "Bring Guard Halric six spider fangs and eight bone fragments for practice arrowheads.",
+  "summary": "Guard Halric runs the archery range and never has enough arrows. Spider fangs make sharp heads and bone makes cheap ones; he'll teach a fletcher's trick in return.",
+  "objective": {
+   "type": "hand_in",
+   "items": {
+    "spider_fang": 6,
+    "bone_fragment": 8
+   }
+  },
+  "rewards": {
+   "xp": 110,
+   "coin": {
+    "silver": 5
+   },
+   "items": [
+    {
+     "id": "recipe_fle_silk_bowstring",
+     "qty": 1
+    }
+   ]
+  },
+  "texts": {
+   "progress": "\"{given} of {need}. The recruits thank you.\"",
+   "complete": "\"That'll keep the range busy for a month. Here: spider silk makes a better bowstring than anything you'll buy. Don't tell Aldric I said so.\""
+  },
+  "_comment": "DRAFT texts and rewards (2026-09-24), awaiting the user's approval."
+ },
+ "aldrics_furs": {
+  "name": "Aldric's Furs",
+  "giver": "Aldric the Provisioner",
+  "short": "Bring Aldric six fur pelts and ten leather scraps for traveller's packs.",
+  "summary": "Aldric the Provisioner can't keep traveller's packs on the shelf. He needs fur pelts and leather scraps, and pays in patterns.",
+  "objective": {
+   "type": "hand_in",
+   "items": {
+    "fur_pelt": 6,
+    "leather_scrap": 10
+   }
+  },
+  "rewards": {
+   "xp": 110,
+   "coin": {
+    "silver": 5
+   },
+   "items": [
+    {
+     "id": "recipe_lw_hardened_leather_armor",
+     "qty": 1
+    },
+    {
+     "id": "recipe_lw_dunehide_jerkin",
+     "qty": 1
+    }
+   ]
+  },
+  "texts": {
+   "progress": "\"{given} of {need}. That'll make a pack or two.\"",
+   "complete": "\"That's a season of packs. Here, two leather patterns I don't sell to just anyone.\""
+  },
+  "_comment": "DRAFT texts and rewards (2026-09-24), awaiting the user's approval."
  }
 }

@@ -887,6 +887,43 @@ func _client_tls_options() -> TLSOptions:
 # peer can write nothing but the character it logged in as, one peer per character at a time.
 
 # Lowercase letters/digits, 2-16 long — the only names a server accepts (they become file names).
+# A NEW character's name: one word, letters only, 2-16 (no spaces, no digits — and no surname: that is earned with /surname
+# at level 10). Older names with digits still log in (sanitize_name()).
+static func valid_character_name(raw: String) -> bool:
+	var name := raw.strip_edges()
+	if name.length() < 2 or name.length() > 16:
+		return false
+	for i in name.length():
+		var c := name.unicode_at(i)
+		if not ((c >= 65 and c <= 90) or (c >= 97 and c <= 122)):
+			return false
+	return true
+
+
+# A surname (/surname): one word, letters with an apostrophe or hyphen inside it (O'Dunne, Stone-Hand), 2-20.
+static func valid_surname(raw: String) -> bool:
+	var name := raw.strip_edges()
+	if name.length() < 2 or name.length() > 20:
+		return false
+	for i in name.length():
+		var c := name.unicode_at(i)
+		var letter := (c >= 65 and c <= 90) or (c >= 97 and c <= 122)
+		var joiner := (c == 39 or c == 45) and i > 0 and i < name.length() - 1
+		if not (letter or joiner):
+			return false
+	return true
+
+
+# "o'dunne" -> "O'Dunne", "stone-hand" -> "Stone-Hand".
+static func format_surname(raw: String) -> String:
+	var out := ""
+	var upper := true
+	for ch in raw.strip_edges().to_lower():
+		out += ch.to_upper() if upper else ch
+		upper = ch == "-" or ch == "'"
+	return out
+
+
 static func sanitize_name(raw: String) -> String:
 	var name := raw.strip_edges().to_lower()
 	var valid := name.length() >= 2 and name.length() <= 16
@@ -1046,6 +1083,9 @@ func _rpc_login(character_name: String, password: String, creation_json: String)
 	if account == "!":
 		return
 	if not creation_json.is_empty():
+		if not valid_character_name(character_name):
+			_login_fail(id, "invalid_name", "A new character's name is one word: letters only, 2 to 16, no spaces.")
+			return
 		if exists or holder != 0:
 			_login_fail(id, "name_taken", "A character named %s already exists on this server." % player.capitalize())
 			return
@@ -1053,7 +1093,7 @@ func _rpc_login(character_name: String, password: String, creation_json: String)
 			_login_fail(id, "weak_password", "Passwords need at least %d characters." % MIN_PASSWORD_LENGTH)
 			return
 		var data := _parse_character(creation_json, player)
-		if data.is_empty() or int(data.get("player_level", 1)) > 1:
+		if data.is_empty() or int(data.get("player_level", 1)) > 1 or not str(data.get("surname", "")).is_empty():
 			_login_fail(id, "invalid_character", "That character can't be created here (new characters must start at level 1).")
 			return
 		# An account's character needs no password of its own: the account guards it.
@@ -1253,9 +1293,18 @@ func _rpc_save_character(json_text: String) -> void:
 	if key.is_empty():
 		return
 	var player := key.trim_prefix(server_name + "_")
-	if _parse_character(json_text, player).is_empty():
+	var incoming := _parse_character(json_text, player)
+	if incoming.is_empty():
 		push_warning("[server] Refused a save from peer %d for %s (unreadable, oversized or wrong character)." % [id, key])
 		return
+	# A surname only arrives through /surname (level 10) or a game master: a save below level 10 that changes it keeps the old one.
+	var stored := _parse_character(FileAccess.get_file_as_string(_character_path(key)), player) if FileAccess.file_exists(_character_path(key)) else {}
+	var relay := get_tree().get_first_node_in_group("gm_relay")
+	var is_gm: bool = relay != null and relay._authorized.has(id)
+	if str(incoming.get("surname", "")) != str(stored.get("surname", "")) and int(incoming.get("player_level", 1)) < 10 and not is_gm:
+		incoming["surname"] = str(stored.get("surname", ""))
+		json_text = JSON.stringify(incoming)
+		_slog("Kept %s's surname: a save below level 10 tried to change it." % key)
 	if _write_character(key, json_text):
 		_rpc_save_acknowledged.rpc_id(id)
 

@@ -63,6 +63,7 @@ var _stall_noted := {}   # patrol waypoints already reported as skipped (reporte
 var _flavor: NPCFlavorText
 var _conversation: NPCConversation = null
 var _merchant_lines: Dictionary = {}
+var _hail_hooks: Array = []   # Data/guard_topics.json "hail_hooks" for this guard (see _hail_hook_line())
 const TOPICS_PATH := "res://Data/guard_topics.json"
 
 var combat_node: CombatNode
@@ -153,6 +154,7 @@ func _setup_conversation() -> void:
 	var topics: Array = []
 	topics.append_array(parsed.get("by_name", {}).get(npc_name, []))
 	topics.append_array(parsed.get("shared", []))
+	_hail_hooks = parsed.get("hail_hooks", {}).get(npc_name, [])
 	_merchant_lines = parsed.get("merchant_lines", {})
 	_conversation = NPCConversation.new(self, topics, HEAR_RANGE)
 	add_to_group("npc_talker")
@@ -203,6 +205,9 @@ func try_give(item_id: String, player: Node) -> bool:
 		"wrong_item":
 			say("I have no use for that, friend.")
 			return false
+		"have_enough":
+			say("I have all the %s I need. Keep it." % str(result.get("item_name", "those")).to_lower())
+			return false
 		"complete", "already_done":
 			if not text.is_empty():
 				say(text)
@@ -245,7 +250,17 @@ func _setup_patrol() -> void:
 
 func respond_to_hail() -> void:
 	_face_player()
+	var hook := _hail_hook_line()
+	if hook != "":
+		say(hook)
+		return
 	_say_flavor("hail")
+
+
+# A guard with work for you says so when hailed (Data/guard_topics.json "hail_hooks"): the first hook whose requirements
+# hold — a topic's conditions, plus "after_quest": id (that quest must be complete) — replaces the random hail line.
+func _hail_hook_line() -> String:
+	return "" if _conversation == null else _conversation.hook_line(_hail_hooks)
 
 
 # Anything that reduces a guard to 0 HP through the normal attack path (monsters

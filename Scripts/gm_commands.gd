@@ -14,7 +14,7 @@
 extends RefCounted   # no class_name on purpose: net.gd (an autoload) uses it, and a brand-new class name is not known to Godot until its class cache is rebuilt; users preload() it instead
 
 const DENIED := "[color=red]Only game masters can do that.[/color]"
-const COMMANDS := ["weather", "raid", "announce", "maintenance", "ban", "unban", "bans"]
+const COMMANDS := ["weather", "raid", "announce", "maintenance", "ban", "unban", "bans", "surname"]
 
 
 static func is_gm(player: Node) -> bool:
@@ -89,6 +89,30 @@ static func check_password(password: String) -> String:
 	return ""
 
 
+# /surname <player> <Surname | clear>: set or remove anyone's surname (online players only). Runs where the players live (the
+# server, or the host / single-player); the player's own machine applies and saves it (Player3D.receive_surname()).
+static func _surname(arg: String, tree: SceneTree) -> String:
+	var words := arg.split(" ", false)
+	if words.size() != 2:
+		return "Usage: /surname <player> <Surname>   or   /surname <player> clear"
+	var target: Node = null
+	for node in tree.get_nodes_in_group("player"):
+		if is_instance_valid(node) and str(node.get("player_name")).to_lower() == words[0].to_lower():
+			target = node
+			break
+	if target == null:
+		return "No player named %s is in the world." % words[0]
+	var value := "" if words[1].to_lower() == "clear" else Net.format_surname(words[1])
+	if not value.is_empty() and not Net.valid_surname(value):
+		return "A surname is one word: letters (an apostrophe or hyphen inside is fine), 2 to 20."
+	if target.is_multiplayer_authority():
+		target._apply_surname(value)   # host / single-player: it is this machine's own player
+	else:
+		target.receive_surname.rpc_id(target.get_multiplayer_authority(), value)
+	var who := str(target.get("player_name"))
+	return "[color=#88ccff]%s[/color]" % ("%s is now %s %s." % [who, who, value] if not value.is_empty() else "%s's surname is removed." % who)
+
+
 # Compares every byte whatever the outcome, so the time it takes does not tell how much of a guess was right.
 static func _same_text(a: String, b: String) -> bool:
 	var x := a.to_utf8_buffer()
@@ -148,6 +172,8 @@ static func run(_player: Node, command: String, arg: String, tree: SceneTree, au
 			return "[color=#88ccff]Raid started.[/color]"
 	if command in ["ban", "unban", "bans"]:
 		return _bans(command, arg.strip_edges(), _player)
+	if command == "surname":
+		return _surname(arg.strip_edges(), tree)
 	if command == "announce" or command == "maintenance":
 		var notice := tree.get_first_node_in_group("server_notice")
 		if notice == null:

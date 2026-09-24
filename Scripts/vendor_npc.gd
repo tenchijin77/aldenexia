@@ -241,3 +241,56 @@ func _setup_animation() -> void:
 	animation_player.add_animation_library("", lib)
 	if animation_player.has_animation("idle"):
 		animation_player.play("idle")
+
+
+
+# ── Quest hand-ins (EverQuest style: drag items from your bags onto the vendor -> the Give window) ──
+# Every vendor takes part; quests name the vendor by get_vendor_display_name() as their "giver" (Data/quests.json).
+# The traveling merchant has his own version (he is only available while he stands still).
+const HANDIN_RANGE := 8.0
+
+
+func receive_item_drop(item: Dictionary, player: Node) -> void:
+	if global_position.distance_to(player.global_position) > HANDIN_RANGE:
+		GameLog.log_general("You are too far away from %s." % get_vendor_display_name())
+		return
+	var existing := get_tree().root.get_node_or_null("GiveWindow")
+	if existing:
+		existing.queue_free()
+	var win := GiveWindow.new()
+	win.name = "GiveWindow"
+	get_tree().root.add_child(win)
+	win.setup(self, player)
+	win.offer_item(item)
+
+
+# Called by the Give window: true closes it (finished), false leaves it open.
+func try_give(item_id: String, player: Node) -> bool:
+	var result := Quests.try_hand_in(get_vendor_display_name(), item_id, player)
+	var text: String = str(result.get("text", ""))
+	match str(result.get("result", "")):
+		"wrong_item":
+			_quest_say("I have no use for that, friend.")
+			return false
+		"have_enough":
+			_quest_say("I have all the %s I need. Keep it." % str(result.get("item_name", "those")).to_lower())
+			return false
+		"complete", "already_done":
+			if not text.is_empty():
+				_quest_say(text)
+			return true
+		_:
+			if not text.is_empty():
+				_quest_say(text)
+			return false
+
+
+func progress_summary() -> String:
+	return Quests.progress_summary(get_vendor_display_name())
+
+
+func _quest_say(line: String) -> void:
+	if has_method("say_local"):
+		call("say_local", line)
+	else:
+		GameLog.log_general("[color=#88ccaa]%s says, \"%s\"[/color]" % [get_vendor_display_name(), NPCConversation.format(line)])

@@ -306,6 +306,23 @@ func _show_inspect_popup() -> void:
 		)
 		btn_row.add_child(learn_btn)
 
+	# Letters and notes (quest items with "lore"): read them into the chat. "starts_quest" begins that quest the first time
+	# (the starting Faded Note -> The Guildmaster's Note).
+	if item_data.get("type") == "quest" and not str(item_data.get("lore", "")).is_empty():
+		var read_btn := Button.new()
+		read_btn.text = "Read"
+		read_btn.pressed.connect(func():
+			layer.queue_free()
+			GameLog.log_general("[color=#e8dcc0]You read the %s:[/color]" % str(item_data.get("name", "note")).to_lower())
+			for paragraph in str(item_data.get("lore", "")).split("\n", false):
+				GameLog.log_general("[color=#e8dcc0][i]%s[/i][/color]" % paragraph)
+			# Items saved before the quest existed don't carry "starts_quest": the current definition does.
+			var quest_id := str(item_data.get("starts_quest", Inventory.get_item_definition(str(item_data.get("item_id", ""))).get("starts_quest", "")))
+			if not quest_id.is_empty() and not Quests.is_started(quest_id):
+				Quests.start(quest_id)
+		)
+		btn_row.add_child(read_btn)
+
 	# Language primers (Data/languages.json): start a language at 1 point.
 	if item_data.get("type") == "scroll" and item_data.has("teaches_language"):
 		var learn_lang_btn := Button.new()

@@ -46,6 +46,13 @@ var is_game_master := false:
 		is_game_master = value
 		if is_inside_tree():
 			_refresh_nameplate()   # /gm enable shows "<Name>" in orange at once, on this screen and (replicated) on everyone else's
+# Last name, earned with /surname at level 10 (or set by a game master). Replicated; shown on nameplates, the target
+# frame and /who (chat and the combat log keep the first name). Saved as Global.player_data["surname"].
+var surname := "":
+	set(value):
+		surname = value
+		if is_inside_tree():
+			_refresh_nameplate()
 var known_spells: Array = []
 var known_skills: Array = []
 var known_recipes: Array = []  # tradeskill recipe ids learned from scrolls/quests (innate recipes are always known)
@@ -387,6 +394,8 @@ func _try_open_shop_or_loot() -> void:
 		return
 	if _try_gather():
 		return
+	if _try_ley_line_node():
+		return
 	if _try_read_world_note():
 		return
 	if _try_pickup_pouch():
@@ -421,6 +430,15 @@ func _try_pickup_pouch() -> bool:
 		return false
 	world_items.pick_up(id)
 	return true
+
+
+# Right-click near a ley-stone (ley_line_node.gd): a travelling caster attunes to it.
+func _try_ley_line_node() -> bool:
+	for node in get_tree().get_nodes_in_group("ley_line_node"):
+		if is_instance_valid(node) and global_position.distance_to(node.global_position) <= node.USE_RANGE:
+			node.interact(self)
+			return true
+	return false
 
 
 # Right-click near a readable object in the world (world_note.gd: the note at the wagon wreck): range-based like the campfire.
@@ -861,7 +879,7 @@ func _faction_reputation_text(target: Node) -> String:
 	var mapped: String = FACTION_STANDING_ALIASES.get(target_faction, target_faction)
 	if not faction_standing.has(mapped):
 		return "Unaligned"
-	var standing: int = faction_standing.get(mapped, 0)
+	var standing: int = faction_standing.get(mapped, 0) + race_faction_offset
 	var label := "Neutral"
 	if standing <= -25:  label = "Hated"
 	elif standing < 0:   label = "Disliked"
@@ -894,7 +912,7 @@ func try_appraise_target() -> void:
 	# Appraising is Perception at work: every appraisal trains it, and each 10 points of it add +1 to the roll. Perception
 	# will matter more later (hidden enemies, traps, secrets).
 	_tick_skill("perception")
-	var perception_bonus := int(skill_levels.get("perception", 0)) / 10
+	var perception_bonus := effective_skill("perception") / 10
 	var roll := randi_range(1, 20)
 	var total := roll + maxi(int_mod, wis_mod) + perception_bonus
 	var success: bool = total >= tier["dc"]
@@ -998,6 +1016,14 @@ func _ready() -> void:
 	combat_node = CombatNode.new()
 	combat_node.name = "CombatNode"
 	add_child(combat_node)
+	# Caster travel / gates / binding (player_travel.gd). On puppets too: its RPCs arrive on the caster's copy on every peer.
+	var travel := PlayerTravel.new()
+	travel.name = "Travel"
+	add_child(travel)
+	# Perception checks near interesting places (perception_watcher.gd): only acts for the local player.
+	var perception := PerceptionWatcher.new()
+	perception.name = "Perception"
+	add_child(perception)
 
 	# Every peer's own local copy of this player needs to know how to build a
 	# replicated pet spawn locally (mirrors multiplayer_player_spawner.gd's
@@ -1898,6 +1924,7 @@ func _process(delta: float) -> void:
 	regen_timer += delta
 	if regen_timer >= REGEN_INTERVAL:
 		regen_timer = 0.0
+		_update_racial_day_night()
 
 		# satiety <= 0 halts HP regen entirely (not just a reduction) — see
 		# update_vitals_decay() below. Below 25 but still >0 is just a graduated
@@ -1908,6 +1935,9 @@ func _process(delta: float) -> void:
 				regen_h = int(regen_h * 3.0)
 			if satiety < 25:
 				regen_h = int(regen_h * 0.8)
+			if race_in_combat_regen_pct > 0.0 and combat_node.in_combat:
+				regen_h += maxi(1, int(combat_node.max_hp * race_in_combat_regen_pct))
+			regen_h = _racial_regen("hp", regen_h, race_hp_regen_mult)
 			combat_node.current_hp = mini(combat_node.current_hp + regen_h, combat_node.max_hp)
 
 		# thirst <= 0 halts mana regen entirely — mirrors the satiety/HP rule above.
@@ -1919,6 +1949,7 @@ func _process(delta: float) -> void:
 			regen_m = int(round(regen_m * meditation_regen_multiplier()))
 			if thirst < 25:
 				regen_m = int(regen_m * 0.8)
+			regen_m = _racial_regen("mana", regen_m, race_mana_regen_mult)
 			combat_node.current_mana = mini(combat_node.current_mana + regen_m, combat_node.max_mana)
 
 	# Sitting trains meditation on every tick (being attacked stands you up, so sitting always means out of combat), whether or not
@@ -3163,6 +3194,8 @@ func _target_out_of_range(spell: Dictionary, target: Node) -> bool:
 
 
 func _stop_all_casting_except_songs() -> void:
+	if _pending_cast_spell_data.has("travel"):
+		$Travel.on_cast_stopped()
 	combat_node.is_casting = false
 	combat_node.current_cast_time = 0.0
 	_pending_cast_spell = ""
@@ -3176,6 +3209,8 @@ func _stop_all_casting() -> void:
 	if not _active_songs.is_empty():
 		GameLog.log_combat("[color=#ff8866]Your song ends.[/color]")
 	_active_songs.clear()
+	if _pending_cast_spell_data.has("travel"):
+		$Travel.on_cast_stopped()
 	combat_node.is_casting = false
 	combat_node.current_cast_time = 0.0
 	_pending_cast_spell = ""
@@ -3494,7 +3529,7 @@ func _apply_baseline_weapon_skill() -> void:
 
 func _refresh_nameplate() -> void:
 	if has_node("NameLabel"):
-		$NameLabel.text = "<%s>" % player_name if is_game_master else player_name
+		$NameLabel.text = TargetFrame.nameplate_name(self)
 		$NameLabel.modulate = TargetFrame.nameplate_color(self)
 
 
@@ -3504,6 +3539,7 @@ func load_character_data(data: Dictionary) -> void:
 		return
 
 	player_name  = data.get("player_name",  "Unnamed Player")
+	surname      = str(data.get("surname", ""))
 	player_class = data.get("player_class", "Blademaster")
 	player_race  = data.get("player_race",  "Human")
 	player_sex   = data.get("player_sex",   "male")
@@ -3624,7 +3660,7 @@ func apply_racial_modifiers(race_name: String) -> void:
 			combat_node.race_psychic_resist = -5
 		"gnome":
 			combat_node.race_dodge_bonus = 10
-			combat_node.race_crit_bonus = 5
+			combat_node.race_spell_crit_chance = 0.05  # spell_critical_chance_bonus (it used to be a melee crit bonus)
 			combat_node.race_melee_damage_mult = -0.15
 			combat_node.race_magic_resist = 10
 			combat_node.race_psychic_resist = 5
@@ -3669,13 +3705,117 @@ func apply_racial_modifiers(race_name: String) -> void:
 			combat_node.race_acid_resist = 5
 			combat_node.race_magic_resist = -5
 		"lizardkin":
-			combat_node.gear_ac += 2
-			combat_node.set_base_stat("charisma", maxi(1, combat_node.charisma - 2))
+			# Natural armour: its own field (gear_ac is recomputed from equipment, which dropped the +2 on the first equip).
+			# The charisma penalty is already in racial_stats.json's base 8; it used to be taken off a second time here.
+			combat_node.race_ac_bonus = 2
 			combat_node.race_acid_resist = 5
 			combat_node.race_cold_resist = -10
 			combat_node.race_psychic_resist = 5
+	apply_racial_traits(race_name)
 	combat_node._stats_dirty = true
 	combat_node.recalculate_derived_stats()
+
+
+# The racial traits apply_racial_modifiers() above doesn't cover, read from Data/character_options.json "traits" (the
+# list the character creation screen shows). Nothing here is saved: it is worked out again at every login, so existing
+# characters get it too. Traits with no game system behind them yet (research, intimidation, swamps, fear saves,
+# knockback — no monster knocks players back) are listed in RACIAL_TRAITS_NOT_YET_USED.
+const RACIAL_SKILL_TRAITS := {
+	"blacksmithing_skill_bonus": "blacksmithing", "mining_skill_bonus": "prospecting", "engineering_skill_bonus": "tinkering",
+	"foraging_skill_bonus": "forage", "fishing_skill_bonus": "fishing", "tracking_skill_bonus": "tracking",
+	"divination_skill_bonus": "divination", "hide_skill_bonus": "stealth", "sneak_skill_bonus": "stealth",
+	"pick_lock_skill_bonus": "lockpicking", "defense_skill_bonus": "defense",
+}
+const RACIAL_TRAITS_NOT_YET_USED := ["research_skill_bonus", "intimidation_skill_bonus", "swamp_movement_speed_bonus",
+	"swamp_survival_skill_bonus", "swamp_perception_skill_bonus", "fear_resistance_save_bonus", "immune_to_knockback"]
+var race_skill_gain_mult: float = 1.0          # Human +5% (experience_gain_all_skills), Half-Elf -5% (Identity Conflict)
+var race_combat_skill_gain_mult: float = 1.0   # Half-Orc +5% on combat (physical) skills
+var race_hp_regen_mult: float = 1.0            # Human +5%
+var race_mana_regen_mult: float = 1.0          # Human, Half-Elf +5%
+var race_in_combat_regen_pct: float = 0.0      # Lizardkin: share of max health regained per tick while fighting
+var race_daylight_regen_mult: float = 1.0      # Vol'kyne (Sunlight Weakness): health/mana regen by day
+var race_night_attack_penalty: int = 0         # Lizardkin (Sunlight Dependency): accuracy lost at night
+var race_faction_offset: int = 0               # added to every faction standing (Human +10, Half-Elf +5; shunned races less)
+var _regen_carry := {"hp": 0.0, "mana": 0.0}    # fractions of a point kept between ticks so +5% regen isn't lost to rounding
+static var _physical_skills: Dictionary = {}
+
+
+func apply_racial_traits(race_name: String) -> void:
+	var race_key := race_name.to_lower()
+	var traits: Dictionary = Global.character_options.get("races", {}).get(race_key, {}).get("traits", {})
+	var bonus := {}
+	for trait_key in RACIAL_SKILL_TRAITS:
+		if traits.has(trait_key):
+			var skill: String = RACIAL_SKILL_TRAITS[trait_key]
+			bonus[skill] = maxi(int(bonus.get(skill, 0)), int(traits[trait_key]))  # hide + sneak both mean stealth: the larger counts
+	combat_node.race_skill_bonus = bonus
+	combat_node.race_school_damage = {}
+	race_skill_gain_mult = 1.0 + float(traits.get("experience_gain_all_skills", 0.0))
+	race_combat_skill_gain_mult = 1.0 + float(traits.get("combat_skill_experience_gain_bonus", 0.0))
+	race_hp_regen_mult = 1.0 + float(traits.get("health_regeneration_bonus", 0.0))
+	race_mana_regen_mult = 1.0 + float(traits.get("mana_regeneration_bonus", 0.0))
+	race_faction_offset = int(traits.get("faction_bonus_all", 0)) + int(traits.get("faction_standing_bonus_all", 0))
+	# Every zone is outdoors so far, so the Elf's outdoor speed always applies (indoor zones will have to switch it off).
+	if traits.has("movement_speed_outdoors_bonus"):
+		combat_node.race_movement_speed_mult = float(traits["movement_speed_outdoors_bonus"])  # Elf: no other speed modifier
+	if traits.has("spell_critical_chance_bonus"):
+		combat_node.race_spell_crit_chance = float(traits["spell_critical_chance_bonus"])
+	if traits.has("necrotic_spell_damage_bonus"):
+		combat_node.race_school_damage["necromancy"] = float(traits["necrotic_spell_damage_bonus"])
+	if traits.has("illusion_spell_damage_bonus"):
+		combat_node.race_school_damage["illusion"] = float(traits["illusion_spell_damage_bonus"])
+	combat_node.race_unarmed_bite = traits.has("unarmed_bite_damage")
+	# Troll's in_combat_health_regeneration is the flat regen_bonus above (always on); the Lizardkin's small one is a share of max health.
+	if race_key == "lizardkin":
+		race_in_combat_regen_pct = float(traits.get("in_combat_health_regeneration", 0.0))
+	# The penalties written as notes in character_options.json, given numbers:
+	match race_key:
+		"half_elf": race_skill_gain_mult -= 0.05          # Identity Conflict: slightly slower skill growth
+		"dark_elf":
+			race_daylight_regen_mult = 0.5                 # Sunlight Weakness: regeneration severely hampered in daylight
+			race_faction_offset -= 10                      # Outcast
+		"lizardkin": race_night_attack_penalty = 5        # Sunlight Dependency: accuracy penalty in darkness
+		"troll": race_faction_offset -= 10                 # Poor Reputation
+		"gnome", "half_orc": race_faction_offset -= 5      # Faction Distrust / Social Stigma
+
+
+# Racial regen multipliers (Human +5%, Vol'kyne halved by day). Fractions carry over to the next tick.
+func _racial_regen(kind: String, amount: int, mult: float) -> int:
+	if race_daylight_regen_mult != 1.0 and not NPCConversation.is_night(get_tree()):
+		mult *= race_daylight_regen_mult
+	if mult == 1.0 or amount <= 0:
+		return amount
+	var exact: float = amount * mult + float(_regen_carry[kind])
+	var whole := int(floor(exact))
+	_regen_carry[kind] = exact - whole
+	return whole
+
+
+# Lizardkin lose accuracy at night; checked every regen tick.
+func _update_racial_day_night() -> void:
+	if race_night_attack_penalty == 0:
+		return
+	var mod := -race_night_attack_penalty if NPCConversation.is_night(get_tree()) else 0
+	if combat_node.race_attack_rating_mod != mod:
+		combat_node.race_attack_rating_mod = mod
+		combat_node._stats_dirty = true
+
+
+func _is_physical_skill(skill_name: String) -> bool:
+	if _physical_skills.is_empty():
+		var parsed = JSON.parse_string(FileAccess.get_file_as_string("res://Data/player_skills.json"))
+		_physical_skills = parsed.get("physical", {}) if typeof(parsed) == TYPE_DICTIONARY else {"_": ""}
+	return _physical_skills.has(skill_name)
+
+
+# A skill as it counts when USED: the trained points plus any racial bonus (Dwarf +15 Blacksmithing...). Skill-ups, caps and
+# recipe minimums use the trained points alone.
+func effective_skill(skill_name: String) -> int:
+	return int(skill_levels.get(skill_name, 0)) + int(combat_node.race_skill_bonus.get(skill_name, 0))
+
+
+func racial_skill_bonus(skill_name: String) -> int:
+	return int(combat_node.race_skill_bonus.get(skill_name, 0))
 #endregion
 
 #region Faction
@@ -3694,7 +3834,7 @@ func load_faction_standing() -> void:
 
 
 func get_faction_standing(faction_name: String) -> int:
-	return faction_standing.get(faction_name, 0)
+	return faction_standing.get(faction_name, 0) + race_faction_offset
 #endregion
 
 #region Helpers
@@ -3793,6 +3933,9 @@ func _tick_weapon_poison(delta: float) -> void:
 		_apply_equipment_from_inventory()
 
 
+var _complete_sets: Array = []   # armour sets fully worn at the last equipment update (for the "set complete" message)
+
+
 func _apply_equipment_from_inventory() -> void:
 	var weapon_dmg := 0
 	var bonus_ac   := 0
@@ -3807,6 +3950,16 @@ func _apply_equipment_from_inventory() -> void:
 		else:
 			bonus_ac += item.get("armor_class", 0)
 		_add_gear_stat_modifiers(item, stat_totals)
+
+	# A complete crafted armour set (ArmorTypes / Data/armor_sets.json) adds its bonus on top.
+	var complete := ArmorTypes.complete_sets()
+	for set_id in complete:
+		var set_def: Dictionary = ArmorTypes.sets().get(set_id, {})
+		bonus_ac += int(set_def.get("ac", 0))
+		_add_gear_stat_modifiers({"stat_modifiers": set_def.get("stats", {})}, stat_totals)
+		if not _complete_sets.has(set_id):
+			GameLog.log_general("[color=#ffdd44]Your %s set is complete: %s.[/color]" % [set_def.get("name", set_id), ArmorTypes.bonus_text(set_id)])
+	_complete_sets = complete
 
 	_apply_gear_stat_totals(stat_totals)
 	combat_node.weapon_damage = weapon_dmg
@@ -3915,6 +4068,12 @@ const SPELL_DISPLAY_NAMES := {
 	"dragon_fist": "Dragon Fist",
 	"improved_ki_strike": "Ki Strike",          # an "improvement" of a Ki Strike the Aetherfist never had: it IS the strike
 	"enhanced_mend_wounds": "Mend Wounds",      # likewise the Aetherfist's group heal itself
+	"recall_to_sanctuary": "Recall to Sanctuary",
+	"call_of_nature": "Call of Nature",
+	"call_of_shadow": "Call of Shadow",
+	"deaths_gate": "Death's Gate",
+	"oath_of_return": "Oath of Return",
+	"song_of_remembrance": "Song of Remembrance",
 }
 
 static func spell_display_name(spell_name: String) -> String:
@@ -3942,7 +4101,7 @@ func cast_spell(spell_name: String, is_auto_recast: bool = false) -> bool:
 		GameLog.log_general("[b]%s[/b] is passive — it's always working, no need to cast it." % spell_display_name(spell_name))
 		return false
 
-	if player_class == "Troubadour" and not is_auto_recast:
+	if player_class == "Troubadour" and not is_auto_recast and not spell.has("travel"):  # a gate is not a song
 		if _active_songs.has(spell_name):
 			_active_songs.erase(spell_name)
 			GameLog.log_combat("You stop playing [b]%s[/b]." % spell_display_name(spell_name))
@@ -3990,6 +4149,10 @@ func cast_spell(spell_name: String, is_auto_recast: bool = false) -> bool:
 	if combat_node.is_casting:
 		if not is_auto_recast:
 			GameLog.log_general("You are already casting a spell.")
+		return false
+
+	# Travel spells (player_travel.gd): not in combat, bind cooldown, and a ritual asks where to go first.
+	if spell.has("travel") and not $Travel.pre_cast(spell_name, spell):
 		return false
 
 	var display_name    := spell_display_name(spell_name)
@@ -4054,6 +4217,8 @@ func cast_spell(spell_name: String, is_auto_recast: bool = false) -> bool:
 	_trigger_cast_animation(spell)
 
 	var cast_time: float = float(spell.get("casting_time", 0.0))
+	if spell.has("casting_time_max"):  # Chaos Rift: a flickering 5-8 s
+		cast_time = randf_range(cast_time, float(spell["casting_time_max"]))
 	if cast_time <= 0.0:
 		_resolve_spell_cast(spell_name, spell, target_node)
 		return true
@@ -4064,6 +4229,8 @@ func cast_spell(spell_name: String, is_auto_recast: bool = false) -> bool:
 	casting_spell_name = display_name
 	combat_node.start_spell_cast(cast_time)
 	_cast_start_pos = global_position
+	if spell.has("travel"):
+		$Travel.on_cast_started(spell_name, spell, cast_time)
 	return true
 
 
@@ -4072,6 +4239,9 @@ func cast_spell(spell_name: String, is_auto_recast: bool = false) -> bool:
 # is whatever was locked in when the cast began, not necessarily current_target
 # anymore (see cast_spell() above).
 func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Node) -> void:
+	if spell.has("travel"):
+		$Travel.resolve(spell_name, spell)
+		return
 	var display_name    := spell_display_name(spell_name)
 	# An upgrade (Improved Plague Strike) runs its base spell's special code; its own numbers come from its own data.
 	var spell_key := SpellInfo.root_name(spell_name)
@@ -4117,7 +4287,7 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 		spell_target = "self"
 
 	match spell_target:
-		# No target: Shadowstep (behind your target), Swift Step (a dash) and teleports (Blink, Chaos Rift — see _teleport()).
+		# No target: Shadowstep (behind your target), Swift Step (a dash) and teleports (Blink — see _teleport()).
 		"none":
 			if spell_name == "shadowstep":
 				if target_node == null:
@@ -4275,6 +4445,8 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 				# resisted by the specific damage type they deal (school
 				# directly IS the resist_type — see calculate_spell_damage()).
 				final_dmg = combat_node.calculate_spell_damage(base_damage, school, target_cn, false, str(spell.get("skill_category", "")))
+				if combat_node.last_spell_crit:
+					GameLog.log_combat("[color=#ffdd44]Your spell strikes with unusual force! (critical)[/color]")
 				target_node.apply_damage(final_dmg, "magic")
 
 			# Multiplayer: relay real damage to whoever actually owns this
@@ -4849,20 +5021,15 @@ func learn_spell(spell_name: String) -> bool:
 	return true
 
 
-# Blink-style teleports: "range" metres the way you face (Chaos Rift: a random direction), stopping at anything solid.
-# Chaos Rift also has a 10% chance of +15% run speed for 4 s.
-func _teleport(spell_name: String, spell: Dictionary) -> void:
+# Blink-style teleports: "range" metres the way you face, stopping at anything solid. (Chaos Rift used to be one of these, an
+# 8 m random hop; it is now the Chaosborn's group travel ritual — player_travel.gd.)
+func _teleport(_spell_name: String, spell: Dictionary) -> void:
 	var distance: float = spell_range_m(spell)
 	var direction := -global_transform.basis.z
-	if spell_name == "chaos_rift":
-		direction = Vector3.FORWARD.rotated(Vector3.UP, randf() * TAU)
 	direction.y = 0.0
 	move_and_collide(direction.normalized() * distance)
 	GameLog.log_combat("[color=#8888ff]You blink away in a flash.[/color]")
 	_broadcast_combat("[color=#8888ff]%s blinks away in a flash.[/color]" % player_name)
-	if spell_name == "chaos_rift" and randf() < 0.10:
-		combat_node.apply_effect("chaos_rift", 4.0, {"move_speed_bonus": 0.15})
-		GameLog.log_combat("[color=#88ffcc]The rift's energy quickens your step.[/color]")
 
 
 func _cast_troubadour_group_song(spell_name: String, spell: Dictionary, effect_type: String, base_damage: int, display_name: String) -> void:
@@ -4949,7 +5116,10 @@ func _compute_spell_damage(base_damage: int, school: String, target_cn) -> int:
 		if target_cn is CombatNode:
 			dmg = combat_node.apply_ac_mitigation(dmg, target_cn)
 		return max(1, dmg)
-	return combat_node.calculate_spell_damage(base_damage, school, target_cn, false, _spell_skill_category)
+	var dmg := combat_node.calculate_spell_damage(base_damage, school, target_cn, false, _spell_skill_category)
+	if combat_node.last_spell_crit:
+		GameLog.log_combat("[color=#ffdd44]Your spell strikes with unusual force! (critical)[/color]")
+	return dmg
 
 
 # Generic, data-driven fallback for any spell whose effect_type isn't covered
@@ -5653,7 +5823,7 @@ func _tick_spell_cast(delta: float) -> void:
 	if not combat_node.is_casting:
 		return
 	# Moving breaks a cast (walking, being knocked back, falling) — except for a Troubadour, whose songs are sung on the move.
-	if player_class != "Troubadour" and Vector2(global_position.x - _cast_start_pos.x, global_position.z - _cast_start_pos.z).length() > CAST_MOVE_TOLERANCE:
+	if (player_class != "Troubadour" or _pending_cast_spell_data.has("travel")) and Vector2(global_position.x - _cast_start_pos.x, global_position.z - _cast_start_pos.z).length() > CAST_MOVE_TOLERANCE:
 		GameLog.log_general("[color=#ff8866]You moved, and your spell fizzles.[/color]")
 		Sfx.play("spell_fizzle")
 		_stop_all_casting_except_songs()
@@ -5694,6 +5864,8 @@ func _check_spell_interrupt(attacker: Node) -> void:
 		"CONCENTRATION_FAILURE":
 			GameLog.log_general("[color=#ff8866]%s[/color]" % result.get("message", ""))
 			Sfx.play("spell_fizzle")
+			if _pending_cast_spell_data.has("travel"):
+				$Travel.on_cast_stopped()
 			_pending_cast_spell = ""
 			_pending_cast_spell_data = {}
 			_pending_cast_target = null
@@ -5786,7 +5958,9 @@ func _tick_skill(skill_name: String, gain_mult: float = 1.0) -> void:
 	var cap: int = skill_cap_for(current)
 	if current >= cap:
 		return
-	var chance: float = 0.15 * (1.0 - float(current) / float(cap)) * gain_mult
+	var chance: float = 0.15 * (1.0 - float(current) / float(cap)) * gain_mult * race_skill_gain_mult
+	if race_combat_skill_gain_mult != 1.0 and _is_physical_skill(skill_name):
+		chance *= race_combat_skill_gain_mult
 	if randf() < chance:
 		skill_levels[skill_name] += 1
 		GameLog.log_general("You've become better at [b]%s[/b]! (%d)" % [
@@ -6368,6 +6542,7 @@ func _sync_weapon_skill() -> void:
 	var skey: String = _weapon_skill_key(Inventory.get_equipped_weapon())
 	# A weapon with no skill of its own (or an unknown one) counts as 0 — _apply_baseline_weapon_skill() then supplies the fallback.
 	combat_node.weapon_skill = 0 if (skey.is_empty() or skey == "none") else int(skill_levels.get(skey, 0))
+	combat_node.is_unarmed = skey == "hand_to_hand"
 	combat_node._stats_dirty = true
 
 
@@ -6412,6 +6587,35 @@ func grant_xp(amount: int) -> void:
 # via .rpc_id() — it is never that player's own authority doing the calling
 # (monster3d.gd's die() already takes the direct grant_xp() path when it is),
 # so "authority"-mode (sender must own this node) would wrongly block it.
+# /surname. By yourself: level 10 and no surname yet (a game master can change or clear one). Returns what to tell the player.
+func set_own_surname(raw: String) -> String:
+	var wanted := raw.strip_edges()
+	if not Net.valid_surname(wanted):
+		return "[color=#ff8866]A surname is one word: letters (an apostrophe or hyphen inside is fine), 2 to 20.[/color]"
+	if not is_game_master:
+		if int(combat_node.level) < 10:
+			return "[color=#ff8866]You can choose a surname at level 10.[/color]"
+		if not surname.is_empty():
+			return "[color=#ff8866]You are already %s %s. Only a game master can change a surname.[/color]" % [player_name, surname]
+	_apply_surname(Net.format_surname(wanted))
+	return "[color=#ffdd44]You are now known as [b]%s %s[/b].[/color]" % [player_name, surname]
+
+
+func _apply_surname(value: String) -> void:
+	surname = value
+	Global.player_data["surname"] = value
+	Global.save_player_data_to_file()
+
+
+# A game master set (or cleared) this player's surname; sent by the server to the player's own machine.
+@rpc("any_peer", "call_remote", "reliable")
+func receive_surname(value: String) -> void:
+	if multiplayer.get_remote_sender_id() != 1 or not is_multiplayer_authority():
+		return
+	_apply_surname(value)
+	GameLog.log_general("[color=#ffdd44]A game master has %s.[/color]" % ("set your surname: you are now [b]%s %s[/b]" % [player_name, value] if not value.is_empty() else "removed your surname"))
+
+
 @rpc("any_peer", "call_remote", "reliable")
 func receive_kill_credit(xp_gain: int) -> void:
 	grant_xp(xp_gain)

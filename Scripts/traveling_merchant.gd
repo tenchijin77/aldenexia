@@ -227,6 +227,9 @@ func try_give(item_id: String, player: Node) -> bool:
 		"wrong_item":
 			GameLog.log_general("[color=%s]%s[/color]" % [EMOTE_COLOR, _pick("wrong_item")])
 			return false
+		"have_enough":
+			GameLog.log_general("[color=%s]Sahren shakes his head. \"I have enough of those, friend.\"[/color]" % EMOTE_COLOR)
+			return false
 		"complete", "already_done":
 			if not text.is_empty():
 				GameLog.log_general("[color=%s]%s[/color]" % [EMOTE_COLOR, text])

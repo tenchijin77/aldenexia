@@ -25,13 +25,125 @@
   "There is a shelf in the archive the Wardens keep locked. I have the key. I have never used it."
  ],
  "topics": [
-  {"id": "hail", "keywords": ["hail", "hello", "greetings", "hey"], "then": {"hail": true}},
-  {"id": "archive", "keywords": ["archive", "archives", "scrolls", "scroll", "library", "books"],
-   "lines": ["The Oasis Wardens have kept records since before Lumora had walls. I keep the copies, so the originals survive the rest of you."],
-   "then": {"open_shop": true}},
-  {"id": "light", "keywords": ["light", "aurethiel", "wardens", "warden", "solara"],
-   "lines": ["The Wardens guard the Light of Solara. I guard what they have learned about using it. It is less glamorous, but it lasts longer."]},
-  {"id": "dark_elf", "keywords": ["dark elf", "xalvyr", "bazaar", "sandveil", "copyist", "necromancy", "dark"],
-   "lines": ["Xalvyr Tenn. The Sandveil Order keeps him, and he copies whatever they are paid for. I would not trust a single line he writes, and I would not stand downwind of his ink either."]}
+  {
+   "id": "rites_start",
+   "keywords": [
+    "rites",
+    "burial",
+    "mummies",
+    "mummy",
+    "canopic",
+    "jar"
+   ],
+   "requires": {
+    "quest": "rites_of_the_dead",
+    "quest_state": "none"
+   },
+   "sequence": [
+    "The mummies by the mausoleum were buried by the old Lumoran rites. The Archive has only fragments of them. Fragments! It is intolerable.",
+    "Bring me four shards of a canopic jar, two jars of embalming salve and three of their bandages. I will reassemble the jar and read what is written on it."
+   ],
+   "then": {
+    "start_quest": "rites_of_the_dead"
+   }
+  },
+  {
+   "id": "rites_active",
+   "keywords": [
+    "rites",
+    "burial",
+    "mummies",
+    "mummy",
+    "canopic",
+    "jar"
+   ],
+   "requires": {
+    "quest": "rites_of_the_dead",
+    "quest_state": "active"
+   },
+   "lines": [
+    "Four canopic shards, two salves, three bandages. Gently, if you please."
+   ]
+  },
+  {
+   "id": "hail",
+   "keywords": [
+    "hail",
+    "hello",
+    "greetings",
+    "hey"
+   ],
+   "then": {
+    "hail": true
+   }
+  },
+  {
+   "id": "archive",
+   "keywords": [
+    "archive",
+    "archives",
+    "scrolls",
+    "scroll",
+    "library",
+    "books"
+   ],
+   "lines": [
+    "The Oasis Wardens have kept records since before Lumora had walls. I keep the copies, so the originals survive the rest of you."
+   ],
+   "then": {
+    "open_shop": true
+   }
+  },
+  {
+   "id": "light",
+   "keywords": [
+    "light",
+    "aurethiel",
+    "wardens",
+    "warden",
+    "solara"
+   ],
+   "lines": [
+    "The Wardens guard the Light of Solara. I guard what they have learned about using it. It is less glamorous, but it lasts longer."
+   ]
+  },
+  {
+   "id": "dark_elf",
+   "keywords": [
+    "dark elf",
+    "xalvyr",
+    "bazaar",
+    "sandveil",
+    "copyist",
+    "necromancy",
+    "dark"
+   ],
+   "lines": [
+    "Xalvyr Tenn. The Sandveil Order keeps him, and he copies whatever they are paid for. I would not trust a single line he writes, and I would not stand downwind of his ink either."
+   ]
+  }
+ ],
+ "hail_hooks": [
+  {
+   "id": "shards_in_pack",
+   "requires": {
+    "quest": "rites_of_the_dead",
+    "quest_state": "active",
+    "has_item": "canopic_jar_fragment"
+   },
+   "lines": [
+    "Is that a canopic shard? Give it to me before you drop it."
+   ]
+  },
+  {
+   "id": "rites_offer",
+   "requires": {
+    "quest": "rites_of_the_dead",
+    "quest_state": "none"
+   },
+   "lines": [
+    "Ah. You go near the mausoleum? Then perhaps you can help the Archive with the old burial {rites}."
+   ]
+  }
  ]
 }

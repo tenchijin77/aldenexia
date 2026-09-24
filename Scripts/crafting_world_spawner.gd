@@ -50,6 +50,20 @@ func _ready() -> void:
 			add_child(node)
 			cluster.append(node)
 		_clusters[i] = cluster
+	# Ley-Line Nodes for caster travel (Data/ley_lines.json, ley_line_node.gd).
+	for entry in _load(PlayerTravel.LEY_LINES_PATH).get(zone_key, {}).get("nodes", []):
+		var ley := LeyLineNode.new()
+		ley.setup(entry)
+		add_child(ley)
+		ley.global_position = _ground(entry.get("position", [0, 0]))
+	# Readable / searchable objects (Data/world_objects.json): quest caches like the stone in The Guildmaster's Note.
+	for entry in _load("res://Data/world_objects.json").get(zone_key, []):
+		var obj := WorldNote.new()
+		for field in ["title", "note_text", "label_text", "start_quest", "give_item", "night_only", "day_text", "found_text", "show_paper", "show_stone", "label_height"]:
+			if entry.has(field):
+				obj.set(field, entry[field])
+		add_child(obj)
+		obj.global_position = _ground(entry.get("position", [0, 0]))
 	_layout_key = _day_key()
 	var placed := _lay_out()
 	print("✅ Crafting world: %d stations, %d gathering nodes in %s" % [placements.get("stations", []).size(), placed, zone_key])

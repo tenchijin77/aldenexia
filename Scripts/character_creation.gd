@@ -87,12 +87,15 @@ func _ready() -> void:
 		begin_button.text = "Done — Return to Multiplayer"
 	if not Global.server_creation.is_empty():
 		begin_button.text = "Enter the World"
-		name_input.max_length = 16
-		name_input.placeholder_text = "Letters and numbers, 2-16"
-		_status_label = Label.new()
-		_status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		_status_label.add_theme_color_override("font_color", Color(0.95, 0.75, 0.45))
-		$MarginContainer/VBoxContainer.add_child(_status_label)
+	# One name only: letters, no spaces (a surname is earned in game with /surname at level 10). Anything else is removed as
+	# it is typed, and the first letter is capitalised.
+	name_input.max_length = 16
+	name_input.placeholder_text = "One name, letters only"
+	name_input.text_changed.connect(_on_name_typed)
+	_status_label = Label.new()
+	_status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_status_label.add_theme_color_override("font_color", Color(0.95, 0.75, 0.45))
+	$MarginContainer/VBoxContainer.add_child(_status_label)
 
 	var spinboxes: Array[SpinBox] = [
 		strength_spin, constitution_spin, dexterity_spin,
@@ -312,9 +315,23 @@ func update_derived_preview() -> void:
 # ---------------------------------------------------------
 # CONFIRM CHARACTER CREATION
 # ---------------------------------------------------------
+func _on_name_typed(text: String) -> void:
+	var clean := ""
+	for ch in text:
+		var c := ch.unicode_at(0)
+		if (c >= 65 and c <= 90) or (c >= 97 and c <= 122):
+			clean += ch
+	clean = clean.left(1).to_upper() + clean.substr(1).to_lower()
+	if clean != text:
+		var caret := mini(name_input.caret_column, clean.length())
+		name_input.text = clean
+		name_input.caret_column = caret
+	_status_label.text = ""
+
+
 func _on_confirm_pressed() -> void:
-	if not Global.server_creation.is_empty() and Net.sanitize_name(name_input.text).is_empty():
-		_status_label.text = "Server character names use letters and numbers only, 2 to 16 characters."
+	if not Net.valid_character_name(name_input.text):
+		_status_label.text = "A character has one name: letters only, 2 to 16, no spaces. You can earn a surname at level 10."
 		return
 	collect_final_stats()
 	# character_options.json uses lowercase keys; all match statements expect PascalCase.

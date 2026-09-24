@@ -95,6 +95,10 @@ func _refresh_dark_sight() -> void:
 		dark_sight_strength = dark_sight_basic_strength
 	else:
 		dark_sight_strength = 0.0
+	# A Night-Eye Draught (Alchemy) gives plain Dark Sight while it lasts (its effect "night_eye").
+	var player := TargetFrame.local_player()
+	if is_instance_valid(player) and player.combat_node and player.combat_node.active_effects.has("night_eye"):
+		dark_sight_strength = maxf(dark_sight_strength, dark_sight_basic_strength)
 
 
 func _on_global_time_changed(_current_time: Dictionary) -> void:

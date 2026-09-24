@@ -35,7 +35,8 @@ ALL_STATS = ["strength", "constitution", "dexterity", "intelligence", "wisdom"]
 
 SLOT_MAP = {"primary": "primary", "two-handed": "primary", "ranged": "ranged", "offhand shield": "offhand",
             "chest": "chest", "feet": "feet", "hands": "hands", "wrist": "wrist", "finger": "finger", "neck": "neck",
-            "charm": "charm", "ammo slot": "ammo", "light slot": "light"}
+            "charm": "charm", "ammo slot": "ammo", "light slot": "light", "head": "head", "shoulders": "shoulders",
+            "arms": "arms", "waist": "waist", "legs": "legs"}
 
 # Placeholder icons until the dedicated art exists (Assets/icons/items/<item_id>.png is used automatically once it does).
 PLACEHOLDER_BY_ID = {
@@ -58,7 +59,9 @@ PLACEHOLDER_BY_ID = {
     "copper_lantern": "torch.png", "bronze_charm": "cog_trinket.png",
 }
 PLACEHOLDER_BY_SLOT = {"primary": "sword.png", "ranged": "totemfragment.png", "chest": "leather-chestpiece.png",
-                       "finger": "gemstone.png", "neck": "gemstone.png", "ammo": "pouch.png", "light": "torch.png"}
+                       "finger": "gemstone.png", "neck": "gemstone.png", "ammo": "pouch.png", "light": "torch.png",
+                       "head": "hood.png", "shoulders": "tunic.png", "arms": "cloth-bracers.png", "waist": "leather.png",
+                       "legs": "cloth_pants.png", "hands": "cloth_gloves.png", "feet": "cloth-shoes.png", "wrist": "cloth-bracers.png"}
 
 # Items that only come from vendors (not made by any recipe or node) — kits, tools, supplies, vendor ammo.
 VENDOR_ITEMS = {
@@ -163,7 +166,7 @@ def add_stats(item, text):
 def apply_effect(item, item_id, effect, unsupported):
     """Turn a sheet 'Effect / Stats' cell into engine item fields. Anything not understood goes to `unsupported`."""
     text = str(effect or "").strip()
-    m = re.match(r"^(Primary|Two-handed|Ranged|Offhand shield|Chest|Feet|Hands|Wrist|Finger|Neck|Charm|Ammo slot|Light slot):\s*(.*)$", text, re.I)
+    m = re.match(r"^(Primary|Two-handed|Ranged|Offhand shield|Chest|Feet|Hands|Wrist|Finger|Neck|Charm|Ammo slot|Light slot|Head|Shoulders|Arms|Waist|Legs):\s*(.*)$", text, re.I)
     if m:
         slot = SLOT_MAP[m.group(1).lower()]
         rest = m.group(2)

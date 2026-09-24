@@ -56,6 +56,9 @@ properties/14/replication_mode = 2
 properties/15/path = NodePath(".:current_stance")
 properties/15/spawn = true
 properties/15/replication_mode = 2
+properties/16/path = NodePath(".:surname")
+properties/16/spawn = true
+properties/16/replication_mode = 2
 
 [node name="CharacterBody3D" type="CharacterBody3D" unique_id=992623004 groups=["player"]]
 script = ExtResource("1_w11xc")

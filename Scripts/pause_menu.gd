@@ -263,6 +263,7 @@ const CHAT_COMMANDS := [
 	["/assist  (or press F)", "Target whatever your current target is targeting"],
 	["/pet", "Pet the cat you are targeting, or the nearest one"],
 	["/language [name]", "List your languages and skill, or switch the language you speak (also the dropdown by the chat box)"],
+	["/surname [Name]", "From level 10, choose your last name (once); with no name, shows yours"],
 ]
 
 
@@ -276,6 +277,7 @@ const GM_COMMANDS := [
 	["/ban <ip | name>", "Ban an IP address (or the address a named player is on) and disconnect them"],
 	["/unban <ip>", "Lift a ban"],
 	["/bans", "List banned addresses"],
+	["/surname <player> <Name|clear>", "Set or remove anyone's surname (or /surname Name for your own at any level)"],
 ]
 
 

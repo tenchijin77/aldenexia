@@ -1,0 +1,118 @@
+{
+ "_comment": "Lira Solarpetal, Lumora's apothecary (Scripts/talking_vendor_npc.gd since 2026-09-24; Data/vendor_shop.json 'lumora_apothecary'). Warm, precise, a little too interested in what things are made of. Quest: Lira's Reagents. {word} in a line is a clickable keyword. ALL LINES ARE DRAFTS.",
+ "ambient_minutes": [
+  4,
+  8
+ ],
+ "ambient_secret_chance_at_night": 0.0,
+ "greeting": [
+  "Welcome to my little shop. Mind the jars; some of them bite.",
+  "Lira Solarpetal. Potions, brews, and the kits to make your own.",
+  "Hello again! Anything poisoned, bitten or merely tired?"
+ ],
+ "shop_intro": [
+  "Alchemy and brewing both. Crystal vials are by the door.",
+  "Every recipe I sell, I've made a hundred times. Most of them twice as many."
+ ],
+ "ambient": [
+  "Sandroot, thistle, a little cactus. Half the cures in the desert start with the same three things.",
+  "A caravan guard came in green this morning. Vipers. He'll live."
+ ],
+ "secret": [],
+ "wrong_item": [
+  "Lira sniffs it. \"Not for me, I'm afraid.\""
+ ],
+ "topics": [
+  {
+   "id": "hail",
+   "keywords": [
+    "hail",
+    "hello",
+    "greetings",
+    "hey"
+   ],
+   "then": {
+    "hail": true
+   }
+  },
+  {
+   "id": "reagents_start",
+   "keywords": [
+    "reagents",
+    "reagent",
+    "ingredients",
+    "scarab",
+    "slime",
+    "bat"
+   ],
+   "requires": {
+    "quest": "liras_reagents",
+    "quest_state": "none"
+   },
+   "sequence": [
+    "I'm out of the rarer things. Scarab eyes, the glands bats see with, and slime gel. Nobody sells them; somebody has to go and get them.",
+    "Five eyes, three glands, four gel. I'll teach you the antidote I make for the caravans."
+   ],
+   "then": {
+    "start_quest": "liras_reagents"
+   }
+  },
+  {
+   "id": "reagents_active",
+   "keywords": [
+    "reagents",
+    "reagent",
+    "ingredients",
+    "scarab",
+    "slime",
+    "bat"
+   ],
+   "requires": {
+    "quest": "liras_reagents",
+    "quest_state": "active"
+   },
+   "lines": [
+    "Five scarab eyes, three echolocation glands, four slime gel. Fresh, if you can."
+   ]
+  },
+  {
+   "id": "wares",
+   "keywords": [
+    "wares",
+    "buy",
+    "sell",
+    "shop",
+    "potions"
+   ],
+   "then": {
+    "open_shop": true
+   },
+   "lines": [
+    "Browse away."
+   ]
+  }
+ ],
+ "hail_hooks": [
+  {
+   "id": "reagents_in_pack",
+   "requires": {
+    "quest": "liras_reagents",
+    "quest_state": "active",
+    "has_item": "scarab_eye"
+   },
+   "lines": [
+    "Oh, scarab eyes! Let me have those."
+   ]
+  },
+  {
+   "id": "reagents_offer",
+   "requires": {
+    "quest": "liras_reagents",
+    "quest_state": "none"
+   },
+   "lines": [
+    "Hello! You look like someone who goes where the interesting {reagents} are."
+   ]
+  }
+ ]
+}

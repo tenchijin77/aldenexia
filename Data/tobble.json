@@ -25,27 +25,91 @@
   ],
   "topics": [
     {
+      "id": "toy_start",
+      "keywords": [
+        "toy",
+        "flying",
+        "fly",
+        "wings"
+      ],
+      "requires": {
+        "quest": "tobbles_toy",
+        "quest_state": "none"
+      },
+      "sequence": [
+        "I'm building a toy that flies! It very nearly flies. It needs glue, wings and something shiny.",
+        "Five lumps of sticky residue from the slimes, six beetle wings from the scarabs and five shiny pebbles. Then it will fly. Nearly certainly."
+      ],
+      "then": {
+        "start_quest": "tobbles_toy"
+      }
+    },
+    {
+      "id": "toy_active",
+      "keywords": [
+        "toy",
+        "flying",
+        "fly",
+        "wings"
+      ],
+      "requires": {
+        "quest": "tobbles_toy",
+        "quest_state": "active"
+      },
+      "lines": [
+        "Glue, wings, shiny things! Five, six, five. It's nearly ready!"
+      ]
+    },
+    {
       "id": "hail",
-      "keywords": ["hail", "hello", "greetings", "hey"],
-      "then": {"hail": true}
+      "keywords": [
+        "hail",
+        "hello",
+        "greetings",
+        "hey"
+      ],
+      "then": {
+        "hail": true
+      }
     },
     {
       "id": "tinkering",
-      "keywords": ["tinkering", "tinker", "profession", "craft", "trade", "teach"],
+      "keywords": [
+        "tinkering",
+        "tinker",
+        "profession",
+        "craft",
+        "trade",
+        "teach"
+      ],
       "lines": [
         "Tinkering? I'll teach it the day I'd trust my own work with your coin. That day is close. It is not today."
       ]
     },
     {
       "id": "gear",
-      "keywords": ["gear", "gears", "cog", "cogs", "workshop", "bench", "prototype", "prototypes"],
+      "keywords": [
+        "gear",
+        "gears",
+        "cog",
+        "cogs",
+        "workshop",
+        "bench",
+        "prototype",
+        "prototypes"
+      ],
       "lines": [
         "Every gear on that bench turns for a reason. I may not have found the reason yet, but it's there."
       ]
     },
     {
       "id": "tick",
-      "keywords": ["tick", "ticking", "sound", "noise"],
+      "keywords": [
+        "tick",
+        "ticking",
+        "sound",
+        "noise"
+      ],
       "sequence": [
         "You hear it too. Good. I was beginning to think it was only in my head.",
         "It's supposed to do that. Probably."
@@ -53,14 +117,51 @@
     },
     {
       "id": "compass",
-      "keywords": ["compass", "buy", "shop"],
-      "lines": ["The compass, now — THAT one I'll stand behind. Have a look."],
-      "then": {"open_shop": true}
+      "keywords": [
+        "compass",
+        "buy",
+        "shop"
+      ],
+      "lines": [
+        "The compass, now — THAT one I'll stand behind. Have a look."
+      ],
+      "then": {
+        "open_shop": true
+      }
     },
     {
       "id": "schematics",
-      "keywords": ["schematics", "dream", "drawer"],
-      "lines": ["Best not to ask what's in the third drawer. I've stopped asking, myself."]
+      "keywords": [
+        "schematics",
+        "dream",
+        "drawer"
+      ],
+      "lines": [
+        "Best not to ask what's in the third drawer. I've stopped asking, myself."
+      ]
+    }
+  ],
+  "hail_hooks": [
+    {
+      "id": "wings_in_pack",
+      "requires": {
+        "quest": "tobbles_toy",
+        "quest_state": "active",
+        "has_item": "beetle_wing"
+      },
+      "lines": [
+        "Wings! You brought wings! Hand them here!"
+      ]
+    },
+    {
+      "id": "toy_offer",
+      "requires": {
+        "quest": "tobbles_toy",
+        "quest_state": "none"
+      },
+      "lines": [
+        "Oh, hello! Do you want to help with my {toy}? It flies. Nearly."
+      ]
     }
   ]
 }

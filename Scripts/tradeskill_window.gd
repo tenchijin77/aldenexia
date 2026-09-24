@@ -12,6 +12,8 @@
 # specific item/node that opened it, per the user's spec — different fire
 # types will show different titles even though they might share a station_id
 # or not), and the action button's label ("Cook"/"Mix"/etc).
+# DECONSTRUCT (deconstruct.gd): put one kind of old gear in the slots and a Deconstruct button takes it apart for materials,
+# if this kit / station works its material. No skill-ups.
 extends CanvasLayer
 class_name TradeskillWindow
 
@@ -89,6 +91,59 @@ func setup(station_id: String, title: String, action_label: String) -> void:
 	action_btn.text = action_label
 	WindowPosition.load_full_into(POSITION_KEY_PREFIX + station_id, panel)
 	_load_recipes()
+	_deconstruct_btn = Button.new()
+	_deconstruct_btn.text = "Deconstruct"
+	_deconstruct_btn.tooltip_text = "Take the gear in the slots apart for crafting materials."
+	_deconstruct_btn.pressed.connect(_on_deconstruct_pressed)
+	action_btn.add_sibling(_deconstruct_btn)
+	_refresh_status()
+
+
+var _deconstruct_btn: Button
+
+
+# The trades this kit / station works (from the recipes it can make).
+func _trades() -> Array:
+	var out: Array = []
+	for entry in _recipes:
+		var skill := str(entry["recipe"].get("skill", ""))
+		if not out.has(skill):
+			out.append(skill)
+	return out
+
+
+# {"item_id", "qty", "returns": {...}} when the slots hold exactly one kind of item that can be taken apart; else {}.
+func _deconstruct_candidate() -> Dictionary:
+	var staged := _staged_ingredients()
+	if staged.size() != 1:
+		return {}
+	var item_id: String = staged.keys()[0]
+	var ret := Deconstruct.returns(item_id)
+	if ret.is_empty():
+		return {}
+	return {"item_id": item_id, "qty": int(staged[item_id]), "returns": ret}
+
+
+func _on_deconstruct_pressed() -> void:
+	var cand := _deconstruct_candidate()
+	if _crafting or cand.is_empty() or not str(cand["returns"]["skill"]) in _trades():
+		return
+	var item_id: String = cand["item_id"]
+	var qty: int = cand["qty"]
+	for slot in slot_row.get_children():
+		if slot is TradeskillSlot and not slot.is_empty() and slot.held_item_id == item_id:
+			slot.remove_quantity(slot.held_quantity)
+	var player := TargetFrame.local_player() as Node3D
+	var world_items := get_tree().get_first_node_in_group("world_items")
+	var got := {}
+	for id in cand["returns"]["items"]:
+		got[id] = int(cand["returns"]["items"][id]) * qty
+		if not Inventory.add_item(id, got[id]) and world_items != null and is_instance_valid(player):
+			world_items.drop(Inventory.create_item_instance(id, got[id]), player.global_position, str(player.get("player_name")))
+			GameLog.log_general("[color=#ff8866]Your bags are full — you set it down at your feet.[/color]")
+	var name: String = Inventory.get_item_definition(item_id).get("name", item_id)
+	Sfx.play("craft_success")
+	GameLog.log_general("[color=#ffdd88]You take apart %s%s and recover %s.[/color]" % ["%d " % qty if qty > 1 else "", name, Deconstruct.describe(got)])
 	_refresh_status()
 
 
@@ -189,8 +244,17 @@ func _refresh_status() -> void:
 	var found := _find_best_recipe()
 	var blocked := "" if found.is_empty() else _blocked_reason(found["id"], found["recipe"])
 	action_btn.disabled = found.is_empty() or not blocked.is_empty()
+	var cand := _deconstruct_candidate()
+	if _deconstruct_btn:
+		_deconstruct_btn.visible = not cand.is_empty()
+		_deconstruct_btn.disabled = cand.is_empty() or not str(cand["returns"]["skill"]) in _trades()
 	if _staged_ingredients().is_empty():
-		status_label.text = "Drag items in to combine them."
+		status_label.text = "Drag items in to combine them, or old gear to take it apart."
+	elif found.is_empty() and not cand.is_empty():
+		if str(cand["returns"]["skill"]) in _trades():
+			status_label.text = "Deconstruct for %s." % Deconstruct.describe(_times(cand["returns"]["items"], int(cand["qty"])))
+		else:
+			status_label.text = "Take this apart at %s." % Deconstruct.where(str(cand["returns"]["skill"]))
 	elif found.is_empty():
 		status_label.text = "You don't know a way to combine these items."
 	elif not blocked.is_empty():
@@ -266,7 +330,13 @@ func _make_one() -> bool:
 	var output: String = _craft_recipe.get("output", "")
 	var player := TargetFrame.local_player()
 	var skill_name: String = str(_craft_recipe.get("skill", ""))
-	var skill: int = int(player.skill_levels.get(skill_name, 0)) if is_instance_valid(player) and "skill_levels" in player else 0
+	# Success uses the skill as it counts (racial bonus included, e.g. a Dwarf's +15 Blacksmithing); the recipe's minimum
+	# and skill-ups use the trained points (_blocked_reason(), Player3D._tick_skill()).
+	var skill: int = 0
+	if is_instance_valid(player) and player.has_method("effective_skill"):
+		skill = player.effective_skill(skill_name)
+	elif is_instance_valid(player) and "skill_levels" in player:
+		skill = int(player.skill_levels.get(skill_name, 0))
 	var success := randf() < success_chance(_craft_recipe, skill)
 	var crit := success and randf() < float(_craft_recipe.get("crit_chance", 0.0))
 	var output_qty: int = int(_craft_recipe.get("crit_yield" if crit else "yield", 1))
@@ -365,3 +435,10 @@ func _on_panel_gui_input(event: InputEvent) -> void:
 			panel.offset_top    += event.relative.y
 			panel.offset_right  += event.relative.x
 			panel.offset_bottom += event.relative.y
+
+
+static func _times(items: Dictionary, n: int) -> Dictionary:
+	var out := {}
+	for id in items:
+		out[id] = int(items[id]) * n
+	return out

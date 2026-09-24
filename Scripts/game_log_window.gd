@@ -615,7 +615,29 @@ func _on_chat_input_gui_input(event: InputEvent) -> void:
 # and "/location" both resolve to "/location" since no other command starts
 # with "loc"; "/f" would be ambiguous if two commands both started with "f".
 const GMCommandsScript := preload("res://Scripts/gm_commands.gd")
-const COMMANDS := ["/location", "/hail", "/appraise", "/time", "/follow", "/camp", "/exit", "/log", "/invite", "/disband", "/say", "/tell", "/party", "/zone", "/played", "/resetui", "/who", "/weather", "/pet", "/quests", "/compass", "/raid", "/gm", "/focus", "/assist", "/announce", "/maintenance", "/trade", "/ban", "/unban", "/bans", "/language"]
+const COMMANDS := ["/location", "/hail", "/appraise", "/time", "/follow", "/camp", "/exit", "/log", "/invite", "/disband", "/say", "/tell", "/party", "/zone", "/played", "/resetui", "/who", "/weather", "/pet", "/quests", "/compass", "/raid", "/gm", "/focus", "/assist", "/announce", "/maintenance", "/trade", "/ban", "/unban", "/bans", "/language", "/surname"]
+
+
+# /surname            what yours is
+# /surname Name       choose yours (level 10; only once unless you are a game master)
+# /surname clear      a game master clears their own
+# /surname who Name   game masters: set anyone's (or "clear")
+func _surname_command(arg: String) -> void:
+	var words := arg.split(" ", false)
+	match words.size():
+		0:
+			if str(player.surname).is_empty():
+				GameLog.log_general("You have no surname. At level 10, choose one with /surname <Name>.")
+			else:
+				GameLog.log_general("You are %s %s." % [player.player_name, player.surname])
+		1:
+			if words[0].to_lower() == "clear" and GMCommandsScript.is_gm(player):
+				player._apply_surname("")
+				GameLog.log_general("[color=#88ccff]Your surname is removed.[/color]")
+			else:
+				GameLog.log_general(player.set_own_surname(words[0]))
+		_:
+			GMCommandsScript.request(player, "surname", arg, get_tree())
 
 
 func _handle_slash_command(text: String) -> void:
@@ -689,6 +711,8 @@ func _handle_slash_command(text: String) -> void:
 			_show_played()
 		"/language":
 			_language_command(arg)
+		"/surname":
+			_surname_command(arg)
 		"/compass":
 			player.toggle_compass()
 		"/quests":
@@ -805,9 +829,15 @@ func _save_and_quit() -> void:
 # unambiguous prefix (e.g. "/fol" -> "/follow") the same way Linux shells
 # tab-complete unique abbreviations. Logs "Unknown"/"Ambiguous" itself and
 # returns "" in either failure case, so callers can just bail on empty.
+# Short forms that must keep working when a new command shares their first letters (/s was /say before /surname existed).
+const COMMAND_ALIASES := {"/s": "/say"}
+
+
 func _resolve_command(typed: String) -> String:
 	if COMMANDS.has(typed):
 		return typed
+	if COMMAND_ALIASES.has(typed):
+		return COMMAND_ALIASES[typed]
 	var matches: Array = []
 	for c in COMMANDS:
 		if c.begins_with(typed):

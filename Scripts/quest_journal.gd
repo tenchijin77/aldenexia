@@ -2,7 +2,9 @@
 # given (Quests.journal_entries() — a quest is added the moment an NPC or a note starts it, so nothing needs tracking by
 # hand), split into Pending and Completed tabs: pending newest first, completed most recently finished first. Selecting a
 # quest shows who gave it, its lore, the objective and progress, the rewards, and for a finished quest how it ended.
-# Refreshes itself while open when quest progress changes.
+# A hand-in quest lists every item it asks for as an icon with the number you are carrying on it (dimmed when you have
+# none), how many you have handed in, and a tick when that item is done. Refreshes while open when quest progress or
+# your bags change.
 extends GameWindow
 class_name QuestJournal
 
@@ -16,7 +18,11 @@ var _refresh := 0.0
 var _pending_btn: Button
 var _completed_btn: Button
 var _list: VBoxContainer
-var _detail: RichTextLabel
+var _detail_top: RichTextLabel      # name, giver, lore, objective line
+var _items_box: VBoxContainer       # one row per item the quest asks for
+var _detail_bottom: RichTextLabel   # rewards, outcome
+
+const TILE_SIZE := 40
 
 
 func _ready() -> void:
@@ -39,14 +45,44 @@ func _ready() -> void:
 	_list = VBoxContainer.new()
 	_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.add_child(_list)
-	_detail = RichTextLabel.new()
-	_detail.bbcode_enabled = true
-	_detail.fit_content = false
-	_detail.scroll_active = true
-	_detail.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_detail.add_theme_font_size_override("normal_font_size", 13)
-	split.add_child(_detail)
+	var detail_scroll := ScrollContainer.new()
+	detail_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	detail_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	split.add_child(detail_scroll)
+	var detail := VBoxContainer.new()
+	detail.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	detail.add_theme_constant_override("separation", 6)
+	detail_scroll.add_child(detail)
+	_detail_top = _rich()
+	detail.add_child(_detail_top)
+	_items_box = VBoxContainer.new()
+	_items_box.add_theme_constant_override("separation", 4)
+	detail.add_child(_items_box)
+	_detail_bottom = _rich()
+	detail.add_child(_detail_bottom)
+	# What you carry changes the item rows, not just quest progress.
+	Inventory.inventory_changed.connect(func(): _signature = "")
 	_rebuild()
+
+
+func _rich() -> RichTextLabel:
+	var r := RichTextLabel.new()
+	r.bbcode_enabled = true
+	r.fit_content = true
+	r.scroll_active = false
+	r.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	r.add_theme_font_size_override("normal_font_size", 13)
+	return r
+
+
+func _set_detail(top: String, items: Array, bottom: String) -> void:
+	_detail_top.text = top
+	_detail_bottom.text = bottom
+	for child in _items_box.get_children():
+		_items_box.remove_child(child)
+		child.queue_free()
+	for row in items:
+		_items_box.add_child(row)
 
 
 func _tab_button(text: String, tab: String) -> Button:
@@ -91,7 +127,7 @@ func _rebuild() -> void:
 		none.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		none.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
 		_list.add_child(none)
-		_detail.text = ""
+		_set_detail("", [], "")
 		return
 	if _selected.is_empty() or not shown.any(func(e): return e["id"] == _selected):
 		_selected = shown[0]["id"]
@@ -111,11 +147,11 @@ func _rebuild() -> void:
 			_rebuild())
 		_list.add_child(b)
 		if entry["id"] == _selected:
-			_detail.text = _describe(entry)
+			_describe(entry)
 
 
-# The detail pane for one quest, as BBCode.
-func _describe(entry: Dictionary) -> String:
+# Fills the detail pane for one quest.
+func _describe(entry: Dictionary) -> void:
 	var def: Dictionary = entry["def"]
 	var done: bool = entry["state"] == "complete"
 	var t := "[font_size=17][color=#ffdd88]%s[/color][/font_size]\n" % def.get("name", entry["id"])
@@ -124,18 +160,67 @@ func _describe(entry: Dictionary) -> String:
 	t += "[color=#e8dcc0][b]Objective[/b][/color]\n"
 	var objective: Dictionary = def.get("objective", {})
 	var goal := str(def.get("short", ""))
-	if str(objective.get("type", "")) == "hand_in":
-		var item_name := str(Inventory.get_item_definition(str(objective.get("item", ""))).get("name", objective.get("item", "")))
-		var have := int(entry["needed"]) if done else int(entry["progress"])
-		t += "  • %s\n  • %s given to %s: [b]%d / %d[/b]\n" % [goal, item_name, def.get("giver", "the quest giver"), have, int(entry["needed"])]
-	else:
-		t += "  • %s\n" % goal
+	t += "  • %s\n" % goal
+	var rows: Array = []
+	var reqs: Dictionary = entry.get("requirements", {})
+	if str(objective.get("type", "")) == "hand_in" and not reqs.is_empty():
+		t += "  • Bring to %s (drag onto them):" % def.get("giver", "the quest giver")
+		for item_id in reqs:
+			var need := int(reqs[item_id])
+			var given := need if done else int(entry.get("given", {}).get(item_id, 0))
+			rows.append(_item_row(str(item_id), given, need, done))
+	var b := ""
 	var rewards := _rewards_text(def.get("rewards", {}))
 	if not rewards.is_empty():
-		t += "\n[color=#e8dcc0][b]Rewards[/b][/color]\n  %s\n" % rewards
+		b += "[color=#e8dcc0][b]Rewards[/b][/color]\n  %s\n" % rewards
 	if done and not str(def.get("texts", {}).get("complete", "")).is_empty():
-		t += "\n[color=#e8dcc0][b]Outcome[/b][/color]\n[color=#cfc6b0]%s[/color]\n" % def["texts"]["complete"]
-	return t
+		b += "\n[color=#e8dcc0][b]Outcome[/b][/color]\n[color=#cfc6b0]%s[/color]\n" % def["texts"]["complete"]
+	_set_detail(t, rows, b)
+
+
+# One required item: its icon with the number you carry in the corner (dimmed if none), then its name and
+# "given N / M · carrying K" — green with a tick once enough has been handed in.
+func _item_row(item_id: String, given: int, need: int, quest_done: bool) -> Control:
+	var def: Dictionary = Inventory.get_item_definition(item_id)
+	var carrying := 0 if quest_done else ItemHelper.count(item_id)
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 10)
+	var tile := Control.new()
+	tile.custom_minimum_size = Vector2(TILE_SIZE, TILE_SIZE)
+	tile.tooltip_text = str(def.get("name", item_id))
+	var icon := ItemIcon.make_rect(ItemIcon.texture(def), TILE_SIZE)
+	icon.set_anchors_preset(Control.PRESET_FULL_RECT)
+	if carrying <= 0 and given < need:
+		icon.modulate = Color(1, 1, 1, 0.35)
+	tile.add_child(icon)
+	if carrying > 0:
+		var qty := Label.new()
+		qty.text = str(carrying)
+		qty.add_theme_font_size_override("font_size", 12)
+		qty.add_theme_color_override("font_outline_color", Color(0, 0, 0))
+		qty.add_theme_constant_override("outline_size", 4)
+		qty.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
+		qty.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+		qty.grow_vertical = Control.GROW_DIRECTION_BEGIN
+		qty.position = Vector2(TILE_SIZE - 4, TILE_SIZE - 2)
+		tile.add_child(qty)
+	row.add_child(tile)
+	var text := Label.new()
+	text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	text.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	text.add_theme_font_size_override("font_size", 13)
+	var finished := given >= need
+	var status := "given %d / %d" % [given, need]
+	if not finished and not quest_done:
+		status += "  ·  carrying %d" % carrying
+		if carrying >= need - given:
+			status += " — enough"
+	text.text = "%s%s\n%s" % ["✔ " if finished else "", def.get("name", item_id), status]
+	var colour := Color(0.55, 0.85, 0.55) if finished else (Color(0.95, 0.85, 0.45) if carrying >= need - given else Color(0.82, 0.82, 0.82))
+	text.add_theme_color_override("font_color", colour)
+	row.add_child(text)
+	return row
 
 
 func _rewards_text(rewards: Dictionary) -> String:

@@ -53,7 +53,10 @@ candidates instead of guessing; a typo that matches nothing prints "Unknown comm
 - Game master commands (only after `/gm enable <password>`; listed on the Controls & Commands page only for a GM):
   `/gm enable <password> | disable`, `/weather rain|clear`, `/raid [bandits|goblins]`, `/announce <text>`,
   `/maintenance [minutes|cancel]`, `/ban <ip | name>` (bans the address and disconnects everyone on it), `/unban <ip>`,
-  `/bans` (added 2026-09-23).
+  `/bans` (added 2026-09-23), `/surname <player> <Name|clear>` (added 2026-09-24: set or remove anyone's surname; a GM can
+  also /surname Name their own at any level, and /surname clear).
+- `/surname [Name]` (added 2026-09-24) — from level 10, choose your last name, once (letters, an apostrophe or hyphen inside
+  is fine); with no name, shows yours. Shown on nameplates, the target frame and /who. `/s` still means /say.
 
 ### Movement
 - `W` / `Up` — move forward
@@ -2005,6 +2008,174 @@ GATE RAIDS (`Scripts/gate_raid_manager.gd`, `Data/gate_raids.json`, node "GateRa
 - ALREADY KNOWN on recipe and language scrolls: the vendor's "✔ known" tag (greyed name), the green tick badge on an inventory slot and the inspect popup now cover recipe scrolls (the recipe is in known_recipes) and language primers (the language is at 1 point or more), not only spell scrolls. Aldric showed Zozuur's Tin Shortsword recipe as unknown because only spells were checked. ItemInspector.teaches_known_spell() became teaches_known() / known_kind() ("spell", "recipe", "language"); the shop tooltip says which.
 - TIN SHIELD (new, Blacksmithing): Crafting.xlsx Blacksmithing row smith_tin_shield — 2 Tin Ingot + 1 Fir Planks at a forge, skill 3 (trivial 18), 90% / 8% crit, 7 s. Offhand shield, AC 3, +1 Stamina, value 10 cp. "Recipe: Tin Shield" scroll, 30 copper, sold by Aldric after the Tin Shortsword recipe. Icon: the shield art tinted tin (make_icon_variants.py). Workbook backup: Crafting.before_tin_shield.xlsx.
 - Verified headless: all 612 items load; every vendor stock id, recipe ingredient/output/scroll resolves; with a stand-in player, the shop row for a known recipe shows "✔ known" (tooltip "You already know this recipe."), an unknown one doesn't; language primer and spell scroll report known; the inspect popup says "✔ You already know this recipe."; the tin shield icon loads.
+
+### Test 30: Targon (Lightsworn), build 8d59f0c (2026-09-24)
+- Stances work (Lightsworn). Wrong-password lockout and Log Out passed. All three moved to COMPLETED in testing_items.txt.
+- "Blessing of Light, no regen message" — NOT A BUG, measured headless with a real Lightsworn player: the cast lands, the effect is active, and health rose 96 -> 115 of 156 in 6 s (3 a second after the 2 s cast, plus natural regen). The only lines are "You begin casting a spell." and "You begin regenerating health.", both in the COMBAT tab, not General; the ticks themselves are silent, and at full health they heal nothing.
+
+### Armour sets, Borgrim the smith, Deconstruct, seven quests, leftover recipes, story draft (2026-09-24, overnight)
+- ARMOUR SETS (Crafting.xlsx rows, exported; backup Crafting.before_armour_sets.xlsx): four 9-piece sets — Oasis Linen
+  (cloth, Tailoring 1-11), Dunehide (leather, Leatherworking 1-11), Copperlink (chain, Blacksmithing 5-13, from a new
+  Copper Links intermediate: 1 copper ingot -> 4 links), Bronzeguard (plate, Blacksmithing 10-16). Head, shoulders, chest,
+  arms, wrists, hands, waist, legs, feet; set AC about 12 / 17 / 24 / 32. Two pieces per set known from the start (the
+  gloves and boots), the rest scrolls, the chest piece a quest reward. Uses sand shimmer, spectral dust, fur pelts and
+  scarab shells. items.json "armor_type" + "armor_set"; the exporter gained the head/shoulders/arms/waist/legs slots.
+  Tinted icons (shoulders/arms/waist are stand-in art).
+- SET BONUS (Data/armor_sets.json, new; ArmorTypes.sets()/complete_sets()): all nine pieces of one set add +2-5 AC and
+  stats (DRAFT numbers); folded into the equipment totals (nothing saved); "Your Bronzeguard set is complete: ..." in the
+  log; the tooltip shows "Bronzeguard set (8 / 9 worn). Full set: ...".
+- BORGRIM EMBERFORGE (new NPC, dwarf, by the forge; Data/smith_borgrim.json; shop lumora_smith): every Blacksmithing
+  pattern (moved from Aldric) plus the Copperlink/Bronzeguard patterns and a Miner's Pick. DRAFT lines.
+- ALDRIC and LIRA are now talking vendors (Data/aldric.json, Data/lira.json: greetings, ambient lines, topics, hail
+  hooks) so they can give quests — their models changed from the generic vendor to human_male / human_female.
+- EVERY VENDOR takes quest hand-ins (VendorNPC: receive_item_drop / try_give / progress_summary, the Give window).
+  Hail hooks moved into NPCConversation.hook_line() (guards, talking vendors, Tobble share it); topics understand
+  "after_quest".
+- SEVEN QUESTS (DRAFT texts/rewards): Bounty on the Goblin Camps (Bryn, 10 goblin ears, REPEATABLE — new quests.gd
+  "repeatable"/"repeat_rewards"; first time: Bronze Longsword + Bronzeguard Breastplate scrolls), What the Sun Took
+  (Sahren, after Release the Hollowed, the Hollowed's four keepsakes; Starlight Cordial), Rites of the Dead (Ilsabet,
+  4 canopic shards + 2 embalming salves + 3 ancient bandages; Old Thallian primer + Oasis Linen Robe), Lira's Reagents
+  (5 scarab eyes, 3 echolocation glands, 4 slime gel; Antidote Essence), Tobble's Toy (5 sticky residue, 6 beetle wings,
+  5 shiny pebbles; Bronze Charm), Halric's Practice Arrows (6 spider fangs, 8 bone fragments; Silk Bowstring), Aldric's
+  Furs (6 fur pelts, 10 leather scraps; Hardened Leather Armor + Dunehide Jerkin). The Silent Den also gives the
+  Copperlink Hauberk. Each giver offers the quest when hailed and has a clickable topic. Quest-reward scrolls are no
+  longer sold; Crafting.xlsx says "Quest reward scroll: ...".
+- DECONSTRUCT (new Scripts/deconstruct.gd; a button in every crafting window): one kind of gear in the slots -> taken
+  apart at a kit or station of its trade. Recipe gear: half of each ingredient (at least one); loot: cloth -> linen +
+  thread, leather -> 2 leather scraps, metal armour/weapons/metal shields -> 2 scrap metal, bows -> fir planks. No
+  skill-ups, no quest items, no worn items (the slots only take bag items). The window names the right trade otherwise.
+- LEFTOVER ITEMS: Night-Eye Draught (Alchemy 4, scroll at Lira: bat wing + echolocation gland + vial -> Dark Sight for
+  10 min; day_night_cycle.gd honours the "night_eye" effect), Salvaged Linen (Tailoring, innate: 3 rotten linen -> 1
+  linen cloth).
+- MAIN STORY: Chapter One drafted for review: ~/NCT/Aldenexia-Lightfall/Main Story Draft - The Guildmaster.txt (only
+  step 1 is built).
+- Verified headless: deconstruct returns (12 items), set bonus at 9 pieces (AC 44 -> 55, message), goblin bounty twice
+  (second pays the repeat reward only), vendor hand-in at Aldric completes his quest, Aldric's hail offers it, the zone
+  scene loads with Borgrim/Aldric/Lira as talking vendors, Night-Eye gives dark sight 0.5; every touched script
+  compiles; RPC list unchanged. Not seen in a window yet.
+- Player's Manual regenerated and republished (armour sets, Deconstruct, Borgrim, the new quests and quest recipes).
+
+### Gate names, no metal shields for Wildspeakers, quest recipe rewards, The Guildmaster's Note (2026-09-24)
+- GATES renamed (user): Duskwalk (Voidknight), Long March (Blademaster), Ki Vortex (Aetherfist), Song of Remembrance
+  (Troubadour), Familiar Trail (Woodstalker). Oath of Return (Lightsworn) and Blood Recall (Chaosborn) are still drafts.
+- WILDSPEAKERS carry wood or bone shields, never metal (character_options "no_metal_shields"; items "shield_material":
+  Bone Shield bone, Tin/Bronze Shield metal): "A Wildspeaker carries wood or bone, never a metal shield."
+- QUEST RECIPE REWARDS (user-approved table), the scroll as the reward: The Wreck -> Recipe: Bronze Amulet, The
+  Weavemother's Mark -> Recipe: Archmage's Robe, Release the Hollowed -> Recipe: Fire-Roasted Viper Kebab, A Warden Not at
+  Rest -> Recipe: Palm Longbow. Removed from Tobble's / Aldric's stock; Crafting.xlsx "Learned From" says "Quest reward
+  scroll: ..." (backup Crafting.before_quest_rewards.xlsx). The other six wait for the new quests.
+- THE GUILDMASTER'S NOTE (user: yes to #18): the starting Faded Note can be READ from your bags (new Read button for
+  quest items with "lore"; old saved notes fall back to the item definition) and starts the quest. An Old Foundation
+  Stone (Data/world_objects.json, new; WorldNote gained give_item / night_only / day_text / found_text / show_stone;
+  placed by crafting_world_spawner.gd) by the crypts, only searchable at night, gives Aelric's Sealed Letter; the new
+  "find" objective completes the quest when it reaches your bags: 120 XP + the Scroll of High Arcanum Basics (nothing
+  gave it before). The letter and Aelric are DRAFTS: he exists nowhere else in the lore yet.
+- Verified headless: shield rules; the stone by day (refuses), by night (letter + primer, quest complete), again (empty).
+- mirage_phantom_loot.json kept (user: loot tables will be nested; the mob's unique loot goes there).
+
+### Shields by class, Blood Recall, Unstable Rift removed (2026-09-24)
+- SHIELDS are their own armour type ("armor_type": "shield" on Bone, Tin and Bronze Shield): Lightsworn, Voidknight,
+  Blademaster, Lightmender, Troubadour, Spiritweaver, Wildspeaker (user's EQ/D&D call). Others: "A Gravecaller can't use
+  a shield." Only Zozuur wears one on the server (Voidknight: allowed).
+- BLOOD RECALL (Chaosborn gate, level 6, DRAFT name): so every class has a gate to its bind point. Scroll at Xalvyr.
+- UNSTABLE RIFT removed (user): it was a 10 m random party hop; the Chaosborn's portals are Chaos Rift and Phase Snap.
+- Player's Manual regenerated and republished.
+
+### Armour types, caster travel & gates, Perception, surnames (2026-09-24)
+- ARMOUR TYPES (user's D&D rule): character_options.json classes get "armor_types"; items.json armour gets "armor_type"
+  (cloth: the starter rags, capes, cloaks, sandals, robes, gloves; leather: jerkin, boots, bracers, the three leather
+  armours, Captain's Studded Vest, Goblin-Hide Boots; plate: Copper Armor Plating, Tarnished Warden's Helm; no chain yet;
+  shields, jewellery, the copper cuff: anyone). Everyone wears cloth; casters cloth only; Woodstalker/Wildspeaker/
+  Aetherfist leather; Shadowblade/Spiritweaver chain; tanks, Troubadour, Lightmender plate. New Scripts/armor_types.gd.
+  Equipping refuses ("You can't wear plate armour. A Gravecaller wears cloth."); the tooltip and the shop's Usable filter
+  know it. Worn items stay on. Checked the server: nobody is wearing anything their class can't (Zozuur's leather jerkin
+  is allowed).
+- CASTER TRAVEL (Class teleportation Spell Notes.txt; new Scripts/player_travel.gd, travel_portal.gd, ley_line_node.gd,
+  Data/ley_lines.json): three Ley-Line Nodes (standing stones) by the mausoleum, at Sandcrest Landing and in the southern
+  palm grove (no oasis exists in the outskirts — it is in Lumora town); right-click to attune (Arcanist runes, Wildspeaker
+  spectral seed, Chaosborn blood). Rituals, level 6, pick an attuned stone from a menu: SPECTRAL BRIDGE (Arcanist, replaces
+  Portal; 15 s channel, a glowing bridge opens behind the rooted Arcanist, group members run to its arch and cross, the
+  Arcanist is pulled through at the end), ROOT-TUNNEL (Wildspeaker, 8 s, vines rise, the group within 8 m is pulled
+  under, arrives with Nature's Ward +3 HP regen 2 min), CHAOS RIFT (Chaosborn, no longer an 8 m hop: 5-8 s random cast, a
+  flickering tear behind them, 5% Wild Surge). Evacuations, level 10, the group within 20 m to the town gate (the new-
+  character spawn): SPATIAL REDOUBT (Arcanist, 10 s, safe), WORMHOLE (Wildspeaker, 4 s), PHASE SNAP (Chaosborn, 1.5 s,
+  d20 Chaos Tax: 1-5 caster loses 20% max mana, 6-10 Aether-Sickness -30% speed 20 s, 11-15 a teleport-trash item for
+  everyone (Bent Spoon, A Stranger's Button, Half a Letter, Warm Pebble from Nowhere), 16-20 heal 10%). Stand-in visuals
+  and screen washes (earthy for tunnels, violet glitch for rifts). Players move themselves: portals/pulls reach every
+  peer as RPCs on the player's new "Travel" child node (Net's RPC list untouched).
+- GATES & BINDING: ATTUNE SPIRIT (every class, level 4, 10 s, once an hour, not in combat) binds you where you stand.
+  A self-gate for every class at level 6 (bind point, 30 min recast, not in combat): Recall to Sanctuary (Lightmender),
+  Call of Nature (Wildspeaker), Spirit Walk (Spiritweaver — it was a movement-immunity buff; your notes make it the gate),
+  Runic Gateway (Runecaster), Arcane Recall (Arcanist), Death's Gate (Gravecaller), Call of Shadow (Shadowblade); DRAFT
+  names for classes the notes didn't cover: Homeward Trail (Woodstalker — "Call of the Wild" is the Wildspeaker's pet
+  spell), Oath of Return (Lightsworn), Veilwalk (Voidknight), March Home (Blademaster), Ki Homecoming (Aetherfist), Song of
+  Homecoming (Troubadour; not a song). Chaosborn's option is Phase Snap, as in the notes. Scrolls at Ilsabet / Xalvyr.
+- PERCEPTION (new Scripts/perception_watcher.gd, Data/perception_spots.json): 11 spots (gate, tower spires, Sandcrest
+  Landing, mausoleum, graveyard, wagon wreck, signpost, archery range, spider den, goblin camp, bandit camp), 2-3 notices
+  each at rising DCs (8-20, one only at night). Standing near one rolls d20 + WIS mod + Perception/10 per notice; success
+  prints "You notice something. ..." once per character; failures retry after 5 min; every roll trains Perception. DRAFT
+  lines (some foreshadow the Moribund sigil and a staged Djhanid raid).
+- SURNAMES: /surname Name at level 10, once (letters; ' or - inside; "o'dunne" -> O'Dunne); GMs: /surname Name at any
+  level, /surname clear, /surname <player> <Name|clear> for anyone online (server sends it to that player). Replicated
+  (player3d.tscn), shown on nameplates, the target frame and /who; chat keeps first names. Server: a save below level 10
+  that changes the surname keeps the old one (unless a GM). /s still means /say (command alias). In the pause-menu list,
+  tester guide (republished) and the reference above.
+- ONE NAME AT CREATION: letters only, 2-16, no spaces or digits — typed characters that aren't letters vanish, the first
+  letter is capitalised; the server refuses a new character with any other name or with a "surname" in its data. Older
+  names still log in.
+- Verified headless: every class's armour list; travel for Arcanist/Wildspeaker/Chaosborn (attune, chooser, portal on
+  cast, arrival at the stone, evac to 20,13, gates to the bind point, bind + 1-hour refusal, moving closes the portal,
+  Troubadour gate isn't a song); Perception at the gate (WIS 8: 2 of 3 notices, WIS 18 + skill 20: all 3); surnames (level
+  gate, once, GM change/clear, nameplate, /who, bad names) and the creation filter ("tar gon 2" -> "Targon"). NOT verified:
+  other group members crossing a portal / being pulled (needs two players), node positions on the real terrain.
+- Player's Manual regenerated and republished (armour per class, caster travel, gates, perception, names).
+
+### Multi-item quests and item tracking in the journal (2026-09-24)
+- quests.gd: a hand-in objective can ask for several different items — {"type": "hand_in", "items": {id: n, ...}} — handed
+  in in any order, a few at a time; progress is saved per item ("given": {id: n}, "progress" = the total). The single-item
+  form ("item"/"count") and old saves (only "progress") still work (Quests.requirements() / given()). Handing in more of an
+  item than it still needs: guards say "I have all the X I need. Keep it.", Sahren shakes his head. auto_start and quest
+  chains work with any of the items; /quests and the Give window show "Lock of Hair 1/1, Small Tin Cup 0/1".
+- QUEST JOURNAL (J): every item a quest asks for is a row with its icon — the number you're carrying on it like a bag
+  slot, dimmed when you have none — and "given N / M · carrying K"; yellow when you carry enough to finish that item,
+  green with a tick when it's done. Refreshes when your bags change, not only when quest progress does.
+- Verified headless (a test quest wanting 2 rat tails + 1 bat wing): part hand-ins, "have enough", completion, journal rows
+  (icon, stack number, dimming, colours), and a pre-change save finishing Release the Hollowed. Not yet seen in a window.
+- DECIDED (user): quest recipe rewards are the recipe SCROLLS. Armour follows D&D: casters cloth; rangers leather; rogues
+  leather/chain; tanks leather/chain/plate — and Troubadours can wear plate. Not built yet (see outstanding_items.txt).
+
+### Racial traits completed (2026-09-24)
+- The creation screen listed every race's traits but only part were live (apply_racial_modifiers(): health/mana/damage/
+  dodge/resist numbers, dark sight, torches, amphibious). New Player3D.apply_racial_traits() reads the rest straight from
+  character_options.json "traits": skill bonuses (Dwarf Blacksmithing/Prospecting +15, Gnome Tinkering +20, Halfling Forage/
+  Fishing +10 and Stealth +15, Elf/Half-Elf Tracking/Divination, Vol'kyne Stealth/Lockpicking +15, Half-Orc Defense +10);
+  skill growth (Human +5%, Half-Orc combat skills +5%, Half-Elf -5%); Human health/mana and Half-Elf mana regen +5% (with
+  fractional carry so it isn't rounded away); faction offsets (Human +10, Half-Elf +5); Elf +10% speed outdoors; Gnome 5%
+  spell crits (175%; logged "Your spell strikes with unusual force!") replacing the melee crit bonus it wrongly had;
+  Vol'kyne necromancy/illusion +10%; Lizardkin bite (+1d6 bare-handed) and in-combat regen. Penalty notes given numbers:
+  Vol'kyne regen halved by day, Lizardkin -5 accuracy at night, Half-Elf -5% skill growth, Troll/Vol'kyne -10 and
+  Gnome/Half-Orc -5 faction.
+- Racial skill points count wherever the skill is USED (combat skill effects, craft and gather success, perception) but not
+  for recipe/node minimums or skill-ups (Player3D.effective_skill()). The abilities book lists them ("Racial bonus: +15").
+- FIXES: Lizardkin +2 AC was added to gear_ac, which the first equipment change recomputed (lost); now race_ac_bonus.
+  Lizardkin charisma was cut by 2 a second time at every login (racial_stats.json's base 8 already has it) — removed.
+- Nothing is saved: traits are worked out at login, so all 9 server characters get them with the update. Checked the
+  server saves: every character's stored stats = its race's base + exactly 4 points (no fixes needed).
+- Not yet (no system): research, intimidation, swamps, fear saves, knockback immunity (outstanding_items.txt).
+- Verified headless: a real player per race (all 11) — skill bonuses, gain/regen multipliers, faction, speed, AC after an
+  equipment reset, charisma, 106/2000 Gnome spell crits, Vol'kyne necromancy 60 -> 66. RPC list unchanged (patch-safe).
+- Player's Manual regenerated and republished: races now show live traits, the few planned ones, and the drawbacks in numbers.
+
+### Quest discovery audit: every quest can now be found by talking (2026-09-24)
+- "Reyna never gives the wreck quest": the quest was only started by SAYING a keyword (wagon, wreck, strongbox...) that nothing on screen offered; her hail is a random line from the shared guard pool (links: Lumora, dustwalkers, raiders, Kenji). Audit of all five quests: The Wreck (Reyna) undiscoverable except by finding the wreck; A Warden Not at Rest fine (starts when you loot the medal) but no hint to hand it in; The Silent Den (Corwin) only via looting silk; The Weavemother's Mark: "Ask me about the den" wasn't clickable; Release the Hollowed (Sahren) reachable only while carrying a token (Djhanid -> water -> token looped).
+- HAIL HOOKS (new, Data/guard_topics.json "hail_hooks" by guard name; guard_npc.gd _hail_hook_line()): hailing a guard says the first hook whose requirements hold instead of a random line, linking the keyword that starts or finishes the quest. Reyna: medal in pack -> hand it in; strongbox in pack -> hand it in; wreck not started -> {wagon}. Corwin: sigil in pack; silk in pack; den done & mark not started -> {den} ("after_quest" condition); den not started -> {spiders}. No hook -> the usual random line. DRAFT lines.
+- quests.json: The Silent Den's complete/already_done texts link {den}. traveling_merchant.json: Sahren's token line links {Hollowed}.
+- Verified headless (real guard scene, stand-in player): every hook fires in the right state, clicking wagon / den starts the quests, looting the medal / silk starts theirs, a guard with nothing to offer gives a random line.
+
+### Player's Manual; testing checklist split into outstanding / completed (2026-09-24)
+- PLAYER_MANUAL.html (project root, new; published as an artifact, same look as TESTER_GUIDE.html): the world and the Lightfall (from History.txt), your first hour, how the game works (levels, food/water, death, poison, casting, campfires, groups, trading, bank, languages, XP table), all 11 races (stats, resistances, languages, classes, traits — the ones the engine doesn't do yet marked "planned"), all 14 classes (role, stats, races, starting kit, stances, full spell list with mana/cast/recast/range and which scribe sells it), spells and abilities (learning, upgrades, passives, stances, songs, pets, pickpocket), skills (what each does), crafting (rules, gathering nodes, every recipe by trade with scroll price and vendor) and Lumora Outskirts (places, people, quests, gate raids, bestiary).
+- It is GENERATED: tools/make_manual.py fills tools/manual_template.html (the hand-written text — edit words there) from Data/*.json, the starting spells in character_creation.gd and the full controls list in TESTER_GUIDE.html (kept in one place). Re-run `python3 tools/make_manual.py` after data changes and republish.
+- testing_items.txt is now in two parts, OUTSTANDING (72) at the top and COMPLETED (13) below, each with the same section headings; the two "- working" Blademaster items moved to COMPLETED.
 
 ## 2026-09-17 — Session 45: Generic spell-effect engine, 7 more classes brought to parity, tradeskills (cooking/alchemy), Wildspeaker pet, fear/charm mechanics, multiplayer CC/heal relay, UI theme + resize pass, 5 new mob models, network widget
 

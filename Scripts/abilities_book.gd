@@ -349,8 +349,16 @@ func _fill_general_skills() -> void:
 		vbox.add_child(_empty_label("No general skills known."))
 		return
 
-	for skill_name in skills:
+	# Skills your race gives a bonus in are listed even before you train them (a Dwarf sees Blacksmithing +15 from the start).
+	var racial: Dictionary = _player.combat_node.race_skill_bonus if "combat_node" in _player and _player.combat_node else {}
+	var shown: Array = skills.duplicate()
+	for racial_skill in racial:
+		if not shown.has(racial_skill):
+			shown.append(racial_skill)
+	for skill_name in shown:
 		var desc: String  = skill_db.get(skill_name, "")
+		if int(racial.get(skill_name, 0)) > 0:
+			desc = "Racial bonus: +%d when you use it (not counted toward skill-ups).\n%s" % [int(racial[skill_name]), desc]
 		var level: int    = levels.get(skill_name, 0)
 		var cap: int = int(_player.call("skill_cap_for", level)) if _player.has_method("skill_cap_for") else skill_max
 		vbox.add_child(_make_skill_row(skill_name, desc, level, cap))

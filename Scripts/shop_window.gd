@@ -129,7 +129,7 @@ func _is_usable_by_player(item_def: Dictionary) -> bool:
 	var race_list: Array = item_def.get("race", ["all"])
 	var race_ok := "all" in race_list or player_race in race_list.map(func(r): return str(r).to_lower())
 
-	return class_ok and race_ok
+	return class_ok and race_ok and ArmorTypes.can_wear(item_def, str(_player.get("player_class")) if "player_class" in _player else "")
 
 
 # Right-click a row (For Sale or Your Items) to see the item's properties and how it compares with what you have equipped.

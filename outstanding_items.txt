@@ -1,6 +1,6 @@
 ALDENEXIA: LIGHTFALL — OUTSTANDING ITEMS
 Everything decided or noticed but not finished yet, so nothing gets lost. (New features waiting for a playtest are in testing_items.txt.) Add to it whenever something is left open; strike
-an item (delete it, note it in change_log.txt) when it's done. Last updated 2026-09-24 (test 29).
+an item (delete it, note it in change_log.txt) when it's done. Last updated 2026-09-24 (after test 30).
 
 
 == WAITING ON THE USER ==
@@ -11,6 +11,21 @@ an item (delete it, note it in change_log.txt) when it's done. Last updated 2026
 - Knockback on bosses: every monster can be knocked back today; monsters.json "knockback_immune": true opts one out.
   Should the named/boss monsters be immune?
 - Guardian Spirit lasts 15 s (the in-combat buff rule). Longer?
+- PROPOSAL waiting for discussion (2026-09-24, in chat): crafted armour sets for cloth / leather / chain / plate, one
+  quest-reward recipe per trade, 7+ new quests built on the purposeless loot below, and Deconstruct at kits/stations.
+  All built 2026-09-24 overnight (armour sets, Deconstruct, 7 quests, recipe rewards, leftover recipes).
+- TRAVEL (built 2026-09-24) — still open: Spatial Redoubt is the Arcanist evacuation (travel notes) but a damage shield in Classes spell
+  list-updated.txt — the user is reviewing that list. Draft gate names still to approve: Oath of Return (Lightsworn), Blood
+  Recall (Chaosborn). Levels (bind 4, gates/rituals 6, evacs 10; gate recast 30 min, Phase Snap
+  10 min) need approval. Spirit Walk lost its old movement-immunity effect when it became the Spiritweaver gate.
+  Ley-stone positions are guesses; the Wildspeaker
+  seed doesn't "grow for 24 hours"; "World-Tree health" doesn't exist, so Nature's Ward always applies. Bridge/rift
+  entry and group pulls not yet tried with two players.
+- Shields (decided and built): tanks, Lightmender, Troubadour, Spiritweaver, Wildspeaker. Optional D&D nuance not built:
+  druids (Wildspeaker) only use wooden/bone shields, never metal.
+- Racial traits: faction penalties given numbers by me (Troll/Vol'kyne -10, Gnome/Half-Orc -5 to every faction), Vol'kyne
+  regen halved by day, Lizardkin -5 accuracy at night, Half-Elf skills 5% slower. Racial skill bonuses count for success
+  but NOT for recipe minimums or skill-ups (else a Dwarf could forge Bronze Longswords at level 1). Confirm or change.
 
 
 == LANGUAGES (built 2026-09-23; see change_log.txt) — still open ==
@@ -60,6 +75,23 @@ an item (delete it, note it in change_log.txt) when it's done. Last updated 2026
 
 
 == WORLD AND SYSTEMS ==
+- Racial traits with no system behind them yet: Gnome research +20, Ogre/Half-Orc intimidation, Troll/Lizardkin swamp
+  speed/survival/perception (no swamps), Lizardkin fear saves (nothing fears players), Dwarf knockback immunity (nothing
+  knocks players back). The Elf's outdoor speed is always on (every zone is outdoors) — indoor zones must switch it off.
+- Troll in-combat regeneration is the old flat +4 HP per tick, always on (not only in combat).
+- Loot with no use (audit 2026-09-24): ancient bandage, bat wing, beetle wing, bone fragment, canopic jar fragment,
+  delusional scrawl, echolocation gland, embalming salve, empty waterskin, fur pelt, goblin ear, leather scrap, lock of
+  hair, rotten linen, sand shimmer, scarab eye, scarab shell, shiny pebble, slime gel, small tin cup, spectral dust,
+  spider fang, sticky residue, tomb dust (they only sell). See the proposal.
+- The Guildmaster's Note (built): Aelric and his letter are placeholders — the main story after the letter is the user's.
+- Data/mirage_phantom_loot.json: kept for nested per-mob loot tables (user); its 5 items (echo_shard, memory_fragment,
+  phantom_dust, shimmering_fabric, spectral_residue) need items.json entries when it is used.
+- MAIN STORY Chapter One drafted (~/NCT/Aldenexia-Lightfall/Main Story Draft - The Guildmaster.txt) — waiting for review;
+  4 questions at the end of it (Aelric's guild, the Light of Solara swap, Captain Hale, permanent choice?).
+- Draft numbers to approve: set bonuses (Data/armor_sets.json), set piece stats/skills, new quest rewards (XP/silver).
+- Stand-in art: set shoulders/arms/waist icons reuse chest/bracer/cloth art; Borgrim, Aldric, Lira use race models.
+- Deconstruct: bone/wood shields and loot jewellery without a recipe give nothing (no material rule for them).
+- The unused ExtResource "13_vendor1" (old vendor scene) is still declared in lumora_outskirts3d.tscn (harmless).
 - Gate raids: bandits/goblins don't attack the gate itself; no raid rewards beyond kills; no raids with named mobs; no
   scaling to zone level.
 - Lockpicking (Shadowblade skill): no lockable containers exist. Safe Fall skill: fall damage exists now, but the skill

@@ -137,6 +137,15 @@ var race_all_stats_mult: float = 0.0      # Applied to effective base stats in r
 var race_negative_effect_resist: float = 0.0  # Chance [0-1] to shrug off an incoming debuff/CC entirely
 var race_immune_to_root: bool = false
 var race_immune_to_blind: bool = false
+# The rest of the racial traits (player3d.gd apply_racial_traits(), read from character_options.json "traits"):
+var race_ac_bonus: int = 0                # Lizardkin natural armour (it used to be added to gear_ac, which equipping reset)
+var race_skill_bonus: Dictionary = {}     # skill -> points added to the skill wherever it is USED (never stored; skill-ups use the real value)
+var race_school_damage: Dictionary = {}   # spell skill_category -> extra damage (Vol'kyne necromancy / illusion +10%)
+var race_spell_crit_chance: float = 0.0   # Gnome: chance for a damage spell to crit (175%); spells can't crit otherwise
+var race_unarmed_bite: bool = false       # Lizardkin: +1d6 on unarmed melee hits
+var race_attack_rating_mod: int = 0       # Lizardkin at night (sunlight dependency): accuracy penalty, set by player3d
+var is_unarmed: bool = false              # set by player3d._sync_weapon_skill()
+var last_spell_crit: bool = false         # the last calculate_spell_damage() rolled a racial spell crit (for the combat log)
 
 # Flat point bonuses/penalties added to the matching resist stat in
 # recalculate_derived_stats() — sourced from Data/racial_stats.json's
@@ -154,7 +163,7 @@ var race_psychic_resist: int = 0
 # Sum of what the player's skills add to `stat`, from Data/skill_effects.json ("skill: bonus per point").
 # `category` is the skill the current spell/ability belongs to (stands in for "@category"). 0.0 for anything without skills.
 func skill_bonus(stat: String, category: String = "") -> float:
-	if skills.is_empty():
+	if skills.is_empty() and race_skill_bonus.is_empty():
 		return 0.0
 	var total := 0.0
 	var table := SkillEffects.table(stat)
@@ -162,8 +171,8 @@ func skill_bonus(stat: String, category: String = "") -> float:
 		var points := 0
 		match skill_name:
 			"@weapon": points = weapon_skill
-			"@category": points = int(skills.get(category, 0)) if not category.is_empty() else 0
-			_: points = int(skills.get(skill_name, 0))
+			"@category": points = int(skills.get(category, 0)) + int(race_skill_bonus.get(category, 0)) if not category.is_empty() else 0
+			_: points = int(skills.get(skill_name, 0)) + int(race_skill_bonus.get(skill_name, 0))
 		total += points * float(table[skill_name])
 	return total
 
@@ -484,11 +493,11 @@ func recalculate_derived_stats():
 	_cached_stats["max_stamina"] = max_stamina
 
 	# Attack Rating (ATK)
-	var atk = (weapon_skill * 2) + int(str_eff) + int(dex_eff / 2.0) + gear_atk + int(skill_bonus("attack_rating"))
+	var atk = (weapon_skill * 2) + int(str_eff) + int(dex_eff / 2.0) + gear_atk + int(skill_bonus("attack_rating")) + race_attack_rating_mod
 	_cached_stats["attack_rating"] = atk
 
 	# Armor Class (AC)
-	var ac = 10 + gear_ac + int(dex_eff / 2.0) + class_ac_bonus + int(get_modifier("armor_bonus"))  # armor_bonus: Rallying Cry
+	var ac = 10 + gear_ac + race_ac_bonus + int(dex_eff / 2.0) + class_ac_bonus + int(get_modifier("armor_bonus"))  # armor_bonus: Rallying Cry
 	if has_shield and shield_bonus_map.has(shield_type):
 		ac += shield_bonus_map[shield_type]
 	_cached_stats["armor_class"] = ac
@@ -756,6 +765,10 @@ func calculate_melee_damage(target: CombatNode = null, is_crit: bool = false) ->
 	if is_two_handed:
 		raw_damage = int(raw_damage * 1.15)  # +15%
 
+	# Lizardkin bite: bare-handed hits add 1d6 (strength is already in raw_damage above)
+	if race_unarmed_bite and is_unarmed:
+		raw_damage += randi_range(1, 6)
+
 	# Racial melee damage bonus/penalty (e.g. Ogre +20%, Gnome -15%)
 	if race_melee_damage_mult != 0.0:
 		raw_damage = int(raw_damage * (1.0 + race_melee_damage_mult))
@@ -838,9 +851,16 @@ func calculate_spell_damage(base_spell_damage: int, resist_type: String = "magic
 	# Skills: general spell casting + the spell's own school (Data/skill_effects.json)
 	damage = int(damage * (1.0 + skill_bonus("spell_potency_pct", skill_category) / 100.0))
 
-	# Racial spell damage bonus/penalty (e.g. Elf +5%, Half-Orc -5%)
+	# Racial spell damage bonus/penalty (e.g. Elf +5%, Half-Orc -5%), and per school (Vol'kyne necromancy / illusion)
 	if race_spell_damage_mult != 0.0:
 		damage = int(damage * (1.0 + race_spell_damage_mult))
+	if race_school_damage.has(skill_category):
+		damage = int(damage * (1.0 + float(race_school_damage[skill_category])))
+	# Racial spell crit (Gnome): only when the caller didn't already make it a crit
+	last_spell_crit = false
+	if not is_crit and race_spell_crit_chance > 0.0 and randf() < race_spell_crit_chance:
+		damage = int(damage * 1.75)
+		last_spell_crit = true
 
 	# Tunable spell damage for players (Data/combat_balance.json)
 	if CombatBalance.role_of(self) == "player":

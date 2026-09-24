@@ -1,0 +1,497 @@
+<!-- manual_template.html — the Player's Manual's hand-written text and styles. tools/make_manual.py fills the {{MARKERS}}
+     from the game data and writes PLAYER_MANUAL.html at the project root. Edit the words here; re-run the script. -->
+<title>Lightfall Player's Manual</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Alegreya+Sans:ital,wght@0,400;0,500;0,700;1,400&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+  :root {
+    --ground: #ECEFEA;
+    --surface: #F8F9F6;
+    --ink: #1D272A;
+    --muted: #56656A;
+    --rule: #CCD4D0;
+    --accent: #1C6A66;
+    --accent-soft: #D5E6E2;
+    --brass: #9A6F1E;
+    --brass-soft: #F1E5CB;
+    --danger: #9B3B2E;
+    --danger-soft: #F3DDD8;
+    --key-bg: #FFFFFF;
+    --key-edge: #B7C2BE;
+    --display: "Marcellus", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+    --body: "Alegreya Sans", "Segoe UI", system-ui, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --ground: #121A1C;
+      --surface: #1A2427;
+      --ink: #E4EAE6;
+      --muted: #9AA9A6;
+      --rule: #2E3C3F;
+      --accent: #63BFB4;
+      --accent-soft: #1D3634;
+      --brass: #D9B05C;
+      --brass-soft: #32291A;
+      --danger: #E38B7C;
+      --danger-soft: #3A2320;
+      --key-bg: #22302F;
+      --key-edge: #3F504F;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --ground: #121A1C;
+    --surface: #1A2427;
+    --ink: #E4EAE6;
+    --muted: #9AA9A6;
+    --rule: #2E3C3F;
+    --accent: #63BFB4;
+    --accent-soft: #1D3634;
+    --brass: #D9B05C;
+    --brass-soft: #32291A;
+    --danger: #E38B7C;
+    --danger-soft: #3A2320;
+    --key-bg: #22302F;
+    --key-edge: #3F504F;
+  }
+
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 17px;
+    line-height: 1.55;
+    padding-inline: 16px;
+    padding-block: 32px 64px;
+  }
+  .page { max-width: 820px; margin: 0 auto; display: flex; flex-direction: column; gap: 52px; }
+
+  header { display: flex; flex-direction: column; gap: 10px; }
+  .eyebrow { font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); font-weight: 700; }
+  h1 { font-family: var(--display); font-weight: 400; font-size: clamp(34px, 6vw, 48px); line-height: 1.1; margin: 0; text-wrap: balance; }
+  .lede { color: var(--muted); max-width: 62ch; margin: 0; }
+
+  section { display: flex; flex-direction: column; gap: 14px; scroll-margin-top: 16px; }
+  h2 { font-family: var(--display); font-weight: 400; font-size: 28px; margin: 0; text-wrap: balance; border-bottom: 1px solid var(--rule); padding-bottom: 8px; }
+  h3 { font-size: 18px; margin: 10px 0 0; font-weight: 700; text-wrap: balance; }
+  h4 { font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin: 6px 0 0; }
+  p { margin: 0; max-width: 68ch; }
+  a { color: var(--accent); }
+  a:focus-visible, summary:focus-visible { outline: 3px solid var(--brass); outline-offset: 2px; }
+  .ui { font-weight: 700; }
+  .muted { color: var(--muted); }
+  code, .mono { font-family: var(--mono); font-size: 0.86em; }
+  ul.plain { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; max-width: 68ch; }
+
+  /* Contents */
+  nav.toc { background: var(--surface); border: 1px solid var(--rule); border-radius: 10px; padding: 16px 20px; }
+  nav.toc h2 { font-size: 20px; border: 0; padding: 0; margin-bottom: 8px; }
+  nav.toc ol { margin: 0; padding-left: 22px; columns: 2 220px; column-gap: 32px; }
+  nav.toc li { break-inside: avoid; padding: 2px 0; }
+
+  /* Lore quote */
+  .scroll { border-left: 3px solid var(--brass); background: var(--brass-soft); padding: 14px 18px; border-radius: 0 10px 10px 0; display: flex; flex-direction: column; gap: 10px; }
+  .scroll p { font-style: italic; }
+  .scroll .who { font-style: normal; font-size: 14px; color: var(--muted); }
+
+  ol.steps { list-style: none; counter-reset: step; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+  ol.steps > li { counter-increment: step; display: grid; grid-template-columns: 34px 1fr; gap: 12px; align-items: start; }
+  ol.steps > li::before {
+    content: counter(step);
+    font-family: var(--display); font-size: 18px;
+    width: 30px; height: 30px; border-radius: 50%;
+    display: grid; place-items: center;
+    background: var(--accent-soft); color: var(--accent);
+  }
+  ol.steps > li > div { display: flex; flex-direction: column; gap: 4px; padding-top: 3px; }
+  ol.stages { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 6px; max-width: 68ch; }
+
+  /* Two-column fact blocks */
+  .facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px 32px; }
+  .facts > div { display: flex; flex-direction: column; gap: 6px; }
+  .facts h3 { margin: 0; }
+
+  /* Tables */
+  .tablewrap { overflow-x: auto; border: 1px solid var(--rule); border-radius: 10px; background: var(--surface); }
+  table.data { width: 100%; border-collapse: collapse; font-size: 15px; font-variant-numeric: tabular-nums; }
+  table.data th { text-align: left; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); font-weight: 700; padding: 9px 12px; border-bottom: 1px solid var(--rule); white-space: nowrap; }
+  table.data td { padding: 8px 12px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  table.data tr:last-child td { border-bottom: 0; }
+  table.data td.num { text-align: right; white-space: nowrap; }
+  table.data th.num { text-align: right; }
+  table.data td.name { font-weight: 700; white-space: nowrap; }
+  table.data .desc { color: var(--muted); font-size: 14px; }
+  .lvl { font-family: var(--display); font-size: 18px; color: var(--accent); text-align: center; }
+
+  .tag { display: inline-block; font-size: 11.5px; font-weight: 700; letter-spacing: 0.04em; border-radius: 4px; padding: 0 6px; margin-left: 4px; white-space: nowrap; vertical-align: 1px; }
+  .tag.start { background: var(--accent-soft); color: var(--accent); }
+  .tag.passive { background: var(--brass-soft); color: var(--brass); }
+  .tag.soon { background: var(--danger-soft); color: var(--danger); }
+  .tag.named { background: var(--brass-soft); color: var(--brass); }
+
+  /* Class and race cards */
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+  .card { background: var(--surface); border: 1px solid var(--rule); border-radius: 10px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; }
+  .card .top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+  .card h3 { margin: 0; font-family: var(--display); font-weight: 400; font-size: 21px; }
+  .card p { font-size: 15px; color: var(--muted); }
+  .card .meta { font-size: 13.5px; }
+  .role { font-size: 11.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); white-space: nowrap; }
+  .role.healer { color: var(--brass); }
+  .role.dps { color: var(--danger); }
+  .card a { font-size: 14px; font-weight: 700; }
+
+  /* Detail panels (one per class, per race, per craft) */
+  details.panel { background: var(--surface); border: 1px solid var(--rule); border-radius: 10px; }
+  details.panel > summary { cursor: pointer; padding: 12px 16px; display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; list-style: none; }
+  details.panel > summary::-webkit-details-marker { display: none; }
+  details.panel > summary::before { content: "▸"; color: var(--accent); margin-right: 4px; transition: transform 0.15s; display: inline-block; }
+  details.panel[open] > summary::before { transform: rotate(90deg); }
+  details.panel > summary .title { font-family: var(--display); font-size: 22px; flex: 1; }
+  details.panel > summary .sub { color: var(--muted); font-size: 14px; }
+  details.panel[open] > summary { border-bottom: 1px solid var(--rule); }
+  details.panel > .body { padding: 14px 16px 18px; display: flex; flex-direction: column; gap: 12px; }
+  details.panel .tablewrap { background: var(--ground); }
+  .panels { display: flex; flex-direction: column; gap: 10px; }
+  @media (prefers-reduced-motion: reduce) { details.panel > summary::before { transition: none; } }
+
+  .statline { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 15px; }
+  .statline b { color: var(--accent); font-weight: 700; }
+  .stats { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; max-width: 460px; text-align: center; font-variant-numeric: tabular-nums; }
+  .stats div { background: var(--ground); border-radius: 6px; padding: 4px 0; }
+  .stats span { display: block; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  .stats b { font-size: 17px; }
+
+  .note { background: var(--accent-soft); border-radius: 10px; padding: 12px 16px; font-size: 15.5px; max-width: 68ch; }
+
+  /* Controls (copied from the tester guide at build time) */
+  .keys { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  .keys td { padding: 7px 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  .keys td:first-child { width: 42%; padding-right: 14px; }
+  .keys tr:last-child td { border-bottom: 0; }
+  kbd {
+    font-family: var(--mono); font-size: 13px;
+    background: var(--key-bg); border: 1px solid var(--key-edge); border-bottom-width: 2px;
+    border-radius: 5px; padding: 1px 7px; white-space: nowrap; display: inline-block; margin: 1px 2px 1px 0;
+  }
+  .keygroups { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 8px 32px; }
+  .keygroups h3 { color: var(--accent); font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 4px; }
+
+  footer { color: var(--muted); font-size: 14px; border-top: 1px solid var(--rule); padding-top: 14px; }
+  @media (max-width: 520px) {
+    .stats { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    table.data td.name { white-space: normal; }
+  }
+</style>
+<div class="page">
+  <header>
+    <div class="eyebrow">Aldenexia: Lightfall · Player's Manual</div>
+    <h1>A traveller's guide to Aldenexia</h1>
+    <p class="lede">Everything you need to play: the world and its trouble, how the game works, every race and class with its full spell list, crafting from the first tin ingot up, and a field guide to Lumora Outskirts, where every adventure starts. This manual describes build {{VERSION}}; the game is in testing, so some things will change.</p>
+  </header>
+
+  <nav class="toc" aria-labelledby="toc-h">
+    <h2 id="toc-h">Contents</h2>
+    <ol>
+      <li><a href="#world">The world of Aldenexia</a></li>
+      <li><a href="#first-hour">Your first hour</a></li>
+      <li><a href="#basics">How the game works</a></li>
+      <li><a href="#races">Races</a></li>
+      <li><a href="#classes">Classes</a></li>
+      <li><a href="#spells">Spells and abilities</a></li>
+      <li><a href="#skills">Skills</a></li>
+      <li><a href="#crafting">Crafting and gathering</a></li>
+      <li><a href="#lumora">Lumora Outskirts</a></li>
+      <li><a href="#controls">Controls and commands</a></li>
+    </ol>
+  </nav>
+
+  <section id="world" aria-labelledby="world-h">
+    <h2 id="world-h">The world of Aldenexia</h2>
+    <p>In the beginning, Aurethiel, Lady of the Dawn, and Durnhal the Forgefather kindled the First Flame, and from it the world was shaped. Ages of war followed: the Era of Shattered Crowns, the First Sundering that broke a continent, the Silver Tides, the Hollow Stars. Out of those wars came the <b>Solstice Aegis</b>, a covenant between light and shadow, bound into a relic that anchored the Veil between the living world and the Void.</p>
+    <p>Three hundred years ago the <b>Moribund Order</b> shattered it. The Aegis broke into five fragments and scattered across the world, and the Veil, with nothing holding it, began to tear. The first violet <b>Veilfire</b> burned within hours. The age since is called the Era of Veilfire.</p>
+    <div class="facts">
+      <div>
+        <h3>The Luminar Covenant</h3>
+        <p>The faith of the light. It recovered the Dawn Shard and has guarded it in Sanctum Pyraeth ever since. It has won battles for three centuries without winning the war, and has grown used to keeping secrets to keep people calm.</p>
+      </div>
+      <div>
+        <h3>The Moribund Order</h3>
+        <p>They are not simply villains. They believe the Aegis was a cage on the natural order and that death and the Void are the honest truth under the light. They hold two fragments and know where a third is kept.</p>
+      </div>
+    </div>
+    <p>It is now <b>Year 300, Day 6 of Luminar</b>. The Festival of First Light has just ended. In the southern villages, crops grow unnaturally large, wounds heal with geometric scars, and the dead visit their families in dreams. People call it a blessing. The Archmage Tenchijin Tenebralis, who touched the Dawn Shard, calls it the first stage of the <b>Lightfall</b>:</p>
+    <ol class="stages">
+      <li><b>The Blessing.</b> Void energy looks like a gift: plenty, healing, peace. It is already here.</li>
+      <li><b>The Awakening.</b> The dead rise and greet their families. Prophets perform real miracles.</li>
+      <li><b>The Revealed.</b> Cities of writhing flesh. The sky torn open. Gods falling or fleeing.</li>
+    </ol>
+    <div class="scroll">
+      <p>These stages are not inevitable. They are directional. The direction can be changed. But the window for changing it is not unlimited, and it is narrowing.</p>
+      <span class="who">From the Histories of Aldenexia, as recorded by the Arcane Synod</span>
+    </div>
+    <p>You begin outside <b>Lumora</b>, the sandstone city of the Solgrave Expanse, a desert of glowing oases and golden dunes. The Oasis Wardens keep its gate. The Sandveil merchants run its bazaar. Out on the dunes, the nomadic <b>Djhanid</b> keep to themselves and trade in water, not coin.</p>
+  </section>
+
+  <section id="first-hour" aria-labelledby="first-h">
+    <h2 id="first-h">Your first hour</h2>
+    <ol class="steps">
+      <li><div><h3>Make a character</h3><p>Pick a race, then a class that race can be (see <a href="#races">Races</a> and <a href="#classes">Classes</a>). Your race sets your starting stats, resistances and languages; your class sets your spells and role. A character has one name, letters only. A surname is earned in the world: at level 10, type <code>/surname Name</code>. New characters start outside Lumora's gate.</p></div></li>
+      <li><div><h3>Check your pack</h3><p>Press <kbd>C</kbd>. You start with a small bag holding a faded note, 20 iron rations, 20 water flasks and 5 torches, plus ragged clothes and a cape to put on. Warriors also get a rusty sword, Shadowblades and Woodstalkers a dagger, Aetherfists hand wraps. Drag each piece onto its equipment slot.</p></div></li>
+      <li><div><h3>Put your first spells on the bar</h3><p>Every class starts knowing two or three spells. Press <kbd>K</kbd> for the abilities book and drag them onto the action bar; <kbd>1</kbd>–<kbd>0</kbd> use them.</p></div></li>
+      <li><div><h3>Talk to the guards</h3><p>Walk up to a guard at the gate and press <kbd>H</kbd> to hail them. Words in their replies can be clicked to ask about them. Guard Reyna and Private Corwin have work for you (see <a href="#lumora-quests">Quests</a>).</p></div></li>
+      <li><div><h3>Hunt near the gate</h3><p>Rats, sand vipers, bats and dune scarabs roam the dunes just outside. Press <kbd>Tab</kbd> to target the nearest, <kbd>`</kbd> to attack, and right-click the corpse (or press <kbd>G</kbd>) to loot it. Keep the rat tails: Kenji the cat wants them.</p></div></li>
+      <li><div><h3>Buy more spells</h3><p>Every other spell is sold on a scroll. Archivist Ilsabet copies the light and neutral classes' scrolls; Xalvyr Tenn sells the dark classes'. Right-click a scroll in your bags and choose <span class="ui">Learn</span>. Scrolls you already know are marked <span class="tag start">✔ known</span>.</p></div></li>
+      <li><div><h3>Try a trade</h3><p>Chop a fir tree, mine a tin vein or pick a thistle, then craft something. Every crafting skill has a few recipes you know from the start. Press <kbd>L</kbd> for your recipe book.</p></div></li>
+    </ol>
+  </section>
+
+  <section id="basics" aria-labelledby="basics-h">
+    <h2 id="basics-h">How the game works</h2>
+    <div class="facts">
+      <div>
+        <h3>Levels and experience</h3>
+        <p>Characters go from level 1 to <b>{{MAX_LEVEL}}</b>. Killing monsters and finishing quests gives experience; the bar on the character sheet shows how far you are to the next level. Lumora Outskirts is for levels 1–5.</p>
+      </div>
+      <div>
+        <h3>Health, mana and stamina</h3>
+        <p>Health and mana come back on their own every few seconds, faster while sitting (<kbd>X</kbd>). Running uses stamina. Resting by a lit campfire speeds all three up.</p>
+      </div>
+      <div>
+        <h3>Food and water</h3>
+        <p>Satiety and thirst drain as you play. When either drops below 25 you eat or drink automatically from your bags. If you run out, <b>Starving</b> stops your health and stamina regeneration and <b>Thirsty</b> stops your mana regeneration, until you eat or drink.</p>
+      </div>
+      <div>
+        <h3>Being knocked down, and dying</h3>
+        <p>At 0 health you are downed and bleed out over 10 seconds. A heal from an ally in that time gets you back up. At −30 you die and wake at your <b>bind point</b>, the spot where you first entered the world, at full health. You keep your items and experience.</p>
+      </div>
+      <div>
+        <h3>Poison and disease</h3>
+        <p>Snakes and spiders sometimes poison you, and the undead sometimes infect you with disease: 5 damage every 6 seconds for a minute or more. They show on the status window with a yellow border. Cure spells remove them.</p>
+      </div>
+      <div>
+        <h3>Falling</h3>
+        <p>A drop of more than 6 metres hurts: 5% of your health for each metre beyond it.</p>
+      </div>
+      <div>
+        <h3>Casting</h3>
+        <p>Spells with a cast time fizzle if you move while casting; turning on the spot is fine. Melee abilities are instant. A spell has a range (most are 15 m) and a recast time before you can use it again.</p>
+      </div>
+      <div>
+        <h3>Night, light and weather</h3>
+        <p>Days turn to night. Carry a torch in your light slot (each burns a while), or rely on your race's dark sight. It rains now and then, and rain puts torches out. Any light gives away a hidden character.</p>
+      </div>
+      <div>
+        <h3>Campfires</h3>
+        <p>Standing within 15 m of a lit campfire gives everyone there <b>Warmth of the Campfire</b>: faster regeneration and bonus experience. You can light your own from a Firewood Bundle (Woodworking), but not in town, in combat, or within 20 m of another fire.</p>
+      </div>
+      <div>
+        <h3>Groups</h3>
+        <p>Type <code>/invite name</code> to group up (up to six), <code>/party</code> to talk to the group and <kbd>F1</kbd>–<kbd>F6</kbd> to target a member. Group heals reach everyone nearby, and tank stances boost group members within 10 m.</p>
+      </div>
+      <div>
+        <h3>Trading and the bank</h3>
+        <p>Right-click another player (or type <code>/trade name</code>) to swap items and coin; both of you must accept. Oswin Coinwright, Lumora's banker, keeps what you can't carry. Coin runs copper, silver, gold.</p>
+      </div>
+      <div>
+        <h3>Appraising</h3>
+        <p>Target a monster and press <kbd>I</kbd> to size it up before a fight. Each appraisal trains your Perception, which makes later appraisals better.</p>
+      </div>
+      <div>
+        <h3>Armour</h3>
+        <p>Anyone can wear cloth. Heavier armour depends on your class: casters wear cloth only; Woodstalkers, Wildspeakers and Aetherfists leather; Shadowblades and Spiritweavers chain; the tanks, Troubadours and Lightmenders plate. Shields are for the tanks, Lightmenders, Troubadours, Spiritweavers and Wildspeakers. Each class's panel under <a href="#classes">Classes</a> lists what it can wear, and an item's tooltip says whether you can.</p>
+      </div>
+      <div>
+        <h3>Your bind point and gating home</h3>
+        <p>You come back to your bind point when you die. At first it is where you entered the world. From level 4, <b>Attune Spirit</b> (every class) binds you where you stand, once an hour. From level 6 every class has a gate spell (Recall to Sanctuary, Call of Nature, March Home, Death's Gate...) that takes you to your bind point. Neither works in the middle of a fight.</p>
+      </div>
+      <div>
+        <h3>Perception</h3>
+        <p>Keep your eyes open. Near interesting places (the gate, the docks, the mausoleum, the camps) your character may notice things others walk past: a detail appears in the chat. Each check is a d20 plus your Wisdom modifier plus a tenth of your Perception skill. Harder details need a sharper eye, and every check trains Perception, so the more you look, the more you see.</p>
+      </div>
+      <div>
+        <h3>Logging out</h3>
+        <p>Type <code>/camp</code> and wait 15 seconds without taking damage. Your character is saved where you stand.</p>
+      </div>
+    </div>
+
+    <h3 id="languages">Languages</h3>
+    <p>Everyone in Aldenexia speaks something, and not everyone speaks Common. You start with your race's languages. What others say in a language you don't know arrives scrambled, and the less you know, the more it is scrambled. You learn a language by hearing it spoken and by speaking it where someone who knows it can hear. Choose the language you speak from the dropdown beside the chat box, or with <code>/language name</code>. A language you don't know at all can be started from a primer scroll.</p>
+    {{LANGUAGES}}
+
+    <h3>Experience needed for each level</h3>
+    {{XP_TABLE}}
+  </section>
+
+  <section id="races" aria-labelledby="races-h">
+    <h2 id="races-h">Races</h2>
+    <p>Your race decides your starting statistics, your resistances to the ten kinds of damage, the languages you speak and whether you see in the dark. Some races are shunned in some places; the Vol'kyne are openly distrusted in Lumora. The classes each race can take are listed under <a href="#classes">Classes</a>.</p>
+    <p class="note">Racial traits are part of every character, old and new, and are worked out each time you log in. Skill bonuses count when you use the skill (a Dwarf smiths as if 15 points better) but don't count toward skill-ups or a recipe's minimum. A few traits wait on systems that don't exist yet (swamps, intimidation, research); they are marked <span class="tag soon">planned</span>.</p>
+    <div class="panels">
+      {{RACES}}
+    </div>
+  </section>
+
+  <section id="classes" aria-labelledby="classes-h">
+    <h2 id="classes-h">Classes</h2>
+    <p>Fourteen classes in four roles. <b>Tanks</b> hold a monster's attention and take the hits. <b>Healers</b> keep the group alive. <b>Melee</b> and <b>caster</b> damage classes kill things, up close or from a distance. Every class can solo in Lumora Outskirts. Open a class to see its full spell list, levels 1 to {{MAX_LEVEL}}.</p>
+    <div class="cards">
+      {{CLASS_CARDS}}
+    </div>
+    <div class="panels">
+      {{CLASS_DETAILS}}
+    </div>
+  </section>
+
+  <section id="spells" aria-labelledby="spells-h">
+    <h2 id="spells-h">Spells and abilities</h2>
+    <p>"Spell" covers everything on your action bar: a Lightmender's heal, a Blademaster's Power Strike, a Troubadour's song. Each class's list is in its panel under <a href="#classes">Classes</a>.</p>
+    <h3 id="travel">Caster travel</h3>
+    <p>Three classes can carry their group across the land, but only to places they have been. Find a <b>ley-stone</b> (by the mausoleum, at Sandcrest Landing and among the southern palms) and right-click it to anchor it in memory: an Arcanist traces runes, a Wildspeaker sows a spectral seed, a Chaosborn presses their blood into it. When you cast, you choose which attuned stone to go to.</p>
+    <div class="facts">
+      <div>
+        <h3>Arcanist: Spectral Bridge</h3>
+        <p>A 15-second channel. A shimmering bridge opens behind the Arcanist, who stays rooted as its anchor. The group runs across it; when the spell ends, the portal swallows the Arcanist too. <b>Spatial Redoubt</b> (level 10) folds the zone's entrance to you: slow, and completely safe.</p>
+      </div>
+      <div>
+        <h3>Wildspeaker: Root-Tunnel</h3>
+        <p>An 8-second channel. Spirit-vines erupt and drag everyone in the group within 8 m through the Green ley-lines; you all arrive with <b>Nature's Ward</b>, faster healing for two minutes. <b>Wormhole</b> (level 10) drags the group through the earth to the town gate: fast, and filthy.</p>
+      </div>
+      <div>
+        <h3>Chaosborn: Chaos Rift</h3>
+        <p>A flickering 5 to 8 second ritual opens a jagged hole in reality behind the Chaosborn. The group steps through; the Chaosborn follows when it ends. One arrival in twenty brings a Wild Surge. <b>Phase Snap</b> (level 10) is the panic button: 1.5 seconds, then a d20 Chaos Tax — lost mana, Aether-Sickness, a bent spoon in everyone's pack, or a lucky clean escape.</p>
+      </div>
+    </div>
+    <div class="facts">
+      <div>
+        <h3>Learning spells</h3>
+        <p>You start with your class's first two or three spells. Every other spell comes on a scroll: buy it, right-click it in your bags and choose <span class="ui">Learn</span>. You can learn a scroll before you reach its level, but you can't cast the spell until you do. The scroll's tooltip shows the level your class needs, in green or red.</p>
+      </div>
+      <div>
+        <h3>Where to buy scrolls</h3>
+        <p><b>Archivist Ilsabet Thornmere</b> copies the scrolls of the light and neutral classes. She won't touch the dark classes' texts. For those, find <b>Xalvyr Tenn</b> at the Sandveil Bazaar: Voidknight, Gravecaller, Shadowblade and Chaosborn scrolls, and some shared ones like Taunt.</p>
+      </div>
+      <div>
+        <h3>Upgrades</h3>
+        <p>Some spells have Improved, Greater or Master versions. An upgrade needs its level to learn, then <b>replaces</b> the original in your book and on your action bar. Its icon is the original's, tinted gold (Improved, Greater) or violet (Master).</p>
+      </div>
+      <div>
+        <h3>Passives</h3>
+        <p>Spells marked <span class="tag passive">passive</span> are always on once learned, such as Improved Block or Weapon Mastery. There's nothing to cast.</p>
+      </div>
+      <div>
+        <h3>Stances</h3>
+        <p>Tanks and Aetherfists switch between stances on the stance bar: a defensive one to hold monsters, an offensive one to kill faster, a balanced one in between. The tanks' stances also help group members within 10 m. Shadowblades use the stance bar to hide.</p>
+      </div>
+      <div>
+        <h3>Songs</h3>
+        <p>Every Troubadour spell is a song. Clicking a song starts it playing, and it repeats by itself until you click it again. Songs keep playing while you move, and stop when you die.</p>
+      </div>
+      <div>
+        <h3>Pets</h3>
+        <p>Gravecallers, Voidknights, Woodstalkers, Wildspeakers, Spiritweavers and Lightmenders can summon pets. A pet follows you, fights your target, has its own frame, and comes back after you log out and in. <kbd>P</kbd> opens its gear.</p>
+      </div>
+      <div>
+        <h3>Pickpocketing</h3>
+        <p>Shadowblades, Troubadours and Woodstalkers can pick a monster's pocket. From behind it always works, from the front about 40% of the time, while hidden about 70%. Fail and the monster notices you. Each monster can only be picked once.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="skills" aria-labelledby="skills-h">
+    <h2 id="skills-h">Skills</h2>
+    <p>Skills grow by use: swing a sword to raise Slashing Weapons, get hit to raise Defense, cast Evocation spells to raise Evocation. A skill can rise by at most <b>{{SKILL_CAP}} points per character level</b>, so at level 5 a skill tops out at {{SKILL_CAP_5}}. Your skills are on the character sheet and in the abilities book.</p>
+    {{SKILL_EFFECTS}}
+    <div class="panels">
+      {{SKILL_LISTS}}
+    </div>
+  </section>
+
+  <section id="crafting" aria-labelledby="crafting-h">
+    <h2 id="crafting-h">Crafting and gathering</h2>
+    <p>Anyone can learn every trade. Gather raw materials from the land, refine them, and make gear, food, potions, tools and ammunition. Crafting in Lumora Outskirts is the first step. Later lands will extend every trade.</p>
+    <div class="facts">
+      <div>
+        <h3>Gathering</h3>
+        <p>Right-click a plant, ore vein or tree to gather from it. <b>Forage</b> needs nothing; <b>Prospecting</b> needs a Miner's Pick and <b>Woodworking</b> harvesting a Woodcutter's Axe, anywhere in your bags. Moving or being attacked interrupts you. A failed attempt finds nothing but doesn't use up the node.</p>
+      </div>
+      <div>
+        <h3>Recipes</h3>
+        <p>Each trade has a few recipes you know from the start. The rest come from recipe scrolls sold by the town's vendors: right-click and <span class="ui">Learn</span>. Press <kbd>L</kbd> for your recipe book, which shows what you can make, where, and what it needs.</p>
+      </div>
+      <div>
+        <h3>Where to craft</h3>
+        <p>Portable <b>kits</b> (sold by vendors) let you craft most recipes anywhere; right-click the kit and choose <span class="ui">Open</span>. A kit in a character-sheet slot also works as an 8-slot bag for that trade's materials. <b>Town stations</b>, in the crafting yard in the south-west corner of Lumora, take every recipe of their trade. Blacksmithing is forge-only. Cooking also works at any campfire.</p>
+      </div>
+      <div>
+        <h3>Success and skill-ups</h3>
+        <p>Every recipe has a base success chance, plus 1% for each skill point above its minimum, up to 98%. A failure uses up the ingredients. A <b>critical success</b> makes extra. Each attempt may raise your skill until the recipe turns <b>trivial</b>, 15 points above its minimum; after that it still works but teaches nothing.</p>
+      </div>
+      <div>
+        <h3>Tools and upgrades</h3>
+        <p>Vendors sell a basic pick and axe. Tinkering makes better ones (Copper Pickaxe, Bronze Woodcutter's Axe): faster gathering and more critical finds. Tools never break.</p>
+      </div>
+      <div>
+        <h3>Ammunition and light</h3>
+        <p>A quiver in the ammo slot adds damage to every ranged attack and is never used up; bows need one to fire. Woodworking makes torches, and Tinkering makes a Copper Lantern that never burns out and shrugs off rain.</p>
+      </div>
+    </div>
+    <div class="facts">
+      <div>
+        <h3>Armour sets</h3>
+        <p>Each armour type has a nine-piece set a crafter can make: <b>Oasis Linen</b> (cloth, Tailoring), <b>Dunehide</b> (leather, Leatherworking), <b>Copperlink</b> (chain, Blacksmithing, from copper links) and <b>Bronzeguard</b> (plate, Blacksmithing). Two pieces of each are known from the start, the rest are patterns sold by Aldric and Borgrim, and each set's chest piece is a quest reward. Wear all nine pieces of one set for a bonus; an item's tooltip shows how many you have on.</p>
+      </div>
+      <div>
+        <h3>Deconstruct</h3>
+        <p>Put old gear in the slots of a kit or station and press <span class="ui">Deconstruct</span> to take it apart. Anything made by a recipe gives back half its ingredients; loot and starting clothes give basic materials (cloth: linen and thread; leather: scraps; metal: scrap metal). Use the trade that works the material — cloth at a tailoring kit, metal at the forge. It trains no skill.</p>
+      </div>
+    </div>
+    <p class="note">Bronze is an alloy: smelt tin and copper, then combine 3 Copper Ingots and 1 Tin Ingot at the forge for 2 Bronze Ingots. There is no bronze ore.</p>
+
+    <h3>Gathering nodes</h3>
+    {{GATHERING}}
+
+    <h3>Recipes by trade</h3>
+    <p>Where a recipe is marked <span class="tag start">innate</span> you know it from the start; otherwise the price is for its scroll and the vendor who sells it. <span class="tag soon">effect coming</span> means the item can be made, but what it does isn't in the game yet.</p>
+    <div class="panels">
+      {{RECIPES}}
+    </div>
+  </section>
+
+  <section id="lumora" aria-labelledby="lumora-h">
+    <h2 id="lumora-h">Lumora Outskirts</h2>
+    <p>The sun-baked land around Lumora's walls, for levels 1 to 5. The dunes by the gate are gentle: rats, vipers, bats and scarabs. Farther out are bandit camps, goblin camps, an old mausoleum with its graveyard and crypts, a spider den gone strangely wrong, and the deep dunes where the Hollowed wander. Sandcrest Landing, the docks, is the gateway to lands beyond.</p>
+    <p>Follow the roads. The signpost outside the gate reads: <i>North — Lumora. West — Sandcrest Landing and the docks. East — the goblin camps.</i></p>
+
+    <h3>Places</h3>
+    {{PLACES}}
+
+    <h3 id="lumora-npcs">People</h3>
+    <div class="cards">
+      {{NPCS}}
+    </div>
+
+    <h3 id="lumora-quests">Quests</h3>
+    <p>Quests go into your journal (<kbd>J</kbd>) when you get them. Hail people (<kbd>H</kbd>): someone with work for you says so, and a highlighted word in their reply starts the quest when you click it. Picking up a quest's item starts it too. To hand something in, drag it from your bags onto the person; some quests want several different things, and you can bring them a few at a time. The journal shows each item a quest needs with its icon and how many you're carrying, and ticks it off once it's handed in.</p>
+    {{QUESTS}}
+
+    <h3>Gate raids</h3>
+    <p>Every 25 to 45 minutes, while players are near the gate, a band of bandits or goblins marches on it. They announce themselves. The guards go out to meet them and wear them down, but leave the killing blows to you. More raiders come when more players are around.</p>
+
+    <h3 id="bestiary">Bestiary</h3>
+    <p>Most creatures attack when you come near. Scarabs keep to themselves unless you walk right up to them. <span class="tag named">named</span> foes are tougher, drop better loot and take a while to return once killed; fight them with friends.</p>
+    {{BESTIARY}}
+  </section>
+
+  <section id="controls" aria-labelledby="controls-h">
+    <h2 id="controls-h">Controls and commands</h2>
+    <p>The same list as <kbd>Esc</kbd> → Controls &amp; Commands in the game. Right-click does a lot: it opens shops, loots corpses, gathers from nodes, opens crafting stations and starts trades.</p>
+    {{CONTROLS}}
+  </section>
+
+  <footer>Aldenexia: Lightfall Player's Manual · build {{VERSION}} · made {{DATE}} from the game's own data. Spells, recipes, monsters and levels here are read straight from the game files, so they match the build named above.</footer>
+</div>

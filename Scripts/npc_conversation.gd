@@ -10,7 +10,8 @@
 #   "sequence"  all of these are said in order, a moment apart -or-
 #   "category"  lines come from the NPC's own line pool of that name (e.g. "secret")  -or-
 #   "dynamic"   lines come from the NPC's dynamic_lines(name)
-#   "requires"  {"quest": id, "quest_state": "none|active|complete", "has_item": id, "no_item": id, "night": true|false}
+#   "requires"  {"quest": id, "quest_state": "none|active|complete", "after_quest": id (must be complete), "has_item": id,
+#                "no_item": id, "night": true|false}
 #   "then"      {"start_quest": id, "open_shop": true, "hail": true} — done after the lines
 # Order matters: the first matching topic whose requirements hold wins, so put the more specific topics first.
 # Replies are private to the speaking player (each client's own NPC node answers its own player).
@@ -122,6 +123,8 @@ func _conditions_met(req: Dictionary) -> bool:
 		return true
 	if req.has("quest") and Quests.state(str(req["quest"])) != str(req.get("quest_state", "active")):
 		return false
+	if req.has("after_quest") and Quests.state(str(req["after_quest"])) != "complete":
+		return false
 	if req.has("has_item") and ItemHelper.count(str(req["has_item"])) <= 0:
 		return false
 	if req.has("no_item") and ItemHelper.count(str(req["no_item"])) > 0:
@@ -134,3 +137,21 @@ func _conditions_met(req: Dictionary) -> bool:
 static func is_night(tree: SceneTree) -> bool:
 	var cycles := tree.get_nodes_in_group("day_night_cycle")
 	return not cycles.is_empty() and cycles[0].has_method("is_day") and not cycles[0].is_day()
+
+
+# Hail hooks (guards: Data/guard_topics.json "hail_hooks"; talking vendors / Tobble: their JSON's "hail_hooks"): an NPC with
+# work for you says so when hailed. The first hook whose "requires" hold — a topic's conditions, plus "after_quest": id
+# (that quest must be complete) — gives the line; "" when none applies (the NPC's usual greeting then).
+func hook_line(hooks: Array) -> String:
+	for hook in hooks:
+		if typeof(hook) != TYPE_DICTIONARY:
+			continue
+		var req: Dictionary = hook.get("requires", {}).duplicate()
+		var after := str(req.get("after_quest", ""))
+		req.erase("after_quest")
+		if after != "" and Quests.state(after) != "complete":
+			continue
+		var lines: Array = hook.get("lines", [])
+		if not lines.is_empty() and _conditions_met(req):
+			return str(lines.pick_random())
+	return ""

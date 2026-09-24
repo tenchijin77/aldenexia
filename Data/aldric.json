@@ -1,0 +1,116 @@
+{
+ "_comment": "Aldric the Provisioner, Lumora's general goods vendor (Scripts/talking_vendor_npc.gd since 2026-09-24; Data/vendor_shop.json 'lumora_general_goods'). Cheerful, practical, always short of traveller's packs. Quest: Aldric's Furs. {word} in a line is a clickable keyword. ALL LINES ARE DRAFTS.",
+ "ambient_minutes": [
+  4,
+  8
+ ],
+ "ambient_secret_chance_at_night": 0.0,
+ "greeting": [
+  "Welcome, welcome! If you're going out there, you'll want more water than you think.",
+  "Aldric's the name, provisions are the game. Rations, water, torches, tools.",
+  "Back again? Good. The desert eats supplies."
+ ],
+ "shop_intro": [
+  "Everything a traveller needs, and a few things they didn't know they needed.",
+  "Kits for every trade, if you've a mind to make things. Patterns too — cloth and leather."
+ ],
+ "ambient": [
+  "Two flasks of water per day out there. Three if you're a fool. Four if you're a fighter.",
+  "Sold my last traveller's pack an hour ago. Again."
+ ],
+ "secret": [],
+ "wrong_item": [
+  "Aldric turns it over. \"Kind of you, but I can't sell that.\""
+ ],
+ "topics": [
+  {
+   "id": "hail",
+   "keywords": [
+    "hail",
+    "hello",
+    "greetings",
+    "hey"
+   ],
+   "then": {
+    "hail": true
+   }
+  },
+  {
+   "id": "furs_start",
+   "keywords": [
+    "furs",
+    "fur",
+    "packs",
+    "pack",
+    "leather"
+   ],
+   "requires": {
+    "quest": "aldrics_furs",
+    "quest_state": "none"
+   },
+   "sequence": [
+    "I can't keep traveller's packs on the shelf. Every would-be hero in Lumora wants one.",
+    "Bring me six fur pelts and ten leather scraps — the animals and the brigands out there carry plenty — and I'll pay you in patterns."
+   ],
+   "then": {
+    "start_quest": "aldrics_furs"
+   }
+  },
+  {
+   "id": "furs_active",
+   "keywords": [
+    "furs",
+    "fur",
+    "packs",
+    "pack",
+    "leather"
+   ],
+   "requires": {
+    "quest": "aldrics_furs",
+    "quest_state": "active"
+   },
+   "lines": [
+    "Six fur pelts, ten leather scraps. Hand them over whenever you have them."
+   ]
+  },
+  {
+   "id": "wares",
+   "keywords": [
+    "wares",
+    "buy",
+    "sell",
+    "shop",
+    "supplies"
+   ],
+   "then": {
+    "open_shop": true
+   },
+   "lines": [
+    "Have a look!"
+   ]
+  }
+ ],
+ "hail_hooks": [
+  {
+   "id": "furs_in_pack",
+   "requires": {
+    "quest": "aldrics_furs",
+    "quest_state": "active",
+    "has_item": "fur_pelt"
+   },
+   "lines": [
+    "Are those pelts? Wonderful! Hand them here."
+   ]
+  },
+  {
+   "id": "furs_offer",
+   "requires": {
+    "quest": "aldrics_furs",
+    "quest_state": "none"
+   },
+   "lines": [
+    "Welcome! Say, you wouldn't be going hunting? I need {furs} for packs."
+   ]
+  }
+ ]
+}

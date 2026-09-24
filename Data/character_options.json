@@ -353,6 +353,7 @@
   "classes": {
     "voidknight": {
       "name": "Voidknight",
+      "armor_types": ["cloth", "leather", "chain", "plate", "shield"],
       "role": "Tank",
       "description": "A warrior who has forsaken honor for forbidden power, the Voidknight channels necromantic rituals and blood magic to dominate the battlefield.",
       "stat_priorities": {
@@ -370,6 +371,7 @@
     },
     "lightsworn": {
       "name": "Lightsworn",
+      "armor_types": ["cloth", "leather", "chain", "plate", "shield"],
       "role": "Tank",
       "description": "Bound by sacred oaths to the Luminar Covenant, Lightsworn are radiant defenders of Aldenexia, wielding divine magic to protect and smite.",
       "stat_priorities": {
@@ -387,6 +389,7 @@
     },
     "blademaster": {
       "name": "Blademaster",
+      "armor_types": ["cloth", "leather", "chain", "plate", "shield"],
       "role": "Tank",
       "description": "Masters of martial strategy, Blademasters are seasoned commanders who thrive in the chaos of war, wielding an arsenal with unmatched precision.",
       "stat_priorities": {
@@ -404,6 +407,7 @@
     },
     "lightmender": {
       "name": "Lightmender",
+      "armor_types": ["cloth", "leather", "chain", "plate", "shield"],
       "role": "Healer",
       "description": "Devoted to the gods of Aldenexia, Lightmenders channel divine light to mend flesh, purify curses, and banish the undead.",
       "stat_priorities": {
@@ -421,6 +425,7 @@
     },
     "spiritweaver": {
       "name": "Spiritweaver",
+      "armor_types": ["cloth", "leather", "chain", "shield"],
       "role": "Healer",
       "description": "Spiritweavers bridge the mortal and spirit realms, summoning totems that slow enemies, heal allies, or unleash primal fury.",
       "stat_priorities": {
@@ -438,6 +443,8 @@
     },
     "wildspeaker": {
       "name": "Wildspeaker",
+      "no_metal_shields": true,
+      "armor_types": ["cloth", "leather", "shield"],
       "role": "Healer",
       "description": "Keepers of the wilderness, Wildspeakers wield nature's raw power to restore balance, often shape-shifting into primal beasts.",
       "stat_priorities": {
@@ -454,6 +461,7 @@
     },
     "aetherfist": {
       "name": "Aetherfist",
+      "armor_types": ["cloth", "leather"],
       "role": "Melee DPS",
       "description": "Mystic warriors who hone body and soul to transcend mortal limits, channeling ki to deliver lightning-fast unarmed strikes.",
       "stat_priorities": {
@@ -471,6 +479,7 @@
     },
     "woodstalker": {
       "name": "Woodstalker",
+      "armor_types": ["cloth", "leather"],
       "role": "Hybrid DPS",
       "description": "The eyes and blades of the wilds, blending archery, swordplay, and nature's magic to track and strike with deadly accuracy.",
       "stat_priorities": {
@@ -488,6 +497,7 @@
     },
     "shadowblade": {
       "name": "Shadowblade",
+      "armor_types": ["cloth", "leather", "chain"],
       "role": "Melee DPS",
       "description": "Masters of subterfuge, Shadowblades thrive in the shadows, striking with surgical precision before vanishing without a trace.",
       "stat_priorities": {
@@ -505,6 +515,7 @@
     },
     "troubadour": {
       "name": "Troubadour",
+      "armor_types": ["cloth", "leather", "chain", "plate", "shield"],
       "role": "Melee DPS",
       "description": "Charismatic performers who wield music as both weapon and shield, inspiring allies or sowing discord among enemies.",
       "stat_priorities": {
@@ -522,6 +533,7 @@
     },
     "gravecaller": {
       "name": "Gravecaller",
+      "armor_types": ["cloth"],
       "role": "Caster DPS",
       "description": "Wielders of the forbidden arts of death, raising undead minions and siphoning life from their foes to fuel their spells.",
       "stat_priorities": {
@@ -539,6 +551,7 @@
     },
     "runecaster": {
       "name": "Runecaster",
+      "armor_types": ["cloth"],
       "role": "Caster DPS",
       "description": "Masters of manipulation, bending minds and reality to their will through intricate illusions and psychic assaults.",
       "stat_priorities": {
@@ -556,6 +569,7 @@
     },
     "arcanist": {
       "name": "Arcanist",
+      "armor_types": ["cloth"],
       "role": "Caster DPS",
       "description": "Scholars of the arcane who study ancient tomes to unravel the Void's secrets and unleash devastating, calculated magic.",
       "stat_priorities": {
@@ -573,6 +587,7 @@
     },
     "chaosborn": {
       "name": "Chaosborn",
+      "armor_types": ["cloth"],
       "role": "Caster DPS",
       "description": "Born with magic in their blood, they cast spells instinctively, unleashing torrents of elemental energy that can reshape battlefields.",
       "stat_priorities": {

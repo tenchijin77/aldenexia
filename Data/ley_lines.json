@@ -1,0 +1,11 @@
+{
+ "_comment": "ley_lines.json - caster travel (Scripts/player_travel.gd, Scripts/ley_line_node.gd; design: ~/NCT/Aldenexia-Lightfall/Class teleportation Spell Notes.txt). Per zone: 'nodes' are the Ley-Line Nodes an Arcanist (Spire), Wildspeaker (seed-sowing at a Ring) or Chaosborn (blood imprint at a Rift-Site) attunes to by right-clicking it; Spectral Bridge, Root-Tunnel and Chaos Rift can then take their group there. 'position' is [x, z]; the height comes from the ground. 'zone_entrance' [x, z] is where the evacuation spells (Spatial Redoubt, Wormhole, Phase Snap) land: outside the town gate, where new characters appear. Hand-edited: move the nodes freely (use /location in game). Positions are FIRST GUESSES near the landmarks - check them in play.",
+ "lumora_outskirts": {
+  "zone_entrance": [20, 13],
+  "nodes": [
+   {"id": "lumora_mausoleum", "name": "Mausoleum Ley-Stone", "position": [-36, -224], "flavour": "An old standing stone by the mausoleum road, cold to the touch. The ley-line under it runs deep, toward the dead."},
+   {"id": "lumora_sandcrest", "name": "Sandcrest Ley-Stone", "position": [-760, -995], "flavour": "A salt-crusted stone above Sandcrest Landing. The ley-line here runs out under the sea."},
+   {"id": "lumora_palm_grove", "name": "Palm Grove Ley-Stone", "position": [-300, -955], "flavour": "A mossy stone among the southern palms, warm even in the shade. The ley-line here is green and strong."}
+  ]
+ }
+}

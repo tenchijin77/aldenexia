@@ -1,0 +1,58 @@
+{
+ "_comment": "perception_spots.json - things a perceptive character notices (Scripts/perception_watcher.gd). Per zone, each spot has a place ([x, z]) and a radius in metres; walking within it rolls d20 + Wisdom modifier + Perception skill / 10 against each notice's 'dc' (D&D style: 10 easy, 15 medium, 20 hard). A success prints the notice in the chat once per character; a failure can be rolled again after 'retry_seconds'. Every roll trains Perception. Optional per notice: 'night': true (only at night) / false (only by day). ALL LINES ARE DRAFTS for the user to change; positions come from the zone's markers and spawn areas.",
+ "retry_seconds": 300,
+ "lumora_outskirts": [
+  {"id": "town_gate", "name": "Town gate", "position": [52, 13], "radius": 14, "notices": [
+   {"dc": 8, "text": "Fresh scratches score the gate's iron bands, low down, as if something small tried very hard to claw its way in."},
+   {"dc": 14, "text": "One stone in the gate arch is newer than the rest. Someone repaired a breach here and matched the colour almost perfectly."},
+   {"dc": 20, "text": "Cut faintly into the underside of the arch, where no guard would look up: a closed eye over three drops. It has been scratched out, but not well enough."}
+  ]},
+  {"id": "tower_spires", "name": "Tower spires", "position": [28, 12], "radius": 12, "notices": [
+   {"dc": 10, "text": "The two spires lean very slightly toward each other, as if listening."},
+   {"dc": 15, "text": "Sand has drifted against the east side of both spires, but not the west. The wind here only ever comes from the dunes."},
+   {"dc": 19, "night": true, "text": "For a heartbeat the tip of each spire burns with a thin violet flame. Then it is gone, and the stone is cold."}
+  ]},
+  {"id": "sandcrest_landing", "name": "Sandcrest Landing", "position": [-756, -1040], "radius": 25, "notices": [
+   {"dc": 9, "text": "The planks are worn smooth in a path from the harbour master's post to the water's edge, where no boat is moored."},
+   {"dc": 14, "text": "A rope tied to the last post trails down into the water. Whatever is on the other end is heavy, and nobody has pulled it up."},
+   {"dc": 20, "text": "Among the gull tracks in the wet sand, a line of bare footprints walks up out of the sea and stops."}
+  ]},
+  {"id": "mausoleum", "name": "Mausoleum", "position": [-36, -244], "radius": 18, "notices": [
+   {"dc": 8, "text": "The mausoleum door has been forced. The hinges are bent outward: it was opened from the inside."},
+   {"dc": 13, "text": "Fresh candle wax on the step, and a dried date left as an offering. Someone still visits."},
+   {"dc": 18, "text": "Under the dust, the floor stones are laid in a spiral that leads nowhere. Or down."}
+  ]},
+  {"id": "graveyard", "name": "Graveyard", "position": [57, -275], "radius": 20, "notices": [
+   {"dc": 9, "text": "Several graves have been dug up. Not robbed: the earth is heaped on the inside of the holes."},
+   {"dc": 15, "text": "The newest headstones all carry the same flame of the Oasis Wardens. Too many of them for a quiet frontier."},
+   {"dc": 19, "text": "One grave is freshly tended, its sand raked in neat lines, and the name on it is only half carved."}
+  ]},
+  {"id": "wagon_wreck", "name": "The wreck on the south road", "position": [-591, -568], "radius": 15, "notices": [
+   {"dc": 8, "text": "The wagon wasn't ambushed on the road. The wheel ruts leave it well before the wreck: the driver was running."},
+   {"dc": 14, "text": "The strongbox bolts were cut, not broken. Whoever took it came with the right tools."},
+   {"dc": 18, "text": "A scrap of Djhanid sand-silk is caught on a splintered board. The Djhanid don't rob caravans. Someone wants it to look as if they do."}
+  ]},
+  {"id": "signpost", "name": "The signpost", "position": [-530, 0], "radius": 8, "notices": [
+   {"dc": 10, "text": "Someone has added a fourth arm to the signpost, pointing south, then sawn it off again."},
+   {"dc": 16, "text": "Carved small at the foot of the post, in a traveller's hand: 'The water-debt is paid in shade.'"}
+  ]},
+  {"id": "archery_range", "name": "Archery range", "position": [37, 121], "radius": 12, "notices": [
+   {"dc": 9, "text": "Most of the arrows in the targets are grouped tight and high. One archer here is very good, and practises alone."},
+   {"dc": 15, "text": "A few old arrowheads in the far target are black glass, not iron. Djhanid work, and not recent."}
+  ]},
+  {"id": "spider_den", "name": "Spider den", "position": [0, -851], "radius": 25, "notices": [
+   {"dc": 10, "text": "The webs here are thicker than they should be, and faintly warm when the wind moves them."},
+   {"dc": 15, "text": "Among the bones in the webs are a Warden's buckle and a scout's boot. The den has been feeding well."},
+   {"dc": 20, "text": "The silk nearest the heart of the den has a faint purple sheen, like the edge of a Veilfire."}
+  ]},
+  {"id": "goblin_camp", "name": "Goblin camp", "position": [-572, 605], "radius": 25, "notices": [
+   {"dc": 9, "text": "The goblins have dug a latrine, a cook pit and a lookout. This isn't a raiding camp. They mean to stay."},
+   {"dc": 14, "text": "Stacked behind the tents: Lumoran grain sacks, still sealed. Whoever sold them to the goblins was paid well."},
+   {"dc": 19, "text": "The chieftain's banner pole is capped with a bone carved into a closed eye."}
+  ]},
+  {"id": "bandit_camp", "name": "Bandit camp", "position": [-230, 295], "radius": 20, "notices": [
+   {"dc": 9, "text": "Good boots by the fire, and fine cups. These brigands eat better than the guards at the gate."},
+   {"dc": 15, "text": "A ledger lies half-burned in the fire pit. What survives lists caravans, days and times — the Sandveil Bazaar's own schedule."}
+  ]}
+ ]
+}

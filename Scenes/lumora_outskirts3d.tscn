@@ -388,14 +388,21 @@ display_name = "Tailor's Bench"
 
 [node name="NPCs" type="Node3D" parent="." unique_id=968523518]
 
-[node name="Aldric the Provisioner" parent="NPCs" unique_id=59779778 instance=ExtResource("13_vendor1")]
+[node name="Aldric the Provisioner" parent="NPCs" unique_id=59779778 instance=ExtResource("talking_vendor_scn")]
 transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 65.143135, 0, -22.2)
+config_path = "res://Data/aldric.json"
+model_key = "human_male"
+title = "Provisioner"
+npc_name = "Aldric the Provisioner"
+shop_id = "lumora_general_goods"
 
-[node name="Lira Solarpetal" parent="NPCs" unique_id=59779779 instance=ExtResource("13_vendor1")]
+[node name="Lira Solarpetal" parent="NPCs" unique_id=59779779 instance=ExtResource("talking_vendor_scn")]
 transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 71.7245, 0, -21.4)
+config_path = "res://Data/lira.json"
+model_key = "human_female"
+title = "Apothecary"
 npc_name = "Lira Solarpetal"
 shop_id = "lumora_apothecary"
-vendor_model_key = "female"
 
 [node name="TobbleTinkerer" parent="NPCs" unique_id=15958158 instance=ExtResource("tobble_npc_scn")]
 transform = Transform3D(-0.029708143, 0, -0.9995586, 0, 1, 0, 0.9995586, 0, -0.029708143, 63.83, 0, 46.16)
@@ -422,6 +429,14 @@ model_key = "dark_elf_male"
 title = "Copyist of the Bazaar"
 npc_name = "Xalvyr Tenn"
 shop_id = "lumora_scribe_dark"
+
+[node name="SmithBorgrim" parent="NPCs" unique_id=1840417733 instance=ExtResource("talking_vendor_scn")]
+transform = Transform3D(0.92050487, 0, 0.39073116, 0, 1, 0, -0.39073116, 0, 0.92050487, 97.2, 0, 50.9)
+config_path = "res://Data/smith_borgrim.json"
+model_key = "dwarf_male"
+title = "Smith of Lumora"
+npc_name = "Borgrim Emberforge"
+shop_id = "lumora_smith"
 
 [node name="Oni" parent="NPCs" unique_id=2146170527 instance=ExtResource("oni_npc_scn")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 64, 0, 13)

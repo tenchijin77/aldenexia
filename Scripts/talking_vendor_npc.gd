@@ -51,6 +51,11 @@ func greet_player(_player_name: String) -> void:
 
 func respond_to_hail() -> void:
 	_face_player()
+	# Someone with work for you says so (hail_hooks in the NPC's JSON; npc_conversation.gd hook_line()).
+	var hook := _conversation.hook_line(_config.get("hail_hooks", [])) if _conversation != null else ""
+	if not hook.is_empty():
+		say_local(hook)
+		return
 	greet_player("")
 
 

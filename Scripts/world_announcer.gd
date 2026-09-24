@@ -66,6 +66,7 @@ static func player_info(p: Node) -> Dictionary:
 		"name": str(p.get("player_name")) if "player_name" in p else "Someone",
 		"level": lvl,
 		"class": str(p.get("player_class")) if "player_class" in p else "",
+		"surname": str(p.get("surname")) if "surname" in p else "",
 	}
 
 
@@ -98,7 +99,7 @@ static func who_lines(local_player: Node) -> Array[String]:
 	var zone := zone_display_name()
 	var out: Array[String] = ["[color=#88ccff]Players in Aldenexia (%d):[/color]" % rows.size()]
 	for r in rows:
-		out.append("  [b]%s[/b] — Level %d %s — %s%s" % [_escape(r["name"]), r["level"], r["class"], zone, " (you)" if r["is_self"] else ""])
+		out.append("  [b]%s[/b] — Level %d %s — %s%s" % [_escape(r["name"] + (" " + r["surname"] if not str(r.get("surname", "")).is_empty() else "")), r["level"], r["class"], zone, " (you)" if r["is_self"] else ""])
 	return out
 
 

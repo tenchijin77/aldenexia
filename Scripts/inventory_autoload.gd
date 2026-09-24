@@ -1227,6 +1227,11 @@ func _equip_item(item: Dictionary, src_type: String, src_basic_idx: int = -1, sr
 	if equip_slot.is_empty():
 		print("⚠️ '%s' cannot be equipped (slot: %s)" % [item.get("name", "?"), item_slot])
 		return false
+	# Armour type (ArmorTypes): a Gravecaller can't put on plate. Items already worn stay on (nothing is stripped at login).
+	var wearer_class := str(Global.player_data.get("player_class", ""))
+	if not ArmorTypes.can_wear(item, wearer_class):
+		GameLog.log_general("[color=#ff8866]%s[/color]" % ArmorTypes.refusal(item, wearer_class))
+		return false
 
 	# Only ONE light is carried: pull a single unit off a stack and leave the rest
 	# where it was. (Carried lights are non-stackable so a partly-burnt one can

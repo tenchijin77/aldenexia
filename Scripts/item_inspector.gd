@@ -65,6 +65,10 @@ static func fill(vbox: VBoxContainer, item_def: Dictionary, with_comparison: boo
 	var usable := _usability_line(item_def)
 	if not usable.is_empty():
 		_line(vbox, usable[0], usable[1], 11)
+	var set_id := ArmorTypes.set_of(item_def)
+	if not set_id.is_empty() and ArmorTypes.sets().has(set_id):
+		var set_def: Dictionary = ArmorTypes.sets()[set_id]
+		_line(vbox, "%s set (%d / %d worn). Full set: %s" % [set_def.get("name", set_id), int(ArmorTypes.worn_counts().get(set_id, 0)), int(set_def.get("pieces", 9)), ArmorTypes.bonus_text(set_id)], Color(0.95, 0.85, 0.45), 11)
 	if str(item_def.get("description", "")) != "":
 		_line(vbox, str(item_def["description"]), Color(0.82, 0.82, 0.82), 11)
 	var kind := known_kind(item_def)
@@ -211,9 +215,16 @@ static func _coin_short(currency: String) -> String:
 	return "cp"
 
 
-# Can YOUR class and race use it? [text, color] or [] if it is open to everyone.
+# Can YOUR class and race use it? [text, color] or [] if it is open to everyone. Armour also says its type and whether
+# your class can wear it (ArmorTypes).
 static func _usability_line(def: Dictionary) -> Array:
 	var player := TargetFrame.local_player()
+	if not str(def.get("armor_type", "")).is_empty():
+		var my_class_name := str(player.get("player_class")) if is_instance_valid(player) else ""
+		if not ArmorTypes.can_wear(def, my_class_name):
+			return [ArmorTypes.refusal(def, my_class_name), BAD]
+		if str(def.get("armor_type")) != "cloth":
+			return ["%s. You can wear it." % ArmorTypes.label(def), GOOD]
 	var classes: Array = def.get("class", ["all"])
 	var races: Array = def.get("race", ["all"])
 	var restricted := not ("all" in classes) or not ("all" in races)

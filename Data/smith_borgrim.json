@@ -1,0 +1,47 @@
+{
+ "_comment": "Borgrim Emberforge, dwarf smith of Lumora (Scripts/talking_vendor_npc.gd; placed by the forge in lumora_outskirts3d.tscn). Sells every Blacksmithing recipe scroll and a Miner's Pick (Data/vendor_shop.json 'lumora_smith'), including the Copperlink (chain) and Bronzeguard (plate) armour sets. A Hand of the Eternal Forge who came south from the Embercrag for the Wardens' contracts and stayed for the heat. Blunt, proud of good work, rude about bad work, secretly fond of the town cats. {word} in a line is a clickable keyword. ALL LINES ARE DRAFTS for the user to change.",
+ "ambient_minutes": [3, 6],
+ "ambient_secret_chance_at_night": 0.25,
+ "greeting": [
+  "Mind the anvil. And the sparks. And your fingers.",
+  "Borgrim Emberforge. If it's metal, I've hit it. If it's good metal, I've hit it twice.",
+  "You've the look of someone who needs something {forged}. Or fixed. Mostly fixed."
+ ],
+ "shop_intro": [
+  "Patterns for everything I'll teach an outsider. The {copper} mail and the {bronze} plate are worth the coin.",
+  "Learn it right or don't learn it at all. A badly forged helm is just a hat that lies to you.",
+  "Tin for the green, copper for the steady, bronze for the ones who mean it."
+ ],
+ "ambient": [
+  "Too hot to work, they say. It's a forge. It's always too hot to work.",
+  "Three hundred strikes to a good blade. I've counted. Don't ask me why.",
+  "The Wardens want forty spearheads by the new moon. The Wardens want a great many things.",
+  "Somebody left a rat tail on my anvil again. I know it was the cat."
+ ],
+ "secret": [
+  "The Embercrag forges went cold the year I left. Nobody says why. I have my guesses.",
+  "There's a mark on the old gate stones that no mason in Lumora cut. I'd know."
+ ],
+ "wrong_item": [
+  "Borgrim squints at it. \"What am I meant to do with that? Melt it?\""
+ ],
+ "topics": [
+  {"id": "hail", "keywords": ["hail", "hello", "greetings", "hey"], "then": {"hail": true}},
+  {"id": "forge", "keywords": ["forge", "forged", "smith", "smithing", "blacksmith", "anvil"],
+   "lines": ["The forge takes tin, copper and bronze here. Iron doesn't come this far south, and I've stopped asking why. Everything I make needs a forge; you can't hammer mail on a camp kit."]},
+  {"id": "copper", "keywords": ["copper", "chain", "mail", "links", "copperlink"],
+   "lines": ["Copperlink. Draw your copper into {links}, then knot the links into mail. Nine pieces to a full suit, and a body that wears all nine moves like it was born in it."]},
+  {"id": "links", "keywords": ["link", "links", "rings"],
+   "lines": ["One ingot, four links. More if your hands are good that day. Every mail piece starts there."]},
+  {"id": "bronze", "keywords": ["bronze", "plate", "bronzeguard", "breastplate"],
+   "lines": ["Bronzeguard. Three copper to one tin makes the alloy; the alloy makes plate that'll stop a goblin's axe. The breastplate I only teach to those who've earned it. Ask Sergeant {Bryn} about the goblins, if you want to earn it."]},
+  {"id": "bryn", "keywords": ["bryn", "sergeant", "goblins", "goblin"],
+   "lines": ["Bryn pays bounty on goblin ears. Bring him enough of them and he'll have my breastplate pattern for you. I owe him a favour. Several."]},
+  {"id": "sets", "keywords": ["set", "sets", "armour", "armor", "suit"],
+   "lines": ["Wear every piece of one suit and the whole is stronger than the parts. That's not magic. That's fitting."]},
+  {"id": "embercrag", "keywords": ["embercrag", "home", "dwarf", "dwarves", "mountains"],
+   "lines": ["The Embercrag. Cold stone, hot forges, and cousins who never write. I came south for the Wardens' coin and stayed for the heat."]},
+  {"id": "wares", "keywords": ["wares", "buy", "sell", "shop", "patterns", "scrolls"], "then": {"open_shop": true},
+   "lines": ["Have a look. Don't touch the blade on the left. It isn't finished and neither are you."]}
+ ]
+}

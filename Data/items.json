@@ -522,7 +522,9 @@
     "stat_modifiers": {
       "constitution": 1
     },
-    "effect": null
+    "effect": null,
+    "armor_type": "shield",
+    "shield_material": "bone"
   },
   "bone_totem": {
     "name": "Bone Totem",
@@ -629,7 +631,8 @@
     "stat_modifiers": {
       "charisma": 1
     },
-    "effect": null
+    "effect": null,
+    "armor_type": "cloth"
   },
   "cloth_slippers": {
     "name": "Cloth Slippers",
@@ -657,7 +660,8 @@
     "stat_modifiers": {
       "dexterity": 1
     },
-    "effect": null
+    "effect": null,
+    "armor_type": "cloth"
   },
   "coarse_bandage": {
     "name": "Coarse Bandage",
@@ -948,7 +952,8 @@
     "stat_modifiers": {
       "dexterity": 2
     },
-    "effect": null
+    "effect": null,
+    "armor_type": "cloth"
   },
   "gnawed_femur": {
     "name": "Gnawed Femur",
@@ -1210,7 +1215,8 @@
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
-    "effect": null
+    "effect": null,
+    "armor_type": "cloth"
   },
   "ragged_tunic": {
     "name": "Ragged Tunic",
@@ -1236,7 +1242,8 @@
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
-    "effect": null
+    "effect": null,
+    "armor_type": "cloth"
   },
   "ragged_leggings": {
     "name": "Ragged Leggings",
@@ -1262,7 +1269,8 @@
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
-    "effect": null
+    "effect": null,
+    "armor_type": "cloth"
   },
   "rat_tail": {
     "name": "Rat Tail",
@@ -1700,7 +1708,8 @@
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
-    "effect": null
+    "effect": null,
+    "armor_type": "cloth"
   },
   "tribal_charm": {
     "name": "Tribal Charm",
@@ -1755,7 +1764,8 @@
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
-    "effect": null
+    "effect": null,
+    "starts_quest": "guildmasters_note"
   },
   "water_flask": {
     "name": "A Flask of Water",
@@ -7690,7 +7700,8 @@
       "strength": 1,
       "constitution": 2
     },
-    "effect": null
+    "effect": null,
+    "armor_type": "leather"
   },
   "coinhand_signet": {
     "name": "Coinhand's Signet Ring",
@@ -7776,7 +7787,8 @@
     "stat_modifiers": {
       "dexterity": 2
     },
-    "effect": null
+    "effect": null,
+    "armor_type": "leather"
   },
   "tarnished_warden_helm": {
     "name": "Tarnished Warden's Helm",
@@ -7805,7 +7817,8 @@
       "constitution": 2,
       "wisdom": 1
     },
-    "effect": null
+    "effect": null,
+    "armor_type": "plate"
   },
   "weavemothers_silk_cloak": {
     "name": "Weavemother's Silk Cloak",
@@ -7833,7 +7846,8 @@
     "stat_modifiers": {
       "dexterity": 3
     },
-    "effect": null
+    "effect": null,
+    "armor_type": "cloth"
   },
   "wardens_tarnished_medal": {
     "name": "Sergeant Halvek's Medal",
@@ -8282,7 +8296,8 @@
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
-    "effect": null
+    "effect": null,
+    "armor_type": "cloth"
   },
   "leather_canteen": {
     "name": "Leather Canteen",
@@ -8968,7 +8983,8 @@
       "dexterity": 1,
       "charisma": 1
     },
-    "effect": null
+    "effect": null,
+    "armor_type": "cloth"
   },
   "scroll_of_improved_shadow_aura": {
     "name": "Scroll of Improved Shadow Aura",
@@ -14258,7 +14274,8 @@
     "stat_modifiers": {
       "constitution": 1
     },
-    "effect": null
+    "effect": null,
+    "armor_type": "plate"
   },
   "recipe_smith_copper_armor_plating": {
     "name": "Recipe: Copper Armor Plating",
@@ -14340,7 +14357,9 @@
     "stat_modifiers": {
       "constitution": 1
     },
-    "effect": null
+    "effect": null,
+    "armor_type": "shield",
+    "shield_material": "metal"
   },
   "recipe_smith_bronze_shield": {
     "name": "Recipe: Bronze Shield",
@@ -15715,7 +15734,8 @@
     "stat_modifiers": {
       "dexterity": 1
     },
-    "effect": null
+    "effect": null,
+    "armor_type": "leather"
   },
   "leather_boots": {
     "name": "Leather Boots",
@@ -15741,7 +15761,8 @@
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
-    "effect": null
+    "effect": null,
+    "armor_type": "leather"
   },
   "leather_bracers": {
     "name": "Leather Bracers",
@@ -15767,7 +15788,8 @@
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
-    "effect": null
+    "effect": null,
+    "armor_type": "leather"
   },
   "recipe_lw_leather_bracers": {
     "name": "Recipe: Leather Bracers",
@@ -15822,7 +15844,8 @@
     "stat_modifiers": {
       "dexterity": 1
     },
-    "effect": null
+    "effect": null,
+    "armor_type": "leather"
   },
   "recipe_lw_leather_armor": {
     "name": "Recipe: Leather Armor",
@@ -15905,7 +15928,8 @@
       "dexterity": 1,
       "constitution": 1
     },
-    "effect": null
+    "effect": null,
+    "armor_type": "leather"
   },
   "recipe_lw_hardened_leather_armor": {
     "name": "Recipe: Hardened Leather Armor",
@@ -15987,7 +16011,8 @@
     "stat_modifiers": {
       "dexterity": 2
     },
-    "effect": null
+    "effect": null,
+    "armor_type": "leather"
   },
   "recipe_lw_reinforced_leather_armor": {
     "name": "Recipe: Reinforced Leather Armor",
@@ -16040,7 +16065,8 @@
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
-    "effect": null
+    "effect": null,
+    "armor_type": "cloth"
   },
   "cloth_gloves": {
     "name": "Cloth Gloves",
@@ -16068,7 +16094,8 @@
     "stat_modifiers": {
       "dexterity": 1
     },
-    "effect": null
+    "effect": null,
+    "armor_type": "cloth"
   },
   "apprentice_robe": {
     "name": "Apprentice Robe",
@@ -16096,7 +16123,8 @@
     "stat_modifiers": {
       "intelligence": 1
     },
-    "effect": null
+    "effect": null,
+    "armor_type": "cloth"
   },
   "recipe_tl_apprentice_robe": {
     "name": "Recipe: Apprentice Robe",
@@ -16176,7 +16204,8 @@
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
-    "effect": null
+    "effect": null,
+    "armor_type": "cloth"
   },
   "recipe_tl_mages_robe": {
     "name": "Recipe: Mage's Robe",
@@ -16256,7 +16285,8 @@
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
-    "effect": null
+    "effect": null,
+    "armor_type": "cloth"
   },
   "recipe_tl_archmages_robe": {
     "name": "Recipe: Archmage's Robe",
@@ -16610,7 +16640,9 @@
     "stat_modifiers": {
       "constitution": 1
     },
-    "effect": null
+    "effect": null,
+    "armor_type": "shield",
+    "shield_material": "metal"
   },
   "recipe_smith_tin_shield": {
     "name": "Recipe: Tin Shield",
@@ -16638,5 +16670,2560 @@
     "stat_modifiers": null,
     "effect": null,
     "teaches_recipe": "smith_tin_shield"
+  },
+  "scroll_of_attune_spirit": {
+    "name": "Scroll of Attune Spirit",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Attune Spirit technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "attune_spirit"
+  },
+  "scroll_of_recall_to_sanctuary": {
+    "name": "Scroll of Recall to Sanctuary",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Recall to Sanctuary technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "lightmender"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "recall_to_sanctuary"
+  },
+  "scroll_of_call_of_nature": {
+    "name": "Scroll of Call of Nature",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Call of Nature technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "wildspeaker"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "call_of_nature"
+  },
+  "scroll_of_runic_gateway": {
+    "name": "Scroll of Runic Gateway",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Runic Gateway technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "runecaster"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "runic_gateway"
+  },
+  "scroll_of_arcane_recall": {
+    "name": "Scroll of Arcane Recall",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Arcane Recall technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "arcanist"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "arcane_recall"
+  },
+  "scroll_of_deaths_gate": {
+    "name": "Scroll of Death's Gate",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Death's Gate technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "gravecaller"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "deaths_gate"
+  },
+  "scroll_of_call_of_shadow": {
+    "name": "Scroll of Call of Shadow",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Call of Shadow technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "shadowblade"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "call_of_shadow"
+  },
+  "scroll_of_oath_of_return": {
+    "name": "Scroll of Oath of Return",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Oath of Return technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "lightsworn"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "oath_of_return"
+  },
+  "scroll_of_spectral_bridge": {
+    "name": "Scroll of Spectral Bridge",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Spectral Bridge technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "arcanist"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "spectral_bridge"
+  },
+  "scroll_of_root_tunnel": {
+    "name": "Scroll of Root Tunnel",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Root Tunnel technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "wildspeaker"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "root_tunnel"
+  },
+  "scroll_of_spatial_redoubt": {
+    "name": "Scroll of Spatial Redoubt",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Spatial Redoubt technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 90,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "arcanist"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "spatial_redoubt"
+  },
+  "scroll_of_wormhole": {
+    "name": "Scroll of Wormhole",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Wormhole technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 90,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "wildspeaker"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "wormhole"
+  },
+  "scroll_of_phase_snap": {
+    "name": "Scroll of Phase Snap",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Phase Snap technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 90,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "chaosborn"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "phase_snap"
+  },
+  "bent_spoon": {
+    "name": "Bent Spoon",
+    "icon": "res://Assets/icons/items/shiny_pebble.png",
+    "description": "A spoon, bent double. It was not in your pack a moment ago.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 1,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "tiny",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teleport_trash": true
+  },
+  "stranger_button": {
+    "name": "A Stranger's Button",
+    "icon": "res://Assets/icons/items/shiny_pebble.png",
+    "description": "A brass button from a coat you have never owned. Still warm.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 1,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "tiny",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teleport_trash": true
+  },
+  "half_a_letter": {
+    "name": "Half a Letter",
+    "icon": "res://Assets/icons/items/shiny_pebble.png",
+    "description": "The second half of a letter in a hand you don't know. \"...and whatever you do, don't open the\"",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 1,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "tiny",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teleport_trash": true
+  },
+  "warm_pebble": {
+    "name": "Warm Pebble from Nowhere",
+    "icon": "res://Assets/icons/items/shiny_pebble.png",
+    "description": "A smooth pebble, warm as if it had sat in the sun. It hums very faintly.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 1,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "tiny",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teleport_trash": true
+  },
+  "scroll_of_blood_recall": {
+    "name": "Scroll of Blood Recall",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Blood Recall technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "chaosborn"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "blood_recall"
+  },
+  "scroll_of_duskwalk": {
+    "name": "Scroll of Duskwalk",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Duskwalk technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "voidknight"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "duskwalk"
+  },
+  "scroll_of_long_march": {
+    "name": "Scroll of Long March",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Long March technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "blademaster"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "long_march"
+  },
+  "scroll_of_ki_vortex": {
+    "name": "Scroll of Ki Vortex",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Ki Vortex technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "aetherfist"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "ki_vortex"
+  },
+  "scroll_of_song_of_remembrance": {
+    "name": "Scroll of Song of Remembrance",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Song of Remembrance technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "troubadour"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "song_of_remembrance"
+  },
+  "scroll_of_familiar_trail": {
+    "name": "Scroll of Familiar Trail",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Familiar Trail technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "woodstalker"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "familiar_trail"
+  },
+  "aelrics_letter": {
+    "name": "Aelric's Sealed Letter",
+    "icon": "res://Assets/icons/items/note.png",
+    "description": "A letter sealed with plain wax, found beneath the old foundation stone. Right-click and Read.",
+    "lore": "If you are reading this by lamplight under the old stone, then the Order did not find it first, and neither did the ones who watch the gate. Good.\nThe primer beside this letter is written in High Arcanum, the tongue the Moonborn carved into their works. Learn it. When the stars fade further, the words cut into the old places will be the only map left.\nTell no Warden and no merchant what you carry. They are not all what they seem. I will find you when it is safe.\n- Aelric, once Guildmaster\n[DRAFT letter - placeholder for the main story]",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 0,
+    "type": "quest",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "copper_links": {
+    "name": "Copper Links",
+    "icon": "res://Assets/icons/items/copper_links.png",
+    "description": "Small copper rings, ready to be linked into mail.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 8,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "copperlink_gloves": {
+    "name": "Copperlink Gloves",
+    "icon": "res://Assets/icons/items/copperlink_gloves.png",
+    "description": "Mail gloves on a leather backing, part of the Copperlink set.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 14,
+    "type": "armor",
+    "armor_class": 2,
+    "slot": "hands",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 2.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": {
+      "dexterity": 1
+    },
+    "effect": null,
+    "armor_type": "chain",
+    "armor_set": "copperlink"
+  },
+  "copperlink_boots": {
+    "name": "Copperlink Boots",
+    "icon": "res://Assets/icons/items/copperlink_boots.png",
+    "description": "Mail boots, part of the Copperlink set.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 16,
+    "type": "armor",
+    "armor_class": 2,
+    "slot": "feet",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 2.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": {
+      "constitution": 1
+    },
+    "effect": null,
+    "armor_type": "chain",
+    "armor_set": "copperlink"
+  },
+  "copperlink_bracers": {
+    "name": "Copperlink Bracers",
+    "icon": "res://Assets/icons/items/copperlink_bracers.png",
+    "description": "Mail bracers, part of the Copperlink set.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 18,
+    "type": "armor",
+    "armor_class": 2,
+    "slot": "wrist",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 2.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "armor_type": "chain",
+    "armor_set": "copperlink"
+  },
+  "recipe_smith_copperlink_bracers": {
+    "name": "Recipe: Copperlink Bracers",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Blacksmithing recipe for Copperlink Bracers. Requires Blacksmithing 7.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 25,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "blacksmithing",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "smith_copperlink_bracers"
+  },
+  "copperlink_belt": {
+    "name": "Copperlink Belt",
+    "icon": "res://Assets/icons/items/copperlink_belt.png",
+    "description": "A mail belt, part of the Copperlink set.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 20,
+    "type": "armor",
+    "armor_class": 2,
+    "slot": "waist",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 2.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": {
+      "constitution": 1
+    },
+    "effect": null,
+    "armor_type": "chain",
+    "armor_set": "copperlink"
+  },
+  "recipe_smith_copperlink_belt": {
+    "name": "Recipe: Copperlink Belt",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Blacksmithing recipe for Copperlink Belt. Requires Blacksmithing 8.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 30,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "blacksmithing",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "smith_copperlink_belt"
+  },
+  "copperlink_coif": {
+    "name": "Copperlink Coif",
+    "icon": "res://Assets/icons/items/copperlink_coif.png",
+    "description": "A mail coif, part of the Copperlink set.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 22,
+    "type": "armor",
+    "armor_class": 3,
+    "slot": "head",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 2.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "armor_type": "chain",
+    "armor_set": "copperlink"
+  },
+  "recipe_smith_copperlink_coif": {
+    "name": "Recipe: Copperlink Coif",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Blacksmithing recipe for Copperlink Coif. Requires Blacksmithing 9.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 35,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "blacksmithing",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "smith_copperlink_coif"
+  },
+  "copperlink_sleeves": {
+    "name": "Copperlink Sleeves",
+    "icon": "res://Assets/icons/items/copperlink_sleeves.png",
+    "description": "Mail sleeves, part of the Copperlink set.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 24,
+    "type": "armor",
+    "armor_class": 2,
+    "slot": "arms",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 2.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": {
+      "dexterity": 1
+    },
+    "effect": null,
+    "armor_type": "chain",
+    "armor_set": "copperlink"
+  },
+  "recipe_smith_copperlink_sleeves": {
+    "name": "Recipe: Copperlink Sleeves",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Blacksmithing recipe for Copperlink Sleeves. Requires Blacksmithing 10.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 35,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "blacksmithing",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "smith_copperlink_sleeves"
+  },
+  "copperlink_spaulders": {
+    "name": "Copperlink Spaulders",
+    "icon": "res://Assets/icons/items/copperlink_spaulders.png",
+    "description": "Mail spaulders, part of the Copperlink set.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 26,
+    "type": "armor",
+    "armor_class": 3,
+    "slot": "shoulders",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 2.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "armor_type": "chain",
+    "armor_set": "copperlink"
+  },
+  "recipe_smith_copperlink_spaulders": {
+    "name": "Recipe: Copperlink Spaulders",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Blacksmithing recipe for Copperlink Spaulders. Requires Blacksmithing 11.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 40,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "blacksmithing",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "smith_copperlink_spaulders"
+  },
+  "copperlink_leggings": {
+    "name": "Copperlink Leggings",
+    "icon": "res://Assets/icons/items/copperlink_leggings.png",
+    "description": "Mail leggings, part of the Copperlink set.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 28,
+    "type": "armor",
+    "armor_class": 3,
+    "slot": "legs",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 2.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": {
+      "constitution": 1
+    },
+    "effect": null,
+    "armor_type": "chain",
+    "armor_set": "copperlink"
+  },
+  "recipe_smith_copperlink_leggings": {
+    "name": "Recipe: Copperlink Leggings",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Blacksmithing recipe for Copperlink Leggings. Requires Blacksmithing 12.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 45,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "blacksmithing",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "smith_copperlink_leggings"
+  },
+  "copperlink_hauberk": {
+    "name": "Copperlink Hauberk",
+    "icon": "res://Assets/icons/items/copperlink_hauberk.png",
+    "description": "The hauberk of the Copperlink set: a coat of bright copper mail.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 30,
+    "type": "armor",
+    "armor_class": 5,
+    "slot": "chest",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 2.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": {
+      "constitution": 1,
+      "dexterity": 1
+    },
+    "effect": null,
+    "armor_type": "chain",
+    "armor_set": "copperlink"
+  },
+  "recipe_smith_copperlink_hauberk": {
+    "name": "Recipe: Copperlink Hauberk",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Blacksmithing recipe for Copperlink Hauberk. Requires Blacksmithing 13.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "blacksmithing",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "smith_copperlink_hauberk"
+  },
+  "bronzeguard_gauntlets": {
+    "name": "Bronzeguard Gauntlets",
+    "icon": "res://Assets/icons/items/bronzeguard_gauntlets.png",
+    "description": "Bronze gauntlets, part of the Bronzeguard set.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 24,
+    "type": "armor",
+    "armor_class": 3,
+    "slot": "hands",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 2.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": {
+      "strength": 1
+    },
+    "effect": null,
+    "armor_type": "plate",
+    "armor_set": "bronzeguard"
+  },
+  "bronzeguard_sabatons": {
+    "name": "Bronzeguard Sabatons",
+    "icon": "res://Assets/icons/items/bronzeguard_sabatons.png",
+    "description": "Bronze sabatons, part of the Bronzeguard set.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 26,
+    "type": "armor",
+    "armor_class": 3,
+    "slot": "feet",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 2.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "armor_type": "plate",
+    "armor_set": "bronzeguard"
+  },
+  "bronzeguard_vambraces": {
+    "name": "Bronzeguard Vambraces",
+    "icon": "res://Assets/icons/items/bronzeguard_vambraces.png",
+    "description": "Bronze vambraces, part of the Bronzeguard set.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 26,
+    "type": "armor",
+    "armor_class": 2,
+    "slot": "wrist",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 2.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": {
+      "strength": 1
+    },
+    "effect": null,
+    "armor_type": "plate",
+    "armor_set": "bronzeguard"
+  },
+  "recipe_smith_bronzeguard_vambraces": {
+    "name": "Recipe: Bronzeguard Vambraces",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Blacksmithing recipe for Bronzeguard Vambraces. Requires Blacksmithing 11.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 45,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "blacksmithing",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "smith_bronzeguard_vambraces"
+  },
+  "bronzeguard_girdle": {
+    "name": "Bronzeguard Girdle",
+    "icon": "res://Assets/icons/items/bronzeguard_girdle.png",
+    "description": "A bronze girdle, part of the Bronzeguard set.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 28,
+    "type": "armor",
+    "armor_class": 3,
+    "slot": "waist",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 2.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": {
+      "constitution": 1
+    },
+    "effect": null,
+    "armor_type": "plate",
+    "armor_set": "bronzeguard"
+  },
+  "recipe_smith_bronzeguard_girdle": {
+    "name": "Recipe: Bronzeguard Girdle",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Blacksmithing recipe for Bronzeguard Girdle. Requires Blacksmithing 12.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 50,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "blacksmithing",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "smith_bronzeguard_girdle"
+  },
+  "bronzeguard_helm": {
+    "name": "Bronzeguard Helm",
+    "icon": "res://Assets/icons/items/bronzeguard_helm.png",
+    "description": "A bronze helm, part of the Bronzeguard set.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 30,
+    "type": "armor",
+    "armor_class": 4,
+    "slot": "head",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 2.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "armor_type": "plate",
+    "armor_set": "bronzeguard"
+  },
+  "recipe_smith_bronzeguard_helm": {
+    "name": "Recipe: Bronzeguard Helm",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Blacksmithing recipe for Bronzeguard Helm. Requires Blacksmithing 13.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 55,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "blacksmithing",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "smith_bronzeguard_helm"
+  },
+  "bronzeguard_rerebraces": {
+    "name": "Bronzeguard Rerebraces",
+    "icon": "res://Assets/icons/items/bronzeguard_rerebraces.png",
+    "description": "Bronze rerebraces, part of the Bronzeguard set.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 30,
+    "type": "armor",
+    "armor_class": 3,
+    "slot": "arms",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 2.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": {
+      "strength": 1
+    },
+    "effect": null,
+    "armor_type": "plate",
+    "armor_set": "bronzeguard"
+  },
+  "recipe_smith_bronzeguard_rerebraces": {
+    "name": "Recipe: Bronzeguard Rerebraces",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Blacksmithing recipe for Bronzeguard Rerebraces. Requires Blacksmithing 13.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 55,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "blacksmithing",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "smith_bronzeguard_rerebraces"
+  },
+  "bronzeguard_pauldrons": {
+    "name": "Bronzeguard Pauldrons",
+    "icon": "res://Assets/icons/items/bronzeguard_pauldrons.png",
+    "description": "Bronze pauldrons, part of the Bronzeguard set.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 32,
+    "type": "armor",
+    "armor_class": 4,
+    "slot": "shoulders",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 2.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "armor_type": "plate",
+    "armor_set": "bronzeguard"
+  },
+  "recipe_smith_bronzeguard_pauldrons": {
+    "name": "Recipe: Bronzeguard Pauldrons",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Blacksmithing recipe for Bronzeguard Pauldrons. Requires Blacksmithing 14.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 60,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "blacksmithing",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "smith_bronzeguard_pauldrons"
+  },
+  "bronzeguard_greaves": {
+    "name": "Bronzeguard Greaves",
+    "icon": "res://Assets/icons/items/bronzeguard_greaves.png",
+    "description": "Bronze greaves, part of the Bronzeguard set.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 34,
+    "type": "armor",
+    "armor_class": 4,
+    "slot": "legs",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 2.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": {
+      "constitution": 1
+    },
+    "effect": null,
+    "armor_type": "plate",
+    "armor_set": "bronzeguard"
+  },
+  "recipe_smith_bronzeguard_greaves": {
+    "name": "Recipe: Bronzeguard Greaves",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Blacksmithing recipe for Bronzeguard Greaves. Requires Blacksmithing 15.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 65,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "blacksmithing",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "smith_bronzeguard_greaves"
+  },
+  "bronzeguard_breastplate": {
+    "name": "Bronzeguard Breastplate",
+    "icon": "res://Assets/icons/items/bronzeguard_breastplate.png",
+    "description": "The breastplate of the Bronzeguard set, the best armour a Lumora smith can make.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 36,
+    "type": "armor",
+    "armor_class": 6,
+    "slot": "chest",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 2.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": {
+      "strength": 1,
+      "constitution": 1
+    },
+    "effect": null,
+    "armor_type": "plate",
+    "armor_set": "bronzeguard"
+  },
+  "recipe_smith_bronzeguard_breastplate": {
+    "name": "Recipe: Bronzeguard Breastplate",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Blacksmithing recipe for Bronzeguard Breastplate. Requires Blacksmithing 16.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "blacksmithing",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "smith_bronzeguard_breastplate"
+  },
+  "dunehide_gloves": {
+    "name": "Dunehide Gloves",
+    "icon": "res://Assets/icons/items/dunehide_gloves.png",
+    "description": "Supple leather gloves, part of the Dunehide set.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 6,
+    "type": "armor",
+    "armor_class": 1,
+    "slot": "hands",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 2.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": {
+      "dexterity": 1
+    },
+    "effect": null,
+    "armor_type": "leather",
+    "armor_set": "dunehide"
+  },
+  "dunehide_boots": {
+    "name": "Dunehide Boots",
+    "icon": "res://Assets/icons/items/dunehide_boots.png",
+    "description": "Sand-proof leather boots, part of the Dunehide set.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 8,
+    "type": "armor",
+    "armor_class": 2,
+    "slot": "feet",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 2.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "armor_type": "leather",
+    "armor_set": "dunehide"
+  },
+  "dunehide_bracers": {
+    "name": "Dunehide Bracers",
+    "icon": "res://Assets/icons/items/dunehide_bracers.png",
+    "description": "Leather bracers, part of the Dunehide set.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "armor",
+    "armor_class": 1,
+    "slot": "wrist",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 2.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": {
+      "dexterity": 1
+    },
+    "effect": null,
+    "armor_type": "leather",
+    "armor_set": "dunehide"
+  },
+  "recipe_lw_dunehide_bracers": {
+    "name": "Recipe: Dunehide Bracers",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Leatherworking recipe for Dunehide Bracers. Requires Leatherworking 3.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 15,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "leatherworking",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "lw_dunehide_bracers"
+  },
+  "dunehide_belt": {
+    "name": "Dunehide Belt",
+    "icon": "res://Assets/icons/items/dunehide_belt.png",
+    "description": "A belt with a scarab-shell buckle, part of the Dunehide set.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 12,
+    "type": "armor",
+    "armor_class": 1,
+    "slot": "waist",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 2.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": {
+      "constitution": 1
+    },
+    "effect": null,
+    "armor_type": "leather",
+    "armor_set": "dunehide"
+  },
+  "recipe_lw_dunehide_belt": {
+    "name": "Recipe: Dunehide Belt",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Leatherworking recipe for Dunehide Belt. Requires Leatherworking 4.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 20,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "leatherworking",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "lw_dunehide_belt"
+  },
+  "dunehide_cap": {
+    "name": "Dunehide Cap",
+    "icon": "res://Assets/icons/items/dunehide_cap.png",
+    "description": "A fur-lined leather cap, part of the Dunehide set.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 14,
+    "type": "armor",
+    "armor_class": 2,
+    "slot": "head",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 2.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "armor_type": "leather",
+    "armor_set": "dunehide"
+  },
+  "recipe_lw_dunehide_cap": {
+    "name": "Recipe: Dunehide Cap",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Leatherworking recipe for Dunehide Cap. Requires Leatherworking 5.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 25,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "leatherworking",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "lw_dunehide_cap"
+  },
+  "dunehide_sleeves": {
+    "name": "Dunehide Sleeves",
+    "icon": "res://Assets/icons/items/dunehide_sleeves.png",
+    "description": "Leather sleeves, part of the Dunehide set.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 16,
+    "type": "armor",
+    "armor_class": 2,
+    "slot": "arms",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 2.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": {
+      "dexterity": 1
+    },
+    "effect": null,
+    "armor_type": "leather",
+    "armor_set": "dunehide"
+  },
+  "recipe_lw_dunehide_sleeves": {
+    "name": "Recipe: Dunehide Sleeves",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Leatherworking recipe for Dunehide Sleeves. Requires Leatherworking 6.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 25,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "leatherworking",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "lw_dunehide_sleeves"
+  },
+  "dunehide_pauldrons": {
+    "name": "Dunehide Pauldrons",
+    "icon": "res://Assets/icons/items/dunehide_pauldrons.png",
+    "description": "Hardened leather faced with scarab shell, part of the Dunehide set.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 18,
+    "type": "armor",
+    "armor_class": 2,
+    "slot": "shoulders",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 2.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "armor_type": "leather",
+    "armor_set": "dunehide"
+  },
+  "recipe_lw_dunehide_pauldrons": {
+    "name": "Recipe: Dunehide Pauldrons",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Leatherworking recipe for Dunehide Pauldrons. Requires Leatherworking 7.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 30,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "leatherworking",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "lw_dunehide_pauldrons"
+  },
+  "dunehide_leggings": {
+    "name": "Dunehide Leggings",
+    "icon": "res://Assets/icons/items/dunehide_leggings.png",
+    "description": "Hardened leather leggings, part of the Dunehide set.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 22,
+    "type": "armor",
+    "armor_class": 2,
+    "slot": "legs",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 2.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": {
+      "dexterity": 1
+    },
+    "effect": null,
+    "armor_type": "leather",
+    "armor_set": "dunehide"
+  },
+  "recipe_lw_dunehide_leggings": {
+    "name": "Recipe: Dunehide Leggings",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Leatherworking recipe for Dunehide Leggings. Requires Leatherworking 9.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 35,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "leatherworking",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "lw_dunehide_leggings"
+  },
+  "dunehide_jerkin": {
+    "name": "Dunehide Jerkin",
+    "icon": "res://Assets/icons/items/dunehide_jerkin.png",
+    "description": "The jerkin of the Dunehide set: hardened leather plated with scarab shell.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 26,
+    "type": "armor",
+    "armor_class": 4,
+    "slot": "chest",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 2.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": {
+      "dexterity": 2,
+      "constitution": 1
+    },
+    "effect": null,
+    "armor_type": "leather",
+    "armor_set": "dunehide"
+  },
+  "recipe_lw_dunehide_jerkin": {
+    "name": "Recipe: Dunehide Jerkin",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Leatherworking recipe for Dunehide Jerkin. Requires Leatherworking 11.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "leatherworking",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "lw_dunehide_jerkin"
+  },
+  "oasis_linen_gloves": {
+    "name": "Oasis Linen Gloves",
+    "icon": "res://Assets/icons/items/oasis_linen_gloves.png",
+    "description": "Light gloves of oasis linen, part of the Oasis Linen set.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 6,
+    "type": "armor",
+    "armor_class": 1,
+    "slot": "hands",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 2.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": {
+      "intelligence": 1
+    },
+    "effect": null,
+    "armor_type": "cloth",
+    "armor_set": "oasis_linen"
+  },
+  "oasis_linen_slippers": {
+    "name": "Oasis Linen Slippers",
+    "icon": "res://Assets/icons/items/oasis_linen_slippers.png",
+    "description": "Soft slippers of oasis linen, part of the Oasis Linen set.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 8,
+    "type": "armor",
+    "armor_class": 1,
+    "slot": "feet",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 2.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "armor_type": "cloth",
+    "armor_set": "oasis_linen"
+  },
+  "oasis_linen_wraps": {
+    "name": "Oasis Linen Wraps",
+    "icon": "res://Assets/icons/items/oasis_linen_wraps.png",
+    "description": "Linen wrist wraps, part of the Oasis Linen set.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "armor",
+    "armor_class": 1,
+    "slot": "wrist",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 2.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": {
+      "wisdom": 1
+    },
+    "effect": null,
+    "armor_type": "cloth",
+    "armor_set": "oasis_linen"
+  },
+  "recipe_tl_oasis_linen_wraps": {
+    "name": "Recipe: Oasis Linen Wraps",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Tailoring recipe for Oasis Linen Wraps. Requires Tailoring 3.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 15,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "tailoring",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "tl_oasis_linen_wraps"
+  },
+  "oasis_linen_sash": {
+    "name": "Oasis Linen Sash",
+    "icon": "res://Assets/icons/items/oasis_linen_sash.png",
+    "description": "A dyed linen sash, part of the Oasis Linen set.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 12,
+    "type": "armor",
+    "armor_class": 1,
+    "slot": "waist",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 2.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": {
+      "wisdom": 1
+    },
+    "effect": null,
+    "armor_type": "cloth",
+    "armor_set": "oasis_linen"
+  },
+  "recipe_tl_oasis_linen_sash": {
+    "name": "Recipe: Oasis Linen Sash",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Tailoring recipe for Oasis Linen Sash. Requires Tailoring 4.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 20,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "tailoring",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "tl_oasis_linen_sash"
+  },
+  "oasis_linen_hood": {
+    "name": "Oasis Linen Hood",
+    "icon": "res://Assets/icons/items/oasis_linen_hood.png",
+    "description": "A linen hood shot through with glittering sand, part of the Oasis Linen set.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 14,
+    "type": "armor",
+    "armor_class": 1,
+    "slot": "head",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 2.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": {
+      "intelligence": 1,
+      "wisdom": 1
+    },
+    "effect": null,
+    "armor_type": "cloth",
+    "armor_set": "oasis_linen"
+  },
+  "recipe_tl_oasis_linen_hood": {
+    "name": "Recipe: Oasis Linen Hood",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Tailoring recipe for Oasis Linen Hood. Requires Tailoring 5.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 25,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "tailoring",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "tl_oasis_linen_hood"
+  },
+  "oasis_linen_sleeves": {
+    "name": "Oasis Linen Sleeves",
+    "icon": "res://Assets/icons/items/oasis_linen_sleeves.png",
+    "description": "Loose linen sleeves, part of the Oasis Linen set.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 16,
+    "type": "armor",
+    "armor_class": 1,
+    "slot": "arms",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 2.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": {
+      "intelligence": 1
+    },
+    "effect": null,
+    "armor_type": "cloth",
+    "armor_set": "oasis_linen"
+  },
+  "recipe_tl_oasis_linen_sleeves": {
+    "name": "Recipe: Oasis Linen Sleeves",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Tailoring recipe for Oasis Linen Sleeves. Requires Tailoring 6.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 25,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "tailoring",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "tl_oasis_linen_sleeves"
+  },
+  "oasis_linen_mantle": {
+    "name": "Oasis Linen Mantle",
+    "icon": "res://Assets/icons/items/oasis_linen_mantle.png",
+    "description": "A mantle dusted with faintly glowing spirit-dust, part of the Oasis Linen set.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 18,
+    "type": "armor",
+    "armor_class": 1,
+    "slot": "shoulders",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 2.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": {
+      "wisdom": 1
+    },
+    "effect": null,
+    "armor_type": "cloth",
+    "armor_set": "oasis_linen"
+  },
+  "recipe_tl_oasis_linen_mantle": {
+    "name": "Recipe: Oasis Linen Mantle",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Tailoring recipe for Oasis Linen Mantle. Requires Tailoring 7.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 30,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "tailoring",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "tl_oasis_linen_mantle"
+  },
+  "oasis_linen_trousers": {
+    "name": "Oasis Linen Trousers",
+    "icon": "res://Assets/icons/items/oasis_linen_trousers.png",
+    "description": "Reinforced linen trousers, part of the Oasis Linen set.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 22,
+    "type": "armor",
+    "armor_class": 2,
+    "slot": "legs",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 2.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": {
+      "intelligence": 1
+    },
+    "effect": null,
+    "armor_type": "cloth",
+    "armor_set": "oasis_linen"
+  },
+  "recipe_tl_oasis_linen_trousers": {
+    "name": "Recipe: Oasis Linen Trousers",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Tailoring recipe for Oasis Linen Trousers. Requires Tailoring 9.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 35,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "tailoring",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "tl_oasis_linen_trousers"
+  },
+  "oasis_linen_robe": {
+    "name": "Oasis Linen Robe",
+    "icon": "res://Assets/icons/items/oasis_linen_robe.png",
+    "description": "The robe of the Oasis Linen set: silk over linen, glittering like the springs at dusk.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 26,
+    "type": "armor",
+    "armor_class": 3,
+    "slot": "chest",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 2.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": {
+      "intelligence": 2,
+      "wisdom": 1
+    },
+    "effect": null,
+    "armor_type": "cloth",
+    "armor_set": "oasis_linen"
+  },
+  "recipe_tl_oasis_linen_robe": {
+    "name": "Recipe: Oasis Linen Robe",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Tailoring recipe for Oasis Linen Robe. Requires Tailoring 11.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "tailoring",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "tl_oasis_linen_robe"
+  },
+  "night_eye_draught": {
+    "name": "Night-Eye Draught",
+    "icon": "res://Assets/icons/items/night_eye_draught.png",
+    "description": "A murky draught that lets your eyes gather the faintest light, as a bat's do. Dark sight for 10 minutes.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 12,
+    "type": "potion",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "use_buff": {
+      "effect_name": "night_eye",
+      "duration": 600.0,
+      "modifiers": {},
+      "tick_heal": 0,
+      "tick_interval": 6.0
+    }
+  },
+  "recipe_alch_night_eye_draught": {
+    "name": "Recipe: Night-Eye Draught",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Alchemy recipe for Night-Eye Draught. Requires Alchemy 4.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 20,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "alchemy",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "alch_night_eye_draught"
   }
 }

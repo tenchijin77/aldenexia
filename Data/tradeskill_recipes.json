@@ -423,6 +423,31 @@
       "status": "Core",
       "scroll": "recipe_alch_elixir_of_insight"
     },
+    "alch_night_eye_draught": {
+      "name": "Night-Eye Draught",
+      "skill": "alchemy",
+      "output": "night_eye_draught",
+      "yield": 1,
+      "crit_yield": 2,
+      "ingredients": {
+        "bat_wing": 1,
+        "echolocation_gland": 1,
+        "crystal_vial": 1
+      },
+      "min_skill": 4,
+      "max_level": 19,
+      "base_success": 0.9,
+      "crit_chance": 0.08,
+      "stations": [
+        "basic_alchemy_kit",
+        "alchemy_station"
+      ],
+      "innate": false,
+      "craft_time": 4.0,
+      "craft_message": "You grind the wing and steep the gland until the vial turns the colour of dusk.",
+      "status": "Core",
+      "scroll": "recipe_alch_night_eye_draught"
+    },
     "brew_desert_tea": {
       "name": "Desert Tea",
       "skill": "brewing",
@@ -1090,6 +1115,433 @@
       "craft_message": "You pour your skill into this blade. The bronze glows as you hammer it, taking the perfect shape. The gem you set catches the light beautifully. This is a work of art.",
       "status": "Core",
       "scroll": "recipe_smith_bronze_longsword"
+    },
+    "smith_copper_links": {
+      "name": "Copper Links",
+      "skill": "blacksmithing",
+      "output": "copper_links",
+      "yield": 4,
+      "crit_yield": 6,
+      "ingredients": {
+        "copper_ingot": 1
+      },
+      "min_skill": 5,
+      "max_level": 20,
+      "base_success": 0.91,
+      "crit_chance": 0.08,
+      "stations": [
+        "forge"
+      ],
+      "innate": true,
+      "craft_time": 3.0,
+      "craft_message": "You work the pieces together carefully. It is plain work, but it will turn a blade.",
+      "status": "Core"
+    },
+    "smith_copperlink_gloves": {
+      "name": "Copperlink Gloves",
+      "skill": "blacksmithing",
+      "output": "copperlink_gloves",
+      "yield": 1,
+      "crit_yield": 2,
+      "ingredients": {
+        "copper_links": 3,
+        "soft_leather": 1
+      },
+      "min_skill": 5,
+      "max_level": 20,
+      "base_success": 0.91,
+      "crit_chance": 0.08,
+      "stations": [
+        "forge"
+      ],
+      "innate": true,
+      "craft_time": 6.0,
+      "craft_message": "You work the pieces together carefully. It is plain work, but it will turn a blade.",
+      "status": "Core"
+    },
+    "smith_copperlink_boots": {
+      "name": "Copperlink Boots",
+      "skill": "blacksmithing",
+      "output": "copperlink_boots",
+      "yield": 1,
+      "crit_yield": 2,
+      "ingredients": {
+        "copper_links": 4,
+        "soft_leather": 1
+      },
+      "min_skill": 6,
+      "max_level": 21,
+      "base_success": 0.9,
+      "crit_chance": 0.08,
+      "stations": [
+        "forge"
+      ],
+      "innate": true,
+      "craft_time": 6.0,
+      "craft_message": "You work the pieces together carefully. It is plain work, but it will turn a blade.",
+      "status": "Core"
+    },
+    "smith_copperlink_bracers": {
+      "name": "Copperlink Bracers",
+      "skill": "blacksmithing",
+      "output": "copperlink_bracers",
+      "yield": 1,
+      "crit_yield": 2,
+      "ingredients": {
+        "copper_links": 3
+      },
+      "min_skill": 7,
+      "max_level": 22,
+      "base_success": 0.89,
+      "crit_chance": 0.08,
+      "stations": [
+        "forge"
+      ],
+      "innate": false,
+      "craft_time": 6.0,
+      "craft_message": "You work the pieces together carefully. It is plain work, but it will turn a blade.",
+      "status": "Core",
+      "scroll": "recipe_smith_copperlink_bracers"
+    },
+    "smith_copperlink_belt": {
+      "name": "Copperlink Belt",
+      "skill": "blacksmithing",
+      "output": "copperlink_belt",
+      "yield": 1,
+      "crit_yield": 2,
+      "ingredients": {
+        "copper_links": 3,
+        "soft_leather": 1
+      },
+      "min_skill": 8,
+      "max_level": 23,
+      "base_success": 0.88,
+      "crit_chance": 0.1,
+      "stations": [
+        "forge"
+      ],
+      "innate": false,
+      "craft_time": 6.0,
+      "craft_message": "You work the pieces together carefully. It is plain work, but it will turn a blade.",
+      "status": "Core",
+      "scroll": "recipe_smith_copperlink_belt"
+    },
+    "smith_copperlink_coif": {
+      "name": "Copperlink Coif",
+      "skill": "blacksmithing",
+      "output": "copperlink_coif",
+      "yield": 1,
+      "crit_yield": 2,
+      "ingredients": {
+        "copper_links": 5,
+        "soft_leather": 1
+      },
+      "min_skill": 9,
+      "max_level": 24,
+      "base_success": 0.87,
+      "crit_chance": 0.1,
+      "stations": [
+        "forge"
+      ],
+      "innate": false,
+      "craft_time": 7.0,
+      "craft_message": "You work the pieces together carefully. It is plain work, but it will turn a blade.",
+      "status": "Core",
+      "scroll": "recipe_smith_copperlink_coif"
+    },
+    "smith_copperlink_sleeves": {
+      "name": "Copperlink Sleeves",
+      "skill": "blacksmithing",
+      "output": "copperlink_sleeves",
+      "yield": 1,
+      "crit_yield": 2,
+      "ingredients": {
+        "copper_links": 5
+      },
+      "min_skill": 10,
+      "max_level": 25,
+      "base_success": 0.86,
+      "crit_chance": 0.1,
+      "stations": [
+        "forge"
+      ],
+      "innate": false,
+      "craft_time": 7.0,
+      "craft_message": "You work the pieces together carefully. It is plain work, but it will turn a blade.",
+      "status": "Core",
+      "scroll": "recipe_smith_copperlink_sleeves"
+    },
+    "smith_copperlink_spaulders": {
+      "name": "Copperlink Spaulders",
+      "skill": "blacksmithing",
+      "output": "copperlink_spaulders",
+      "yield": 1,
+      "crit_yield": 2,
+      "ingredients": {
+        "copper_links": 5,
+        "soft_leather": 1
+      },
+      "min_skill": 11,
+      "max_level": 26,
+      "base_success": 0.85,
+      "crit_chance": 0.1,
+      "stations": [
+        "forge"
+      ],
+      "innate": false,
+      "craft_time": 7.0,
+      "craft_message": "You work the pieces together carefully. It is plain work, but it will turn a blade.",
+      "status": "Core",
+      "scroll": "recipe_smith_copperlink_spaulders"
+    },
+    "smith_copperlink_leggings": {
+      "name": "Copperlink Leggings",
+      "skill": "blacksmithing",
+      "output": "copperlink_leggings",
+      "yield": 1,
+      "crit_yield": 2,
+      "ingredients": {
+        "copper_links": 7,
+        "soft_leather": 1
+      },
+      "min_skill": 12,
+      "max_level": 27,
+      "base_success": 0.84,
+      "crit_chance": 0.1,
+      "stations": [
+        "forge"
+      ],
+      "innate": false,
+      "craft_time": 8.0,
+      "craft_message": "You work the pieces together carefully. It is plain work, but it will turn a blade.",
+      "status": "Core",
+      "scroll": "recipe_smith_copperlink_leggings"
+    },
+    "smith_copperlink_hauberk": {
+      "name": "Copperlink Hauberk",
+      "skill": "blacksmithing",
+      "output": "copperlink_hauberk",
+      "yield": 1,
+      "crit_yield": 2,
+      "ingredients": {
+        "copper_links": 10,
+        "soft_leather": 2
+      },
+      "min_skill": 13,
+      "max_level": 28,
+      "base_success": 0.83,
+      "crit_chance": 0.1,
+      "stations": [
+        "forge"
+      ],
+      "innate": false,
+      "craft_time": 10.0,
+      "craft_message": "You work the pieces together carefully. It is plain work, but it will turn a blade.",
+      "status": "Core",
+      "scroll": "recipe_smith_copperlink_hauberk"
+    },
+    "smith_bronzeguard_gauntlets": {
+      "name": "Bronzeguard Gauntlets",
+      "skill": "blacksmithing",
+      "output": "bronzeguard_gauntlets",
+      "yield": 1,
+      "crit_yield": 2,
+      "ingredients": {
+        "bronze_ingot": 1,
+        "soft_leather": 1
+      },
+      "min_skill": 10,
+      "max_level": 25,
+      "base_success": 0.86,
+      "crit_chance": 0.1,
+      "stations": [
+        "forge"
+      ],
+      "innate": true,
+      "craft_time": 7.0,
+      "craft_message": "You work the pieces together carefully. It is plain work, but it will turn a blade.",
+      "status": "Core"
+    },
+    "smith_bronzeguard_sabatons": {
+      "name": "Bronzeguard Sabatons",
+      "skill": "blacksmithing",
+      "output": "bronzeguard_sabatons",
+      "yield": 1,
+      "crit_yield": 2,
+      "ingredients": {
+        "bronze_ingot": 1,
+        "soft_leather": 1
+      },
+      "min_skill": 11,
+      "max_level": 26,
+      "base_success": 0.85,
+      "crit_chance": 0.1,
+      "stations": [
+        "forge"
+      ],
+      "innate": true,
+      "craft_time": 7.0,
+      "craft_message": "You work the pieces together carefully. It is plain work, but it will turn a blade.",
+      "status": "Core"
+    },
+    "smith_bronzeguard_vambraces": {
+      "name": "Bronzeguard Vambraces",
+      "skill": "blacksmithing",
+      "output": "bronzeguard_vambraces",
+      "yield": 1,
+      "crit_yield": 2,
+      "ingredients": {
+        "bronze_ingot": 1
+      },
+      "min_skill": 11,
+      "max_level": 26,
+      "base_success": 0.85,
+      "crit_chance": 0.1,
+      "stations": [
+        "forge"
+      ],
+      "innate": false,
+      "craft_time": 7.0,
+      "craft_message": "You work the pieces together carefully. It is plain work, but it will turn a blade.",
+      "status": "Core",
+      "scroll": "recipe_smith_bronzeguard_vambraces"
+    },
+    "smith_bronzeguard_girdle": {
+      "name": "Bronzeguard Girdle",
+      "skill": "blacksmithing",
+      "output": "bronzeguard_girdle",
+      "yield": 1,
+      "crit_yield": 2,
+      "ingredients": {
+        "bronze_ingot": 1,
+        "hardened_leather": 1
+      },
+      "min_skill": 12,
+      "max_level": 27,
+      "base_success": 0.84,
+      "crit_chance": 0.1,
+      "stations": [
+        "forge"
+      ],
+      "innate": false,
+      "craft_time": 7.0,
+      "craft_message": "You work the pieces together carefully. It is plain work, but it will turn a blade.",
+      "status": "Core",
+      "scroll": "recipe_smith_bronzeguard_girdle"
+    },
+    "smith_bronzeguard_helm": {
+      "name": "Bronzeguard Helm",
+      "skill": "blacksmithing",
+      "output": "bronzeguard_helm",
+      "yield": 1,
+      "crit_yield": 2,
+      "ingredients": {
+        "bronze_ingot": 2,
+        "soft_leather": 1
+      },
+      "min_skill": 13,
+      "max_level": 28,
+      "base_success": 0.83,
+      "crit_chance": 0.1,
+      "stations": [
+        "forge"
+      ],
+      "innate": false,
+      "craft_time": 8.0,
+      "craft_message": "You work the pieces together carefully. It is plain work, but it will turn a blade.",
+      "status": "Core",
+      "scroll": "recipe_smith_bronzeguard_helm"
+    },
+    "smith_bronzeguard_rerebraces": {
+      "name": "Bronzeguard Rerebraces",
+      "skill": "blacksmithing",
+      "output": "bronzeguard_rerebraces",
+      "yield": 1,
+      "crit_yield": 2,
+      "ingredients": {
+        "bronze_ingot": 2
+      },
+      "min_skill": 13,
+      "max_level": 28,
+      "base_success": 0.83,
+      "crit_chance": 0.1,
+      "stations": [
+        "forge"
+      ],
+      "innate": false,
+      "craft_time": 8.0,
+      "craft_message": "You work the pieces together carefully. It is plain work, but it will turn a blade.",
+      "status": "Core",
+      "scroll": "recipe_smith_bronzeguard_rerebraces"
+    },
+    "smith_bronzeguard_pauldrons": {
+      "name": "Bronzeguard Pauldrons",
+      "skill": "blacksmithing",
+      "output": "bronzeguard_pauldrons",
+      "yield": 1,
+      "crit_yield": 2,
+      "ingredients": {
+        "bronze_ingot": 2,
+        "hardened_leather": 1
+      },
+      "min_skill": 14,
+      "max_level": 29,
+      "base_success": 0.82,
+      "crit_chance": 0.1,
+      "stations": [
+        "forge"
+      ],
+      "innate": false,
+      "craft_time": 8.0,
+      "craft_message": "You work the pieces together carefully. It is plain work, but it will turn a blade.",
+      "status": "Core",
+      "scroll": "recipe_smith_bronzeguard_pauldrons"
+    },
+    "smith_bronzeguard_greaves": {
+      "name": "Bronzeguard Greaves",
+      "skill": "blacksmithing",
+      "output": "bronzeguard_greaves",
+      "yield": 1,
+      "crit_yield": 2,
+      "ingredients": {
+        "bronze_ingot": 3,
+        "hardened_leather": 1
+      },
+      "min_skill": 15,
+      "max_level": 30,
+      "base_success": 0.81,
+      "crit_chance": 0.1,
+      "stations": [
+        "forge"
+      ],
+      "innate": false,
+      "craft_time": 9.0,
+      "craft_message": "You work the pieces together carefully. It is plain work, but it will turn a blade.",
+      "status": "Core",
+      "scroll": "recipe_smith_bronzeguard_greaves"
+    },
+    "smith_bronzeguard_breastplate": {
+      "name": "Bronzeguard Breastplate",
+      "skill": "blacksmithing",
+      "output": "bronzeguard_breastplate",
+      "yield": 1,
+      "crit_yield": 2,
+      "ingredients": {
+        "bronze_ingot": 4,
+        "hardened_leather": 2
+      },
+      "min_skill": 16,
+      "max_level": 31,
+      "base_success": 0.8,
+      "crit_chance": 0.1,
+      "stations": [
+        "forge"
+      ],
+      "innate": false,
+      "craft_time": 11.0,
+      "craft_message": "You work the pieces together carefully. It is plain work, but it will turn a blade.",
+      "status": "Core",
+      "scroll": "recipe_smith_bronzeguard_breastplate"
     },
     "ww_fir_planks": {
       "name": "Fir Planks",
@@ -2023,6 +2475,223 @@
       "status": "Needs engine",
       "scroll": "recipe_lw_reinforced_leather_armor"
     },
+    "lw_dunehide_gloves": {
+      "name": "Dunehide Gloves",
+      "skill": "leatherworking",
+      "output": "dunehide_gloves",
+      "yield": 1,
+      "crit_yield": 2,
+      "ingredients": {
+        "soft_leather": 1,
+        "thread": 1
+      },
+      "min_skill": 1,
+      "max_level": 16,
+      "base_success": 0.95,
+      "crit_chance": 0.08,
+      "stations": [
+        "basic_leatherworking_kit",
+        "tannery"
+      ],
+      "innate": true,
+      "craft_time": 5.0,
+      "craft_message": "You work the pieces together carefully. It is plain work, but it will turn a blade.",
+      "status": "Core"
+    },
+    "lw_dunehide_boots": {
+      "name": "Dunehide Boots",
+      "skill": "leatherworking",
+      "output": "dunehide_boots",
+      "yield": 1,
+      "crit_yield": 2,
+      "ingredients": {
+        "soft_leather": 2,
+        "thread": 1
+      },
+      "min_skill": 2,
+      "max_level": 17,
+      "base_success": 0.94,
+      "crit_chance": 0.08,
+      "stations": [
+        "basic_leatherworking_kit",
+        "tannery"
+      ],
+      "innate": true,
+      "craft_time": 5.0,
+      "craft_message": "You work the pieces together carefully. It is plain work, but it will turn a blade.",
+      "status": "Core"
+    },
+    "lw_dunehide_bracers": {
+      "name": "Dunehide Bracers",
+      "skill": "leatherworking",
+      "output": "dunehide_bracers",
+      "yield": 1,
+      "crit_yield": 2,
+      "ingredients": {
+        "soft_leather": 1,
+        "thread": 1
+      },
+      "min_skill": 3,
+      "max_level": 18,
+      "base_success": 0.93,
+      "crit_chance": 0.08,
+      "stations": [
+        "basic_leatherworking_kit",
+        "tannery"
+      ],
+      "innate": false,
+      "craft_time": 5.0,
+      "craft_message": "You work the pieces together carefully. It is plain work, but it will turn a blade.",
+      "status": "Core",
+      "scroll": "recipe_lw_dunehide_bracers"
+    },
+    "lw_dunehide_belt": {
+      "name": "Dunehide Belt",
+      "skill": "leatherworking",
+      "output": "dunehide_belt",
+      "yield": 1,
+      "crit_yield": 2,
+      "ingredients": {
+        "soft_leather": 1,
+        "scarab_shell": 1
+      },
+      "min_skill": 4,
+      "max_level": 19,
+      "base_success": 0.92,
+      "crit_chance": 0.08,
+      "stations": [
+        "basic_leatherworking_kit",
+        "tannery"
+      ],
+      "innate": false,
+      "craft_time": 5.0,
+      "craft_message": "You work the pieces together carefully. It is plain work, but it will turn a blade.",
+      "status": "Core",
+      "scroll": "recipe_lw_dunehide_belt"
+    },
+    "lw_dunehide_cap": {
+      "name": "Dunehide Cap",
+      "skill": "leatherworking",
+      "output": "dunehide_cap",
+      "yield": 1,
+      "crit_yield": 2,
+      "ingredients": {
+        "soft_leather": 1,
+        "fur_pelt": 1,
+        "thread": 1
+      },
+      "min_skill": 5,
+      "max_level": 20,
+      "base_success": 0.91,
+      "crit_chance": 0.08,
+      "stations": [
+        "basic_leatherworking_kit",
+        "tannery"
+      ],
+      "innate": false,
+      "craft_time": 6.0,
+      "craft_message": "You work the pieces together carefully. It is plain work, but it will turn a blade.",
+      "status": "Core",
+      "scroll": "recipe_lw_dunehide_cap"
+    },
+    "lw_dunehide_sleeves": {
+      "name": "Dunehide Sleeves",
+      "skill": "leatherworking",
+      "output": "dunehide_sleeves",
+      "yield": 1,
+      "crit_yield": 2,
+      "ingredients": {
+        "soft_leather": 2,
+        "thread": 1
+      },
+      "min_skill": 6,
+      "max_level": 21,
+      "base_success": 0.9,
+      "crit_chance": 0.08,
+      "stations": [
+        "basic_leatherworking_kit",
+        "tannery"
+      ],
+      "innate": false,
+      "craft_time": 6.0,
+      "craft_message": "You work the pieces together carefully. It is plain work, but it will turn a blade.",
+      "status": "Core",
+      "scroll": "recipe_lw_dunehide_sleeves"
+    },
+    "lw_dunehide_pauldrons": {
+      "name": "Dunehide Pauldrons",
+      "skill": "leatherworking",
+      "output": "dunehide_pauldrons",
+      "yield": 1,
+      "crit_yield": 2,
+      "ingredients": {
+        "hardened_leather": 1,
+        "scarab_shell": 2
+      },
+      "min_skill": 7,
+      "max_level": 22,
+      "base_success": 0.89,
+      "crit_chance": 0.08,
+      "stations": [
+        "basic_leatherworking_kit",
+        "tannery"
+      ],
+      "innate": false,
+      "craft_time": 7.0,
+      "craft_message": "You work the pieces together carefully. It is plain work, but it will turn a blade.",
+      "status": "Core",
+      "scroll": "recipe_lw_dunehide_pauldrons"
+    },
+    "lw_dunehide_leggings": {
+      "name": "Dunehide Leggings",
+      "skill": "leatherworking",
+      "output": "dunehide_leggings",
+      "yield": 1,
+      "crit_yield": 2,
+      "ingredients": {
+        "hardened_leather": 2,
+        "thread": 1,
+        "fur_pelt": 1
+      },
+      "min_skill": 9,
+      "max_level": 24,
+      "base_success": 0.87,
+      "crit_chance": 0.1,
+      "stations": [
+        "basic_leatherworking_kit",
+        "tannery"
+      ],
+      "innate": false,
+      "craft_time": 7.0,
+      "craft_message": "You work the pieces together carefully. It is plain work, but it will turn a blade.",
+      "status": "Core",
+      "scroll": "recipe_lw_dunehide_leggings"
+    },
+    "lw_dunehide_jerkin": {
+      "name": "Dunehide Jerkin",
+      "skill": "leatherworking",
+      "output": "dunehide_jerkin",
+      "yield": 1,
+      "crit_yield": 2,
+      "ingredients": {
+        "hardened_leather": 3,
+        "scarab_shell": 2,
+        "thread": 2
+      },
+      "min_skill": 11,
+      "max_level": 26,
+      "base_success": 0.85,
+      "crit_chance": 0.1,
+      "stations": [
+        "basic_leatherworking_kit",
+        "tannery"
+      ],
+      "innate": false,
+      "craft_time": 9.0,
+      "craft_message": "You work the pieces together carefully. It is plain work, but it will turn a blade.",
+      "status": "Core",
+      "scroll": "recipe_lw_dunehide_jerkin"
+    },
     "tl_thread": {
       "name": "Thread",
       "skill": "tailoring",
@@ -2238,6 +2907,248 @@
       "craft_message": "This robe is extraordinary. The silken fabric is infused with arcane power from the moonpetal essence. This is legendary.",
       "status": "Core",
       "scroll": "recipe_tl_archmages_robe"
+    },
+    "tl_oasis_linen_gloves": {
+      "name": "Oasis Linen Gloves",
+      "skill": "tailoring",
+      "output": "oasis_linen_gloves",
+      "yield": 1,
+      "crit_yield": 2,
+      "ingredients": {
+        "woven_cloth": 1,
+        "thread": 1
+      },
+      "min_skill": 1,
+      "max_level": 16,
+      "base_success": 0.95,
+      "crit_chance": 0.08,
+      "stations": [
+        "basic_tailoring_kit",
+        "tailors_bench"
+      ],
+      "innate": true,
+      "craft_time": 5.0,
+      "craft_message": "You cut and stitch the linen with care. It hangs well, and it breathes in the heat.",
+      "status": "Core"
+    },
+    "tl_oasis_linen_slippers": {
+      "name": "Oasis Linen Slippers",
+      "skill": "tailoring",
+      "output": "oasis_linen_slippers",
+      "yield": 1,
+      "crit_yield": 2,
+      "ingredients": {
+        "woven_cloth": 1,
+        "thread": 1,
+        "linen_cloth": 1
+      },
+      "min_skill": 2,
+      "max_level": 17,
+      "base_success": 0.94,
+      "crit_chance": 0.08,
+      "stations": [
+        "basic_tailoring_kit",
+        "tailors_bench"
+      ],
+      "innate": true,
+      "craft_time": 5.0,
+      "craft_message": "You cut and stitch the linen with care. It hangs well, and it breathes in the heat.",
+      "status": "Core"
+    },
+    "tl_oasis_linen_wraps": {
+      "name": "Oasis Linen Wraps",
+      "skill": "tailoring",
+      "output": "oasis_linen_wraps",
+      "yield": 1,
+      "crit_yield": 2,
+      "ingredients": {
+        "woven_cloth": 1,
+        "thread": 1
+      },
+      "min_skill": 3,
+      "max_level": 18,
+      "base_success": 0.93,
+      "crit_chance": 0.08,
+      "stations": [
+        "basic_tailoring_kit",
+        "tailors_bench"
+      ],
+      "innate": false,
+      "craft_time": 5.0,
+      "craft_message": "You cut and stitch the linen with care. It hangs well, and it breathes in the heat.",
+      "status": "Core",
+      "scroll": "recipe_tl_oasis_linen_wraps"
+    },
+    "tl_oasis_linen_sash": {
+      "name": "Oasis Linen Sash",
+      "skill": "tailoring",
+      "output": "oasis_linen_sash",
+      "yield": 1,
+      "crit_yield": 2,
+      "ingredients": {
+        "woven_cloth": 1,
+        "dye": 1,
+        "thread": 1
+      },
+      "min_skill": 4,
+      "max_level": 19,
+      "base_success": 0.92,
+      "crit_chance": 0.08,
+      "stations": [
+        "basic_tailoring_kit",
+        "tailors_bench"
+      ],
+      "innate": false,
+      "craft_time": 5.0,
+      "craft_message": "You cut and stitch the linen with care. It hangs well, and it breathes in the heat.",
+      "status": "Core",
+      "scroll": "recipe_tl_oasis_linen_sash"
+    },
+    "tl_oasis_linen_hood": {
+      "name": "Oasis Linen Hood",
+      "skill": "tailoring",
+      "output": "oasis_linen_hood",
+      "yield": 1,
+      "crit_yield": 2,
+      "ingredients": {
+        "woven_cloth": 2,
+        "thread": 1,
+        "sand_shimmer": 1
+      },
+      "min_skill": 5,
+      "max_level": 20,
+      "base_success": 0.91,
+      "crit_chance": 0.08,
+      "stations": [
+        "basic_tailoring_kit",
+        "tailors_bench"
+      ],
+      "innate": false,
+      "craft_time": 6.0,
+      "craft_message": "You cut and stitch the linen with care. It hangs well, and it breathes in the heat.",
+      "status": "Core",
+      "scroll": "recipe_tl_oasis_linen_hood"
+    },
+    "tl_oasis_linen_sleeves": {
+      "name": "Oasis Linen Sleeves",
+      "skill": "tailoring",
+      "output": "oasis_linen_sleeves",
+      "yield": 1,
+      "crit_yield": 2,
+      "ingredients": {
+        "woven_cloth": 2,
+        "thread": 1
+      },
+      "min_skill": 6,
+      "max_level": 21,
+      "base_success": 0.9,
+      "crit_chance": 0.08,
+      "stations": [
+        "basic_tailoring_kit",
+        "tailors_bench"
+      ],
+      "innate": false,
+      "craft_time": 6.0,
+      "craft_message": "You cut and stitch the linen with care. It hangs well, and it breathes in the heat.",
+      "status": "Core",
+      "scroll": "recipe_tl_oasis_linen_sleeves"
+    },
+    "tl_oasis_linen_mantle": {
+      "name": "Oasis Linen Mantle",
+      "skill": "tailoring",
+      "output": "oasis_linen_mantle",
+      "yield": 1,
+      "crit_yield": 2,
+      "ingredients": {
+        "reinforced_cloth": 2,
+        "thread": 1,
+        "spectral_dust": 1
+      },
+      "min_skill": 7,
+      "max_level": 22,
+      "base_success": 0.89,
+      "crit_chance": 0.08,
+      "stations": [
+        "basic_tailoring_kit",
+        "tailors_bench"
+      ],
+      "innate": false,
+      "craft_time": 7.0,
+      "craft_message": "You cut and stitch the linen with care. It hangs well, and it breathes in the heat.",
+      "status": "Core",
+      "scroll": "recipe_tl_oasis_linen_mantle"
+    },
+    "tl_oasis_linen_trousers": {
+      "name": "Oasis Linen Trousers",
+      "skill": "tailoring",
+      "output": "oasis_linen_trousers",
+      "yield": 1,
+      "crit_yield": 2,
+      "ingredients": {
+        "reinforced_cloth": 2,
+        "thread": 2,
+        "dye": 1
+      },
+      "min_skill": 9,
+      "max_level": 24,
+      "base_success": 0.87,
+      "crit_chance": 0.1,
+      "stations": [
+        "basic_tailoring_kit",
+        "tailors_bench"
+      ],
+      "innate": false,
+      "craft_time": 7.0,
+      "craft_message": "You cut and stitch the linen with care. It hangs well, and it breathes in the heat.",
+      "status": "Core",
+      "scroll": "recipe_tl_oasis_linen_trousers"
+    },
+    "tl_oasis_linen_robe": {
+      "name": "Oasis Linen Robe",
+      "skill": "tailoring",
+      "output": "oasis_linen_robe",
+      "yield": 1,
+      "crit_yield": 2,
+      "ingredients": {
+        "silken_cloth": 2,
+        "thread": 2,
+        "sand_shimmer": 1
+      },
+      "min_skill": 11,
+      "max_level": 26,
+      "base_success": 0.85,
+      "crit_chance": 0.1,
+      "stations": [
+        "basic_tailoring_kit",
+        "tailors_bench"
+      ],
+      "innate": false,
+      "craft_time": 9.0,
+      "craft_message": "You cut and stitch the linen with care. It hangs well, and it breathes in the heat.",
+      "status": "Core",
+      "scroll": "recipe_tl_oasis_linen_robe"
+    },
+    "tl_salvaged_linen": {
+      "name": "Salvaged Linen",
+      "skill": "tailoring",
+      "output": "linen_cloth",
+      "yield": 1,
+      "crit_yield": 2,
+      "ingredients": {
+        "rotten_linen": 3
+      },
+      "min_skill": 0,
+      "max_level": 15,
+      "base_success": 0.96,
+      "crit_chance": 0.05,
+      "stations": [
+        "basic_tailoring_kit",
+        "tailors_bench"
+      ],
+      "innate": true,
+      "craft_time": 4.0,
+      "craft_message": "You pick out the rot and weave what's left into something useful. It smells better than it did.",
+      "status": "Core"
     }
   }
 }
