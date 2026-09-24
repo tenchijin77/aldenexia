@@ -347,6 +347,7 @@ func _fill_general_skills() -> void:
 
 	if skills.is_empty():
 		vbox.add_child(_empty_label("No general skills known."))
+		_add_language_rows(vbox)
 		return
 
 	# Skills your race gives a bonus in are listed even before you train them (a Dwarf sees Blacksmithing +15 from the start).
@@ -362,6 +363,28 @@ func _fill_general_skills() -> void:
 		var level: int    = levels.get(skill_name, 0)
 		var cap: int = int(_player.call("skill_cap_for", level)) if _player.has_method("skill_cap_for") else skill_max
 		vbox.add_child(_make_skill_row(skill_name, desc, level, cap))
+	_add_language_rows(vbox)
+
+
+# Languages (languages.gd): 0-100, not level-capped. They grow by hearing a language and by speaking it where someone who
+# grew up with it can hear (another player, or an NPC who speaks it) — a few points per dozen lines at low skill.
+func _add_language_rows(vbox: VBoxContainer) -> void:
+	var langs: Dictionary = Languages.skills()
+	if langs.is_empty():
+		return
+	var header := Label.new()
+	header.text = "Languages"
+	header.add_theme_font_size_override("font_size", 14)
+	header.add_theme_color_override("font_color", Color(0.9, 0.8, 0.5))
+	vbox.add_child(header)
+	var speaking := Languages.speaking()
+	var ids: Array = langs.keys()
+	ids.sort_custom(func(a, b): return float(langs[a]) > float(langs[b]))
+	for id in ids:
+		var desc := "Improves when you hear it spoken, and when you speak it where someone who knows it can hear you."
+		if str(id) == speaking:
+			desc = "You are speaking this now. " + desc
+		vbox.add_child(_make_skill_row(Languages.display(str(id)), desc, int(langs[id]), 100))
 
 
 # What this skill is actually doing right now, at its current level, in the player's own numbers — reads the exact same

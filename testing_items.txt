@@ -1,12 +1,12 @@
 ALDENEXIA: LIGHTFALL — TESTING CHECKLIST
 New features and fixes waiting for a real playtest, in two parts: OUTSTANDING (not passed yet) and COMPLETED (passed).
 When an item passes, change [ ] to [x] and move it to the same section under COMPLETED (or just add "- working" and it
-gets moved). A failure goes to outstanding_items.txt with what went wrong. Last updated 2026-09-24 (test 31).
-Everything below was built after test 26.   Outstanding: 113   Completed: 20
+gets moved). A failure goes to outstanding_items.txt with what went wrong. Last updated 2026-09-24 (test 32).
+Everything below was built after test 26.   Outstanding: 115   Completed: 21
 
 
 ################################################################################
-  OUTSTANDING — still to test (113)
+  OUTSTANDING — still to test (115)
 ################################################################################
 
 == ACCOUNTS AND JOINING ==
@@ -183,7 +183,7 @@ Everything below was built after test 26.   Outstanding: 113   Completed: 20
     players see it); a second /surname is refused. A GM can /surname <player> <Name> or clear it. /s still says.
 
 == ARMOUR SETS, SMITH, DECONSTRUCT (2026-09-24, overnight) ==
-[ ] Borgrim Emberforge stands by the forge (dwarf, not in a wall); hail and shop work; he sells the smithing patterns;
+[ ] Borgrim Emberforge (looks good in test 32 — still check:) hail and shop work; he sells the smithing patterns;
     Aldric no longer does. Aldric and Lira now talk (greetings, ambient lines) and look like human NPCs.
 [ ] Tailor/Leatherworker: Oasis Linen / Dunehide gloves and boots are known from the start; the other patterns are at
     Aldric. Smith: Copper Links (known at 5), Copperlink gloves/boots, Bronzeguard gauntlets/sabatons known; rest at Borgrim.
@@ -202,13 +202,19 @@ Everything below was built after test 26.   Outstanding: 113   Completed: 20
 [ ] The Silent Den now also gives the Copperlink Hauberk pattern.
 
 == TEST 31 FIXES: STACKS AND RECIPE CHOICE ==
-[ ] Right-click a stack in your bags > Split: pick how many; they appear as a new stack in a free slot (same bag first).
 [ ] Put 20 tin + 20 fir in the forge: a "Make:" picker offers Tin Dagger / Tin Shield (Shield chosen if you know it);
     "How many" lets you make just 1; the rest goes back to your bags when you close the window.
 [ ] Put exactly 2 tin + 1 fir in: it's ready to make a Tin Shield (it used to always make a Tin Dagger).
 
+== TEST 32 FIXES ==
+[ ] Crafting window with 20 tin + 20 fir: "Make:" and "How many" sit ABOVE the button; while working, the progress bar
+    is inside the window (it grows to fit); the picker is greyed out until the batch ends.
+[ ] Abilities book (K) > General Skills ends with a Languages list (e.g. Twilari 100, Common 75, Aevaryn 40).
+[ ] Two players grouped: a Troll speaking Common in /party to a Half-Elf slowly raises the Troll's Common (about one
+    point per 15 lines, one roll every 4 s); the listener gains from hearing too.
+
 ################################################################################
-  COMPLETED — passed (20)
+  COMPLETED — passed (21)
 ################################################################################
 
 == ACCOUNTS AND JOINING ==
@@ -249,3 +255,6 @@ Everything below was built after test 26.   Outstanding: 113   Completed: 20
 
 == SEVEN NEW QUESTS (2026-09-24, overnight) ==
 [x] Halric: hail -> {arrows}; 6 spider fangs + 8 bone fragments -> Silk Bowstring pattern.
+
+== TEST 31 FIXES: STACKS AND RECIPE CHOICE ==
+[x] Right-click a stack in your bags > Split: pick how many; they appear as a new stack in a free slot (same bag first).

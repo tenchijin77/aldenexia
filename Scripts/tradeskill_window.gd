@@ -99,7 +99,7 @@ func setup(station_id: String, title: String, action_label: String) -> void:
 	_pick_btn = OptionButton.new()
 	_pick_btn.visible = false
 	_pick_btn.item_selected.connect(func(_i): _count_max_seen = -1; _refresh_status())
-	action_btn.add_sibling(_pick_btn)
+	_add_above_action(_pick_btn)
 	# "How many": the staged stacks can make several; this caps the batch (the rest goes back to your bags on close).
 	_count_row = HBoxContainer.new()
 	var count_label := Label.new()
@@ -110,9 +110,23 @@ func setup(station_id: String, title: String, action_label: String) -> void:
 	_count_spin.max_value = 1
 	_count_spin.value_changed.connect(func(_v): _refresh_status())
 	_count_row.add_child(_count_spin)
-	action_btn.add_sibling(_count_row)
+	_add_above_action(_count_row)
 	_count_row.visible = false
 	_refresh_status()
+
+
+# The recipe picker and "How many" go ABOVE the action button (below it they pushed the progress bar out of the window).
+func _add_above_action(control: Control) -> void:
+	action_btn.get_parent().add_child(control)
+	action_btn.get_parent().move_child(control, action_btn.get_index())
+
+
+# The window grows to fit whatever rows are showing (picker, How many, Deconstruct, the progress bar); it never shrinks
+# below the size the player dragged it to.
+func _fit_panel() -> void:
+	var need: Vector2 = $Panel/Margin.get_combined_minimum_size()
+	if panel.size.y < need.y or panel.size.x < need.x:
+		panel.size = Vector2(maxf(panel.size.x, need.x), maxf(panel.size.y, need.y))
 
 
 var _count_row: HBoxContainer
@@ -319,6 +333,7 @@ func _blocked_reason(recipe_id: String, recipe: Dictionary) -> String:
 func _refresh_status() -> void:
 	if _crafting:
 		return
+	_fit_panel.call_deferred()
 	if _pick_btn:
 		_refresh_picker()
 	var found := _find_best_recipe()
@@ -377,6 +392,11 @@ func _on_action_pressed() -> void:
 	close_btn.disabled = true
 	progress_bar.visible = true
 	progress_bar.value = 0.0
+	if _pick_btn:
+		_pick_btn.disabled = true
+		_count_spin.editable = false
+		_deconstruct_btn.disabled = true
+	_fit_panel.call_deferred()
 	_update_batch_status()
 
 
@@ -480,6 +500,9 @@ func _stop_crafting(message: String) -> void:
 	action_btn.text = _action_label
 	close_btn.disabled = false
 	progress_bar.visible = false
+	if _pick_btn:
+		_pick_btn.disabled = false
+		_count_spin.editable = true
 	if not message.is_empty():
 		GameLog.log_general("[color=#ffaa66]%s[/color]" % message)
 	_refresh_status()

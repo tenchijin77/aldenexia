@@ -2013,6 +2013,19 @@ GATE RAIDS (`Scripts/gate_raid_manager.gd`, `Data/gate_raids.json`, node "GateRa
 - Stances work (Lightsworn). Wrong-password lockout and Log Out passed. All three moved to COMPLETED in testing_items.txt.
 - "Blessing of Light, no regen message" — NOT A BUG, measured headless with a real Lightsworn player: the cast lands, the effect is active, and health rose 96 -> 115 of 156 in 6 s (3 a second after the 2 s cast, plus natural regen). The only lines are "You begin casting a spell." and "You begin regenerating health.", both in the COMBAT tab, not General; the ticks themselves are silent, and at full health they heal nothing.
 
+### Test 32: Zozuur (Voidknight), Maedianie (Wildspeaker), build 8bbdd75 (2026-09-24)
+- Splitting stacks works; Borgrim looks good.
+- CRAFTING WINDOW LAYOUT (screenshot): the "Make:" picker was added below the action button and pushed the progress bar
+  out of the fixed-size window. The picker and "How many" now sit above the button, the window grows to fit whatever
+  rows are showing (never shrinking below the size you dragged it to), and the picker/"How many"/Deconstruct are
+  locked while a batch runs. Checked headless: the panel grows 200 -> 281 px and the bar's bottom is inside it.
+- LANGUAGES "not going up, not in the skills book": they do rise, slowly — speaking counts only where someone who grew up
+  with the language hears you (a Half-Elf hearing a Troll's Common counts; a Troll hearing a Half-Elf doesn't, since
+  Trolls start at 15), one roll per 4 s, about 6% per line for a Troll at 15 and 2% for a Half-Elf at 75; hearing it
+  spoken counts too. They were never in the abilities book: it now ends with a Languages list (skill out of 100, which
+  one you speak). No rate change — tell me if it should be faster.
+- Player's Manual updated and republished.
+
 ### Test 31: Zozuur (Voidknight), build e2ddc39 (2026-09-24)
 - Quests show in the journal (Halric's arrows, the Guildmaster's note, the spider den, the wreck): 4 checks passed.
 - "Can't take 2 tin and 1 fir off my stacks of 20 for the Tin Shield" — two fixes:
