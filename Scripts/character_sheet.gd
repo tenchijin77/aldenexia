@@ -661,7 +661,7 @@ func set_character_data(data: Dictionary) -> void:
 	_stat_labels["name"].text = data.get("player_name", "").capitalize()
 	_stat_labels["level"].text = "Lv %d" % data.get("player_level", 1)
 	_stat_labels["subtitle"].text = "%s %s" % [
-		data.get("player_race", "").capitalize(), data.get("player_class", "").capitalize()
+		Global.race_display_name(str(data.get("player_race", ""))), data.get("player_class", "").capitalize()
 	]
 
 	var stats: Dictionary = data.get("stats", {})

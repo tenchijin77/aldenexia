@@ -1,0 +1,93 @@
+ALDENEXIA: LIGHTFALL — TESTING CHECKLIST
+New features and fixes waiting for a real playtest. Tick them off here as they pass (move a failure to
+outstanding_items.txt with what went wrong). Last updated 2026-09-23. Everything below was built after test 26.
+
+
+== ACCOUNTS AND JOINING ==
+[ ] Log in as tenchijin / lightfall: Annadaeus, Maedianie, Shonuff, Zozuur are listed with portraits, level, race/class, zone.
+[ ] Epheo, Evangeline, Wanderer can each log in with their account (same name and old password).
+[ ] Server log after the update shows the account import lines; server_accounts/import.json is gone (import_done_... kept).
+[ ] Create a new account, create its first character from the big "Create Your First Character" button, enter the world.
+[ ] Enter World by button and by double-clicking a row.
+[ ] Two computers on tenchijin at once, different characters — both in the world, can see each other.
+[ ] Same character entered from a second computer takes it over (the first is disconnected).
+[ ] Delete a character (type its name to confirm) — gone from the list, kept in the server's deleted/ folder.
+[ ] Add Existing Character with an old name + password (make a throwaway old-style character first, or skip).
+[ ] Wrong password 5 times locks the account for a minute.
+[ ] Log Out returns to the login form; camping out / a failed join returns straight to the character list.
+[ ] Zone column shows "Lumora Outskirts" after a character has saved in the world.
+[ ] The Join a Server screen's console no longer fills with "Node not found" / "not found in cache" errors.
+
+== WHOLE-GAME COMBAT CHANGES ==
+[ ] Melee abilities cast instantly (Power Strike, Backstab, Holy Strike, the Aetherfist strikes, taunts).
+[ ] Moving during a spell cast fizzles it ("You moved, and your spell fizzles."); turning in place doesn't. Troubadour songs
+    keep playing while moving.
+[ ] Knockback: Power Strike / Earth Strike push the monster ~4m away; it walks back and fights. Works on the server too.
+[ ] Slows, curses, stuns and fears no longer do damage by themselves.
+[ ] Group heals heal everyone nearby (Holy Light, Prayer of Healing, Wild Growth, Tranquility, Aetherfist Meditation /
+    Mend Wounds) — test in a group.
+[ ] Area spells hit monsters near the target (Fireball, Hurricane, Plague Cloud); cones and point-blank spells hit the
+    right radius.
+[ ] Drains heal YOU (Life Drain, Death Coil, Harmony Blade, Siphon Essence on a monster).
+[ ] Chance effects happen only sometimes (Smite's blind ~10%).
+[ ] Blink (10m) and Chaos Rift (8m, random direction) teleport.
+[ ] Attacking breaks Vanish / Shadow Cloak / Camouflage / Invisibility.
+[ ] Level-1 openers no longer one-shot a level-1 monster (Power Strike 35, Aimed Shot 40, Backstab 60); Shadow Bolt and
+    Chaos Bolt (45) feel useful.
+
+== PER-CLASS SPOT CHECKS (levels 1-8) ==
+[ ] Blademaster: Tactical Stance / Battle Focus are self-buffs; Sunder Armor debuffs; Defensive Strike buffs you on hit;
+    Commanding Presence (group: allies -10% threat, you +15%); Rallying Cry (5% group heal + your armor +10);
+    Weapon Mastery / Enhanced Parry are passives.
+[ ] Lightsworn: Holy Strike/Smite Evil stronger vs undead; Aura of Courage group attack speed; Radiant Burst hurts and heals;
+    Sacred Oath self-buff; Hammer of Justice stuns 2s; Beacon of Hope +25% healing received; Improved Riposte heals.
+[ ] Voidknight: Gravechill cone; Enhanced Riposte passive; Improved Disarm melee.
+[ ] Lightmender: Turn Undead only scares undead; Guardian Spirit saves an ally from a killing blow at 20% health.
+[ ] Spiritweaver: totems damage/slow around you; Healing Wave heals an ally (not monsters); Ghost Wolf run speed; Hex sleeps.
+[ ] Wildspeaker: Moonfire hit + burn; forms (Bear/Cat/Hawk) are self-buffs; Rejuvenation 15/s; Thorns reflects; Hurricane
+    area slow.
+[ ] Arcanist: Fireball splash; Counterspell/Slow; Arcane Barrage 3 bolts; Polymorph sleeps 6s.
+[ ] Chaosborn: Chaos Bolt single target; Entropic Blast splash (rare stun); Prismatic Spray rare burn.
+[ ] Gravecaller: Shadow Bolt 45; Life Drain heals you; Death Coil hits and heals; Curse of Agony / Plague Cloud / Blight
+    DoTs; Soul Shard self-buff; Siphon Essence; Death Pact (pet alive within 15m, heals 35%).
+[ ] Runecaster: Mana Shield is a self shield; Mind Blast interrupts; Illusory Terrain accuracy debuff; Mind Flay DoT.
+[ ] Shadowblade: Backstab only from behind/hidden; Evasion self-buff; Ambush stun; Toxic Blade / Garrote DoTs; Vanish.
+[ ] Troubadour: Illusory Mask (less threat); Harmony Blade heals you; Mesmerizing Tune 8s sleep.
+[ ] Woodstalker: Hunter's Mark debuffs the target (it used to buff it); Rapid Shot 2 arrows, Barrage 3; Entangling Shot
+    roots 3s; Camouflage hides you.
+
+== PICKPOCKET (Shadowblade, Troubadour, Woodstalker) ==
+[ ] Existing characters of these classes have Pickpocket in their abilities book.
+[ ] From behind it always works (even mid-fight); from the front ~40%; hidden ~70%. A fail reveals you and pulls the monster.
+[ ] Loot comes from what the monster would drop, or coins from humanoids/undead. Each monster can be picked once.
+
+== UPGRADE SPELLS ==
+[ ] Buy an upgrade scroll (e.g. Improved Flurry at Ilsabet, Improved Shadow Bolt at Xalvyr): refused below its level;
+    at the level it replaces the original in the book AND on the action bar.
+[ ] The upgrade's icon is the original tinted gold (Improved/Greater) or violet (Master).
+[ ] Master passives keep the original passive's effect (Master Block still has Improved Block's bonus).
+
+== SUMMONS (temporary models) ==
+[ ] Summon Wraith / Shade (Voidknight), Summon Ghoul / Abomination (Gravecaller), Spiritual Weapon (Lightmender),
+    Call Companion / Hawk / Bear / Panther (Woodstalker), Call of the Wild (Wildspeaker): pet appears with the right
+    stand-in model, follows, fights, has a pet frame.
+[ ] All summons are permanent and come back after logging out and in.
+[ ] Beast Bond buffs the companion.
+[ ] Other players see your pet (multiplayer).
+
+== LANGUAGES AND THE VOL'KYNE ==
+[ ] Log in with existing characters: /language lists their race's languages (e.g. Zozuur: Grommish 100, Common 15).
+[ ] The language dropdown next to the chat channel lists your languages with skill; picking one changes what you speak.
+[ ] Two players of different races: /say in a racial language — the other sees ", in Grommish" and scrambled words; the
+    same word scrambles the same way every time.
+[ ] A troll/ogre/lizardkin speaking Common is partly garbled even to a human (mispronunciation).
+[ ] Hail a guard as a troll/ogre/lizardkin: the guard's lines are mostly scrambled; clickable {keywords} still work.
+[ ] Buy a language scroll (Ilsabet / Xalvyr / Sahren for Djhanid), Learn it: 1 point, appears in the dropdown.
+[ ] Practising: hearing the language (another player, an NPC) and speaking it near someone who knows it slowly raises it
+    ("You've become better at Khuzdul! (2)").
+[ ] Goblin raiders shout in Goblish; undead death lines are Old Thallian... (skeletons/mummies/ghosts).
+[ ] Character creation lists "Vol'kyne (Dark Elf)"; a new Vol'kyne gets real racial stats (not all 10s); the character
+    sheet and account list say Vol'kyne.
+
+== TESTER GUIDE ==
+[ ] The tester page link shows the account login steps and the "Every control and chat command" list.

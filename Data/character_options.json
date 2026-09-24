@@ -248,14 +248,14 @@
       "difficulty": null
     },
     "dark_elf": {
-      "name": "Dark Elf",
+      "name": "Vol'kyne",
       "alignment": "evil",
       "portrait": {
         "male": "res://Assets/character creation/Male Dark Elf.png",
         "female": "res://Assets/character creation/Female Dark Elf.png"
       },
-      "description": "Cunning and ambitious, Dark Elves are masters of dark magic and subterfuge, excelling as Gravecallers, or Shadowblades. They thrive in the shadows of Aldenexia.",
-      "lore": "Dark Elves are key members of The Moribund Order, seeking the Void's power to rival the Solstice Aegis.",
+      "description": "Cunning and ambitious, the Vol'kyne (\"void kin\", once called dark elves) are masters of dark magic and subterfuge, excelling as Gravecallers, or Shadowblades. They thrive in the shadows of Aldenexia.",
+      "lore": "The Vol'kyne are key members of The Moribund Order, seeking the Void's power to rival the Solstice Aegis.",
       "traits": {
         "improved_dark_sight": true,
         "blindness_immunity": true,
@@ -273,7 +273,7 @@
         ]
       },
       "stat_priorities": null,
-      "alternate_names": [],
+      "alternate_names": ["Dark Elf"],
       "base_class": null,
       "role": null,
       "difficulty": null

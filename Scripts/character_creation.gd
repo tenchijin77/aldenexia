@@ -131,12 +131,13 @@ func load_character_options() -> void:
 	class_select.clear()
 
 	var race_keys: Array = races.keys()
-	race_keys.sort()
+	race_keys.sort_custom(func(a, b): return str(races[a]["name"]).naturalnocasecmp_to(str(races[b]["name"])) < 0)
 
 	for key in race_keys:
 		var race_key: String = str(key)
 		var race_data: Dictionary = races[race_key]
-		race_select.add_item(race_data["name"])
+		var alternates: Array = race_data.get("alternate_names", []) if race_data.get("alternate_names") is Array else []
+		race_select.add_item(race_data["name"] if alternates.is_empty() else "%s (%s)" % [race_data["name"], alternates[0]])
 		race_select.set_item_metadata(race_select.item_count - 1, race_key)
 
 # ---------------------------------------------------------
@@ -196,7 +197,9 @@ func update_portrait(race_key: String) -> void:
 		portrait_texture.texture = null
 
 func load_racial_stats(race_key: String) -> void:
-	var race_name = Global.character_options["races"][race_key]["name"].to_lower()
+	# racial_stats.json is keyed "dark-elf", "half-orc"... — the race key with dashes. It used to be looked up by the
+	# lower-cased display name, which never matched "Dark Elf", so those characters were created with flat 10s.
+	var race_name := race_key.replace("_", "-")
 	var file = FileAccess.open("res://Data/racial_stats.json", FileAccess.READ)
 	if file:
 		var data = JSON.parse_string(file.get_as_text())

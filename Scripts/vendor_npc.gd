@@ -9,6 +9,9 @@
 extends CharacterBody3D
 class_name VendorNPC
 
+## The language this NPC speaks (Data/languages.json id); players who don't know it hear it scrambled (Languages).
+@export var language: String = "common"
+
 @export var npc_name: String = "Vendor"
 @export var shop_id: String = "lumora_general_goods"  # key into Data/vendor_shop.json
 @export var shop_data_path: String = "res://Data/vendor_shop.json"
@@ -157,9 +160,8 @@ func greet_player(player_name: String) -> void:
 		return
 	var item_def: Dictionary = stock[randi() % stock.size()]["item_def"]
 	var item_name: String = item_def.get("name", "item")
-	GameLog.log_general("[color=#cccc88]%s says, \"Welcome, %s. I have a good %s you might be interested in.\"[/color]" % [
-		get_vendor_display_name(), player_name, item_name
-	])
+	var spoken := Languages.npc_line(language, "Welcome, %s. I have a good %s you might be interested in." % [player_name, item_name])
+	GameLog.log_general("[color=#cccc88]%s says%s, \"%s\"[/color]" % [get_vendor_display_name(), spoken[0], spoken[1]])
 
 
 # Returns [{item_id, item_def, price}] for everything this vendor stocks,

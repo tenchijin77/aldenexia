@@ -9,6 +9,7 @@
 extends VendorNPC
 class_name TalkingVendorNPC
 
+
 const HEAR_RANGE := 12.0
 
 @export var config_path: String = ""
@@ -90,7 +91,8 @@ func say_local(line: String) -> void:
 	var player := TargetFrame.local_player()
 	if not is_instance_valid(player) or global_position.distance_to(player.global_position) > HEAR_RANGE:
 		return
-	GameLog.log_general("[color=#88ccaa]%s says, \"%s\"[/color]" % [get_vendor_display_name(), NPCConversation.format(line)])
+	var spoken := Languages.npc_line(language, line)
+	GameLog.log_general("[color=#88ccaa]%s says%s, \"%s\"[/color]" % [get_vendor_display_name(), spoken[0], NPCConversation.format(spoken[1])])
 
 
 # ── Conversation (npc_conversation.gd) ──

@@ -10,6 +10,7 @@
 extends VendorNPC
 class_name TravelingMerchant
 
+
 enum Stage { ROAD_TO_DOCK, AT_DOCK, ROAD_TO_GATE, AT_GATE, LEAVING }
 
 const CONFIG_PATH := "res://Data/traveling_merchant.json"
@@ -166,7 +167,8 @@ func say_local(line: String) -> void:
 	var player := TargetFrame.local_player()
 	if not is_instance_valid(player) or global_position.distance_to(player.global_position) > HEAR_RANGE:
 		return
-	GameLog.log_general("[color=#cccc88]%s says, \"%s\"[/color]" % [npc_name, NPCConversation.format(line)])
+	var spoken := Languages.npc_line(language, line)
+	GameLog.log_general("[color=#cccc88]%s says%s, \"%s\"[/color]" % [npc_name, spoken[0], NPCConversation.format(spoken[1])])
 
 
 # ── Conversation (npc_conversation.gd) ──

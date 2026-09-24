@@ -605,7 +605,8 @@
     },
     "level_min": 1,
     "level_max": 4,
-    "death_text": ""
+    "death_text": "",
+    "language": "goblish"
   },
   "goblin_scout": {
     "description": "a desert goblin scout",
@@ -629,7 +630,8 @@
     },
     "level_min": 1,
     "level_max": 4,
-    "death_text": ""
+    "death_text": "",
+    "language": "goblish"
   },
   "goblin_warrior": {
     "description": "a desert goblin warrior",
@@ -653,7 +655,8 @@
     },
     "level_min": 3,
     "level_max": 6,
-    "death_text": ""
+    "death_text": "",
+    "language": "goblish"
   },
   "bat": {
     "description": "a dusk bat",

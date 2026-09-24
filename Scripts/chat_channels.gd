@@ -28,33 +28,45 @@ static func _wrap(channel: int, body: String) -> String:
 	return "[color=%s]%s[/color]" % [COLORS[channel], body]
 
 
-static func say_self(text: String) -> String:
-	return _wrap(SAY, "You say, '%s'" % text)
+# Lines carry a language (Languages): "You say, in Khuzdul, '...'"; a received line is decoded and scrambled for whatever
+# the local player doesn't understand (Languages.hear). Common gets no tag.
+static func say_self(text: String, lang: String = "common") -> String:
+	return _wrap(SAY, "You say%s, '%s'" % [Languages.tag(lang), text])
 
 
-static func say_other(sender: String, text: String) -> String:
-	return _wrap(SAY, "%s says, '%s'" % [sender, text])
+static func say_other(sender: String, message: String) -> String:
+	var heard := _heard(message)
+	return _wrap(SAY, "%s says%s, '%s'" % [sender, heard[0], heard[1]])
 
 
-static func zone_self(text: String) -> String:
-	return _wrap(ZONE, "You shout, '%s'" % text)
+static func zone_self(text: String, lang: String = "common") -> String:
+	return _wrap(ZONE, "You shout%s, '%s'" % [Languages.tag(lang), text])
 
 
-static func zone_other(sender: String, text: String) -> String:
-	return _wrap(ZONE, "%s shouts, '%s'" % [sender, text])
+static func zone_other(sender: String, message: String) -> String:
+	var heard := _heard(message)
+	return _wrap(ZONE, "%s shouts%s, '%s'" % [sender, heard[0], heard[1]])
 
 
-static func party_self(text: String) -> String:
-	return _wrap(PARTY, "[Party] You: %s" % text)
+static func party_self(text: String, lang: String = "common") -> String:
+	return _wrap(PARTY, "[Party] You%s: %s" % [Languages.tag(lang), text])
 
 
-static func party_other(sender: String, text: String) -> String:
-	return _wrap(PARTY, "[Party] %s: %s" % [sender, text])
+static func party_other(sender: String, message: String) -> String:
+	var heard := _heard(message)
+	return _wrap(PARTY, "[Party] %s%s: %s" % [sender, heard[0], heard[1]])
 
 
-static func tell_self(target: String, text: String) -> String:
-	return _wrap(TELL, "You tell %s, '%s'" % [target, text])
+static func tell_self(target: String, text: String, lang: String = "common") -> String:
+	return _wrap(TELL, "You tell %s%s, '%s'" % [target, Languages.tag(lang), text])
 
 
-static func tell_other(sender: String, text: String) -> String:
-	return _wrap(TELL, "%s tells you, '%s'" % [sender, text])
+static func tell_other(sender: String, message: String) -> String:
+	var heard := _heard(message)
+	return _wrap(TELL, "%s tells you%s, '%s'" % [sender, heard[0], heard[1]])
+
+
+# [", in Khuzdul" or "", what the local player makes of it]
+static func _heard(message: String) -> Array:
+	var decoded := Languages.decode(message)
+	return [Languages.tag(decoded[0]), Languages.hear(decoded[0], decoded[1])]

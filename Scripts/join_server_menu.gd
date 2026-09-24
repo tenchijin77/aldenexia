@@ -617,7 +617,7 @@ func _make_row(character: Dictionary) -> Button:
 		online.add_theme_color_override("font_color", STATUS_COLORS["online"])
 		name_cell.add_child(online)
 
-	var race_text := str(character.get("race", "")).capitalize()
+	var race_text := Global.race_display_name(str(character.get("race", "")))
 	var cell_texts := [
 		[str(int(character.get("level", 0))), 44, false],
 		[("%s %s" % [race_text, str(character.get("class", ""))]).strip_edges(), 170, false],

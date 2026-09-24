@@ -10973,5 +10973,383 @@
     "stat_modifiers": null,
     "effect": null,
     "teaches_spell": "master_chaos_weave"
+  },
+  "scroll_of_aevaryn_basics": {
+    "name": "Scroll of Aevaryn Basics",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A primer in Aevaryn: common words and how to say them. Right-click to learn the basics (1 point); then listen to it spoken, and speak it, to learn more.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 50,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_language": "aevaryn"
+  },
+  "scroll_of_khuzdul_basics": {
+    "name": "Scroll of Khuzdul Basics",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A primer in Khuzdul: common words and how to say them. Right-click to learn the basics (1 point); then listen to it spoken, and speak it, to learn more.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 50,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_language": "khuzdul"
+  },
+  "scroll_of_kithren_basics": {
+    "name": "Scroll of Kithren Basics",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A primer in Kithren: common words and how to say them. Right-click to learn the basics (1 point); then listen to it spoken, and speak it, to learn more.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 50,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_language": "kithren"
+  },
+  "scroll_of_cant_basics": {
+    "name": "Scroll of Cant of the Wanderers Basics",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A primer in Cant of the Wanderers: common words and how to say them. Right-click to learn the basics (1 point); then listen to it spoken, and speak it, to learn more.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 50,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_language": "cant"
+  },
+  "scroll_of_twilari_basics": {
+    "name": "Scroll of Twilari Basics",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A primer in Twilari: common words and how to say them. Right-click to learn the basics (1 point); then listen to it spoken, and speak it, to learn more.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 50,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_language": "twilari"
+  },
+  "scroll_of_krythuun_basics": {
+    "name": "Scroll of Kry'thuun Basics",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A primer in Kry'thuun: common words and how to say them. Right-click to learn the basics (1 point); then listen to it spoken, and speak it, to learn more.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 50,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_language": "krythuun"
+  },
+  "scroll_of_grommish_basics": {
+    "name": "Scroll of Grommish Basics",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A primer in Grommish: common words and how to say them. Right-click to learn the basics (1 point); then listen to it spoken, and speak it, to learn more.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 50,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_language": "grommish"
+  },
+  "scroll_of_grommak_basics": {
+    "name": "Scroll of Grommak Basics",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A primer in Grommak: common words and how to say them. Right-click to learn the basics (1 point); then listen to it spoken, and speak it, to learn more.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 50,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_language": "grommak"
+  },
+  "scroll_of_orkish_basics": {
+    "name": "Scroll of Orkish Basics",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A primer in Orkish: common words and how to say them. Right-click to learn the basics (1 point); then listen to it spoken, and speak it, to learn more.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 50,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_language": "orkish"
+  },
+  "scroll_of_sithrak_basics": {
+    "name": "Scroll of Sithrak Basics",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A primer in Sithrak: common words and how to say them. Right-click to learn the basics (1 point); then listen to it spoken, and speak it, to learn more.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 50,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_language": "sithrak"
+  },
+  "scroll_of_goblish_basics": {
+    "name": "Scroll of Goblish Basics",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A primer in Goblish: common words and how to say them. Right-click to learn the basics (1 point); then listen to it spoken, and speak it, to learn more.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 50,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_language": "goblish"
+  },
+  "scroll_of_djhanid_basics": {
+    "name": "Scroll of Djhanid Basics",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A primer in Djhanid: common words and how to say them. Right-click to learn the basics (1 point); then listen to it spoken, and speak it, to learn more.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 50,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_language": "djhanid"
+  },
+  "scroll_of_old_thallian_basics": {
+    "name": "Scroll of Old Thallian Basics",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A primer in Old Thallian: common words and how to say them. Right-click to learn the basics (1 point); then listen to it spoken, and speak it, to learn more.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 150,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_language": "old_thallian"
+  },
+  "scroll_of_high_arcanum_basics": {
+    "name": "Scroll of High Arcanum Basics",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A primer in High Arcanum: common words and how to say them. Right-click to learn the basics (1 point); then listen to it spoken, and speak it, to learn more.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 150,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_language": "high_arcanum"
   }
 }

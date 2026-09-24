@@ -1,5 +1,5 @@
 ALDENEXIA: LIGHTFALL — OUTSTANDING ITEMS
-Everything decided or noticed but not finished yet, so nothing gets lost. Add to it whenever something is left open; strike
+Everything decided or noticed but not finished yet, so nothing gets lost. (New features waiting for a playtest are in testing_items.txt.) Add to it whenever something is left open; strike
 an item (delete it, note it in change_log.txt) when it's done. Last updated 2026-09-23.
 
 
@@ -7,11 +7,20 @@ an item (delete it, note it in change_log.txt) when it's done. Last updated 2026
 - Rats (desert scavengers) not fighting back (test 26, Shonuff, SW of the gate while looking for tin ore): could not be
   reproduced in single-player, multiplayer, or with a fresh spawn. Need: did the log show them attacking, how were they
   moving, were stuns used?
-- Languages: design discussion in progress (chat-bar language dropdown, racial starting languages, scrambled text you
-  don't understand, proficiency that grows). The user has language ideas to share. Nothing built yet.
 - Knockback on bosses: every monster can be knocked back today; monsters.json "knockback_immune": true opts one out.
   Should the named/boss monsters be immune?
 - Guardian Spirit lasts 15 s (the in-combat buff rule). Longer?
+
+
+== LANGUAGES (built 2026-09-23; see change_log.txt) — still open ==
+- High Arcanum: the scroll item exists but nothing gives it yet (future: higher arcanists, quest rewards, relics); no
+  NPCs or inscriptions use it yet. Old Thallian comes only as a 2% undead drop (planned: quest rewards too).
+- NPC languages: every NPC speaks Common today (the field exists on guards and vendors) — faction towns will use it.
+  Should Sahren speak Djhanid (he sells its scroll)? Dustwalkers (desert raiders) speak Common by default — Djhanid?
+- NPC keyword conversations ignore the language you speak (a guard answers "bank" in any language) — should an NPC only
+  answer in its own language?
+- I added two dialect links you didn't list: Twilari -> Common 30% and Orkish <-> Goblish 30% — keep or drop?
+- Monster speech beyond death lines and raid shouts (future monster taunts/casting) should go through Languages too.
 
 
 == SPELLS AND ABILITIES ==

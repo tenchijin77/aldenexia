@@ -33,16 +33,16 @@ func set_autoattack(active: bool) -> void:
 # ChatChannels). Anything unrecognised is "system". Adjust the patterns here when a new kind of line should filter on its own.
 func classify(text: String) -> String:
 	# The four chat channels (chat_channels.gd wraps each line in its channel colour).
-	if text.begins_with("[color=#ffe066]") and (text.contains(" says, '") or text.contains("You say, '")):
+	if text.begins_with("[color=#ffe066]") and (text.contains(" says, ") or text.contains("You say")):
 		return "say"
-	if text.begins_with("[color=#cc88ff]") and (text.contains(" tells you, '") or text.contains("You tell ")):
+	if text.begins_with("[color=#cc88ff]") and (text.contains(" tells you") or text.contains("You tell ")):
 		return "tell"
 	if text.begins_with("[color=#88ccff]") and text.contains("[Party]"):
 		return "party"
-	if text.begins_with("[color=#ff9944]") and (text.contains(" shouts, '") or text.contains("You shout, '")):
+	if text.begins_with("[color=#ff9944]") and (text.contains(" shouts, ") or text.contains("You shout")):
 		return "zone"
 	# An NPC talking or emoting (guards, vendors, the harbour master, the merchant...).
-	if text.contains(" says, \"") or text.contains(" shouts, \"") or text.begins_with("[color=#ffd9a0]"):
+	if (text.contains(" says, ") or text.contains(" shouts, ")) and text.contains("\"") or text.begins_with("[color=#ffd9a0]"):
 		return "npc"
 	if text.contains("experience points") or text.contains("You are now level") or text.contains("reached level"):
 		return "xp"

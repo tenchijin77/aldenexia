@@ -102,7 +102,8 @@
       "ghostly_cloak",
       "traveler_pack",
       "basic_poison",
-      "basic_alchemy_kit"
+      "basic_alchemy_kit",
+      "scroll_of_djhanid_basics"
     ]
   },
   "sandcrest_harbour": {
@@ -342,7 +343,12 @@
       "scroll_of_improved_polymorph",
       "scroll_of_improved_meteor",
       "scroll_of_improved_time_warp",
-      "scroll_of_master_arcane_intellect"
+      "scroll_of_master_arcane_intellect",
+      "scroll_of_aevaryn_basics",
+      "scroll_of_khuzdul_basics",
+      "scroll_of_kithren_basics",
+      "scroll_of_cant_basics",
+      "scroll_of_twilari_basics"
     ]
   },
   "lumora_scribe_dark": {
@@ -431,7 +437,13 @@
       "scroll_of_improved_polymorphic_surge",
       "scroll_of_improved_chaos_storm",
       "scroll_of_improved_arcane_anomaly",
-      "scroll_of_master_chaos_weave"
+      "scroll_of_master_chaos_weave",
+      "scroll_of_krythuun_basics",
+      "scroll_of_grommish_basics",
+      "scroll_of_grommak_basics",
+      "scroll_of_orkish_basics",
+      "scroll_of_sithrak_basics",
+      "scroll_of_goblish_basics"
     ]
   }
 }

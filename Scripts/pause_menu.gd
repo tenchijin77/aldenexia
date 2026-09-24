@@ -222,6 +222,7 @@ const KEYBIND_GROUPS := [
 		["Right-click a tab", "Rename it, choose what it shows (say, tell, party, zone, loot, xp, skills, combat...), pop it out into its own window, or close it"],
 		["Flashing tab name", "Something new arrived in a tab you are not looking at"],
 		["Right-click the title", "Chat font size"],
+		["Language dropdown", "The language you speak (next to the channel). Others understand it as well as they know it; you learn a language by hearing and speaking it"],
 	]],
 	["Interacting with the World", [
 		["H", "Hail the nearest NPC"],
@@ -261,6 +262,7 @@ const CHAT_COMMANDS := [
 	["/focus [clear|name]", "Make your target (or a named group member) your FOCUS: beneficial spells go to them while you target an enemy"],
 	["/assist  (or press F)", "Target whatever your current target is targeting"],
 	["/pet", "Pet the cat you are targeting, or the nearest one"],
+	["/language [name]", "List your languages and skill, or switch the language you speak (also the dropdown by the chat box)"],
 ]
 
 

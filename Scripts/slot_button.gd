@@ -306,6 +306,21 @@ func _show_inspect_popup() -> void:
 		)
 		btn_row.add_child(learn_btn)
 
+	# Language primers (Data/languages.json): start a language at 1 point.
+	if item_data.get("type") == "scroll" and item_data.has("teaches_language"):
+		var learn_lang_btn := Button.new()
+		learn_lang_btn.text = "Learn"
+		learn_lang_btn.pressed.connect(func():
+			layer.queue_free()
+			if Languages.learn_basics(str(item_data.get("teaches_language", ""))):
+				if slot_type == "basic":
+					Inventory.remove_from_basic_inventory(slot_index)
+				elif slot_type == "bag":
+					Inventory.remove_from_bag(bag_slot, item_index)
+				Global.save_player_data_to_file()
+		)
+		btn_row.add_child(learn_lang_btn)
+
 	# Eat/Drink button (food/drink items only — see consume_food_or_drink())
 	if item_data.get("type") in ["food", "drink"]:
 		var consume_btn := Button.new()

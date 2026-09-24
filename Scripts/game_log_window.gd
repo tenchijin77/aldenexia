@@ -452,12 +452,71 @@ func _setup_channel_dropdown() -> void:
 	_channel_menu.item_selected.connect(func(idx: int) -> void: _set_channel(idx))
 	row.add_child(_channel_menu)
 
+	# Which language you speak (Languages): every language you know any of, with your skill. Rebuilt each time it opens,
+	# since a scroll or practice changes the list.
+	_language_menu = OptionButton.new()
+	_language_menu.focus_mode = Control.FOCUS_NONE
+	_language_menu.add_theme_font_size_override("font_size", 12)
+	_language_menu.tooltip_text = "The language you speak. Others understand it as well as they know it. /language to switch or list."
+	_language_menu.get_popup().about_to_popup.connect(_fill_language_menu)
+	_language_menu.item_selected.connect(func(idx: int) -> void:
+		Languages.set_speaking(str(_language_menu.get_item_metadata(idx)))
+		_fill_language_menu()
+	)
+	row.add_child(_language_menu)
+	_fill_language_menu.call_deferred()
+
 	box_parent.remove_child(chat_input)
 	chat_input.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(chat_input)
 	box_parent.add_child(row)
 	box_parent.move_child(row, index)
 	_set_channel(ChatChannels.SAY)
+
+
+var _language_menu: OptionButton
+
+
+func _fill_language_menu() -> void:
+	if _language_menu == null:
+		return
+	_language_menu.clear()
+	var speaking := Languages.speaking()
+	for id in Languages.speakable():
+		_language_menu.add_item("%s (%d)" % [Languages.display(str(id)), int(Languages.skill(str(id)))])
+		_language_menu.set_item_metadata(_language_menu.item_count - 1, str(id))
+		if str(id) == speaking:
+			_language_menu.select(_language_menu.item_count - 1)
+	if _language_menu.item_count == 0:
+		_language_menu.add_item("Common")
+		_language_menu.set_item_metadata(0, "common")
+	# The closed button shows just the name; the list shows skills.
+	var shown := _language_menu.selected
+	if shown >= 0:
+		_language_menu.text = Languages.display(str(_language_menu.get_item_metadata(shown)))
+
+
+# /language — list your languages; /language <name> — speak that one.
+func _language_command(arg: String) -> void:
+	if arg.is_empty():
+		var lines: Array = []
+		var all: Array = Languages.skills().keys()
+		all.sort_custom(func(a, b): return Languages.skill(str(a)) > Languages.skill(str(b)))
+		for id in all:
+			if Languages.exists(str(id)):
+				lines.append("%s %d%s" % [Languages.display(str(id)), int(Languages.skill(str(id))), "  (speaking)" if str(id) == Languages.speaking() else ""])
+		GameLog.log_general("Your languages: " + ", ".join(lines))
+		return
+	var id := Languages.find(arg)
+	if id.is_empty():
+		GameLog.log_general("[color=red]No language called '%s'.[/color]" % arg)
+		return
+	if Languages.skill(id) < 1.0:
+		GameLog.log_general("You don't know any %s yet. A scribe sells a scroll of its basics." % Languages.display(id))
+		return
+	Languages.set_speaking(id)
+	_fill_language_menu()
+	GameLog.log_general("You are now speaking %s." % Languages.display(id))
 
 
 static func _color_swatch(color: Color) -> ImageTexture:
@@ -546,7 +605,7 @@ func _on_chat_input_gui_input(event: InputEvent) -> void:
 # and "/location" both resolve to "/location" since no other command starts
 # with "loc"; "/f" would be ambiguous if two commands both started with "f".
 const GMCommandsScript := preload("res://Scripts/gm_commands.gd")
-const COMMANDS := ["/location", "/hail", "/appraise", "/time", "/follow", "/camp", "/exit", "/log", "/invite", "/disband", "/say", "/tell", "/party", "/zone", "/played", "/resetui", "/who", "/weather", "/pet", "/quests", "/compass", "/raid", "/gm", "/focus", "/assist", "/announce", "/maintenance", "/trade", "/ban", "/unban", "/bans"]
+const COMMANDS := ["/location", "/hail", "/appraise", "/time", "/follow", "/camp", "/exit", "/log", "/invite", "/disband", "/say", "/tell", "/party", "/zone", "/played", "/resetui", "/who", "/weather", "/pet", "/quests", "/compass", "/raid", "/gm", "/focus", "/assist", "/announce", "/maintenance", "/trade", "/ban", "/unban", "/bans", "/language"]
 
 
 func _handle_slash_command(text: String) -> void:
@@ -618,6 +677,8 @@ func _handle_slash_command(text: String) -> void:
 			_tell_command(arg)
 		"/played":
 			_show_played()
+		"/language":
+			_language_command(arg)
 		"/compass":
 			player.toggle_compass()
 		"/quests":

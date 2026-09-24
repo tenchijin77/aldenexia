@@ -115,7 +115,7 @@
     },
     {
       "name": "Veilstriders",
-      "description": "Dark elf agents of Virexus, masters of shadows and secrets.",
+      "description": "Vol'kyne agents of Virexus, masters of shadows and secrets.",
       "base_standing": -10,
       "dialogue_tone": "cryptic",
       "hostile_threshold": -35,

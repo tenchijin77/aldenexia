@@ -342,6 +342,12 @@ func load_xp_table():
 			xp_table = data
 			max_player_level = xp_table.get("max_level", 20)
 			
+# A race's name as players see it ("dark_elf" -> "Vol'kyne"), from character_options.json.
+func race_display_name(race_key: String) -> String:
+	var key := race_key.to_lower().replace(" ", "_").replace("-", "_")
+	return str(character_options.get("races", {}).get(key, {}).get("name", race_key.replace("_", " ").capitalize()))
+
+
 func load_character_options():
 	var path = "res://Data/character_options.json"
 	if not FileAccess.file_exists(path):

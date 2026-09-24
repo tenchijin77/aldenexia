@@ -230,7 +230,9 @@ func _raider_shout(raider: Node3D) -> void:
 	if shouts.is_empty():
 		return
 	var desc: String = str(raider.get("monster_description")).capitalize()
-	_broadcast_text("[color=#e0a070]%s shouts, \"%s\"[/color]" % [desc, str(shouts[randi() % shouts.size()])], raider.global_position)
+	# The line travels in the raider's language (Languages.embed); each player's own machine scrambles what they don't know.
+	var lang := Languages.of_monster(str(raider.get("monster_name")), str(raider.get("category")))
+	_broadcast_text("[color=#e0a070]%s shouts%s, \"%s\"[/color]" % [desc, Languages.TAG_SLOT, Languages.embed(lang, str(shouts[randi() % shouts.size()]))], raider.global_position)
 
 
 # Text for every player who is near enough to care (each peer checks its own player's distance).
@@ -253,4 +255,4 @@ func _show_text(text: String, at: Vector3) -> void:
 	var centre := gate.global_position if at == Vector3.INF else at
 	var range_m := 400.0 if at == Vector3.INF else 150.0
 	if player.global_position.distance_to(centre) <= range_m:
-		GameLog.log_general(text)
+		GameLog.log_general(Languages.localize(text))

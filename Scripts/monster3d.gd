@@ -1554,7 +1554,8 @@ func die(award_xp: bool = true, drop_loot: bool = true, credited_peer_id: int = 
 		var line := NPCFlavorText.new(DEATH_LINE_PATH).get_line("death")
 		if line != "":
 			var desc: String = monster_description if monster_description != "" else get_monster_name()
-			GameLog.log_general("[color=#cc8888]%s says, \"%s\"[/color]" % [desc.capitalize(), line])
+			var spoken := Languages.npc_line(Languages.of_monster(monster_name, category), line)
+			GameLog.log_general("[color=#cc8888]%s says%s, \"%s\"[/color]" % [desc.capitalize(), spoken[0], spoken[1]])
 
 	# User-authored per-monster flavor line from monsters.json's "death_text"
 	# (blank on every monster until filled in — nothing prints then).

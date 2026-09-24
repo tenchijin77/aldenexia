@@ -189,7 +189,7 @@
 		{
 			"name": "Virexus",
 			"domain": "Shadows, Secrets",
-			"description": "Dark elf patron of stealth and hidden knowledge, dwelling in the dark places.",
+			"description": "Vol'kyne patron of stealth and hidden knowledge, dwelling in the dark places.",
 			"base_standing": 15,
 			"faction_standing_modifiers": {
 				"umbral talon": 10,

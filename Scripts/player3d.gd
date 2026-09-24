@@ -2637,8 +2637,10 @@ func send_tell(target_name: String, message: String) -> void:
 		GameLog.log_general("[color=red]You can't tell yourself something... or can you?[/color]")
 		return
 	message = ChatChannels.clean(message)
-	Net.send_tell(target.get_multiplayer_authority(), player_name, message)
-	GameLog.log_general(ChatChannels.tell_self(TargetFrame.display_name(target), message))
+	var lang := Languages.speaking()
+	Net.send_tell(target.get_multiplayer_authority(), player_name, Languages.encode(lang, Languages.pronounce(lang, message)))
+	GameLog.log_general(ChatChannels.tell_self(TargetFrame.display_name(target), message, lang))
+	_practice_speaking(lang, [target])
 
 
 # /party <message> — broadcasts to every OTHER real player currently in
@@ -2654,8 +2656,10 @@ func send_party_message(message: String) -> void:
 		GameLog.log_general("[color=red]You aren't in a group.[/color]")
 		return
 	message = ChatChannels.clean(message)
-	Net.send_party_message(peer_ids, player_name, message)
-	GameLog.log_general(ChatChannels.party_self(message))
+	var lang := Languages.speaking()
+	Net.send_party_message(peer_ids, player_name, Languages.encode(lang, Languages.pronounce(lang, message)))
+	GameLog.log_general(ChatChannels.party_self(message, lang))
+	_practice_speaking(lang, peer_ids.map(func(pid): return TargetFrame.peer_id_to_player_node(pid)))
 
 
 # /say — heard by players within ChatChannels.SAY_RANGE. The distance is judged here from the
@@ -2665,14 +2669,40 @@ func send_say(message: String) -> void:
 	message = ChatChannels.clean(message)
 	if message.is_empty():
 		return
-	GameLog.log_general(ChatChannels.say_self(message))
+	var lang := Languages.speaking()
+	GameLog.log_general(ChatChannels.say_self(message, lang))
 	_npcs_hear(message)
-	if not Net.is_multiplayer_game or not multiplayer.has_multiplayer_peer():
+	var listeners: Array = []
+	for npc in get_tree().get_nodes_in_group("npc_talker") + get_tree().get_nodes_in_group("npc_guard") + get_tree().get_nodes_in_group("npc_vendor"):
+		if is_instance_valid(npc) and npc is Node3D and npc.global_position.distance_to(global_position) <= ChatChannels.SAY_RANGE:
+			listeners.append(npc)
+	if Net.is_multiplayer_game and multiplayer.has_multiplayer_peer():
+		var spoken := Languages.encode(lang, Languages.pronounce(lang, message))
+		for pid in multiplayer.get_peers():
+			var other := TargetFrame.peer_id_to_player_node(pid)
+			if is_instance_valid(other) and other.global_position.distance_to(global_position) <= ChatChannels.SAY_RANGE:
+				Net.send_say(pid, player_name, spoken)
+				listeners.append(other)
+	_practice_speaking(lang, listeners)
+
+
+# Speaking a language you're learning counts as practice only when someone who knows it hears you: a player whose race
+# grows up speaking it, or an NPC who speaks it — so there's always a way to practise, even with nobody online.
+func _practice_speaking(lang: String, listeners: Array) -> void:
+	if Languages.skill(lang) >= 100.0:
 		return
-	for pid in multiplayer.get_peers():
-		var other := TargetFrame.peer_id_to_player_node(pid)
-		if is_instance_valid(other) and other.global_position.distance_to(global_position) <= ChatChannels.SAY_RANGE:
-			Net.send_say(pid, player_name, message)
+	var race_start: Dictionary = Languages.data().get("race_start", {})
+	for who in listeners:
+		if not is_instance_valid(who) or who == self:
+			continue
+		var knows := false
+		if who.is_in_group("player"):
+			knows = float(race_start.get(str(who.get("player_race")).to_lower().replace(" ", "_").replace("-", "_"), {}).get(lang, 0.0)) >= 50.0
+		else:
+			knows = str(who.get("language") if who.get("language") != null else "common") == lang
+		if knows:
+			Languages.practice(lang)
+			return
 
 
 # Whatever you say near a talkative NPC (npc_talker group) is heard by it — EverQuest-style keyword conversation, see
@@ -2701,9 +2731,10 @@ func send_zone(message: String) -> void:
 	message = ChatChannels.clean(message)
 	if message.is_empty():
 		return
-	GameLog.log_general(ChatChannels.zone_self(message))
+	var lang := Languages.speaking()
+	GameLog.log_general(ChatChannels.zone_self(message, lang))
 	if Net.is_multiplayer_game and multiplayer.has_multiplayer_peer():
-		Net.broadcast_zone_message(player_name, message)
+		Net.broadcast_zone_message(player_name, Languages.encode(lang, Languages.pronounce(lang, message)))
 
 
 func tab_cycle_target() -> void:
@@ -3510,6 +3541,8 @@ func load_character_data(data: Dictionary) -> void:
 	known_spells     = data.get("known_spells", [])
 	known_skills     = data.get("known_skills", [])
 	known_recipes    = data.get("known_recipes", [])
+	if is_multiplayer_authority():
+		Languages.ensure_started(player_race.to_lower().replace(" ", "_").replace("-", "_"))  # a character made before languages gets its race's (Data/languages.json)
 	# Pickpocket (added 2026-09-23) is innate for the sneaky classes: characters made before it get it here.
 	if player_class in ["Shadowblade", "Troubadour", "Woodstalker"] \
 			and not known_spells.any(func(k): return SpellInfo.counts_as(str(k)).has("pickpocket")):

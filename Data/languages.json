@@ -1,0 +1,40 @@
+{
+  "_comment": "Languages (Scripts/languages.gd). Each language's 'syllables' are what its scrambled words are built from, so every language has its own sound; 'related' languages are dialects that partly understand each other (the listener's skill in the related language x the factor). race_start: the skills a new character starts with (0-100). Skill grows slowly by hearing a language spoken (players, NPCs, monsters) and by speaking it where someone who knows it can hear; intelligence and wisdom speed it up (learning below). A language is started from a scroll of its basics (1 point). Monsters and NPCs say which language they speak ('language' in monsters.json / npc data; default by monster category in monster_category_default).",
+  "languages": {
+    "common": {"name": "Common", "syllables": ["an", "ber", "ton", "wel", "mar", "dun", "sel", "ra", "ford", "ly", "ham", "ing", "or", "ket", "ale", "bro"]},
+    "aevaryn": {"name": "Aevaryn", "syllables": ["ae", "va", "ryn", "lia", "sel", "the", "ari", "el", "lune", "ith", "ora", "wen", "ly", "sae", "eli", "nor"], "related": {"twilari": 0.5}},
+    "khuzdul": {"name": "Khuzdul", "syllables": ["khu", "zd", "ul", "gar", "dur", "rak", "thak", "bur", "gund", "kaz", "dum", "brok", "grim", "dhr", "uz", "tor"]},
+    "kithren": {"name": "Kithren", "syllables": ["kit", "tik", "pip", "zik", "rin", "nib", "ki", "tek", "zap", "ip", "wiz", "chi", "tock", "bik", "lin", "skit"]},
+    "cant": {"name": "Cant of the Wanderers", "syllables": ["bram", "tolly", "ho", "wick", "fen", "dally", "mo", "burr", "tam", "nell", "row", "pip", "ash", "hollo", "bree", "din"], "related": {"common": 0.5}},
+    "twilari": {"name": "Twilari", "syllables": ["twi", "la", "ri", "sel", "an", "ev", "mor", "ae", "len", "ith", "ra", "wyn", "el", "ton", "lia", "dar"], "related": {"aevaryn": 0.5, "common": 0.3}},
+    "grommak": {"name": "Grommak", "syllables": ["grom", "mak", "bom", "dug", "ruum", "gor", "mog", "thud", "ba", "roog", "dum", "gra", "ok", "boom", "mu", "grak"], "related": {"grommish": 0.5}},
+    "grommish": {"name": "Grommish", "syllables": ["grom", "mish", "shlu", "gra", "uug", "blor", "gul", "wug", "oo", "slurg", "mog", "gaa", "rrh", "bul", "sluk", "ush"], "related": {"grommak": 0.5}},
+    "krythuun": {"name": "Kry'thuun", "syllables": ["kry", "thuun", "vex", "shi", "ss", "zhar", "ith", "ul", "kha", "vor", "syl", "thel", "ixx", "rae", "nyth", "qo"]},
+    "orkish": {"name": "Orkish", "syllables": ["ork", "gat", "druk", "ug", "zog", "bar", "kul", "rak", "gur", "nak", "tuk", "dag", "grah", "uz", "mok", "skar"], "related": {"goblish": 0.3}},
+    "sithrak": {"name": "Sithrak", "syllables": ["sith", "rak", "ssa", "hiss", "kss", "thra", "zyss", "ak", "shi", "trss", "ssek", "oth", "sar", "ksh", "ith", "zra"]},
+    "djhanid": {"name": "Djhanid", "syllables": ["dja", "hanid", "sar", "ahm", "zar", "ib", "mira", "qal", "sha", "ruh", "id", "anna", "kha", "sim", "lah", "zeh"]},
+    "old_thallian": {"name": "Old Thallian", "syllables": ["thal", "lian", "vos", "aeth", "rune", "mor", "cael", "dan", "or", "thes", "uum", "val", "cor", "hest", "an", "ius"]},
+    "high_arcanum": {"name": "High Arcanum", "syllables": ["arc", "anum", "vex", "tri", "ol", "qua", "zen", "ith", "ax", "sol", "mer", "kal", "on", "eth", "rix", "syn"]},
+    "goblish": {"name": "Goblish", "syllables": ["gob", "lish", "snik", "zag", "rik", "grib", "nak", "yip", "skag", "blit", "gik", "zob", "nub", "kek", "grub", "iz"], "related": {"orkish": 0.3}}
+  },
+  "race_start": {
+    "human": {"common": 100},
+    "half_elf": {"twilari": 100, "common": 75, "aevaryn": 40},
+    "halfling": {"cant": 100, "common": 75},
+    "elf": {"aevaryn": 100, "common": 50},
+    "dwarf": {"khuzdul": 100, "common": 50},
+    "gnome": {"kithren": 100, "common": 50},
+    "dark_elf": {"krythuun": 100, "common": 50},
+    "half_orc": {"orkish": 100, "common": 40},
+    "troll": {"grommish": 100, "common": 15},
+    "ogre": {"grommak": 100, "common": 15},
+    "lizardkin": {"sithrak": 100, "common": 15}
+  },
+  "monster_category_default": {"humanoid": "common", "undead": "old_thallian"},
+  "learning": {
+    "_help": "Chance per line heard (or spoken within earshot of someone who knows it) to gain a point: base_chance x (1 - skill/100) x (1 + (INT + WIS - 20) / stat_divisor), for skills from 1 up to 99. 0.08 at skill 1 is about one point per dozen lines; at 90 it is about one per 125.",
+    "base_chance": 0.08,
+    "stat_divisor": 40.0,
+    "mispronounce_margin": 25
+  }
+}
