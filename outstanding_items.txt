@@ -4,9 +4,10 @@ an item (delete it, note it in change_log.txt) when it's done. Last updated 2026
 
 
 == WAITING ON THE USER ==
-- Rats (desert scavengers) not fighting back (test 26, Shonuff, SW of the gate while looking for tin ore): could not be
-  reproduced in single-player, multiplayer, or with a fresh spawn. Need: did the log show them attacking, how were they
-  moving, were stuns used?
+- Gathering nodes placed out of reach (test 29): the screenshot didn't come through — need a /loc of one (or the
+  screenshot) to fix placement.
+- Rats not fighting back: FOUND and fixed 2026-09-24 (monsters froze in chase when navigation had no path). Confirm in
+  play; then remove the "[monster-diag]" server-log diagnostic in monster3d.gd (_check_never_swung).
 - Knockback on bosses: every monster can be knocked back today; monsters.json "knockback_immune": true opts one out.
   Should the named/boss monsters be immune?
 - Guardian Spirit lasts 15 s (the in-combat buff rule). Longer?

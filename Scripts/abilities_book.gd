@@ -381,6 +381,8 @@ func _skill_effect_summary(skill_name: String, points: int) -> String:
 	if points <= 0:
 		return ""
 	var lines: Array[String] = []
+	if skill_name == "perception":
+		lines.append("+%d to appraisal checks (I)" % (points / 10))
 	for stat in _STAT_LABELS:
 		var table: Dictionary = SkillEffects.table(stat)
 		if table.has(skill_name):
@@ -464,7 +466,7 @@ func _make_skill_row(skill_name: String, desc: String, level: int, skill_max: in
 
 	# What it's actually doing for you right now, at this level — blank (and no row added) for a skill with genuinely no
 	# effect yet (0 points), or one this build has no numeric hook for at all (a real, if rarer, case: several skills — e.g.
-	# tracking, perception, lockpicking, safe_fall — exist as concepts but have no mechanic built yet; the skill still trains
+	# tracking, lockpicking, safe_fall — exist as concepts but have no mechanic built yet; the skill still trains
 	# normally in case one is added later, it just has nothing to report here today).
 	var effect_text := _skill_effect_summary(skill_name, level)
 	if not effect_text.is_empty():

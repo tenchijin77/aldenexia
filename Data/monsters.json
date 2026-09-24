@@ -53,7 +53,8 @@
     "level_min": 1,
     "level_max": 2,
     "death_text": "",
-    "on_hit_effect": {"name": "weak_poison", "chance": 0.25, "tick_damage": 5, "tick_interval": 6, "duration": 60, "message": "%s's bite poisons you!"}
+    "on_hit_effect": {"name": "weak_poison", "chance": 0.25, "tick_damage": 5, "tick_interval": 6, "duration": 60, "message": "%s's bite poisons you!"},
+    "attack_verbs": ["bites"]
   },
   "rat": {
     "description": "A desert scavenger",
@@ -127,7 +128,8 @@
     "level_min": 2,
     "level_max": 4,
     "death_text": "",
-    "on_hit_effect": {"name": "weak_poison", "chance": 0.25, "tick_damage": 5, "tick_interval": 6, "duration": 60, "message": "%s's bite poisons you!"}
+    "on_hit_effect": {"name": "weak_poison", "chance": 0.25, "tick_damage": 5, "tick_interval": 6, "duration": 60, "message": "%s's bite poisons you!"},
+    "attack_verbs": ["bites"]
   },
   "snake": {
     "description": "a sand viper",
@@ -153,7 +155,8 @@
     "level_min": 2,
     "level_max": 4,
     "death_text": "",
-    "on_hit_effect": {"name": "weak_poison", "chance": 0.25, "tick_damage": 5, "tick_interval": 6, "duration": 60, "message": "%s's bite poisons you!"}
+    "on_hit_effect": {"name": "weak_poison", "chance": 0.25, "tick_damage": 5, "tick_interval": 6, "duration": 60, "message": "%s's bite poisons you!"},
+    "attack_verbs": ["bites"]
   },
   "dustwalker": {
     "description": "a desert-dwelling marauder",
@@ -352,7 +355,8 @@
       "walk": "sand_stinger_walk",
       "attack": "sand_stinger_attack"
     },
-    "death_text": ""
+    "death_text": "",
+    "attack_verbs": ["stings", "pinches"]
   },
   "lumora_outrider": {
     "description": "a Lumoran Outrider",
@@ -688,7 +692,8 @@
     },
     "level_min": 1,
     "level_max": 3,
-    "death_text": ""
+    "death_text": "",
+    "attack_verbs": ["bites", "scratches"]
   },
   "lumora_guard": {
     "description": "a Lumoran guard",
@@ -924,6 +929,7 @@
       0.78
     ],
     "corruption": "Moribund",
-    "on_hit_effect": {"name": "weak_poison", "chance": 0.25, "tick_damage": 5, "tick_interval": 6, "duration": 60, "message": "%s's bite poisons you!"}
+    "on_hit_effect": {"name": "weak_poison", "chance": 0.25, "tick_damage": 5, "tick_interval": 6, "duration": 60, "message": "%s's bite poisons you!"},
+    "attack_verbs": ["bites"]
   }
 }

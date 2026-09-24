@@ -19,14 +19,23 @@ outstanding_items.txt with what went wrong). Last updated 2026-09-23. Everything
 [ ] The Join a Server screen's console no longer fills with "Node not found" / "not found in cache" errors.
 
 == TEST 28 CHANGES ==
-[ ] Battle Shout lasts 15 minutes and shows the gold fist icon on the buff bar (other Blademaster buffs use it too).
-[ ] Blademaster abilities cost no mana and are instant (15-minute buffs still cast normally). Taunt is free for every class.
+[ ] Battle Shout lasts 15 minutes and shows the gold fist icon on the buff bar (other Blademaster buffs use it too). - working
+[ ] Blademaster abilities cost no mana and are instant (15-minute buffs still cast normally). Taunt is free for every class. - working
 
 [ ] Run out of food / drink: Starving / Thirsty appear on the status window (red icons, yellow border); they go when you eat/drink.
 [ ] Every debuff on the status window has a yellow border.
 [ ] Snakes and spiders sometimes poison you (5 every 6 s for a minute); it shows on the status window; a cure removes it.
     A second bite refreshes it (one Weak Poison, never two).
 [ ] Undead (skeletons, mummies, ghosts, mirage phantoms) sometimes infect you with Disease (5 every 6 s for 90 s); refreshes, shows, cures.
+
+== TEST 29 FIXES ==
+[ ] The rats by the west wall (Zozuur's spot) come to you and fight back; no monster freezes in combat just out of reach.
+[ ] Snakes/spiders/rats/bats "bite", stingers "sting", beetles "pinch" in the combat log.
+[ ] Blood Ritual lasts 30 seconds.
+[ ] Die with a pet out: when you wake at your bind point the pet is beside you, and the monster it was fighting doesn't follow.
+[ ] Appraising (I) raises Perception (abilities book shows "+N to appraisal checks").
+[ ] Chat text: drag to select, right-click > Copy works in General, Combat and custom tabs; movement keys still work after.
+[ ] Your client log no longer shows "Node 'CombatNode:current_hp' not found" when monsters appear.
 
 == TANK STANCES ==
 [ ] Blademaster (Hold the Line / Warpath / Veteran's Stance) and Lightsworn (Aegis of Dawn / Dawn's Wrath / Oathkeeper)

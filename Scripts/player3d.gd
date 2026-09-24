@@ -891,8 +891,12 @@ func try_appraise_target() -> void:
 
 	var int_mod := _ability_modifier(combat_node.intelligence)
 	var wis_mod := _ability_modifier(combat_node.wisdom)
+	# Appraising is Perception at work: every appraisal trains it, and each 10 points of it add +1 to the roll. Perception
+	# will matter more later (hidden enemies, traps, secrets).
+	_tick_skill("perception")
+	var perception_bonus := int(skill_levels.get("perception", 0)) / 10
 	var roll := randi_range(1, 20)
-	var total := roll + maxi(int_mod, wis_mod)
+	var total := roll + maxi(int_mod, wis_mod) + perception_bonus
 	var success: bool = total >= tier["dc"]
 
 	var frames := get_tree().get_nodes_in_group("target_frame")
@@ -3275,6 +3279,8 @@ func _respawn() -> void:
 	_set_target_frame(null)
 	dying = false
 	GameLog.log_general("[color=#88ccff]You awaken at your bind point.[/color]")
+	if is_instance_valid(active_pet) and active_pet.has_method("recall_to_owner"):
+		active_pet.recall_to_owner()  # the pet appears beside you instead of walking all the way back
 
 
 # The player's bind point defaults to wherever they first spawned into the
@@ -4410,7 +4416,7 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 				"blood_ritual":
 					var cost_hp: int = maxi(1, int(combat_node.max_hp * 0.10))
 					combat_node.current_hp = maxi(1, combat_node.current_hp - cost_hp)
-					combat_node.apply_effect("blood_ritual", 8.0, {"damage_mult": 0.10})
+					combat_node.apply_effect("blood_ritual", float(spell.get("duration", 30)), {"damage_mult": 0.10})
 					GameLog.log_combat("[color=#ff4444]You sacrifice %d health, empowering your attacks![/color]" % cost_hp)
 				"shadowlight":
 					combat_node.apply_effect("shadowlight", 3600.0, {})

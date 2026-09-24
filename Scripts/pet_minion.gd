@@ -937,6 +937,28 @@ func _persist_mode() -> void:
 	Global.save_player_data_to_file()
 
 
+# The owner died and woke at their bind point: the pet appears beside them at once (it used to walk the whole way back),
+# stops fighting, and every monster near where it was forgets it (so nothing chases it to town).
+func recall_to_owner() -> void:
+	if not is_instance_valid(owner_player):
+		return
+	var was_at := global_position
+	for monster in get_tree().get_nodes_in_group("monsters"):
+		if is_instance_valid(monster) and monster is Node3D and (monster as Node3D).global_position.distance_to(was_at) <= 40.0:
+			if monster.is_multiplayer_authority():
+				monster.forget_attacker(get_path())
+			elif Net.is_multiplayer_game and multiplayer.has_multiplayer_peer():
+				monster.forget_attacker.rpc_id(1, get_path())
+	attack_target = null
+	if command == PetState.ATTACK:
+		command = _standing_command
+	global_position = owner_player.global_position + owner_player.global_transform.basis.x * 1.5
+	velocity = Vector3.ZERO
+	guard_position = global_position
+	_nav_path.clear()
+	_fall_timer = 0.0
+
+
 # Voluntary desummon — distinct from die() (no combat, no "dissipates" line).
 func cmd_dismiss() -> void:
 	_say(_phrase_dismiss())

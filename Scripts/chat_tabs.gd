@@ -171,6 +171,7 @@ func add_tab(title: String = "", cats: Array = DEFAULT_NEW, id: String = "", sel
 	log.bbcode_enabled = true
 	log.scroll_following = true
 	log.focus_mode = Control.FOCUS_NONE
+	GameLogWindow.make_copyable(log)
 	log.set_anchors_preset(Control.PRESET_FULL_RECT)
 	log.add_theme_font_size_override("normal_font_size", int(_win.get("_font_size")))
 	if _win.has_method("_on_meta_clicked"):

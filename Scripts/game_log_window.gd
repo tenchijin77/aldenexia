@@ -58,6 +58,8 @@ func _ready() -> void:
 	_on_message("system", "[color=#888888]— Welcome to Aldenexia —[/color]")
 	tabs.focus_mode = Control.FOCUS_NONE
 	general_log.focus_mode = Control.FOCUS_NONE
+	make_copyable(general_log)
+	make_copyable(combat_log)
 	general_log.meta_clicked.connect(_on_meta_clicked)  # clicking a highlighted keyword in an NPC's line says it
 	combat_log.focus_mode  = Control.FOCUS_NONE
 	# Up/Down aren't meaningful to a single-line field, so without this Godot's
@@ -517,6 +519,14 @@ func _language_command(arg: String) -> void:
 	Languages.set_speaking(id)
 	_fill_language_menu()
 	GameLog.log_general("You are now speaking %s." % Languages.display(id))
+
+
+# Chat text can be selected with the mouse and copied from the right-click menu (Copy / Select All) — handy for pasting
+# test logs. The log still never takes keyboard focus, so movement keys keep working.
+static func make_copyable(log: RichTextLabel) -> void:
+	log.selection_enabled = true
+	log.context_menu_enabled = true
+	log.deselect_on_focus_loss_enabled = false
 
 
 static func _color_swatch(color: Color) -> ImageTexture:

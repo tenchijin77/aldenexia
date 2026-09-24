@@ -120,6 +120,8 @@ static func _verb2(damage_type: String) -> String:
 		_:          return _pick(GENERIC_2ND)
 
 static func _verb3(damage_type: String) -> String:
+	if damage_type.begins_with("verb:"):
+		return damage_type.substr(5)  # a creature's own attack ("bites", "stings") — monster3d.gd attack_verb_type()
 	match damage_type:
 		"slashing": return _pick(SLASH_3RD)
 		"piercing": return _pick(PIERCE_3RD)

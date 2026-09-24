@@ -316,6 +316,15 @@ var animation_player: AnimationPlayer = null
 var _attack_anim_timer: float = 0.0
 
 # ===== INITIALIZATION =====
+# The CombatNode exists from construction, not from _ready(): a client builds a spawned monster and applies the server's
+# spawn state (CombatNode:current_hp, max_hp) BEFORE _ready runs — it used to fail with "Node 'CombatNode:current_hp' not
+# found" for every monster that appeared, and the monster's starting health was lost (test 29 log).
+func _init() -> void:
+	combat_node = CombatNode.new()
+	combat_node.name = "CombatNode"
+	add_child(combat_node)
+
+
 func _ready() -> void:
 	add_to_group("monsters")
 
@@ -391,6 +400,7 @@ func _ready() -> void:
 		model_from      = str(stats.get("model_from", ""))
 		knockback_immune = bool(stats.get("knockback_immune", false))
 		on_hit_effect = stats.get("on_hit_effect", {}) if stats.get("on_hit_effect") is Dictionary else {}
+		attack_verbs = stats.get("attack_verbs", []) if stats.get("attack_verbs") is Array else []
 		model_scale     = float(stats.get("model_scale", 1.0))
 		var tint_arr = stats.get("tint", null)
 		if typeof(tint_arr) == TYPE_ARRAY and tint_arr.size() >= 3:
@@ -402,9 +412,6 @@ func _ready() -> void:
 	elif visual_key in CRITTER_MODELS:
 		_setup_critter_visual(visual_key)
 
-	combat_node = CombatNode.new()
-	combat_node.name = "CombatNode"
-	add_child(combat_node)
 	_configure_combat_node()
 
 	spawn_position = global_position
@@ -729,6 +736,8 @@ func _physics_process(delta: float) -> void:
 	if current_state == State.DEAD:
 		return
 
+	_check_never_swung()
+
 	# Knocked back: slide away from the blow (walls stop it), nothing else happens meanwhile.
 	if _knockback_time > 0.0:
 		_knockback_time -= delta
@@ -934,7 +943,10 @@ func state_chase(delta: float) -> void:
 		return
 
 	if is_inside_tree() and nav_agent:
-		_set_nav_target(target.global_position)
+		if nav_agent.is_navigation_finished():
+			nav_agent.target_position = target.global_position  # "arrived" at an old spot but the target is out of reach: re-aim
+		else:
+			_set_nav_target(target.global_position)
 
 func state_attack(delta: float) -> void:
 	if not player:
@@ -1287,23 +1299,34 @@ func handle_movement(delta: float) -> void:
 	velocity.x = 0.0
 	velocity.z = 0.0
 
+	var direction := Vector3.ZERO
 	if not nav_agent.is_navigation_finished():
 		var next_position: Vector3 = nav_agent.get_next_path_position()
 		var to_next: Vector3 = next_position - global_position
 		var flat_dir: Vector3 = Vector3(to_next.x, 0, to_next.z)
-
 		if flat_dir.length() >= 0.1:
-			var direction: Vector3 = flat_dir.normalized()
-			look_at_target(global_position + direction)
+			direction = flat_dir.normalized()
+	# Chasing but navigation has nothing to follow (it thinks it has arrived at a stale point, or this patch of ground
+	# has no navmesh path) while the target is still out of reach: go straight at it — walls still stop it. Without this a
+	# monster froze just out of range and never swung (the "rats never fight back" of tests 26 and 29, seen live: a
+	# rat in CHASE at 2.09 m with a 2.0 m reach, not moving at all; another frozen 19 m away).
+	if direction == Vector3.ZERO and current_state == State.CHASE:
+		var chased: Node = get_current_target()
+		if chased is Node3D:
+			var gap := Vector3((chased as Node3D).global_position.x - global_position.x, 0, (chased as Node3D).global_position.z - global_position.z)
+			if gap.length() > attack_range * 0.8:
+				direction = gap.normalized()
 
-			var speed_3d = speed / 10.0
-			if current_state == State.PATROL and march_target != Vector3.INF:
-				speed_3d *= MARCH_SPEED_MULTIPLIER
-			if current_state == State.CHASE:
-				speed_3d *= CHASE_SPEED_MULTIPLIER  # most base speeds (2.5-3.5 m/s) trail the player's 5 m/s walk — an aggroed monster should feel urgent, not be outrun at a stroll
-			speed_3d *= (1.0 - combat_node.get_modifier("speed_slow"))
-			velocity.x = direction.x * speed_3d
-			velocity.z = direction.z * speed_3d
+	if direction != Vector3.ZERO:
+		look_at_target(global_position + direction)
+		var speed_3d = speed / 10.0
+		if current_state == State.PATROL and march_target != Vector3.INF:
+			speed_3d *= MARCH_SPEED_MULTIPLIER
+		if current_state == State.CHASE:
+			speed_3d *= CHASE_SPEED_MULTIPLIER  # most base speeds (2.5-3.5 m/s) trail the player's 5 m/s walk — an aggroed monster should feel urgent, not be outrun at a stroll
+		speed_3d *= (1.0 - combat_node.get_modifier("speed_slow"))
+		velocity.x = direction.x * speed_3d
+		velocity.z = direction.z * speed_3d
 
 	if not is_on_floor():
 		velocity.y -= 20.0 * delta
@@ -1318,6 +1341,7 @@ func handle_movement(delta: float) -> void:
 # ===== COMBAT =====
 func perform_attack() -> void:
 	can_attack = false
+	_hit_since_msec = 0  # it fights back: nothing to report
 	_play_attack_animation()
 	# Match the actual swing clip length (humanoid mobs only — _attack_anim_timer
 	# stays 0 for the placeholder-box mobs with no AnimationPlayer, so they fall
@@ -1400,7 +1424,7 @@ func _resolve_attack_on(target: Node, relayed: bool = false) -> void:
 
 		var desc: String = monster_description if monster_description != "" else get_monster_name()
 		if target.is_in_group("player"):
-			var msg: String = CombatLogFormatter.monster_attack(result, desc, get_damage_type())
+			var msg: String = CombatLogFormatter.monster_attack(result, desc, attack_verb_type())
 			if not msg.is_empty():
 				GameLog.log_combat(msg)
 			# Everyone else nearby reads the same swing with the victim's real name.
@@ -1467,13 +1491,16 @@ func _attack_text_on_other(result: Dictionary, attacker_desc: String, target_nam
 			return "%s is riposted by %s for [b]%d[/b] damage!" % [cap, target_name, result.get("damage", 0)]
 		"HIT":
 			var crit: String = " [color=#ffaa00]Critical![/color]" if result.get("is_crit", false) else ""
-			return "%s hits %s for [b]%d[/b] damage!%s" % [cap, target_name, result.get("damage", 0), crit]
+			var verb := attack_verb_type()
+			return "%s %s %s for [b]%d[/b] damage!%s" % [cap, verb.substr(5) if verb.begins_with("verb:") else "hits", target_name, result.get("damage", 0), crit]
 	return ""
 
 
 func apply_damage(amount: int, damage_type: String = "physical") -> void:
 	if current_state == State.DEAD:
 		return
+	if _hit_since_msec == 0:
+		_hit_since_msec = Time.get_ticks_msec()  # see _check_never_swung()
 
 	# Allow child classes to apply resistances/weaknesses before CombatNode takes over
 	var modified_damage = modify_damage(amount, damage_type)
@@ -1526,6 +1553,20 @@ func call_nearby_allies() -> void:
 				and ally.combat_node.is_alive():
 				ally.change_state(State.CHASE)
 				print("🆘 %s calls for help! %s responds!" % [get_monster_name(), ally.get_monster_name()])
+
+# Creatures have no weapons: what the combat log says they do to you ("A sand viper bites you for 5 damage!").
+# monsters.json "attack_verbs": ["stings", ...] overrides the category's; humanoids and undead keep their weapon verbs.
+const NATURAL_ATTACK_VERBS := {
+	"animal": ["bites", "claws", "scratches"],
+	"reptile": ["bites"],
+	"insect": ["bites", "pinches"],
+}
+var attack_verbs: Array = []
+
+func attack_verb_type() -> String:
+	var verbs: Array = attack_verbs if not attack_verbs.is_empty() else NATURAL_ATTACK_VERBS.get(category, [])
+	return ("verb:" + str(verbs[randi() % verbs.size()])) if not verbs.is_empty() else get_damage_type()
+
 
 func get_damage_type() -> String:
 	match category:
@@ -1695,6 +1736,29 @@ func apply_networked_damage(amount: int, attacker_peer_id: int) -> void:
 
 
 # A non-host player's Taunt: threat lives only in the server's aggro_table, so the caster's own puppet copy of the monster cannot be
+# Diagnostic for "some rats never fight back" (tests 26 and 29; not reproduced here): a monster that has been hurt but
+# hasn't swung within NEVER_SWUNG_MS writes one line to the log (the server log on a dedicated server) with everything
+# that decides whether it attacks. Remove once the cause is found.
+const NEVER_SWUNG_MS := 6000
+var _hit_since_msec := 0
+
+func _check_never_swung() -> void:
+	if _hit_since_msec == 0 or Time.get_ticks_msec() - _hit_since_msec < NEVER_SWUNG_MS:
+		return
+	_hit_since_msec = 0
+	if current_state == State.FLEEING or current_state == State.CHARMED or not combat_node.is_alive():
+		return
+	var target: Node = get_current_target()
+	var tpos: Vector3 = (target as Node3D).global_position if target is Node3D else Vector3.INF
+	var flat := Vector2(tpos.x - global_position.x, tpos.z - global_position.z).length() if target is Node3D else -1.0
+	print("[monster-diag] %s (%s, Lv%d) hurt 6 s ago but never swung: state=%s target=%s dist3d=%.2f flat=%.2f dy=%.2f attack_range=%.1f can_attack=%s attack_timer=%.2f nav_finished=%s vel=%.2f on_floor=%s pos=%s hp=%d/%d aggro=%d player=%s" % [
+		monster_name, name, level, State.keys()[current_state], target.name if target else "none",
+		global_position.distance_to(tpos) if target is Node3D else -1.0, flat, (tpos.y - global_position.y) if target is Node3D else 0.0,
+		attack_range, can_attack, attack_timer, nav_agent.is_navigation_finished() if nav_agent else "no agent",
+		velocity.length(), is_on_floor(), "%s spawn=%s" % [global_position.snapped(Vector3(0.1, 0.1, 0.1)), spawn_position.snapped(Vector3(0.1, 0.1, 0.1))], combat_node.current_hp, combat_node.max_hp,
+		aggro_table.size(), player.name if is_instance_valid(player) else "none"])
+
+
 # Knockback (Power Strike, Earth Strike, Titan's Strike: "knockback" metres in player_spells.json): pushes the monster
 # straight away from `from` over KNOCKBACK_TIME. Only the authority moves it; a client's puppet asks the server
 # (apply_networked_knockback). monsters.json "knockback_immune": true opts a monster out.
@@ -1985,6 +2049,19 @@ func _rpc_notify_aggro(target_path: NodePath) -> void:
 # and walking home" rather than just wandering off. can_see_player() (below)
 # separately makes sure a monster won't re-aggro the same downed player while
 # they're still incapacitated/dead-pending-respawn.
+# A pet recalled to its owner (the owner died and respawned — PetMinion.recall_to_owner()) drops out of this monster's
+# threat; with nobody left on it, the monster goes home instead of chasing the pet across the map to the bind point.
+@rpc("any_peer", "call_remote", "reliable")
+func forget_attacker(attacker_path: NodePath) -> void:
+	if not is_multiplayer_authority():
+		return
+	var attacker := get_node_or_null(attacker_path)
+	if attacker != null:
+		aggro_table.erase(attacker)
+	if aggro_table.is_empty() and current_state in [State.CHASE, State.ATTACK]:
+		force_disengage()
+
+
 func force_disengage() -> void:
 	if current_state == State.DEAD:
 		return
