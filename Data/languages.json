@@ -32,8 +32,8 @@
   },
   "monster_category_default": {"humanoid": "common", "undead": "old_thallian"},
   "learning": {
-    "_help": "Chance per line heard (or spoken within earshot of someone who knows it) to gain a point: base_chance x (1 - skill/100) x (1 + (INT + WIS - 20) / stat_divisor), for skills from 1 up to 99. 0.08 at skill 1 is about one point per dozen lines; at 90 it is about one per 125.",
-    "base_chance": 0.08,
+    "_help": "Chance per line heard (or spoken within earshot of someone who knows it) to gain a point: base_chance x (1 - skill/100) x (1 + (INT + WIS - 20) / stat_divisor), for skills from 1 up to 99. 0.25 (raised from 0.08 after test 32: 30 lines gave nothing): at skill 15 about one point per 5 lines heard or spoken, at 75 about one per 16, at 90 about one per 40. One roll per language every 4 s.",
+    "base_chance": 0.25,
     "stat_divisor": 40.0,
     "mispronounce_margin": 25
   }

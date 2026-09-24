@@ -95,6 +95,18 @@ static func speaking() -> String:
 
 static func set_speaking(id: String) -> void:
 	Global.player_data["speaking_language"] = id
+	_refresh_open_book()
+
+
+# An open abilities book lists your languages (which one you speak, their skill): rebuild it when either changes.
+static func _refresh_open_book() -> void:
+	var tree := Engine.get_main_loop() as SceneTree
+	var player := TargetFrame.local_player()
+	if tree == null or not is_instance_valid(player):
+		return
+	for node in tree.root.get_children():
+		if node is AbilitiesBook:
+			node.set_player(player)
 
 
 # ", in Khuzdul" — added after "says"/"shouts"/"tells you" for anything but Common.
@@ -197,6 +209,7 @@ static func practice(id: String) -> void:
 	if randf() < chance:
 		skills()[id] = minf(100.0, floorf(s) + 1.0)
 		GameLog.log_general("[color=#ffff66]You've become better at %s! (%d)[/color]" % [display(id), int(skills()[id])])
+		_refresh_open_book()
 
 
 # A scroll of a language's basics: starts it at 1 point.

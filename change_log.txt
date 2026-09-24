@@ -2013,6 +2013,14 @@ GATE RAIDS (`Scripts/gate_raid_manager.gd`, `Data/gate_raids.json`, node "GateRa
 - Stances work (Lightsworn). Wrong-password lockout and Log Out passed. All three moved to COMPLETED in testing_items.txt.
 - "Blessing of Light, no regen message" — NOT A BUG, measured headless with a real Lightsworn player: the cast lands, the effect is active, and health rose 96 -> 115 of 156 in 6 s (3 a second after the 2 s cast, plus natural regen). The only lines are "You begin casting a spell." and "You begin regenerating health.", both in the COMBAT tab, not General; the ticks themselves are silent, and at full health they heal nothing.
 
+### Test 32 (second pass), build 987e9b (2026-09-24)
+- "Common says 'you are speaking this now' when I'm not": the abilities book was built when opened and never updated when
+  you switched language (or gained a point). Languages.set_speaking() and every language gain now rebuild an open book.
+  Verified: switching Twilari -> Common moves the "speaking" note with it.
+- "30 lines of Common and Zozuur never went up": at 0.08 a Troll at Common 15 had ~6% per line, one roll per 4 s at most,
+  so 30 quick lines could easily give nothing. languages.json base_chance 0.08 -> 0.25: at 15 about one point per 4-5
+  lines heard or spoken (measured 46 gains in 200 lines), at 75 about one per 16, at 90 about one per 40.
+
 ### Test 32: Zozuur (Voidknight), Maedianie (Wildspeaker), build 8bbdd75 (2026-09-24)
 - Splitting stacks works; Borgrim looks good.
 - CRAFTING WINDOW LAYOUT (screenshot): the "Make:" picker was added below the action button and pushed the progress bar
