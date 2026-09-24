@@ -5355,9 +5355,13 @@ func _find_debuff_to_cure(target_cn) -> String:
 		return ""
 	for effect_name in target_cn.active_effects.keys():
 		var spell: Dictionary = _spell_by_name.get(effect_name, {})
-		if not spell.is_empty() and spell.get("target", "") == "enemy":
+		if (not spell.is_empty() and spell.get("target", "") == "enemy") or MONSTER_AILMENTS.has(effect_name):
 			return effect_name
 	return ""
+
+
+# Harmful effects monsters leave on players (monsters.json "on_hit_effect") that cure spells remove.
+const MONSTER_AILMENTS := ["weak_poison", "disease"]
 
 
 func _remove_effect_from_target(target_node: Node, target_cn, effect_name: String) -> void:
@@ -5860,6 +5864,7 @@ func stance_boosts(ability: String) -> bool:
 
 # An auto-attack landed: the stance's procs (never from abilities).
 func _stance_on_hit(target: Node, damage: int) -> void:
+	_tank_stance_procs(target)
 	var weaken: float = combat_node.get_modifier("weaken_on_hit")  # Dragon Fist
 	if weaken > 0.0 and is_instance_valid(target) and "combat_node" in target:
 		_buff_target(target, target.combat_node, "dragon_fist_weaken", 5.0, {"damage_mult": -weaken})
@@ -5904,6 +5909,33 @@ func _stance_on_hit(target: Node, damage: int) -> void:
 				_proc_stun(target, desc, 3.0, 5.0)
 
 
+# Tank stance group benefits that trigger on a landed melee hit — on the tank themself and on group members within 10 m
+# (stance "group" modifiers): Aegis of Dawn heals the striker for 5% of their health; Necrotic Bastion lifetaps the
+# target (magic damage, half of it back as health).
+const STANCE_HEAL_PCT := 0.05
+const LIFETAP_BASE := 8
+const LIFETAP_PER_LEVEL := 2
+
+func _tank_stance_procs(target: Node) -> void:
+	var heal_chance: float = combat_node.get_modifier("melee_heal_chance")
+	if heal_chance > 0.0 and randf() < heal_chance:
+		var healed := combat_node.heal(maxi(1, int(combat_node.max_hp * STANCE_HEAL_PCT)))
+		if healed > 0:
+			GameLog.log_combat("[color=#ffe08a]The light of dawn mends you: [b]+%d[/b] health.[/color]" % healed)
+	var tap_chance: float = combat_node.get_modifier("melee_lifetap_chance")
+	if tap_chance > 0.0 and is_instance_valid(target) and target.has_method("apply_damage") and randf() < tap_chance:
+		var target_cn = target.get("combat_node")
+		var dmg := LIFETAP_BASE + LIFETAP_PER_LEVEL * int(combat_node.level)
+		if target_cn is CombatNode:
+			dmg = combat_node.calculate_spell_damage(dmg, "spirit", target_cn)
+		if target is Monster and not target.is_multiplayer_authority():
+			target.apply_networked_damage.rpc_id(1, dmg, multiplayer.get_unique_id())
+		else:
+			target.apply_damage(dmg, "magic")
+		var drained := combat_node.heal(maxi(1, dmg / 2))
+		GameLog.log_combat("[color=#99dd77]Necrotic energy tears the life from %s: [b]%d[/b] damage, [b]+%d[/b] health.[/color]" % [TargetFrame.display_name(target), dmg, drained])
+
+
 func _proc_stun(target: Node, desc: String, min_s: float, max_s: float) -> void:
 	var now := Time.get_ticks_msec()
 	if int(target.get_meta("proc_stun_immune_until", 0)) > now:
@@ -5945,12 +5977,51 @@ func _update_stance_aura() -> void:
 	var aura := Node3D.new()
 	aura.name = "StanceAura"
 	add_child(aura)
+	# Each tank shows what it is (show, don't tell): the Voidknight visibly drains, the Lightsworn radiates, the
+	# Blademaster throws sparks. The Aetherfist keeps the original rising motes.
+	match str(_stance_data().get("aura_style", "rise")):
+		"drain":
+			_aura_drain(aura, colour)
+		"radiant":
+			_aura_radiant(aura, colour)
+		"sparks":
+			_aura_sparks(aura, colour)
+		_:
+			_aura_rise(aura, colour)
+	_stance_aura = aura
+
+
+static func _aura_material(colour: Color, energy: float, alpha: float = 1.0) -> StandardMaterial3D:
+	var mat := StandardMaterial3D.new()
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	mat.albedo_color = Color(colour, alpha)
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA  # so a particle's colour ramp can fade it in and out
+	mat.emission_enabled = true
+	mat.emission = colour
+	mat.emission_energy_multiplier = energy
+	mat.vertex_color_use_as_albedo = true
+	return mat
+
+
+static func _fade_curve() -> Curve:
+	var fade := Curve.new()
+	fade.add_point(Vector2(0, 1))
+	fade.add_point(Vector2(1, 0))
+	return fade
+
+
+static func _aura_light(aura: Node3D, colour: Color, energy: float, reach: float) -> void:
 	var light := OmniLight3D.new()
 	light.light_color = colour
-	light.light_energy = 0.8
-	light.omni_range = 2.5
+	light.light_energy = energy
+	light.omni_range = reach
 	light.position = Vector3(0, 1.0, 0)
 	aura.add_child(light)
+
+
+# Aetherfist: a soft glow and motes rising from a ring at the feet.
+static func _aura_rise(aura: Node3D, colour: Color) -> void:
+	_aura_light(aura, colour, 0.8, 2.5)
 	var motes := CPUParticles3D.new()
 	motes.amount = 28
 	motes.lifetime = 1.4
@@ -5966,24 +6037,157 @@ func _update_stance_aura() -> void:
 	motes.initial_velocity_max = 1.0
 	motes.scale_amount_min = 0.6
 	motes.scale_amount_max = 1.0
-	var fade := Curve.new()
-	fade.add_point(Vector2(0, 1))
-	fade.add_point(Vector2(1, 0))
-	motes.scale_amount_curve = fade
-	var mat := StandardMaterial3D.new()
-	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	mat.albedo_color = colour
-	mat.emission_enabled = true
-	mat.emission = colour
-	mat.emission_energy_multiplier = 2.0
+	motes.scale_amount_curve = _fade_curve()
 	var dot := SphereMesh.new()
 	dot.radius = 0.035
 	dot.height = 0.07
-	dot.material = mat
+	dot.material = _aura_material(colour, 2.0)
 	motes.mesh = dot
 	motes.position = Vector3(0, 0.15, 0)
 	aura.add_child(motes)
-	_stance_aura = aura
+
+
+# Colour over a particle's life: from `from` (alpha a0) to `to` (alpha a1).
+static func _ramp(from: Color, a0: float, to: Color, a1: float) -> Gradient:
+	var g := Gradient.new()
+	g.set_color(0, Color(from, a0))
+	g.set_color(1, Color(to, a1))
+	return g
+
+
+# Voidknight: the life of everything around is pulled IN — thin streaks, dark and faint where they start ~1.8 m out,
+# brightening as they rush to the knight's chest, pointing the way they fly; cold wisps sink at the feet. A dim, sickly light. Evil that feeds, shown rather than told.
+static func _aura_drain(aura: Node3D, colour: Color) -> void:
+	_aura_light(aura, colour, 0.6, 2.2)
+	var pull := CPUParticles3D.new()
+	pull.amount = 56
+	pull.lifetime = 1.3
+	pull.emission_shape = CPUParticles3D.EMISSION_SHAPE_SPHERE_SURFACE
+	pull.emission_sphere_radius = 1.8
+	pull.gravity = Vector3.ZERO
+	pull.initial_velocity_min = 0.0
+	pull.initial_velocity_max = 0.1
+	pull.radial_accel_min = -3.2   # drawn inward, toward the knight
+	pull.radial_accel_max = -2.4
+	pull.particle_flag_align_y = true
+	pull.color_ramp = _ramp(colour.darkened(0.7), 0.15, colour.lightened(0.25), 1.0)
+	var fade_in := Curve.new()
+	fade_in.add_point(Vector2(0, 0.4))
+	fade_in.add_point(Vector2(0.85, 1.0))
+	fade_in.add_point(Vector2(1, 0))
+	pull.scale_amount_curve = fade_in
+	var streak := BoxMesh.new()
+	streak.size = Vector3(0.025, 0.28, 0.025)
+	streak.material = _aura_material(colour, 2.5, 1.0)
+	pull.mesh = streak
+	pull.position = Vector3(0, 1.1, 0)
+	aura.add_child(pull)
+	var wisps := CPUParticles3D.new()
+	wisps.amount = 20
+	wisps.lifetime = 2.2
+	wisps.emission_shape = CPUParticles3D.EMISSION_SHAPE_RING
+	wisps.emission_ring_axis = Vector3.UP
+	wisps.emission_ring_radius = 0.55
+	wisps.emission_ring_inner_radius = 0.2
+	wisps.emission_ring_height = 0.1
+	wisps.direction = Vector3.DOWN
+	wisps.spread = 25.0
+	wisps.gravity = Vector3(0, -0.35, 0)
+	wisps.initial_velocity_min = 0.05
+	wisps.initial_velocity_max = 0.2
+	wisps.scale_amount_min = 1.5
+	wisps.scale_amount_max = 2.5
+	wisps.scale_amount_curve = _fade_curve()
+	wisps.color_ramp = _ramp(colour.darkened(0.4), 0.6, colour.darkened(0.85), 0.0)
+	var puff := SphereMesh.new()
+	puff.radius = 0.07
+	puff.height = 0.14
+	puff.material = _aura_material(colour.darkened(0.5), 0.8, 0.6)
+	wisps.mesh = puff
+	wisps.position = Vector3(0, 0.7, 0)
+	aura.add_child(wisps)
+
+
+# Lightsworn: a warm glow, bright motes rising slowly all around, and soft shafts of light lifting through them —
+# calm and heroic.
+static func _aura_radiant(aura: Node3D, colour: Color) -> void:
+	_aura_light(aura, colour, 1.6, 3.4)
+	var motes := CPUParticles3D.new()
+	motes.amount = 50
+	motes.lifetime = 2.4
+	motes.emission_shape = CPUParticles3D.EMISSION_SHAPE_RING
+	motes.emission_ring_axis = Vector3.UP
+	motes.emission_ring_radius = 0.8
+	motes.emission_ring_inner_radius = 0.2
+	motes.emission_ring_height = 0.2
+	motes.direction = Vector3.UP
+	motes.spread = 6.0
+	motes.gravity = Vector3.ZERO
+	motes.initial_velocity_min = 0.35
+	motes.initial_velocity_max = 0.6
+	motes.scale_amount_min = 0.7
+	motes.scale_amount_max = 1.3
+	var twinkle := Curve.new()
+	twinkle.add_point(Vector2(0, 0))
+	twinkle.add_point(Vector2(0.2, 1))
+	twinkle.add_point(Vector2(1, 0))
+	motes.scale_amount_curve = twinkle
+	var dot := SphereMesh.new()
+	dot.radius = 0.05
+	dot.height = 0.1
+	dot.material = _aura_material(colour.lightened(0.3), 4.0)
+	motes.mesh = dot
+	motes.position = Vector3(0, 0.1, 0)
+	aura.add_child(motes)
+	var shafts := CPUParticles3D.new()
+	shafts.amount = 8
+	shafts.lifetime = 2.8
+	shafts.emission_shape = CPUParticles3D.EMISSION_SHAPE_RING
+	shafts.emission_ring_axis = Vector3.UP
+	shafts.emission_ring_radius = 0.7
+	shafts.emission_ring_inner_radius = 0.5
+	shafts.emission_ring_height = 0.1
+	shafts.direction = Vector3.UP
+	shafts.spread = 0.0
+	shafts.gravity = Vector3.ZERO
+	shafts.initial_velocity_min = 0.2
+	shafts.initial_velocity_max = 0.3
+	shafts.color_ramp = _ramp(colour, 0.0, colour, 0.0)
+	shafts.color_ramp.add_point(0.4, Color(colour, 0.3))
+	var beam := BoxMesh.new()
+	beam.size = Vector3(0.03, 1.0, 0.03)
+	beam.material = _aura_material(colour.lightened(0.4), 2.0, 1.0)
+	shafts.mesh = beam
+	shafts.position = Vector3(0, 0.7, 0)
+	aura.add_child(shafts)
+
+
+# Blademaster: bursts of sparks flicking out and falling, like steel on a grindstone — a working fighter.
+static func _aura_sparks(aura: Node3D, colour: Color) -> void:
+	_aura_light(aura, colour, 0.8, 2.4)
+	var sparks := CPUParticles3D.new()
+	sparks.amount = 44
+	sparks.lifetime = 0.55
+	sparks.explosiveness = 0.45
+	sparks.randomness = 0.6
+	sparks.emission_shape = CPUParticles3D.EMISSION_SHAPE_SPHERE
+	sparks.emission_sphere_radius = 0.45
+	sparks.direction = Vector3.UP
+	sparks.spread = 75.0
+	sparks.gravity = Vector3(0, -7.0, 0)
+	sparks.initial_velocity_min = 2.0
+	sparks.initial_velocity_max = 3.6
+	sparks.particle_flag_align_y = true   # streaks point the way they fly
+	sparks.scale_amount_min = 0.8
+	sparks.scale_amount_max = 1.2
+	sparks.scale_amount_curve = _fade_curve()
+	sparks.color_ramp = _ramp(colour.lightened(0.6), 1.0, colour, 0.8)
+	var streak := BoxMesh.new()
+	streak.size = Vector3(0.03, 0.22, 0.03)
+	streak.material = _aura_material(colour.lightened(0.35), 5.0)
+	sparks.mesh = streak
+	sparks.position = Vector3(0, 1.0, 0)
+	aura.add_child(sparks)
 
 
 # Windfury ("extra_attack_chance"): a chance for an auto-attack to be followed at once by a second full swing.

@@ -8,26 +8,45 @@ outstanding_items.txt with what went wrong). Last updated 2026-09-23. Everything
 [ ] Epheo, Evangeline, Wanderer can each log in with their account (same name and old password).
 [x] Server log after the update shows the account import lines (seen 20:45: tenchijin, epheo, evangeline, wanderer).
 [x] Create a new account, create its first character from the big "Create Your First Character" button, enter the world.
-[ ] Enter World by button and by double-clicking a row.
+[x] Enter World by button and by double-clicking a row.
 [x] Two computers on tenchijin at once, different characters — both in the world, can see each other.
 [x] Same character entered from a second computer takes it over (the first is disconnected).
-[ ] Delete a character (type its name to confirm) — gone from the list, kept in the server's deleted/ folder.
+[x] Delete a character (type its name to confirm) — gone from the list, kept in the server's deleted/ folder (Grep's is there).
 [ ] Add Existing Character with an old name + password (make a throwaway old-style character first, or skip).
 [ ] Wrong password 5 times locks the account for a minute.
 [ ] Log Out returns to the login form; camping out / a failed join returns straight to the character list.
 [x] Zone column shows "Lumora Outskirts" after a character has saved in the world.
 [ ] The Join a Server screen's console no longer fills with "Node not found" / "not found in cache" errors.
 
+== TEST 28 CHANGES ==
+[ ] Battle Shout lasts 15 minutes and shows the gold fist icon on the buff bar (other Blademaster buffs use it too).
+[ ] Blademaster abilities cost no mana and are instant (15-minute buffs still cast normally). Taunt is free for every class.
+
+[ ] Run out of food / drink: Starving / Thirsty appear on the status window (red icons, yellow border); they go when you eat/drink.
+[ ] Every debuff on the status window has a yellow border.
+[ ] Snakes and spiders sometimes poison you (5 every 6 s for a minute); it shows on the status window; a cure removes it.
+    A second bite refreshes it (one Weak Poison, never two).
+[ ] Undead (skeletons, mummies, ghosts, mirage phantoms) sometimes infect you with Disease (5 every 6 s for 90 s); refreshes, shows, cures.
+
+== TANK STANCES ==
+[ ] Blademaster (Hold the Line / Warpath / Veteran's Stance) and Lightsworn (Aegis of Dawn / Dawn's Wrath / Oathkeeper)
+    have a stance bar at level 1; Voidknight's three still work, with new icons.
+[ ] Each tank's aura looks different: Voidknight streaks pulled inward, Lightsworn rising light, Blademaster sparks;
+    other players see them.
+[ ] Group bonuses reach group members within 10 m (check the status window): e.g. Hold the Line, Dawn's Wrath.
+[ ] Aegis of Dawn: melee hits sometimes heal you ("The light of dawn mends you"); Necrotic Bastion: melee hits sometimes
+    lifetap ("Necrotic energy tears the life from...") — for the tank and for group members.
+
 == TEST 27 FIXES ==
-[ ] Play a character, leave (camp, or get dropped by a server restart), make/enter another character in the same session:
+[x] Play a character, leave (camp, or get dropped by a server restart), make/enter another character in the same session:
     no doubled windows, no old windows on character creation, the new character has only its own items and bank.
-[ ] Grep has only his starter kit.
+[x] Grep has only his starter kit.
 
 == WHOLE-GAME COMBAT CHANGES ==
 [ ] Melee abilities cast instantly (Power Strike, Backstab, Holy Strike, the Aetherfist strikes, taunts).
 [ ] Moving during a spell cast fizzles it ("You moved, and your spell fizzles."); turning in place doesn't. Troubadour songs
     keep playing while moving.
-[ ] Knockback: Power Strike / Earth Strike push the monster ~4m away; it walks back and fights. Works on the server too.
+[x] Knockback: Power Strike / Earth Strike push the monster ~4m away; it walks back and fights. Works on the server too.
 [ ] Slows, curses, stuns and fears no longer do damage by themselves.
 [ ] Group heals heal everyone nearby (Holy Light, Prayer of Healing, Wild Growth, Tranquility, Aetherfist Meditation /
     Mend Wounds) — test in a group.

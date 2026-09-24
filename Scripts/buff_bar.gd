@@ -48,7 +48,7 @@ func _process(_delta: float) -> void:
 	if not ("combat_node" in _player) or not (_player.combat_node is CombatNode):
 		return
 
-	var active_effects: Dictionary = _with_weapon_poisons(_player.combat_node.active_effects)
+	var active_effects: Dictionary = _with_vitals(_with_weapon_poisons(_player.combat_node.active_effects))
 	var effect_names: Array = active_effects.keys()
 	effect_names.sort()
 
@@ -86,7 +86,7 @@ func _build_row(effect_name: String, display_name: String, description: String, 
 	# toggle through stance_bar.gd's own current-stance state, not a plain
 	# active_effects entry; erasing just the buff-bar side of it here would
 	# desync the two.
-	if not effect_name.begins_with("stance_") and not effect_name.begins_with(WEAPON_POISON_PREFIX):
+	if not effect_name.begins_with("stance_") and not effect_name.begins_with(WEAPON_POISON_PREFIX) and not VITAL_DEBUFFS.has(effect_name):
 		row.gui_input.connect(func(event: InputEvent): _on_row_gui_input(event, effect_name))
 
 	var icon_box := Panel.new()
@@ -111,7 +111,7 @@ func _build_row(effect_name: String, display_name: String, description: String, 
 	icon_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	if icon != null:
 		var icon_rect := TextureRect.new()
-		icon_rect.texture = icon
+		icon_rect.texture = _outlined(icon) if is_debuff and not VITAL_DEBUFFS.has(effect_name) else icon  # debuffs: yellow border
 		icon_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
 		icon_rect.offset_left   = 2
 		icon_rect.offset_top    = 2
@@ -192,6 +192,66 @@ func _with_weapon_poisons(active_effects: Dictionary) -> Dictionary:
 	return merged
 
 
+# Out of food / out of drink (satiety or thirst at 0): not real effects, just the player's state shown as debuffs — they
+# appear the moment the vital hits 0 and vanish when you eat or drink. Can't be cancelled.
+const VITAL_DEBUFFS := {
+	"starving": {"name": "Starving", "item": "iron_rations", "vital": "satiety",
+		"description": "You are out of food. Your health and stamina won't recover until you eat something."},
+	"thirsty": {"name": "Thirsty", "item": "water_flask", "vital": "thirst",
+		"description": "You are out of drink. Your mana won't recover until you drink something."},
+}
+const WARNING_TINT := Color(0.95, 0.15, 0.1)
+const WARNING_OUTLINE := Color(1.0, 0.85, 0.15)
+static var _warning_icons: Dictionary = {}
+
+
+func _with_vitals(active_effects: Dictionary) -> Dictionary:
+	var merged: Dictionary = active_effects
+	for key in VITAL_DEBUFFS:
+		var level = _player.get(VITAL_DEBUFFS[key]["vital"])
+		if level != null and int(level) <= 0:
+			if merged == active_effects:
+				merged = active_effects.duplicate()  # never write into the real effect dictionary
+			merged[key] = {"remaining": INF}
+	return merged
+
+
+# The item's own icon washed red, with a yellow border round it (Starving, Thirsty): a warning at a glance.
+static func _warning_icon(item_id: String) -> Texture2D:
+	return _outlined(ItemIcon.texture(Inventory.get_item_definition(item_id)), true)
+
+
+# Every debuff's icon gets a yellow border (and, with `wash_red`, a red wash) so harmful effects stand out on the bar.
+# Cached per source texture.
+static func _outlined(base: Texture2D, wash_red: bool = false) -> Texture2D:
+	if base == null:
+		return null
+	var key := "%d|%s" % [base.get_instance_id(), wash_red]
+	if _warning_icons.has(key):
+		return _warning_icons[key]
+	var tex: Texture2D = base
+	var img: Image = base.get_image()
+	if img != null:
+		if img.is_compressed():
+			img.decompress()
+		img.convert(Image.FORMAT_RGBA8)
+		var w := img.get_width()
+		var h := img.get_height()
+		var border := maxi(2, int(round(mini(w, h) * 0.06)))
+		for y in h:
+			for x in w:
+				if x < border or y < border or x >= w - border or y >= h - border:
+					img.set_pixel(x, y, WARNING_OUTLINE)
+				elif wash_red:
+					var c := img.get_pixel(x, y)
+					var lum := c.get_luminance()
+					var red := Color(WARNING_TINT.r * (0.35 + 0.9 * lum), WARNING_TINT.g * (0.3 + lum), WARNING_TINT.b * (0.3 + lum), c.a)
+					img.set_pixel(x, y, c.lerp(red, 0.75))
+		tex = ImageTexture.create_from_image(img)
+	_warning_icons[key] = tex
+	return tex
+
+
 func _weapon_poison_display(effect_name: String) -> Dictionary:
 	var parts := effect_name.substr(WEAPON_POISON_PREFIX.length()).split(":")
 	var slot: String = parts[0] if parts.size() > 0 else "primary"
@@ -211,6 +271,8 @@ const ENVIRONMENTAL_EFFECT_DESCRIPTIONS := {
 	"campfire_warmth": "Resting by a campfire's warmth. +2 HP/Mana/Stamina regeneration.",
 	"well_fed": "Well fed and hydrated. +2 HP/Mana/Stamina regeneration.",
 	"kenjis_blessing": "Kenji's blessing. +2 HP/Mana/Stamina regeneration and +3 to hit.",
+	"weak_poison": "A weak poison from a snake or spider bite: 5 damage every 6 seconds. It wears off after a minute, or a cure removes it.",
+	"disease": "A disease from an undead creature's touch: 5 damage every 6 seconds. It wears off after a minute and a half, or a cure removes it.",
 	"lit_torch": "A burning torch lights the way. Rain will put it out, and it gives away a sneaking Shadowblade. Right-click to put it out.",
 }
 # Effects that borrow one of the spell icons (effect name -> icon path). There is no dedicated art for these yet, so they
@@ -218,7 +280,11 @@ const ENVIRONMENTAL_EFFECT_DESCRIPTIONS := {
 const ENVIRONMENTAL_EFFECT_SPELL_ICONS := {
 	"campfire_warmth": "res://Assets/icons/spells/aoefire.png",
 	"kenjis_blessing": "res://Assets/icons/spells/aoedivine.png",
+	"weak_poison": "res://Assets/icons/spells/aoepoison.png",  # the green skull
+	"disease": "res://Assets/icons/spells/targetnecromancy.png",
 }
+# Environmental effects that are harmful (red box, yellow border).
+const ENVIRONMENTAL_DEBUFFS := ["weak_poison", "disease"]
 # Effects that show an item's icon on the buff bar (effect name -> items.json id).
 const ENVIRONMENTAL_EFFECT_ITEM_ICONS := {
 	"lit_torch": "torch",
@@ -236,6 +302,9 @@ const ENVIRONMENTAL_EFFECT_ITEM_ICONS := {
 func _resolve_effect_display(effect_name: String) -> Dictionary:
 	if effect_name.begins_with(WEAPON_POISON_PREFIX):
 		return _weapon_poison_display(effect_name)
+	if VITAL_DEBUFFS.has(effect_name):
+		var vital: Dictionary = VITAL_DEBUFFS[effect_name]
+		return {"name": vital["name"], "description": vital["description"], "is_debuff": true, "icon": _warning_icon(vital["item"])}
 	if effect_name.begins_with("stance_") or effect_name.begins_with("group_stance_"):
 		var from_group := effect_name.begins_with("group_stance_")
 		var stance_id := effect_name.trim_prefix("group_stance_").trim_prefix("stance_")
@@ -269,7 +338,7 @@ func _resolve_effect_display(effect_name: String) -> Dictionary:
 			env_icon = ItemIcon.texture(Inventory.get_item_definition(ENVIRONMENTAL_EFFECT_ITEM_ICONS[effect_name]))
 		elif ENVIRONMENTAL_EFFECT_SPELL_ICONS.has(effect_name):
 			env_icon = load(ENVIRONMENTAL_EFFECT_SPELL_ICONS[effect_name]) as Texture2D
-		return {"name": Player3D.spell_display_name(effect_name), "description": ENVIRONMENTAL_EFFECT_DESCRIPTIONS[effect_name], "is_debuff": false, "icon": env_icon}
+		return {"name": Player3D.spell_display_name(effect_name), "description": ENVIRONMENTAL_EFFECT_DESCRIPTIONS[effect_name], "is_debuff": ENVIRONMENTAL_DEBUFFS.has(effect_name), "icon": env_icon}
 
 	return {"name": Player3D.spell_display_name(effect_name), "description": "", "is_debuff": false}
 

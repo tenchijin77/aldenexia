@@ -1968,6 +1968,26 @@ GATE RAIDS (`Scripts/gate_raid_manager.gd`, `Data/gate_raids.json`, node "GateRa
 - Server data: Grep reset to his starter kit (he had copies of Zozuur's loose items, three bags' contents and his bank; Zozuur still has his own). Original kept as test_grep_character_stats.before_inventory_fix.json.
 - Verified on a local server: play character A (items in a second bag and the bank), drop the connection, back at the menu (0 game windows), create character B in the same session: one HUD (12 nodes, no duplicates) and only B's starter kit.
 
+### Test 28: Battle Shout, Blademaster costs (2026-09-23)
+- BATTLE SHOUT (and Improved Battle Shout) last 15 minutes (were 15 s). Warrior buffs use the gold fist icon for physical buffs (physical_buff.png): Battle Shout, Improved Battle Shout, Tactical Stance, Battle Focus, Commanding Presence, Commander's Aura, Tactician's Call, Warlord's Presence, Ironclad Bastion.
+- BLADEMASTER: every ability costs no mana and is instant (33), except passives and 15-minute buffs (Battle Shout, Commanding Presence, Commander's Aura). Shared ones change for the other classes too: Taunt (Voidknight, Lightsworn) is free; Improved Disarm (Voidknight) free.
+- Confirmed from the server: Grep's deleted copy is in deleted/ (test_grep_1790230971_character_stats.json).
+
+### Starving / Thirsty, debuff borders, Weak Poison (2026-09-23)
+- STARVING and THIRSTY show on the status (buff) window when food or drink runs out (satiety / thirst at 0): the bread and water-flask icons washed red with a yellow border, marked as debuffs, with what they do (no health/stamina, or no mana, regeneration until you eat/drink). They are the player's state, not saved effects: they vanish the moment you eat or drink, and can't be right-click cancelled.
+- EVERY DEBUFF on the status window now has a yellow border round its icon (buffs keep theirs plain).
+- WEAK POISON: snakes, spiderlings, spiders and blighted spiders have a 25% chance on a landed hit to poison you — 5 damage every 6 seconds for a minute (a new bite refreshes it, doesn't stack). "A Sand Viper's bite poisons you!" Green skull on the status window; cure spells remove it. Data: monsters.json "on_hit_effect" {name, chance, tick_damage, tick_interval, duration, message} — any monster can have one.
+- DISEASE: the undead (skeletons, mummies, ghosts, mirage phantoms, Sergeant Halvek) have a 25% chance on a landed hit to infect you — 5 damage every 6 seconds for 90 seconds, refreshed (not stacked) by another hit. "A Fallen Scout Skeleton's rotting touch sickens you!" Necromancy icon with the debuff border; cure spells remove it. Poison and Disease can be on you at the same time (one of each).
+
+### Tank stances: Blademaster, Lightsworn, Voidknight group bonuses and auras (2026-09-23)
+- BLADEMASTER stances (all at level 1): Hold the Line (defensive: -10% damage, +15 block, +25% threat; group takes 10% less damage), Warpath (offensive: +15% damage, +10% attack speed, -10 block, -35% threat; group +10% attack speed), Veteran's Stance (balanced: +7% damage, +7 block, +5% crit; group +10 hit chance).
+- LIGHTSWORN stances (all at level 1): Aegis of Dawn (defensive: -10% damage, +15 block, +25% threat, +15% healing received; you and the group: 10% chance on a melee hit to be healed for 5% of max health), Dawn's Wrath (offensive: +15% damage, Holy Strike and Smite Evil 25% stronger, -10 block, -35% threat; group +10% damage), Oathkeeper (balanced: +7% damage, +7 block, +2 health regen; group +10% healing received).
+- VOIDKNIGHT stances keep their stats and gain group bonuses: Necrotic Bastion (you and the group: 10% chance on a melee hit to lifetap — 8 + 2/level spirit damage, half back as health), Shadow Ascendant (group +10% crit), Dusk Walker (group +10% movement speed). Level 1 set explicitly.
+- Group bonuses reach group members within 10 m, like the Aetherfist's; the same stance from two players doesn't stack.
+- AURAS, a different look per tank (class_stances.json "aura_style"): Voidknight "drain" — streaks pulled in from ~1.8 m, faint far out and brightening as they reach the knight, with cold wisps sinking at the feet (the drain, shown); Lightsworn "radiant" — a warm glow, bright motes rising and soft shafts of light; Blademaster "sparks" — bursts of spark streaks flicking out and falling. Colours per stance (e.g. Necrotic Bastion sickly green, Aegis of Dawn gold, Warpath blood red, Hold the Line steel). The Aetherfist keeps its rising motes. Everyone sees them (current_stance is replicated).
+- STANCE ICONS for all nine (Assets/icons/spells/stance_*.png, recoloured from existing art in each stance's colour); the Voidknight's used to be the sword/shield item icons.
+- Verified: each class's stance bar at level 1 with the right modifiers/group bonuses; Aegis heal and Necrotic lifetap procs (~10%); auras rendered in a real window and compared (screenshots).
+
 ## 2026-09-17 — Session 45: Generic spell-effect engine, 7 more classes brought to parity, tradeskills (cooking/alchemy), Wildspeaker pet, fear/charm mechanics, multiplayer CC/heal relay, UI theme + resize pass, 5 new mob models, network widget
 
 ### Generic, data-driven spell-effect engine (the foundation for everything else this session)

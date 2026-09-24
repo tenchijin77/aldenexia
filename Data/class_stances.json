@@ -3,33 +3,64 @@
   {
    "stance_id": "shadow_ascendant",
    "name": "Shadow Ascendant",
-   "description": "+15% damage, -10% block chance, -35% threat generation. DPS or solo play; not recommended for group tanking.",
-   "icon": "res://Assets/icons/items/sword.png",
+   "description": "+15% damage, -10% block chance, -35% threat generation. DPS or solo play; not recommended for group tanking. Group: +10% critical chance.",
+   "icon": "res://Assets/icons/spells/stance_shadow_ascendant.png",
    "modifiers": {
     "damage_mult": 0.15,
     "block_chance": -10.0,
     "threat_mult": -0.35
+   },
+   "level": 1,
+   "aura": [
+    0.55,
+    0.2,
+    0.8
+   ],
+   "aura_style": "drain",
+   "group": {
+    "crit_bonus": 10
    }
   },
   {
    "stance_id": "necrotic_bastion",
    "name": "Necrotic Bastion",
-   "description": "+15% block chance, -10% damage, +25% Life Drain healing. Offsets the damage loss with life steal and maintains threat through healing — ideal for group tanking.",
-   "icon": "res://Assets/icons/items/shield.png",
+   "description": "+15% block chance, -10% damage, +25% Life Drain healing. Offsets the damage loss with life steal and maintains threat through healing — ideal for group tanking. Group (and you): 10% chance on a melee hit to lifetap the target — magic damage, half of it back as health.",
+   "icon": "res://Assets/icons/spells/stance_necrotic_bastion.png",
    "modifiers": {
     "damage_mult": -0.1,
     "block_chance": 15.0,
-    "life_drain_heal_mult": 0.25
+    "life_drain_heal_mult": 0.25,
+    "melee_lifetap_chance": 0.1
+   },
+   "level": 1,
+   "aura": [
+    0.4,
+    0.85,
+    0.35
+   ],
+   "aura_style": "drain",
+   "group": {
+    "melee_lifetap_chance": 0.1
    }
   },
   {
    "stance_id": "dusk_walker",
    "name": "Dusk Walker",
-   "description": "+7% damage, +7% block chance. Flexible for mixed scenarios, solo or group content.",
-   "icon": "res://Assets/icons/spells/selfbuff.png",
+   "description": "+7% damage, +7% block chance. Flexible for mixed scenarios, solo or group content. Group: +10% movement speed.",
+   "icon": "res://Assets/icons/spells/stance_dusk_walker.png",
    "modifiers": {
     "damage_mult": 0.07,
     "block_chance": 7.0
+   },
+   "level": 1,
+   "aura": [
+    0.35,
+    0.35,
+    0.75
+   ],
+   "aura_style": "drain",
+   "group": {
+    "move_speed_bonus": 0.1
    }
   }
  ],
@@ -44,7 +75,7 @@
    }
   }
  ],
- "_comment": "class_stances.json - each class's stances (stance_bar.gd shows them; one at a time, applied as a permanent effect). Per stance: stance_id, name, description, icon, modifiers (combat modifiers while it's up). Optional (Aetherfist): level (unlocks at), procs (auto-attack hits only: stun {chance,min,max} seconds, lifesteal {chance,pct}, burn {chance,dps,seconds,stacks}, void {chance}), boosts (ability ids that are 25% stronger in this stance), group (modifiers given to group members within 10 m; the same element from two monks doesn't stack), aura ([r,g,b] colour of the glow and particles everyone sees).",
+ "_comment": "class_stances.json - each class's stances (stance_bar.gd shows them; one at a time, applied as a permanent effect). Per stance: stance_id, name, description, icon, modifiers (combat modifiers while it's up). Optional (Aetherfist): level (unlocks at), procs (auto-attack hits only: stun {chance,min,max} seconds, lifesteal {chance,pct}, burn {chance,dps,seconds,stacks}, void {chance}), boosts (ability ids that are 25% stronger in this stance), group (modifiers given to group members within 10 m; the same element from two monks doesn't stack), aura_style (\"rise\" default; \"drain\" Voidknight — motes pulled in to you; \"radiant\" Lightsworn — bright rising light; \"sparks\" Blademaster — flicking sparks), aura ([r,g,b] colour of the glow and particles everyone sees).",
  "Aetherfist": [
   {
    "stance_id": "wind",
@@ -191,6 +222,143 @@
     0.3,
     1.0
    ]
+  }
+ ],
+ "Blademaster": [
+  {
+   "stance_id": "hold_the_line",
+   "name": "Hold the Line",
+   "level": 1,
+   "icon": "res://Assets/icons/spells/stance_hold_the_line.png",
+   "modifiers": {
+    "damage_mult": -0.1,
+    "block_chance": 15.0,
+    "threat_mult": 0.25
+   },
+   "group": {
+    "damage_taken_mult": 0.1
+   },
+   "aura": [
+    0.65,
+    0.75,
+    0.9
+   ],
+   "aura_style": "sparks",
+   "description": "Defensive. -10% damage, +15% block chance, +25% threat — for holding enemies on you. Group within 10m: take 10% less damage."
+  },
+  {
+   "stance_id": "warpath",
+   "name": "Warpath",
+   "level": 1,
+   "icon": "res://Assets/icons/spells/stance_warpath.png",
+   "modifiers": {
+    "damage_mult": 0.15,
+    "attack_speed_bonus": 0.1,
+    "block_chance": -10.0,
+    "threat_mult": -0.35
+   },
+   "group": {
+    "attack_speed_bonus": 0.1
+   },
+   "aura": [
+    0.9,
+    0.2,
+    0.12
+   ],
+   "aura_style": "sparks",
+   "description": "Offensive. +15% damage, +10% attack speed, -10% block chance, -35% threat — for soloing and damage. Group within 10m: +10% attack speed."
+  },
+  {
+   "stance_id": "veterans_stance",
+   "name": "Veteran's Stance",
+   "level": 1,
+   "icon": "res://Assets/icons/spells/stance_veterans_stance.png",
+   "modifiers": {
+    "damage_mult": 0.07,
+    "block_chance": 7.0,
+    "crit_bonus": 5
+   },
+   "group": {
+    "hit_chance": 10.0
+   },
+   "aura": [
+    0.85,
+    0.6,
+    0.3
+   ],
+   "aura_style": "sparks",
+   "description": "Balanced. +7% damage, +7% block chance, +5% critical chance. Group within 10m: +10% chance to hit."
+  }
+ ],
+ "Lightsworn": [
+  {
+   "stance_id": "aegis_of_dawn",
+   "name": "Aegis of Dawn",
+   "level": 1,
+   "icon": "res://Assets/icons/spells/stance_aegis_of_dawn.png",
+   "modifiers": {
+    "damage_mult": -0.1,
+    "block_chance": 15.0,
+    "threat_mult": 0.25,
+    "healing_received": 0.15,
+    "melee_heal_chance": 0.1
+   },
+   "group": {
+    "melee_heal_chance": 0.1
+   },
+   "aura": [
+    1.0,
+    0.82,
+    0.35
+   ],
+   "aura_style": "radiant",
+   "description": "Defensive. -10% damage, +15% block chance, +25% threat, +15% healing received. Group within 10m (and you): 10% chance on a melee hit to be healed for 5% of your health."
+  },
+  {
+   "stance_id": "dawns_wrath",
+   "name": "Dawn's Wrath",
+   "level": 1,
+   "icon": "res://Assets/icons/spells/stance_dawns_wrath.png",
+   "modifiers": {
+    "damage_mult": 0.15,
+    "block_chance": -10.0,
+    "threat_mult": -0.35
+   },
+   "boosts": [
+    "holy_strike",
+    "smite_evil"
+   ],
+   "group": {
+    "damage_mult": 0.1
+   },
+   "aura": [
+    1.0,
+    0.95,
+    0.75
+   ],
+   "aura_style": "radiant",
+   "description": "Offensive. +15% damage, Holy Strike and Smite Evil 25% stronger, -10% block chance, -35% threat. Group within 10m: +10% damage."
+  },
+  {
+   "stance_id": "oathkeeper",
+   "name": "Oathkeeper",
+   "level": 1,
+   "icon": "res://Assets/icons/spells/stance_oathkeeper.png",
+   "modifiers": {
+    "damage_mult": 0.07,
+    "block_chance": 7.0,
+    "hp_regen_bonus": 2
+   },
+   "group": {
+    "healing_received": 0.1
+   },
+   "aura": [
+    0.82,
+    0.88,
+    1.0
+   ],
+   "aura_style": "radiant",
+   "description": "Balanced. +7% damage, +7% block chance, +2 health regeneration. Group within 10m: +10% healing received."
   }
  ]
 }

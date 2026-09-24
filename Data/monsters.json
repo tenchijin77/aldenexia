@@ -52,7 +52,8 @@
     },
     "level_min": 1,
     "level_max": 2,
-    "death_text": ""
+    "death_text": "",
+    "on_hit_effect": {"name": "weak_poison", "chance": 0.25, "tick_damage": 5, "tick_interval": 6, "duration": 60, "message": "%s's bite poisons you!"}
   },
   "rat": {
     "description": "A desert scavenger",
@@ -125,7 +126,8 @@
     },
     "level_min": 2,
     "level_max": 4,
-    "death_text": ""
+    "death_text": "",
+    "on_hit_effect": {"name": "weak_poison", "chance": 0.25, "tick_damage": 5, "tick_interval": 6, "duration": 60, "message": "%s's bite poisons you!"}
   },
   "snake": {
     "description": "a sand viper",
@@ -150,7 +152,8 @@
     },
     "level_min": 2,
     "level_max": 4,
-    "death_text": ""
+    "death_text": "",
+    "on_hit_effect": {"name": "weak_poison", "chance": 0.25, "tick_damage": 5, "tick_interval": 6, "duration": 60, "message": "%s's bite poisons you!"}
   },
   "dustwalker": {
     "description": "a desert-dwelling marauder",
@@ -424,7 +427,8 @@
       "walk": "mirage_phantom_walk",
       "attack": "mirage_phantom_attack"
     },
-    "death_text": ""
+    "death_text": "",
+    "on_hit_effect": {"name": "disease", "chance": 0.25, "tick_damage": 5, "tick_interval": 6, "duration": 90, "message": "%s's rotting touch sickens you!"}
   },
   "thornback_lizard": {
     "description": "a spiked desert reptile",
@@ -522,7 +526,8 @@
     },
     "level_min": 3,
     "level_max": 6,
-    "death_text": ""
+    "death_text": "",
+    "on_hit_effect": {"name": "disease", "chance": 0.25, "tick_damage": 5, "tick_interval": 6, "duration": 90, "message": "%s's rotting touch sickens you!"}
   },
   "skeleton": {
     "description": "a fallen scout skeleton",
@@ -557,7 +562,8 @@
     "corruption": "",
     "level_min": 1,
     "level_max": 3,
-    "death_text": ""
+    "death_text": "",
+    "on_hit_effect": {"name": "disease", "chance": 0.25, "tick_damage": 5, "tick_interval": 6, "duration": 90, "message": "%s's rotting touch sickens you!"}
   },
   "ghost": {
     "description": "a tormented spirit",
@@ -581,7 +587,8 @@
     },
     "level_min": 2,
     "level_max": 5,
-    "death_text": ""
+    "death_text": "",
+    "on_hit_effect": {"name": "disease", "chance": 0.25, "tick_damage": 5, "tick_interval": 6, "duration": 90, "message": "%s's rotting touch sickens you!"}
   },
   "goblin": {
     "description": "a desert goblin",
@@ -847,7 +854,8 @@
       0.72,
       0.82,
       1.0
-    ]
+    ],
+    "on_hit_effect": {"name": "disease", "chance": 0.25, "tick_damage": 5, "tick_interval": 6, "duration": 90, "message": "%s's rotting touch sickens you!"}
   },
   "weavemother_vhessa": {
     "description": "Weavemother Vhessa",
@@ -915,6 +923,7 @@
       0.5,
       0.78
     ],
-    "corruption": "Moribund"
+    "corruption": "Moribund",
+    "on_hit_effect": {"name": "weak_poison", "chance": 0.25, "tick_damage": 5, "tick_interval": 6, "duration": 60, "message": "%s's bite poisons you!"}
   }
 }

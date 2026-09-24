@@ -390,6 +390,7 @@ func _ready() -> void:
 		# bigger or smaller, "tint" ([r, g, b], multiplied into the texture) recolours it. No new art needed.
 		model_from      = str(stats.get("model_from", ""))
 		knockback_immune = bool(stats.get("knockback_immune", false))
+		on_hit_effect = stats.get("on_hit_effect", {}) if stats.get("on_hit_effect") is Dictionary else {}
 		model_scale     = float(stats.get("model_scale", 1.0))
 		var tint_arr = stats.get("tint", null)
 		if typeof(tint_arr) == TYPE_ARRAY and tint_arr.size() >= 3:
@@ -1700,6 +1701,9 @@ func apply_networked_damage(amount: int, attacker_peer_id: int) -> void:
 const KNOCKBACK_TIME := 0.25
 const KNOCKBACK_GRAVITY := 20.0
 var knockback_immune := false
+# monsters.json "on_hit_effect": {"name", "chance", "tick_damage", "tick_interval", "duration"} — a landed hit may leave it on
+# the player (snakes and spiders: Weak Poison). Applied on the player's own machine, where their health lives.
+var on_hit_effect: Dictionary = {}
 var _knockback_time := 0.0
 var _knockback_velocity := Vector3.ZERO
 
@@ -2109,6 +2113,13 @@ func _on_hit_defender_effects(target: Node) -> void:
 	var cn = target.get("combat_node") if "combat_node" in target else null
 	if not (cn is CombatNode):
 		return
+	if not on_hit_effect.is_empty() and randf() < float(on_hit_effect.get("chance", 0.0)):
+		var effect_name := str(on_hit_effect.get("name", "poison"))
+		var fresh: bool = not cn.active_effects.has(effect_name)
+		cn.apply_effect(effect_name, float(on_hit_effect.get("duration", 60.0)), {}, int(on_hit_effect.get("tick_damage", 0)), float(on_hit_effect.get("tick_interval", 6.0)))
+		if fresh:
+			var who := (monster_description if monster_description != "" else get_monster_name()).capitalize()
+			GameLog.log_combat("[color=#77cc44]%s[/color]" % (str(on_hit_effect.get("message", "%s afflicts you!")) % who))
 	var slow: float = cn.get_modifier("slow_attackers")
 	if slow > 0.0:
 		_apply_effect_here_or_server("shield_chill", 4.0, {"speed_slow": slow, "attack_speed_slow": slow})
