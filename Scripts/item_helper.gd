@@ -13,7 +13,7 @@ static func consume(item_id: String, amount: int) -> void:
 
 
 # The best gathering tool the player carries for a gathering skill ("prospecting" / "woodworking"), or {} if none —
-# any item with a matching "gather_tool" (Data/crafting_items.json), highest "tool_tier" wins. Tools work from any bag.
+# any item with a matching "gather_tool" (Data/items.json), highest "tool_tier" wins. Tools work from any bag.
 static func best_gather_tool(skill: String) -> Dictionary:
 	var best: Dictionary = {}
 	var carried: Array = []

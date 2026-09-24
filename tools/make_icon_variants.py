@@ -85,6 +85,7 @@ VARIANTS = {
     "woodcutters_axe": ("axe.png", KEEP), "bronze_woodcutters_axe": ("axe.png", BRONZE),
     "bronze_lockpick_set": ("key.png", BRONZE), "copper_wrist_cuff": ("chain-bracers.png", COPPER),
     "copper_armor_plating": ("plate-breastplate.png", COPPER), "bronze_shield": ("shield.png", BRONZE),
+    "tin_shield": ("shield.png", TIN),
     "leather_jerkin": ("leather-chestpiece.png", (None, 0.7, 1.15)), "leather_armor": ("leather-chestpiece.png", KEEP),
     "hardened_leather_armor": ("leather-chestpiece.png", (20, 0.8, 0.7)),
     "reinforced_leather_armor": ("leather-chestpiece.png", (190, 0.45, 0.75)),

@@ -6,10 +6,11 @@
 # Writes:
 #   Data/tradeskill_recipes.json  every crafting recipe, keyed by recipe_id
 #   Data/gathering_nodes.json     every gatherable node type (Forage / Prospecting / Woodworking harvesting)
-#   Data/crafting_items.json      item definitions for every material, crafted item, kit, tool and recipe scroll
-#                                 that isn't already hand-made in Data/items.json (items.json always wins)
+#   Data/items.json               APPENDS a definition for every new material, crafted item, kit, tool and recipe
+#                                 scroll the workbook needs; entries already in items.json are never changed
 #
-# The workbook is the source of truth: edit it, re-run this, never hand-edit the three files above.
+# The workbook is the source of truth for recipes and nodes: edit it, re-run this, never hand-edit the first two files.
+# Item properties (stats, value, description, icon) live in Data/items.json once an item exists: edit them there.
 # Anything in an "Effect / Stats" cell the engine can't do yet is listed in the report at the end.
 
 import json
@@ -288,7 +289,8 @@ def apply_effect(item, item_id, effect, unsupported):
 def main():
     xlsx = sys.argv[1] if len(sys.argv) > 1 else DEFAULT_XLSX
     wb = load_workbook(xlsx, data_only=True)
-    with open(os.path.join(ROOT, "Data", "items.json")) as f:
+    items_path = os.path.join(ROOT, "Data", "items.json")
+    with open(items_path) as f:
         hand_items = json.load(f)
 
     items, recipes, nodes = {}, {}, {}
@@ -345,7 +347,7 @@ def main():
             }
             recipes[rid] = recipe
 
-            # Output item (hand-made items.json entries are left alone)
+            # Output item (existing items.json entries are left alone)
             if out not in hand_items and out not in VENDOR_ITEMS:
                 unsupported = []
                 item = items.get(out) or base_item(out, r["Recipe"], r["Description"] or "")
@@ -361,6 +363,9 @@ def main():
             # Recipe scroll for anything learnable from a scroll
             if "scroll" in learned.lower() and not recipe["innate"]:
                 sid = "recipe_" + rid
+                recipe["scroll"] = sid
+                if sid in hand_items:
+                    continue
                 scroll = base_item(sid, f"Recipe: {r['Recipe']}",
                                    f"Teaches the {skill_tab} recipe for {r['Recipe']}. Requires {skill_tab} {r['Min Skill']}.",
                                    "scroll", cost or 10)
@@ -370,7 +375,6 @@ def main():
                 scroll["teaches_recipe"] = rid
                 scroll["skill"] = skill
                 items[sid] = scroll
-                recipe["scroll"] = sid
 
     # Vendor-only items and kits
     for item_id, (name, item_type, value, desc, extra) in VENDOR_ITEMS.items():
@@ -427,13 +431,15 @@ def main():
           f"gathering_nodes.json - gatherable node types (Scripts/gathering_node.gd). 'tool' is the gather_tool an item "
           f"must have in your bags ('' = none). Where they are placed lives in Data/gathering_node_placements.json. {src}",
           {"nodes": nodes})
-    write("crafting_items.json",
-          f"crafting_items.json - item definitions for crafting materials, crafted items, kits, tools and recipe "
-          f"scrolls, merged into the item database by Scripts/inventory_autoload.gd (Data/items.json entries win). {src}",
-          {"items": items})
+    # New items go on the end of items.json (same formatting as the file already has: 2-space indent, UTF-8)
+    new_items = {k: v for k, v in items.items() if k not in hand_items}
+    if new_items:
+        hand_items.update(new_items)
+        with open(items_path, "w") as f:
+            f.write(json.dumps(hand_items, indent=2, ensure_ascii=False) + "\n")
 
-    print(f"Exported {len(recipes)} recipes, {len(nodes)} gathering nodes, {len(items)} items "
-          f"({sum(1 for i in items if i.startswith('recipe_'))} recipe scrolls).")
+    print(f"Exported {len(recipes)} recipes, {len(nodes)} gathering nodes; added {len(new_items)} new item(s) to "
+          f"Data/items.json{': ' + ', '.join(new_items) if new_items else ''}.")
     if report:
         print("\nNotes:")
         for line in report:

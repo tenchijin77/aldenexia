@@ -67,6 +67,9 @@ static func fill(vbox: VBoxContainer, item_def: Dictionary, with_comparison: boo
 		_line(vbox, usable[0], usable[1], 11)
 	if str(item_def.get("description", "")) != "":
 		_line(vbox, str(item_def["description"]), Color(0.82, 0.82, 0.82), 11)
+	var kind := known_kind(item_def)
+	if kind == "recipe" or kind == "language":
+		_line(vbox, "✔ You already know this %s." % kind, Color(0.45, 0.85, 0.5), 11)
 	var spell_block := _spell_lines(item_def)
 	if not spell_block.is_empty():
 		vbox.add_child(HSeparator.new())
@@ -83,14 +86,27 @@ static func fill(vbox: VBoxContainer, item_def: Dictionary, with_comparison: boo
 				_line(vbox, entry[0], entry[1], int(entry[2]) if entry.size() > 2 else 11)
 
 
-# True for a spell scroll whose spell the local player already knows — the shop and the inventory mark those so you do not buy or carry a
-# scroll you cannot use.
-static func teaches_known_spell(def: Dictionary) -> bool:
-	var spell_name := str(def.get("teaches_spell", ""))
-	if spell_name.is_empty():
-		return false
+# True for a scroll whose lesson the local player already has — a spell scroll for a known spell, a recipe scroll for a known
+# recipe (player3d.gd known_recipes), a language primer for a language already started (Languages.learn_basics() refuses it).
+# The shop and the inventory mark those so you do not buy or carry a scroll you cannot use.
+static func teaches_known(def: Dictionary) -> bool:
+	return known_kind(def) != ""
+
+
+# What an already-known scroll teaches: "spell", "recipe" or "language"; "" if it teaches nothing you know.
+static func known_kind(def: Dictionary) -> String:
 	var player := TargetFrame.local_player()
-	return is_instance_valid(player) and "known_spells" in player and spell_name in player.known_spells
+	var spell_name := str(def.get("teaches_spell", ""))
+	if spell_name != "":
+		return "spell" if is_instance_valid(player) and "known_spells" in player and spell_name in player.known_spells else ""
+	var recipe_id := str(def.get("teaches_recipe", ""))
+	if recipe_id != "":
+		# Only non-innate recipes have scrolls, so the learned list is the whole answer.
+		return "recipe" if is_instance_valid(player) and "known_recipes" in player and recipe_id in player.known_recipes else ""
+	var language := str(def.get("teaches_language", ""))
+	if language != "":
+		return "language" if Languages.skill(language) >= 1.0 else ""
+	return ""
 
 
 # What a spell scroll teaches: the spell's name, the level YOUR class needs, its description and its numbers, and whether you already

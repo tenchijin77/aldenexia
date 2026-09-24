@@ -2050,7 +2050,7 @@ func consume_food_or_drink(item: Dictionary) -> void:
 	apply_consumable_effects(item)
 
 
-# Drinks a crafted potion or elixir (items with type "potion" — Data/crafting_items.json). Returns true if it was used up.
+# Drinks a crafted potion or elixir (items with type "potion" — Data/items.json). Returns true if it was used up.
 func use_potion(item: Dictionary) -> bool:
 	Sfx.play("potion")
 	GameLog.log_general("You drink %s." % item.get("name", "the potion"))

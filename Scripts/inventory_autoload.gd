@@ -13,7 +13,6 @@ var item_data: Dictionary = {}  # Loaded from items.json
 #region Basic Inventory (12 slots on character sheet)
 var basic_inventory: Array = [] # 12 slots, can hold items OR bags
 const BASIC_INVENTORY_SIZE = 12
-const CRAFTING_ITEMS_PATH := "res://Data/crafting_items.json"
 #endregion
 
 #region Equipment
@@ -364,7 +363,8 @@ func _ready():
 	print("✅ Inventory system initialized")
 
 func load_item_data():
-	# Loads item definitions from items.json
+	# Loads every item definition from items.json (the one source of item data; tools/export_crafting.py appends new
+	# crafting items there)
 	var file = FileAccess.open("res://Data/items.json", FileAccess.READ)
 	if file:
 		var parsed = JSON.parse_string(file.get_as_text())
@@ -376,26 +376,7 @@ func load_item_data():
 			push_error("❌ items.json parsing failed")
 	else:
 		push_error("❌ items.json not found - creating empty inventory")
-	_merge_crafting_items()
 
-
-# Adds Data/crafting_items.json (generated from the crafting workbook by tools/export_crafting.py: materials, crafted
-# gear, kits, tools, recipe scrolls) to the item database. A hand-made items.json entry with the same id always wins.
-func _merge_crafting_items() -> void:
-	var file := FileAccess.open(CRAFTING_ITEMS_PATH, FileAccess.READ)
-	if not file:
-		return
-	var parsed: Variant = JSON.parse_string(file.get_as_text())
-	file.close()
-	if typeof(parsed) != TYPE_DICTIONARY or typeof(parsed.get("items")) != TYPE_DICTIONARY:
-		push_error("❌ crafting_items.json parsing failed")
-		return
-	var added := 0
-	for item_id in parsed["items"]:
-		if not item_data.has(item_id):
-			item_data[item_id] = parsed["items"][item_id]
-			added += 1
-	print("✅ Merged %d crafting item definitions" % added)
 
 # A different character is about to be loaded or created: nothing of the previous one may carry over. Bags past the
 # first and the bank used to survive a character switch (build_starting_inventory() only reset slots, equipment and

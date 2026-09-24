@@ -84,8 +84,8 @@ func _draw_frame():
 	_frame_style.set_border_width_all(width)
 	_frame.draw_style_box(_frame_style, Rect2(Vector2.ZERO, size))
 
-	# A spell scroll for a spell you already know: green badge (disc with a tick) in the top-right corner
-	if ItemInspector.teaches_known_spell(item_data):
+	# A scroll you already know (spell, recipe or language): green badge (disc with a tick) in the top-right corner
+	if ItemInspector.teaches_known(item_data):
 		var centre := Vector2(size.x - 10.0, 10.0)
 		_frame.draw_circle(centre, 7.5, Color(0, 0, 0, 0.85))
 		_frame.draw_circle(centre, 6.0, Color(0.20, 0.62, 0.28))
@@ -136,7 +136,7 @@ func _learn_from_scroll() -> void:
 			node.set_player(player)
 			break
 
-# Learns the tradeskill recipe a recipe scroll teaches (Data/crafting_items.json "teaches_recipe") and uses the scroll up.
+# Learns the tradeskill recipe a recipe scroll teaches (Data/items.json "teaches_recipe") and uses the scroll up.
 # Anyone can learn any recipe; the recipe's min skill is checked when you try to craft it.
 func _learn_recipe_from_scroll() -> void:
 	var recipe_id: String = str(item_data.get("teaches_recipe", ""))

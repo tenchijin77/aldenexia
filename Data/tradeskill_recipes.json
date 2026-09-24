@@ -905,6 +905,29 @@
       "status": "Core",
       "scroll": "recipe_smith_tin_shortsword"
     },
+    "smith_tin_shield": {
+      "name": "Tin Shield",
+      "skill": "blacksmithing",
+      "output": "tin_shield",
+      "yield": 1,
+      "crit_yield": 2,
+      "ingredients": {
+        "tin_ingot": 2,
+        "fir_planks": 1
+      },
+      "min_skill": 3,
+      "max_level": 18,
+      "base_success": 0.9,
+      "crit_chance": 0.08,
+      "stations": [
+        "forge"
+      ],
+      "innate": false,
+      "craft_time": 7.0,
+      "craft_message": "You beat two tin ingots flat and rivet them to a fir-plank frame. It is light, a little soft, and entirely yours.",
+      "status": "Core",
+      "scroll": "recipe_smith_tin_shield"
+    },
     "smith_copper_ingot": {
       "name": "Copper Ingot",
       "skill": "blacksmithing",

@@ -1,6 +1,6 @@
 ALDENEXIA: LIGHTFALL — TESTING CHECKLIST
 New features and fixes waiting for a real playtest. Tick them off here as they pass: [x] = passed (move a failure to
-outstanding_items.txt with what went wrong). Last updated 2026-09-23. Everything below was built after test 26.
+outstanding_items.txt with what went wrong). Last updated 2026-09-24 (test 29). Everything below was built after test 26.
 
 
 == ACCOUNTS AND JOINING ==
@@ -125,6 +125,14 @@ outstanding_items.txt with what went wrong). Last updated 2026-09-23. Everything
 [ ] Goblin raiders shout in Goblish; undead death lines are Old Thallian... (skeletons/mummies/ghosts).
 [ ] Character creation lists "Vol'kyne (Dark Elf)"; a new Vol'kyne gets real racial stats (not all 10s); the character
     sheet and account list say Vol'kyne.
+
+== ITEMS AND KNOWN SCROLLS (2026-09-24) ==
+[ ] Aldric: Recipe: Tin Shortsword shows "✔ known" (grey name) for Zozuur; recipes you don't know don't.
+[ ] Ilsabet / Xalvyr / Sahren: a language primer for a language you already speak (Common, your race's) shows "✔ known".
+[ ] A known recipe or language scroll in your bags has the green tick badge; right-click inspect says "You already know this recipe/language."
+[ ] Buy Recipe: Tin Shield from Aldric (30 cp), learn it, forge a Tin Shield (2 Tin Ingot + 1 Fir Planks, Blacksmithing 3).
+[ ] Tin Shield equips in the offhand: AC 3, +1 Stamina, tin-coloured shield icon.
+[ ] Crafted items, kits and recipe scrolls still look and work as before (they moved into items.json).
 
 == TESTER GUIDE ==
 [ ] The tester page link shows the account login steps and the "Every control and chat command" list.

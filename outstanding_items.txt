@@ -1,6 +1,6 @@
 ALDENEXIA: LIGHTFALL — OUTSTANDING ITEMS
 Everything decided or noticed but not finished yet, so nothing gets lost. (New features waiting for a playtest are in testing_items.txt.) Add to it whenever something is left open; strike
-an item (delete it, note it in change_log.txt) when it's done. Last updated 2026-09-23.
+an item (delete it, note it in change_log.txt) when it's done. Last updated 2026-09-24 (test 29).
 
 
 == WAITING ON THE USER ==

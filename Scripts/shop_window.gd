@@ -167,11 +167,12 @@ func _make_buy_row(entry: Dictionary) -> Control:
 	name_lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	hbox.add_child(name_lbl)
 
-	if ItemInspector.teaches_known_spell(item_def):
+	var known_kind := ItemInspector.known_kind(item_def)
+	if known_kind != "":
 		name_lbl.add_theme_color_override("font_color", Color(0.62, 0.62, 0.62))
 		var known_lbl := Label.new()
 		known_lbl.text = "✔ known"
-		known_lbl.tooltip_text = "You already know this spell."
+		known_lbl.tooltip_text = "You already know this %s." % known_kind
 		known_lbl.add_theme_font_size_override("font_size", 11)
 		known_lbl.add_theme_color_override("font_color", Color(0.45, 0.85, 0.5))
 		known_lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER

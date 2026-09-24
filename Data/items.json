@@ -1,5 +1,5 @@
 {
-  "_comment": "items.json - Defines all items in the game. Ratio is damage/delay for weapons.",
+  "_comment": "items.json - Defines every item in the game (gear, food, scrolls, crafting materials, kits, tools, recipe scrolls). Ratio is damage/delay for weapons. tools/export_crafting.py appends any new item the crafting workbook needs, but never changes an entry that is already here - edit item properties here.",
   "scarab_eye": {
     "name": "Scarab Eye",
     "icon": "res://Assets/icons/items/insectpart.png",
@@ -11351,5 +11351,5292 @@
     "stat_modifiers": null,
     "effect": null,
     "teaches_language": "high_arcanum"
+  },
+  "desert_thistle": {
+    "name": "Desert Thistle",
+    "icon": "res://Assets/icons/items/desert_thistle.png",
+    "description": "A spiky purple flower blooming across the rocky dunes of Lumora Outskirts. The most common foraged ingredient, sweet and slightly bitter. Used as a base for many beginner recipes.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 2,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "sandroot": {
+    "name": "Sandroot",
+    "icon": "res://Assets/icons/items/sandroot.png",
+    "description": "An underground tuber with medicinal properties, found buried beneath the sand in nutrient-rich pockets. Earthy aroma when fresh. A step up from Desert Thistle, used in more potent brews and remedies.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 3,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "venom_cactus_flower": {
+    "name": "Venom Cactus Flower",
+    "icon": "res://Assets/icons/items/venom_cactus_flower.png",
+    "description": "A striking red bloom from a thorny desert cactus, potent and dangerous. The flower's nectar carries mild venom that becomes a powerful ingredient when properly processed. Requires careful handling to avoid burns.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 5,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "moonpetal_sage": {
+    "name": "Moonpetal Sage",
+    "icon": "res://Assets/icons/items/moonpetal_sage.png",
+    "description": "A rare and precious herb with silvery leaves that shimmer faintly in moonlight. Grows only in protected areas near ancient ruins. Highly sought by alchemists and master chefs. One of the rarest ingredients available in Lumora.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 7,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "tin_ore": {
+    "name": "Tin Ore",
+    "icon": "res://Assets/icons/items/tin_ore.png",
+    "description": "Pale silvery-white metal easily mined from surface deposits and shallow veins. Soft and workable, perfect for beginners learning blacksmithing and metalcraft.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 2,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "copper_ore": {
+    "name": "Copper Ore",
+    "icon": "res://Assets/icons/items/copper_ore.png",
+    "description": "A reddish-orange ore with excellent conductivity and malleability. Found in deeper deposits throughout the desert foothills. More valuable than tin, copper takes longer to harvest but yields stronger tools and weapons.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 3,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "flint": {
+    "name": "Flint",
+    "icon": "res://Assets/icons/items/flint.png",
+    "description": "Stone. 20% bonus drop from Tin Veins.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 2,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "uncut_gem": {
+    "name": "Uncut Gem",
+    "icon": "res://Assets/icons/items/uncut_gem.png",
+    "description": "A rough, cloudy stone hiding a spark of colour. Found in the old veins beneath Lumora's ruins, where the ancients mined before the sands came.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 5,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "fir_log": {
+    "name": "Fir Log",
+    "icon": "res://Assets/icons/items/fir_log.png",
+    "description": "Common softwood harvested from scrubby fir trees scattered across Lumora's dunes and foothills. Light and workable, though not particularly durable. The most abundant wood source for beginning woodworkers.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 2,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "ironwood_log": {
+    "name": "Ironwood Log",
+    "icon": "res://Assets/icons/items/ironwood_log.png",
+    "description": "A dense, dark wood found in older trees deeper within the desert regions. Named for its exceptional hardness and durability. Ironwood resists splitting and takes a fine finish, making it ideal for quality crafted goods.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 3,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "palm_log": {
+    "name": "Palm Log",
+    "icon": "res://Assets/icons/items/palm_log.png",
+    "description": "Rare and exotic wood from palm trees growing near hidden oasis areas on the edge of Lumora. Palm wood is light yet strong, with beautiful natural grain patterns. Highly prized for creating elegant weapons and fine furnishings.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 5,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "oasis_date": {
+    "name": "Oasis Date",
+    "icon": "res://Assets/icons/items/oasis_date.png",
+    "description": "Fruit. 10% bonus drop from Palm Trees.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 2,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "raw_spider_meat": {
+    "name": "Raw Spider Meat",
+    "icon": "res://Assets/icons/items/raw_spider_meat.png",
+    "description": "Raw spider meat. Cook it before you eat it.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 1,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "raw_rat_meat": {
+    "name": "Raw Rat Meat",
+    "icon": "res://Assets/icons/items/raw_rat_meat.png",
+    "description": "Raw rat meat. Cook it before you eat it.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 1,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "raw_bat_meat": {
+    "name": "Raw Bat Meat",
+    "icon": "res://Assets/icons/items/raw_bat_meat.png",
+    "description": "Raw bat meat. Cook it before you eat it.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 1,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "raw_goblin_meat": {
+    "name": "Raw Goblin Meat",
+    "icon": "res://Assets/icons/items/raw_goblin_meat.png",
+    "description": "Raw goblin meat. Cook it before you eat it.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 1,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "raw_human_meat": {
+    "name": "Raw Human Meat",
+    "icon": "res://Assets/icons/items/raw_human_meat.png",
+    "description": "Raw human meat. Cook it before you eat it.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 1,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "raw_snake_meat": {
+    "name": "Raw Snake Meat",
+    "icon": "res://Assets/icons/items/raw_snake_meat.png",
+    "description": "Raw snake meat. Cook it before you eat it.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 1,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "raw_hide": {
+    "name": "Raw Hide",
+    "icon": "res://Assets/icons/items/raw_hide.png",
+    "description": "Hide. Rats, snakes.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 2,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "fletching_feathers": {
+    "name": "Fletching Feathers",
+    "icon": "res://Assets/icons/items/fletching_feathers.png",
+    "description": "Feather. Bandits, goblin scouts (they carry fletching supplies).",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 2,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "tanning_oil": {
+    "name": "Tanning Oil",
+    "icon": "res://Assets/icons/items/tanning_oil.png",
+    "description": "A stoppered flask of oil for curing raw hides into leather.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 3,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "dye": {
+    "name": "Dye",
+    "icon": "res://Assets/icons/items/dye.png",
+    "description": "A small pot of desert dye, ground from ochre and cactus pulp.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 3,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "crystal_vial": {
+    "name": "Crystal Vial",
+    "icon": "res://Assets/icons/items/crystal_vial.png",
+    "description": "An empty glass vial. Every potion and poison needs one.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 2,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "tin_ingot": {
+    "name": "Tin Ingot",
+    "icon": "res://Assets/icons/items/tin_ingot.png",
+    "description": "Raw tin ore melted down into a workable ingot. The simplest refining process, perfect for beginners.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 3,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "copper_ingot": {
+    "name": "Copper Ingot",
+    "icon": "res://Assets/icons/items/copper_ingot.png",
+    "description": "Copper ore refined into a reddish ingot. More valuable than tin, requires more heat and skill.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 8,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "bronze_ingot": {
+    "name": "Bronze Ingot",
+    "icon": "res://Assets/icons/items/bronze_ingot.png",
+    "description": "An alloy of copper and a little tin, harder than either metal alone. The finest metal a Lumora smith can make.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 13,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "fir_planks": {
+    "name": "Fir Planks",
+    "icon": "res://Assets/icons/items/fir_planks.png",
+    "description": "Raw fir wood processed into workable planks. The refining process removes bark, splits the wood into usable sections, and prepares it for crafting.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 3,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "ironwood_planks": {
+    "name": "Ironwood Planks",
+    "icon": "res://Assets/icons/items/ironwood_planks.png",
+    "description": "Dense ironwood processed into strong, durable planks. The refining requires more skill and effort than fir, as ironwood resists splitting and shaping.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 9,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "palm_planks": {
+    "name": "Palm Planks",
+    "icon": "res://Assets/icons/items/palm_planks.png",
+    "description": "Exotic palm wood refined into elegant, lightweight planks. The beautiful golden grain is preserved during refining, making these planks prized by master craftspeople.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 14,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "soft_leather": {
+    "name": "Soft Leather",
+    "icon": "res://Assets/icons/items/soft_leather.png",
+    "description": "Raw hide tanned into workable soft leather. The most common leather, perfect for beginners.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 3,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "hardened_leather": {
+    "name": "Hardened Leather",
+    "icon": "res://Assets/icons/items/hardened_leather.png",
+    "description": "Hide tanned with sandroot creates a tougher, more durable leather.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 8,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "reinforced_leather": {
+    "name": "Reinforced Leather",
+    "icon": "res://Assets/icons/items/reinforced_leather.png",
+    "description": "Hardened leather layered with scarab chitin plates. Flexible as leather, tough as shell.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 13,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "thread": {
+    "name": "Thread",
+    "icon": "res://Assets/icons/items/thread.png",
+    "description": "Spider silk spun into strong, fine thread.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 3,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "woven_cloth": {
+    "name": "Woven Cloth",
+    "icon": "res://Assets/icons/items/woven_cloth.png",
+    "description": "Basic cloth woven from scraps. The foundation of all cloth armor.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 3,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "reinforced_cloth": {
+    "name": "Reinforced Cloth",
+    "icon": "res://Assets/icons/items/reinforced_cloth.png",
+    "description": "Cloth reinforced with sandroot extract creates a more durable fabric.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 8,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "silken_cloth": {
+    "name": "Silken Cloth",
+    "icon": "res://Assets/icons/items/silken_cloth.png",
+    "description": "Rare silken cloth for the finest robes.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 13,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "polished_gem": {
+    "name": "Polished Gem",
+    "icon": "res://Assets/icons/items/polished_gem.png",
+    "description": "A raw gem polished into a usable component.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 3,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "gem_setting": {
+    "name": "Gem Setting",
+    "icon": "res://Assets/icons/items/gem_setting.png",
+    "description": "A finished gem setting ready to be fitted to jewelry or weapons.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 8,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "tinkered_spring": {
+    "name": "Tinkered Spring",
+    "icon": "res://Assets/icons/items/tinkered_spring.png",
+    "description": "A precision-crafted spring component used in other tinkering recipes.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 3,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "bowstring": {
+    "name": "Bowstring",
+    "icon": "res://Assets/icons/items/bowstring.png",
+    "description": "A twisted cord of spider-silk thread, waxed and tested.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 3,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "silk_bowstring": {
+    "name": "Silk Bowstring",
+    "icon": "res://Assets/icons/items/silk_bowstring.png",
+    "description": "A bowstring braided from ordinary and blighted spider silk. It never frays.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 11,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "broadhead_arrowheads": {
+    "name": "Broadhead Arrowheads",
+    "icon": "res://Assets/icons/items/broadhead_arrowheads.png",
+    "description": "Wide, wicked arrowheads for hunting or warfare.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 7,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "cooked_bat_meat": {
+    "name": "Cooked Bat Meat",
+    "icon": "res://Assets/icons/items/cooked_bat_meat.png",
+    "description": "Small delicate meat from dusk bats. Cooks quickly and has a mild flavor. Preferred by those with refined palates.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 4,
+    "type": "food",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "restores": "satiety",
+    "restore_amount": 10
+  },
+  "cooked_rat_meat": {
+    "name": "Cooked Rat Meat",
+    "icon": "res://Assets/icons/items/cooked_rat_meat.png",
+    "description": "Lean meat from desert rodents. Quick to cook and easier to digest than spider meat. A staple food for desert travelers.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 4,
+    "type": "food",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "restores": "satiety",
+    "restore_amount": 12
+  },
+  "cooked_spider_meat": {
+    "name": "Cooked Spider Meat",
+    "icon": "res://Assets/icons/items/cooked_spider_meat.png",
+    "description": "Raw spider meat seared over a fire until the venom cooks out. Tough and chewy, but it knits small wounds.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 4,
+    "type": "food",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "restores": "satiety",
+    "restore_amount": 15,
+    "heal_amount": 15
+  },
+  "cooked_snake_meat": {
+    "name": "Cooked Snake Meat",
+    "icon": "res://Assets/icons/items/cooked_snake_meat.png",
+    "description": "Pale, firm meat from sand vipers. Mild once the venom glands are cut away.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 4,
+    "type": "food",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "restores": "satiety",
+    "restore_amount": 18
+  },
+  "cooked_goblin_meat": {
+    "name": "Cooked Goblin Meat",
+    "icon": "res://Assets/icons/items/cooked_goblin_meat.png",
+    "description": "Darker, richer meat from humanoid goblins. More substantial than other meats, provides greater satiation but has a stronger taste. A pragmatic choice for those who can stomach it.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 4,
+    "type": "food",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "restores": "satiety",
+    "restore_amount": 20
+  },
+  "cooked_human_meat": {
+    "name": "Cooked Human Meat",
+    "icon": "res://Assets/icons/items/cooked_human_meat.png",
+    "description": "Meat from fallen bandits and human adversaries. Most humans find this distasteful, but survival in the desert often demands dark choices. Trolls and other races consider it sustenance. Highly nutritious.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 4,
+    "type": "food",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "restores": "satiety",
+    "restore_amount": 25
+  },
+  "desert_thistle_salad": {
+    "name": "Desert Thistle Salad",
+    "icon": "res://Assets/icons/items/desert_thistle_salad.png",
+    "description": "Cooked meat combined with fresh desert thistles for a balanced meal. The thistles add freshness and slight medicinal properties. A favorite among desert merchants and travelers.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "food",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "restores": "satiety",
+    "restore_amount": 30,
+    "use_buff": {
+      "effect_name": "desert_thistle_salad",
+      "duration": 600.0,
+      "modifiers": {},
+      "tick_heal": 2,
+      "tick_interval": 6.0
+    }
+  },
+  "recipe_cook_desert_thistle_salad": {
+    "name": "Recipe: Desert Thistle Salad",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Cooking recipe for Desert Thistle Salad. Requires Cooking 3.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 20,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "cooking",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "cook_desert_thistle_salad"
+  },
+  "sandroot_stew": {
+    "name": "Sandroot & Meat Stew",
+    "icon": "res://Assets/icons/items/sandroot_stew.png",
+    "description": "A hearty stew combining cooked meat with medicinal sandroot and desert thistles. The sandroot gives it earthy depth and healing properties. This is sustenance for those planning long journeys.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 14,
+    "type": "food",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "restores": "satiety",
+    "restore_amount": 35,
+    "use_buff": {
+      "effect_name": "sandroot_stew",
+      "duration": 900.0,
+      "modifiers": {},
+      "tick_heal": 3,
+      "tick_interval": 6.0
+    }
+  },
+  "recipe_cook_sandroot_stew": {
+    "name": "Recipe: Sandroot & Meat Stew",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Cooking recipe for Sandroot & Meat Stew. Requires Cooking 5.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 40,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "cooking",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "cook_sandroot_stew"
+  },
+  "viper_kebab": {
+    "name": "Fire-Roasted Viper Kebab",
+    "icon": "res://Assets/icons/items/viper_kebab.png",
+    "description": "A dangerous and delicious dish. Snake meat seasoned with venom cactus flower creates a paradoxical flavor—fiery and cooling at once. Only expert cooks can balance the venom without creating an actual poison. A dish fit for adventurers.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 16,
+    "type": "food",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "restores": "satiety",
+    "restore_amount": 40
+  },
+  "recipe_cook_viper_kebab": {
+    "name": "Recipe: Fire-Roasted Viper Kebab",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Cooking recipe for Fire-Roasted Viper Kebab. Requires Cooking 6.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 60,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "cooking",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "cook_viper_kebab"
+  },
+  "viper_poison": {
+    "name": "Viper Poison",
+    "icon": "res://Assets/icons/items/viper_poison.png",
+    "description": "More potent poison from venom cactus and snake venom.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "consumable",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "weapon_poison_bonus_damage": 3,
+    "weapon_poison_duration": 900
+  },
+  "recipe_alch_viper_poison": {
+    "name": "Recipe: Viper Poison",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Alchemy recipe for Viper Poison. Requires Alchemy 3.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 15,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "alchemy",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "alch_viper_poison"
+  },
+  "minor_healing_potion": {
+    "name": "Minor Healing Potion",
+    "icon": "res://Assets/icons/items/minor_healing_potion.png",
+    "description": "Basic healing elixir.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 14,
+    "type": "potion",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "heal_amount": 30
+  },
+  "recipe_alch_minor_healing_potion": {
+    "name": "Recipe: Minor Healing Potion",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Alchemy recipe for Minor Healing Potion. Requires Alchemy 5.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 30,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "alchemy",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "alch_minor_healing_potion"
+  },
+  "antidote_essence": {
+    "name": "Antidote Essence",
+    "icon": "res://Assets/icons/items/antidote_essence.png",
+    "description": "Counteracts venom and poison effects.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 16,
+    "type": "potion",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "cures_poison": true
+  },
+  "recipe_alch_antidote_essence": {
+    "name": "Recipe: Antidote Essence",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Alchemy recipe for Antidote Essence. Requires Alchemy 6.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 40,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "alchemy",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "alch_antidote_essence"
+  },
+  "stamina_elixir": {
+    "name": "Stamina Elixir",
+    "icon": "res://Assets/icons/items/stamina_elixir.png",
+    "description": "Energizing potion.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 20,
+    "type": "potion",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "use_buff": {
+      "effect_name": "stamina_elixir",
+      "duration": 1200.0,
+      "modifiers": {
+        "stat_constitution": 2
+      },
+      "tick_heal": 0,
+      "tick_interval": 6.0
+    }
+  },
+  "recipe_alch_stamina_elixir": {
+    "name": "Recipe: Stamina Elixir",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Alchemy recipe for Stamina Elixir. Requires Alchemy 8.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 50,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "alchemy",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "alch_stamina_elixir"
+  },
+  "moonpetal_essence": {
+    "name": "Moonpetal Essence",
+    "icon": "res://Assets/icons/items/moonpetal_essence.png",
+    "description": "Powerful healing potion using rare Moonpetal Sage. Also used by Tailors for the Archmage's Robe.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 24,
+    "type": "potion",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "heal_amount": 60,
+    "use_buff": {
+      "effect_name": "moonpetal_essence",
+      "duration": 30.0,
+      "modifiers": {},
+      "tick_heal": 10,
+      "tick_interval": 6.0
+    }
+  },
+  "recipe_alch_moonpetal_essence": {
+    "name": "Recipe: Moonpetal Essence",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Alchemy recipe for Moonpetal Essence. Requires Alchemy 10.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 80,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "alchemy",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "alch_moonpetal_essence"
+  },
+  "elixir_of_insight": {
+    "name": "Elixir of Insight",
+    "icon": "res://Assets/icons/items/elixir_of_insight.png",
+    "description": "Rare potion that sharpens intuition.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 28,
+    "type": "potion",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "use_buff": {
+      "effect_name": "elixir_of_insight",
+      "duration": 1500.0,
+      "modifiers": {
+        "stat_wisdom": 2
+      },
+      "tick_heal": 0,
+      "tick_interval": 6.0
+    }
+  },
+  "recipe_alch_elixir_of_insight": {
+    "name": "Recipe: Elixir of Insight",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Alchemy recipe for Elixir of Insight. Requires Alchemy 12.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 100,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "alchemy",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "alch_elixir_of_insight"
+  },
+  "desert_tea": {
+    "name": "Desert Tea",
+    "icon": "res://Assets/icons/items/desert_tea.png",
+    "description": "A simple herbal tea from desert thistles. Refreshing and mildly restorative.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 4,
+    "type": "drink",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "restores": "thirst",
+    "restore_amount": 20,
+    "use_buff": {
+      "effect_name": "desert_tea",
+      "duration": 900.0,
+      "modifiers": {
+        "stamina_regen_bonus": 5
+      },
+      "tick_heal": 0,
+      "tick_interval": 6.0
+    }
+  },
+  "energy_brew": {
+    "name": "Energy Brew",
+    "icon": "res://Assets/icons/items/energy_brew.png",
+    "description": "A stimulating brew that sharpens reflexes and provides combat advantage.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "drink",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "restores": "thirst",
+    "restore_amount": 15,
+    "use_buff": {
+      "effect_name": "energy_brew",
+      "duration": 900.0,
+      "modifiers": {
+        "stat_dexterity": 2
+      },
+      "tick_heal": 0,
+      "tick_interval": 6.0
+    }
+  },
+  "recipe_brew_energy_brew": {
+    "name": "Recipe: Energy Brew",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Brewing recipe for Energy Brew. Requires Brewing 3.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 20,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "brewing",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "brew_energy_brew"
+  },
+  "courage_draught": {
+    "name": "Courage Draught",
+    "icon": "res://Assets/icons/items/courage_draught.png",
+    "description": "A bold, meaty brew that increases confidence and damage output in combat.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 12,
+    "type": "drink",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "restores": "thirst",
+    "restore_amount": 15,
+    "use_buff": {
+      "effect_name": "courage_draught",
+      "duration": 1200.0,
+      "modifiers": {
+        "stat_strength": 2,
+        "damage_mult": 0.1
+      },
+      "tick_heal": 0,
+      "tick_interval": 6.0
+    }
+  },
+  "recipe_brew_courage_draught": {
+    "name": "Recipe: Courage Draught",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Brewing recipe for Courage Draught. Requires Brewing 4.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 25,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "brewing",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "brew_courage_draught"
+  },
+  "fortified_tonic": {
+    "name": "Fortified Tonic",
+    "icon": "res://Assets/icons/items/fortified_tonic.png",
+    "description": "A more potent tonic combining sandroot with thistle. Requires fermentation to develop properly.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 14,
+    "type": "drink",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "restores": "thirst",
+    "restore_amount": 20,
+    "use_buff": {
+      "effect_name": "fortified_tonic",
+      "duration": 1200.0,
+      "modifiers": {
+        "hp_regen_bonus": 4,
+        "stamina_regen_bonus": 8
+      },
+      "tick_heal": 0,
+      "tick_interval": 6.0
+    }
+  },
+  "recipe_brew_fortified_tonic": {
+    "name": "Recipe: Fortified Tonic",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Brewing recipe for Fortified Tonic. Requires Brewing 5.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 25,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "brewing",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "brew_fortified_tonic"
+  },
+  "resistance_elixir": {
+    "name": "Resistance Elixir",
+    "icon": "res://Assets/icons/items/resistance_elixir.png",
+    "description": "A protective potion that grants elemental resistance and poison immunity.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 16,
+    "type": "potion",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "recipe_brew_resistance_elixir": {
+    "name": "Recipe: Resistance Elixir",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Brewing recipe for Resistance Elixir. Requires Brewing 6.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 40,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "brewing",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "brew_resistance_elixir"
+  },
+  "clarity_draught": {
+    "name": "Clarity Draught",
+    "icon": "res://Assets/icons/items/clarity_draught.png",
+    "description": "A mental enhancement brew that sharpens focus and perception.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 20,
+    "type": "drink",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "restores": "thirst",
+    "restore_amount": 15,
+    "use_buff": {
+      "effect_name": "clarity_draught",
+      "duration": 1200.0,
+      "modifiers": {
+        "stat_intelligence": 2
+      },
+      "tick_heal": 0,
+      "tick_interval": 6.0
+    }
+  },
+  "recipe_brew_clarity_draught": {
+    "name": "Recipe: Clarity Draught",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Brewing recipe for Clarity Draught. Requires Brewing 8.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 50,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "brewing",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "brew_clarity_draught"
+  },
+  "starlight_cordial": {
+    "name": "Starlight Cordial",
+    "icon": "res://Assets/icons/items/starlight_cordial.png",
+    "description": "A rare and precious cordial infused with Moonpetal Sage. The most potent brewing creation in Lumora.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 24,
+    "type": "drink",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "restores": "thirst",
+    "restore_amount": 25,
+    "use_buff": {
+      "effect_name": "starlight_cordial",
+      "duration": 1800.0,
+      "modifiers": {
+        "hp_regen_bonus": 15,
+        "stamina_regen_bonus": 15,
+        "stat_strength": 2,
+        "stat_constitution": 2,
+        "stat_dexterity": 2,
+        "stat_intelligence": 2,
+        "stat_wisdom": 2
+      },
+      "tick_heal": 0,
+      "tick_interval": 6.0
+    }
+  },
+  "recipe_brew_starlight_cordial": {
+    "name": "Recipe: Starlight Cordial",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Brewing recipe for Starlight Cordial. Requires Brewing 10.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 60,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "brewing",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "brew_starlight_cordial"
+  },
+  "copper_pickaxe": {
+    "name": "Copper Pickaxe",
+    "icon": "res://Assets/icons/items/copper_pickaxe.png",
+    "description": "An upgraded mining tool. Consumes your vendor Miner's Pick.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "tool",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "gather_tool": "prospecting",
+    "tool_tier": 2,
+    "gather_speed_bonus": 0.25,
+    "gather_crit_bonus": 0.05
+  },
+  "recipe_tink_copper_pickaxe": {
+    "name": "Recipe: Copper Pickaxe",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Tinkering recipe for Copper Pickaxe. Requires Tinkering 3.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 20,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "tinkering",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "tink_copper_pickaxe"
+  },
+  "copper_wrist_cuff": {
+    "name": "Copper Wrist Cuff",
+    "icon": "res://Assets/icons/items/copper_wrist_cuff.png",
+    "description": "A decorative yet functional wrist cuff. The copper keeps its shine in the desert sun.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "armor",
+    "armor_class": 1,
+    "slot": "wrist",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 2.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": {
+      "dexterity": 1
+    },
+    "effect": null
+  },
+  "recipe_tink_copper_wrist_cuff": {
+    "name": "Recipe: Copper Wrist Cuff",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Tinkering recipe for Copper Wrist Cuff. Requires Tinkering 3.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 15,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "tinkering",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "tink_copper_wrist_cuff"
+  },
+  "smoke_grenade": {
+    "name": "Smoke Grenade",
+    "icon": "res://Assets/icons/items/smoke_grenade.png",
+    "description": "A throwable smoke grenade that creates cover for escape. Consumable.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 12,
+    "type": "consumable",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "recipe_tink_smoke_grenade": {
+    "name": "Recipe: Smoke Grenade",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Tinkering recipe for Smoke Grenade. Requires Tinkering 4.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 25,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "tinkering",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "tink_smoke_grenade"
+  },
+  "copper_lantern": {
+    "name": "Copper Lantern",
+    "icon": "res://Assets/icons/items/copper_lantern.png",
+    "description": "A hooded copper lantern with a self-trimming wick. Dimmer than a good torch, but it never needs replacing.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 14,
+    "type": "armor",
+    "armor_class": 0,
+    "slot": "light",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "light_source": {
+      "kind": "fire",
+      "radius": 8.0,
+      "energy": 2.2,
+      "color": [
+        1.0,
+        0.72,
+        0.35
+      ],
+      "burn_minutes": 0.0,
+      "never_burns_out": true,
+      "snuffed_by_rain": false,
+      "breaks_stealth": true,
+      "light_message": "You light your copper lantern.",
+      "rain_snuff_message": "The rain snuffs out your copper lantern."
+    }
+  },
+  "recipe_tink_copper_lantern": {
+    "name": "Recipe: Copper Lantern",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Tinkering recipe for Copper Lantern. Requires Tinkering 5.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 40,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "tinkering",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "tink_copper_lantern"
+  },
+  "bronze_woodcutters_axe": {
+    "name": "Bronze Woodcutter's Axe",
+    "icon": "res://Assets/icons/items/bronze_woodcutters_axe.png",
+    "description": "A sturdy woodcutter's axe with a bronze head. Consumes your vendor Woodcutter's Axe.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 16,
+    "type": "tool",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "gather_tool": "woodworking",
+    "tool_tier": 2,
+    "gather_speed_bonus": 0.25,
+    "gather_crit_bonus": 0.05
+  },
+  "recipe_tink_bronze_woodcutters_axe": {
+    "name": "Recipe: Bronze Woodcutter's Axe",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Tinkering recipe for Bronze Woodcutter's Axe. Requires Tinkering 6.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 40,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "tinkering",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "tink_bronze_woodcutters_axe"
+  },
+  "bronze_charm": {
+    "name": "Bronze Charm",
+    "icon": "res://Assets/icons/items/bronze_charm.png",
+    "description": "A small bronze charm set with a polished stone. It hums gently.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 16,
+    "type": "armor",
+    "armor_class": 0,
+    "slot": "charm",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": {
+      "wisdom": 2
+    },
+    "effect": null
+  },
+  "recipe_tink_bronze_charm": {
+    "name": "Recipe: Bronze Charm",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Tinkering recipe for Bronze Charm. Requires Tinkering 6.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 35,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "tinkering",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "tink_bronze_charm"
+  },
+  "explosive_device": {
+    "name": "Explosive Device",
+    "icon": "res://Assets/icons/items/explosive_device.png",
+    "description": "A dangerous throwable explosive. Very fun when it goes wrong.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 18,
+    "type": "consumable",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "recipe_tink_explosive_device": {
+    "name": "Recipe: Explosive Device",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Tinkering recipe for Explosive Device. Requires Tinkering 7.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 50,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "tinkering",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "tink_explosive_device"
+  },
+  "bronze_lockpick_set": {
+    "name": "Bronze Lockpick Set",
+    "icon": "res://Assets/icons/items/bronze_lockpick_set.png",
+    "description": "A set of finely-crafted bronze lockpicks. Permanent.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 20,
+    "type": "tool",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "recipe_tink_bronze_lockpick_set": {
+    "name": "Recipe: Bronze Lockpick Set",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Tinkering recipe for Bronze Lockpick Set. Requires Tinkering 8.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 60,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "tinkering",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "tink_bronze_lockpick_set"
+  },
+  "tin_dagger": {
+    "name": "Tin Dagger",
+    "icon": "res://Assets/icons/items/tin_dagger.png",
+    "description": "A basic tin dagger, perfect for new adventurers. Light and easy to handle, though not particularly durable.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 4,
+    "type": "weapon",
+    "armor_class": 0,
+    "slot": "primary",
+    "skill": "piercing_weapons",
+    "damage": 5,
+    "delay": 21,
+    "weight": 3.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": {
+      "dexterity": 1
+    },
+    "effect": null
+  },
+  "tin_shortsword": {
+    "name": "Tin Shortsword",
+    "icon": "res://Assets/icons/items/tin_shortsword.png",
+    "description": "A respectable tin shortsword. Better than a dagger, useful for both offense and defense.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 15,
+    "type": "weapon",
+    "armor_class": 0,
+    "slot": "primary",
+    "skill": "slashing_weapons",
+    "damage": 8,
+    "delay": 27,
+    "weight": 3.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": {
+      "strength": 1
+    },
+    "effect": null
+  },
+  "recipe_smith_tin_shortsword": {
+    "name": "Recipe: Tin Shortsword",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Blacksmithing recipe for Tin Shortsword. Requires Blacksmithing 2.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 25,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "blacksmithing",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "smith_tin_shortsword"
+  },
+  "recipe_smith_copper_ingot": {
+    "name": "Recipe: Copper Ingot",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Blacksmithing recipe for Copper Ingot. Requires Blacksmithing 5.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 20,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "blacksmithing",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "smith_copper_ingot"
+  },
+  "copper_sword": {
+    "name": "Copper Sword",
+    "icon": "res://Assets/icons/items/copper_sword.png",
+    "description": "A quality copper sword, significantly better than tin. The copper holds an edge well and feels substantial in hand.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 16,
+    "type": "weapon",
+    "armor_class": 0,
+    "slot": "primary",
+    "skill": "slashing_weapons",
+    "damage": 10,
+    "delay": 27,
+    "weight": 3.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": {
+      "strength": 1,
+      "dexterity": 1
+    },
+    "effect": null
+  },
+  "recipe_smith_copper_sword": {
+    "name": "Recipe: Copper Sword",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Blacksmithing recipe for Copper Sword. Requires Blacksmithing 6.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 40,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "blacksmithing",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "smith_copper_sword"
+  },
+  "copper_war_axe": {
+    "name": "Copper War Axe",
+    "icon": "res://Assets/icons/items/copper_war_axe.png",
+    "description": "A copper war axe for two-handed combat. Slower, harder hits.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 18,
+    "type": "weapon",
+    "armor_class": 0,
+    "slot": "primary",
+    "skill": "slashing_weapons",
+    "damage": 17,
+    "delay": 38,
+    "weight": 3.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": {
+      "strength": 2
+    },
+    "effect": null,
+    "two_handed": true
+  },
+  "recipe_smith_copper_axe": {
+    "name": "Recipe: Copper War Axe",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Blacksmithing recipe for Copper War Axe. Requires Blacksmithing 7.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 45,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "blacksmithing",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "smith_copper_axe"
+  },
+  "copper_armor_plating": {
+    "name": "Copper Armor Plating",
+    "icon": "res://Assets/icons/items/copper_armor_plating.png",
+    "description": "Copper breastplate armor. Better than cloth, reasonable weight.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 20,
+    "type": "armor",
+    "armor_class": 6,
+    "slot": "chest",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 2.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": {
+      "constitution": 1
+    },
+    "effect": null
+  },
+  "recipe_smith_copper_armor_plating": {
+    "name": "Recipe: Copper Armor Plating",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Blacksmithing recipe for Copper Armor Plating. Requires Blacksmithing 8.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 50,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "blacksmithing",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "smith_copper_armor_plating"
+  },
+  "recipe_smith_bronze_ingot": {
+    "name": "Recipe: Bronze Ingot",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Blacksmithing recipe for Bronze Ingot. Requires Blacksmithing 10.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 50,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "blacksmithing",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "smith_bronze_ingot"
+  },
+  "bronze_shield": {
+    "name": "Bronze Shield",
+    "icon": "res://Assets/icons/items/bronze_shield.png",
+    "description": "A sturdy bronze shield on an ironwood frame.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 26,
+    "type": "armor",
+    "armor_class": 7,
+    "slot": "offhand",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 2.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": {
+      "constitution": 1
+    },
+    "effect": null
+  },
+  "recipe_smith_bronze_shield": {
+    "name": "Recipe: Bronze Shield",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Blacksmithing recipe for Bronze Shield. Requires Blacksmithing 11.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 60,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "blacksmithing",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "smith_bronze_shield"
+  },
+  "bronze_longsword": {
+    "name": "Bronze Longsword",
+    "icon": "res://Assets/icons/items/bronze_longsword.png",
+    "description": "The finest blade a Lumora smith can make. It will serve through multiple zones.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 28,
+    "type": "weapon",
+    "armor_class": 0,
+    "slot": "primary",
+    "skill": "slashing_weapons",
+    "damage": 13,
+    "delay": 27,
+    "weight": 3.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": {
+      "strength": 2,
+      "constitution": 1
+    },
+    "effect": null
+  },
+  "recipe_smith_bronze_longsword": {
+    "name": "Recipe: Bronze Longsword",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Blacksmithing recipe for Bronze Longsword. Requires Blacksmithing 12.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 80,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "blacksmithing",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "smith_bronze_longsword"
+  },
+  "pitch_torch": {
+    "name": "Pitch Torch",
+    "icon": "res://Assets/icons/items/pitch_torch.png",
+    "description": "A fir stave wrapped in pitch-soaked linen. Burns longer and brighter than a vendor torch.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 4,
+    "type": "armor",
+    "armor_class": 0,
+    "slot": "light",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "light_source": {
+      "kind": "fire",
+      "radius": 10.0,
+      "energy": 2.2,
+      "color": [
+        1.0,
+        0.72,
+        0.35
+      ],
+      "burn_minutes": 15.0,
+      "never_burns_out": false,
+      "snuffed_by_rain": true,
+      "breaks_stealth": true,
+      "light_message": "You light your pitch torch.",
+      "rain_snuff_message": "The rain snuffs out your pitch torch."
+    }
+  },
+  "fir_firewood_bundle": {
+    "name": "Fir Firewood Bundle",
+    "icon": "res://Assets/icons/items/fir_firewood_bundle.png",
+    "description": "Split fir logs and a flint striker, tied for carrying. Light it anywhere outside town to make camp.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 4,
+    "type": "consumable",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "fir_shortbow": {
+    "name": "Fir Shortbow",
+    "icon": "res://Assets/icons/items/fir_shortbow.png",
+    "description": "A basic bow for ranged combat. Light and easy to handle, good for beginners learning to shoot.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 4,
+    "type": "weapon",
+    "armor_class": 0,
+    "slot": "ranged",
+    "skill": "archery",
+    "damage": 5,
+    "delay": 24,
+    "weight": 3.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "fir_staff": {
+    "name": "Fir Staff",
+    "icon": "res://Assets/icons/items/fir_staff.png",
+    "description": "A plain walking staff, favoured by apprentice casters.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 12,
+    "type": "weapon",
+    "armor_class": 0,
+    "slot": "primary",
+    "skill": "blunt_weapons",
+    "damage": 7,
+    "delay": 34,
+    "weight": 3.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": {
+      "intelligence": 1
+    },
+    "effect": null,
+    "two_handed": true
+  },
+  "recipe_ww_fir_staff": {
+    "name": "Recipe: Fir Staff",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Woodworking recipe for Fir Staff. Requires Woodworking 4.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 15,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "woodworking",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "ww_fir_staff"
+  },
+  "recipe_ww_ironwood_planks": {
+    "name": "Recipe: Ironwood Planks",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Woodworking recipe for Ironwood Planks. Requires Woodworking 6.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "woodworking",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "ww_ironwood_planks"
+  },
+  "ironwood_bow": {
+    "name": "Ironwood Bow",
+    "icon": "res://Assets/icons/items/ironwood_bow.png",
+    "description": "A quality bow made from ironwood. More powerful than a fir bow, with better damage.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 16,
+    "type": "weapon",
+    "armor_class": 0,
+    "slot": "ranged",
+    "skill": "archery",
+    "damage": 8,
+    "delay": 30,
+    "weight": 3.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "recipe_ww_ironwood_bow": {
+    "name": "Recipe: Ironwood Bow",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Woodworking recipe for Ironwood Bow. Requires Woodworking 6.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 30,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "woodworking",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "ww_ironwood_bow"
+  },
+  "ironwood_torch": {
+    "name": "Ironwood Torch",
+    "icon": "res://Assets/icons/items/ironwood_torch.png",
+    "description": "A dense ironwood torch soaked in oil. Slow-burning and bright.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 16,
+    "type": "armor",
+    "armor_class": 0,
+    "slot": "light",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "light_source": {
+      "kind": "fire",
+      "radius": 12.0,
+      "energy": 2.2,
+      "color": [
+        1.0,
+        0.72,
+        0.35
+      ],
+      "burn_minutes": 25.0,
+      "never_burns_out": false,
+      "snuffed_by_rain": true,
+      "breaks_stealth": true,
+      "light_message": "You light your ironwood torch.",
+      "rain_snuff_message": "The rain snuffs out your ironwood torch."
+    }
+  },
+  "recipe_ww_ironwood_torch": {
+    "name": "Recipe: Ironwood Torch",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Woodworking recipe for Ironwood Torch. Requires Woodworking 6.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 15,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "woodworking",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "ww_ironwood_torch"
+  },
+  "ironwood_firewood_bundle": {
+    "name": "Ironwood Firewood Bundle",
+    "icon": "res://Assets/icons/items/ironwood_firewood_bundle.png",
+    "description": "Dense ironwood that burns long and hot. A proper camp for a proper hunt.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 18,
+    "type": "consumable",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "recipe_ww_ironwood_firewood_bundle": {
+    "name": "Recipe: Ironwood Firewood Bundle",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Woodworking recipe for Ironwood Firewood Bundle. Requires Woodworking 7.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 20,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "woodworking",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "ww_ironwood_firewood_bundle"
+  },
+  "ironwood_staff": {
+    "name": "Ironwood Staff",
+    "icon": "res://Assets/icons/items/ironwood_staff.png",
+    "description": "A dense ironwood staff capped with a copper ferrule.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 22,
+    "type": "weapon",
+    "armor_class": 0,
+    "slot": "primary",
+    "skill": "blunt_weapons",
+    "damage": 10,
+    "delay": 35,
+    "weight": 3.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": {
+      "intelligence": 1,
+      "wisdom": 1
+    },
+    "effect": null,
+    "two_handed": true
+  },
+  "recipe_ww_ironwood_staff": {
+    "name": "Recipe: Ironwood Staff",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Woodworking recipe for Ironwood Staff. Requires Woodworking 9.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 35,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "woodworking",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "ww_ironwood_staff"
+  },
+  "recipe_ww_palm_planks": {
+    "name": "Recipe: Palm Planks",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Woodworking recipe for Palm Planks. Requires Woodworking 11.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 25,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "woodworking",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "ww_palm_planks"
+  },
+  "palm_resin_torch": {
+    "name": "Palm-Resin Torch",
+    "icon": "res://Assets/icons/items/palm_resin_torch.png",
+    "description": "A palm torch sealed in the tree's own golden resin. Rain beads off it.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 26,
+    "type": "armor",
+    "armor_class": 0,
+    "slot": "light",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "light_source": {
+      "kind": "fire",
+      "radius": 14.0,
+      "energy": 2.2,
+      "color": [
+        1.0,
+        0.72,
+        0.35
+      ],
+      "burn_minutes": 40.0,
+      "never_burns_out": false,
+      "snuffed_by_rain": false,
+      "breaks_stealth": true,
+      "light_message": "You light your palm-resin torch.",
+      "rain_snuff_message": "The rain snuffs out your palm-resin torch."
+    }
+  },
+  "recipe_ww_palm_resin_torch": {
+    "name": "Recipe: Palm-Resin Torch",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Woodworking recipe for Palm-Resin Torch. Requires Woodworking 11.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 30,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "woodworking",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "ww_palm_resin_torch"
+  },
+  "palm_longbow": {
+    "name": "Palm Longbow",
+    "icon": "res://Assets/icons/items/palm_longbow.png",
+    "description": "The finest bow in Lumora. Fewer shots, but devastating.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 26,
+    "type": "weapon",
+    "armor_class": 0,
+    "slot": "ranged",
+    "skill": "archery",
+    "damage": 12,
+    "delay": 36,
+    "weight": 3.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "recipe_ww_palm_longbow": {
+    "name": "Recipe: Palm Longbow",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Woodworking recipe for Palm Longbow. Requires Woodworking 11.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 60,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "woodworking",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "ww_palm_longbow"
+  },
+  "palm_firewood_bundle": {
+    "name": "Palm Firewood Bundle",
+    "icon": "res://Assets/icons/items/palm_firewood_bundle.png",
+    "description": "Fragrant palm wood that burns sweet and bright. Groups fight over a good palm fire.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 28,
+    "type": "consumable",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "recipe_ww_palm_firewood_bundle": {
+    "name": "Recipe: Palm Firewood Bundle",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Woodworking recipe for Palm Firewood Bundle. Requires Woodworking 12.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 40,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "woodworking",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "ww_palm_firewood_bundle"
+  },
+  "masters_staff": {
+    "name": "Master's Staff",
+    "icon": "res://Assets/icons/items/masters_staff.png",
+    "description": "A golden palm staff bound in bronze and crowned with a polished gem.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 34,
+    "type": "weapon",
+    "armor_class": 0,
+    "slot": "primary",
+    "skill": "blunt_weapons",
+    "damage": 14,
+    "delay": 36,
+    "weight": 3.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": {
+      "intelligence": 2,
+      "wisdom": 2
+    },
+    "effect": null,
+    "two_handed": true
+  },
+  "recipe_ww_masters_staff": {
+    "name": "Recipe: Master's Staff",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Woodworking recipe for Master's Staff. Requires Woodworking 15.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 70,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "woodworking",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "ww_masters_staff"
+  },
+  "quiver_of_fir_arrows": {
+    "name": "Quiver of Fir Arrows",
+    "icon": "res://Assets/icons/items/quiver_of_fir_arrows.png",
+    "description": "A full quiver of fir arrows with flint heads. You'll re-fletch and recover them as you go, so it never runs dry.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "armor",
+    "armor_class": 0,
+    "slot": "ammo",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "ranged_damage_bonus": 2
+  },
+  "recipe_fle_quiver_fir_arrows": {
+    "name": "Recipe: Quiver of Fir Arrows",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Fletching recipe for Quiver of Fir Arrows. Requires Fletching 3.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 20,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "fletching",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "fle_quiver_fir_arrows"
+  },
+  "recipe_fle_broadhead_arrowheads": {
+    "name": "Recipe: Broadhead Arrowheads",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Fletching recipe for Broadhead Arrowheads. Requires Fletching 4.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 25,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "fletching",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "fle_broadhead_arrowheads"
+  },
+  "quiver_of_ironwood_arrows": {
+    "name": "Quiver of Ironwood Arrows",
+    "icon": "res://Assets/icons/items/quiver_of_ironwood_arrows.png",
+    "description": "High-quality arrows with ironwood shafts and copper tips. These arrows fly true and hit hard.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 18,
+    "type": "armor",
+    "armor_class": 0,
+    "slot": "ammo",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "ranged_damage_bonus": 3
+  },
+  "recipe_fle_quiver_ironwood_arrows": {
+    "name": "Recipe: Quiver of Ironwood Arrows",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Fletching recipe for Quiver of Ironwood Arrows. Requires Fletching 7.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 40,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "fletching",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "fle_quiver_ironwood_arrows"
+  },
+  "recipe_fle_silk_bowstring": {
+    "name": "Recipe: Silk Bowstring",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Fletching recipe for Silk Bowstring. Requires Fletching 8.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 40,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "fletching",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "fle_silk_bowstring"
+  },
+  "quiver_of_broadhead_arrows": {
+    "name": "Quiver of Broadhead Arrows",
+    "icon": "res://Assets/icons/items/quiver_of_broadhead_arrows.png",
+    "description": "Hunting arrows with broad, wicked heads that leave wounds that won't close.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 24,
+    "type": "armor",
+    "armor_class": 0,
+    "slot": "ammo",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "ranged_damage_bonus": 3
+  },
+  "recipe_fle_quiver_broadhead_arrows": {
+    "name": "Recipe: Quiver of Broadhead Arrows",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Fletching recipe for Quiver of Broadhead Arrows. Requires Fletching 10.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 50,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "fletching",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "fle_quiver_broadhead_arrows"
+  },
+  "quiver_of_palm_arrows": {
+    "name": "Quiver of Palm Arrows",
+    "icon": "res://Assets/icons/items/quiver_of_palm_arrows.png",
+    "description": "The finest arrows in Lumora. Palm shafts, bronze tips. Works of art.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 28,
+    "type": "armor",
+    "armor_class": 0,
+    "slot": "ammo",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "ranged_damage_bonus": 4
+  },
+  "recipe_fle_quiver_palm_arrows": {
+    "name": "Recipe: Quiver of Palm Arrows",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Fletching recipe for Quiver of Palm Arrows. Requires Fletching 12.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 70,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "fletching",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "fle_quiver_palm_arrows"
+  },
+  "tin_ring": {
+    "name": "Tin Ring",
+    "icon": "res://Assets/icons/items/tin_ring.png",
+    "description": "A simple tin band.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 4,
+    "type": "armor",
+    "armor_class": 0,
+    "slot": "finger",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": {
+      "dexterity": 1
+    },
+    "effect": null
+  },
+  "simple_amulet": {
+    "name": "Simple Amulet",
+    "icon": "res://Assets/icons/items/simple_amulet.png",
+    "description": "A tin pendant set with a snake scale, hung from a leather cord.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "armor",
+    "armor_class": 1,
+    "slot": "neck",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 2.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "recipe_jc_simple_amulet": {
+    "name": "Recipe: Simple Amulet",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Jewelcrafting recipe for Simple Amulet. Requires Jewelcrafting 3.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 20,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "jewelcrafting",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "jc_simple_amulet"
+  },
+  "copper_ring": {
+    "name": "Copper Ring",
+    "icon": "res://Assets/icons/items/copper_ring.png",
+    "description": "A copper ring with a gem setting.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 12,
+    "type": "armor",
+    "armor_class": 0,
+    "slot": "finger",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": {
+      "intelligence": 2
+    },
+    "effect": null
+  },
+  "recipe_jc_copper_ring": {
+    "name": "Recipe: Copper Ring",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Jewelcrafting recipe for Copper Ring. Requires Jewelcrafting 4.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 25,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "jewelcrafting",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "jc_copper_ring"
+  },
+  "recipe_jc_gem_setting": {
+    "name": "Recipe: Gem Setting",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Jewelcrafting recipe for Gem Setting. Requires Jewelcrafting 5.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 30,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "jewelcrafting",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "jc_gem_setting"
+  },
+  "copper_pendant": {
+    "name": "Copper Pendant",
+    "icon": "res://Assets/icons/items/copper_pendant.png",
+    "description": "A copper pendant on a silk-thread cord.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 16,
+    "type": "armor",
+    "armor_class": 2,
+    "slot": "neck",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 2.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": {
+      "constitution": 1
+    },
+    "effect": null
+  },
+  "recipe_jc_copper_pendant": {
+    "name": "Recipe: Copper Pendant",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Jewelcrafting recipe for Copper Pendant. Requires Jewelcrafting 6.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 35,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "jewelcrafting",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "jc_copper_pendant"
+  },
+  "bronze_ring": {
+    "name": "Bronze Ring",
+    "icon": "res://Assets/icons/items/bronze_ring.png",
+    "description": "The finest ring in Lumora.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 24,
+    "type": "armor",
+    "armor_class": 0,
+    "slot": "finger",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": {
+      "wisdom": 3
+    },
+    "effect": null
+  },
+  "recipe_jc_bronze_ring": {
+    "name": "Recipe: Bronze Ring",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Jewelcrafting recipe for Bronze Ring. Requires Jewelcrafting 10.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 50,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "jewelcrafting",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "jc_bronze_ring"
+  },
+  "bronze_amulet": {
+    "name": "Bronze Amulet",
+    "icon": "res://Assets/icons/items/bronze_amulet.png",
+    "description": "The finest amulet in Lumora, hung on a cord of blighted silk.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 26,
+    "type": "armor",
+    "armor_class": 3,
+    "slot": "neck",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 2.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "recipe_jc_bronze_amulet": {
+    "name": "Recipe: Bronze Amulet",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Jewelcrafting recipe for Bronze Amulet. Requires Jewelcrafting 11.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 70,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "jewelcrafting",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "jc_bronze_amulet"
+  },
+  "leather_jerkin": {
+    "name": "Leather Jerkin",
+    "icon": "res://Assets/icons/items/leather_jerkin.png",
+    "description": "A simple leather jerkin for light protection. Easy to move in, good for rogues and rangers.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 4,
+    "type": "armor",
+    "armor_class": 3,
+    "slot": "chest",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 2.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": {
+      "dexterity": 1
+    },
+    "effect": null
+  },
+  "leather_boots": {
+    "name": "Leather Boots",
+    "icon": "res://Assets/icons/items/leather_boots.png",
+    "description": "Comfortable leather boots suitable for desert travel.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 4,
+    "type": "armor",
+    "armor_class": 2,
+    "slot": "feet",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 2.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "leather_bracers": {
+    "name": "Leather Bracers",
+    "icon": "res://Assets/icons/items/leather_bracers.png",
+    "description": "Protective bracers that help turn aside blows.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "armor",
+    "armor_class": 1,
+    "slot": "wrist",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 2.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "recipe_lw_leather_bracers": {
+    "name": "Recipe: Leather Bracers",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Leatherworking recipe for Leather Bracers. Requires Leatherworking 3.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 20,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "leatherworking",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "lw_leather_bracers"
+  },
+  "leather_armor": {
+    "name": "Leather Armor",
+    "icon": "res://Assets/icons/items/leather_armor.png",
+    "description": "Improved leather armor with better protection and durability than a jerkin.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 12,
+    "type": "armor",
+    "armor_class": 4,
+    "slot": "chest",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 2.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": {
+      "dexterity": 1
+    },
+    "effect": null
+  },
+  "recipe_lw_leather_armor": {
+    "name": "Recipe: Leather Armor",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Leatherworking recipe for Leather Armor. Requires Leatherworking 4.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 25,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "leatherworking",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "lw_leather_armor"
+  },
+  "recipe_lw_hardened_leather": {
+    "name": "Recipe: Hardened Leather",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Leatherworking recipe for Hardened Leather. Requires Leatherworking 5.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 20,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "leatherworking",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "lw_hardened_leather"
+  },
+  "hardened_leather_armor": {
+    "name": "Hardened Leather Armor",
+    "icon": "res://Assets/icons/items/hardened_leather_armor.png",
+    "description": "Hardened leather armor gives excellent protection while keeping you mobile.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 18,
+    "type": "armor",
+    "armor_class": 5,
+    "slot": "chest",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 2.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": {
+      "dexterity": 1,
+      "constitution": 1
+    },
+    "effect": null
+  },
+  "recipe_lw_hardened_leather_armor": {
+    "name": "Recipe: Hardened Leather Armor",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Leatherworking recipe for Hardened Leather Armor. Requires Leatherworking 7.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 40,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "leatherworking",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "lw_hardened_leather_armor"
+  },
+  "recipe_lw_reinforced_leather": {
+    "name": "Recipe: Reinforced Leather",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Leatherworking recipe for Reinforced Leather. Requires Leatherworking 10.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 50,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "leatherworking",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "lw_reinforced_leather"
+  },
+  "reinforced_leather_armor": {
+    "name": "Reinforced Leather Armor",
+    "icon": "res://Assets/icons/items/reinforced_leather_armor.png",
+    "description": "The finest leather armor in Lumora, riveted with bronze.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 26,
+    "type": "armor",
+    "armor_class": 6,
+    "slot": "chest",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 2.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": {
+      "dexterity": 2
+    },
+    "effect": null
+  },
+  "recipe_lw_reinforced_leather_armor": {
+    "name": "Recipe: Reinforced Leather Armor",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Leatherworking recipe for Reinforced Leather Armor. Requires Leatherworking 11.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 70,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "leatherworking",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "lw_reinforced_leather_armor"
+  },
+  "simple_robe": {
+    "name": "Simple Robe",
+    "icon": "res://Assets/icons/items/simple_robe.png",
+    "description": "A simple cloth robe for casters. Minimal protection but good for spellcasting.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 4,
+    "type": "armor",
+    "armor_class": 2,
+    "slot": "chest",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 2.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "cloth_gloves": {
+    "name": "Cloth Gloves",
+    "icon": "res://Assets/icons/items/cloth_gloves.png",
+    "description": "Simple cloth gloves that improve your grip.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 4,
+    "type": "armor",
+    "armor_class": 1,
+    "slot": "hands",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 2.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": {
+      "dexterity": 1
+    },
+    "effect": null
+  },
+  "apprentice_robe": {
+    "name": "Apprentice Robe",
+    "icon": "res://Assets/icons/items/apprentice_robe.png",
+    "description": "A robe for apprentice mages and scholars.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "armor",
+    "armor_class": 2,
+    "slot": "chest",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 2.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": {
+      "intelligence": 1
+    },
+    "effect": null
+  },
+  "recipe_tl_apprentice_robe": {
+    "name": "Recipe: Apprentice Robe",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Tailoring recipe for Apprentice Robe. Requires Tailoring 3.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 25,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "tailoring",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "tl_apprentice_robe"
+  },
+  "recipe_tl_reinforced_cloth": {
+    "name": "Recipe: Reinforced Cloth",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Tailoring recipe for Reinforced Cloth. Requires Tailoring 5.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 20,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "tailoring",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "tl_reinforced_cloth"
+  },
+  "mages_robe": {
+    "name": "Mage's Robe",
+    "icon": "res://Assets/icons/items/mages_robe.png",
+    "description": "A quality robe for experienced mages.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 16,
+    "type": "armor",
+    "armor_class": 3,
+    "slot": "chest",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 2.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "recipe_tl_mages_robe": {
+    "name": "Recipe: Mage's Robe",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Tailoring recipe for Mage's Robe. Requires Tailoring 6.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 40,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "tailoring",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "tl_mages_robe"
+  },
+  "recipe_tl_silken_cloth": {
+    "name": "Recipe: Silken Cloth",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Tailoring recipe for Silken Cloth. Requires Tailoring 10.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 50,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "tailoring",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "tl_silken_cloth"
+  },
+  "archmages_robe": {
+    "name": "Archmage's Robe",
+    "icon": "res://Assets/icons/items/archmages_robe.png",
+    "description": "The finest robe in Lumora, infused with an alchemist's Moonpetal Essence.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 26,
+    "type": "armor",
+    "armor_class": 4,
+    "slot": "chest",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 2.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "recipe_tl_archmages_robe": {
+    "name": "Recipe: Archmage's Robe",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Tailoring recipe for Archmage's Robe. Requires Tailoring 11.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 70,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "tailoring",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "tl_archmages_robe"
+  },
+  "miners_pick": {
+    "name": "Miner's Pick",
+    "icon": "res://Assets/icons/items/miners_pick.png",
+    "description": "A plain iron pick. Needed to mine ore veins. A tinker can upgrade it.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 20,
+    "type": "tool",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "gather_tool": "prospecting",
+    "tool_tier": 1
+  },
+  "woodcutters_axe": {
+    "name": "Woodcutter's Axe",
+    "icon": "res://Assets/icons/items/woodcutters_axe.png",
+    "description": "A plain iron hatchet. Needed to cut trees. A tinker can upgrade it.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 20,
+    "type": "tool",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "gather_tool": "woodworking",
+    "tool_tier": 1
+  },
+  "quiver_of_rough_arrows": {
+    "name": "Quiver of Rough Arrows",
+    "icon": "res://Assets/icons/items/quiver_of_rough_arrows.png",
+    "description": "A quiver of rough arrows you recover and re-fletch as you go. It never runs out.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 15,
+    "type": "armor",
+    "armor_class": 0,
+    "slot": "ammo",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "ranged_damage_bonus": 1
+  },
+  "case_of_rough_bolts": {
+    "name": "Case of Rough Bolts",
+    "icon": "res://Assets/icons/items/case_of_rough_bolts.png",
+    "description": "A case of rough crossbow bolts you recover as you go. It never runs out.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 15,
+    "type": "armor",
+    "armor_class": 0,
+    "slot": "ammo",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "ranged_damage_bonus": 1
+  },
+  "basic_cooking_kit": {
+    "name": "Basic Cooking Kit",
+    "icon": "res://Assets/icons/items/basic_cooking_kit.png",
+    "description": "A portable cooking kit. Right-click and Open to craft anywhere. In a character-sheet slot it is also an 8-slot bag for cooking materials.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 25,
+    "type": "tool",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "cooking",
+    "damage": 0,
+    "delay": 0,
+    "weight": 3.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "tradeskill_station": "basic_cooking_kit"
+  },
+  "basic_brewing_kit": {
+    "name": "Basic Brewing Kit",
+    "icon": "res://Assets/icons/items/basic_brewing_kit.png",
+    "description": "A portable brewing kit. Right-click and Open to craft anywhere. In a character-sheet slot it is also an 8-slot bag for brewing materials.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 25,
+    "type": "tool",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "brewing",
+    "damage": 0,
+    "delay": 0,
+    "weight": 3.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "tradeskill_station": "basic_brewing_kit"
+  },
+  "basic_fletching_kit": {
+    "name": "Basic Fletching Kit",
+    "icon": "res://Assets/icons/items/basic_fletching_kit.png",
+    "description": "A portable fletching kit. Right-click and Open to craft anywhere. In a character-sheet slot it is also an 8-slot bag for fletching materials.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 25,
+    "type": "tool",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "fletching",
+    "damage": 0,
+    "delay": 0,
+    "weight": 3.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "tradeskill_station": "basic_fletching_kit"
+  },
+  "basic_jewelcrafting_kit": {
+    "name": "Basic Jewelcrafting Kit",
+    "icon": "res://Assets/icons/items/basic_jewelcrafting_kit.png",
+    "description": "A portable jewelcrafting kit. Right-click and Open to craft anywhere. In a character-sheet slot it is also an 8-slot bag for jewelcrafting materials.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 25,
+    "type": "tool",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "jewelcrafting",
+    "damage": 0,
+    "delay": 0,
+    "weight": 3.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "tradeskill_station": "basic_jewelcrafting_kit"
+  },
+  "basic_leatherworking_kit": {
+    "name": "Basic Leatherworking Kit",
+    "icon": "res://Assets/icons/items/basic_leatherworking_kit.png",
+    "description": "A portable leatherworking kit. Right-click and Open to craft anywhere. In a character-sheet slot it is also an 8-slot bag for leatherworking materials.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 25,
+    "type": "tool",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "leatherworking",
+    "damage": 0,
+    "delay": 0,
+    "weight": 3.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "tradeskill_station": "basic_leatherworking_kit"
+  },
+  "basic_tailoring_kit": {
+    "name": "Basic Tailoring Kit",
+    "icon": "res://Assets/icons/items/basic_tailoring_kit.png",
+    "description": "A portable tailoring kit. Right-click and Open to craft anywhere. In a character-sheet slot it is also an 8-slot bag for tailoring materials.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 25,
+    "type": "tool",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "tailoring",
+    "damage": 0,
+    "delay": 0,
+    "weight": 3.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "tradeskill_station": "basic_tailoring_kit"
+  },
+  "basic_woodworking_kit": {
+    "name": "Basic Woodworking Kit",
+    "icon": "res://Assets/icons/items/basic_woodworking_kit.png",
+    "description": "A portable woodworking kit. Right-click and Open to craft anywhere. In a character-sheet slot it is also an 8-slot bag for woodworking materials.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 25,
+    "type": "tool",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "woodworking",
+    "damage": 0,
+    "delay": 0,
+    "weight": 3.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "tradeskill_station": "basic_woodworking_kit"
+  },
+  "tin_shield": {
+    "name": "Tin Shield",
+    "icon": "res://Assets/icons/items/tin_shield.png",
+    "description": "A plain tin shield on a fir frame. Dents easily, but it will turn a goblin's blade.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 15,
+    "type": "armor",
+    "armor_class": 4,
+    "slot": "offhand",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 2.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": {
+      "constitution": 1
+    },
+    "effect": null
+  },
+  "recipe_smith_tin_shield": {
+    "name": "Recipe: Tin Shield",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches the Blacksmithing recipe for Tin Shield. Requires Blacksmithing 3.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 30,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "blacksmithing",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.3,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_recipe": "smith_tin_shield"
   }
 }
