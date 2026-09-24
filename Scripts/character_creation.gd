@@ -62,6 +62,7 @@ var _pending_server_character: Dictionary = {}
 var _status_label: Label
 
 func _ready() -> void:
+	Global.free_game_ui()  # no leftover HUD from a character played earlier this session
 	load_class_restrictions()
 	load_character_options()
 
@@ -458,8 +459,7 @@ func get_starting_spells(p_class: String) -> Array:
 # STARTING INVENTORY
 # ---------------------------------------------------------
 func build_starting_inventory(p_class: String) -> Dictionary:
-	Inventory.initialize_basic_inventory()
-	Inventory._initialize_equipment()
+	Inventory.reset_for_new_character()  # nothing from a character played earlier this session
 
 	# Slot 0: small bag holds consumables (4-slot capacity fits exactly)
 	Inventory.basic_inventory[0] = Inventory.create_item_instance("small_bag")

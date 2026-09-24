@@ -1495,7 +1495,7 @@ set_gm_password.sh — set or change the game-master password on the game server
   - Enhanced Block (Lightsworn 5): "block reduces magic damage, lasts longer". Monsters don't cast spells and blocks have no duration, so it's a
     placeholder passive (+5% block chance). Keep it like that, or replace it?
 
-      The other items:
+  The other items:
   - Commanding Presence: a 15-minute group buff. Allies within 10 m draw 10% less threat; the Blademaster draws 15% more.
   - Rallying Cry: heals you and allies within 10 m for 5% of their health, and gives the Blademaster +10 armor for 15 seconds. In the test,
     armor went from 29 to 39.
@@ -1518,6 +1518,63 @@ set_gm_password.sh — set or change the game-master password on the game server
     art.
   - Unbuilt effects: spell reflection, shields that explode when they break, Nights Embrace (cooldown reset) and Resurrection.
   - Rats not fighting back: still waiting on your answers from test 26.
-  - Your cut-off "i'" message from earlier never got finished.
+
+
+    How it works:
+  - Starting languages follow your tiers:
+    - Humans: Common 100.
+    - Half-elves: Twilari 100, Common 75, Aevaryn 40.
+    - Halflings: Cant 100, Common 75.
+    - Elves, dwarves, gnomes and Vol'kyne: their own language 100, Common 50.
+    - Half-orcs: Orkish 100, Common 40.
+    - Trolls, ogres and lizardkin: their own language 100, Common 15.
+    - Existing characters get theirs at login; Zozuur will have Grommish 100 and Common 15.
+  - Understanding: words you don't know come out scrambled, in that language's own sound. The same word always scrambles the same way, and short
+    everyday words come through first. Lines show the language: Dessik says, in Khuzdul, '...'. Related languages partly understand each other,
+    like dialects.
+  - Speaking: there's a language dropdown next to the chat channel, and a /language [name] command. Say, shout, party and tell all carry the
+    language. With low skill you mispronounce words, so even fluent listeners see some of them garbled; your own screen shows what you meant.
+  - Learning:
+    - A basics scroll starts a language at 1 point:
+      - Ilsabet sells the good and neutral races' languages.
+      - Xalvyr sells the dark races' languages and Goblish.
+      - Sahren sells Djhanid.
+      - Old Thallian is a rare 2% drop from undead.
+    - After that it grows slowly as you hear it from players, NPCs (hailing guards counts) and monsters. It also grows when you speak it and
+      someone who knows it hears you: a player of that race, or an NPC who speaks it. Intelligence and wisdom speed this up. In testing, going
+      from 1 to 5 took about 64 lines heard.
+  - NPCs and monsters: guards and vendors have a language setting, all Common for now. Their lines scramble for players who don't know it, but
+    the clickable keywords stay readable. Goblins shout in Goblish, and undead speak Old Thallian.
+
+  Vol'kyne: the race shows as Vol'kyne everywhere. Character creation lists it as "Vol'kyne (Dark Elf)", and the race list is now alphabetical.
+  The internal key is still dark_elf, so Epheo and the models are unchanged.
+
+  Bug found along the way: character creation never gave Dark Elves their racial base stats; they started with flat 10s. New Vol'kyne get real
+  racial stats now. Epheo keeps his current stats; say if you want them corrected.
+
+  Files and lists:
+  - testing_items.txt has a new Languages and Vol'kyne section.
+  - outstanding_items.txt tracks what's left for languages.
+  - /language is in the in-game command list, the tester guide and the change-log reference. The tester page is republished at the same link.
+
+ Why the windows doubled: only camping out removed the game windows on the way back to the menu. When you pushed the update, the server restart
+  dropped you through the "lost connection" path. That went back to Join a Server with Zozuur's whole HUD still up, so Enter World built a
+  second set on top. Those stale windows were still showing Zozuur's stats, and they stayed on screen through character creation. Now any route
+  back to the menu clears all game windows, and the game also removes any old HUD before building a new one.
+
+  Why Grep got Zozuur's things: a new character's starting inventory reset the main bag slots, equipment and first bag, but not the other bags
+  or the bank. Zozuur's extra bag contents and bank carried into Grep, and the load step moved the loose items into his slots. Now all inventory
+  data is fully reset whenever you switch characters. The account screen made this easy to hit because you can play one character and make
+  another without restarting the game.
+
+  Checked against a local server: I played character A with items in a second bag and the bank, then dropped the connection. The menu had no
+  leftover windows. Creating character B in the same session gave exactly one HUD with no duplicates, and B had only his own starter kit. I
+  didn't run the same sequence on the old code first; the cause is clear from the code, but it's not a before-and-after confirmation.
+
+  Grep: his stats on the server were always his own, as was his level-1 Blademaster kit. He had copies of Zozuur's loose items, three bags'
+  contents and his bank, and he's now back to his real starter kit. Zozuur still has all of his own things. Grep's old save is kept as
+  test_grep_character_stats.before_inventory_fix.json.
+
+
 
 

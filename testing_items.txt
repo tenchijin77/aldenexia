@@ -1,22 +1,27 @@
 ALDENEXIA: LIGHTFALL — TESTING CHECKLIST
-New features and fixes waiting for a real playtest. Tick them off here as they pass (move a failure to
+New features and fixes waiting for a real playtest. Tick them off here as they pass: [x] = passed (move a failure to
 outstanding_items.txt with what went wrong). Last updated 2026-09-23. Everything below was built after test 26.
 
 
 == ACCOUNTS AND JOINING ==
-[ ] Log in as tenchijin / lightfall: Annadaeus, Maedianie, Shonuff, Zozuur are listed with portraits, level, race/class, zone.
+[x] Log in as tenchijin / lightfall: Annadaeus, Maedianie, Shonuff, Zozuur are listed with portraits, level, race/class, zone.
 [ ] Epheo, Evangeline, Wanderer can each log in with their account (same name and old password).
-[ ] Server log after the update shows the account import lines; server_accounts/import.json is gone (import_done_... kept).
-[ ] Create a new account, create its first character from the big "Create Your First Character" button, enter the world.
+[x] Server log after the update shows the account import lines (seen 20:45: tenchijin, epheo, evangeline, wanderer).
+[x] Create a new account, create its first character from the big "Create Your First Character" button, enter the world.
 [ ] Enter World by button and by double-clicking a row.
-[ ] Two computers on tenchijin at once, different characters — both in the world, can see each other.
-[ ] Same character entered from a second computer takes it over (the first is disconnected).
+[x] Two computers on tenchijin at once, different characters — both in the world, can see each other.
+[x] Same character entered from a second computer takes it over (the first is disconnected).
 [ ] Delete a character (type its name to confirm) — gone from the list, kept in the server's deleted/ folder.
 [ ] Add Existing Character with an old name + password (make a throwaway old-style character first, or skip).
 [ ] Wrong password 5 times locks the account for a minute.
 [ ] Log Out returns to the login form; camping out / a failed join returns straight to the character list.
-[ ] Zone column shows "Lumora Outskirts" after a character has saved in the world.
+[x] Zone column shows "Lumora Outskirts" after a character has saved in the world.
 [ ] The Join a Server screen's console no longer fills with "Node not found" / "not found in cache" errors.
+
+== TEST 27 FIXES ==
+[ ] Play a character, leave (camp, or get dropped by a server restart), make/enter another character in the same session:
+    no doubled windows, no old windows on character creation, the new character has only its own items and bank.
+[ ] Grep has only his starter kit.
 
 == WHOLE-GAME COMBAT CHANGES ==
 [ ] Melee abilities cast instantly (Power Strike, Backstab, Holy Strike, the Aetherfist strikes, taunts).
@@ -82,6 +87,10 @@ outstanding_items.txt with what went wrong). Last updated 2026-09-23. Everything
     same word scrambles the same way every time.
 [ ] A troll/ogre/lizardkin speaking Common is partly garbled even to a human (mispronunciation).
 [ ] Hail a guard as a troll/ogre/lizardkin: the guard's lines are mostly scrambled; clickable {keywords} still work.
+[ ] Speak to a guard in a language it doesn't know (a troll speaking Grommish): "... doesn't understand you." Switch to
+    Common and it answers.
+[ ] Sahren: address him in Djhanid (after its scroll) and he answers in Djhanid; in Common, he answers in Common.
+[ ] Epheo: Vol'kyne stats DEX 12, INT 16, CHA 11; magic/psychic resist +10, fire -5.
 [ ] Buy a language scroll (Ilsabet / Xalvyr / Sahren for Djhanid), Learn it: 1 point, appears in the dropdown.
 [ ] Practising: hearing the language (another player, an NPC) and speaking it near someone who knows it slowly raises it
     ("You've become better at Khuzdul! (2)").

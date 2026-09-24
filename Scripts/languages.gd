@@ -230,6 +230,26 @@ static var _monster_langs: Dictionary = {}
 static var _monster_langs_loaded := false
 
 
+# ── NPCs ──
+# Does this NPC speak (and so understand) language `id`? Its "language" plus any "extra_languages".
+static func npc_speaks(npc: Node, id: String) -> bool:
+	var main = npc.get("language")
+	if main == null:
+		return id == "common"
+	if str(main) == id:
+		return true
+	var extra = npc.get("extra_languages")
+	return extra is Array and (extra as Array).has(id)
+
+
+# The language an NPC talks in: the one you last addressed it in (if it speaks it), else its own. Kept on this machine.
+static func voice_of(npc: Node) -> String:
+	var addressed := str(npc.get_meta("answer_language", ""))
+	if not addressed.is_empty() and npc_speaks(npc, addressed):
+		return addressed
+	return str(npc.get("language")) if npc.get("language") != null else "common"
+
+
 # Speech built on one machine and shown on others (gate-raid shouts): the line is embedded with its language, and each
 # player's machine turns it into what they hear (localize) — TAG_SLOT becomes ", in Goblish" or nothing.
 const TAG_SLOT := "\u001f"

@@ -9,6 +9,7 @@ extends Node
 
 
 func _ready():
+	Global.free_game_ui()  # however we got here (camp, lost connection, failed join), no game windows survive
 	GameUpdater.run_cli_if_requested(self)  # `--update-from=URL` downloads an update and exits (testing / no-UI use)
 	_add_version_label()
 	torch_left.play("torch_flicker")

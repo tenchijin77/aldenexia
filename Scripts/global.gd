@@ -586,6 +586,26 @@ func clear_current_character_data():
 	current_character_data = {}
 	player_data = {}
 	current_character_name = ""
+	Inventory.reset_for_new_character()  # bags, bank and equipment belong to the character, not the session
+
+
+# Removes every in-game window left over from a previous session: the HUD (group "game_hud"), chat pop-outs, open
+# windows and popups — every CanvasLayer/Window at the root that is neither the current scene nor an autoload. The
+# normal camp-out already did this, but a dropped connection, a failed join or a server restart went back to the
+# menu without it, and the next Enter World built a second HUD on top (test 27: doubled windows, the old character's
+# windows on the character creation screen).
+func free_game_ui() -> void:
+	var autoloads: Array = []
+	for prop in ProjectSettings.get_property_list():
+		var key: String = str(prop.get("name", ""))
+		if key.begins_with("autoload/"):
+			autoloads.append(key.trim_prefix("autoload/"))
+	var tree := get_tree()
+	for node in tree.root.get_children():
+		if node == tree.current_scene or autoloads.has(str(node.name)):
+			continue
+		if node is CanvasLayer or node is Window or node.is_in_group("game_hud"):
+			node.queue_free()
 
 	# Loads a character save file from user://saves/
 func load_player_data_from_file(character_name: String) -> Dictionary:

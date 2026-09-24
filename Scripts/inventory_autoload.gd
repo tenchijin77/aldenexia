@@ -397,6 +397,22 @@ func _merge_crafting_items() -> void:
 			added += 1
 	print("✅ Merged %d crafting item definitions" % added)
 
+# A different character is about to be loaded or created: nothing of the previous one may carry over. Bags past the
+# first and the bank used to survive a character switch (build_starting_inventory() only reset slots, equipment and
+# bag 0), and _rescue_orphaned_items() then moved the old bags' contents into the new character (test 27).
+func reset_for_new_character() -> void:
+	basic_inventory = []
+	for i in range(BASIC_INVENTORY_SIZE):
+		basic_inventory.append(null)
+	equipped = {}
+	for slot in EQUIPMENT_SLOTS:
+		equipped[slot] = null
+	bag_contents = {}
+	bank_storage = {}
+	_orphans_waiting = 0
+	_orphan_notice_shown = false
+
+
 func initialize_basic_inventory():
 	basic_inventory.clear()
 	for i in range(BASIC_INVENTORY_SIZE):

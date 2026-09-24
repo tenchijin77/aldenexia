@@ -11,6 +11,8 @@ class_name VendorNPC
 
 ## The language this NPC speaks (Data/languages.json id); players who don't know it hear it scrambled (Languages).
 @export var language: String = "common"
+## Other languages it also speaks and understands; it answers in whichever one you addressed it in (Sahren: Djhanid).
+@export var extra_languages: Array[String] = []
 
 @export var npc_name: String = "Vendor"
 @export var shop_id: String = "lumora_general_goods"  # key into Data/vendor_shop.json
@@ -160,7 +162,7 @@ func greet_player(player_name: String) -> void:
 		return
 	var item_def: Dictionary = stock[randi() % stock.size()]["item_def"]
 	var item_name: String = item_def.get("name", "item")
-	var spoken := Languages.npc_line(language, "Welcome, %s. I have a good %s you might be interested in." % [player_name, item_name])
+	var spoken := Languages.npc_line(Languages.voice_of(self), "Welcome, %s. I have a good %s you might be interested in." % [player_name, item_name])
 	GameLog.log_general("[color=#cccc88]%s says%s, \"%s\"[/color]" % [get_vendor_display_name(), spoken[0], spoken[1]])
 
 

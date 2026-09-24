@@ -91,7 +91,7 @@ func say_local(line: String) -> void:
 	var player := TargetFrame.local_player()
 	if not is_instance_valid(player) or global_position.distance_to(player.global_position) > HEAR_RANGE:
 		return
-	var spoken := Languages.npc_line(language, line)
+	var spoken := Languages.npc_line(Languages.voice_of(self), line)
 	GameLog.log_general("[color=#88ccaa]%s says%s, \"%s\"[/color]" % [get_vendor_display_name(), spoken[0], NPCConversation.format(spoken[1])])
 
 

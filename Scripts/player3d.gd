@@ -1406,6 +1406,8 @@ func _play_replicated_animation() -> void:
 
 
 func _spawn_hud() -> void:
+	for old in get_tree().get_nodes_in_group("game_hud"):
+		old.free()  # never two HUDs (a stale one from a dropped session would sit under the new one)
 	_spawn_hud_frames()
 	GameLog.log_general("Welcome, [b]%s[/b]." % player_name)
 
@@ -2671,7 +2673,7 @@ func send_say(message: String) -> void:
 		return
 	var lang := Languages.speaking()
 	GameLog.log_general(ChatChannels.say_self(message, lang))
-	_npcs_hear(message)
+	_npcs_hear(message, lang)
 	var listeners: Array = []
 	for npc in get_tree().get_nodes_in_group("npc_talker") + get_tree().get_nodes_in_group("npc_guard") + get_tree().get_nodes_in_group("npc_vendor"):
 		if is_instance_valid(npc) and npc is Node3D and npc.global_position.distance_to(global_position) <= ChatChannels.SAY_RANGE:
@@ -2707,13 +2709,19 @@ func _practice_speaking(lang: String, listeners: Array) -> void:
 
 # Whatever you say near a talkative NPC (npc_talker group) is heard by it — EverQuest-style keyword conversation, see
 # npc_conversation.gd. Answers go only to you, from your own machine's copy of the NPC.
-func _npcs_hear(message: String) -> void:
+func _npcs_hear(message: String, lang: String = "common") -> void:
 	# Only ONE answers: the one you have targeted if it can, otherwise the nearest that has an answer (three guards standing
-	# together must not all reply to the same word).
+	# together must not all reply to the same word). An NPC only understands its own languages (Languages.npc_speaks); it
+	# answers in the one you used.
 	var best: Node = null
 	var best_dist := INF
+	var puzzled: Node = null
 	for npc in get_tree().get_nodes_in_group("npc_talker"):
 		if not is_instance_valid(npc) or not npc.has_method("can_answer") or not npc.can_answer(self, message):
+			continue
+		if not Languages.npc_speaks(npc, lang):
+			if npc == current_target or puzzled == null:
+				puzzled = npc
 			continue
 		if npc == current_target:
 			best = npc
@@ -2723,7 +2731,10 @@ func _npcs_hear(message: String) -> void:
 			best_dist = dist
 			best = npc
 	if best != null:
+		best.set_meta("answer_language", lang)
 		best.hear_say(self, message)
+	elif puzzled != null:
+		GameLog.log_general("[color=#cccc88]%s doesn't understand you. (You're speaking %s.)[/color]" % [TargetFrame.display_name(puzzled), Languages.display(lang)])
 
 
 # /zone — a shout everyone in the zone hears. Echoed to yourself in single-player.
@@ -3446,7 +3457,9 @@ func load_player_data_from_global() -> void:
 	max_stamina = Global.player_data.get("max_stamina", MAX_STAMINA)
 
 	var inv_data = Global.player_data.get("inventory_data", {})
-	if not inv_data.is_empty():
+	if inv_data.is_empty():
+		Inventory.reset_for_new_character()  # a character with no saved inventory starts empty, not with the last one's
+	else:
 		Inventory.load_inventory_data(inv_data)
 		_apply_equipment_from_inventory()
 		# The equipped weapon only exists from here on. load_character_data() (above) ran _sync_weapon_skill() BEFORE the

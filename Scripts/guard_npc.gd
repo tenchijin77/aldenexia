@@ -17,6 +17,8 @@ class_name GuardNPC
 
 ## The language this NPC speaks (Data/languages.json id); players who don't know it hear it scrambled (Languages).
 @export var language: String = "common"
+## Other languages it also speaks and understands; it answers in whichever one you addressed it in (Sahren: Djhanid).
+@export var extra_languages: Array[String] = []
 
 const ENGAGE_RANGE := 8.0          # stationary guards: how far from home_position they'll notice a monster (was 4 m; 8 m per playtest T8)
 const PATROL_ENGAGE_RANGE := 8.0   # patrolling guards: how far from their CURRENT position — they have no fixed post to measure from
@@ -314,7 +316,7 @@ func _rpc_shout(line: String) -> void:
 func _shout(line: String) -> void:
 	var player := TargetFrame.local_player()
 	if is_instance_valid(player) and global_position.distance_to(player.global_position) <= SHOUT_RANGE:
-		var spoken := Languages.npc_line(language, line)
+		var spoken := Languages.npc_line(Languages.voice_of(self), line)
 		GameLog.log_general("[color=#ffdd88]%s shouts%s, \"%s\"[/color]" % [npc_name, spoken[0], NPCConversation.format(spoken[1])])
 
 
@@ -328,7 +330,7 @@ func _shout(line: String) -> void:
 func say(line: String) -> void:
 	if not _player_in_hear_range():
 		return
-	var spoken := Languages.npc_line(language, line)
+	var spoken := Languages.npc_line(Languages.voice_of(self), line)
 	GameLog.log_general("[color=#cccc88]%s says%s, \"%s\"[/color]" % [npc_name, spoken[0], NPCConversation.format(spoken[1])])
 
 

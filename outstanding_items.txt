@@ -13,13 +13,9 @@ an item (delete it, note it in change_log.txt) when it's done. Last updated 2026
 
 
 == LANGUAGES (built 2026-09-23; see change_log.txt) — still open ==
-- High Arcanum: the scroll item exists but nothing gives it yet (future: higher arcanists, quest rewards, relics); no
+- NPC languages: every NPC but Sahren (Common + Djhanid) speaks only Common today — faction towns will use the fields.
+- High Arcanum (work in progress): the scroll item exists but nothing gives it yet (future: higher arcanists, quest rewards, relics); no
   NPCs or inscriptions use it yet. Old Thallian comes only as a 2% undead drop (planned: quest rewards too).
-- NPC languages: every NPC speaks Common today (the field exists on guards and vendors) — faction towns will use it.
-  Should Sahren speak Djhanid (he sells its scroll)? Dustwalkers (desert raiders) speak Common by default — Djhanid?
-- NPC keyword conversations ignore the language you speak (a guard answers "bank" in any language) — should an NPC only
-  answer in its own language?
-- I added two dialect links you didn't list: Twilari -> Common 30% and Orkish <-> Goblish 30% — keep or drop?
 - Monster speech beyond death lines and raid shouts (future monster taunts/casting) should go through Languages too.
 
 
