@@ -12,6 +12,7 @@ var _dragging := false
 @onready var slot_container = $Panel/MarginContainer/VBoxContainer/ScrollContainer/SlotGrid
 
 const TITLE_H := 24.0
+const CONTENT_MARGIN := 8
 const POSITION_KEY := "backpack"
 const RESIZE_MARGIN := 16.0
 var _resizing := false
@@ -48,8 +49,10 @@ func _ready():
 	)
 	$Panel.add_child(close_btn)
 
-	# Push content below title bar
+	# Push content below title bar, with a margin all round so nothing touches the frame
 	$Panel/MarginContainer.offset_top = TITLE_H
+	for side in ["left", "right", "bottom"]:
+		$Panel/MarginContainer.add_theme_constant_override("margin_" + side, CONTENT_MARGIN)
 
 	if search_bar:
 		search_bar.text_changed.connect(_on_search_text_changed)
@@ -132,17 +135,9 @@ func populate_slots():
 			slot.texture_normal = ItemIcon.texture(item)
 			slot.tooltip_text = ItemIcon.tooltip(item)
 
-			if item.get("stackable", false):
-				_add_quantity_label(slot, item.get("quantity", 1))
+			# (the stack count is drawn by slot_button.gd itself — a second label here showed it twice)
 
 			slot_index += 1
-
-func _add_quantity_label(slot: TextureButton, qty: int):
-	var label = Label.new()
-	label.text = str(qty)
-	label.add_theme_color_override("font_color", Color(1, 1, 1))
-	label.position = Vector2(2, 2)
-	slot.add_child(label)
 
 func _on_search_text_changed(new_text: String):
 	var term = new_text.to_lower()
@@ -190,7 +185,7 @@ func _on_panel_gui_input(event: InputEvent) -> void:
 func _on_panel_resized() -> void:
 	if not slot_container:
 		return
-	var available_width: float = $Panel.size.x - 24.0  # rough margin/scrollbar allowance
+	var available_width: float = $Panel.size.x - CONTENT_MARGIN * 2 - 14.0  # margins + scrollbar allowance
 	var cell_width: float = SLOT_SIZE.x + slot_container.get_theme_constant("h_separation")
 	var columns: int = max(1, int(available_width / cell_width))
 	if slot_container.columns != columns:

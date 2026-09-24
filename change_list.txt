@@ -1332,4 +1332,47 @@ set_gm_password.sh — set or change the game-master password on the game server
 
   It starts recording once the server runs this build.
 
+  ● The backpack is fixed, and a headless check measured the new layout: 8 pixels between the frame and the first slot, and the grid now fits 7
+  columns.
+  - Edges: the contents now have an 8-pixel margin all round, so the search box and slots no longer touch the frame. The column count accounts
+    for it.
+  - Double counts: each stack now shows its count once, in the bottom-right corner, instead of also showing a second "20" top-left.
 
+
+
+● Accounts are working. You log in once, see up to 8 characters in a table, and can use one account on two computers at the same time. I tested
+  it all against a local server with headless test clients. I couldn't see the new screen itself, so its look and spacing are untested.
+
+  The new Join a Server screen
+  - Logging in: type an account name and password, then Log In. Create Account asks for the password twice.
+  - The character table: each row shows the character's creation portrait, name, level, race and class, and zone, plus a green "in the world"
+    tag if it's online.
+  - Buttons:
+    - Enter World (or double-click a row).
+    - + Create New Character (turned off at 8). An empty account shows a big "Create Your First Character" button instead.
+    - Delete Character, which asks you to type the name to confirm.
+    - Add Existing Character, which brings in any old character using its name and old password.
+    - Log Out.
+  - Staying logged in: you stay logged in until Log Out or you quit, so coming back from character creation or a failed join returns straight to
+    your list.
+
+  Two computers at once: confirmed with two test clients on one account, each playing a different character at the same time. The only limit is
+  one connection per character. Entering the world as a character that's already online takes it over, same as today.
+
+  Moving your existing characters in: the list you gave me is already on the test server, in the server's own data folder. The updated server
+  reads it once on its first start:
+  - tenchijin (password lightfall) gets Annadaeus, Maedianie, Shonuff and Zozuur.
+  - epheo, evangeline and wanderer each become an account of the same name, holding that character and keeping its current password. None of the
+    three needs to do anything new.
+
+  After reading the list, the server keeps a copy with the passwords removed, and the server log shows what it did. Until the update goes out,
+  lightfall sits in that file in plain text (only your user can read it). Old per-character logins no longer work for characters that are in an
+  account.
+
+  Other changes:
+  - Saves now record the zone. Older characters show "Lumora Outskirts" until their next save.
+  - The "Getting in" steps in TESTER_GUIDE.html now describe accounts.
+  - It ships as a normal patch, not a new base. The main new file is Scripts/account_relay.gd; Net's RPC list is unchanged.
+
+  Known issue, not new: menu connections to a server, including the online checks the server list already does, print a lot of harmless
+  monster-replication errors to the console. The server sends monster data to every menu connection. It's easy to fix separately if you want.

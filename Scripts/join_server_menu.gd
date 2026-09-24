@@ -1,7 +1,8 @@
 # join_server_menu.gd — "Join a Server" screen, reached from the main menu. Unlike the LAN screen the
-# character isn't picked from local saves: it lives ON the server, found by name + password. From here
-# the player can enter the world, create a new server character (character_creation.tscn in server mode,
-# see Global.server_creation) or delete one (needs its password). The server list comes from
+# characters aren't picked from local saves: they live ON the server, under the player's account (see
+# account_relay.gd). The player logs into (or creates) an account, then gets a table of its characters — portrait,
+# name, level, class and zone — to enter the world with, create a new one (character_creation.tscn in server mode,
+# see Global.server_creation), delete one, or claim a character made before accounts. The server list comes from
 # Data/servers.json; any address can also be typed. Each entry shows whether it is online, how many players
 # it has and whether its version matches this build (Net.probe_server, one server at a time). When a server runs a
 # different build, a "Download update" button fetches the published update from that server's update address
@@ -14,13 +15,35 @@ const SERVERS_PATH := "res://Data/servers.json"
 var panel: Panel
 var server_select: OptionButton
 var address_input: LineEdit
-var name_input: LineEdit
+var account_input: LineEdit
 var password_input: LineEdit
 var confirm_input: LineEdit
+var login_btn: Button
+var create_account_btn: Button
+var status_label: Label
+
+# The character list (shown once logged in).
+const MAX_ROWS_HEIGHT := 360.0
+var account_box: VBoxContainer
+var list_box: VBoxContainer
+var list_title: Label
+var list_count: Label
+var rows_box: VBoxContainer
 var enter_btn: Button
 var create_btn: Button
 var delete_btn: Button
-var status_label: Label
+var attach_btn: Button
+var logout_btn: Button
+var attach_box: VBoxContainer
+var attach_name_input: LineEdit
+var attach_password_input: LineEdit
+var _row_group := ButtonGroup.new()
+var _characters: Array = []       # the listing's rows, from the server
+var _max_characters := AccountRelay.MAX_CHARACTERS
+var _selected := ""               # name of the selected character
+var _pending_session: Dictionary = {}  # a login/create in flight: becomes AccountRelay.session when it succeeds
+var _account_errand := false      # an account request is running (vs. a status probe)
+var _portraits: Dictionary = {}   # "race/sex" -> Texture2D (or null)
 
 var refresh_btn: Button
 var server_status_label: Label
@@ -53,9 +76,15 @@ func _ready() -> void:
 		_dots[state] = _make_dot(STATUS_COLORS[state])
 	_build_ui()
 	Net.server_request_done.connect(_on_server_request_done)
-	_probe_all()  # after the connect above: a probe can fail instantly and must not go unheard
-	if server_select.selected >= _servers.size():
-		_probe_typed()
+	if not AccountRelay.session.is_empty():
+		# Back from character creation, a failed join or a camp-out: still logged in, so straight to the list.
+		_show_list_view()
+		_refresh_list()
+	else:
+		_show_account_view()
+		_probe_all()  # after the connect above: a probe can fail instantly and must not go unheard
+		if server_select.selected >= _servers.size():
+			_probe_typed()
 	# A join that failed (or dropped) inside the zone lands back here with the reason.
 	if not Net.last_failure_reason.is_empty():
 		status_label.text = Net.last_failure_reason
@@ -94,6 +123,11 @@ func _build_ui() -> void:
 	vbox.offset_bottom = -16.0
 	vbox.add_theme_constant_override("separation", 8)
 	panel.add_child(vbox)
+	var root := vbox
+	account_box = VBoxContainer.new()
+	account_box.add_theme_constant_override("separation", 8)
+	root.add_child(account_box)
+	vbox = account_box  # the server picker and the login fields go in the account view
 
 	var title := Label.new()
 	title.text = "— Join a Server —"
@@ -145,40 +179,39 @@ func _build_ui() -> void:
 
 	vbox.add_child(HSeparator.new())
 
-	vbox.add_child(_make_label("Character name"))
-	name_input = LineEdit.new()
-	name_input.placeholder_text = "Letters and numbers, 2-16"
-	name_input.max_length = 16
-	vbox.add_child(name_input)
+	vbox.add_child(_make_label("Account name"))
+	account_input = LineEdit.new()
+	account_input.placeholder_text = "Letters and numbers, 2-16"
+	account_input.max_length = 16
+	account_input.text_submitted.connect(func(_t: String) -> void: password_input.grab_focus())
+	vbox.add_child(account_input)
 
 	vbox.add_child(_make_label("Password"))
 	password_input = LineEdit.new()
 	password_input.secret = true
-	password_input.placeholder_text = "Your character's password"
-	password_input.text_submitted.connect(func(_t: String) -> void: _on_enter_pressed())
+	password_input.placeholder_text = "Your account's password"
+	password_input.text_submitted.connect(func(_t: String) -> void: _on_login_pressed())
 	vbox.add_child(password_input)
 
-	vbox.add_child(_make_label("Confirm password (only when creating a new character)"))
+	vbox.add_child(_make_label("Confirm password (only when creating a new account)"))
 	confirm_input = LineEdit.new()
 	confirm_input.secret = true
 	confirm_input.placeholder_text = "Type it again"
 	vbox.add_child(confirm_input)
 
-	enter_btn = _make_button("Enter World")
-	enter_btn.pressed.connect(_on_enter_pressed)
-	vbox.add_child(enter_btn)
-
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 8)
 	vbox.add_child(row)
-	create_btn = _make_button("+ Create New Character")
-	create_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	create_btn.pressed.connect(_on_create_pressed)
-	row.add_child(create_btn)
-	delete_btn = _make_button("Delete Character")
-	delete_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	delete_btn.pressed.connect(_on_delete_pressed)
-	row.add_child(delete_btn)
+	login_btn = _make_button("Log In")
+	login_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	login_btn.pressed.connect(_on_login_pressed)
+	row.add_child(login_btn)
+	create_account_btn = _make_button("Create Account")
+	create_account_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	create_account_btn.pressed.connect(_on_create_account_pressed)
+	row.add_child(create_account_btn)
+
+	_build_list_view(root)
 
 	status_label = Label.new()
 	status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -186,11 +219,11 @@ func _build_ui() -> void:
 	status_label.add_theme_font_size_override("font_size", 11)
 	status_label.add_theme_color_override("font_color", Color(0.8, 0.7, 0.5))
 	status_label.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	vbox.add_child(status_label)
+	root.add_child(status_label)
 
 	var back_btn := _make_button("Back")
 	back_btn.pressed.connect(_on_back_pressed)
-	vbox.add_child(back_btn)
+	root.add_child(back_btn)
 
 	# Start on what the player used last time, else the first listed server.
 	var last_address := str(Global.settings.get("last_server_address", ""))
@@ -202,7 +235,7 @@ func _build_ui() -> void:
 		_on_server_selected(0)
 	else:
 		server_select.select(0)
-	name_input.text = str(Global.settings.get("last_server_character", ""))
+	account_input.text = str(Global.settings.get("last_server_account", ""))
 	for i in _status.size():
 		_apply_status(i, "unknown", str(_status[i]["text"]))
 
@@ -381,95 +414,422 @@ func _parse_address() -> Array:
 	return [text, port]
 
 
-# Shared checks; returns true when the address and name are usable, else says what is wrong.
-func _inputs_ok(need_name: bool) -> bool:
+# ── Character list view ──
+func _build_list_view(root: VBoxContainer) -> void:
+	list_box = VBoxContainer.new()
+	list_box.add_theme_constant_override("separation", 8)
+	list_box.visible = false
+	root.add_child(list_box)
+
+	list_title = Label.new()
+	list_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	list_title.add_theme_font_size_override("font_size", 15)
+	list_title.add_theme_color_override("font_color", Color(0.85, 0.78, 0.55))
+	list_box.add_child(list_title)
+	list_count = _make_label("")
+	list_count.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	list_count.add_theme_color_override("font_color", Color(0.65, 0.62, 0.55))
+	list_box.add_child(list_count)
+
+	# Column headings, lined up with the rows below (same widths as _make_row).
+	var header := HBoxContainer.new()
+	header.add_theme_constant_override("separation", 10)
+	list_box.add_child(header)
+	for column in [["", 64], ["Name", 130], ["Level", 44], ["Race / Class", 170], ["Zone", 0]]:
+		var h := _make_label(column[0])
+		h.add_theme_color_override("font_color", Color(0.75, 0.68, 0.48))
+		h.custom_minimum_size = Vector2(column[1], 0)
+		if column[1] == 0:
+			h.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		header.add_child(h)
+
+	var scroll := ScrollContainer.new()
+	scroll.custom_minimum_size = Vector2(0, MAX_ROWS_HEIGHT)
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	list_box.add_child(scroll)
+	rows_box = VBoxContainer.new()
+	rows_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	rows_box.add_theme_constant_override("separation", 4)
+	scroll.add_child(rows_box)
+
+	enter_btn = _make_button("Enter World")
+	enter_btn.pressed.connect(_on_enter_pressed)
+	list_box.add_child(enter_btn)
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 8)
+	list_box.add_child(row)
+	create_btn = _make_button("+ Create New Character")
+	create_btn.pressed.connect(_on_create_pressed)
+	delete_btn = _make_button("Delete Character")
+	delete_btn.pressed.connect(_on_delete_pressed)
+	attach_btn = _make_button("Add Existing Character")
+	attach_btn.tooltip_text = "Bring a character made before accounts into this account (needs its old password)"
+	attach_btn.pressed.connect(func() -> void: attach_box.visible = not attach_box.visible)
+	logout_btn = _make_button("Log Out")
+	logout_btn.pressed.connect(_on_logout_pressed)
+	for b in [create_btn, delete_btn, attach_btn, logout_btn]:
+		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		row.add_child(b)
+
+	attach_box = VBoxContainer.new()
+	attach_box.visible = false
+	attach_box.add_theme_constant_override("separation", 6)
+	list_box.add_child(attach_box)
+	attach_box.add_child(_make_label("Add a character made before accounts: its name and its old password."))
+	var attach_row := HBoxContainer.new()
+	attach_row.add_theme_constant_override("separation", 8)
+	attach_box.add_child(attach_row)
+	attach_name_input = LineEdit.new()
+	attach_name_input.placeholder_text = "Character name"
+	attach_name_input.max_length = 16
+	attach_name_input.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	attach_row.add_child(attach_name_input)
+	attach_password_input = LineEdit.new()
+	attach_password_input.secret = true
+	attach_password_input.placeholder_text = "Its password"
+	attach_password_input.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	attach_password_input.text_submitted.connect(func(_t: String) -> void: _on_attach_pressed())
+	attach_row.add_child(attach_password_input)
+	var add_btn := _make_button("Add")
+	add_btn.pressed.connect(_on_attach_pressed)
+	attach_row.add_child(add_btn)
+
+
+func _set_panel_size(half_width: float, half_height: float) -> void:
+	panel.offset_left = -half_width
+	panel.offset_right = half_width
+	panel.offset_top = -half_height
+	panel.offset_bottom = half_height
+
+
+func _show_account_view() -> void:
+	account_box.visible = true
+	list_box.visible = false
+	_set_panel_size(200.0, 290.0)
+
+
+func _show_list_view() -> void:
+	account_box.visible = false
+	list_box.visible = true
+	attach_box.visible = false
+	_set_panel_size(340.0, 330.0)
+	list_title.text = "— %s —" % str(AccountRelay.session.get("account", ""))
+	if _characters.is_empty():
+		list_count.text = "Loading characters from %s..." % _session_label()
+	_update_list_buttons()
+
+
+func _session_label() -> String:
+	var port := int(AccountRelay.session.get("port", Net.DEFAULT_PORT))
+	var address := str(AccountRelay.session.get("address", ""))
+	return address if port == Net.DEFAULT_PORT else "%s:%d" % [address, port]
+
+
+func _portrait_for(race: String, sex: String) -> Texture2D:
+	var cache_key := race + "/" + sex
+	if _portraits.has(cache_key):
+		return _portraits[cache_key]
+	var texture: Texture2D = null
+	var races: Dictionary = Global.character_options.get("races", {})
+	var portraits = races.get(race, {}).get("portrait", {})
+	if typeof(portraits) == TYPE_DICTIONARY and not portraits.is_empty():
+		var path := str(portraits.get(sex, portraits.values()[0]))
+		if ResourceLoader.exists(path):
+			texture = load(path)
+	_portraits[cache_key] = texture
+	return texture
+
+
+# Fills the table from a listing ({"account", "characters": [...], "max"}).
+func _populate(info: Dictionary) -> void:
+	_characters = info.get("characters", []) if typeof(info.get("characters")) == TYPE_ARRAY else []
+	_max_characters = int(info.get("max", AccountRelay.MAX_CHARACTERS))
+	for child in rows_box.get_children():
+		child.queue_free()
+	_row_group = ButtonGroup.new()
+	list_count.text = "%d / %d characters on %s" % [_characters.size(), _max_characters, _session_label()]
+	if _characters.is_empty():
+		var empty := _make_label("You have no characters on this server yet.")
+		empty.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		empty.custom_minimum_size = Vector2(0, 40)
+		rows_box.add_child(empty)
+		var first := _make_button("+ Create Your First Character")
+		first.custom_minimum_size = Vector2(0, 44)
+		first.pressed.connect(_on_create_pressed)
+		rows_box.add_child(first)
+		_selected = ""
+	else:
+		var names: Array = _characters.map(func(c: Dictionary) -> String: return str(c.get("name", "")))
+		if not names.has(_selected):
+			var last := str(Global.settings.get("last_server_character", ""))
+			_selected = last if names.has(last) else str(names[0])
+		for character in _characters:
+			rows_box.add_child(_make_row(character))
+	_update_list_buttons()
+
+
+func _make_row(character: Dictionary) -> Button:
+	var character_name := str(character.get("name", ""))
+	var row := Button.new()
+	row.toggle_mode = true
+	row.button_group = _row_group
+	row.custom_minimum_size = Vector2(0, 72)
+	row.button_pressed = character_name == _selected
+	row.toggled.connect(func(on: bool) -> void:
+		if on:
+			_selected = character_name
+			_update_list_buttons()
+	)
+	row.gui_input.connect(func(event: InputEvent) -> void:
+		if event is InputEventMouseButton and event.double_click and event.button_index == MOUSE_BUTTON_LEFT:
+			_selected = character_name
+			_on_enter_pressed.call_deferred()
+	)
+	var cells := HBoxContainer.new()
+	cells.set_anchors_preset(Control.PRESET_FULL_RECT)
+	cells.offset_left = 4.0
+	cells.offset_right = -8.0
+	cells.add_theme_constant_override("separation", 10)
+	cells.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_child(cells)
+
+	var portrait := TextureRect.new()
+	portrait.texture = _portrait_for(str(character.get("race", "")), str(character.get("sex", "")))
+	portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	portrait.custom_minimum_size = Vector2(64, 64)
+	portrait.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	cells.add_child(portrait)
+
+	var name_cell := VBoxContainer.new()
+	name_cell.custom_minimum_size = Vector2(130, 0)
+	name_cell.alignment = BoxContainer.ALIGNMENT_CENTER
+	cells.add_child(name_cell)
+	var name_label := Label.new()
+	name_label.text = str(character.get("display", character_name.capitalize()))
+	name_label.add_theme_font_size_override("font_size", 15)
+	name_label.add_theme_color_override("font_color", Color(0.95, 0.88, 0.65))
+	name_cell.add_child(name_label)
+	if character.get("online", false):
+		var online := Label.new()
+		online.text = "● in the world"
+		online.add_theme_font_size_override("font_size", 10)
+		online.add_theme_color_override("font_color", STATUS_COLORS["online"])
+		name_cell.add_child(online)
+
+	var race_text := str(character.get("race", "")).capitalize()
+	var cell_texts := [
+		[str(int(character.get("level", 0))), 44, false],
+		[("%s %s" % [race_text, str(character.get("class", ""))]).strip_edges(), 170, false],
+		[str(character.get("zone", "")), 0, true],
+	]
+	for cell in cell_texts:
+		var l := Label.new()
+		l.text = cell[0]
+		l.add_theme_font_size_override("font_size", 12)
+		l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		l.size_flags_vertical = Control.SIZE_FILL
+		l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		l.custom_minimum_size = Vector2(cell[1], 0)
+		if cell[2]:
+			l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		cells.add_child(l)
+	for child in cells.get_children():
+		if child is Control:
+			(child as Control).mouse_filter = Control.MOUSE_FILTER_IGNORE
+			for sub in child.get_children():
+				(sub as Control).mouse_filter = Control.MOUSE_FILTER_IGNORE
+	return row
+
+
+func _update_list_buttons() -> void:
+	if enter_btn == null:
+		return
+	var none := _selected.is_empty()
+	enter_btn.disabled = _busy or none
+	delete_btn.disabled = _busy or none
+	create_btn.disabled = _busy or _characters.size() >= _max_characters
+	create_btn.tooltip_text = "This account has %d characters, the most allowed. Delete one first." % _max_characters if _characters.size() >= _max_characters else ""
+	attach_btn.disabled = _busy
+	logout_btn.disabled = _busy
+	enter_btn.text = "Enter World" if none else "Enter World as %s" % _display_of(_selected)
+
+
+func _display_of(character_name: String) -> String:
+	for c in _characters:
+		if str(c.get("name", "")) == character_name:
+			return str(c.get("display", character_name.capitalize()))
+	return character_name.capitalize()
+
+
+# ── Account requests ──
+# Shared checks; returns true when the address and account name are usable, else says what is wrong.
+func _inputs_ok() -> bool:
 	if (_parse_address()[0] as String).is_empty():
 		status_label.text = "Enter the server's address."
 		return false
-	if need_name and Net.sanitize_name(name_input.text).is_empty():
-		status_label.text = "Character names use letters and numbers only, 2 to 16 characters."
+	if Net.sanitize_name(account_input.text).is_empty():
+		status_label.text = "Account names use letters and numbers only, 2 to 16 characters."
 		return false
 	return true
 
 
 func _remember() -> void:
 	Global.settings["last_server_address"] = address_input.text.strip_edges()
-	Global.settings["last_server_character"] = name_input.text.strip_edges()
+	Global.settings["last_server_account"] = account_input.text.strip_edges().to_lower()
 	Global.save_settings()
 
 
 func _set_busy(busy: bool) -> void:
 	_busy = busy
-	for b in [enter_btn, create_btn, delete_btn]:
+	for b in [login_btn, create_account_btn]:
 		b.disabled = busy
+	_update_list_buttons()
 
 
-func _on_enter_pressed() -> void:
-	if _busy or not _inputs_ok(true):
+# Runs one account request against the session's server (or, while logging in, the pending one).
+func _account_request(action: String, args: Dictionary, working_text: String) -> void:
+	var target: Dictionary = _pending_session if not _pending_session.is_empty() else AccountRelay.session
+	args["account"] = target["account"]
+	args["password"] = target["password"]
+	_cancel_probes()
+	_account_errand = true
+	_set_busy(true)
+	status_label.text = working_text
+	Net.accounts().request(str(target["address"]), int(target["port"]), action, args)
+
+
+func _begin_session(action: String) -> void:
+	var target := _parse_address()
+	_remember()
+	_pending_session = {"address": target[0], "port": target[1], "account": Net.sanitize_name(account_input.text), "password": password_input.text}
+	_account_request(action, {}, "Logging in..." if action == "login" else "Creating your account...")
+
+
+func _on_login_pressed() -> void:
+	if _busy or not _inputs_ok():
 		return
 	if password_input.text.is_empty():
-		status_label.text = "Enter your character's password."
+		status_label.text = "Enter your account's password."
 		return
-	_cancel_probes()
-	_remember()
-	var target := _parse_address()
-	status_label.text = "Loading zone, then connecting to %s..." % address_input.text.strip_edges()
-	_set_busy(true)
-	# The zone loads first and connects from inside itself — see Net.begin_join().
-	Net.begin_join_server(target[0], target[1], name_input.text.strip_edges(), password_input.text)
+	_begin_session("login")
 
 
-# New characters are designed on the normal creation screen (in server mode), which then hands the
-# finished character straight to the server. The password is chosen here and typed twice, since a
-# typo would lock the player out of their own new character.
-func _on_create_pressed() -> void:
-	if _busy or not _inputs_ok(false):
+func _on_create_account_pressed() -> void:
+	if _busy or not _inputs_ok():
 		return
 	if password_input.text.length() < Net.MIN_PASSWORD_LENGTH:
-		status_label.text = "Choose a password of at least %d characters for the new character." % Net.MIN_PASSWORD_LENGTH
+		status_label.text = "Choose a password of at least %d characters for the new account." % Net.MIN_PASSWORD_LENGTH
 		return
 	if password_input.text != confirm_input.text:
 		status_label.text = "The two passwords don't match."
 		return
-	_cancel_probes()
-	_remember()
-	var target := _parse_address()
-	Global.server_creation = {"address": target[0], "port": target[1], "password": password_input.text}
+	_begin_session("create")
+
+
+func _refresh_list() -> void:
+	_account_request("login", {}, "")
+
+
+func _on_logout_pressed() -> void:
+	if _busy:
+		return
+	AccountRelay.session = {}
+	_characters = []
+	_selected = ""
+	password_input.text = ""
+	confirm_input.text = ""
+	status_label.text = ""
+	_show_account_view()
+	_probe_all()
+
+
+func _on_enter_pressed() -> void:
+	if _busy or _selected.is_empty() or AccountRelay.session.is_empty():
+		return
+	Global.settings["last_server_character"] = _selected
+	Global.save_settings()
+	var s := AccountRelay.session
+	status_label.text = "Loading zone, then connecting to %s..." % _session_label()
+	_set_busy(true)
+	# The zone loads first and connects from inside itself — see Net.begin_join().
+	Net.begin_join_server(str(s["address"]), int(s["port"]), _selected, AccountRelay.pack(str(s["account"]), str(s["password"])))
+
+
+# New characters are designed on the normal creation screen (in server mode), which then hands the finished
+# character straight to the server under this account.
+func _on_create_pressed() -> void:
+	if _busy or AccountRelay.session.is_empty():
+		return
+	if _characters.size() >= _max_characters:
+		status_label.text = "This account already has %d characters. Delete one first." % _max_characters
+		return
+	var s := AccountRelay.session
+	Global.server_creation = {"address": s["address"], "port": s["port"], "password": AccountRelay.pack(str(s["account"]), str(s["password"]))}
 	Global.return_to_join_server_menu = true
 	get_tree().change_scene_to_file("res://Scenes/character_creation.tscn")
 
 
 func _on_delete_pressed() -> void:
-	if _busy or not _inputs_ok(true):
+	if _busy or _selected.is_empty():
 		return
-	var character := name_input.text.strip_edges()
-	_delete_dialog = DeleteCharacterDialog.open(self, character, "the server", true)
-	_delete_dialog.confirmed.connect(func(password: String) -> void:
-		_cancel_probes()
-		var target := _parse_address()
-		status_label.text = "Deleting %s..." % character
-		Net.request_server_delete(target[0], target[1], character, password)
+	var character := _selected
+	_delete_dialog = DeleteCharacterDialog.open(self, _display_of(character), "the server")
+	_delete_dialog.confirmed.connect(func(_password: String) -> void:
+		_delete_dialog.set_busy(true)
+		_account_request("delete", {"character": character}, "Deleting %s..." % _display_of(character))
 	)
 
 
+func _on_attach_pressed() -> void:
+	if _busy:
+		return
+	var character := Net.sanitize_name(attach_name_input.text)
+	if character.is_empty():
+		status_label.text = "Type the character's name."
+		return
+	if attach_password_input.text.is_empty():
+		status_label.text = "Type that character's old password."
+		return
+	_account_request("attach", {"character": character, "character_password": attach_password_input.text}, "Adding %s..." % character.capitalize())
+
+
 func _on_server_request_done(ok: bool, kind: String, reason: String, info: Dictionary) -> void:
-	if _probe_index >= 0:  # the answer to a status probe, not to a delete
+	if _probe_index >= 0 and not _account_errand:  # the answer to a status probe
 		var probed := _probe_index
 		_probe_index = -1
 		_apply_probe_result(probed, ok, kind, reason, info)
 		_probe_next()
 		return
+	_account_errand = false
+	_set_busy(false)
 	if ok:
+		if not _pending_session.is_empty():
+			AccountRelay.session = _pending_session
+			_pending_session = {}
+			password_input.text = ""
+			confirm_input.text = ""
 		if is_instance_valid(_delete_dialog):
 			_delete_dialog.close()
+		if kind == "attached":
+			attach_name_input.text = ""
+			attach_password_input.text = ""
+			attach_box.visible = false
+		_show_list_view()
+		_populate(info)
 		status_label.text = reason
-		password_input.text = ""
-		confirm_input.text = ""
-	elif is_instance_valid(_delete_dialog):
-		_delete_dialog.set_status(reason)  # stay open so a wrong password can be retyped
+		return
+	_pending_session = {}
+	if is_instance_valid(_delete_dialog):
+		_delete_dialog.set_status(reason)  # stay open so the player can read why
 		status_label.text = ""
-	else:
-		status_label.text = reason
+		return
+	status_label.text = reason
+	if list_box.visible and kind in ["bad_password", "no_account", "locked", "version", "offline"] and _characters.is_empty():
+		# The saved login no longer works (or the server is gone): back to the login form.
+		AccountRelay.session = {}
+		_show_account_view()
+		_probe_all()
 
 
 # ── Game updates ──

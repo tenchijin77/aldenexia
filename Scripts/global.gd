@@ -634,6 +634,7 @@ func serialize_player_data() -> String:
 	var p: Node3D = TargetFrame.local_player()
 	if is_instance_valid(p):
 		player_data["last_position"] = [p.global_position.x, p.global_position.y, p.global_position.z]
+		player_data["last_zone"] = WorldAnnouncer.zone_display_name()  # shown on the server's character list
 	# Bank the running total into the save. Before this the total only reached the character
 	# sheet's display, so every save kept "playtime_seconds": 0 no matter how long you played.
 	player_data["playtime_seconds"] = get_total_playtime()

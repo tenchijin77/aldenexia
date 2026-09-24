@@ -125,8 +125,16 @@ func _ready() -> void:
 	multiplayer.connected_to_server.connect(_on_connected_to_server)
 	multiplayer.connection_failed.connect(_on_connection_failed)
 	multiplayer.server_disconnected.connect(_on_server_disconnected)
+	# Account messages live on this child (created on every peer) so Net's own RPC list never changes — see account_relay.gd.
+	var account_relay := AccountRelay.new()
+	account_relay.name = "Accounts"
+	add_child(account_relay)
 	if _wants_dedicated_server():
 		_start_dedicated_server.call_deferred()
+
+
+func accounts() -> AccountRelay:
+	return get_node("Accounts") as AccountRelay
 
 
 # Makes the connection to `peer_id` (1 = the server, from a client) more patient — see PEER_TIMEOUT_MIN_MS.
@@ -229,6 +237,7 @@ func _start_dedicated_server() -> void:
 		get_tree().quit(1)
 		return
 	Global.load_world_state(server_name)
+	accounts().server_start()
 	if host_game(port) != OK:
 		_slog_err("Could not start (UDP port %d in use, or no usable TLS key/certificate — see errors above)." % port)
 		get_tree().quit(1)
@@ -633,6 +642,8 @@ func _rpc_version_accepted(host_is_dedicated: bool, host_server_name: String, pl
 			_fail_join("That address is a LAN game, not a dedicated server.", "wrong_mode")
 		elif _menu_request["type"] == "delete":
 			_rpc_delete_character.rpc_id(1, _menu_request["name"], _menu_request["password"])
+		elif _menu_request["type"] == "account":
+			accounts().send_errand(_menu_request)
 		elif _menu_request["type"] == "probe":
 			_finish_menu_request(true, "online", "", {"name": host_server_name, "players": players, "max_players": host_max_players, "version": host_version})
 		return
@@ -1015,21 +1026,28 @@ func _rpc_login(character_name: String, password: String, creation_json: String)
 	var exists := FileAccess.file_exists(path)
 	var json_text := ""
 	var status := ""  # "created" / "password_set" / "" — told to the client
+	# "" = an old-style character password; else the account that logged in (it may use this character).
+	var account := accounts().check_login(id, player, password, not creation_json.is_empty())
+	if account == "!":
+		return
 	if not creation_json.is_empty():
 		if exists or holder != 0:
 			_login_fail(id, "name_taken", "A character named %s already exists on this server." % player.capitalize())
 			return
-		if password.length() < MIN_PASSWORD_LENGTH:
+		if account.is_empty() and password.length() < MIN_PASSWORD_LENGTH:
 			_login_fail(id, "weak_password", "Passwords need at least %d characters." % MIN_PASSWORD_LENGTH)
 			return
 		var data := _parse_character(creation_json, player)
 		if data.is_empty() or int(data.get("player_level", 1)) > 1:
 			_login_fail(id, "invalid_character", "That character can't be created here (new characters must start at level 1).")
 			return
-		if not _write_character(key, creation_json) or not _write_password(key, password):
+		# An account's character needs no password of its own: the account guards it.
+		if not _write_character(key, creation_json) or (account.is_empty() and not _write_password(key, password)):
 			DirAccess.remove_absolute(path)  # never leave a character that has no password behind
 			_login_fail(id, "server_error", "The server could not save your new character.")
 			return
+		if not account.is_empty():
+			accounts().add_character(account, player)
 		json_text = creation_json
 		status = "created"
 	else:
@@ -1037,12 +1055,12 @@ func _rpc_login(character_name: String, password: String, creation_json: String)
 			_login_fail(id, "no_character", "There is no character named %s on this server." % player.capitalize())
 			return
 		var has_password := FileAccess.file_exists(_auth_path(key))
-		if holder != 0 and not has_password:
+		if account.is_empty() and holder != 0 and not has_password:
 			# Nothing proves this is the same player, so don't let anyone take the character over.
 			_login_fail(id, "already_online", "%s is already in the world." % player.capitalize())
 			return
-		if has_password:
-			if not _check_access(id, key, password):
+		if not account.is_empty() or has_password:
+			if account.is_empty() and not _check_access(id, key, password):
 				return
 			if holder != 0:
 				# Correct password while the old connection is still open (the player's link dropped and they came
@@ -1067,8 +1085,13 @@ func _rpc_login(character_name: String, password: String, creation_json: String)
 		DirAccess.copy_absolute(path, path.get_basename() + ".bak")  # last known-good copy, refreshed every login
 	_awaiting_login.erase(id)
 	_peer_character[id] = key
-	_audit("LOGIN", peer_ip(id), _display_name(key.trim_prefix(server_name + "_")), "new character" if status == "created" else "")
-	_slog("%s logged in — peer %d, %s%s." % [_display_name(key.trim_prefix(server_name + "_")), id, peer_ip(id), " (new character)" if status == "created" else (" (password set)" if status == "password_set" else "")])
+	var notes := PackedStringArray()
+	if not account.is_empty():
+		notes.append("account " + account)
+	if status == "created":
+		notes.append("new character")
+	_audit("LOGIN", peer_ip(id), _display_name(key.trim_prefix(server_name + "_")), ", ".join(notes))
+	_slog("%s logged in — peer %d, %s%s%s." % [_display_name(key.trim_prefix(server_name + "_")), id, peer_ip(id), "" if account.is_empty() else ", account " + account, " (new character)" if status == "created" else (" (password set)" if status == "password_set" else "")])
 	_rpc_login_ok.rpc_id(id, json_text, status)
 
 
@@ -1088,6 +1111,9 @@ func _rpc_delete_character(character_name: String, password: String) -> void:
 		return
 	if _peer_character.values().has(key):
 		_login_fail(id, "already_online", "%s is in the world right now and can't be deleted." % player.capitalize())
+		return
+	if not accounts().owner_of(player).is_empty():
+		_login_fail(id, "account_character", "%s belongs to an account. Log in with the account to delete it." % player.capitalize())
 		return
 	if not FileAccess.file_exists(_auth_path(key)):
 		_login_fail(id, "no_password", "%s has no password yet, so it can't be deleted from here. Log in with it once to set one." % player.capitalize())
