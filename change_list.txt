@@ -1257,3 +1257,79 @@ set_gm_password.sh — set or change the game-master password on the game server
   - Shadow Cloak and Umbral Cloak now make you invisible.
 
   Group damage shields such as Divine Ward also reach other players now; before, they only protected your local copy of them.
+
+   - Windfury: each auto-attack has a 15% chance to be followed by a second full swing. Eight forced swings in the test took a monster from 297
+    to 224.
+  - Spirit Link: 30% of each hit the linked ally takes is spread across the rest of the group within 30 m, on each member's own machine. If
+    nobody is in range, the damage stays on the ally.
+  - Illusions: Mirror Image makes 2, Arcane Mirage 3, and Illusory Double 1, which also takes 30% of your damage. Each illusion absorbs one blow
+    that would have landed. They appear as see-through copies of your character and disappear as they're struck.
+  - Crowd-control immunity: Unyielding Darkness, Zen Focus, Veil of Dreams, Wild Ascension and Eternal Spirit block stuns, fear, charm,
+    mesmerize, roots, slows, silences and blinds. Spirit Walk blocks only roots and slows.
+  - Shields that strike back:
+    - Holy Aegis reflects 10% of each hit, Thorn Shield 15%, Ki Aegis 10% and Celestial Aegis 20%. Unstable Ward has a 10% chance to reflect
+      20%.
+    - Umbral Fortress hits back for 30 per blow.
+    - Ice Barrier slows attackers, and Chaos Shield has a 15% chance to slow, silence or blind them.
+    - These work alongside each shield's absorb. Thorn Shield reflected 50 damage over 12 swings in the test.
+  - Detect Magic lets you see invisible and hidden enemies for 15 minutes.
+  - Death's Echo now boosts the hit after every kill for its full 15 minutes; before, it ended after the first kill.
+
+  Other buffs I fixed:
+  - Divine Sanctuary and Celestial Aegis now actually block all damage.
+  - Sanctuary hides the ally from monsters for 4 seconds.
+  - Zen Focus is now self-targeted.
+  - Eternal Spirit works as a buff: +40% damage, 25% less damage taken and crowd-control immunity for 15 s.
+
+
+
+  - Wind stance glows pale sky blue now. I made Water a deeper blue so the two don't look alike.
+  - Stance icons on the stance bar and the buff bar, made by recolouring existing icons: a blue whirlwind, an amber ground-slam, a blue vortex,
+    fire, and a purple vortex.
+  - Fist icon (gold fists) for physical self-buffs: Focused Strike, Wholeness of Body, Dragon Fist, Perfect Balance, Zen Focus, Windrider, Iron
+    Resolve and Fortified Stance.
+  - "Yourself is empowered" now reads "You are empowered", along with the other self-cast lines. Focused Strike also has its own line: "You draw
+    your ki into your fists; they feel like iron."
+  - Monster health:
+    - The "desert scavenger" is the rat, which had 20 HP.
+    - Every level-1 monster now has 75 HP; bats and spiderlings had 15.
+    - Level-2 monsters under 90 now have 90, so they stay tougher than level 1.
+  - Fleeing monsters limp away at 0.6× speed instead of sprinting at 1.5×.
+  - No monsters in town: they don't spawn or wander inside the wall or in front of the gate. They can still chase you in, and gate raids still
+    march on the gate.
+  - Crafting stations are now in the zone scene, under a new CraftingStations node. Each shows its real model in the editor, so you can drag
+    them anywhere; the station type and name are set in the Inspector.
+  - Loot all: press G to loot every corpse within 10 m. It's also listed in the Esc help.
+  - Oni's patrol warning is now a single plain line per waypoint instead of a warning with a stack trace. The skip itself is harmless: Oni moves
+    on to the next point. I couldn't make Oni get stuck in a 4-minute headless run. On the server it's probably pausing, for example to chase a
+    rat, for longer than the 20-second timer.
+
+  For your level edits: I edited the zone scene. If you have it open in Godot, reload it before saving, or your save would drop the stations.
+
+  Cat meows: when you have the sound files, drop them in Assets/sounds and I'll wire them to hailing the cats.
+
+  Server logging:
+
+
+  Where: on the server, ~/.local/share/godot/app_userdata/Aldenexia-Lightfall/logs/connections.log
+
+  What: one line per event, with date and time, event, IP, character and details:
+  2026-09-23 19:28:20   CONNECT         127.0.0.1                               v0.4.5 (dev)
+  2026-09-23 19:28:20   LOGIN           127.0.0.1       Zzbot34797              new character
+  2026-09-23 19:28:29   DISCONNECT      127.0.0.1       Zzbot34797
+  Events recorded:
+  - CONNECT, with their game version;
+  - LOGIN, and LOGIN FAILED with the reason, such as a wrong password;
+  - DISCONNECT;
+  - OLD VERSION, for players turned away for running a different build;
+  - REFUSED, for a banned address;
+  - KICKED, BAN and UNBAN.
+
+  Handy commands on the server:
+  - grep LOGIN ~/.local/share/godot/app_userdata/Aldenexia-Lightfall/logs/connections.log: who logged in.
+  - grep 1.2.3.4 …/connections.log: everything from one address.
+  - column -t -s $'\t' …/connections.log | less: the whole log as neat columns.
+
+  It starts recording once the server runs this build.
+
+

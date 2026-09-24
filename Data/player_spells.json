@@ -2551,7 +2551,7 @@
     {
         "spell_id": 91,
         "spell_name": "iron_resolve",
-        "icon": "res://Assets/icons/spells/selfbuff.png",
+        "icon": "res://Assets/icons/spells/physical_buff.png",
         "description": "Grants 15% physical damage resistance for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -3118,7 +3118,7 @@
     {
         "spell_id": 111,
         "spell_name": "fortified_stance",
-        "icon": "res://Assets/icons/spells/selfheal.png",
+        "icon": "res://Assets/icons/spells/physical_buff.png",
         "description": "Grants 20% damage reduction, +5 HP/sec regen for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -7136,7 +7136,7 @@
     {
         "spell_id": 252,
         "spell_name": "wholeness_of_body",
-        "icon": "res://Assets/icons/spells/selfbuff.png",
+        "icon": "res://Assets/icons/spells/physical_buff.png",
         "description": "Grants 15% damage resistance for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -7393,7 +7393,7 @@
     {
         "spell_id": 261,
         "spell_name": "perfect_balance",
-        "icon": "res://Assets/icons/spells/selfbuff.png",
+        "icon": "res://Assets/icons/spells/physical_buff.png",
         "description": "Grants knockback immunity, +15% critical chance for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -7589,7 +7589,7 @@
     {
         "spell_id": 268,
         "spell_name": "zen_focus",
-        "icon": "res://Assets/icons/spells/selfbuff.png",
+        "icon": "res://Assets/icons/spells/physical_buff.png",
         "description": "+15% damage, immune to CC for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -7707,7 +7707,7 @@
     {
         "spell_id": 272,
         "spell_name": "windrider",
-        "icon": "res://Assets/icons/spells/selfbuff.png",
+        "icon": "res://Assets/icons/spells/physical_buff.png",
         "description": "Grants +20% movement speed, +10% evasion for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -7876,7 +7876,7 @@
     {
         "spell_id": 278,
         "spell_name": "dragon_fist",
-        "icon": "res://Assets/icons/spells/selfbuff.png",
+        "icon": "res://Assets/icons/spells/physical_buff.png",
         "description": "Your fists blaze with golden ki for 15 seconds: +20% Double Attack chance, +10% Triple Attack chance, and every hit weakens the target (-5% damage).",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -15954,7 +15954,7 @@
     {
         "spell_id": 563,
         "spell_name": "focused_strike",
-        "icon": "res://Assets/icons/spells/selfbuff.png",
+        "icon": "res://Assets/icons/spells/physical_buff.png",
         "description": "Focus your ki into your fists: +10% damage and +2% hit chance for 15 minutes.",
         "caster_proficiency": "none",
         "mana_cost": 10.0,
@@ -15981,7 +15981,8 @@
         "modifiers": {
             "damage_mult": 0.1,
             "hit_chance": 2.0
-        }
+        },
+        "cast_message": "You draw your ki into your fists; they feel like iron."
     },
     {
         "spell_id": 564,

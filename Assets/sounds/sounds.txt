@@ -96,4 +96,6 @@ monsters/
 
 world/
   door_close.mp3         a door or gate closing        hasin2004-close-door-sound-247450.mp3
+  cat_meow_1.mp3         a cat (hail / pet)            dragon-studio-cute-cat-meow-472372.mp3
+  cat_meow_2.mp3         a cat (hail / pet)            dragon-studio-meow-sfx-405456.mp3
   ship_bell.mp3          ship's bell at the harbour    freesound_community-ship-bell-two-chimes-102730.mp3

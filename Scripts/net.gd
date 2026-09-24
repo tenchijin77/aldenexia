@@ -559,6 +559,7 @@ func _on_peer_connected(id: int) -> void:
 	if multiplayer.is_server() and is_ip_banned(peer_ip(id)):
 		_last_ip[id] = peer_ip(id)
 		_slog("Refused %s — the IP address is banned (peer %d)." % [peer_ip(id), id])
+		_audit("REFUSED", peer_ip(id), "", "banned address")
 		_kick.call_deferred(id)
 		return
 	if multiplayer.is_server():
@@ -574,6 +575,7 @@ func _on_peer_disconnected(id: int) -> void:
 	if is_dedicated_server:
 		# Name the character (the key is "<server>_<name>"); a peer that never logged one in says so.
 		_slog("%s disconnected — peer %d, %s (%d/%d)." % [_character_label(id), id, _last_ip.get(id, "?"), multiplayer.get_peers().size(), max_players])
+		_audit("DISCONNECT", str(_last_ip.get(id, "?")), _character_label(id) if _peer_character.has(id) else "")
 	_last_ip.erase(id)
 	_unverified_peers.erase(id)
 	_awaiting_login.erase(id)
@@ -611,12 +613,15 @@ func _rpc_submit_version(client_version: String, client_build: String) -> void:
 			# in (see _rpc_login) before their puppet is spawned.
 			_last_ip[id] = peer_ip(id)
 			_slog("Peer %d connected from %s (%d/%d), waiting for a character." % [id, _last_ip[id], multiplayer.get_peers().size(), max_players])
+			_audit("CONNECT", str(_last_ip[id]), "", GameVersion.display())
 			_awaiting_login[id] = true
 			get_tree().create_timer(LOGIN_TIMEOUT).timeout.connect(_on_login_timeout.bind(id))
 		else:
 			player_connected.emit(id)
 	else:
 		print("Rejected peer %d: they run v%s (%s), host runs %s" % [id, client_version, client_build if client_build != "" else "no build id", GameVersion.display()])
+		if is_dedicated_server:
+			_audit("OLD VERSION", peer_ip(id), "", "v%s (%s)" % [client_version, client_build])
 		_rpc_version_rejected.rpc_id(id, GameVersion.display())
 		get_tree().create_timer(0.6).timeout.connect(_kick.bind(id))  # let the message land first
 
@@ -707,6 +712,7 @@ func ban_ip(ip: String, note: String) -> int:
 	for id in multiplayer.get_peers():
 		if peer_ip(id) == ip:
 			_slog("Kicked %s (peer %d, %s): banned." % [_character_label(id), id, ip])
+			_audit("KICKED", ip, _character_label(id), "banned")
 			_kick(id)
 			kicked += 1
 	return kicked
@@ -745,6 +751,23 @@ func _character_label(id: int) -> String:
 # "zozuur" -> "Zozuur" (capitalize() would also split letters from digits: "zzbot79053" -> "Zzbot 79053").
 static func _display_name(character: String) -> String:
 	return character.substr(0, 1).to_upper() + character.substr(1)
+
+
+# The connections audit log (dedicated server): user://logs/connections.log — one line per connect, login (and failed
+# login), disconnect, refusal, kick and ban, never rotated or trimmed (unlike godot.log, of which Godot keeps only the
+# last five, one per server start). Tab-separated: date time, event, IP, character, details.
+const AUDIT_LOG := "user://logs/connections.log"
+
+func _audit(event: String, ip: String, character: String = "", details: String = "") -> void:
+	if not is_dedicated_server:
+		return
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(AUDIT_LOG.get_base_dir()))
+	var f := FileAccess.open(AUDIT_LOG, FileAccess.READ_WRITE) if FileAccess.file_exists(AUDIT_LOG) else FileAccess.open(AUDIT_LOG, FileAccess.WRITE)
+	if f == null:
+		return
+	f.seek_end()
+	f.store_line("%s\t%-12s\t%-15s\t%-16s\t%s" % [Time.get_datetime_string_from_system(false, true), event, ip, character, details])
+	f.close()
 
 
 func _kick(id: int) -> void:
@@ -853,6 +876,8 @@ func _character_path(key: String) -> String:
 
 
 func _login_fail(id: int, kind: String, reason: String) -> void:
+	if is_dedicated_server:
+		_audit("LOGIN FAILED", peer_ip(id), "", kind)
 	_slog("Login refused for peer %d: %s" % [id, reason])
 	_rpc_login_failed.rpc_id(id, kind, reason)
 	get_tree().create_timer(0.6).timeout.connect(_kick.bind(id))  # let the message land first
@@ -1042,6 +1067,7 @@ func _rpc_login(character_name: String, password: String, creation_json: String)
 		DirAccess.copy_absolute(path, path.get_basename() + ".bak")  # last known-good copy, refreshed every login
 	_awaiting_login.erase(id)
 	_peer_character[id] = key
+	_audit("LOGIN", peer_ip(id), _display_name(key.trim_prefix(server_name + "_")), "new character" if status == "created" else "")
 	_slog("%s logged in — peer %d, %s%s." % [_display_name(key.trim_prefix(server_name + "_")), id, peer_ip(id), " (new character)" if status == "created" else (" (password set)" if status == "password_set" else "")])
 	_rpc_login_ok.rpc_id(id, json_text, status)
 

@@ -105,6 +105,7 @@ func _finish_model() -> void:
 # ── Interaction ────────────────────────────────────────────────────────────
 func respond_to_hail() -> void:
 	_face_local_player()
+	Sfx.play("cat_meow", self)
 	if not hail_emotes.is_empty():
 		_emote(hail_emotes[randi() % hail_emotes.size()])
 
@@ -136,6 +137,7 @@ func receive_item_drop(item: Dictionary, player: Node) -> void:
 # /pet — see player3d.gd's try_pet_nearby().
 func receive_pet(_petter: Node) -> void:
 	_face_local_player()
+	Sfx.play("cat_meow", self)
 	_emote(pet_text.replace("{name}", npc_name))
 
 

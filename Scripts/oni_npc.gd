@@ -112,12 +112,14 @@ func say(line: String) -> void:
 
 func respond_to_hail() -> void:
 	_face_player()
+	Sfx.play("cat_meow", self)
 	_say_flavor("hail")
 
 
 # /pet — see player3d.gd's try_pet_nearby(). Shown regardless of distance to the
 # viewer (say()'s hearing range doesn't apply — the petter is right here).
 func receive_pet(_petter: Node) -> void:
+	Sfx.play("cat_meow", self)
 	if state != GuardState.ENGAGE:  # don't spin around mid-hunt
 		_face_player()
 	GameLog.log_general("[color=#ffd9a0]%s[/color]" % pet_text.replace("{name}", npc_name))

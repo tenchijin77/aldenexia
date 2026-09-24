@@ -227,6 +227,7 @@ const KEYBIND_GROUPS := [
 		["H", "Hail the nearest NPC"],
 		["I", "Appraise your current target"],
 		["Right-click", "Open a vendor's shop, loot a corpse, or open a campfire/tradeskill window — whichever's under your cursor or nearest in range"],
+		["G", "Loot every corpse within 10 m at once"],
 	]],
 ]
 

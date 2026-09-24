@@ -1878,6 +1878,20 @@ GATE RAIDS (`Scripts/gate_raid_manager.gd`, `Data/gate_raids.json`, node "GateRa
   - Still not modelled: reflecting spells back (Spell Ward, Prismatic Veil — monsters don't cast spells yet) and shields that explode when they break (Wild Barrier, Entropic Ward/Aegis).
 - Verified headless: Focused Strike 900 s, Ki Barrier/Divine Ward shields, Perfect Balance crit 25 -> 40, Shadow Cloak invisibility, Dragon Fist modifiers + weaken on hit, Striking Serpent 3 stacks, Earth Strike interrupt.
 
+### Test 25 (Shonuff, Aetherfist): icons, wording, monster health, town safety, placeable stations, loot all (2026-09-23)
+- Stance icons (Assets/icons/spells/stance_wind/earth/water/fire/void.png, recoloured from existing art) on the stance bar and the buff bar. Wind's aura is pale sky blue now (Water a deeper blue so they differ). Physical self-buffs (Focused Strike, Wholeness of Body, Dragon Fist, Perfect Balance, Zen Focus, Windrider, Iron Resolve, Fortified Stance) use a gold fist icon (physical_buff.png).
+- "Yourself is empowered." -> "You are empowered." (and the other self-cast effect lines); Focused Strike has its own cast line.
+- Monster health: every level-1 monster now has 75 HP (the rat — "a desert scavenger" — had 20; bats and spiderlings 15), and level-2 monsters under 90 now have 90, so level 2 stays tougher.
+- Badly hurt monsters that run away now limp off at 0.6x speed instead of sprinting at 1.5x.
+- No monsters in town: Data/lumora_outskirts_spawns.json "no_monster_zones" (inside Lumora's wall and the gate front) — monsters never spawn there (a spawn circle reaching over the wall re-rolls) and never wander in on their own. Chasing a player in, and gate raids, still can.
+- CRAFTING STATIONS ARE IN THE ZONE SCENE: a CraftingStations node with the 10 stations (crafting_station.gd, now @tool: set Station Id / Display Name in the Inspector; the model shows in the editor) — drag them wherever you like. crafting_world_spawner.gd only places stations from Data/crafting_placements.json for a zone whose scene has none.
+- LOOT ALL: G loots every corpse within 10 m at once (the same as each loot window's Loot All; coins and loot preferences apply, anything that doesn't fit stays on the corpse). In the Esc help.
+- Guards'/Oni's "made no progress toward patrol waypoint" is no longer a warning with a stack trace — a one-line note, once per waypoint (it's harmless: they carry on to the next point). A 4-minute headless run of Oni's patrol never stalled; on the server it's likely a pause (chasing a rat) outlasting the 20 s timer.
+
+### Cat meows and the server's connections log (2026-09-23)
+- Kenji and Oni meow when hailed or petted (world/cat_meow_1/2.mp3, one picked at random with a little pitch variation). tools/balance_sounds.py now also stores a volume per file ("file_db") for sounds with several variants, so each plays at the same level (the two meows were 9 dB apart); sfx.gd uses it.
+- CONNECTIONS LOG (dedicated server): user://logs/connections.log — one tab-separated line per CONNECT (with the client's version), LOGIN (and LOGIN FAILED with the reason), DISCONNECT, OLD VERSION (turned away for a different build), REFUSED (banned address), KICKED, BAN and UNBAN: date and time, event, IP, character, details. Never rotated or trimmed — godot.log only keeps the last five server starts. On the server: ~/.local/share/godot/app_userdata/Aldenexia-Lightfall/logs/connections.log.
+
 ## 2026-09-17 — Session 45: Generic spell-effect engine, 7 more classes brought to parity, tradeskills (cooking/alchemy), Wildspeaker pet, fear/charm mechanics, multiplayer CC/heal relay, UI theme + resize pass, 5 new mob models, network widget
 
 ### Generic, data-driven spell-effect engine (the foundation for everything else this session)

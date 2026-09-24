@@ -648,6 +648,7 @@ const GROUND_PROBE_RADIUS := 0.05
 const RUNTIME_ACTIONS := {
 	"toggle_quest_journal": KEY_J,
 	"toggle_recipe_book": KEY_L,
+	"loot_all": KEY_G,   # loot every corpse within 10 m (player3d.gd loot_all_nearby())
 }
 
 func _ensure_input_actions() -> void:

@@ -28,7 +28,9 @@ func _ready() -> void:
 	var placements: Dictionary = _load(PLACEMENTS_PATH).get(zone_key, {})
 	var node_defs: Dictionary = _load(NODES_PATH).get("nodes", {})
 	var models: Dictionary = _load(MODELS_PATH)
-	for entry in placements.get("stations", []):
+	# Stations placed by hand in the zone scene win: the data's stations are only used for a zone that has none.
+	var scene_has_stations := not get_tree().get_nodes_in_group("crafting_station").is_empty()
+	for entry in ([] if scene_has_stations else placements.get("stations", [])):
 		var station := CraftingStation.new()
 		var station_id := str(entry.get("station_id", ""))
 		station.setup(station_id, str(entry.get("name", "Crafting Station")), models.get("stations", {}).get(station_id, {}))

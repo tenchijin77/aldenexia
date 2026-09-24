@@ -1,1042 +1,1066 @@
 {
-  "_comment": "lumora_outskirts_spawns.json - 3D spawn definitions for Lumora Outskirts zone. Positions are [x, y, z] world coords. Y=2 ensures spawn above terrain so mobs drop to ground via gravity. Layout matches the zone's hand-drawn area map (2026-09-14 balance pass): Sand Dunes starter area near the origin, Mausoleum/Graveyard/Crypts undead cluster to the southeast, Bandit Camps strung between the dunes and the Goblin Camps to the northwest, and a dedicated Spider Den to the southwest. | 2026-09-20: max_active is now PER ENTRY (each spawn point's own cap; before it was shared by every entry of the same mob type). Gate ring and the mausoleum/graveyard were thinned out, and small groups were added along the roads between the landmarks. 'density' multiplies every max_active (1.0 = as written). 'activation_range' (400 m) = a spawn point only makes mobs while a player is that close, so far parts of the zone cost nothing until someone gets there. | 'deep_dunes_south': two RARE Sunmaddened wanderer spawn points in the far south (level 4-6, tough; each drops a Ceramic Water-Token for the Release the Hollowed quest): a 2%/second chance while a player is within range and an 8 minute wait after each one dies.",
-  "spawns": [
-    {
-      "mob_type": "rat",
-      "position": [
-        30,
-        2,
-        25
-      ],
-      "spawn_radius": 12.0,
-      "spawn_chance": 0.7,
-      "max_active": 2,
-      "respawn_time": 12,
-      "min_level": 1,
-      "max_level": 2,
-      "spawn_zone": "dunes_start"
-    },
-    {
-      "mob_type": "rat",
-      "position": [
-        -35,
-        2,
-        -20
-      ],
-      "spawn_radius": 10.0,
-      "spawn_chance": 0.6,
-      "max_active": 1,
-      "respawn_time": 12,
-      "min_level": 1,
-      "max_level": 2,
-      "spawn_zone": "dunes_start"
-    },
-    {
-      "mob_type": "rat",
-      "position": [
-        150,
-        2,
-        45
-      ],
-      "spawn_radius": 10.0,
-      "spawn_chance": 0.7,
-      "max_active": 2,
-      "respawn_time": 12,
-      "min_level": 1,
-      "max_level": 2,
-      "spawn_zone": "dunes_far"
-    },
-    {
-      "mob_type": "rat",
-      "position": [
-        -80,
-        2,
-        60
-      ],
-      "spawn_radius": 10.0,
-      "spawn_chance": 0.7,
-      "max_active": 1,
-      "respawn_time": 12,
-      "min_level": 1,
-      "max_level": 2,
-      "spawn_zone": "dunes_far"
-    },
-    {
-      "mob_type": "rat",
-      "position": [
-        85,
-        2,
-        -65
-      ],
-      "spawn_radius": 10.0,
-      "spawn_chance": 0.7,
-      "max_active": 2,
-      "respawn_time": 12,
-      "min_level": 1,
-      "max_level": 2,
-      "spawn_zone": "dunes_far"
-    },
-    {
-      "mob_type": "rat",
-      "position": [
-        -95,
-        2,
-        -35
-      ],
-      "spawn_radius": 10.0,
-      "spawn_chance": 0.7,
-      "max_active": 1,
-      "respawn_time": 12,
-      "min_level": 1,
-      "max_level": 2,
-      "spawn_zone": "dunes_far"
-    },
-    {
-      "mob_type": "snake",
-      "position": [
-        -40,
-        2,
-        30
-      ],
-      "spawn_radius": 10.0,
-      "spawn_chance": 0.5,
-      "max_active": 1,
-      "respawn_time": 18,
-      "min_level": 1,
-      "max_level": 2,
-      "spawn_zone": "dunes_start"
-    },
-    {
-      "mob_type": "snake",
-      "position": [
-        50,
-        2,
-        -15
-      ],
-      "spawn_radius": 8.0,
-      "spawn_chance": 0.4,
-      "max_active": 1,
-      "respawn_time": 18,
-      "min_level": 1,
-      "max_level": 2,
-      "spawn_zone": "dunes_start"
-    },
-    {
-      "mob_type": "slime",
-      "position": [
-        10,
-        2,
-        55
-      ],
-      "spawn_radius": 14.0,
-      "spawn_chance": 0.7,
-      "max_active": 2,
-      "respawn_time": 20,
-      "min_level": 1,
-      "max_level": 2,
-      "spawn_zone": "dunes_start"
-    },
-    {
-      "mob_type": "dune_scarab",
-      "position": [
-        20,
-        2,
-        -20
-      ],
-      "spawn_radius": 16.0,
-      "spawn_chance": 0.6,
-      "max_active": 2,
-      "respawn_time": 15,
-      "min_level": 1,
-      "max_level": 1,
-      "spawn_zone": "dunes_start"
-    },
-    {
-      "mob_type": "dune_scarab",
-      "position": [
-        20,
-        2,
-        -60
-      ],
-      "spawn_radius": 14.0,
-      "spawn_chance": 0.5,
-      "max_active": 1,
-      "respawn_time": 15,
-      "min_level": 1,
-      "max_level": 1,
-      "spawn_zone": "dunes_start"
-    },
-    {
-      "mob_type": "bat",
-      "position": [
-        -10,
-        2,
-        -60
-      ],
-      "spawn_radius": 15.0,
-      "spawn_chance": 0.5,
-      "max_active": 1,
-      "respawn_time": 14,
-      "min_level": 1,
-      "max_level": 1,
-      "spawn_zone": "dunes_start"
-    },
-    {
-      "mob_type": "bat",
-      "position": [
-        40,
-        2,
-        60
-      ],
-      "spawn_radius": 14.0,
-      "spawn_chance": 0.4,
-      "max_active": 1,
-      "respawn_time": 14,
-      "min_level": 1,
-      "max_level": 1,
-      "spawn_zone": "dunes_start"
-    },
-    {
-      "mob_type": "skeleton",
-      "position": [
-        -36.37,
-        2,
-        -244.28
-      ],
-      "spawn_radius": 28.0,
-      "spawn_chance": 0.75,
-      "max_active": 4,
-      "respawn_time": 20,
-      "min_level": 2,
-      "max_level": 3,
-      "spawn_zone": "mausoleum"
-    },
-    {
-      "mob_type": "skeleton",
-      "position": [
-        41.7,
-        2,
-        -287.5
-      ],
-      "spawn_radius": 18.0,
-      "spawn_chance": 0.7,
-      "max_active": 3,
-      "respawn_time": 20,
-      "min_level": 2,
-      "max_level": 3,
-      "spawn_zone": "graveyard"
-    },
-    {
-      "mob_type": "skeleton",
-      "position": [
-        55.2,
-        2,
-        -275.6
-      ],
-      "spawn_radius": 12.0,
-      "spawn_chance": 0.65,
-      "max_active": 2,
-      "respawn_time": 18,
-      "min_level": 2,
-      "max_level": 3,
-      "spawn_zone": "small_crypt_1"
-    },
-    {
-      "mob_type": "skeleton",
-      "position": [
-        56.2,
-        2,
-        -214.6
-      ],
-      "spawn_radius": 12.0,
-      "spawn_chance": 0.65,
-      "max_active": 2,
-      "respawn_time": 18,
-      "min_level": 2,
-      "max_level": 3,
-      "spawn_zone": "small_crypt_2"
-    },
-    {
-      "mob_type": "mummy",
-      "position": [
-        -36.37,
-        2,
-        -244.28
-      ],
-      "spawn_radius": 24.0,
-      "spawn_chance": 0.3,
-      "max_active": 2,
-      "respawn_time": 35,
-      "min_level": 3,
-      "max_level": 3,
-      "spawn_zone": "mausoleum"
-    },
-    {
-      "mob_type": "ghost",
-      "position": [
-        41.7,
-        2,
-        -287.5
-      ],
-      "spawn_radius": 20.0,
-      "spawn_chance": 0.25,
-      "max_active": 1,
-      "respawn_time": 32,
-      "min_level": 3,
-      "max_level": 3,
-      "spawn_zone": "graveyard"
-    },
-    {
-      "mob_type": "goblin",
-      "position": [
-        -572.33,
-        2,
-        605.42
-      ],
-      "spawn_radius": 30.0,
-      "spawn_chance": 0.75,
-      "max_active": 4,
-      "respawn_time": 18,
-      "min_level": 2,
-      "max_level": 3,
-      "spawn_zone": "goblin_camp_1"
-    },
-    {
-      "mob_type": "goblin_warrior",
-      "position": [
-        -572.33,
-        2,
-        605.42
-      ],
-      "spawn_radius": 30.0,
-      "spawn_chance": 0.3,
-      "max_active": 10,
-      "respawn_time": 30,
-      "min_level": 3,
-      "max_level": 4,
-      "spawn_zone": "goblin_camp_1"
-    },
-    {
-      "mob_type": "goblin",
-      "position": [
-        -422.56,
-        2,
-        371.44
-      ],
-      "spawn_radius": 30.0,
-      "spawn_chance": 0.75,
-      "max_active": 4,
-      "respawn_time": 18,
-      "min_level": 2,
-      "max_level": 3,
-      "spawn_zone": "goblin_camp_2"
-    },
-    {
-      "mob_type": "goblin_scout",
-      "position": [
-        -422.56,
-        2,
-        371.44
-      ],
-      "spawn_radius": 30.0,
-      "spawn_chance": 0.5,
-      "max_active": 10,
-      "respawn_time": 16,
-      "min_level": 1,
-      "max_level": 2,
-      "spawn_zone": "goblin_camp_2"
-    },
-    {
-      "mob_type": "goblin",
-      "position": [
-        -313.71,
-        2,
-        635.22
-      ],
-      "spawn_radius": 28.0,
-      "spawn_chance": 0.7,
-      "max_active": 4,
-      "respawn_time": 18,
-      "min_level": 2,
-      "max_level": 3,
-      "spawn_zone": "goblin_camp_3"
-    },
-    {
-      "mob_type": "bandit",
-      "position": [
-        -220,
-        2,
-        280
-      ],
-      "spawn_radius": 22.0,
-      "spawn_chance": 0.7,
-      "max_active": 2,
-      "respawn_time": 20,
-      "min_level": 3,
-      "max_level": 4,
-      "spawn_zone": "bandit_camp_1"
-    },
-    {
-      "mob_type": "bandit",
-      "position": [
-        -240,
-        2,
-        310
-      ],
-      "spawn_radius": 18.0,
-      "spawn_chance": 0.6,
-      "max_active": 2,
-      "respawn_time": 20,
-      "min_level": 3,
-      "max_level": 4,
-      "spawn_zone": "bandit_camp_1"
-    },
-    {
-      "mob_type": "bandit",
-      "position": [
-        -330,
-        2,
-        400
-      ],
-      "spawn_radius": 22.0,
-      "spawn_chance": 0.7,
-      "max_active": 2,
-      "respawn_time": 20,
-      "min_level": 3,
-      "max_level": 4,
-      "spawn_zone": "bandit_camp_2"
-    },
-    {
-      "mob_type": "bandit",
-      "position": [
-        -310,
-        2,
-        370
-      ],
-      "spawn_radius": 18.0,
-      "spawn_chance": 0.6,
-      "max_active": 2,
-      "respawn_time": 20,
-      "min_level": 3,
-      "max_level": 4,
-      "spawn_zone": "bandit_camp_2"
-    },
-    {
-      "mob_type": "blighted_spider",
-      "position": [
-        0,
-        2,
-        -850.86
-      ],
-      "spawn_radius": 26.0,
-      "spawn_chance": 0.75,
-      "max_active": 3,
-      "respawn_time": 16,
-      "min_level": 3,
-      "max_level": 4,
-      "spawn_zone": "spider_den"
-    },
-    {
-      "mob_type": "blighted_spider",
-      "position": [
-        0,
-        2,
-        -850.86
-      ],
-      "spawn_radius": 24.0,
-      "spawn_chance": 0.7,
-      "max_active": 3,
-      "respawn_time": 16,
-      "min_level": 3,
-      "max_level": 4,
-      "spawn_zone": "spider_den"
-    },
-    {
-      "mob_type": "blighted_spider",
-      "position": [
-        0,
-        2,
-        -850.86
-      ],
-      "spawn_radius": 24.0,
-      "spawn_chance": 0.65,
-      "max_active": 2,
-      "respawn_time": 16,
-      "min_level": 3,
-      "max_level": 4,
-      "spawn_zone": "spider_den"
-    },
-    {
-      "mob_type": "blighted_spider",
-      "position": [
-        0,
-        2,
-        -850.86
-      ],
-      "spawn_radius": 24.0,
-      "spawn_chance": 0.65,
-      "max_active": 2,
-      "respawn_time": 16,
-      "min_level": 3,
-      "max_level": 4,
-      "spawn_zone": "spider_den"
-    },
-    {
-      "mob_type": "spiderling",
-      "position": [
-        0,
-        2,
-        -850.86
-      ],
-      "spawn_radius": 32.0,
-      "spawn_chance": 0.8,
-      "max_active": 10,
-      "respawn_time": 10,
-      "min_level": 1,
-      "max_level": 1,
-      "spawn_zone": "spider_den"
-    },
-    {
-      "mob_type": "snake",
-      "position": [
-        -60,
-        2,
-        -110
-      ],
-      "spawn_radius": 12.0,
-      "spawn_chance": 0.6,
-      "max_active": 1,
-      "respawn_time": 20,
-      "min_level": 2,
-      "max_level": 4,
-      "spawn_zone": "road_south"
-    },
-    {
-      "mob_type": "dune_scarab",
-      "position": [
-        45,
-        2,
-        -135
-      ],
-      "spawn_radius": 14.0,
-      "spawn_chance": 0.6,
-      "max_active": 2,
-      "respawn_time": 16,
-      "min_level": 2,
-      "max_level": 5,
-      "spawn_zone": "road_south"
-    },
-    {
-      "mob_type": "rat",
-      "position": [
-        -20,
-        2,
-        -175
-      ],
-      "spawn_radius": 12.0,
-      "spawn_chance": 0.6,
-      "max_active": 2,
-      "respawn_time": 14,
-      "min_level": 1,
-      "max_level": 3,
-      "spawn_zone": "road_south"
-    },
-    {
-      "mob_type": "bat",
-      "position": [
-        60,
-        2,
-        -190
-      ],
-      "spawn_radius": 14.0,
-      "spawn_chance": 0.6,
-      "max_active": 1,
-      "respawn_time": 16,
-      "min_level": 1,
-      "max_level": 3,
-      "spawn_zone": "road_south"
-    },
-    {
-      "mob_type": "skeleton",
-      "position": [
-        -90,
-        2,
-        -215
-      ],
-      "spawn_radius": 14.0,
-      "spawn_chance": 0.6,
-      "max_active": 1,
-      "respawn_time": 22,
-      "min_level": 1,
-      "max_level": 3,
-      "spawn_zone": "road_south"
-    },
-    {
-      "mob_type": "skeleton",
-      "position": [
-        -20,
-        2,
-        -350
-      ],
-      "spawn_radius": 16.0,
-      "spawn_chance": 0.6,
-      "max_active": 2,
-      "respawn_time": 22,
-      "min_level": 1,
-      "max_level": 3,
-      "spawn_zone": "south_a"
-    },
-    {
-      "mob_type": "bat",
-      "position": [
-        60,
-        2,
-        -400
-      ],
-      "spawn_radius": 16.0,
-      "spawn_chance": 0.6,
-      "max_active": 2,
-      "respawn_time": 16,
-      "min_level": 1,
-      "max_level": 3,
-      "spawn_zone": "south_a"
-    },
-    {
-      "mob_type": "spider",
-      "position": [
-        -40,
-        2,
-        -480
-      ],
-      "spawn_radius": 16.0,
-      "spawn_chance": 0.6,
-      "max_active": 2,
-      "respawn_time": 18,
-      "min_level": 2,
-      "max_level": 4,
-      "spawn_zone": "south_b"
-    },
-    {
-      "mob_type": "snake",
-      "position": [
-        30,
-        2,
-        -540
-      ],
-      "spawn_radius": 14.0,
-      "spawn_chance": 0.6,
-      "max_active": 2,
-      "respawn_time": 18,
-      "min_level": 2,
-      "max_level": 4,
-      "spawn_zone": "south_b"
-    },
-    {
-      "mob_type": "mirage_phantom",
-      "position": [
-        -80,
-        2,
-        -620
-      ],
-      "spawn_radius": 16.0,
-      "spawn_chance": 0.4,
-      "max_active": 1,
-      "respawn_time": 40,
-      "min_level": 3,
-      "max_level": 3,
-      "spawn_zone": "south_b"
-    },
-    {
-      "mob_type": "spider",
-      "position": [
-        20,
-        2,
-        -700
-      ],
-      "spawn_radius": 16.0,
-      "spawn_chance": 0.6,
-      "max_active": 2,
-      "respawn_time": 18,
-      "min_level": 2,
-      "max_level": 4,
-      "spawn_zone": "south_c"
-    },
-    {
-      "mob_type": "skeleton",
-      "position": [
-        -30,
-        2,
-        -760
-      ],
-      "spawn_radius": 16.0,
-      "spawn_chance": 0.6,
-      "max_active": 2,
-      "respawn_time": 22,
-      "min_level": 1,
-      "max_level": 3,
-      "spawn_zone": "south_c"
-    },
-    {
-      "mob_type": "rat",
-      "position": [
-        -150,
-        2,
-        20
-      ],
-      "spawn_radius": 14.0,
-      "spawn_chance": 0.6,
-      "max_active": 2,
-      "respawn_time": 14,
-      "min_level": 1,
-      "max_level": 3,
-      "spawn_zone": "road_west"
-    },
-    {
-      "mob_type": "snake",
-      "position": [
-        -250,
-        2,
-        -30
-      ],
-      "spawn_radius": 14.0,
-      "spawn_chance": 0.6,
-      "max_active": 2,
-      "respawn_time": 18,
-      "min_level": 2,
-      "max_level": 4,
-      "spawn_zone": "road_west"
-    },
-    {
-      "mob_type": "dune_scarab",
-      "position": [
-        -350,
-        2,
-        20
-      ],
-      "spawn_radius": 16.0,
-      "spawn_chance": 0.6,
-      "max_active": 2,
-      "respawn_time": 16,
-      "min_level": 2,
-      "max_level": 5,
-      "spawn_zone": "road_west"
-    },
-    {
-      "mob_type": "bat",
-      "position": [
-        -450,
-        2,
-        -40
-      ],
-      "spawn_radius": 16.0,
-      "spawn_chance": 0.6,
-      "max_active": 2,
-      "respawn_time": 16,
-      "min_level": 1,
-      "max_level": 3,
-      "spawn_zone": "road_west"
-    },
-    {
-      "mob_type": "mirage_phantom",
-      "position": [
-        -520,
-        2,
-        40
-      ],
-      "spawn_radius": 16.0,
-      "spawn_chance": 0.4,
-      "max_active": 1,
-      "respawn_time": 40,
-      "min_level": 3,
-      "max_level": 3,
-      "spawn_zone": "road_west"
-    },
-    {
-      "mob_type": "rat",
-      "position": [
-        -100,
-        2,
-        140
-      ],
-      "spawn_radius": 14.0,
-      "spawn_chance": 0.6,
-      "max_active": 2,
-      "respawn_time": 14,
-      "min_level": 1,
-      "max_level": 3,
-      "spawn_zone": "nw_approach"
-    },
-    {
-      "mob_type": "snake",
-      "position": [
-        -150,
-        2,
-        220
-      ],
-      "spawn_radius": 14.0,
-      "spawn_chance": 0.6,
-      "max_active": 2,
-      "respawn_time": 18,
-      "min_level": 2,
-      "max_level": 4,
-      "spawn_zone": "nw_approach"
-    },
-    {
-      "mob_type": "slime",
-      "position": [
-        -60,
-        2,
-        230
-      ],
-      "spawn_radius": 14.0,
-      "spawn_chance": 0.6,
-      "max_active": 2,
-      "respawn_time": 20,
-      "min_level": 2,
-      "max_level": 4,
-      "spawn_zone": "nw_approach"
-    },
-    {
-      "mob_type": "bat",
-      "position": [
-        -250,
-        2,
-        200
-      ],
-      "spawn_radius": 16.0,
-      "spawn_chance": 0.6,
-      "max_active": 2,
-      "respawn_time": 16,
-      "min_level": 1,
-      "max_level": 3,
-      "spawn_zone": "nw_approach"
-    },
-    {
-      "mob_type": "goblin",
-      "position": [
-        -380,
-        2,
-        500
-      ],
-      "spawn_radius": 16.0,
-      "spawn_chance": 0.6,
-      "max_active": 2,
-      "respawn_time": 18,
-      "min_level": 1,
-      "max_level": 4,
-      "spawn_zone": "nw_approach"
-    },
-    {
-      "mob_type": "spider",
-      "position": [
-        -300,
-        2,
-        -300
-      ],
-      "spawn_radius": 16.0,
-      "spawn_chance": 0.6,
-      "max_active": 2,
-      "respawn_time": 18,
-      "min_level": 2,
-      "max_level": 4,
-      "spawn_zone": "southwest"
-    },
-    {
-      "mob_type": "snake",
-      "position": [
-        -350,
-        2,
-        -450
-      ],
-      "spawn_radius": 14.0,
-      "spawn_chance": 0.6,
-      "max_active": 2,
-      "respawn_time": 18,
-      "min_level": 2,
-      "max_level": 4,
-      "spawn_zone": "southwest"
-    },
-    {
-      "mob_type": "dune_scarab",
-      "position": [
-        -450,
-        2,
-        -250
-      ],
-      "spawn_radius": 16.0,
-      "spawn_chance": 0.6,
-      "max_active": 2,
-      "respawn_time": 16,
-      "min_level": 2,
-      "max_level": 5,
-      "spawn_zone": "southwest"
-    },
-    {
-      "mob_type": "bandit",
-      "position": [
-        -590,
-        2,
-        -560
-      ],
-      "spawn_radius": 20.0,
-      "spawn_chance": 0.6,
-      "max_active": 2,
-      "respawn_time": 20,
-      "min_level": 2,
-      "max_level": 4,
-      "spawn_zone": "wagon_crash"
-    },
-    {
-      "mob_type": "rat",
-      "position": [
-        -560,
-        2,
-        -590
-      ],
-      "spawn_radius": 14.0,
-      "spawn_chance": 0.6,
-      "max_active": 2,
-      "respawn_time": 14,
-      "min_level": 1,
-      "max_level": 3,
-      "spawn_zone": "wagon_crash"
-    },
-    {
-      "mob_type": "rat",
-      "position": [
-        -700,
-        2,
-        -150
-      ],
-      "spawn_radius": 14.0,
-      "spawn_chance": 0.6,
-      "max_active": 2,
-      "respawn_time": 14,
-      "min_level": 1,
-      "max_level": 3,
-      "spawn_zone": "far_west"
-    },
-    {
-      "mob_type": "snake",
-      "position": [
-        -650,
-        2,
-        250
-      ],
-      "spawn_radius": 14.0,
-      "spawn_chance": 0.6,
-      "max_active": 2,
-      "respawn_time": 18,
-      "min_level": 2,
-      "max_level": 4,
-      "spawn_zone": "far_west"
-    },
-    {
-      "mob_type": "sunmaddened_wanderer",
-      "position": [
-        -880,
-        2,
-        -60
-      ],
-      "spawn_radius": 60.0,
-      "spawn_chance": 0.02,
-      "max_active": 1,
-      "respawn_time": 480,
-      "min_level": 4,
-      "max_level": 6,
-      "spawn_zone": "deep_dunes_south"
-    },
-    {
-      "mob_type": "sunmaddened_wanderer",
-      "position": [
-        -870,
-        2,
-        300
-      ],
-      "spawn_radius": 60.0,
-      "spawn_chance": 0.02,
-      "max_active": 1,
-      "respawn_time": 480,
-      "min_level": 4,
-      "max_level": 6,
-      "spawn_zone": "deep_dunes_south"
-    },
-    {
-      "mob_type": "dessik_coinhand",
-      "position": [
-        -590,
-        2,
-        -562
-      ],
-      "spawn_radius": 5.0,
-      "spawn_chance": 1.0,
-      "max_active": 1,
-      "respawn_time": 900,
-      "min_level": 1,
-      "max_level": 1,
-      "spawn_zone": "wagon_crash_named"
-    },
-    {
-      "mob_type": "rask_ironjaw",
-      "position": [
-        -230,
-        2,
-        295
-      ],
-      "spawn_radius": 4.0,
-      "spawn_chance": 1.0,
-      "max_active": 1,
-      "respawn_time": 900,
-      "min_level": 1,
-      "max_level": 1,
-      "spawn_zone": "bandit_camp_1_named"
-    },
-    {
-      "mob_type": "grukka_bonechewer",
-      "position": [
-        -572.33,
-        2,
-        605.42
-      ],
-      "spawn_radius": 4.0,
-      "spawn_chance": 1.0,
-      "max_active": 1,
-      "respawn_time": 900,
-      "min_level": 1,
-      "max_level": 1,
-      "spawn_zone": "goblin_camp_1_named"
-    },
-    {
-      "mob_type": "sergeant_halvek",
-      "position": [
-        -36.4,
-        2,
-        -236
-      ],
-      "spawn_radius": 6.0,
-      "spawn_chance": 1.0,
-      "max_active": 1,
-      "respawn_time": 900,
-      "min_level": 1,
-      "max_level": 1,
-      "spawn_zone": "mausoleum_named"
-    },
-    {
-      "mob_type": "weavemother_vhessa",
-      "position": [
-        0,
-        2,
-        -850.86
-      ],
-      "spawn_radius": 5.0,
-      "spawn_chance": 1.0,
-      "max_active": 1,
-      "respawn_time": 1200,
-      "min_level": 1,
-      "max_level": 1,
-      "spawn_zone": "spider_den_named"
-    }
-  ],
-  "density": 1.0,
-  "activation_range": 400
+ "_comment": "lumora_outskirts_spawns.json - 3D spawn definitions for Lumora Outskirts zone. Positions are [x, y, z] world coords. Y=2 ensures spawn above terrain so mobs drop to ground via gravity. Layout matches the zone's hand-drawn area map (2026-09-14 balance pass): Sand Dunes starter area near the origin, Mausoleum/Graveyard/Crypts undead cluster to the southeast, Bandit Camps strung between the dunes and the Goblin Camps to the northwest, and a dedicated Spider Den to the southwest. | 2026-09-20: max_active is now PER ENTRY (each spawn point's own cap; before it was shared by every entry of the same mob type). Gate ring and the mausoleum/graveyard were thinned out, and small groups were added along the roads between the landmarks. 'density' multiplies every max_active (1.0 = as written). 'activation_range' (400 m) = a spawn point only makes mobs while a player is that close, so far parts of the zone cost nothing until someone gets there. | 'deep_dunes_south': two RARE Sunmaddened wanderer spawn points in the far south (level 4-6, tough; each drops a Ceramic Water-Token for the Release the Hollowed quest): a 2%/second chance while a player is within range and an 8 minute wait after each one dies. no_monster_zones: rectangles ({min:[x,z], max:[x,z]}) where monsters never spawn and never wander on their own (chasing a player in, and gate raids, still can).",
+ "spawns": [
+  {
+   "mob_type": "rat",
+   "position": [
+    30,
+    2,
+    25
+   ],
+   "spawn_radius": 12.0,
+   "spawn_chance": 0.7,
+   "max_active": 2,
+   "respawn_time": 12,
+   "min_level": 1,
+   "max_level": 2,
+   "spawn_zone": "dunes_start"
+  },
+  {
+   "mob_type": "rat",
+   "position": [
+    -35,
+    2,
+    -20
+   ],
+   "spawn_radius": 10.0,
+   "spawn_chance": 0.6,
+   "max_active": 1,
+   "respawn_time": 12,
+   "min_level": 1,
+   "max_level": 2,
+   "spawn_zone": "dunes_start"
+  },
+  {
+   "mob_type": "rat",
+   "position": [
+    150,
+    2,
+    45
+   ],
+   "spawn_radius": 10.0,
+   "spawn_chance": 0.7,
+   "max_active": 2,
+   "respawn_time": 12,
+   "min_level": 1,
+   "max_level": 2,
+   "spawn_zone": "dunes_far"
+  },
+  {
+   "mob_type": "rat",
+   "position": [
+    -80,
+    2,
+    60
+   ],
+   "spawn_radius": 10.0,
+   "spawn_chance": 0.7,
+   "max_active": 1,
+   "respawn_time": 12,
+   "min_level": 1,
+   "max_level": 2,
+   "spawn_zone": "dunes_far"
+  },
+  {
+   "mob_type": "rat",
+   "position": [
+    85,
+    2,
+    -65
+   ],
+   "spawn_radius": 10.0,
+   "spawn_chance": 0.7,
+   "max_active": 2,
+   "respawn_time": 12,
+   "min_level": 1,
+   "max_level": 2,
+   "spawn_zone": "dunes_far"
+  },
+  {
+   "mob_type": "rat",
+   "position": [
+    -95,
+    2,
+    -35
+   ],
+   "spawn_radius": 10.0,
+   "spawn_chance": 0.7,
+   "max_active": 1,
+   "respawn_time": 12,
+   "min_level": 1,
+   "max_level": 2,
+   "spawn_zone": "dunes_far"
+  },
+  {
+   "mob_type": "snake",
+   "position": [
+    -40,
+    2,
+    30
+   ],
+   "spawn_radius": 10.0,
+   "spawn_chance": 0.5,
+   "max_active": 1,
+   "respawn_time": 18,
+   "min_level": 1,
+   "max_level": 2,
+   "spawn_zone": "dunes_start"
+  },
+  {
+   "mob_type": "snake",
+   "position": [
+    50,
+    2,
+    -15
+   ],
+   "spawn_radius": 8.0,
+   "spawn_chance": 0.4,
+   "max_active": 1,
+   "respawn_time": 18,
+   "min_level": 1,
+   "max_level": 2,
+   "spawn_zone": "dunes_start"
+  },
+  {
+   "mob_type": "slime",
+   "position": [
+    10,
+    2,
+    55
+   ],
+   "spawn_radius": 14.0,
+   "spawn_chance": 0.7,
+   "max_active": 2,
+   "respawn_time": 20,
+   "min_level": 1,
+   "max_level": 2,
+   "spawn_zone": "dunes_start"
+  },
+  {
+   "mob_type": "dune_scarab",
+   "position": [
+    20,
+    2,
+    -20
+   ],
+   "spawn_radius": 16.0,
+   "spawn_chance": 0.6,
+   "max_active": 2,
+   "respawn_time": 15,
+   "min_level": 1,
+   "max_level": 1,
+   "spawn_zone": "dunes_start"
+  },
+  {
+   "mob_type": "dune_scarab",
+   "position": [
+    20,
+    2,
+    -60
+   ],
+   "spawn_radius": 14.0,
+   "spawn_chance": 0.5,
+   "max_active": 1,
+   "respawn_time": 15,
+   "min_level": 1,
+   "max_level": 1,
+   "spawn_zone": "dunes_start"
+  },
+  {
+   "mob_type": "bat",
+   "position": [
+    -10,
+    2,
+    -60
+   ],
+   "spawn_radius": 15.0,
+   "spawn_chance": 0.5,
+   "max_active": 1,
+   "respawn_time": 14,
+   "min_level": 1,
+   "max_level": 1,
+   "spawn_zone": "dunes_start"
+  },
+  {
+   "mob_type": "bat",
+   "position": [
+    40,
+    2,
+    60
+   ],
+   "spawn_radius": 14.0,
+   "spawn_chance": 0.4,
+   "max_active": 1,
+   "respawn_time": 14,
+   "min_level": 1,
+   "max_level": 1,
+   "spawn_zone": "dunes_start"
+  },
+  {
+   "mob_type": "skeleton",
+   "position": [
+    -36.37,
+    2,
+    -244.28
+   ],
+   "spawn_radius": 28.0,
+   "spawn_chance": 0.75,
+   "max_active": 4,
+   "respawn_time": 20,
+   "min_level": 2,
+   "max_level": 3,
+   "spawn_zone": "mausoleum"
+  },
+  {
+   "mob_type": "skeleton",
+   "position": [
+    41.7,
+    2,
+    -287.5
+   ],
+   "spawn_radius": 18.0,
+   "spawn_chance": 0.7,
+   "max_active": 3,
+   "respawn_time": 20,
+   "min_level": 2,
+   "max_level": 3,
+   "spawn_zone": "graveyard"
+  },
+  {
+   "mob_type": "skeleton",
+   "position": [
+    55.2,
+    2,
+    -275.6
+   ],
+   "spawn_radius": 12.0,
+   "spawn_chance": 0.65,
+   "max_active": 2,
+   "respawn_time": 18,
+   "min_level": 2,
+   "max_level": 3,
+   "spawn_zone": "small_crypt_1"
+  },
+  {
+   "mob_type": "skeleton",
+   "position": [
+    56.2,
+    2,
+    -214.6
+   ],
+   "spawn_radius": 12.0,
+   "spawn_chance": 0.65,
+   "max_active": 2,
+   "respawn_time": 18,
+   "min_level": 2,
+   "max_level": 3,
+   "spawn_zone": "small_crypt_2"
+  },
+  {
+   "mob_type": "mummy",
+   "position": [
+    -36.37,
+    2,
+    -244.28
+   ],
+   "spawn_radius": 24.0,
+   "spawn_chance": 0.3,
+   "max_active": 2,
+   "respawn_time": 35,
+   "min_level": 3,
+   "max_level": 3,
+   "spawn_zone": "mausoleum"
+  },
+  {
+   "mob_type": "ghost",
+   "position": [
+    41.7,
+    2,
+    -287.5
+   ],
+   "spawn_radius": 20.0,
+   "spawn_chance": 0.25,
+   "max_active": 1,
+   "respawn_time": 32,
+   "min_level": 3,
+   "max_level": 3,
+   "spawn_zone": "graveyard"
+  },
+  {
+   "mob_type": "goblin",
+   "position": [
+    -572.33,
+    2,
+    605.42
+   ],
+   "spawn_radius": 30.0,
+   "spawn_chance": 0.75,
+   "max_active": 4,
+   "respawn_time": 18,
+   "min_level": 2,
+   "max_level": 3,
+   "spawn_zone": "goblin_camp_1"
+  },
+  {
+   "mob_type": "goblin_warrior",
+   "position": [
+    -572.33,
+    2,
+    605.42
+   ],
+   "spawn_radius": 30.0,
+   "spawn_chance": 0.3,
+   "max_active": 10,
+   "respawn_time": 30,
+   "min_level": 3,
+   "max_level": 4,
+   "spawn_zone": "goblin_camp_1"
+  },
+  {
+   "mob_type": "goblin",
+   "position": [
+    -422.56,
+    2,
+    371.44
+   ],
+   "spawn_radius": 30.0,
+   "spawn_chance": 0.75,
+   "max_active": 4,
+   "respawn_time": 18,
+   "min_level": 2,
+   "max_level": 3,
+   "spawn_zone": "goblin_camp_2"
+  },
+  {
+   "mob_type": "goblin_scout",
+   "position": [
+    -422.56,
+    2,
+    371.44
+   ],
+   "spawn_radius": 30.0,
+   "spawn_chance": 0.5,
+   "max_active": 10,
+   "respawn_time": 16,
+   "min_level": 1,
+   "max_level": 2,
+   "spawn_zone": "goblin_camp_2"
+  },
+  {
+   "mob_type": "goblin",
+   "position": [
+    -313.71,
+    2,
+    635.22
+   ],
+   "spawn_radius": 28.0,
+   "spawn_chance": 0.7,
+   "max_active": 4,
+   "respawn_time": 18,
+   "min_level": 2,
+   "max_level": 3,
+   "spawn_zone": "goblin_camp_3"
+  },
+  {
+   "mob_type": "bandit",
+   "position": [
+    -220,
+    2,
+    280
+   ],
+   "spawn_radius": 22.0,
+   "spawn_chance": 0.7,
+   "max_active": 2,
+   "respawn_time": 20,
+   "min_level": 3,
+   "max_level": 4,
+   "spawn_zone": "bandit_camp_1"
+  },
+  {
+   "mob_type": "bandit",
+   "position": [
+    -240,
+    2,
+    310
+   ],
+   "spawn_radius": 18.0,
+   "spawn_chance": 0.6,
+   "max_active": 2,
+   "respawn_time": 20,
+   "min_level": 3,
+   "max_level": 4,
+   "spawn_zone": "bandit_camp_1"
+  },
+  {
+   "mob_type": "bandit",
+   "position": [
+    -330,
+    2,
+    400
+   ],
+   "spawn_radius": 22.0,
+   "spawn_chance": 0.7,
+   "max_active": 2,
+   "respawn_time": 20,
+   "min_level": 3,
+   "max_level": 4,
+   "spawn_zone": "bandit_camp_2"
+  },
+  {
+   "mob_type": "bandit",
+   "position": [
+    -310,
+    2,
+    370
+   ],
+   "spawn_radius": 18.0,
+   "spawn_chance": 0.6,
+   "max_active": 2,
+   "respawn_time": 20,
+   "min_level": 3,
+   "max_level": 4,
+   "spawn_zone": "bandit_camp_2"
+  },
+  {
+   "mob_type": "blighted_spider",
+   "position": [
+    0,
+    2,
+    -850.86
+   ],
+   "spawn_radius": 26.0,
+   "spawn_chance": 0.75,
+   "max_active": 3,
+   "respawn_time": 16,
+   "min_level": 3,
+   "max_level": 4,
+   "spawn_zone": "spider_den"
+  },
+  {
+   "mob_type": "blighted_spider",
+   "position": [
+    0,
+    2,
+    -850.86
+   ],
+   "spawn_radius": 24.0,
+   "spawn_chance": 0.7,
+   "max_active": 3,
+   "respawn_time": 16,
+   "min_level": 3,
+   "max_level": 4,
+   "spawn_zone": "spider_den"
+  },
+  {
+   "mob_type": "blighted_spider",
+   "position": [
+    0,
+    2,
+    -850.86
+   ],
+   "spawn_radius": 24.0,
+   "spawn_chance": 0.65,
+   "max_active": 2,
+   "respawn_time": 16,
+   "min_level": 3,
+   "max_level": 4,
+   "spawn_zone": "spider_den"
+  },
+  {
+   "mob_type": "blighted_spider",
+   "position": [
+    0,
+    2,
+    -850.86
+   ],
+   "spawn_radius": 24.0,
+   "spawn_chance": 0.65,
+   "max_active": 2,
+   "respawn_time": 16,
+   "min_level": 3,
+   "max_level": 4,
+   "spawn_zone": "spider_den"
+  },
+  {
+   "mob_type": "spiderling",
+   "position": [
+    0,
+    2,
+    -850.86
+   ],
+   "spawn_radius": 32.0,
+   "spawn_chance": 0.8,
+   "max_active": 10,
+   "respawn_time": 10,
+   "min_level": 1,
+   "max_level": 1,
+   "spawn_zone": "spider_den"
+  },
+  {
+   "mob_type": "snake",
+   "position": [
+    -60,
+    2,
+    -110
+   ],
+   "spawn_radius": 12.0,
+   "spawn_chance": 0.6,
+   "max_active": 1,
+   "respawn_time": 20,
+   "min_level": 2,
+   "max_level": 4,
+   "spawn_zone": "road_south"
+  },
+  {
+   "mob_type": "dune_scarab",
+   "position": [
+    45,
+    2,
+    -135
+   ],
+   "spawn_radius": 14.0,
+   "spawn_chance": 0.6,
+   "max_active": 2,
+   "respawn_time": 16,
+   "min_level": 2,
+   "max_level": 5,
+   "spawn_zone": "road_south"
+  },
+  {
+   "mob_type": "rat",
+   "position": [
+    -20,
+    2,
+    -175
+   ],
+   "spawn_radius": 12.0,
+   "spawn_chance": 0.6,
+   "max_active": 2,
+   "respawn_time": 14,
+   "min_level": 1,
+   "max_level": 3,
+   "spawn_zone": "road_south"
+  },
+  {
+   "mob_type": "bat",
+   "position": [
+    60,
+    2,
+    -190
+   ],
+   "spawn_radius": 14.0,
+   "spawn_chance": 0.6,
+   "max_active": 1,
+   "respawn_time": 16,
+   "min_level": 1,
+   "max_level": 3,
+   "spawn_zone": "road_south"
+  },
+  {
+   "mob_type": "skeleton",
+   "position": [
+    -90,
+    2,
+    -215
+   ],
+   "spawn_radius": 14.0,
+   "spawn_chance": 0.6,
+   "max_active": 1,
+   "respawn_time": 22,
+   "min_level": 1,
+   "max_level": 3,
+   "spawn_zone": "road_south"
+  },
+  {
+   "mob_type": "skeleton",
+   "position": [
+    -20,
+    2,
+    -350
+   ],
+   "spawn_radius": 16.0,
+   "spawn_chance": 0.6,
+   "max_active": 2,
+   "respawn_time": 22,
+   "min_level": 1,
+   "max_level": 3,
+   "spawn_zone": "south_a"
+  },
+  {
+   "mob_type": "bat",
+   "position": [
+    60,
+    2,
+    -400
+   ],
+   "spawn_radius": 16.0,
+   "spawn_chance": 0.6,
+   "max_active": 2,
+   "respawn_time": 16,
+   "min_level": 1,
+   "max_level": 3,
+   "spawn_zone": "south_a"
+  },
+  {
+   "mob_type": "spider",
+   "position": [
+    -40,
+    2,
+    -480
+   ],
+   "spawn_radius": 16.0,
+   "spawn_chance": 0.6,
+   "max_active": 2,
+   "respawn_time": 18,
+   "min_level": 2,
+   "max_level": 4,
+   "spawn_zone": "south_b"
+  },
+  {
+   "mob_type": "snake",
+   "position": [
+    30,
+    2,
+    -540
+   ],
+   "spawn_radius": 14.0,
+   "spawn_chance": 0.6,
+   "max_active": 2,
+   "respawn_time": 18,
+   "min_level": 2,
+   "max_level": 4,
+   "spawn_zone": "south_b"
+  },
+  {
+   "mob_type": "mirage_phantom",
+   "position": [
+    -80,
+    2,
+    -620
+   ],
+   "spawn_radius": 16.0,
+   "spawn_chance": 0.4,
+   "max_active": 1,
+   "respawn_time": 40,
+   "min_level": 3,
+   "max_level": 3,
+   "spawn_zone": "south_b"
+  },
+  {
+   "mob_type": "spider",
+   "position": [
+    20,
+    2,
+    -700
+   ],
+   "spawn_radius": 16.0,
+   "spawn_chance": 0.6,
+   "max_active": 2,
+   "respawn_time": 18,
+   "min_level": 2,
+   "max_level": 4,
+   "spawn_zone": "south_c"
+  },
+  {
+   "mob_type": "skeleton",
+   "position": [
+    -30,
+    2,
+    -760
+   ],
+   "spawn_radius": 16.0,
+   "spawn_chance": 0.6,
+   "max_active": 2,
+   "respawn_time": 22,
+   "min_level": 1,
+   "max_level": 3,
+   "spawn_zone": "south_c"
+  },
+  {
+   "mob_type": "rat",
+   "position": [
+    -150,
+    2,
+    20
+   ],
+   "spawn_radius": 14.0,
+   "spawn_chance": 0.6,
+   "max_active": 2,
+   "respawn_time": 14,
+   "min_level": 1,
+   "max_level": 3,
+   "spawn_zone": "road_west"
+  },
+  {
+   "mob_type": "snake",
+   "position": [
+    -250,
+    2,
+    -30
+   ],
+   "spawn_radius": 14.0,
+   "spawn_chance": 0.6,
+   "max_active": 2,
+   "respawn_time": 18,
+   "min_level": 2,
+   "max_level": 4,
+   "spawn_zone": "road_west"
+  },
+  {
+   "mob_type": "dune_scarab",
+   "position": [
+    -350,
+    2,
+    20
+   ],
+   "spawn_radius": 16.0,
+   "spawn_chance": 0.6,
+   "max_active": 2,
+   "respawn_time": 16,
+   "min_level": 2,
+   "max_level": 5,
+   "spawn_zone": "road_west"
+  },
+  {
+   "mob_type": "bat",
+   "position": [
+    -450,
+    2,
+    -40
+   ],
+   "spawn_radius": 16.0,
+   "spawn_chance": 0.6,
+   "max_active": 2,
+   "respawn_time": 16,
+   "min_level": 1,
+   "max_level": 3,
+   "spawn_zone": "road_west"
+  },
+  {
+   "mob_type": "mirage_phantom",
+   "position": [
+    -520,
+    2,
+    40
+   ],
+   "spawn_radius": 16.0,
+   "spawn_chance": 0.4,
+   "max_active": 1,
+   "respawn_time": 40,
+   "min_level": 3,
+   "max_level": 3,
+   "spawn_zone": "road_west"
+  },
+  {
+   "mob_type": "rat",
+   "position": [
+    -100,
+    2,
+    140
+   ],
+   "spawn_radius": 14.0,
+   "spawn_chance": 0.6,
+   "max_active": 2,
+   "respawn_time": 14,
+   "min_level": 1,
+   "max_level": 3,
+   "spawn_zone": "nw_approach"
+  },
+  {
+   "mob_type": "snake",
+   "position": [
+    -150,
+    2,
+    220
+   ],
+   "spawn_radius": 14.0,
+   "spawn_chance": 0.6,
+   "max_active": 2,
+   "respawn_time": 18,
+   "min_level": 2,
+   "max_level": 4,
+   "spawn_zone": "nw_approach"
+  },
+  {
+   "mob_type": "slime",
+   "position": [
+    -60,
+    2,
+    230
+   ],
+   "spawn_radius": 14.0,
+   "spawn_chance": 0.6,
+   "max_active": 2,
+   "respawn_time": 20,
+   "min_level": 2,
+   "max_level": 4,
+   "spawn_zone": "nw_approach"
+  },
+  {
+   "mob_type": "bat",
+   "position": [
+    -250,
+    2,
+    200
+   ],
+   "spawn_radius": 16.0,
+   "spawn_chance": 0.6,
+   "max_active": 2,
+   "respawn_time": 16,
+   "min_level": 1,
+   "max_level": 3,
+   "spawn_zone": "nw_approach"
+  },
+  {
+   "mob_type": "goblin",
+   "position": [
+    -380,
+    2,
+    500
+   ],
+   "spawn_radius": 16.0,
+   "spawn_chance": 0.6,
+   "max_active": 2,
+   "respawn_time": 18,
+   "min_level": 1,
+   "max_level": 4,
+   "spawn_zone": "nw_approach"
+  },
+  {
+   "mob_type": "spider",
+   "position": [
+    -300,
+    2,
+    -300
+   ],
+   "spawn_radius": 16.0,
+   "spawn_chance": 0.6,
+   "max_active": 2,
+   "respawn_time": 18,
+   "min_level": 2,
+   "max_level": 4,
+   "spawn_zone": "southwest"
+  },
+  {
+   "mob_type": "snake",
+   "position": [
+    -350,
+    2,
+    -450
+   ],
+   "spawn_radius": 14.0,
+   "spawn_chance": 0.6,
+   "max_active": 2,
+   "respawn_time": 18,
+   "min_level": 2,
+   "max_level": 4,
+   "spawn_zone": "southwest"
+  },
+  {
+   "mob_type": "dune_scarab",
+   "position": [
+    -450,
+    2,
+    -250
+   ],
+   "spawn_radius": 16.0,
+   "spawn_chance": 0.6,
+   "max_active": 2,
+   "respawn_time": 16,
+   "min_level": 2,
+   "max_level": 5,
+   "spawn_zone": "southwest"
+  },
+  {
+   "mob_type": "bandit",
+   "position": [
+    -590,
+    2,
+    -560
+   ],
+   "spawn_radius": 20.0,
+   "spawn_chance": 0.6,
+   "max_active": 2,
+   "respawn_time": 20,
+   "min_level": 2,
+   "max_level": 4,
+   "spawn_zone": "wagon_crash"
+  },
+  {
+   "mob_type": "rat",
+   "position": [
+    -560,
+    2,
+    -590
+   ],
+   "spawn_radius": 14.0,
+   "spawn_chance": 0.6,
+   "max_active": 2,
+   "respawn_time": 14,
+   "min_level": 1,
+   "max_level": 3,
+   "spawn_zone": "wagon_crash"
+  },
+  {
+   "mob_type": "rat",
+   "position": [
+    -700,
+    2,
+    -150
+   ],
+   "spawn_radius": 14.0,
+   "spawn_chance": 0.6,
+   "max_active": 2,
+   "respawn_time": 14,
+   "min_level": 1,
+   "max_level": 3,
+   "spawn_zone": "far_west"
+  },
+  {
+   "mob_type": "snake",
+   "position": [
+    -650,
+    2,
+    250
+   ],
+   "spawn_radius": 14.0,
+   "spawn_chance": 0.6,
+   "max_active": 2,
+   "respawn_time": 18,
+   "min_level": 2,
+   "max_level": 4,
+   "spawn_zone": "far_west"
+  },
+  {
+   "mob_type": "sunmaddened_wanderer",
+   "position": [
+    -880,
+    2,
+    -60
+   ],
+   "spawn_radius": 60.0,
+   "spawn_chance": 0.02,
+   "max_active": 1,
+   "respawn_time": 480,
+   "min_level": 4,
+   "max_level": 6,
+   "spawn_zone": "deep_dunes_south"
+  },
+  {
+   "mob_type": "sunmaddened_wanderer",
+   "position": [
+    -870,
+    2,
+    300
+   ],
+   "spawn_radius": 60.0,
+   "spawn_chance": 0.02,
+   "max_active": 1,
+   "respawn_time": 480,
+   "min_level": 4,
+   "max_level": 6,
+   "spawn_zone": "deep_dunes_south"
+  },
+  {
+   "mob_type": "dessik_coinhand",
+   "position": [
+    -590,
+    2,
+    -562
+   ],
+   "spawn_radius": 5.0,
+   "spawn_chance": 1.0,
+   "max_active": 1,
+   "respawn_time": 900,
+   "min_level": 1,
+   "max_level": 1,
+   "spawn_zone": "wagon_crash_named"
+  },
+  {
+   "mob_type": "rask_ironjaw",
+   "position": [
+    -230,
+    2,
+    295
+   ],
+   "spawn_radius": 4.0,
+   "spawn_chance": 1.0,
+   "max_active": 1,
+   "respawn_time": 900,
+   "min_level": 1,
+   "max_level": 1,
+   "spawn_zone": "bandit_camp_1_named"
+  },
+  {
+   "mob_type": "grukka_bonechewer",
+   "position": [
+    -572.33,
+    2,
+    605.42
+   ],
+   "spawn_radius": 4.0,
+   "spawn_chance": 1.0,
+   "max_active": 1,
+   "respawn_time": 900,
+   "min_level": 1,
+   "max_level": 1,
+   "spawn_zone": "goblin_camp_1_named"
+  },
+  {
+   "mob_type": "sergeant_halvek",
+   "position": [
+    -36.4,
+    2,
+    -236
+   ],
+   "spawn_radius": 6.0,
+   "spawn_chance": 1.0,
+   "max_active": 1,
+   "respawn_time": 900,
+   "min_level": 1,
+   "max_level": 1,
+   "spawn_zone": "mausoleum_named"
+  },
+  {
+   "mob_type": "weavemother_vhessa",
+   "position": [
+    0,
+    2,
+    -850.86
+   ],
+   "spawn_radius": 5.0,
+   "spawn_chance": 1.0,
+   "max_active": 1,
+   "respawn_time": 1200,
+   "min_level": 1,
+   "max_level": 1,
+   "spawn_zone": "spider_den_named"
+  }
+ ],
+ "density": 1.0,
+ "activation_range": 400,
+ "no_monster_zones": [
+  {
+   "name": "Lumora (inside the wall)",
+   "min": [
+    54,
+    -32
+   ],
+   "max": [
+    116,
+    60
+   ]
+  },
+  {
+   "name": "In front of the gate",
+   "min": [
+    40,
+    -2
+   ],
+   "max": [
+    54,
+    28
+   ]
+  }
+ ]
 }

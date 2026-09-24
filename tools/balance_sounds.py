@@ -43,6 +43,10 @@ def main():
             gains.append(round(gain, 1))
             print(f"{sid:22s} {rel.split('/')[-1]:28s} {loud:6.1f} LUFS  peak {pk:6.1f}  -> {gain:+5.1f} dB")
         entry["volume_db"] = round(sum(gains) / len(gains), 1)
+        if len(gains) > 1:
+            entry["file_db"] = gains  # each variant at its own level (Sfx uses these over volume_db)
+        else:
+            entry.pop("file_db", None)
     for path, entry in data.get("music", {}).items():
         loud, pk = measure(os.path.join(ROOT, path.replace("res://", "")))
         gain = min(entry["target"] - loud, 18.0, -1.0 - pk + 6.0)

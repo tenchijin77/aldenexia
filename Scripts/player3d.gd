@@ -689,6 +689,25 @@ func open_shop_window(vendor: Node) -> void:
 		vendor.greet_player(player_name)
 
 
+# G: loot every corpse within LOOT_ALL_RANGE at once — for when a crafting station, an NPC or another corpse is in the way.
+const LOOT_ALL_RANGE := 10.0
+
+func loot_all_nearby() -> void:
+	var corpses := 0
+	var taken := 0
+	for node in get_tree().get_nodes_in_group("monsters"):
+		if node is Monster and (node as Monster).current_state == Monster.State.DEAD \
+				and global_position.distance_to((node as Node3D).global_position) <= LOOT_ALL_RANGE:
+			corpses += 1
+			taken += (node as Monster).loot_everything()
+	if corpses == 0:
+		GameLog.log_general("There is nothing to loot within %d m." % int(LOOT_ALL_RANGE))
+	elif taken == 0:
+		GameLog.log_general("You search %d corpse%s but find nothing more." % [corpses, "" if corpses == 1 else "s"])
+	else:
+		Sfx.play("pickup")
+
+
 func _try_loot_corpse() -> void:
 	var nearest: Monster = null
 	var nearest_dist := LOOT_RANGE
@@ -2354,6 +2373,8 @@ func handle_combat() -> void:
 		toggle_quest_journal()
 	if Input.is_action_just_pressed("toggle_recipe_book"):
 		toggle_recipe_book()
+	if Input.is_action_just_pressed("loot_all"):
+		loot_all_nearby()
 	if is_instance_valid(_deathly_visage_light):
 		_deathly_visage_light.visible = combat_node.has_effect("deathly_visage")
 	if is_instance_valid(_shadowlight_light):
@@ -4663,6 +4684,14 @@ func _compute_spell_damage(base_damage: int, school: String, target_cn) -> int:
 # always take priority and are untouched by this. Returns true if it
 # recognized and applied the effect_type, false if the caller should fall
 # back to a generic flavor-text message.
+# The generic effect lines are written about a target ("Target is empowered."); cast on yourself they read "You are
+# empowered." rather than "Yourself is empowered.".
+func _log_effect(text: String) -> void:
+	for pair in [["Yourself is ", "You are "], ["Yourself begins ", "You begin "], ["Yourself healed ", "You are healed "], ["Yourself resists ", "You resist "], ["Yourself flees ", "You flee "]]:
+		text = text.replace(pair[0], pair[1])
+	GameLog.log_combat(text)
+
+
 func _apply_generic_spell_effect(effect_type: String, spell: Dictionary, caster_cn: CombatNode, target_cn, target_node: Node, target_desc: String) -> bool:
 	if not (target_cn is CombatNode):
 		return false
@@ -4690,16 +4719,16 @@ func _apply_generic_spell_effect(effect_type: String, spell: Dictionary, caster_
 		"charm", "mesmerize", "confuse", "root", "blind", "silence"]
 	if effect_type in NEGATIVE_EFFECT_TYPES:
 		if effect_type in ["stun", "fear", "charm", "mesmerize", "confuse", "root", "snare", "blind", "silence"] and target_cn.is_cc_immune(effect_type):
-			GameLog.log_combat("[color=#88ccff]%s is immune.[/color]" % target_desc.capitalize())
+			_log_effect("[color=#88ccff]%s is immune.[/color]" % target_desc.capitalize())
 			return false
 		if effect_type == "root" and target_cn.race_immune_to_root:
-			GameLog.log_combat("[color=#88ccff]%s is immune to being rooted.[/color]" % target_desc.capitalize())
+			_log_effect("[color=#88ccff]%s is immune to being rooted.[/color]" % target_desc.capitalize())
 			return false
 		if effect_type == "blind" and target_cn.race_immune_to_blind:
-			GameLog.log_combat("[color=#88ccff]%s is immune to blindness.[/color]" % target_desc.capitalize())
+			_log_effect("[color=#88ccff]%s is immune to blindness.[/color]" % target_desc.capitalize())
 			return false
 		if target_cn.rolls_resist_negative_effect():
-			GameLog.log_combat("[color=#88ccff]%s resists the effect![/color]" % target_desc.capitalize())
+			_log_effect("[color=#88ccff]%s resists the effect![/color]" % target_desc.capitalize())
 			return false
 
 	# These messages are all target-referential ("Target is empowered.") with
@@ -4729,7 +4758,7 @@ func _apply_generic_spell_effect(effect_type: String, spell: Dictionary, caster_
 				return false
 			var heal_msg: String = self_cast_message if not self_cast_message.is_empty() \
 				else "[color=#66ff99]%s healed for [b]%d[/b].[/color]" % [target_desc.capitalize(), healed]
-			GameLog.log_combat(heal_msg)
+			_log_effect(heal_msg)
 			_broadcast_combat("[color=#66ff99]%s healed for [b]%d[/b].[/color]" % [bcast_desc.capitalize(), healed])
 			return true
 		"hot":
@@ -4740,7 +4769,7 @@ func _apply_generic_spell_effect(effect_type: String, spell: Dictionary, caster_
 			_buff_target(target_node, target_cn, effect_name, duration, {}, 0, 1.0, per_tick)
 			var hot_msg: String = self_cast_message if not self_cast_message.is_empty() \
 				else "[color=#66ff99]%s begins regenerating health.[/color]" % target_desc.capitalize()
-			GameLog.log_combat(hot_msg)
+			_log_effect(hot_msg)
 			_broadcast_combat("[color=#66ff99]%s begins regenerating health.[/color]" % bcast_desc.capitalize())
 			return true
 		"dot":
@@ -4758,7 +4787,7 @@ func _apply_generic_spell_effect(effect_type: String, spell: Dictionary, caster_
 						break
 				effect_name = "%s_%d" % [effect_name, slot]
 			_buff_target(target_node, target_cn, effect_name, duration, {}, per_tick, 1.0)
-			GameLog.log_combat("[color=#77aa44]%s is afflicted with a lingering effect.[/color]" % target_desc.capitalize())
+			_log_effect("[color=#77aa44]%s is afflicted with a lingering effect.[/color]" % target_desc.capitalize())
 			_broadcast_combat("[color=#77aa44]%s is afflicted with a lingering effect.[/color]" % bcast_desc.capitalize())
 			return true
 		"buff":
@@ -4767,21 +4796,21 @@ func _apply_generic_spell_effect(effect_type: String, spell: Dictionary, caster_
 			_buff_target(target_node, target_cn, effect_name, duration, spell_mods if not spell_mods.is_empty() else {"damage_mult": 0.05})
 			var buff_msg: String = self_cast_message if not self_cast_message.is_empty() \
 				else "[color=#88ffcc]%s is empowered.[/color]" % target_desc.capitalize()
-			GameLog.log_combat(buff_msg)
+			_log_effect(buff_msg)
 			_broadcast_combat("[color=#88ffcc]%s is empowered.[/color]" % bcast_desc.capitalize())
 			return true
 		"debuff":
 			if duration <= 0.0:
 				return false
 			_buff_target(target_node, target_cn, effect_name, duration, spell_mods if not spell_mods.is_empty() else {"damage_mult": -0.05})
-			GameLog.log_combat("[color=#8866ff]%s is weakened.[/color]" % target_desc.capitalize())
+			_log_effect("[color=#8866ff]%s is weakened.[/color]" % target_desc.capitalize())
 			_broadcast_combat("[color=#8866ff]%s is weakened.[/color]" % bcast_desc.capitalize())
 			return true
 		"snare":
 			if duration <= 0.0:
 				return false
 			_buff_target(target_node, target_cn, effect_name, duration, spell_mods if not spell_mods.is_empty() else {"speed_slow": 0.15, "attack_speed_slow": 0.15})
-			GameLog.log_combat("[color=#8866ff]%s is slowed.[/color]" % target_desc.capitalize())
+			_log_effect("[color=#8866ff]%s is slowed.[/color]" % target_desc.capitalize())
 			_broadcast_combat("[color=#8866ff]%s is slowed.[/color]" % bcast_desc.capitalize())
 			return true
 		"stun":
@@ -4794,7 +4823,7 @@ func _apply_generic_spell_effect(effect_type: String, spell: Dictionary, caster_
 				return false
 			if target_node.has_method("apply_fear"):
 				_fear_target(target_node, duration)
-				GameLog.log_combat("[color=#ffcc66]%s flees in terror![/color]" % target_desc.capitalize())
+				_log_effect("[color=#ffcc66]%s flees in terror![/color]" % target_desc.capitalize())
 				_broadcast_combat("[color=#ffcc66]%s flees in terror![/color]" % bcast_desc.capitalize())
 				return true
 			var feared := _apply_disable_effect(duration, target_node, target_desc, "flees in terror!")
@@ -4807,7 +4836,7 @@ func _apply_generic_spell_effect(effect_type: String, spell: Dictionary, caster_
 			if target_node.has_method("apply_charm"):
 				_charm_target(target_node, duration)
 				_open_charm_control_window(target_node)
-				GameLog.log_combat("[color=#ffcc66]%s is charmed![/color]" % target_desc.capitalize())
+				_log_effect("[color=#ffcc66]%s is charmed![/color]" % target_desc.capitalize())
 				_broadcast_combat("[color=#ffcc66]%s is charmed![/color]" % bcast_desc.capitalize())
 				return true
 			var charmed := _apply_disable_effect(duration, target_node, target_desc, "is charmed!")
@@ -4828,14 +4857,14 @@ func _apply_generic_spell_effect(effect_type: String, spell: Dictionary, caster_
 			if duration <= 0.0:
 				return false
 			_buff_target(target_node, target_cn, effect_name, duration, {"speed_slow": 1.0})
-			GameLog.log_combat("[color=#8866ff]%s is rooted in place.[/color]" % target_desc.capitalize())
+			_log_effect("[color=#8866ff]%s is rooted in place.[/color]" % target_desc.capitalize())
 			_broadcast_combat("[color=#8866ff]%s is rooted in place.[/color]" % bcast_desc.capitalize())
 			return true
 		"blind":
 			if duration <= 0.0:
 				return false
 			_buff_target(target_node, target_cn, effect_name, duration, {"hit_chance": -25.0})
-			GameLog.log_combat("[color=#8866ff]%s is blinded.[/color]" % target_desc.capitalize())
+			_log_effect("[color=#8866ff]%s is blinded.[/color]" % target_desc.capitalize())
 			_broadcast_combat("[color=#8866ff]%s is blinded.[/color]" % bcast_desc.capitalize())
 			return true
 		"silence":
@@ -4846,7 +4875,7 @@ func _apply_generic_spell_effect(effect_type: String, spell: Dictionary, caster_
 			# to consult it, but any future caster (monster or class) that
 			# checks it before casting will work with zero extra wiring here.
 			_buff_target(target_node, target_cn, effect_name, duration, {"silenced": 1.0})
-			GameLog.log_combat("[color=#8888ff]%s is silenced.[/color]" % target_desc.capitalize())
+			_log_effect("[color=#8888ff]%s is silenced.[/color]" % target_desc.capitalize())
 			_broadcast_combat("[color=#8888ff]%s is silenced.[/color]" % bcast_desc.capitalize())
 			return true
 		"cure":
@@ -4854,7 +4883,7 @@ func _apply_generic_spell_effect(effect_type: String, spell: Dictionary, caster_
 			if to_remove.is_empty():
 				return false
 			_remove_effect_from_target(target_node, target_cn, to_remove)
-			GameLog.log_combat("[color=#88ffaa]%s is cleansed of %s.[/color]" % [
+			_log_effect("[color=#88ffaa]%s is cleansed of %s.[/color]" % [
 				target_desc.capitalize(), spell_display_name(to_remove)
 			])
 			_broadcast_combat("[color=#88ffaa]%s is cleansed of %s.[/color]" % [
@@ -4873,7 +4902,7 @@ func _apply_generic_spell_effect(effect_type: String, spell: Dictionary, caster_
 			var shield_mods := spell_mods.duplicate()
 			shield_mods["absorb_amount"] = magnitude  # plus whatever else the shield does (reflect, slow attackers...)
 			_buff_target(target_node, target_cn, effect_name, duration, shield_mods)  # reaches a remote group member too
-			GameLog.log_combat("[color=#8866ff]%s is shielded, absorbing damage.[/color]" % target_desc.capitalize())
+			_log_effect("[color=#8866ff]%s is shielded, absorbing damage.[/color]" % target_desc.capitalize())
 			_broadcast_combat("[color=#8866ff]%s is shielded, absorbing damage.[/color]" % bcast_desc.capitalize())
 			return true
 	return false

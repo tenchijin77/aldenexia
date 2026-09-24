@@ -197,7 +197,7 @@ var _pre_flee_state: State = State.IDLE
 # monsters.json "flees": false opts a type out. Undead never flee: they do not fear death.
 const LOW_HEALTH_FLEE_FRACTION := 0.10
 const LOW_HEALTH_FLEE_SECONDS := 7.0
-const LOW_HEALTH_FLEE_SPEED := 1.5
+const LOW_HEALTH_FLEE_SPEED := 0.6   # badly hurt and trying to get away: a limp, not a sprint (was 1.5x)
 var _has_fled: bool = false
 var _flee_from: Node3D = null      # set while running away from a threat (otherwise fear flees in random directions)
 var flees_at_low_health: bool = true
@@ -1781,6 +1781,31 @@ func open_loot_window() -> void:
 	loot_window.all_looted.connect(_on_fully_looted)
 
 
+# The Loot All key (G, player3d.gd loot_all_nearby()): takes this peer's whole loot from the corpse without opening the
+# window — the same as the window's "Loot All" (coins, preferences; anything that doesn't fit stays on the corpse).
+# Returns how many drops were taken.
+func loot_everything() -> int:
+	var peer_id: int = multiplayer.get_unique_id()
+	if not _personal_loot.has(peer_id):
+		_personal_loot[peer_id] = _auto_process_loot(roll_loot()) if _drop_loot_allowed else []
+	var my_loot: Array = _personal_loot[peer_id]
+	var taken := 0
+	if not my_loot.is_empty():
+		var looter = load("res://Scripts/corpse_loot_window.gd").new()  # only for its _apply_drop()
+		for drop in my_loot.duplicate():
+			if looter._apply_drop(drop):
+				my_loot.erase(drop)
+				taken += 1
+		looter.free()
+	if my_loot.is_empty():
+		if is_instance_valid(loot_window):
+			loot_window.queue_free()
+		_report_looted()
+	elif is_instance_valid(loot_window):
+		loot_window.setup(monster_name.capitalize(), my_loot)
+	return taken
+
+
 # Only closes THIS peer's own loot window — the corpse itself is never freed
 # here anymore (that used to run unconditionally, so the first player to
 # finish looting despawned the corpse out from under everyone else's
@@ -1987,6 +2012,25 @@ var _patrol_stall_timer: float = 0.0
 const PATROL_MIN_DISTANCE: float = 5.0   # avoid trivially-short legs that don't read as movement
 const PATROL_MAX_DISTANCE: float = 18.0  # was a flat 10.0 with no minimum — too tight a bubble to look like real wandering
 
+# The zone's no-monster rectangles (Data/lumora_outskirts_spawns.json "no_monster_zones": the town and the gate front):
+# monsters don't spawn there (mob_spawner3d.gd) or wander there on their own.
+static var _no_monster_zones: Array = []
+static var _zones_loaded := false
+
+static func in_no_monster_zone(pos: Vector3) -> bool:
+	if not _zones_loaded:
+		_zones_loaded = true
+		var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string("res://Data/lumora_outskirts_spawns.json"))
+		if typeof(parsed) == TYPE_DICTIONARY:
+			_no_monster_zones = parsed.get("no_monster_zones", [])
+	for zone in _no_monster_zones:
+		var lo: Array = zone.get("min", [0, 0])
+		var hi: Array = zone.get("max", [0, 0])
+		if pos.x >= float(lo[0]) and pos.x <= float(hi[0]) and pos.z >= float(lo[1]) and pos.z <= float(hi[1]):
+			return true
+	return false
+
+
 func pick_new_patrol_point() -> void:
 	_patrol_best_distance = INF
 	_patrol_stall_timer = 0.0
@@ -2001,6 +2045,8 @@ func pick_new_patrol_point() -> void:
 		var random_angle: float = randf() * TAU
 		var random_distance: float = randf_range(PATROL_MIN_DISTANCE, PATROL_MAX_DISTANCE)
 		var candidate: Vector3 = spawn_position + Vector3(cos(random_angle) * random_distance, 0, sin(random_angle) * random_distance)
+		if in_no_monster_zone(candidate):
+			continue  # never wander into town on its own
 		if not map.is_valid():
 			patrol_target = candidate
 			return

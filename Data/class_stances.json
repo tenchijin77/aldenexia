@@ -50,7 +50,7 @@
    "stance_id": "wind",
    "name": "Wind Stance",
    "level": 1,
-   "icon": "",
+   "icon": "res://Assets/icons/spells/stance_wind.png",
    "description": "Gale Step: +8 dodge, +10% movement and attack speed, -5% damage. Hits have a 5% chance to stun for 3-5 seconds. Swift Step and Flying Kick are stronger. Group: +5% movement speed.",
    "modifiers": {
     "dodge_bonus": 8,
@@ -73,16 +73,16 @@
     "move_speed_bonus": 0.05
    },
    "aura": [
-    0.65,
-    1.0,
-    0.8
+    0.62,
+    0.85,
+    1.0
    ]
   },
   {
    "stance_id": "earth",
    "name": "Earth Stance",
    "level": 3,
-   "icon": "",
+   "icon": "res://Assets/icons/spells/stance_earth.png",
    "description": "Stone Root (backup tank): take 20% less damage, +50% threat, +5 parry; -15% damage and -10% attack speed. Earth Strike and Mountain's Challenge are stronger. Group: take 3% less damage.",
    "modifiers": {
     "damage_taken_mult": 0.2,
@@ -108,7 +108,7 @@
    "stance_id": "water",
    "name": "Water Stance",
    "level": 5,
-   "icon": "",
+   "icon": "res://Assets/icons/spells/stance_water.png",
    "description": "Flowing Tide: +8 parry, +3 health regen, -5% damage. Hits have a 15% chance to heal you for 30% of the damage. Water Strike and Mend Wounds are stronger. Group: +1 health regen.",
    "modifiers": {
     "parry_bonus": 8,
@@ -129,8 +129,8 @@
     "hp_regen_bonus": 1
    },
    "aura": [
-    0.35,
-    0.65,
+    0.2,
+    0.45,
     1.0
    ]
   },
@@ -138,7 +138,7 @@
    "stance_id": "fire",
    "name": "Fire Stance",
    "level": 7,
-   "icon": "",
+   "icon": "res://Assets/icons/spells/stance_fire.png",
    "description": "Ember Fist: +12% damage, -5 dodge and parry. Hits have a 20% chance to set the target burning (3 damage a second for 4 seconds, stacks 3 times). Fire Strike is stronger. Group: +3% damage.",
    "modifiers": {
     "damage_mult": 0.12,
@@ -169,7 +169,7 @@
    "stance_id": "void",
    "name": "Void Stance",
    "level": 10,
-   "icon": "",
+   "icon": "res://Assets/icons/spells/stance_void.png",
    "description": "Hollow Palm: +5% damage, take 10% more damage. Hits have a 15% chance to add a random effect: weaken, blind, silence, drain mana, or stun for 3-5 seconds. Ki Strike is stronger. Group: +5 magic resistance.",
    "modifiers": {
     "damage_mult": 0.05,

@@ -542,6 +542,21 @@
    "max_seconds": 1.4,
    "volume_db": 4.5,
    "positional": true
+  },
+  "cat_meow": {
+   "files": [
+    "res://Assets/sounds/world/cat_meow_1.mp3",
+    "res://Assets/sounds/world/cat_meow_2.mp3"
+   ],
+   "target": -20,
+   "max_seconds": 1.5,
+   "pitch": 0.08,
+   "positional": true,
+   "volume_db": -9.5,
+   "file_db": [
+    -4.8,
+    -14.2
+   ]
   }
  },
  "music": {

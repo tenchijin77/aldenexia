@@ -132,9 +132,15 @@ func _spawn(idx: int, entry: Dictionary, mob_type: String) -> void:
 	var pos_arr: Array = entry.get("position", [0.0, 2.0, 0.0])
 	var base := Vector3(float(pos_arr[0]), float(pos_arr[1]), float(pos_arr[2]))
 	var radius: float = entry.get("spawn_radius", 5.0)
-	var angle: float = randf() * TAU
-	var offset := Vector3(cos(angle) * randf() * radius, 0.0, sin(angle) * randf() * radius)
-	var target_pos := base + offset
+	var target_pos := base
+	for attempt in 10:  # a spot outside the no-monster zones (the town): a spawn circle may reach over the wall
+		var angle: float = randf() * TAU
+		target_pos = base + Vector3(cos(angle) * randf() * radius, 0.0, sin(angle) * randf() * radius)
+		if not Monster.in_no_monster_zone(target_pos):
+			break
+	if Monster.in_no_monster_zone(target_pos):
+		_cooldowns[idx] = float(entry.get("respawn_time", 15))  # the whole circle is in town: try again later, never spawn there
+		return
 
 	# Snap onto the navmesh surface. lumora_outskirts_spawns.json hardcodes a
 	# flat Y per entry that rarely matches the real terrain height at the

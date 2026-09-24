@@ -54,6 +54,7 @@ enum GuardState { IDLE, ENGAGE, PATROL }
 @onready var nav_agent: NavigationAgent3D = $NavigationAgent3D
 @onready var animation_player: AnimationPlayer = get_node_or_null("Character/AnimationPlayer")  # null for unrigged NPCs (Oni)
 
+var _stall_noted := {}   # patrol waypoints already reported as skipped (reported once each)
 var _flavor: NPCFlavorText
 var _conversation: NPCConversation = null
 var _merchant_lines: Dictionary = {}
@@ -574,7 +575,10 @@ func _process_patrol(delta: float) -> void:
 	else:
 		_patrol_stall_timer += delta
 		if _patrol_stall_timer >= PATROL_STALL_SKIP:
-			push_warning("%s made no progress toward patrol waypoint #%d for %d s — skipping it." % [npc_name, _patrol_index, int(PATROL_STALL_SKIP)])
+			# Harmless (it just carries on to the next point) — noted once per waypoint, not as a warning with a stack trace.
+			if not _stall_noted.has(_patrol_index):
+				_stall_noted[_patrol_index] = true
+				print("%s skipped patrol waypoint #%d (no progress for %d s)." % [npc_name, _patrol_index, int(PATROL_STALL_SKIP)])
 			_advance_patrol()
 
 

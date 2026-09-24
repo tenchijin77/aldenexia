@@ -176,7 +176,10 @@ static func _bans(command: String, arg: String, gm: Node) -> String:
 		"unban":
 			if arg.is_empty():
 				return "Usage: /unban <ip address>"
-			return ("[color=#88ccff]Unbanned %s.[/color]" % arg) if Net.unban_ip(arg) else "%s isn't banned." % arg
+			if Net.unban_ip(arg):
+				Net._audit("UNBAN", arg, "", "by %s" % (str(gm.get("player_name")) if is_instance_valid(gm) else "a game master"))
+				return "[color=#88ccff]Unbanned %s.[/color]" % arg
+			return "%s isn't banned." % arg
 	if arg.is_empty():
 		return "Usage: /ban <ip address | player name>"
 	var ip := arg
@@ -191,4 +194,5 @@ static func _bans(command: String, arg: String, gm: Node) -> String:
 	var note := "banned by %s on %s%s" % [by, Time.get_date_string_from_system(), (" (was playing %s)" % who) if not who.is_empty() else ""]
 	var kicked := Net.ban_ip(ip, note)
 	Net._slog("Ban: %s — %s." % [ip, note])
+	Net._audit("BAN", ip, who, note)
 	return "[color=#88ccff]Banned %s%s; %d disconnected.[/color]" % [ip, (" (%s)" % who) if not who.is_empty() else "", kicked]

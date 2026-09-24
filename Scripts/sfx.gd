@@ -157,11 +157,14 @@ static func _config(id: String) -> Dictionary:
 	return cfg
 
 
+static var _last_pick := 0   # which of cfg's files _stream() just chose (for its own volume, "file_db")
+
 static func _stream(cfg: Dictionary) -> AudioStream:
 	var files: Array = cfg.get("files", [])
 	if files.is_empty():
 		return null
-	var path := str(files[randi() % files.size()])
+	_last_pick = randi() % files.size()
+	var path := str(files[_last_pick])
 	if not _streams.has(path):
 		_streams[path] = load(path) if ResourceLoader.exists(path) else null
 	return _streams[path]
@@ -192,7 +195,7 @@ static func _make_player(cfg: Dictionary, where: Variant) -> Node:
 		elif where is Vector3:
 			at = where
 	var pitch := 1.0 + randf_range(-1.0, 1.0) * float(cfg.get("pitch", 0.0))
-	var volume := float(cfg.get("volume_db", 0.0))
+	var volume := _volume_of(cfg)
 	if at != null and tree.current_scene != null:
 		var p3 := AudioStreamPlayer3D.new()
 		p3.stream = stream
@@ -218,3 +221,11 @@ static func _fade_out_after(player: Node, seconds: float) -> void:
 	tween.tween_interval(maxf(seconds - FADE, 0.0))
 	tween.tween_property(player, "volume_db", -60.0, FADE)
 	tween.tween_callback(player.queue_free)
+
+
+# The picked file's own balanced volume when the sound has several ("file_db"), else the sound's volume_db.
+static func _volume_of(cfg: Dictionary) -> float:
+	var per_file: Array = cfg.get("file_db", [])
+	if _last_pick < per_file.size():
+		return float(per_file[_last_pick])
+	return float(cfg.get("volume_db", 0.0))
