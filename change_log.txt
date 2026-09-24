@@ -2013,6 +2013,22 @@ GATE RAIDS (`Scripts/gate_raid_manager.gd`, `Data/gate_raids.json`, node "GateRa
 - Stances work (Lightsworn). Wrong-password lockout and Log Out passed. All three moved to COMPLETED in testing_items.txt.
 - "Blessing of Light, no regen message" — NOT A BUG, measured headless with a real Lightsworn player: the cast lands, the effect is active, and health rose 96 -> 115 of 156 in 6 s (3 a second after the 2 s cast, plus natural regen). The only lines are "You begin casting a spell." and "You begin regenerating health.", both in the COMBAT tab, not General; the ticks themselves are silent, and at full health they heal nothing.
 
+### Test 31: Zozuur (Voidknight), build e2ddc39 (2026-09-24)
+- Quests show in the journal (Halric's arrows, the Guildmaster's note, the spider den, the wreck): 4 checks passed.
+- "Can't take 2 tin and 1 fir off my stacks of 20 for the Tin Shield" — two fixes:
+  - SPLIT: right-click a stack in your bags > Split asks how many (default half) and puts them in a free slot — the same
+    bag first, then an empty character-sheet slot, then any bag that takes it — without merging back
+    (Inventory.split_stack()).
+  - CRAFTING WINDOW "How many": when the staged stacks could make several, a number box caps the batch (default: all of
+    them, as before). Leftovers go back to the bags on close.
+- REAL BUG found while testing it: the window used the FIRST recipe whose ingredients match the staged item types, so
+  Tin Dagger (1 tin + 1 fir) always won over Tin Shield (2 tin + 1 fir) — even with exactly 2 + 1 staged the Tin Shield
+  could never be made. Now every matching recipe is listed in a "Make:" picker; the default is the recipe that uses the
+  staged items up exactly, then one you know and can make.
+- Verified headless: split 20 -> 18 + 2 (and refusing 20 of 18); 2+1 -> Tin Shield; 20+20 -> Tin Shield x10 with the
+  picker and "How many" (1 works); 1+1 -> Tin Dagger, no picker.
+- Tester guide (right-click > Split) and Player's Manual updated and republished.
+
 ### Armour sets, Borgrim the smith, Deconstruct, seven quests, leftover recipes, story draft (2026-09-24, overnight)
 - ARMOUR SETS (Crafting.xlsx rows, exported; backup Crafting.before_armour_sets.xlsx): four 9-piece sets — Oasis Linen
   (cloth, Tailoring 1-11), Dunehide (leather, Leatherworking 1-11), Copperlink (chain, Blacksmithing 5-13, from a new

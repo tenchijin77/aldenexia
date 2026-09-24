@@ -96,7 +96,34 @@ func setup(station_id: String, title: String, action_label: String) -> void:
 	_deconstruct_btn.tooltip_text = "Take the gear in the slots apart for crafting materials."
 	_deconstruct_btn.pressed.connect(_on_deconstruct_pressed)
 	action_btn.add_sibling(_deconstruct_btn)
+	_pick_btn = OptionButton.new()
+	_pick_btn.visible = false
+	_pick_btn.item_selected.connect(func(_i): _count_max_seen = -1; _refresh_status())
+	action_btn.add_sibling(_pick_btn)
+	# "How many": the staged stacks can make several; this caps the batch (the rest goes back to your bags on close).
+	_count_row = HBoxContainer.new()
+	var count_label := Label.new()
+	count_label.text = "How many:"
+	_count_row.add_child(count_label)
+	_count_spin = SpinBox.new()
+	_count_spin.min_value = 1
+	_count_spin.max_value = 1
+	_count_spin.value_changed.connect(func(_v): _refresh_status())
+	_count_row.add_child(_count_spin)
+	action_btn.add_sibling(_count_row)
+	_count_row.visible = false
 	_refresh_status()
+
+
+var _count_row: HBoxContainer
+var _count_spin: SpinBox
+var _count_max_seen := 0   # the batch size the staged stacks allowed at the last refresh (a change resets the box to it)
+
+
+# How many to make of `found`: the "How many" box, never more than the stacks allow.
+func _chosen_count(found: Dictionary) -> int:
+	var most := int(found.get("multiplier", 1))
+	return clampi(int(_count_spin.value), 1, most) if _count_spin else most
 
 
 var _deconstruct_btn: Button
@@ -175,18 +202,69 @@ func _staged_ingredients() -> Dictionary:
 # cover what's staged (no extra/missing item types), where multiplier is how many times it divides evenly into the staged
 # amounts — a stack of 4 raw meat against a 1-raw-meat recipe crafts all 4. A group ingredient (cooked_meat_any) is
 # filled by any ONE staged item type from its group. Empty dict if nothing matches.
+# Several recipes can take the same materials in different amounts (Tin Dagger 1 tin + 1 fir, Tin Shield 2 tin + 1 fir):
+# then the window shows a "Make:" picker (_pick_btn) and uses the recipe chosen there. Its default is the recipe that uses
+# the staged items up exactly, then one you know and can make, then the first.
 func _find_best_recipe() -> Dictionary:
-	var staged := _staged_ingredients()
-	if staged.is_empty():
+	var matches := _matching_recipes()
+	if matches.is_empty():
 		return {}
+	if _pick_btn and matches.size() > 1 and _pick_btn.selected >= 0 and _pick_btn.selected < matches.size() \
+			and _pick_ids == matches.map(func(m): return m["id"]):
+		return matches[_pick_btn.selected]
+	return matches[_default_match(matches)]
+
+
+# Every recipe the staged items can make: [{id, recipe, multiplier, uses}].
+func _matching_recipes() -> Array:
+	var staged := _staged_ingredients()
+	var out: Array = []
+	if staged.is_empty():
+		return out
 	for entry in _recipes:
 		var uses := _resolve_ingredients(entry["recipe"].get("ingredients", {}), staged)
 		if uses.is_empty():
 			continue
 		var multiplier := _compute_multiplier(uses, staged)
 		if multiplier > 0:
-			return {"id": entry["id"], "recipe": entry["recipe"], "multiplier": multiplier, "uses": uses}
-	return {}
+			out.append({"id": entry["id"], "recipe": entry["recipe"], "multiplier": multiplier, "uses": uses})
+	return out
+
+
+func _default_match(matches: Array) -> int:
+	var staged := _staged_ingredients()
+	var best := 0
+	var best_score := -1
+	for i in matches.size():
+		var m: Dictionary = matches[i]
+		var exact := true
+		for item_id in staged:
+			if int(m["uses"].get(item_id, 0)) * int(m["multiplier"]) != int(staged[item_id]):
+				exact = false
+		var score := (2 if exact else 0) + (1 if _blocked_reason(m["id"], m["recipe"]).is_empty() else 0)
+		if score > best_score:
+			best_score = score
+			best = i
+	return best
+
+
+var _pick_btn: OptionButton
+var _pick_ids: Array = []   # the recipe ids the picker lists (rebuilt when the matches change)
+
+
+# Shows the "Make:" picker when more than one recipe fits what is staged.
+func _refresh_picker() -> void:
+	var matches := _matching_recipes()
+	var ids: Array = matches.map(func(m): return m["id"])
+	if ids == _pick_ids:
+		return
+	_pick_ids = ids
+	_pick_btn.clear()
+	for m in matches:
+		_pick_btn.add_item("Make: %s" % m["recipe"].get("name", m["id"]))
+	_pick_btn.visible = matches.size() > 1
+	if matches.size() > 1:
+		_pick_btn.select(_default_match(matches))
 
 
 # Maps a recipe's ingredient keys onto the staged item ids ({staged_item_id: qty per craft}), or {} if they don't
@@ -241,9 +319,20 @@ func _blocked_reason(recipe_id: String, recipe: Dictionary) -> String:
 func _refresh_status() -> void:
 	if _crafting:
 		return
+	if _pick_btn:
+		_refresh_picker()
 	var found := _find_best_recipe()
 	var blocked := "" if found.is_empty() else _blocked_reason(found["id"], found["recipe"])
 	action_btn.disabled = found.is_empty() or not blocked.is_empty()
+	if _count_spin:
+		var most := int(found.get("multiplier", 0)) if not found.is_empty() else 0
+		_count_row.visible = most > 1
+		if most != _count_max_seen:
+			_count_max_seen = most
+			_count_spin.set_block_signals(true)
+			_count_spin.max_value = maxi(most, 1)
+			_count_spin.value = maxi(most, 1)   # new stacks: default to all of them, as before
+			_count_spin.set_block_signals(false)
 	var cand := _deconstruct_candidate()
 	if _deconstruct_btn:
 		_deconstruct_btn.visible = not cand.is_empty()
@@ -259,8 +348,8 @@ func _refresh_status() -> void:
 		status_label.text = "You don't know a way to combine these items."
 	elif not blocked.is_empty():
 		status_label.text = blocked
-	elif found.get("multiplier", 1) > 1:
-		status_label.text = "Ready to make %d %s." % [found["multiplier"], found["recipe"].get("name", "")]
+	elif _chosen_count(found) > 1:
+		status_label.text = "Ready to make %d %s." % [_chosen_count(found), found["recipe"].get("name", "")]
 	else:
 		status_label.text = "Ready to make %s." % found["recipe"].get("name", "")
 
@@ -277,7 +366,7 @@ func _on_action_pressed() -> void:
 	_craft_recipe = found["recipe"]
 	_craft_recipe_id = found["id"]
 	_craft_uses = found["uses"]
-	_craft_multiplier = found["multiplier"]
+	_craft_multiplier = _chosen_count(found)
 	_crafting = true
 	_craft_elapsed = 0.0
 	_craft_done = 0

@@ -1,12 +1,12 @@
 ALDENEXIA: LIGHTFALL — TESTING CHECKLIST
 New features and fixes waiting for a real playtest, in two parts: OUTSTANDING (not passed yet) and COMPLETED (passed).
 When an item passes, change [ ] to [x] and move it to the same section under COMPLETED (or just add "- working" and it
-gets moved). A failure goes to outstanding_items.txt with what went wrong. Last updated 2026-09-24 (test 30).
-Everything below was built after test 26.   Outstanding: 114   Completed: 16
+gets moved). A failure goes to outstanding_items.txt with what went wrong. Last updated 2026-09-24 (test 31).
+Everything below was built after test 26.   Outstanding: 113   Completed: 20
 
 
 ################################################################################
-  OUTSTANDING — still to test (114)
+  OUTSTANDING — still to test (113)
 ################################################################################
 
 == ACCOUNTS AND JOINING ==
@@ -124,10 +124,7 @@ Everything below was built after test 26.   Outstanding: 114   Completed: 16
 
 
 == QUEST DISCOVERY (2026-09-24, after test 30) ==
-[ ] Hail Guard Reyna on a character without the wreck quest: she offers the {wagon}; click it and The Wreck on the South
-    Road starts. With it active, hails are the usual random lines again.
 [ ] Carrying the Lumoran strongbox (or Halvek's medal), hailing Reyna asks you to hand it over; drag it onto her to finish.
-[ ] Hail Private Corwin: he warns about the {spiders}; clicking it starts The Silent Den. Carrying blighted silk, he asks for it.
 [ ] After The Silent Den, Corwin's hail and his thank-you both link {den}; clicking it starts The Weavemother's Mark.
 [ ] Sahren, without a token: Djhanid -> water -> token now links {Hollowed} -> release, which starts Release the Hollowed.
 
@@ -159,7 +156,6 @@ Everything below was built after test 26.   Outstanding: 114   Completed: 16
 [ ] Gate names: Duskwalk, Long March, Ki Vortex, Song of Remembrance, Familiar Trail (scrolls at Ilsabet / Xalvyr).
 
 == THE GUILDMASTER'S NOTE, QUEST RECIPES (2026-09-24) ==
-[ ] Right-click the Faded Note in your bags > Read: the text shows and The Guildmaster's Note starts (old characters too).
 [ ] The Old Foundation Stone by the crypts: by day "the note said nightfall"; at night you get Aelric's Sealed Letter and
     the Scroll of High Arcanum Basics, and the quest completes. The stone sits on the ground, not in a wall.
 [ ] Finishing The Wreck / Weavemother's Mark / Release the Hollowed / A Warden Not at Rest gives its recipe scroll;
@@ -200,14 +196,19 @@ Everything below was built after test 26.   Outstanding: 114   Completed: 16
 
 == SEVEN NEW QUESTS (2026-09-24, overnight) ==
 [ ] Bryn: hail -> {bounty}; 10 goblin ears -> both scrolls; again -> coin only (repeatable).
-[ ] Halric: hail -> {arrows}; 6 spider fangs + 8 bone fragments -> Silk Bowstring pattern.
 [ ] Sahren (after Release the Hollowed): his thank-you links {belongings}; the four keepsakes -> Starlight Cordial.
 [ ] Ilsabet: hail -> {rites}; shards, salves, bandages (any order) -> Old Thallian primer + Oasis Linen Robe pattern.
 [ ] Lira: hail -> {reagents}; Tobble: hail -> {toy}; Aldric: hail -> {furs}. Each hands in by dragging the items onto them.
 [ ] The Silent Den now also gives the Copperlink Hauberk pattern.
 
+== TEST 31 FIXES: STACKS AND RECIPE CHOICE ==
+[ ] Right-click a stack in your bags > Split: pick how many; they appear as a new stack in a free slot (same bag first).
+[ ] Put 20 tin + 20 fir in the forge: a "Make:" picker offers Tin Dagger / Tin Shield (Shield chosen if you know it);
+    "How many" lets you make just 1; the rest goes back to your bags when you close the window.
+[ ] Put exactly 2 tin + 1 fir in: it's ready to make a Tin Shield (it used to always make a Tin Dagger).
+
 ################################################################################
-  COMPLETED — passed (16)
+  COMPLETED — passed (20)
 ################################################################################
 
 == ACCOUNTS AND JOINING ==
@@ -237,3 +238,14 @@ Everything below was built after test 26.   Outstanding: 114   Completed: 16
 == TANK STANCES ==
 [x] Blademaster (Hold the Line / Warpath / Veteran's Stance) and Lightsworn (Aegis of Dawn / Dawn's Wrath / Oathkeeper)
     have a stance bar at level 1; Voidknight's three still work, with new icons.
+
+== QUEST DISCOVERY (2026-09-24, after test 30) ==
+[x] Hail Guard Reyna on a character without the wreck quest: she offers the {wagon}; click it and The Wreck on the South
+    Road starts. With it active, hails are the usual random lines again.
+[x] Hail Private Corwin: he warns about the {spiders}; clicking it starts The Silent Den. Carrying blighted silk, he asks for it.
+
+== THE GUILDMASTER'S NOTE, QUEST RECIPES (2026-09-24) ==
+[x] Right-click the Faded Note in your bags > Read: the text shows and The Guildmaster's Note starts (old characters too).
+
+== SEVEN NEW QUESTS (2026-09-24, overnight) ==
+[x] Halric: hail -> {arrows}; 6 spider fangs + 8 bone fragments -> Silk Bowstring pattern.

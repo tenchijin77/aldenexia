@@ -662,6 +662,57 @@ func _add_item(item_id: String, quantity: int = 1) -> bool:
 	return false
 #endregion
 
+#region Splitting stacks
+# Right-click a stack > Split (slot_button.gd): `amount` comes off into a new stack in a free spot — the same bag first,
+# then an empty character-sheet slot, then any bag with room that takes it. Never merged back into a stack (that's what
+# add_item() would do). False (and nothing changes) when there's no room or the amount doesn't leave both stacks > 0.
+func split_stack(src_type: String, src_index: int, src_bag: int, src_item_index: int, amount: int) -> bool:
+	var item: Variant = null
+	if src_type == "basic" and src_index >= 0 and src_index < BASIC_INVENTORY_SIZE:
+		item = basic_inventory[src_index]
+	elif src_type == "bag":
+		var items: Array = bag_contents.get(str(src_bag), [])
+		if src_item_index >= 0 and src_item_index < items.size():
+			item = items[src_item_index]
+	if typeof(item) != TYPE_DICTIONARY or not item.get("stackable", false):
+		return false
+	var qty := int(item.get("quantity", 1))
+	if amount < 1 or amount >= qty:
+		return false
+	var part: Dictionary = item.duplicate(true)
+	part["quantity"] = amount
+	var placed := false
+	if src_type == "bag":
+		var bag = basic_inventory[src_bag]
+		var items: Array = bag_contents.get(str(src_bag), [])
+		if items.size() < get_bag_size(bag):
+			items.append(part)
+			placed = true
+	if not placed:
+		for i in range(BASIC_INVENTORY_SIZE):
+			if basic_inventory[i] == null:
+				basic_inventory[i] = part
+				placed = true
+				break
+	if not placed:
+		for b in range(BASIC_INVENTORY_SIZE):
+			var bag = basic_inventory[b]
+			if bag == null or not is_bag(bag) or not bag_accepts(bag, part):
+				continue
+			var items: Array = bag_contents.get(str(b), [])
+			if items.size() < get_bag_size(bag):
+				bag_contents[str(b)] = items
+				items.append(part)
+				placed = true
+				break
+	if not placed:
+		return false
+	item["quantity"] = qty - amount
+	sync_to_global()
+	inventory_changed.emit()
+	return true
+#endregion
+
 #region Bag Content Management
 func add_to_bag(bag_slot_index: int, item_id: String, quantity: int = 1) -> bool:
 	# Adds item to a bag in basic inventory

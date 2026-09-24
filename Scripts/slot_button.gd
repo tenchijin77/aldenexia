@@ -406,6 +406,14 @@ func _show_inspect_popup() -> void:
 			layer.queue_free()
 			_drop_on_ground(item_data))
 		item_row.add_child(drop_btn)
+		if item_data.get("stackable", false) and int(item_data.get("quantity", 1)) > 1:
+			var split_btn := Button.new()
+			split_btn.text = "Split"
+			split_btn.tooltip_text = "Take some off this stack into a free slot (e.g. to put just what a recipe needs in a crafting window)."
+			split_btn.pressed.connect(func():
+				layer.queue_free()
+				_ask_split())
+			item_row.add_child(split_btn)
 		var destroy_btn := Button.new()
 		destroy_btn.text = "Destroy"
 		destroy_btn.add_theme_color_override("font_color", Color(1.0, 0.55, 0.45))
@@ -570,6 +578,39 @@ func _drop_on_ground(item: Dictionary) -> void:
 	world_items.drop(taken, player.global_position + Vector3(forward.x, 0.0, forward.z).normalized() * 0.8, str(player.get("player_name")))
 	GameLog.log_general("You drop %s on the ground." % _stack_name(taken))
 	Global.save_player_data_to_file()
+
+
+# Right-click menu > Split: how many to take off the stack (Inventory.split_stack()). Enter or OK splits.
+func _ask_split() -> void:
+	var qty := int(item_data.get("quantity", 1))
+	var dialog := ConfirmationDialog.new()
+	dialog.title = "Split %s" % str(item_data.get("name", "stack"))
+	dialog.ok_button_text = "Split"
+	var box := VBoxContainer.new()
+	var label := Label.new()
+	label.text = "How many do you want to take off the stack of %d?" % qty
+	box.add_child(label)
+	var spin := SpinBox.new()
+	spin.min_value = 1
+	spin.max_value = qty - 1
+	spin.value = maxi(1, qty / 2)
+	box.add_child(spin)
+	dialog.add_child(box)
+	var layer := CanvasLayer.new()
+	layer.layer = 20
+	get_tree().root.add_child(layer)
+	layer.add_child(dialog)
+	var src := [slot_type, slot_index, bag_slot, item_index]
+	dialog.confirmed.connect(func():
+		spin.apply()
+		if not Inventory.split_stack(src[0], src[1], src[2], src[3], int(spin.value)):
+			GameLog.log_general("[color=#ff8866]There's no free slot to put the split stack in.[/color]")
+		layer.queue_free())
+	dialog.canceled.connect(layer.queue_free)
+	dialog.register_text_enter(spin.get_line_edit())
+	dialog.popup_centered()
+	spin.get_line_edit().grab_focus()
+	spin.get_line_edit().select_all()
 
 
 # Right-click menu > Destroy: asks first, then the item is gone for good.
