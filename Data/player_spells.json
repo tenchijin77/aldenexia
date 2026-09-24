@@ -31,7 +31,7 @@
         "spell_id": 2,
         "spell_name": "shadow_aura",
         "icon": "res://Assets/icons/spells/selfbuff.png",
-        "description": "Reduces enemy accuracy by 5% in 10m radius.",
+        "description": "Reduces enemy accuracy by 5% in 10m radius. Lasts 15 minutes.",
         "caster_proficiency": "intelligence",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -199,7 +199,7 @@
         "spell_id": 8,
         "spell_name": "dark_pact",
         "icon": "res://Assets/icons/spells/selfbuff.png",
-        "description": "Grants 10% magic resistance, costs 5% mana.",
+        "description": "Grants 10% magic resistance, costs 5% mana. Lasts 15 minutes.",
         "caster_proficiency": "intelligence",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -209,7 +209,7 @@
         "damage": 8,
         "target": "self",
         "range": "15m",
-        "duration": 5,
+        "duration": 900,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
@@ -221,7 +221,10 @@
             "Voidknight": 4
         },
         "effect_type": "buff",
-        "channel": false
+        "channel": false,
+        "modifiers": {
+            "magic_resist_bonus": 10
+        }
     },
     {
         "spell_id": 9,
@@ -283,7 +286,7 @@
         "spell_id": 11,
         "spell_name": "shadow_ward",
         "icon": "res://Assets/icons/spells/selfward.png",
-        "description": "Absorbs 100 damage over 8 seconds.",
+        "description": "Absorbs 100 damage over 8 seconds. Lasts 15 seconds.",
         "caster_proficiency": "intelligence",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -293,7 +296,7 @@
         "damage": 100,
         "target": "self",
         "range": "15m",
-        "duration": 5,
+        "duration": 15,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
@@ -304,7 +307,9 @@
         "class_level_requirements": {
             "Voidknight": 6
         },
-        "channel": false
+        "channel": false,
+        "effect_type": "absorb",
+        "effect_amount": 100
     },
     {
         "spell_id": 12,
@@ -422,7 +427,7 @@
         "spell_id": 16,
         "spell_name": "deaths_echo",
         "icon": "res://Assets/icons/spells/selfbuff.png",
-        "description": "Killing an enemy boosts next attack damage by 10%.",
+        "description": "Killing an enemy boosts next attack damage by 10%. Lasts 15 minutes.",
         "caster_proficiency": "intelligence",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -432,7 +437,7 @@
         "damage": 0,
         "target": "self",
         "range": "15m",
-        "duration": 5,
+        "duration": 900,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
@@ -620,7 +625,7 @@
         "spell_id": 23,
         "spell_name": "unyielding_darkness",
         "icon": "res://Assets/icons/spells/selfbuff.png",
-        "description": "Grants 30% damage reduction, CC immunity for 6 seconds.",
+        "description": "Grants 30% damage reduction, CC immunity for 15 seconds.",
         "caster_proficiency": "intelligence",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -630,7 +635,7 @@
         "damage": 6,
         "target": "self",
         "range": "15m",
-        "duration": 5,
+        "duration": 15,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
@@ -642,7 +647,11 @@
             "Voidknight": 12
         },
         "effect_type": "buff",
-        "channel": false
+        "channel": false,
+        "modifiers": {
+            "damage_taken_mult": 0.3,
+            "cc_immune": 1.0
+        }
     },
     {
         "spell_id": 24,
@@ -903,7 +912,7 @@
         "spell_id": 33,
         "spell_name": "umbral_fortress",
         "icon": "res://Assets/icons/spells/selfward.png",
-        "description": "Absorbs 300 damage, retaliates 30 necrotic damage per hit for 8 seconds.",
+        "description": "Absorbs 300 damage, retaliates 30 necrotic damage per hit for 15 seconds.",
         "caster_proficiency": "intelligence",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -913,7 +922,7 @@
         "damage": 300,
         "target": "self",
         "range": "15m",
-        "duration": 5,
+        "duration": 15,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
@@ -924,7 +933,12 @@
         "class_level_requirements": {
             "Voidknight": 17
         },
-        "channel": false
+        "channel": false,
+        "effect_type": "absorb",
+        "effect_amount": 300,
+        "modifiers": {
+            "retaliate_flat": 30
+        }
     },
     {
         "spell_id": 34,
@@ -1239,7 +1253,7 @@
         "spell_id": 45,
         "spell_name": "divine_ward",
         "icon": "res://Assets/icons/spells/groupward.png",
-        "description": "Absorbs 100 damage for 6 seconds.",
+        "description": "Absorbs 100 damage for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -1249,7 +1263,7 @@
         "damage": 100,
         "target": "group",
         "range": "15m",
-        "duration": 5,
+        "duration": 15,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
@@ -1260,7 +1274,9 @@
         "class_level_requirements": {
             "Lightsworn": 2
         },
-        "channel": false
+        "channel": false,
+        "effect_type": "absorb",
+        "effect_amount": 100
     },
     {
         "spell_id": 46,
@@ -1545,7 +1561,7 @@
         "spell_id": 56,
         "spell_name": "holy_aegis",
         "icon": "res://Assets/icons/spells/selfward.png",
-        "description": "Absorbs 200 damage, reflects 10% to attackers for 6 seconds.",
+        "description": "Absorbs 200 damage, reflects 10% to attackers for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -1553,9 +1569,9 @@
         "spell_school": "divine",
         "skill_category": "abjuration",
         "damage": 200,
-        "target": "enemy",
+        "target": "self",
         "range": "15m",
-        "duration": 5,
+        "duration": 15,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
@@ -1566,7 +1582,12 @@
         "class_level_requirements": {
             "Lightsworn": 8
         },
-        "channel": false
+        "channel": false,
+        "effect_type": "absorb",
+        "effect_amount": 200,
+        "modifiers": {
+            "reflect_pct": 0.1
+        }
     },
     {
         "spell_id": 57,
@@ -1765,7 +1786,7 @@
         "spell_id": 64,
         "spell_name": "lights_call",
         "icon": "res://Assets/icons/spells/grouparcane.png",
-        "description": "Allies in 10m gain +10% critical chance for 8 seconds.",
+        "description": "Allies in 10m gain +10% critical chance for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -1775,7 +1796,7 @@
         "damage": 8,
         "target": "group",
         "range": "15m",
-        "duration": 5,
+        "duration": 15,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
@@ -1786,7 +1807,11 @@
         "class_level_requirements": {
             "Lightsworn": 12
         },
-        "channel": false
+        "channel": false,
+        "modifiers": {
+            "crit_bonus": 10
+        },
+        "effect_type": "buff"
     },
     {
         "spell_id": 65,
@@ -2051,7 +2076,7 @@
         "spell_school": "divine",
         "skill_category": "abjuration",
         "damage": 5,
-        "target": "enemy",
+        "target": "self",
         "range": "15m",
         "duration": 5,
         "casting_time": 2.0,
@@ -2059,13 +2084,16 @@
         "location": "all",
         "blockable": true,
         "dispellable": true,
-        "spell_type": "detrimental",
+        "spell_type": "self-beneficial",
         "interruptable": true,
         "class_level_requirements": {
             "Lightsworn": 17
         },
         "effect_type": "buff",
-        "channel": false
+        "channel": false,
+        "modifiers": {
+            "damage_taken_mult": 0.5
+        }
     },
     {
         "spell_id": 75,
@@ -2219,7 +2247,7 @@
         "spell_school": "divine",
         "skill_category": "abjuration",
         "damage": 6,
-        "target": "enemy",
+        "target": "self",
         "range": "15m",
         "duration": 5,
         "casting_time": 2.0,
@@ -2233,7 +2261,11 @@
             "Lightsworn": 20
         },
         "effect_type": "buff",
-        "channel": false
+        "channel": false,
+        "modifiers": {
+            "damage_taken_mult": 1.0,
+            "reflect_pct": 0.2
+        }
     },
     {
         "spell_id": 81,
@@ -2294,7 +2326,7 @@
         "spell_id": 83,
         "spell_name": "battle_shout",
         "icon": "res://Assets/icons/spells/grouparcane.png",
-        "description": "Allies in 10m gain +5% attack speed/damage for 8 seconds.",
+        "description": "Allies in 10m gain +5% attack speed/damage for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -2304,7 +2336,7 @@
         "damage": 8,
         "target": "group",
         "range": "15m",
-        "duration": 5,
+        "duration": 15,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
@@ -2315,7 +2347,12 @@
         "class_level_requirements": {
             "Blademaster": 1
         },
-        "channel": false
+        "channel": false,
+        "modifiers": {
+            "attack_speed_bonus": 0.05,
+            "damage_mult": 0.05
+        },
+        "effect_type": "buff"
     },
     {
         "spell_id": 84,
@@ -2515,7 +2552,7 @@
         "spell_id": 91,
         "spell_name": "iron_resolve",
         "icon": "res://Assets/icons/spells/selfbuff.png",
-        "description": "Grants 15% physical damage resistance for 6 seconds.",
+        "description": "Grants 15% physical damage resistance for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -2523,21 +2560,24 @@
         "spell_school": "physical",
         "skill_category": "defense",
         "damage": 6,
-        "target": "enemy",
+        "target": "self",
         "range": "15m",
-        "duration": 5,
+        "duration": 15,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
         "blockable": true,
         "dispellable": true,
-        "spell_type": "detrimental",
+        "spell_type": "self-beneficial",
         "interruptable": true,
         "class_level_requirements": {
             "Blademaster": 6
         },
         "effect_type": "buff",
-        "channel": false
+        "channel": false,
+        "modifiers": {
+            "damage_taken_mult": 0.15
+        }
     },
     {
         "spell_id": 92,
@@ -2737,7 +2777,7 @@
         "spell_id": 99,
         "spell_name": "unyielding_stand",
         "icon": "res://Assets/icons/spells/selfheal.png",
-        "description": "Grants 10 HP/sec regen for 8 seconds.",
+        "description": "Grants 10 HP/sec regen for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -2745,22 +2785,23 @@
         "spell_school": "magic",
         "skill_category": "abjuration",
         "damage": 10,
-        "target": "enemy",
+        "target": "self",
         "range": "15m",
-        "duration": 5,
+        "duration": 15,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
         "blockable": true,
         "dispellable": true,
-        "spell_type": "detrimental",
+        "spell_type": "self-beneficial",
         "interruptable": true,
         "class_level_requirements": {
             "Blademaster": 11
         },
         "effect_type": "hot",
         "channel": true,
-        "tick_interval": 1.0
+        "tick_interval": 1.0,
+        "effect_amount": 150
     },
     {
         "spell_id": 100,
@@ -2849,7 +2890,7 @@
         "spell_id": 103,
         "spell_name": "steel_aegis",
         "icon": "res://Assets/icons/spells/selfward.png",
-        "description": "Absorbs 200 damage, +5% defense for 8 seconds.",
+        "description": "Absorbs 200 damage, +5% defense for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -2857,26 +2898,28 @@
         "spell_school": "physical",
         "skill_category": "defense",
         "damage": 200,
-        "target": "enemy",
+        "target": "self",
         "range": "15m",
-        "duration": 5,
+        "duration": 15,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
         "blockable": true,
         "dispellable": true,
-        "spell_type": "detrimental",
+        "spell_type": "self-beneficial",
         "interruptable": true,
         "class_level_requirements": {
             "Blademaster": 13
         },
-        "channel": false
+        "channel": false,
+        "effect_type": "absorb",
+        "effect_amount": 200
     },
     {
         "spell_id": 104,
         "spell_name": "tacticians_call",
         "icon": "res://Assets/icons/spells/grouparcane.png",
-        "description": "Allies in 10m gain +10% accuracy for 10 seconds.",
+        "description": "Allies in 10m gain +10% accuracy for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -2886,7 +2929,7 @@
         "damage": 10,
         "target": "group",
         "range": "15m",
-        "duration": 5,
+        "duration": 15,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
@@ -2897,7 +2940,11 @@
         "class_level_requirements": {
             "Blademaster": 13
         },
-        "channel": false
+        "channel": false,
+        "modifiers": {
+            "hit_chance": 10.0
+        },
+        "effect_type": "buff"
     },
     {
         "spell_id": 105,
@@ -3072,7 +3119,7 @@
         "spell_id": 111,
         "spell_name": "fortified_stance",
         "icon": "res://Assets/icons/spells/selfheal.png",
-        "description": "Grants 20% damage reduction, +5 HP/sec regen for 8 seconds.",
+        "description": "Grants 20% damage reduction, +5 HP/sec regen for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -3080,22 +3127,26 @@
         "spell_school": "physical",
         "skill_category": "defense",
         "damage": 8,
-        "target": "enemy",
+        "target": "self",
         "range": "15m",
-        "duration": 5,
+        "duration": 15,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
         "blockable": true,
         "dispellable": true,
-        "spell_type": "detrimental",
+        "spell_type": "self-beneficial",
         "interruptable": true,
         "class_level_requirements": {
             "Blademaster": 17
         },
-        "effect_type": "hot",
+        "effect_type": "buff",
         "channel": true,
-        "tick_interval": 1.0
+        "tick_interval": 1.0,
+        "modifiers": {
+            "damage_taken_mult": 0.2,
+            "hp_regen_bonus": 5
+        }
     },
     {
         "spell_id": 112,
@@ -3301,7 +3352,7 @@
         "spell_school": "physical",
         "skill_category": "defense",
         "damage": 8,
-        "target": "enemy",
+        "target": "self",
         "range": "15m",
         "duration": 5,
         "casting_time": 2.0,
@@ -3309,13 +3360,16 @@
         "location": "all",
         "blockable": true,
         "dispellable": true,
-        "spell_type": "detrimental",
+        "spell_type": "self-beneficial",
         "interruptable": true,
         "class_level_requirements": {
             "Blademaster": 20
         },
         "effect_type": "buff",
-        "channel": false
+        "channel": false,
+        "modifiers": {
+            "damage_taken_mult": 0.6
+        }
     },
     {
         "spell_id": 120,
@@ -3349,7 +3403,7 @@
         "spell_id": 121,
         "spell_name": "bless",
         "icon": "res://Assets/icons/spells/targetbuff.png",
-        "description": "Grants ally +5% attack/defense for 8 seconds.",
+        "description": "Grants ally +5% attack/defense for 15 minutes.",
         "caster_proficiency": "wisdom",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -3359,7 +3413,7 @@
         "damage": 8,
         "target": "group",
         "range": "15m",
-        "duration": 5,
+        "duration": 900,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
@@ -3371,7 +3425,11 @@
             "Lightmender": 1
         },
         "effect_type": "buff",
-        "channel": false
+        "channel": false,
+        "modifiers": {
+            "damage_mult": 0.05,
+            "damage_taken_mult": 0.05
+        }
     },
     {
         "spell_id": 122,
@@ -3489,7 +3547,7 @@
         "spell_id": 126,
         "spell_name": "shield_of_faith",
         "icon": "res://Assets/icons/spells/targetward.png",
-        "description": "Grants ally a 150-damage shield for 6 seconds.",
+        "description": "Grants ally a 150-damage shield for 15 seconds.",
         "caster_proficiency": "wisdom",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -3499,7 +3557,7 @@
         "damage": 6,
         "target": "group",
         "range": "15m",
-        "duration": 5,
+        "duration": 15,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
@@ -3510,8 +3568,9 @@
         "class_level_requirements": {
             "Lightmender": 4
         },
-        "effect_type": "buff",
-        "channel": false
+        "effect_type": "absorb",
+        "channel": false,
+        "effect_amount": 150
     },
     {
         "spell_id": 127,
@@ -3573,7 +3632,7 @@
         "spell_id": 129,
         "spell_name": "divine_favor",
         "icon": "res://Assets/icons/spells/targetbuff.png",
-        "description": "Grants ally +10% critical chance/damage for 8 seconds.",
+        "description": "Grants ally +10% critical chance/damage for 15 seconds.",
         "caster_proficiency": "wisdom",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -3583,7 +3642,7 @@
         "damage": 8,
         "target": "group",
         "range": "15m",
-        "duration": 5,
+        "duration": 15,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
@@ -3595,13 +3654,17 @@
             "Lightmender": 5
         },
         "effect_type": "buff",
-        "channel": false
+        "channel": false,
+        "modifiers": {
+            "crit_bonus": 10,
+            "damage_mult": 0.1
+        }
     },
     {
         "spell_id": 130,
         "spell_name": "radiant_ward",
         "icon": "res://Assets/icons/spells/targetward.png",
-        "description": "Grants ally 15% magic damage resistance for 6 seconds.",
+        "description": "Grants ally 15% magic damage resistance for 15 seconds.",
         "caster_proficiency": "wisdom",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -3611,7 +3674,7 @@
         "damage": 6,
         "target": "group",
         "range": "15m",
-        "duration": 5,
+        "duration": 15,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
@@ -3623,7 +3686,10 @@
             "Lightmender": 6
         },
         "effect_type": "buff",
-        "channel": false
+        "channel": false,
+        "modifiers": {
+            "magic_resist_bonus": 15
+        }
     },
     {
         "spell_id": 131,
@@ -3889,7 +3955,7 @@
         "damage": 4,
         "target": "group",
         "range": "15m",
-        "duration": 5,
+        "duration": 4,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
@@ -3900,7 +3966,11 @@
         "class_level_requirements": {
             "Lightmender": 11
         },
-        "channel": false
+        "channel": false,
+        "effect_type": "buff",
+        "modifiers": {
+            "invisible": 1.0
+        }
     },
     {
         "spell_id": 141,
@@ -4018,7 +4088,7 @@
         "spell_id": 145,
         "spell_name": "aegis_of_light",
         "icon": "res://Assets/icons/spells/targetward.png",
-        "description": "Grants ally a 200-damage shield, +5% regen for 8 seconds.",
+        "description": "Grants ally a 200-damage shield, +5% regen for 15 seconds.",
         "caster_proficiency": "wisdom",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -4028,7 +4098,7 @@
         "damage": 8,
         "target": "group",
         "range": "15m",
-        "duration": 5,
+        "duration": 15,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
@@ -4039,8 +4109,9 @@
         "class_level_requirements": {
             "Lightmender": 13
         },
-        "effect_type": "buff",
-        "channel": false
+        "effect_type": "absorb",
+        "channel": false,
+        "effect_amount": 200
     },
     {
         "spell_id": 146,
@@ -4102,7 +4173,7 @@
         "spell_id": 148,
         "spell_name": "seraphic_ward",
         "icon": "res://Assets/icons/spells/groupward.png",
-        "description": "Grants party 15% magic resistance for 8 seconds.",
+        "description": "Grants party 15% magic resistance for 15 seconds.",
         "caster_proficiency": "wisdom",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -4112,7 +4183,7 @@
         "damage": 8,
         "target": "group",
         "range": "15m",
-        "duration": 5,
+        "duration": 15,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
@@ -4124,7 +4195,10 @@
             "Lightmender": 15
         },
         "effect_type": "buff",
-        "channel": false
+        "channel": false,
+        "modifiers": {
+            "magic_resist_bonus": 15
+        }
     },
     {
         "spell_id": 149,
@@ -4432,7 +4506,10 @@
             "Lightmender": 20
         },
         "effect_type": "buff",
-        "channel": false
+        "channel": false,
+        "modifiers": {
+            "damage_taken_mult": 1.0
+        }
     },
     {
         "spell_id": 160,
@@ -4476,7 +4553,7 @@
         "damage": 15,
         "target": "group",
         "range": "15m",
-        "duration": 5,
+        "duration": 15,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
@@ -4488,7 +4565,10 @@
             "Spiritweaver": 1
         },
         "effect_type": "buff",
-        "channel": false
+        "channel": false,
+        "modifiers": {
+            "damage_taken_mult": 0.025
+        }
     },
     {
         "spell_id": 162,
@@ -4521,7 +4601,7 @@
         "spell_id": 163,
         "spell_name": "ancestral_guidance",
         "icon": "res://Assets/icons/spells/targetbuff.png",
-        "description": "Grants ally +5% movement/attack speed for 8 seconds.",
+        "description": "Grants ally +5% movement/attack speed for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -4531,7 +4611,7 @@
         "damage": 8,
         "target": "group",
         "range": "15m",
-        "duration": 5,
+        "duration": 15,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
@@ -4543,7 +4623,11 @@
             "Spiritweaver": 2
         },
         "effect_type": "buff",
-        "channel": false
+        "channel": false,
+        "modifiers": {
+            "move_speed_bonus": 0.05,
+            "attack_speed_bonus": 0.05
+        }
     },
     {
         "spell_id": 164,
@@ -4662,7 +4746,7 @@
         "spell_id": 168,
         "spell_name": "spirit_link",
         "icon": "res://Assets/icons/spells/groupbuff.png",
-        "description": "Distributes 30% damage taken by one ally across party for 8 seconds.",
+        "description": "Distributes 30% damage taken by one ally across party for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -4672,7 +4756,7 @@
         "damage": 8,
         "target": "group",
         "range": "15m",
-        "duration": 5,
+        "duration": 15,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
@@ -4683,7 +4767,11 @@
         "class_level_requirements": {
             "Spiritweaver": 5
         },
-        "channel": false
+        "channel": false,
+        "modifiers": {
+            "damage_share": 0.3
+        },
+        "effect_type": "buff"
     },
     {
         "spell_id": 169,
@@ -4746,7 +4834,7 @@
         "spell_id": 171,
         "spell_name": "windfury",
         "icon": "res://Assets/icons/spells/targetbuff.png",
-        "description": "Grants ally 15% chance for extra melee attack for 8 seconds (EQ-inspired).",
+        "description": "Grants ally 15% chance for extra melee attack for 15 minutes (EQ-inspired).",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -4756,7 +4844,7 @@
         "damage": 8,
         "target": "group",
         "range": "15m",
-        "duration": 5,
+        "duration": 900,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
@@ -4768,7 +4856,10 @@
             "Spiritweaver": 6
         },
         "effect_type": "buff",
-        "channel": false
+        "channel": false,
+        "modifiers": {
+            "extra_attack_chance": 0.15
+        }
     },
     {
         "spell_id": 172,
@@ -4830,7 +4921,7 @@
         "spell_id": 174,
         "spell_name": "spirit_walk",
         "icon": "res://Assets/icons/spells/selfbuff.png",
-        "description": "Grants immunity to movement debuffs for 5 seconds.",
+        "description": "Grants immunity to movement debuffs for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -4838,21 +4929,24 @@
         "spell_school": "magic",
         "skill_category": "abjuration",
         "damage": 5,
-        "target": "enemy",
+        "target": "self",
         "range": "15m",
-        "duration": 5,
+        "duration": 15,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
         "blockable": true,
         "dispellable": true,
-        "spell_type": "detrimental",
+        "spell_type": "self-beneficial",
         "interruptable": true,
         "class_level_requirements": {
             "Spiritweaver": 8
         },
         "effect_type": "buff",
-        "channel": false
+        "channel": false,
+        "modifiers": {
+            "movement_immune": 1.0
+        }
     },
     {
         "spell_id": 175,
@@ -5110,7 +5204,7 @@
         "spell_id": 184,
         "spell_name": "spirit_flight",
         "icon": "res://Assets/icons/spells/selfbuff.png",
-        "description": "Grants +20% movement speed, +5% evasion for 6 seconds.",
+        "description": "Grants +20% movement speed, +5% evasion for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -5118,21 +5212,25 @@
         "spell_school": "magic",
         "skill_category": "alteration",
         "damage": 6,
-        "target": "enemy",
+        "target": "self",
         "range": "15m",
-        "duration": 5,
+        "duration": 15,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
         "blockable": true,
         "dispellable": true,
-        "spell_type": "detrimental",
+        "spell_type": "self-beneficial",
         "interruptable": true,
         "class_level_requirements": {
             "Spiritweaver": 13
         },
         "effect_type": "buff",
-        "channel": false
+        "channel": false,
+        "modifiers": {
+            "dodge_bonus": 5,
+            "move_speed_bonus": 0.2
+        }
     },
     {
         "spell_id": 185,
@@ -5308,7 +5406,7 @@
         "spell_id": 191,
         "spell_name": "primal_ward",
         "icon": "res://Assets/icons/spells/groupward.png",
-        "description": "Grants party 15% damage reduction for 8 seconds.",
+        "description": "Grants party 15% damage reduction for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -5318,7 +5416,7 @@
         "damage": 8,
         "target": "group",
         "range": "15m",
-        "duration": 5,
+        "duration": 15,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
@@ -5330,7 +5428,10 @@
             "Spiritweaver": 16
         },
         "effect_type": "buff",
-        "channel": false
+        "channel": false,
+        "modifiers": {
+            "damage_taken_mult": 0.15
+        }
     },
     {
         "spell_id": 192,
@@ -5476,7 +5577,7 @@
         "spell_id": 197,
         "spell_name": "elemental_vigor",
         "icon": "res://Assets/icons/spells/groupbuff.png",
-        "description": "Party gains +15% elemental damage for 12 seconds.",
+        "description": "Party gains +15% elemental damage for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -5486,7 +5587,7 @@
         "damage": 12,
         "target": "group",
         "range": "15m",
-        "duration": 5,
+        "duration": 15,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
@@ -5497,7 +5598,11 @@
         "class_level_requirements": {
             "Spiritweaver": 19
         },
-        "channel": false
+        "channel": false,
+        "modifiers": {
+            "damage_mult": 0.15
+        },
+        "effect_type": "buff"
     },
     {
         "spell_id": 198,
@@ -5646,7 +5751,7 @@
         "spell_id": 203,
         "spell_name": "barkskin",
         "icon": "res://Assets/icons/spells/targetbuff.png",
-        "description": "Grants ally +10% armor, 5% damage resistance for 8 seconds.",
+        "description": "Grants ally +10% armor, 5% damage resistance for 15 minutes.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -5656,7 +5761,7 @@
         "damage": 8,
         "target": "group",
         "range": "15m",
-        "duration": 5,
+        "duration": 900,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
@@ -5668,7 +5773,10 @@
             "Wildspeaker": 2
         },
         "effect_type": "buff",
-        "channel": false
+        "channel": false,
+        "modifiers": {
+            "damage_taken_mult": 0.05
+        }
     },
     {
         "spell_id": 204,
@@ -5896,7 +6004,7 @@
         "spell_id": 212,
         "spell_name": "natures_ward",
         "icon": "res://Assets/icons/spells/selfward.png",
-        "description": "Absorbs 150 damage, +15% outdoors for 6 seconds.",
+        "description": "Absorbs 150 damage, +15% outdoors for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -5904,20 +6012,22 @@
         "spell_school": "magic",
         "skill_category": "abjuration",
         "damage": 150,
-        "target": "enemy",
+        "target": "self",
         "range": "15m",
-        "duration": 5,
+        "duration": 15,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
         "blockable": true,
         "dispellable": true,
-        "spell_type": "detrimental",
+        "spell_type": "self-beneficial",
         "interruptable": true,
         "class_level_requirements": {
             "Wildspeaker": 6
         },
-        "channel": false
+        "channel": false,
+        "effect_type": "absorb",
+        "effect_amount": 150
     },
     {
         "spell_id": 213,
@@ -6119,7 +6229,7 @@
         "spell_id": 220,
         "spell_name": "feral_roar",
         "icon": "res://Assets/icons/spells/groupbuff.png",
-        "description": "Party gains +10% damage/speed in animal forms for 10 seconds.",
+        "description": "Party gains +10% damage/speed in animal forms for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -6129,7 +6239,7 @@
         "damage": 10,
         "target": "group",
         "range": "15m",
-        "duration": 5,
+        "duration": 15,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
@@ -6146,7 +6256,7 @@
         "spell_id": 221,
         "spell_name": "verdant_barrier",
         "icon": "res://Assets/icons/spells/groupward.png",
-        "description": "Grants party a 200-damage shield for 6 seconds.",
+        "description": "Grants party a 200-damage shield for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -6156,7 +6266,7 @@
         "damage": 6,
         "target": "group",
         "range": "15m",
-        "duration": 5,
+        "duration": 15,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
@@ -6167,8 +6277,9 @@
         "class_level_requirements": {
             "Wildspeaker": 11
         },
-        "effect_type": "buff",
-        "channel": false
+        "effect_type": "absorb",
+        "channel": false,
+        "effect_amount": 200
     },
     {
         "spell_id": 222,
@@ -6401,7 +6512,7 @@
         "spell_id": 230,
         "spell_name": "thorn_shield",
         "icon": "res://Assets/icons/spells/targetward.png",
-        "description": "Grants ally a 300-damage shield, reflects 15% damage.",
+        "description": "Grants ally a 300-damage shield, reflects 15% damage. Lasts 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -6411,7 +6522,7 @@
         "damage": 0,
         "target": "group",
         "range": "15m",
-        "duration": 5,
+        "duration": 15,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
@@ -6422,8 +6533,12 @@
         "class_level_requirements": {
             "Wildspeaker": 15
         },
-        "effect_type": "buff",
-        "channel": false
+        "effect_type": "absorb",
+        "channel": false,
+        "effect_amount": 300,
+        "modifiers": {
+            "reflect_pct": 0.15
+        }
     },
     {
         "spell_id": 231,
@@ -7022,7 +7137,7 @@
         "spell_id": 252,
         "spell_name": "wholeness_of_body",
         "icon": "res://Assets/icons/spells/selfbuff.png",
-        "description": "Grants 15% damage resistance for 6 seconds.",
+        "description": "Grants 15% damage resistance for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -7032,7 +7147,7 @@
         "damage": 0,
         "target": "self",
         "range": "0m",
-        "duration": 6,
+        "duration": 15,
         "casting_time": 1.5,
         "failure_rate": 0.0,
         "location": "all",
@@ -7053,7 +7168,7 @@
         "spell_id": 253,
         "spell_name": "swift_step",
         "icon": "res://Assets/icons/spells/teleport.png",
-        "description": "Dashes 8m, +15% movement speed for 4 seconds.",
+        "description": "Dashes 8m, +15% movement speed for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -7063,7 +7178,7 @@
         "damage": 0,
         "target": "none",
         "range": "0m",
-        "duration": 4,
+        "duration": 15,
         "casting_time": 1.5,
         "failure_rate": 0.0,
         "location": "all",
@@ -7084,7 +7199,7 @@
         "spell_id": 254,
         "spell_name": "earth_strike",
         "icon": "res://Assets/icons/spells/targetarcane.png",
-        "description": "Deals 80 earth damage, knocks back target 3m.",
+        "description": "Deals 80 earth damage and interrupts the target: any spell it is casting is cancelled and its next attack is delayed.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -7105,13 +7220,14 @@
         "class_level_requirements": {
             "Aetherfist": 7
         },
-        "channel": false
+        "channel": false,
+        "interrupt": true
     },
     {
         "spell_id": 255,
         "spell_name": "ki_barrier",
         "icon": "res://Assets/icons/spells/selfward.png",
-        "description": "Absorbs 150 damage for 6 seconds.",
+        "description": "Absorbs 150 damage for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -7121,7 +7237,7 @@
         "damage": 150,
         "target": "self",
         "range": "15m",
-        "duration": 6,
+        "duration": 15,
         "casting_time": 1.5,
         "failure_rate": 0.0,
         "location": "all",
@@ -7133,7 +7249,8 @@
             "Aetherfist": 8
         },
         "channel": false,
-        "effect_type": "absorb"
+        "effect_type": "absorb",
+        "effect_amount": 150
     },
     {
         "spell_id": 256,
@@ -7175,7 +7292,7 @@
         "spell_school": "magic",
         "skill_category": "abjuration",
         "damage": 0,
-        "target": "enemy",
+        "target": "self",
         "range": "15m",
         "duration": 5,
         "casting_time": 2.0,
@@ -7277,7 +7394,7 @@
         "spell_id": 261,
         "spell_name": "perfect_balance",
         "icon": "res://Assets/icons/spells/selfbuff.png",
-        "description": "Grants knockback immunity, +15% critical chance for 8 seconds.",
+        "description": "Grants knockback immunity, +15% critical chance for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -7285,21 +7402,25 @@
         "spell_school": "magic",
         "skill_category": "alteration",
         "damage": 8,
-        "target": "enemy",
+        "target": "self",
         "range": "15m",
-        "duration": 5,
+        "duration": 15,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
         "blockable": true,
         "dispellable": true,
-        "spell_type": "detrimental",
+        "spell_type": "self-beneficial",
         "interruptable": true,
         "class_level_requirements": {
             "Aetherfist": 11
         },
         "effect_type": "buff",
-        "channel": false
+        "channel": false,
+        "modifiers": {
+            "crit_bonus": 15,
+            "knockback_immune": 1.0
+        }
     },
     {
         "spell_id": 262,
@@ -7469,7 +7590,7 @@
         "spell_id": 268,
         "spell_name": "zen_focus",
         "icon": "res://Assets/icons/spells/selfbuff.png",
-        "description": "+15% damage, immune to CC for 6 seconds.",
+        "description": "+15% damage, immune to CC for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -7477,20 +7598,25 @@
         "spell_school": "magic",
         "skill_category": "alteration",
         "damage": 6,
-        "target": "enemy",
+        "target": "self",
         "range": "15m",
-        "duration": 5,
+        "duration": 15,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
         "blockable": true,
         "dispellable": true,
-        "spell_type": "detrimental",
+        "spell_type": "self-beneficial",
         "interruptable": true,
         "class_level_requirements": {
             "Aetherfist": 14
         },
-        "channel": false
+        "channel": false,
+        "modifiers": {
+            "damage_mult": 0.15,
+            "cc_immune": 1.0
+        },
+        "effect_type": "buff"
     },
     {
         "spell_id": 269,
@@ -7550,7 +7676,7 @@
         "spell_id": 271,
         "spell_name": "ki_aegis",
         "icon": "res://Assets/icons/spells/selfward.png",
-        "description": "Absorbs 300 damage, reflects 10% as force damage.",
+        "description": "Absorbs 300 damage, reflects 10% as force damage. Lasts 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -7558,9 +7684,9 @@
         "spell_school": "magic",
         "skill_category": "abjuration",
         "damage": 300,
-        "target": "enemy",
+        "target": "self",
         "range": "15m",
-        "duration": 5,
+        "duration": 15,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
@@ -7571,13 +7697,18 @@
         "class_level_requirements": {
             "Aetherfist": 16
         },
-        "channel": false
+        "channel": false,
+        "effect_type": "absorb",
+        "effect_amount": 300,
+        "modifiers": {
+            "reflect_pct": 0.1
+        }
     },
     {
         "spell_id": 272,
         "spell_name": "windrider",
         "icon": "res://Assets/icons/spells/selfbuff.png",
-        "description": "Grants +20% movement speed, +10% evasion for 8 seconds.",
+        "description": "Grants +20% movement speed, +10% evasion for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -7585,21 +7716,25 @@
         "spell_school": "magic",
         "skill_category": "alteration",
         "damage": 8,
-        "target": "enemy",
+        "target": "self",
         "range": "15m",
-        "duration": 5,
+        "duration": 15,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
         "blockable": true,
         "dispellable": true,
-        "spell_type": "detrimental",
+        "spell_type": "self-beneficial",
         "interruptable": true,
         "class_level_requirements": {
             "Aetherfist": 16
         },
         "effect_type": "buff",
-        "channel": false
+        "channel": false,
+        "modifiers": {
+            "dodge_bonus": 10,
+            "move_speed_bonus": 0.2
+        }
     },
     {
         "spell_id": 273,
@@ -7740,31 +7875,36 @@
     },
     {
         "spell_id": 278,
-        "spell_name": "ki_tempest",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
-        "description": "Deals 200 force damage in 8m, stuns for 2 seconds.",
+        "spell_name": "dragon_fist",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
+        "description": "Your fists blaze with golden ki for 15 seconds: +20% Double Attack chance, +10% Triple Attack chance, and every hit weakens the target (-5% damage).",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
-        "recast_time": 10.0,
+        "recast_time": 90.0,
         "level": 19,
         "spell_school": "magic",
         "skill_category": "evocation",
-        "damage": 200,
-        "target": "enemy",
-        "range": "15m",
-        "duration": 5,
-        "casting_time": 2.0,
+        "damage": 0,
+        "target": "self",
+        "range": "0m",
+        "duration": 15,
+        "casting_time": 1.5,
         "failure_rate": 0.0,
         "location": "all",
         "blockable": true,
         "dispellable": true,
-        "spell_type": "charm",
+        "spell_type": "self-beneficial",
         "interruptable": true,
         "class_level_requirements": {
             "Aetherfist": 19
         },
-        "effect_type": "stun",
-        "channel": false
+        "effect_type": "buff",
+        "channel": false,
+        "modifiers": {
+            "double_attack_bonus": 20,
+            "triple_attack_bonus": 10,
+            "weaken_on_hit": 0.05
+        }
     },
     {
         "spell_id": 279,
@@ -7798,7 +7938,7 @@
         "spell_id": 280,
         "spell_name": "eternal_spirit",
         "icon": "res://Assets/icons/spells/groupheal.png",
-        "description": "Grants +40% damage/health, CC immunity for 12 seconds.",
+        "description": "Grants +40% damage, 25% damage reduction and CC immunity for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -7806,21 +7946,26 @@
         "spell_school": "magic",
         "skill_category": "alteration",
         "damage": 12,
-        "target": "group",
+        "target": "self",
         "range": "15m",
-        "duration": 5,
+        "duration": 15,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
         "blockable": true,
         "dispellable": true,
-        "spell_type": "beneficial",
+        "spell_type": "self-beneficial",
         "interruptable": true,
         "class_level_requirements": {
             "Aetherfist": 20
         },
-        "effect_type": "heal",
-        "channel": false
+        "effect_type": "buff",
+        "channel": false,
+        "modifiers": {
+            "damage_mult": 0.4,
+            "damage_taken_mult": 0.25,
+            "cc_immune": 1.0
+        }
     },
     {
         "spell_id": 281,
@@ -8526,7 +8671,7 @@
         "spell_id": 306,
         "spell_name": "natures_veil",
         "icon": "res://Assets/icons/spells/selfbuff.png",
-        "description": "Grants +20% stealth, +5% evasion for 8 seconds.",
+        "description": "Grants +20% stealth, +5% evasion for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -8534,21 +8679,24 @@
         "spell_school": "physical",
         "skill_category": "stealth",
         "damage": 8,
-        "target": "enemy",
+        "target": "self",
         "range": "15m",
-        "duration": 5,
+        "duration": 15,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
         "blockable": true,
         "dispellable": true,
-        "spell_type": "detrimental",
+        "spell_type": "self-beneficial",
         "interruptable": true,
         "class_level_requirements": {
             "Woodstalker": 13
         },
         "effect_type": "buff",
-        "channel": false
+        "channel": false,
+        "modifiers": {
+            "dodge_bonus": 5
+        }
     },
     {
         "spell_id": 307,
@@ -8783,7 +8931,7 @@
         "spell_school": "physical",
         "skill_category": "stealth",
         "damage": 4,
-        "target": "enemy",
+        "target": "self",
         "range": "15m",
         "duration": 5,
         "casting_time": 2.0,
@@ -8791,7 +8939,7 @@
         "location": "all",
         "blockable": true,
         "dispellable": true,
-        "spell_type": "detrimental",
+        "spell_type": "self-beneficial",
         "interruptable": true,
         "class_level_requirements": {
             "Woodstalker": 17
@@ -9221,7 +9369,7 @@
         "spell_id": 331,
         "spell_name": "shadow_cloak",
         "icon": "res://Assets/icons/spells/selfbuff.png",
-        "description": "Grants invisibility for 2 seconds.",
+        "description": "Grants invisibility for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -9229,21 +9377,24 @@
         "spell_school": "physical",
         "skill_category": "legerdermain",
         "damage": 2,
-        "target": "enemy",
+        "target": "self",
         "range": "15m",
-        "duration": 5,
+        "duration": 15,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
         "blockable": true,
         "dispellable": true,
-        "spell_type": "detrimental",
+        "spell_type": "self-beneficial",
         "interruptable": true,
         "class_level_requirements": {
             "Shadowblade": 6
         },
         "effect_type": "buff",
-        "channel": false
+        "channel": false,
+        "modifiers": {
+            "invisible": 1.0
+        }
     },
     {
         "spell_id": 332,
@@ -9554,7 +9705,7 @@
         "spell_id": 343,
         "spell_name": "shadow_veil",
         "icon": "res://Assets/icons/spells/selfward.png",
-        "description": "Absorbs 150 damage, +10% dodge for 6 seconds.",
+        "description": "Absorbs 150 damage, +10% dodge for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -9562,20 +9713,22 @@
         "spell_school": "magic",
         "skill_category": "abjuration",
         "damage": 150,
-        "target": "enemy",
+        "target": "self",
         "range": "15m",
-        "duration": 5,
+        "duration": 15,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
         "blockable": true,
         "dispellable": true,
-        "spell_type": "detrimental",
+        "spell_type": "self-beneficial",
         "interruptable": true,
         "class_level_requirements": {
             "Shadowblade": 13
         },
-        "channel": false
+        "channel": false,
+        "effect_type": "absorb",
+        "effect_amount": 150
     },
     {
         "spell_id": 344,
@@ -9750,7 +9903,7 @@
         "spell_id": 350,
         "spell_name": "umbral_cloak",
         "icon": "res://Assets/icons/spells/selfbuff.png",
-        "description": "Grants invisibility for 4 seconds, +15% damage resistance.",
+        "description": "Grants invisibility for 15 seconds, +15% damage resistance.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -9758,21 +9911,25 @@
         "spell_school": "physical",
         "skill_category": "legerdermain",
         "damage": 4,
-        "target": "enemy",
+        "target": "self",
         "range": "15m",
-        "duration": 5,
+        "duration": 15,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
         "blockable": true,
         "dispellable": true,
-        "spell_type": "detrimental",
+        "spell_type": "self-beneficial",
         "interruptable": true,
         "class_level_requirements": {
             "Shadowblade": 17
         },
         "effect_type": "buff",
-        "channel": false
+        "channel": false,
+        "modifiers": {
+            "invisible": 1.0,
+            "damage_taken_mult": 0.15
+        }
     },
     {
         "spell_id": 351,
@@ -10261,7 +10418,7 @@
         "spell_id": 368,
         "spell_name": "enchanted_refrain",
         "icon": "res://Assets/icons/spells/targetward.png",
-        "description": "Grants ally a 150-damage shield for 6 seconds.",
+        "description": "Grants ally a 150-damage shield for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 20.0,
         "recast_time": 5.0,
@@ -10271,7 +10428,7 @@
         "damage": 0,
         "target": "group",
         "range": "15m",
-        "duration": 5,
+        "duration": 15,
         "casting_time": 1.5,
         "failure_rate": 0.0,
         "location": "all",
@@ -10282,8 +10439,9 @@
         "class_level_requirements": {
             "Troubadour": 6
         },
-        "effect_type": "buff",
-        "channel": false
+        "effect_type": "absorb",
+        "channel": false,
+        "effect_amount": 150
     },
     {
         "spell_id": 369,
@@ -10511,7 +10669,7 @@
         "spell_id": 377,
         "spell_name": "illusory_double",
         "icon": "res://Assets/icons/spells/selfbuff.png",
-        "description": "Creates decoy taking 30% damage for 6 seconds.",
+        "description": "Creates decoy taking 30% damage for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 0.0,
         "recast_time": 5.0,
@@ -10519,20 +10677,25 @@
         "spell_school": "psychic",
         "skill_category": "illusion",
         "damage": 0,
-        "target": "enemy",
+        "target": "self",
         "range": "15m",
-        "duration": 8,
+        "duration": 15,
         "casting_time": 1.5,
         "failure_rate": 0.0,
         "location": "all",
         "blockable": true,
         "dispellable": true,
-        "spell_type": "detrimental",
+        "spell_type": "self-beneficial",
         "interruptable": true,
         "class_level_requirements": {
             "Troubadour": 12
         },
-        "channel": false
+        "channel": false,
+        "modifiers": {
+            "decoy_charges": 1,
+            "damage_taken_mult": 0.3
+        },
+        "effect_type": "buff"
     },
     {
         "spell_id": 378,
@@ -10733,7 +10896,7 @@
         "spell_id": 385,
         "spell_name": "illusory_veil",
         "icon": "res://Assets/icons/spells/groupbuff.png",
-        "description": "Grants party +10% dodge chance.",
+        "description": "Grants party +10% dodge chance. Lasts 15 minutes.",
         "caster_proficiency": "none",
         "mana_cost": 0.0,
         "recast_time": 5.0,
@@ -10743,7 +10906,7 @@
         "damage": 0,
         "target": "group",
         "range": "15m",
-        "duration": 5,
+        "duration": 900,
         "casting_time": 1.5,
         "failure_rate": 0.0,
         "location": "all",
@@ -10755,7 +10918,10 @@
             "Troubadour": 16
         },
         "effect_type": "buff",
-        "channel": false
+        "channel": false,
+        "modifiers": {
+            "dodge_bonus": 10
+        }
     },
     {
         "spell_id": 386,
@@ -11205,7 +11371,7 @@
         "spell_id": 402,
         "spell_name": "bone_shield",
         "icon": "res://Assets/icons/spells/selfward.png",
-        "description": "Absorbs 100 damage for 6 seconds.",
+        "description": "Absorbs 100 damage for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -11213,20 +11379,22 @@
         "spell_school": "spirit",
         "skill_category": "abjuration",
         "damage": 100,
-        "target": "enemy",
+        "target": "self",
         "range": "15m",
-        "duration": 5,
+        "duration": 15,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
         "blockable": true,
         "dispellable": true,
-        "spell_type": "detrimental",
+        "spell_type": "self-beneficial",
         "interruptable": true,
         "class_level_requirements": {
             "Gravecaller": 4
         },
-        "channel": false
+        "channel": false,
+        "effect_type": "absorb",
+        "effect_amount": 100
     },
     {
         "spell_id": 403,
@@ -11663,7 +11831,7 @@
         "spell_school": "spirit",
         "skill_category": "abjuration",
         "damage": 4,
-        "target": "enemy",
+        "target": "self",
         "range": "15m",
         "duration": 5,
         "casting_time": 2.0,
@@ -11671,19 +11839,22 @@
         "location": "all",
         "blockable": true,
         "dispellable": true,
-        "spell_type": "detrimental",
+        "spell_type": "self-beneficial",
         "interruptable": true,
         "class_level_requirements": {
             "Gravecaller": 12
         },
         "effect_type": "buff",
-        "channel": false
+        "channel": false,
+        "modifiers": {
+            "damage_taken_mult": 0.5
+        }
     },
     {
         "spell_id": 419,
         "spell_name": "bone_armor",
         "icon": "res://Assets/icons/spells/selfward.png",
-        "description": "Absorbs 200 damage, +5% armor for 8 seconds.",
+        "description": "Absorbs 200 damage, +5% armor for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -11691,20 +11862,22 @@
         "spell_school": "spirit",
         "skill_category": "abjuration",
         "damage": 200,
-        "target": "enemy",
+        "target": "self",
         "range": "15m",
-        "duration": 5,
+        "duration": 15,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
         "blockable": true,
         "dispellable": true,
-        "spell_type": "detrimental",
+        "spell_type": "self-beneficial",
         "interruptable": true,
         "class_level_requirements": {
             "Gravecaller": 13
         },
-        "channel": false
+        "channel": false,
+        "effect_type": "absorb",
+        "effect_amount": 200
     },
     {
         "spell_id": 420,
@@ -12273,7 +12446,7 @@
         "spell_id": 440,
         "spell_name": "invisibility",
         "icon": "res://Assets/icons/spells/selfbuff.png",
-        "description": "Grants invisibility for 8 seconds.",
+        "description": "Grants invisibility for 15 minutes.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -12283,7 +12456,7 @@
         "damage": 0,
         "target": "self",
         "range": "0m",
-        "duration": 8,
+        "duration": 900,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
@@ -12356,7 +12529,7 @@
         "spell_id": 443,
         "spell_name": "mirror_image",
         "icon": "res://Assets/icons/spells/targetarcane.png",
-        "description": "Creates 2 illusions to distract enemies for 6 seconds.",
+        "description": "Creates 2 illusions to distract enemies for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -12364,20 +12537,24 @@
         "spell_school": "psychic",
         "skill_category": "illusion",
         "damage": 2,
-        "target": "enemy",
+        "target": "self",
         "range": "15m",
-        "duration": 5,
+        "duration": 15,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
         "blockable": true,
         "dispellable": true,
-        "spell_type": "detrimental",
+        "spell_type": "self-beneficial",
         "interruptable": true,
         "class_level_requirements": {
             "Runecaster": 4
         },
-        "channel": false
+        "channel": false,
+        "modifiers": {
+            "decoy_charges": 2
+        },
+        "effect_type": "buff"
     },
     {
         "spell_id": 444,
@@ -12440,7 +12617,7 @@
         "spell_id": 446,
         "spell_name": "arcane_veil",
         "icon": "res://Assets/icons/spells/selfbuff.png",
-        "description": "Grants 15% magic damage resistance for 6 seconds.",
+        "description": "Grants 15% magic damage resistance for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -12448,21 +12625,24 @@
         "spell_school": "psychic",
         "skill_category": "abjuration",
         "damage": 6,
-        "target": "enemy",
+        "target": "self",
         "range": "15m",
-        "duration": 5,
+        "duration": 15,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
         "blockable": true,
         "dispellable": true,
-        "spell_type": "detrimental",
+        "spell_type": "self-beneficial",
         "interruptable": true,
         "class_level_requirements": {
             "Runecaster": 6
         },
         "effect_type": "buff",
-        "channel": false
+        "channel": false,
+        "modifiers": {
+            "magic_resist_bonus": 15
+        }
     },
     {
         "spell_id": 447,
@@ -12554,7 +12734,7 @@
         "spell_id": 450,
         "spell_name": "enchanted_ward",
         "icon": "res://Assets/icons/spells/targetward.png",
-        "description": "Absorbs 150 damage for an ally for 6 seconds.",
+        "description": "Absorbs 150 damage for an ally for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -12564,7 +12744,7 @@
         "damage": 150,
         "target": "group",
         "range": "15m",
-        "duration": 5,
+        "duration": 15,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
@@ -12575,7 +12755,9 @@
         "class_level_requirements": {
             "Runecaster": 8
         },
-        "channel": false
+        "channel": false,
+        "effect_type": "absorb",
+        "effect_amount": 150
     },
     {
         "spell_id": 451,
@@ -12608,7 +12790,7 @@
         "spell_id": 452,
         "spell_name": "clarity",
         "icon": "res://Assets/icons/spells/targetbuff.png",
-        "description": "Grants ally +10% mana regen/spell damage for 8 seconds.",
+        "description": "Grants ally +10% mana regen/spell damage for 15 minutes.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -12618,7 +12800,7 @@
         "damage": 8,
         "target": "group",
         "range": "15m",
-        "duration": 5,
+        "duration": 900,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
@@ -12630,7 +12812,10 @@
             "Runecaster": 9
         },
         "effect_type": "buff",
-        "channel": false
+        "channel": false,
+        "modifiers": {
+            "mana_regen_bonus": 2
+        }
     },
     {
         "spell_id": 453,
@@ -12747,7 +12932,7 @@
         "spell_id": 457,
         "spell_name": "phantom_veil",
         "icon": "res://Assets/icons/spells/targetbuff.png",
-        "description": "Grants ally +10% dodge chance for 6 seconds.",
+        "description": "Grants ally +10% dodge chance for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -12757,7 +12942,7 @@
         "damage": 6,
         "target": "group",
         "range": "15m",
-        "duration": 5,
+        "duration": 15,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
@@ -12769,7 +12954,10 @@
             "Runecaster": 11
         },
         "effect_type": "buff",
-        "channel": false
+        "channel": false,
+        "modifiers": {
+            "dodge_bonus": 10
+        }
     },
     {
         "spell_id": 458,
@@ -12803,7 +12991,7 @@
         "spell_id": 459,
         "spell_name": "psychic_ward",
         "icon": "res://Assets/icons/spells/targetward.png",
-        "description": "Grants ally a 200-damage shield for 8 seconds.",
+        "description": "Grants ally a 200-damage shield for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -12813,7 +13001,7 @@
         "damage": 8,
         "target": "group",
         "range": "15m",
-        "duration": 5,
+        "duration": 15,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
@@ -12824,8 +13012,9 @@
         "class_level_requirements": {
             "Runecaster": 12
         },
-        "effect_type": "buff",
-        "channel": false
+        "effect_type": "absorb",
+        "channel": false,
+        "effect_amount": 200
     },
     {
         "spell_id": 460,
@@ -12914,7 +13103,7 @@
         "spell_id": 463,
         "spell_name": "enchanted_clarity",
         "icon": "res://Assets/icons/spells/groupbuff.png",
-        "description": "Party gains +10% mana regen, +5% spell damage for 10 seconds.",
+        "description": "Party gains +10% mana regen, +5% spell damage for 15 minutes.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -12924,7 +13113,7 @@
         "damage": 10,
         "target": "group",
         "range": "15m",
-        "duration": 5,
+        "duration": 900,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
@@ -12935,7 +13124,12 @@
         "class_level_requirements": {
             "Runecaster": 14
         },
-        "channel": false
+        "channel": false,
+        "modifiers": {
+            "damage_mult": 0.05,
+            "mana_regen_bonus": 2
+        },
+        "effect_type": "buff"
     },
     {
         "spell_id": 464,
@@ -12969,7 +13163,7 @@
         "spell_id": 465,
         "spell_name": "arcane_mirage",
         "icon": "res://Assets/icons/spells/selfbuff.png",
-        "description": "Creates 3 illusions, each taking 20% damage for 8 seconds.",
+        "description": "Creates 3 illusions, each taking 20% damage for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -12977,20 +13171,24 @@
         "spell_school": "psychic",
         "skill_category": "illusion",
         "damage": 3,
-        "target": "enemy",
+        "target": "self",
         "range": "15m",
-        "duration": 5,
+        "duration": 15,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
         "blockable": true,
         "dispellable": true,
-        "spell_type": "detrimental",
+        "spell_type": "self-beneficial",
         "interruptable": true,
         "class_level_requirements": {
             "Runecaster": 15
         },
-        "channel": false
+        "channel": false,
+        "modifiers": {
+            "decoy_charges": 3
+        },
+        "effect_type": "buff"
     },
     {
         "spell_id": 466,
@@ -13079,7 +13277,7 @@
         "spell_id": 469,
         "spell_name": "illusory_aegis",
         "icon": "res://Assets/icons/spells/groupward.png",
-        "description": "Grants party a 200-damage shield for 8 seconds.",
+        "description": "Grants party a 200-damage shield for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -13089,7 +13287,7 @@
         "damage": 8,
         "target": "group",
         "range": "15m",
-        "duration": 5,
+        "duration": 15,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
@@ -13100,8 +13298,9 @@
         "class_level_requirements": {
             "Runecaster": 17
         },
-        "effect_type": "buff",
-        "channel": false
+        "effect_type": "absorb",
+        "channel": false,
+        "effect_amount": 200
     },
     {
         "spell_id": 470,
@@ -13246,7 +13445,7 @@
         "spell_id": 475,
         "spell_name": "veil_of_dreams",
         "icon": "res://Assets/icons/spells/groupbuff.png",
-        "description": "Grants party +20% damage resistance, CC immunity for 10 seconds.",
+        "description": "Grants party +20% damage resistance, CC immunity for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -13256,7 +13455,7 @@
         "damage": 10,
         "target": "group",
         "range": "15m",
-        "duration": 5,
+        "duration": 15,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
@@ -13268,7 +13467,11 @@
             "Runecaster": 20
         },
         "effect_type": "buff",
-        "channel": false
+        "channel": false,
+        "modifiers": {
+            "damage_taken_mult": 0.2,
+            "cc_immune": 1.0
+        }
     },
     {
         "spell_id": 476,
@@ -13330,7 +13533,7 @@
         "spell_id": 478,
         "spell_name": "arcane_armor",
         "icon": "res://Assets/icons/spells/selfward.png",
-        "description": "Creates a magic shield, absorbing 100 damage.",
+        "description": "Creates a magic shield, absorbing 100 damage. Lasts 15 minutes.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
         "recast_time": 5.0,
@@ -13340,7 +13543,7 @@
         "damage": 100,
         "target": "self",
         "range": "15m",
-        "duration": 30.0,
+        "duration": 900,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
@@ -13352,7 +13555,8 @@
             "Arcanist": 1
         },
         "channel": false,
-        "effect_type": "absorb"
+        "effect_type": "absorb",
+        "effect_amount": 100
     },
     {
         "spell_id": 479,
@@ -13386,7 +13590,7 @@
         "spell_id": 480,
         "spell_name": "detect_magic",
         "icon": "res://Assets/icons/spells/selfbuff.png",
-        "description": "Reveals hidden traps/magical auras for 10 seconds.",
+        "description": "Reveals hidden traps/magical auras for 15 minutes.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -13396,7 +13600,7 @@
         "damage": 0,
         "target": "self",
         "range": "15m",
-        "duration": 5,
+        "duration": 900,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
@@ -13407,7 +13611,11 @@
         "class_level_requirements": {
             "Arcanist": 2
         },
-        "channel": false
+        "channel": false,
+        "modifiers": {
+            "see_invisible": 1.0
+        },
+        "effect_type": "buff"
     },
     {
         "spell_id": 481,
@@ -13495,7 +13703,7 @@
         "spell_id": 484,
         "spell_name": "arcane_intellect",
         "icon": "res://Assets/icons/spells/targetbuff.png",
-        "description": "Grants ally +10% mana regen/spell power for 8 seconds.",
+        "description": "Grants ally +10% mana regen/spell power for 15 minutes.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -13505,7 +13713,7 @@
         "damage": 8,
         "target": "group",
         "range": "15m",
-        "duration": 5,
+        "duration": 900,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
@@ -13517,7 +13725,10 @@
             "Arcanist": 4
         },
         "effect_type": "buff",
-        "channel": false
+        "channel": false,
+        "modifiers": {
+            "mana_regen_bonus": 2
+        }
     },
     {
         "spell_id": 485,
@@ -13607,7 +13818,7 @@
         "spell_id": 488,
         "spell_name": "mana_barrier",
         "icon": "res://Assets/icons/spells/selfward.png",
-        "description": "Absorbs 150 damage at cost of 10% mana.",
+        "description": "Absorbs 150 damage at cost of 10% mana. Lasts 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -13615,20 +13826,22 @@
         "spell_school": "magic",
         "skill_category": "abjuration",
         "damage": 150,
-        "target": "enemy",
+        "target": "self",
         "range": "15m",
-        "duration": 5,
+        "duration": 15,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
         "blockable": true,
         "dispellable": true,
-        "spell_type": "detrimental",
+        "spell_type": "self-beneficial",
         "interruptable": true,
         "class_level_requirements": {
             "Arcanist": 6
         },
-        "channel": false
+        "channel": false,
+        "effect_type": "absorb",
+        "effect_amount": 150
     },
     {
         "spell_id": 489,
@@ -13717,7 +13930,7 @@
         "spell_id": 492,
         "spell_name": "spell_ward",
         "icon": "res://Assets/icons/spells/selfward.png",
-        "description": "Grants 15% magic resistance, reflects 5% spells for 6 seconds.",
+        "description": "Grants 15% magic resistance, reflects 5% spells for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -13725,9 +13938,9 @@
         "spell_school": "magic",
         "skill_category": "abjuration",
         "damage": 6,
-        "target": "enemy",
+        "target": "self",
         "range": "15m",
-        "duration": 5,
+        "duration": 15,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
@@ -13739,7 +13952,10 @@
             "Arcanist": 8
         },
         "effect_type": "buff",
-        "channel": false
+        "channel": false,
+        "modifiers": {
+            "magic_resist_bonus": 15
+        }
     },
     {
         "spell_id": 493,
@@ -13828,7 +14044,7 @@
         "spell_id": 496,
         "spell_name": "time_warp",
         "icon": "res://Assets/icons/spells/groupbuff.png",
-        "description": "Grants party +10% attack/movement speed for 8 seconds.",
+        "description": "Grants party +10% attack/movement speed for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -13838,7 +14054,7 @@
         "damage": 8,
         "target": "group",
         "range": "15m",
-        "duration": 5,
+        "duration": 15,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
@@ -13850,7 +14066,11 @@
             "Arcanist": 10
         },
         "effect_type": "buff",
-        "channel": false
+        "channel": false,
+        "modifiers": {
+            "move_speed_bonus": 0.1,
+            "attack_speed_bonus": 0.1
+        }
     },
     {
         "spell_id": 497,
@@ -13967,7 +14187,7 @@
         "spell_id": 501,
         "spell_name": "arcane_ward",
         "icon": "res://Assets/icons/spells/targetward.png",
-        "description": "Grants ally +15% magic resistance for 8 seconds.",
+        "description": "Grants ally +15% magic resistance for 15 minutes.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -13977,7 +14197,7 @@
         "damage": 8,
         "target": "group",
         "range": "15m",
-        "duration": 5,
+        "duration": 900,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
@@ -13989,7 +14209,10 @@
             "Arcanist": 13
         },
         "effect_type": "buff",
-        "channel": false
+        "channel": false,
+        "modifiers": {
+            "magic_resist_bonus": 15
+        }
     },
     {
         "spell_id": 502,
@@ -14050,7 +14273,7 @@
         "spell_id": 504,
         "spell_name": "ice_barrier",
         "icon": "res://Assets/icons/spells/targetroot.png",
-        "description": "Absorbs 300 damage, slows attackers by 15% for 6 seconds.",
+        "description": "Absorbs 300 damage, slows attackers by 15% for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -14058,21 +14281,25 @@
         "spell_school": "magic",
         "skill_category": "abjuration",
         "damage": 300,
-        "target": "enemy",
+        "target": "self",
         "range": "15m",
-        "duration": 5,
+        "duration": 15,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
         "blockable": true,
         "dispellable": true,
-        "spell_type": "detrimental",
+        "spell_type": "self-beneficial",
         "interruptable": true,
         "class_level_requirements": {
             "Arcanist": 15
         },
-        "effect_type": "snare",
-        "channel": false
+        "effect_type": "absorb",
+        "channel": false,
+        "effect_amount": 300,
+        "modifiers": {
+            "slow_attackers": 0.15
+        }
     },
     {
         "spell_id": 505,
@@ -14415,7 +14642,7 @@
         "spell_id": 517,
         "spell_name": "wild_surge",
         "icon": "res://Assets/icons/spells/groupward.png",
-        "description": "Casts random beneficial effect. (e.g., +10% speed, +5% damage, or 100-damage shield) for 20 seconds.",
+        "description": "Casts random beneficial effect. (e.g., +10% speed, +5% damage, or 100-damage shield) for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -14425,7 +14652,7 @@
         "damage": 0,
         "target": "group",
         "range": "15m",
-        "duration": 20,
+        "duration": 15,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
@@ -14436,13 +14663,15 @@
         "class_level_requirements": {
             "Chaosborn": 1
         },
-        "channel": false
+        "channel": false,
+        "effect_type": "absorb",
+        "effect_amount": 100
     },
     {
         "spell_id": 518,
         "spell_name": "unstable_ward",
         "icon": "res://Assets/icons/spells/selfward.png",
-        "description": "Absorbs 100 damage, 10% chance to reflect 20% damage as random element.",
+        "description": "Absorbs 100 damage, 10% chance to reflect 20% damage as random element. Lasts 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -14450,9 +14679,9 @@
         "spell_school": "magic",
         "skill_category": "abjuration",
         "damage": 100,
-        "target": "enemy",
+        "target": "self",
         "range": "15m",
-        "duration": 5,
+        "duration": 15,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
@@ -14464,7 +14693,12 @@
             "Chaosborn": 2
         },
         "channel": false,
-        "effect_type": "absorb"
+        "effect_type": "absorb",
+        "effect_amount": 100,
+        "modifiers": {
+            "reflect_pct": 0.2,
+            "reflect_chance": 0.1
+        }
     },
     {
         "spell_id": 519,
@@ -14498,7 +14732,7 @@
         "spell_id": 520,
         "spell_name": "arcane_flux",
         "icon": "res://Assets/icons/spells/selfbuff.png",
-        "description": "Grants +10% spell damage, but 5% chance for spells to backfire (10 damage to self) for 8 seconds.",
+        "description": "Grants +10% spell damage, but 5% chance for spells to backfire (10 damage to self) for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -14508,7 +14742,7 @@
         "damage": 8,
         "target": "self",
         "range": "15m",
-        "duration": 5,
+        "duration": 15,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
@@ -14520,7 +14754,10 @@
             "Chaosborn": 3
         },
         "effect_type": "buff",
-        "channel": false
+        "channel": false,
+        "modifiers": {
+            "damage_mult": 0.1
+        }
     },
     {
         "spell_id": 521,
@@ -14609,7 +14846,7 @@
         "spell_id": 524,
         "spell_name": "wild_barrier",
         "icon": "res://Assets/icons/spells/selfward.png",
-        "description": "Absorbs 150 damage, 15% chance to explode for 50 random elemental damage in 5m on breaking.",
+        "description": "Absorbs 150 damage, 15% chance to explode for 50 random elemental damage in 5m on breaking. Lasts 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -14619,7 +14856,7 @@
         "damage": 150,
         "target": "self",
         "range": "15m",
-        "duration": 5,
+        "duration": 15,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
@@ -14631,7 +14868,8 @@
             "Chaosborn": 5
         },
         "channel": false,
-        "effect_type": "absorb"
+        "effect_type": "absorb",
+        "effect_amount": 150
     },
     {
         "spell_id": 525,
@@ -14664,7 +14902,7 @@
         "spell_id": 526,
         "spell_name": "chaos_weave",
         "icon": "res://Assets/icons/spells/selfbuff.png",
-        "description": "Grants +10% critical chance, but spells cost 5% more mana for 8 seconds.",
+        "description": "Grants +10% critical chance, but spells cost 5% more mana for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -14674,7 +14912,7 @@
         "damage": 8,
         "target": "self",
         "range": "15m",
-        "duration": 5,
+        "duration": 15,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
@@ -14686,7 +14924,10 @@
             "Chaosborn": 6
         },
         "effect_type": "buff",
-        "channel": false
+        "channel": false,
+        "modifiers": {
+            "crit_bonus": 10
+        }
     },
     {
         "spell_id": 527,
@@ -14777,7 +15018,7 @@
         "spell_id": 530,
         "spell_name": "chaos_shield",
         "icon": "res://Assets/icons/spells/selfward.png",
-        "description": "Absorbs 200 damage, 15% chance to cast random debuff (slow, silence, or blind) on attacker.",
+        "description": "Absorbs 200 damage, 15% chance to cast random debuff (slow, silence, or blind) on attacker. Lasts 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -14787,7 +15028,7 @@
         "damage": 200,
         "target": "self",
         "range": "15m",
-        "duration": 5,
+        "duration": 15,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
@@ -14799,7 +15040,11 @@
             "Chaosborn": 8
         },
         "effect_type": "absorb",
-        "channel": false
+        "channel": false,
+        "effect_amount": 200,
+        "modifiers": {
+            "attacker_debuff_chance": 0.15
+        }
     },
     {
         "spell_id": 531,
@@ -14943,7 +15188,7 @@
         "spell_id": 536,
         "spell_name": "prismatic_veil",
         "icon": "res://Assets/icons/spells/selfbuff.png",
-        "description": "Grants +15% magic resistance, 15% chance to reflect 10% spell damage for 8 seconds.",
+        "description": "Grants +15% magic resistance, 15% chance to reflect 10% spell damage for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -14951,9 +15196,9 @@
         "spell_school": "magic",
         "skill_category": "abjuration",
         "damage": 8,
-        "target": "enemy",
+        "target": "self",
         "range": "15m",
-        "duration": 5,
+        "duration": 15,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
@@ -14965,7 +15210,10 @@
             "Chaosborn": 11
         },
         "effect_type": "buff",
-        "channel": false
+        "channel": false,
+        "modifiers": {
+            "magic_resist_bonus": 15
+        }
     },
     {
         "spell_id": 537,
@@ -15056,7 +15304,7 @@
         "spell_id": 540,
         "spell_name": "entropic_ward",
         "icon": "res://Assets/icons/spells/selfward.png",
-        "description": "Absorbs 250 damage, 20% chance to explode for 80 random elemental damage in 5m.",
+        "description": "Absorbs 250 damage, 20% chance to explode for 80 random elemental damage in 5m. Lasts 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -15064,20 +15312,22 @@
         "spell_school": "magic",
         "skill_category": "abjuration",
         "damage": 250,
-        "target": "enemy",
+        "target": "self",
         "range": "15m",
-        "duration": 5,
+        "duration": 15,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
         "blockable": true,
         "dispellable": true,
-        "spell_type": "detrimental",
+        "spell_type": "self-beneficial",
         "interruptable": true,
         "class_level_requirements": {
             "Chaosborn": 13
         },
-        "channel": false
+        "channel": false,
+        "effect_type": "absorb",
+        "effect_amount": 250
     },
     {
         "spell_id": 541,
@@ -15282,7 +15532,7 @@
         "spell_id": 548,
         "spell_name": "entropic_aegis",
         "icon": "res://Assets/icons/spells/selfward.png",
-        "description": "Absorbs 300 damage, 20% chance to cast random AoE spell (80 damage) on breaking.",
+        "description": "Absorbs 300 damage, 20% chance to cast random AoE spell (80 damage) on breaking. Lasts 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -15290,20 +15540,22 @@
         "spell_school": "magic",
         "skill_category": "abjuration",
         "damage": 300,
-        "target": "enemy",
+        "target": "self",
         "range": "15m",
-        "duration": 5,
+        "duration": 15,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
         "blockable": true,
         "dispellable": true,
-        "spell_type": "detrimental",
+        "spell_type": "self-beneficial",
         "interruptable": true,
         "class_level_requirements": {
             "Chaosborn": 17
         },
-        "channel": false
+        "channel": false,
+        "effect_type": "absorb",
+        "effect_amount": 300
     },
     {
         "spell_id": 549,
@@ -15473,7 +15725,7 @@
         "spell_id": 555,
         "spell_name": "wild_ascension",
         "icon": "res://Assets/icons/spells/groupbuff.png",
-        "description": "Grants party +25% spell damage, +15% critical chance, and CC immunity for 12 seconds.",
+        "description": "Grants party +25% spell damage, +15% critical chance, and CC immunity for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -15483,7 +15735,7 @@
         "damage": 12,
         "target": "group",
         "range": "15m",
-        "duration": 5,
+        "duration": 15,
         "casting_time": 2.0,
         "failure_rate": 0.0,
         "location": "all",
@@ -15495,7 +15747,11 @@
             "Chaosborn": 20
         },
         "effect_type": "buff",
-        "channel": false
+        "channel": false,
+        "modifiers": {
+            "damage_mult": 0.25,
+            "cc_immune": 1.0
+        }
     },
     {
         "spell_id": 556,
@@ -15694,5 +15950,67 @@
         },
         "effect_type": "taunt",
         "channel": false
+    },
+    {
+        "spell_id": 563,
+        "spell_name": "focused_strike",
+        "icon": "res://Assets/icons/spells/selfbuff.png",
+        "description": "Focus your ki into your fists: +10% damage and +2% hit chance for 15 minutes.",
+        "caster_proficiency": "none",
+        "mana_cost": 10.0,
+        "recast_time": 10.0,
+        "level": 7,
+        "spell_school": "magic",
+        "skill_category": "alteration",
+        "damage": 0,
+        "target": "self",
+        "range": "0m",
+        "duration": 900,
+        "casting_time": 1.5,
+        "failure_rate": 0.0,
+        "location": "all",
+        "blockable": true,
+        "dispellable": true,
+        "spell_type": "self-beneficial",
+        "interruptable": true,
+        "class_level_requirements": {
+            "Aetherfist": 1
+        },
+        "channel": false,
+        "effect_type": "buff",
+        "modifiers": {
+            "damage_mult": 0.1,
+            "hit_chance": 2.0
+        }
+    },
+    {
+        "spell_id": 564,
+        "spell_name": "striking_serpent",
+        "icon": "res://Assets/icons/spells/targetnecromancy.png",
+        "description": "A serpent-fast strike for 60 poison damage that leaves venom: 5 damage a second for 8 seconds, stacking up to 3 times.",
+        "caster_proficiency": "none",
+        "mana_cost": 25.0,
+        "recast_time": 30.0,
+        "level": 7,
+        "spell_school": "poison",
+        "skill_category": "mantis_fist",
+        "damage": 60,
+        "target": "enemy",
+        "range": "3m",
+        "duration": 8,
+        "casting_time": 1.5,
+        "failure_rate": 0.0,
+        "location": "all",
+        "blockable": true,
+        "dispellable": true,
+        "spell_type": "detrimental",
+        "interruptable": true,
+        "class_level_requirements": {
+            "Aetherfist": 17
+        },
+        "channel": false,
+        "effect_type": "dot",
+        "effect_amount": 40,
+        "stacks": 3
     }
 ]

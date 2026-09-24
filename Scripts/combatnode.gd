@@ -223,6 +223,12 @@ func apply_effect(effect_name: String, duration: float, modifiers: Dictionary, t
 		"tick_interval": tick_interval,
 		"tick_accum": 0.0,
 	}
+	# A damage shield travels as an ordinary effect ("absorb_amount" modifier) so it reaches another player's own machine
+	# like any buff; the pool it soaks from is set up here (absorb_incoming_damage() uses it up).
+	if modifiers.has("absorb_amount"):
+		active_effects[effect_name]["absorb_remaining"] = int(modifiers["absorb_amount"])
+	if modifiers.has("decoy_charges"):
+		active_effects[effect_name]["decoys_remaining"] = int(modifiers["decoy_charges"])
 
 func remove_effect(effect_name: String) -> void:
 	if _has_stat_modifiers(active_effects.get(effect_name, {}).get("modifiers", {})):
@@ -234,7 +240,7 @@ func remove_effect(effect_name: String) -> void:
 # feed recalculate_derived_stats() the same way gear_<stat> does, so adding or removing one has to invalidate the cache.
 func _has_stat_modifiers(modifiers: Dictionary) -> bool:
 	for key in modifiers:
-		if str(key).begins_with("stat_") or key in ["dodge_bonus", "parry_bonus"]:  # these feed the cached dodge/parry chance too
+		if str(key).begins_with("stat_") or key in ["dodge_bonus", "parry_bonus", "crit_bonus"]:  # these feed the cached dodge/parry chance too
 			return true
 	return false
 
@@ -302,9 +308,33 @@ func absorb_incoming_damage(amount: int) -> int:
 # short damage_mult proc rather than something callers have to remember to
 # clear after one hit — simpler than tracking "next attack only" exactly.
 func notify_kill() -> void:
+	# Death's Echo (15 minutes): every kill empowers the next hit by 10% (player3d.gd uses the proc up on that hit).
 	if has_effect("deaths_echo"):
-		remove_effect("deaths_echo")
 		apply_effect("deaths_echo_proc", 20.0, {"damage_mult": 0.10})
+
+
+# Illusions left from Mirror Image / Arcane Mirage / Illusory Double ("decoy_charges"): uses one up, true if there was one.
+func use_decoy() -> bool:
+	for effect in active_effects.values():
+		if int(effect.get("decoys_remaining", 0)) > 0:
+			effect["decoys_remaining"] = int(effect["decoys_remaining"]) - 1
+			return true
+	return false
+
+
+func decoys_left() -> int:
+	var total := 0
+	for effect in active_effects.values():
+		total += int(effect.get("decoys_remaining", 0))
+	return total
+
+
+# Crowd-control immunity ("cc_immune": Zen Focus, Veil of Dreams, Eternal Spirit...): stuns, fear, charm, mesmerize, roots,
+# slows, silences and blinds don't take. "movement_immune" (Spirit Walk) only stops roots and slows.
+func is_cc_immune(effect_type: String = "") -> bool:
+	if get_modifier("cc_immune") > 0.0:
+		return true
+	return effect_type in ["root", "snare"] and get_modifier("movement_immune") > 0.0
 
 func _process(delta: float) -> void:
 	if active_effects.is_empty():
@@ -428,7 +458,7 @@ func recalculate_derived_stats():
 	# Crit Chance
 	var base_crit = 5
 	var class_crit_bonus = _get_class_crit_bonus()
-	var crit_chance = base_crit + int((dex_eff + luck_eff) / 2.0) + class_crit_bonus + gear_crit + race_crit_bonus + int(skill_bonus("crit_chance"))
+	var crit_chance = base_crit + int((dex_eff + luck_eff) / 2.0) + class_crit_bonus + gear_crit + race_crit_bonus + int(skill_bonus("crit_chance")) + int(get_modifier("crit_bonus"))
 	crit_chance = clamp(crit_chance, 0, 60)  # Hard cap at 60%
 	_cached_stats["crit_chance"] = crit_chance
 
@@ -1007,7 +1037,9 @@ func resolve_attack(target: CombatNode) -> Dictionary:
 			"message": "Your attack is dodged!"
 		}
 
-	# 6. HIT - CALCULATE DAMAGE
+	# 6. HIT — unless it lands on one of the defender's illusions (Mirror Image, Arcane Mirage): each takes one blow.
+	if target.use_decoy():
+		return {"result": "MISS", "damage": 0, "decoy": true, "message": "Your attack strikes an illusion!"}
 	var is_crit = roll_crit()
 	var damage = calculate_melee_damage(target, is_crit)
 	damage = apply_ac_mitigation(damage, target)
@@ -1015,9 +1047,30 @@ func resolve_attack(target: CombatNode) -> Dictionary:
 	# Totem — distinct from absorb (a depletable shield) and damage_drain_pct
 	# (heal-back): this just reduces the hit outright.
 	damage = int(damage * (1.0 - target.get_modifier("damage_taken_mult")))
+	var incoming: int = damage
 	damage = target.absorb_incoming_damage(damage)
 
 	target.current_hp -= damage
+
+	# Shields that strike back (Thorn Shield, Holy Aegis, Ki Aegis, Umbral Fortress...): "reflect_pct" of the blow (on a
+	# "reflect_chance" roll when one is set) plus a flat "retaliate_flat". Sent back as "reflected" — monster3d.gd relays it
+	# to the real monster when this runs on a puppet, as it does for Improved Parry.
+	var reflected := 0
+	var reflect_pct: float = target.get_modifier("reflect_pct")
+	var reflect_chance: float = target.get_modifier("reflect_chance")
+	if reflect_pct > 0.0 and incoming > 0 and (reflect_chance <= 0.0 or randf() < reflect_chance):
+		reflected += maxi(1, int(round(incoming * reflect_pct)))
+	reflected += int(target.get_modifier("retaliate_flat"))
+	if reflected > 0:
+		current_hp -= reflected
+
+	# Spirit Link: part of the hit is taken off the linked ally and spread over their group (monster3d.gd hands "shared" to
+	# the ally's player3d.gd, which deals it out).
+	var shared := 0
+	var share: float = target.get_modifier("damage_share")
+	if share > 0.0 and damage > 0:
+		shared = int(round(damage * share))
+		target.current_hp += shared
 
 	# Blood Aegis — "converts 20% incoming damage to health drain," i.e. the
 	# defender heals for a cut of the damage they just took rather than the
@@ -1029,9 +1082,11 @@ func resolve_attack(target: CombatNode) -> Dictionary:
 	var crit_message = " [CRITICAL]" if is_crit else ""
 	return {
 		"result": "HIT",
-		"damage": damage,
+		"damage": damage - shared,
 		"is_crit": is_crit,
-		"message": "You hit for " + str(damage) + " damage!" + crit_message
+		"reflected": reflected,
+		"shared": shared,
+		"message": "You hit for " + str(damage - shared) + " damage!" + crit_message
 	}
 
 # ================================================================================
@@ -1121,7 +1176,7 @@ func resolve_aetherfist_attack(target: CombatNode) -> Dictionary:
 
 	# DOUBLE ATTACK CHECK (Level 10+)
 	if level >= 10:
-		var double_chance = 40 + int(dexterity * 0.3) + (level - 10) + int(skill_bonus("double_attack_chance"))
+		var double_chance = 40 + int(dexterity * 0.3) + (level - 10) + int(skill_bonus("double_attack_chance")) + int(get_modifier("double_attack_bonus"))
 		double_chance = clamp(double_chance, 0, 100)
 
 		var roll = randi() % 100 + 1
@@ -1134,7 +1189,7 @@ func resolve_aetherfist_attack(target: CombatNode) -> Dictionary:
 
 				# TRIPLE ATTACK CHECK (Level 15+)
 				if level >= 15:
-					var triple_chance = 15 + int(dexterity * 0.2) + int((level - 15) * 0.5) + int(skill_bonus("triple_attack_chance"))
+					var triple_chance = 15 + int(dexterity * 0.2) + int((level - 15) * 0.5) + int(skill_bonus("triple_attack_chance")) + int(get_modifier("triple_attack_bonus"))
 					triple_chance = clamp(triple_chance, 0, 100)
 
 					var triple_roll = randi() % 100 + 1

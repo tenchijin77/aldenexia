@@ -2765,6 +2765,87 @@
     "effect": null,
     "teaches_spell": "fire_strike"
   },
+  "scroll_of_focused_strike": {
+    "name": "Scroll of Focused Strike",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Focused Strike technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "aetherfist"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "focused_strike"
+  },
+  "scroll_of_striking_serpent": {
+    "name": "Scroll of Striking Serpent",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Striking Serpent technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "aetherfist"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "striking_serpent"
+  },
+  "scroll_of_dragon_fist": {
+    "name": "Scroll of Dragon Fist",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing the Dragon Fist technique. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "aetherfist"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "dragon_fist"
+  },
   "scroll_of_mountains_challenge": {
     "name": "Scroll of Mountain's Challenge",
     "icon": "res://Assets/icons/items/scroll.png",

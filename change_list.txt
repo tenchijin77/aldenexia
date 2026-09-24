@@ -1194,3 +1194,66 @@ set_gm_password.sh — set or change the game-master password on the game server
 
 
   Testing document link: https://claude.ai/artifact/GJACXeD3LDGRqRsUrWEgc6
+
+  Aetherfist:
+
+  1. Passives. The notes rely on them (Focused Strike, Evasive Footwork) and the game has almost none for the class.
+  2. Resources. The notes use stamina and the game uses mana.
+  3. Ability count. The game has far more abilities: 41 against about 10 in the notes.
+
+  Aetherfist stances: Wind at level 1, Earth at 3, Water at 5, Fire at 7 and Void at 10. They appear on the stance bar as you level.
+  - Switching: one stance at a time, with 3 seconds between changes.
+  - Procs: auto-attacks only. Stuns last 3–5 seconds, and a monster can't be proc-stunned again for 15 seconds.
+  - Boosts: each stance makes its own abilities 25% stronger.
+  - Group benefit: group members within 10 m get the stance's benefit. Two monks in different stances both count; the same stance twice doesn't
+    stack.
+  - Auras: coloured glow and particles that everyone sees.
+  - Replacement: the old level-1 Wind Stance ability is retired, and the Wind stance replaces it.
+
+  Mountain's Challenge (level 3): a taunt, stronger in Earth stance. Its scroll is sold by Ilsabet.
+
+  Scrolls: I've added the Mountain's Challenge scroll and renamed the Ki Strike and Mend Wounds scrolls. Data/player_spells.json is up to date.
+  Data/player_spells.xlsx is an old copy from 16 September (it still says "Zenblade"), so don't edit that one.
+
+  Auto-attack now follows weapon speed: the dagger swings every 2.2 s, the rusty sword every 2.8 s, and bare hands every 2.0 s for an Aetherfist
+  or 3.0 s for everyone else. Before, everyone swung every 0.3–1 s, so melee damage per second is now much lower. Watch in testing whether
+  fights feel too slow; we may need to raise weapon damage.
+
+  Improved Parry works as a passive: a parry strikes back for 5% of the blow's damage.
+
+  Server:
+  - Log lines: they now name the player and show the IP address, for example Zozuur disconnected — peer …, 1.2.3.4 (0/6).
+  - Ban commands: GMs can use /ban <ip or player name> (bans the address and kicks them), /unban <ip> and /bans.
+  - Where bans are kept: in banned_ips in the server's data folder. You can edit it by hand.
+  - Shared addresses: a ban covers everyone on that address, so it also blocks people who share a home internet connection.
+
+  Aetherfist:
+  - Focused Strike (level 1): a 15-minute self-buff, +10% damage and +2% hit chance. Every Aetherfist gets it; existing characters receive it
+    when they log in.
+  - Earth Strike: now interrupts, cancelling any spell the target is casting and holding back its next attack for 1.5 s.
+  - Striking Serpent (level 17): a melee poison strike for 60 damage, plus venom at 5 damage a second for 8 seconds. The venom stacks three
+    times.
+  - Dragon Fist (level 19): replaces Ki Tempest. For 15 seconds you get +20% Double Attack chance and +10% Triple Attack chance, and every
+    auto-attack hit weakens the target by 5%. 90-second recast.
+  - Scrolls: Focused Strike, Striking Serpent and Dragon Fist scrolls are now sold by Ilsabet.
+
+  Buffs across all classes: almost every buff had a placeholder 5-second duration, whatever its description said.
+  - 15 minutes: long self and group buffs such as Bless, Barkskin, Arcane Intellect, Clarity, Invisibility, Detect Magic, Arcane Armor and
+    Focused Strike.
+  - 15 seconds: about 70 in-combat buffs and damage shields.
+  - Descriptions: all updated to match.
+
+  Kept short on purpose, because 15 seconds would be too strong — say if you want any of these changed:
+  - invulnerability (Divine Sanctuary, Celestial Aegis);
+  - untargetable (Sanctuary);
+  - 50–60% damage reduction (Light's Bastion, Lich's Grasp, Dark Sovereign, Ironclad Bastion).
+
+  Buffs that didn't work at all: 34 self-buffs across the classes were aimed at enemies, including Holy Aegis, Iron Resolve, Perfect Balance, Ki
+  Aegis, Shadow Cloak, Bone Armor and Mana Barrier. They now target yourself. Many buffs also had no real effect, so they now read their
+  numbers from their descriptions:
+  - damage shields, damage reduction and magic resistance;
+  - dodge, movement and attack speed, damage, accuracy and mana regen;
+  - new support for crit chance;
+  - Shadow Cloak and Umbral Cloak now make you invisible.
+
+  Group damage shields such as Divine Ward also reach other players now; before, they only protected your local copy of them.

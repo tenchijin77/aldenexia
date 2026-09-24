@@ -1402,7 +1402,14 @@ func _resolve_attack_on(target: Node, relayed: bool = false) -> void:
 			if target.has_method("_tick_defense_skill"):
 				target._tick_defense_skill(result.get("result", ""))
 			if int(result.get("reflected", 0)) > 0:
-				GameLog.log_combat("[color=#ffdd88]You parry and strike back at %s for [b]%d[/b] damage.[/color]" % [desc, int(result["reflected"])])
+				var how := "You parry and strike back at" if result.get("result", "") == "PARRY" else "Your shield strikes back at"
+				GameLog.log_combat("[color=#ffdd88]%s %s for [b]%d[/b] damage.[/color]" % [how, desc, int(result["reflected"])])
+			if result.get("decoy", false):
+				GameLog.log_combat("[color=#bb99ff]%s strikes one of your illusions, which shatters.[/color]" % desc.capitalize())
+			if int(result.get("shared", 0)) > 0 and target.has_method("share_damage_with_group"):
+				target.share_damage_with_group(int(result["shared"]))
+			if result.get("result", "") == "HIT":
+				_on_hit_defender_effects(target)
 			if target.has_method("play_swung_at_sound"):
 				target.play_swung_at_sound(str(result.get("result", "")), int(result.get("damage", 0)), self)
 			if str(result.get("result", "")) == "HIT" and monster_name.contains("spider"):
@@ -2008,3 +2015,27 @@ func look_at_target(target_pos: Vector3) -> void:
 	look_pos.y = global_position.y
 	if global_position.distance_squared_to(look_pos) > 0.0001:
 		look_at(look_pos, Vector3.UP)
+
+
+# A defender's shield that hits back at whoever strikes it (runs on the defender's machine): Ice Barrier slows the
+# attacker ("slow_attackers"), Chaos Shield has a chance to lay a random debuff on it ("attacker_debuff_chance").
+func _on_hit_defender_effects(target: Node) -> void:
+	var cn = target.get("combat_node") if "combat_node" in target else null
+	if not (cn is CombatNode):
+		return
+	var slow: float = cn.get_modifier("slow_attackers")
+	if slow > 0.0:
+		_apply_effect_here_or_server("shield_chill", 4.0, {"speed_slow": slow, "attack_speed_slow": slow})
+	var chance: float = cn.get_modifier("attacker_debuff_chance")
+	if chance > 0.0 and randf() < chance:
+		var picks := [["chaos_slow", {"speed_slow": 0.3, "attack_speed_slow": 0.3}], ["chaos_silence", {"silenced": 1.0}], ["chaos_blind", {"hit_chance": -25.0}]]
+		var pick: Array = picks[randi() % picks.size()]
+		_apply_effect_here_or_server(pick[0], 5.0, pick[1])
+		GameLog.log_combat("[color=#bb99ff]Your chaos shield lashes out at %s.[/color]" % (monster_description if monster_description != "" else get_monster_name()))
+
+
+func _apply_effect_here_or_server(effect_name: String, duration: float, mods: Dictionary) -> void:
+	if is_multiplayer_authority():
+		combat_node.apply_effect(effect_name, duration, mods)
+	else:
+		apply_networked_effect.rpc_id(1, effect_name, duration, mods, 0, 1.0)

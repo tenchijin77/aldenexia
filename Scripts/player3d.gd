@@ -1851,6 +1851,7 @@ func _process(delta: float) -> void:
 	_update_stance_aura()        # and a stance's aura (driven by the replicated current_stance)
 	if not is_multiplayer_authority():
 		return
+	_update_decoys()
 	_tick_stance_group(delta)
 	_update_light_logic()
 	if current_target != null and not is_instance_valid(current_target):
@@ -2855,6 +2856,7 @@ func attack_current_target() -> void:
 		play_swing_sound(str(result.get("result", "")), weapon, current_target)
 		if str(result.get("result", "")) == "HIT":
 			_stance_on_hit(current_target, int(result.get("damage", 0)))
+		_maybe_extra_swing(current_target, weapon)
 		if result["result"] == "HIT":
 			var skey: String = _weapon_skill_key(weapon)
 			_tick_skill(skey)
@@ -2961,6 +2963,7 @@ func perform_melee_attack() -> void:
 			play_swing_sound(str(result.get("result", "")), weapon, target)
 			if str(result.get("result", "")) == "HIT":
 				_stance_on_hit(target, int(result.get("damage", 0)))
+			_maybe_extra_swing(target, weapon)
 			if result["result"] == "HIT":
 				var skey: String = _weapon_skill_key(weapon)
 				_tick_skill(skey)
@@ -3477,6 +3480,8 @@ func load_character_data(data: Dictionary) -> void:
 	known_skills     = data.get("known_skills", [])
 	known_recipes    = data.get("known_recipes", [])
 	if player_class == "Aetherfist":
+		if not known_spells.has("focused_strike"):
+			known_spells.append("focused_strike")  # the level-1 self-buff every Aetherfist starts with (added 2026-09-23)
 		known_spells.erase("wind_stance")  # retired as an ability: the Aetherfist's Wind Stance is a stance on the stance bar now
 	skill_levels     = data.get("skill_levels", {})
 	_migrate_legacy_skills()
@@ -3817,6 +3822,9 @@ const SPELL_DISPLAY_NAMES := {
 	"curse_of_weakness": "Curse of Weakness",
 	"deaths_echo": "Death's Echo",
 	"mountains_challenge": "Mountain's Challenge",
+	"focused_strike": "Focused Strike",
+	"striking_serpent": "Striking Serpent",
+	"dragon_fist": "Dragon Fist",
 	"improved_ki_strike": "Ki Strike",          # an "improvement" of a Ki Strike the Aetherfist never had: it IS the strike
 	"enhanced_mend_wounds": "Mend Wounds",      # likewise the Aetherfist's group heal itself
 }
@@ -4157,6 +4165,13 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 
 			if target_node.has_method("add_threat"):
 				target_node.add_threat(self, combat_node.generate_threat(final_dmg))
+			if spell.get("interrupt", false):
+				# Earth Strike: cancel a spell the target is casting and hold back its next attack.
+				if target_cn is CombatNode and target_cn.is_casting:
+					target_cn.is_casting = false
+					target_cn.current_cast_time = 0.0
+				_disable_target(target_node, INTERRUPT_DELAY)
+				GameLog.log_combat("[color=#ffcc66]%s is interrupted.[/color]" % target_desc.capitalize())
 
 			match spell_name:
 				"life_siphon":
@@ -4278,14 +4293,14 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 					combat_node.apply_effect("blood_aegis", 6.0, {"damage_drain_pct": 0.20})
 					GameLog.log_combat("[color=#ff4444]Your blood aegis stirs, ready to drink the pain you take.[/color]")
 				"deaths_echo":
-					combat_node.apply_effect("deaths_echo", 30.0, {})
+					combat_node.apply_effect("deaths_echo", float(spell.get("duration", 900)), {})
 					GameLog.log_combat("[color=#aa88ff]Death's Echo lingers, ready to answer your next kill.[/color]")
 				"deathly_visage":
 					combat_node.apply_effect("deathly_visage", 900.0, {"see_invisible": 1.0})
 					_enable_deathly_visage_light()
 					GameLog.log_combat("[color=#88bbcc]A pale, deathly light fills your eyes — the unseen becomes visible.[/color]")
 				"invisibility":
-					combat_node.apply_effect("invisibility", 8.0, {"invisible": 1.0})
+					combat_node.apply_effect("invisibility", float(spell.get("duration", 900)), {"invisible": 1.0})
 					GameLog.log_combat("[color=#aaaaaa]You fade from sight...[/color]")
 				_:
 					if not _apply_generic_spell_effect(effect_type, spell, combat_node, combat_node, self, "yourself"):
@@ -4674,6 +4689,9 @@ func _apply_generic_spell_effect(effect_type: String, spell: Dictionary, caster_
 	const NEGATIVE_EFFECT_TYPES := ["debuff", "dot", "snare", "stun", "fear",
 		"charm", "mesmerize", "confuse", "root", "blind", "silence"]
 	if effect_type in NEGATIVE_EFFECT_TYPES:
+		if effect_type in ["stun", "fear", "charm", "mesmerize", "confuse", "root", "snare", "blind", "silence"] and target_cn.is_cc_immune(effect_type):
+			GameLog.log_combat("[color=#88ccff]%s is immune.[/color]" % target_desc.capitalize())
+			return false
 		if effect_type == "root" and target_cn.race_immune_to_root:
 			GameLog.log_combat("[color=#88ccff]%s is immune to being rooted.[/color]" % target_desc.capitalize())
 			return false
@@ -4730,6 +4748,15 @@ func _apply_generic_spell_effect(effect_type: String, spell: Dictionary, caster_
 				return false
 			var ticks := maxi(1, int(round(duration)))
 			var per_tick := maxi(1, int(round(float(magnitude) / ticks)))
+			# "stacks": N lets the same DoT land up to N times at once (Striking Serpent's venom); each stack is its own effect.
+			var stacks := int(spell.get("stacks", 1))
+			if stacks > 1:
+				var slot := 1
+				for i in range(1, stacks + 1):
+					if not target_cn.active_effects.has("%s_%d" % [effect_name, i]):
+						slot = i
+						break
+				effect_name = "%s_%d" % [effect_name, slot]
 			_buff_target(target_node, target_cn, effect_name, duration, {}, per_tick, 1.0)
 			GameLog.log_combat("[color=#77aa44]%s is afflicted with a lingering effect.[/color]" % target_desc.capitalize())
 			_broadcast_combat("[color=#77aa44]%s is afflicted with a lingering effect.[/color]" % bcast_desc.capitalize())
@@ -4843,8 +4870,9 @@ func _apply_generic_spell_effect(effect_type: String, spell: Dictionary, caster_
 			# wholeness_of_body), so no remote-player relay case exists yet;
 			# the absorb_remaining pool write below would need its own RPC
 			# field if a group-target absorb spell is ever added.
-			target_cn.apply_effect(effect_name, duration, {})
-			target_cn.active_effects[effect_name]["absorb_remaining"] = magnitude
+			var shield_mods := spell_mods.duplicate()
+			shield_mods["absorb_amount"] = magnitude  # plus whatever else the shield does (reflect, slow attackers...)
+			_buff_target(target_node, target_cn, effect_name, duration, shield_mods)  # reaches a remote group member too
 			GameLog.log_combat("[color=#8866ff]%s is shielded, absorbing damage.[/color]" % target_desc.capitalize())
 			_broadcast_combat("[color=#8866ff]%s is shielded, absorbing damage.[/color]" % bcast_desc.capitalize())
 			return true
@@ -4939,6 +4967,43 @@ func _charm_target(target_node: Node, duration: float) -> void:
 	target_node.apply_networked_charm.rpc_id(1, duration, multiplayer.get_unique_id())
 
 
+# Spirit Link: `amount` of a blow this linked player took is spread over the rest of the group within SPIRIT_LINK_RANGE
+# (on each member's own machine). With nobody close enough, it lands on this player after all.
+const SPIRIT_LINK_RANGE := 30.0
+
+func share_damage_with_group(amount: int) -> void:
+	var others: Array = []
+	for peer in group_members:
+		var member := _peer_id_to_player_node(peer)
+		if is_instance_valid(member) and member != self and (member as Node3D).global_position.distance_to(global_position) <= SPIRIT_LINK_RANGE:
+			others.append(member)
+	if others.is_empty():
+		combat_node.current_hp -= amount
+		return
+	var each := maxi(1, int(ceil(float(amount) / others.size())))
+	for member in others:
+		if member.is_multiplayer_authority():
+			member.receive_shared_damage(each, player_name)
+		else:
+			member.apply_networked_shared_damage.rpc_id(member.get_multiplayer_authority(), each, player_name)
+	GameLog.log_combat("[color=#88ccff]The spirit link spreads %d of the blow across your group.[/color]" % amount)
+
+
+func receive_shared_damage(amount: int, from_name: String) -> void:
+	if dying:
+		return
+	combat_node.current_hp -= amount
+	GameLog.log_combat("[color=#88ccff]You take %d damage through the spirit link to %s.[/color]" % [amount, from_name])
+	if not combat_node.is_alive():
+		die(null)
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func apply_networked_shared_damage(amount: int, from_name: String) -> void:
+	if is_multiplayer_authority():
+		receive_shared_damage(amount, from_name)
+
+
 @rpc("any_peer", "call_remote", "reliable")
 func apply_networked_heal(amount: int) -> void:
 	if not is_multiplayer_authority():
@@ -5029,6 +5094,9 @@ func _apply_disable_effect(duration: float, target_node: Node, target_desc: Stri
 
 
 func _disable_target(target_node: Node, duration: float) -> void:
+	var cn = target_node.get("combat_node") if "combat_node" in target_node else null
+	if cn is CombatNode and cn.is_cc_immune():
+		return  # CC immunity (a monster buff, or a player's Zen Focus)
 	if target_node.is_multiplayer_authority() or not target_node.has_method("apply_networked_disable"):
 		target_node.can_attack = false
 		target_node.attack_timer = duration
@@ -5419,6 +5487,7 @@ func _resolve_melee_attack(target_cn: CombatNode) -> Dictionary:
 # ── Stances (class_stances.json): procs, boosts, group benefit, aura ──
 # The current stance's data, the extras a class_stances.json stance can carry beyond its modifiers (the Aetherfist's
 # elemental stances): procs on auto-attack hits, abilities it boosts, a benefit for nearby group members and a visible aura.
+const INTERRUPT_DELAY := 1.5      # seconds an interrupting blow holds back the target's next attack
 const STANCE_BOOST := 0.25          # an ability of the stance's own element is this much stronger
 const PROC_STUN_IMMUNE_MS := 15000  # a monster stunned by a proc can't be proc-stunned again for this long
 const STANCE_GROUP_RANGE := 10.0    # group members this close get the stance's group benefit
@@ -5448,6 +5517,9 @@ func stance_boosts(ability: String) -> bool:
 
 # An auto-attack landed: the stance's procs (never from abilities).
 func _stance_on_hit(target: Node, damage: int) -> void:
+	var weaken: float = combat_node.get_modifier("weaken_on_hit")  # Dragon Fist
+	if weaken > 0.0 and is_instance_valid(target) and "combat_node" in target:
+		_buff_target(target, target.combat_node, "dragon_fist_weaken", 5.0, {"damage_mult": -weaken})
 	var procs: Dictionary = _stance_data().get("procs", {})
 	if procs.is_empty() or not is_instance_valid(target) or not ("combat_node" in target):
 		return
@@ -5569,6 +5641,53 @@ func _update_stance_aura() -> void:
 	motes.position = Vector3(0, 0.15, 0)
 	aura.add_child(motes)
 	_stance_aura = aura
+
+
+# Windfury ("extra_attack_chance"): a chance for an auto-attack to be followed at once by a second full swing.
+func _maybe_extra_swing(target: Node, weapon: Dictionary) -> void:
+	var chance: float = combat_node.get_modifier("extra_attack_chance")
+	if chance <= 0.0 or randf() >= chance or not is_instance_valid(target) or not ("combat_node" in target) \
+			or not target.combat_node.is_alive():
+		return
+	var result: Dictionary = combat_node.resolve_attack(target.combat_node)
+	if target is Monster and not target.is_multiplayer_authority() and int(result.get("damage", 0)) > 0:
+		target.apply_networked_damage.rpc_id(1, int(result["damage"]), multiplayer.get_unique_id())
+	if target.has_method("add_threat"):
+		target.add_threat(self, combat_node.generate_threat(int(result.get("damage", 0))))
+	var desc := TargetFrame.display_name(target)
+	if str(result.get("result", "")) == "HIT":
+		GameLog.log_combat("[color=#aaddff]Windfury! You strike %s again for [b]%d[/b].[/color]" % [desc, int(result["damage"])])
+		_stance_on_hit(target, int(result["damage"]))
+	play_swing_sound(str(result.get("result", "")), weapon, target)
+
+
+# Illusions (Mirror Image, Arcane Mirage, Illusory Double): a see-through copy of your character standing beside you for
+# each one left, on your own screen. They vanish one by one as blows land on them (combatnode.gd use_decoy()).
+var _decoys: Array = []
+
+func _update_decoys() -> void:
+	var want: int = mini(combat_node.decoys_left(), 3)
+	if want == _decoys.size():
+		return
+	for decoy in _decoys:
+		if is_instance_valid(decoy):
+			decoy.queue_free()
+	_decoys.clear()
+	var model := get_node_or_null("Character") as Node3D
+	if model == null:
+		return
+	for i in want:
+		var copy := model.duplicate() as Node3D
+		for mesh in copy.find_children("*", "MeshInstance3D", true, false):
+			var ghost := StandardMaterial3D.new()
+			ghost.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+			ghost.albedo_color = Color(0.7, 0.75, 1.0, 0.35)
+			ghost.emission_enabled = true
+			ghost.emission = Color(0.4, 0.45, 0.9)
+			(mesh as MeshInstance3D).material_override = ghost
+		add_child(copy)
+		copy.position = model.position + Vector3([-1.2, 1.2, 0.0][i], 0, [0.3, 0.3, 1.1][i])
+		_decoys.append(copy)
 
 
 # ── Combat sounds ──
