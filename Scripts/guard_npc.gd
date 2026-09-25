@@ -484,8 +484,9 @@ func _play_attack_animation() -> void:
 # header), so nothing currently puts a guard in a state to die. Wired here so
 # it's a one-line hookup whenever guard vulnerability gets built.
 func play_death_animation() -> void:
-	if animation_player and animation_player.has_animation("death"):
-		animation_player.play("death")
+	var death_anim := Player3D.pick_variant(animation_player, "death")
+	if not death_anim.is_empty():
+		animation_player.play(death_anim)
 
 
 # ── Engagement state machine ─────────────────────────────────────────────────

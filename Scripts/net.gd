@@ -69,6 +69,7 @@ var zone_id := ZoneInfo.DEFAULT_ID
 var base_port := DEFAULT_PORT
 var _join_address := ""       # client: the server address we joined (zone changes go to another port on it)
 var _zoning := false          # client: a zone change is under way
+var _zoned_out := {}          # server: peer id -> true once a save moved them to another zone (their leaving isn't "leaves the world")
 var _client_base_port := DEFAULT_PORT   # client: the login server's port (a zone's port = this + its offset)
 const ZONE_HINTS_PATH := "user://zone_hints.json"   # client: the zone each character was last in, per server, so logging
 													# in goes straight to the right zone's server (no hop via the login server)
@@ -527,6 +528,9 @@ func broadcast_combat_message(text: String, source_position: Vector3) -> void:
 func _rpc_receive_world_announce(kind: String, pname: String, level: int, cls: String, variant: int) -> void:
 	if is_dedicated_server:
 		_slog("%s: %s (level %d %s)" % [kind, pname, level, cls])
+		var link := get_tree().get_first_node_in_group("world_link")
+		if link != null and multiplayer.is_server():
+			link.share_announce(kind, pname, level, cls, variant)   # every other zone hears it too (world_link.gd)
 	WorldAnnouncer.announce(kind, pname, level, cls, variant)
 
 
@@ -547,12 +551,17 @@ func _announce_departure(id: int) -> void:
 		return
 	if multiplayer.multiplayer_peer.get_connection_status() != MultiplayerPeer.CONNECTION_CONNECTED:
 		return
+	if _zoned_out.erase(id):
+		return   # gone to another zone, not out of the world
 	var puppet := TargetFrame.peer_id_to_player_node(id)
 	if not is_instance_valid(puppet):
 		return
 	var info := WorldAnnouncer.player_info(puppet)
 	var variant := randi()
 	WorldAnnouncer.announce("leave", info["name"], info["level"], info["class"], variant)
+	var link := get_tree().get_first_node_in_group("world_link")
+	if link != null:
+		link.share_announce("leave", info["name"], info["level"], info["class"], variant)
 	for pid in multiplayer.get_peers():
 		if pid != id:
 			_rpc_receive_world_announce.rpc_id(pid, "leave", info["name"], info["level"], info["class"], variant)
@@ -1590,6 +1599,7 @@ func _check_zone_change(id: int, player: String, stored: Dictionary, incoming: D
 	incoming.erase("last_position")   # they arrive at the marker / bind point, not at old-zone coordinates
 	incoming["last_zone"] = ZoneInfo.name_for(to)   # the character list shows where they are now
 	_slog("%s leaves for %s." % [_display_name(player), ZoneInfo.name_for(to)])
+	_zoned_out[id] = true
 	_telemetry({"event": "zone", "character": player, "from": from, "to": to})
 	return true
 

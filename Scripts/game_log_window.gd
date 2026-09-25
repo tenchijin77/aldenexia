@@ -665,7 +665,12 @@ func _handle_slash_command(text: String) -> bool:
 		"/macro":
 			player.toggle_abilities_book_tab("Macros")
 		"/who":
-			WorldAnnouncer.print_who(player)
+			# on a server: everyone in every zone (world_link.gd); otherwise this world's players
+			var link := get_tree().get_first_node_in_group("world_link")
+			if Net.remote_character_mode and link != null:
+				link.request_who()
+			else:
+				WorldAnnouncer.print_who(player)
 		"/pet":
 			player.try_pet_nearby()
 		"/focus":

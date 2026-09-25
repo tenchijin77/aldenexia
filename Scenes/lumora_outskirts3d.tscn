@@ -30,6 +30,7 @@
 [ext_resource type="Script" uid="uid://bdfun3bs24dfy" path="res://Scripts/gm_relay.gd" id="gm_relay_scr"]
 [ext_resource type="PackedScene" path="res://Scenes/harbour_master.tscn" id="harbour_master_scn"]
 [ext_resource type="PackedScene" path="res://Scenes/kenji_npc.tscn" id="kenji_npc_scn"]
+[ext_resource type="PackedScene" path="res://Scenes/silvered_mirror.tscn" id="mirror_scn"]
 [ext_resource type="Script" uid="uid://b71mdxjt0jesx" path="res://Scripts/ambient_water_sound.gd" id="ocean_script"]
 [ext_resource type="AudioStream" uid="uid://cviqr1e8477s3" path="res://Assets/sounds/ambient/ocean_waves.mp3" id="ocean_stream"]
 [ext_resource type="PackedScene" path="res://Scenes/oni_npc.tscn" id="oni_npc_scn"]
@@ -44,7 +45,7 @@
 [ext_resource type="Script" uid="uid://t6wjhuirmwsb" path="res://Scripts/world_note.gd" id="world_note_scr"]
 [ext_resource type="Script" uid="uid://c2olnatq3g6a5" path="res://Scripts/zone_boundary.gd" id="zone_boundary_scr"]
 [ext_resource type="Script" uid="uid://clm5l4nhm5j6k" path="res://Scripts/zone_line.gd" id="zone_line_scr"]
-[ext_resource type="PackedScene" path="res://Scenes/silvered_mirror.tscn" id="mirror_scn"]
+[ext_resource type="Script" path="res://Scripts/world_link.gd" id="world_link_script"]
 
 [sub_resource type="Gradient" id="Gradient_6a7en"]
 offsets = PackedFloat32Array(0.2, 1)
@@ -542,5 +543,8 @@ size = Vector3(250, 60, 8)
 script = ExtResource("zone_boundary_scr")
 limit_max_x = 133.0
 
-[node name="SilveredMirror" parent="." instance=ExtResource("mirror_scn")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 66, 0, 20)
+[node name="SilveredMirror" parent="." unique_id=1169137102 instance=ExtResource("mirror_scn")]
+transform = Transform3D(-0.99873745, 0, 0.050233997, 0, 1, 0, -0.050233997, 0, -0.99873745, 94.95395, 0, -24.850971)
+
+[node name="WorldLink" type="Node" parent="."]
+script = ExtResource("world_link_script")

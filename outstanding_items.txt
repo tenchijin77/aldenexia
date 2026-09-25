@@ -213,6 +213,32 @@ The Pantheon map (Aldenexia_Pantheon_Reputation_Map_Updated.xlsx + Aldenexia Rep
   icon's own background (arcane_target.png, arcane_aoe.png, arcane_group.png). Real arcane art wanted for all three.
   targetarcane.png (the swords) now marks physical direct-damage skills (user's call, test 34).
 
+== ANIMATION PACK, HELD GEAR, RANGED, SWIMMING, GATHERING (decided 2026-09-25) ==
+One shared animation pack for every race model, retargeted onto each skeleton (Meshy rig), new animations added once.
+The user is downloading from Mixamo (FBX, Without Skin, 30 fps, In Place for walk / run / swim) on one character:
+- Replacements for the core ten: idle, walk, run, jump, sitting idle, two 1H melee swings, buff cast, offensive cast, death.
+- NEW: ranged (bow draw / aim / shoot; a throw), swimming (swim in place, treading water), fishing (cast + idle, or an
+  underhand throw + holding idle), gathering / foraging (pick up, kneeling pick-up), mining (pickaxe), woodcutting
+  (chopping), crafting (hammering at an anvil, working at a table, kneeling / sitting work).
+- Extras worth having: two-handed swings, unarmed punches and kicks (Aetherfist), dual wield, shield block, hit
+  reaction, dodge; emotes (wave, bow, cheer, dance) for /emote commands later. 2-3 variants of common actions.
+- DONE (step 1): every existing buff, casting and death animation is pooled for all races as VARIANTS, picked at
+  random (tools/make_animation_pack.gd). Next: the Mixamo pack through the same tool (a Mixamo bone-name map), locomotion
+  sets by body type, per-race playback speed.
+- Locomotion by body type: the user has women's, men's and heavy-race walk / run sets; name them by type and map them
+  to races and sexes (women / men / heavy = ogre, troll, maybe half-orc and dwarf).
+Decisions:
+- Ranged (archery) is mostly for the non-magic fighters: Blademaster and Woodstalker (the archery skill is already in
+  player_skills.json). Needs a real ranged attack: bow + ammo, range, an arrow projectile (reuse the spell projectiles),
+  the archery skill. Which other classes, and ammo use: to settle when building.
+- Swimming: a breath meter and drowning; you can fight and cast in water, with a speed penalty. Needs a swim state
+  (float at the surface, swim speed), the swim animations. Water is already detected (the swim sound).
+- Fishing: a simple timed catch, like the other gathering.
+- Gathering, mining, woodcutting, crafting: the actions exist (timed, with sounds); hook the animations to them.
+- Show equipped weapons (and later armour) on characters, and on certain monsters, EverQuest-style, so you can see a
+  monster carrying a special drop. Needs held-item attachments on the hand bones and prop models (MISSING ASSETS).
+- Per-race playback speed for locomotion so short races don't foot-slide.
+
 == APPEARANCE (2026-09-25) ==
 - Hair styles, beard styles (men) and accessories/jewellery: need separate meshes (every model's hair is part of its
   one mesh). The appearance keys exist and stay changeable after the lock; the window says "coming with new models".
@@ -220,6 +246,10 @@ The Pantheon map (Aldenexia_Pantheon_Reputation_Map_Updated.xlsx + Aldenexia Rep
   colour is SWITCHED OFF (Appearance.EYE_COLOUR_ENABLED): automatic eye masks catch the iris on only the dwarf male and
   human male (partly the half-elf female); the rest need hand-painted eye areas (blue channel of <scene>_mask.png). Re-run tools/make_masks.sh (+ mask_config.json) for any new model.
 - The mirror's spot (66, 20 by the gate) is a first guess; its model is a stand-in frame.
+
+== HELD GEAR AND PROPS (for the animation pack) ==
+- Weapon models to show in hands (every weapon type), bows and quivers, fishing rod, pickaxe, woodcutting axe, smithing
+  hammer; later armour pieces worn on the model. Stand-ins: simple shapes.
 
 == FOR THE NEXT ZONES (Dustwind Plateaus, Ashfall Dunes) ==
 - Dustwind landmarks from the design (models or kits of parts): Warning Sign, Stone Circles, Abandoned Watchtower, Old
@@ -264,7 +294,7 @@ The Pantheon map (Aldenexia_Pantheon_Reputation_Map_Updated.xlsx + Aldenexia Rep
 == PETS AND SUMMONS (Scripts/summoned_pet.gd KINDS: borrowed monster models) ==
 - Wolf, Bear, Panther (desert scavenger rat scaled), Hawk (bat), Ghoul (mummy, green), Abomination (bandit, big),
   Wraith and Shade (ghost, tinted), Spiritual Weapon (ghost, gold).
-- Wildspeaker pet and Phantasmal Echo: placeholder visuals (wildspeaker_pet.gd, phantasmal_echo_pet.gd).
+- Wildspeaker pet and Phantasmal Echo: placeholder visuals (wildspeaker_pet.gd, phantasmal_echo_pet.gd). - these have models already
 
 == WORLD OBJECTS ==
 - The Old Foundation Stone (The Guildmaster's Note quest): a flat stand-in stone (world_note.gd).

@@ -308,24 +308,24 @@ const ENVIRONMENTAL_EFFECT_DESCRIPTIONS := {
 # Effects that borrow one of the spell icons (effect name -> icon path). There is no dedicated art for these yet, so they
 # reuse the closest spell icon: a red flame for the campfire and the golden sunburst (the divine icon) for Kenji's blessing.
 const ENVIRONMENTAL_EFFECT_SPELL_ICONS := {
-	"campfire_warmth": "res://Assets/icons/spells/aoefire.png",
+	"campfire_warmth": "res://Assets/icons/spells/groupfire.png",
 	"kenjis_blessing": "res://Assets/icons/spells/aoedivine.png",
 	"weak_poison": "res://Assets/icons/spells/aoepoison.png",  # the green skull
 	"disease": "res://Assets/icons/spells/targetnecromancy.png",
-	"strong_poison": "res://Assets/icons/spells/grouppoison.png",
-	"weakening_venom": "res://Assets/icons/spells/targetpoison.png",
-	"sundered_armor": "res://Assets/icons/spells/aoephysical.png",
+	"strong_poison": "res://Assets/icons/spells/aoepoison.png",
+	"weakening_venom": "res://Assets/icons/spells/aoepoison.png",
+	"sundered_armor": "res://Assets/icons/spells/sunder_armor.png",
 	"crippled": "res://Assets/icons/spells/targetroot.png",
 	"blinded": "res://Assets/icons/spells/targetblind.png",
 	"dazed": "res://Assets/icons/spells/targetstun.png",
 	"withering_touch": "res://Assets/icons/spells/aoenecromancy.png",
-	"bleeding": "res://Assets/icons/spells/aoephysical.png",
+	"bleeding": "res://Assets/icons/spells/rend.png",
 	"grave_miasma": "res://Assets/icons/spells/groupnecromancy.png",
 	"ensnared": "res://Assets/icons/spells/targetroot.png",
 	"silenced": "res://Assets/icons/spells/targetsilence.png",
 	"cursed": "res://Assets/icons/spells/targetnecromancy.png",
 	"burning": "res://Assets/icons/spells/aoefire.png",
-	"chilled": "res://Assets/icons/spells/targetice.png",
+	"chilled": "res://Assets/icons/spells/aoeice.png",
 	"terrified": "res://Assets/icons/spells/targetfear.png",
 }
 # Environmental effects that are harmful (red box, yellow border).

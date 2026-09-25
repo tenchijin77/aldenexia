@@ -31,7 +31,7 @@ candidates instead of guessing; a typo that matches nothing prints "Unknown comm
   Stops 3m short of the target rather than walking into them. See `player3d.gd`:
   `try_follow()`, `start_following()`, `stop_following()`, `_handle_follow_movement()`.
 
-- `/who` (added 2026-09-19) — lists every player in the world with level, class and zone.
+- `/who` (added 2026-09-19) — lists every player in the world with level, class and zone (every zone since 2026-09-25).
 - `/pet` (added 2026-09-19) — pet your targeted cat, or the nearest one within 4m (Kenji, Oni).
   Note: `/p` is now ambiguous between /party and /pet (use /pa or /pe, or the full names).
 - `/weather rain|clear` (added 2026-09-19, host / single-player only) — start or stop rain; it
@@ -2371,6 +2371,49 @@ GATE RAIDS (`Scripts/gate_raid_manager.gd`, `Data/gate_raids.json`, node "GateRa
   loop number, ~5 s apart); it now seeds a generator.
 - Tests: test_merchant (all three zones, no leg runs into the next over 400 loops, the drift really scatters).
   Suite: 3,316 checks pass. An Ashfall server boots ("World check ... OK").
+
+### Test 37: Zozuur (Voidknight), Maedianie (Wildspeaker), build 3155f80
+- Dustwind's music plays; Ashfall's music changes on zoning in; the character list shows Dustwind after logging out
+  there; the zone firewall range (UDP 8920-9019) is open.
+- DISEASE HURT WITHOUT A WORD: damage-over-time ticks now say so on your screen: "You have taken 5 points of damage from
+  Disease." (CombatNode.effect_ticked; every ailment and DoT).
+- ZONING IN FACED BACKWARDS: arriving at a zone-in marker you now face into the zone, across the nearest zone line (its
+  crossing direction, not its middle, so a 1 km wide line works): Outskirts -> Dustwind faces south. Every zone line.
+- APPRAISE ("you sense nothing unusual" most of the time): the DCs were 15 / 20 against d20 + about +1. It now always
+  tells you the level, threat, faction attitude and reputation (EverQuest's /consider); the roll (DCs 4 / 7 / 10 / 14 /
+  18, Perception still helps) decides the rest: resistances, weaknesses, special ability, loot quality, and the
+  monster's real abilities ("It can: Bone Shard (a spell, cast: stun or silence to stop it); Marrow Feast (heals itself,
+  cast: ...)"). A 20 still reveals its secret.
+- SERVER-WIDE /who, /tell AND WORLD ANNOUNCEMENTS: Scripts/world_link.gd, a node in every zone scene. The login server
+  (the default zone) is the hub, listening on 127.0.0.1 only (base port + 9, e.g. 8919: nothing to open on a firewall);
+  every other zone server connects to it. Each zone shares its players; the hub hands every zone the whole world's
+  list. /who lists every zone's players with their zone. /tell to someone in another zone goes through the server,
+  which says whether it arrived ("No player named X is currently online" otherwise). "Enters / leaves the world" is
+  heard in every zone, and crossing a zone line no longer counts as leaving and entering. /shout (/zone) stays
+  zone-wide. The Net RPC list is unchanged (the new RPCs are on WorldLink). If the hub is down a zone still works on its
+  own.
+- Checked end to end with two headless clients on a local three-zone world: one in Dustwind (arrived facing south),
+  one in the Outskirts: announcements both ways, tells both ways (with the language marks intact), /who with both zones,
+  an offline name refused.
+- Ailment icons (user's choices): strong poison and weakening venom -> aoepoison, chilled -> aoeice (blinded, ensnared,
+  silenced, burning, terrified already matched); sundered armour -> sunder_armor, bleeding -> rend (existing art);
+  warmth of the campfire -> groupfire.
+- Tests: test_test37.gd. Suite: 3,808 checks pass.
+
+### Animation pack, step 1: every race gets every cast and death (2026-09-25)
+- tools/make_animation_pack.gd pools the casting, buff and death animations from all 22 race folders (32 files) and
+  retargets each onto every race's skeleton. Each model's pack (<library>_pack.res, what CHARACTER_MODELS now loads)
+  keeps its own library exactly as it was and adds the rest as variants: cast_beneficial_2.., cast_detrimental_2..,
+  death_2.. . Per race: 9-10 buff casts, 5-6 offensive casts, 12 deaths.
+- Retargeting: each bone's turn from its T-pose is carried over; the ARMS are aimed at the source's directions instead,
+  because the models' T-poses differ (ogre and dwarf arms rest 30-37 degrees lower than the elf's). Checked: arm
+  directions match the source to within a hundredth of a degree; legs and spine within 11 degrees (their rests differ).
+- No repeats: clips are compared by motion (where the arms point at nine moments), not file name. 5 files were the same
+  motion under a "-buff" and a plain name (2H Cast Spell 01, 2H Magic Attack 01, Two Hand Spell Casting, 1H Cast Spell
+  01, 2H Magic Attack 03): each kept once; variants matching a race's own clips are left out.
+- The game picks a random variant for every cast and every death (Player3D.pick_variant; guards too); the choice is
+  replicated like any animation.
+- Tests (test_models): every race uses its pack, keeps its own clips, has its variants, and has no repeated motions.
 
 ### Zone music: Dustwind and Ashfall (2026-09-25)
 - The user's "Weight of the Plateau" plays in Dustwind Plateaus and "The Lost Oasis" in Ashfall Dunes

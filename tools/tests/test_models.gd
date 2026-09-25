@@ -70,3 +70,52 @@ func run() -> void:
 		gap = minf(gap, sk.get_bone_global_pose(sk.find_bone("LeftFoot")).origin.x - sk.get_bone_global_pose(sk.find_bone("RightFoot")).origin.x)
 	check(gap > 0.05, "his feet never cross when he runs (closest %.3f m, was 0.028)" % gap)
 	elf.queue_free()
+
+
+	# The animation pack (tools/make_animation_pack.gd): every race gets the others' casts and deaths as variants, each
+	# motion once (no repeats under another name, none that match its own clips), and keeps its own clips as they were.
+	const PACK := preload("res://tools/make_animation_pack.gd")
+	for key in Player3D.CHARACTER_MODELS:
+		var pinfo: Dictionary = Player3D.CHARACTER_MODELS[key]
+		var lib_path := str(pinfo["library"])
+		check(lib_path.ends_with("_pack.res") and ResourceLoader.exists(lib_path), "%s uses its animation pack" % key)
+		var pack := load(lib_path) as AnimationLibrary
+		var own := load(lib_path.replace("_pack.res", ".res")) as AnimationLibrary
+		for a in own.get_animation_list():
+			check(pack.has_animation(a), "%s's pack keeps its own %s" % [key, a])
+		var counts := {"cast_beneficial": 0, "cast_detrimental": 0, "death": 0}
+		for a in pack.get_animation_list():
+			for kind in counts:
+				if str(a) == kind or str(a).begins_with(kind + "_"):
+					counts[kind] += 1
+		check(counts["cast_beneficial"] >= 8 and counts["cast_detrimental"] >= 5 and counts["death"] >= 10, "%s has variants %s" % [key, str(counts)])
+		if key in ["human_male", "ogre_female", "gnome_male"]:   # the repeat check on a few (it samples every clip)
+			var pmodel: Node3D = load(pinfo["scene"]).instantiate()
+			add_child(pmodel)
+			await frames(1)
+			var psk := pmodel.find_children("*", "Skeleton3D", true, false)[0] as Skeleton3D
+			var sigs := []
+			var names := []
+			for a in pack.get_animation_list():
+				if str(a).begins_with("cast_") or str(a).begins_with("death"):
+					sigs.append(PACK.signature(pack.get_animation(a), psk))
+					names.append(str(a))
+			var repeats := []
+			for i in sigs.size():
+				for j in range(i + 1, sigs.size()):
+					if PACK.same_motion(sigs[i], sigs[j]):
+						repeats.append("%s = %s" % [names[i], names[j]])
+			check(repeats.is_empty(), "%s: no repeated motions in the pack %s" % [key, str(repeats)])
+			pmodel.queue_free()
+	var vap := AnimationPlayer.new()
+	var lib2 := AnimationLibrary.new()
+	for n in ["death", "death_2", "death_3"]:
+		lib2.add_animation(n, Animation.new())
+	vap.add_animation_library("", lib2)
+	add_child(vap)
+	var picked := {}
+	for i in 60:
+		picked[Player3D.pick_variant(vap, "death")] = true
+	eq(picked.size(), 3, "variants are picked between")
+	eq(Player3D.pick_variant(vap, "cast_beneficial"), "", "none: nothing")
+	vap.queue_free()

@@ -2,11 +2,11 @@ ALDENEXIA: LIGHTFALL — TESTING CHECKLIST
 New features and fixes waiting for a real playtest, in two parts: OUTSTANDING (not passed yet) and COMPLETED (passed).
 When an item passes, change [ ] to [x] and move it to the same section under COMPLETED (or just add "- working" and it
 gets moved). A failure goes to outstanding_items.txt with what went wrong. Last updated 2026-09-25 (test 35 Tenchijin).
-Everything below was built after test 26.   Outstanding: 196   Completed: 25
+Everything below was built after test 26.   Outstanding: 203   Completed: 25
 
 
 ################################################################################
-  OUTSTANDING — still to test (196)
+  OUTSTANDING — still to test (203)
 ################################################################################
 
 == ACCOUNTS AND JOINING ==
@@ -262,6 +262,19 @@ Everything below was built after test 26.   Outstanding: 196   Completed: 25
 [ ] New ailments show on the status window with a description and are removed by a cure: weakening venom (sandstinger),
     sundered armour (ravager), blinded (Djhanid), grave miasma (restless corpse), withering touch (wraith).
 [ ] Two players: one zones, the other stays; both keep playing (chat across zones doesn't work yet).
+
+== TEST 37 FIXES (2026-09-25) ==
+[ ] Get diseased or poisoned: each tick shows "You have taken N points of damage from Disease." in the log.
+[ ] Zone Outskirts -> Dustwind (and Dustwind -> Ashfall, and back): you face INTO the new zone.
+[ ] /appraise (I): always shows level, threat and faction; a good roll adds abilities ("It can: ...").
+[ ] Two players in different zones: /who lists both with their zones; /tell works both ways; logging in and out is
+    announced in every zone; zoning is NOT announced as leaving / entering the world. /shout stays in your zone.
+
+== ANIMATION PACK (2026-09-25) ==
+[ ] Cast several buffs and several offensive spells: the casting animation varies, and none look broken (arms through
+    the body, twisted wrists), on a big race (ogre, troll) and a small one (gnome, dwarf) too.
+[ ] Die a few times (or watch monsters kill guards): the death animation varies.
+[ ] Another player sees the same cast animation you do.
 
 == APPEARANCE (2026-09-25) — a two-part test ==
 [ ] NEW character: Appearance... on the creation screen. The preview turns when dragged; every slider changes the body

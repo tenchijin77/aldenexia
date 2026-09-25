@@ -229,6 +229,9 @@ func _ready():
 # ================================================================================
 
 var active_effects: Dictionary = {}  # name -> {remaining, modifiers, tick_dmg, tick_heal, tick_interval, tick_accum}
+## A damage-over-time tick landed (poison, disease, a burn): the effect's name and the damage taken. The player logs its
+## own ("You have taken 5 points of damage from Disease."); test 37: ailments hurt without a word.
+signal effect_ticked(effect_name: String, amount: int)
 
 func apply_effect(effect_name: String, duration: float, modifiers: Dictionary, tick_dmg: int = 0, tick_interval: float = 1.0, tick_heal: int = 0) -> void:
 	"""Apply (or refresh) a named timed effect with a dict of additive modifiers.
@@ -409,7 +412,9 @@ func _process(delta: float) -> void:
 			if effect["tick_accum"] >= effect["tick_interval"]:
 				effect["tick_accum"] -= effect["tick_interval"]
 				if effect["tick_dmg"] > 0:
-					take_damage(effect["tick_dmg"], false)
+					var taken := take_damage(effect["tick_dmg"], false)
+					if taken > 0:
+						effect_ticked.emit(effect_name, taken)
 				if effect.get("tick_heal", 0) > 0:
 					heal(effect["tick_heal"])
 		if effect["remaining"] != INF:

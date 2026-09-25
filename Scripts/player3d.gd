@@ -871,16 +871,18 @@ const FACTION_STANDING_ALIASES := {"Lumora": "Villagers of Lumora", "Djhanid": "
 
 
 func _appraisal_tier(diff: int) -> Dictionary:
+	# (test 37: DCs of 15 and 20 against d20 + a +1 bonus meant "you sense nothing unusual" most of the time; the roll now
+	# only decides how MUCH you learn, and these are easier)
 	if diff <= -5:
-		return {"dc": 5, "name": "Trivial"}
+		return {"dc": 4, "name": "Trivial"}
 	elif diff <= -2:
-		return {"dc": 10, "name": "Easy"}
+		return {"dc": 7, "name": "Easy"}
 	elif diff <= 1:
-		return {"dc": 15, "name": "Moderate"}
+		return {"dc": 10, "name": "Moderate"}
 	elif diff <= 4:
-		return {"dc": 20, "name": "Hard"}
+		return {"dc": 14, "name": "Hard"}
 	else:
-		return {"dc": 25, "name": "Deadly"}
+		return {"dc": 18, "name": "Deadly"}
 
 
 func _ability_modifier(stat: int) -> int:
@@ -946,12 +948,7 @@ func try_appraise_target() -> void:
 		])
 		return
 
-	if not success:
-		if frame:
-			frame.show_wrong_color(10.0)
-		GameLog.log_general("You sense nothing unusual about %s." % target_desc)
-		return
-
+	# Always (like EverQuest's /consider): who it is, how dangerous, how it regards you. The roll decides the rest.
 	var is_crit: bool = roll == 20
 	var flavor_bank: Array = APPRAISAL_TEXTS.get(tier["name"], [])
 	var flavor: String = flavor_bank[randi() % flavor_bank.size()] if not flavor_bank.is_empty() else ""
@@ -962,6 +959,24 @@ func try_appraise_target() -> void:
 		GameLog.log_general(flavor)
 	GameLog.log_general("%s%s" % [faction_text.get("prefix", ""), faction_text.get("suffix", "")])
 	GameLog.log_general("Estimated threat: %s" % tier["name"])
+	GameLog.log_general("Faction Reputation: %s" % _faction_reputation_text(current_target))
+
+	if not success:
+		GameLog.log_general("[color=#aaaaaa]You can't make out more than that about %s.[/color]" % target_desc)
+		return
+
+	# what it can do: its real abilities (monsters.json "abilities"), with what stops them
+	var tricks: Array = current_target.get("abilities") if "abilities" in current_target and current_target.get("abilities") is Array else []
+	if not tricks.is_empty():
+		var described := []
+		for a in tricks:
+			var kind := str(a.get("type", ""))
+			var note: String = {"nuke": "a spell", "debuff": "a curse", "aoe": "hits everyone near", "heal": "heals itself",
+					"summon": "calls for help", "enrage": "frenzies when hurt"}.get(kind, kind)
+			if float(a.get("cast", 0.0)) > 0.0 and kind != "enrage":
+				note += ", cast: stun or silence to stop it"
+			described.append("%s (%s)" % [str(a.get("name", "?")), note])
+		GameLog.log_general("[color=#ffcc88]It can: %s[/color]" % "; ".join(described))
 
 	var resistances: Array = current_target.get("resistances") if "resistances" in current_target else []
 	var weaknesses: Array = current_target.get("weaknesses") if "weaknesses" in current_target else []
@@ -979,8 +994,6 @@ func try_appraise_target() -> void:
 	elif target_level >= 10: quality = "Rare"
 	elif target_level >= 5:  quality = "Uncommon"
 	GameLog.log_general("Loot Quality: %s" % quality)
-
-	GameLog.log_general("Faction Reputation: %s" % _faction_reputation_text(current_target))
 
 	var target_is_boss: bool = current_target.get("is_boss") if "is_boss" in current_target else false
 	if target_is_boss:
@@ -1034,6 +1047,7 @@ func _ready() -> void:
 	combat_node = CombatNode.new()
 	combat_node.name = "CombatNode"
 	add_child(combat_node)
+	combat_node.effect_ticked.connect(_on_effect_ticked)
 	# Caster travel / gates / binding (player_travel.gd). On puppets too: its RPCs arrive on the caster's copy on every peer.
 	var travel := PlayerTravel.new()
 	travel.name = "Travel"
@@ -1106,7 +1120,7 @@ func _ready() -> void:
 # (multiplayer only — see Net.broadcast_world_announce()). Runs once per world
 # entry on the machine that owns this character.
 func _announce_world_entry() -> void:
-	if is_multiplayer_authority():
+	if is_multiplayer_authority() and not _arrived_by_zone_line:   # zoning isn't entering the world (it's server-wide now)
 		Net.broadcast_world_announce("join", player_name, int(combat_node.level), player_class)
 
 
@@ -1128,7 +1142,7 @@ const CHARACTER_MODELS := {
 		# idle/walk/run/jump/sit/attack_horizontal/attack_downward/death/
 		# cast_beneficial/cast_detrimental key shape as every other model.
 		"scene":   "res://models/Human Female/Human Female Breathing Idle.fbx",
-		"library": "res://models/Human Female/female_animations.res",
+		"library": "res://models/Human Female/female_animations_pack.res",
 		# The Mixamo/Blender export chain for these Meshy-sourced models keeps
 		# losing the real texture link (the FBX's own material points at a
 		# file that only ever existed on the machine it was exported from) —
@@ -1139,7 +1153,7 @@ const CHARACTER_MODELS := {
 	},
 	"human_male": {
 		"scene":   "res://models/Human Male/Human Male Breathing Idle.fbx",
-		"library": "res://models/Human Male/human_male_animations.res",
+		"library": "res://models/Human Male/human_male_animations_pack.res",
 		"texture_override": "res://models/Human Male/Meshy_AI_fantasy_commoner_rigg_biped_texture_0.png",
 	},
 	"half_elf_female": {
@@ -1148,27 +1162,27 @@ const CHARACTER_MODELS := {
 		# [[reference_character_model_pipeline]]). Measures the same 1.7m
 		# baseline every correctly-exported model does, so no scale correction.
 		"scene":   "res://models/Half-Elf Female/Half-Elf Female Breathing Idle.fbx",
-		"library": "res://models/Half-Elf Female/half_elf_female_animations.res",
+		"library": "res://models/Half-Elf Female/half_elf_female_animations_pack.res",
 		"texture_override": "res://models/Half-Elf Female/Meshy_AI_female_half_elf_hero__biped_texture_0.png",
 	},
 	"half_elf_male": {
 		"scene":   "res://models/Half-Elf Male/Half-Elf Male Breathing Idle.fbx",
-		"library": "res://models/Half-Elf Male/half_elf_male_animations.res",
+		"library": "res://models/Half-Elf Male/half_elf_male_animations_pack.res",
 		"texture_override": "res://models/Half-Elf Male/Meshy_AI_male_half_elf_commone_biped_texture_0.png",
 	},
 	"troll_female": {
 		"scene":   "res://models/Troll Female/Troll Female Breathing Idle.fbx",
-		"library": "res://models/Troll Female/troll_female_animations.res",
+		"library": "res://models/Troll Female/troll_female_animations_pack.res",
 		"texture_override": "res://models/Troll Female/Meshy_AI_female_troll_commoner_biped_texture_0.png",
 	},
 	"troll_male": {
 		"scene":   "res://models/Troll Male/Troll Male Breathing Idle.fbx",
-		"library": "res://models/Troll Male/troll_male_animations.res",
+		"library": "res://models/Troll Male/troll_male_animations_pack.res",
 		"texture_override": "res://models/Troll Male/Meshy_AI_troll_commoner_rig_biped_texture_0.png",
 	},
 	"elf_male": {
 		"scene":   "res://models/Elf Male/Elf Male Breathing Idle.fbx",
-		"library": "res://models/Elf Male/elf_male_animations.res",
+		"library": "res://models/Elf Male/elf_male_animations_pack.res",
 		"texture_override": "res://models/Elf Male/Meshy_AI_Male_Elf_Commoner_Rig_biped_texture_0.png",
 	},
 	"elf_female": {
@@ -1181,19 +1195,19 @@ const CHARACTER_MODELS := {
 		# that value forward if this model is ever re-rigged again without
 		# re-measuring first.
 		"scene":   "res://models/Elf Female/Elf Female Breathing Idle.fbx",
-		"library": "res://models/Elf Female/elf_female_animations.res",
+		"library": "res://models/Elf Female/elf_female_animations_pack.res",
 		"texture_override": "res://models/Elf Female/Meshy_AI_female_elf_hero_rig_biped_texture_0.png",
 	},
 	"dark_elf_male": {
 		"scene":   "res://models/Dark Elf Male/Dark Elf Male Breathing Idle.fbx",
-		"library": "res://models/Dark Elf Male/dark_elf_male_animations.res",
+		"library": "res://models/Dark Elf Male/dark_elf_male_animations_pack.res",
 		"texture_override": "res://models/Dark Elf Male/Meshy_AI_Male_Dark_Elf_Commone_biped_texture_0.png",
 	},
 	"dark_elf_female": {
 		# Re-rigged 2026-09-18 ("Version 2") — same standard 1.7m baseline,
 		# no scale correction needed (see elf_female's comment above).
 		"scene":   "res://models/Dark Elf Female/Dark Elf Female Breathing Idle.fbx",
-		"library": "res://models/Dark Elf Female/dark_elf_female_animations.res",
+		"library": "res://models/Dark Elf Female/dark_elf_female_animations_pack.res",
 		"texture_override": "res://models/Dark Elf Female/Meshy_AI_female_dark_elf_hero__biped_texture_0.png",
 	},
 	# Added 2026-09-18 — first wiring for these 6 races (Dwarf/Gnome/Halfling/
@@ -1201,62 +1215,62 @@ const CHARACTER_MODELS := {
 	# [[reference_character_model_pipeline]].
 	"dwarf_female": {
 		"scene":   "res://models/Dwarf Female/Dwarf Female Breathing Idle.fbx",
-		"library": "res://models/Dwarf Female/dwarf_female_animations.res",
+		"library": "res://models/Dwarf Female/dwarf_female_animations_pack.res",
 		"texture_override": "res://models/Dwarf Female/Meshy_AI_female_dwarf_commoner_biped_texture_0.png",
 	},
 	"dwarf_male": {
 		"scene":   "res://models/Dwarf Male/Dwarf Male Breathing Idle.fbx",
-		"library": "res://models/Dwarf Male/dwarf_male_animations.res",
+		"library": "res://models/Dwarf Male/dwarf_male_animations_pack.res",
 		"texture_override": "res://models/Dwarf Male/Meshy_AI_male_dwarf_commoner_r_biped_texture_0.png",
 	},
 	"gnome_female": {
 		"scene":   "res://models/Gnome Female/Gnome Female Breathing Idle.fbx",
-		"library": "res://models/Gnome Female/gnome_female_animations.res",
+		"library": "res://models/Gnome Female/gnome_female_animations_pack.res",
 		"texture_override": "res://models/Gnome Female/Meshy_AI_female_gnome_commoner_biped_texture_0.png",
 	},
 	"gnome_male": {
 		"scene":   "res://models/Gnome Male/Gnome Male Breathing Idle.fbx",
-		"library": "res://models/Gnome Male/gnome_male_animations.res",
+		"library": "res://models/Gnome Male/gnome_male_animations_pack.res",
 		"texture_override": "res://models/Gnome Male/Meshy_AI_male_gnome_commoner_r_biped_texture_0.png",
 	},
 	"halfling_female": {
 		"scene":   "res://models/Halfling Female/Halfling Female Breathing Idle.fbx",
-		"library": "res://models/Halfling Female/halfling_female_animations.res",
+		"library": "res://models/Halfling Female/halfling_female_animations_pack.res",
 		"texture_override": "res://models/Halfling Female/Meshy_AI_female_halfling_commo_biped_texture_0.png",
 	},
 	"halfling_male": {
 		"scene":   "res://models/Halfling Male/Halfling Male Breathing Idle.fbx",
-		"library": "res://models/Halfling Male/halfling_male_animations.res",
+		"library": "res://models/Halfling Male/halfling_male_animations_pack.res",
 		"texture_override": "res://models/Halfling Male/Meshy_AI_male_halfling_commone_biped_texture_0.png",
 	},
 	"half_orc_female": {
 		"scene":   "res://models/Half-Orc Female/Half-Orc Female Breathing Idle.fbx",
-		"library": "res://models/Half-Orc Female/half_orc_female_animations.res",
+		"library": "res://models/Half-Orc Female/half_orc_female_animations_pack.res",
 		"texture_override": "res://models/Half-Orc Female/Meshy_AI_female_half_orc_commo_biped_texture_0.png",
 	},
 	"half_orc_male": {
 		"scene":   "res://models/Half-Orc Male/Half-Orc Male Breathing Idle.fbx",
-		"library": "res://models/Half-Orc Male/half_orc_male_animations.res",
+		"library": "res://models/Half-Orc Male/half_orc_male_animations_pack.res",
 		"texture_override": "res://models/Half-Orc Male/Meshy_AI_male_half_orc_commone_biped_texture_0.png",
 	},
 	"lizardkin_female": {
 		"scene":   "res://models/Lizardkin Female/Lizardkin Female Breathing Idle.fbx",
-		"library": "res://models/Lizardkin Female/lizardkin_female_animations.res",
+		"library": "res://models/Lizardkin Female/lizardkin_female_animations_pack.res",
 		"texture_override": "res://models/Lizardkin Female/Meshy_AI_female_lizardkin_comm_biped_texture_0.png",
 	},
 	"lizardkin_male": {
 		"scene":   "res://models/Lizardkin Male/Lizardkin Male Breathing Idle.fbx",
-		"library": "res://models/Lizardkin Male/lizardkin_male_animations.res",
+		"library": "res://models/Lizardkin Male/lizardkin_male_animations_pack.res",
 		"texture_override": "res://models/Lizardkin Male/Meshy_AI_male_lizardkin_common_biped_texture_0.png",
 	},
 	"ogre_female": {
 		"scene":   "res://models/Ogre Female/Ogre Female Breathing Idle.fbx",
-		"library": "res://models/Ogre Female/ogre_female_animations.res",
+		"library": "res://models/Ogre Female/ogre_female_animations_pack.res",
 		"texture_override": "res://models/Ogre Female/Meshy_AI_female_ogre_commoner__biped_texture_0.png",
 	},
 	"ogre_male": {
 		"scene":   "res://models/Ogre Male/Ogre Male Breathing Idle.fbx",
-		"library": "res://models/Ogre Male/ogre_male_animations.res",
+		"library": "res://models/Ogre Male/ogre_male_animations_pack.res",
 		"texture_override": "res://models/Ogre Male/Meshy_AI_male_ogre_commoner_ri_biped_texture_0.png",
 	},
 }
@@ -1275,6 +1289,7 @@ var CHARACTER_MODEL_TRANSFORM := Transform3D(
 )
 
 var _built_character_model_key: String = ""
+var _arrived_by_zone_line := false   # came in through a zone line (or a gate / death to another zone): no "enters the world"
 
 
 func _character_model_key() -> String:
@@ -1443,8 +1458,8 @@ func _is_beneficial_cast(spell: Dictionary) -> bool:
 # races still on DEFAULT_CHARACTER_MODEL never will until that model gets
 # its own casting clips. Silently no-ops rather than playing nothing/erroring.
 func _trigger_cast_animation(spell: Dictionary) -> void:
-	var anim_name := "cast_beneficial" if _is_beneficial_cast(spell) else "cast_detrimental"
-	if not animation_player or not animation_player.has_animation(anim_name):
+	var anim_name := pick_variant(animation_player, "cast_beneficial" if _is_beneficial_cast(spell) else "cast_detrimental")
+	if anim_name.is_empty():
 		return
 	_current_cast_anim = anim_name
 	_cast_anim_timer = animation_player.get_animation(anim_name).length
@@ -2720,6 +2735,13 @@ func send_tell(target_name: String, message: String) -> void:
 		return
 	var target := _find_player_by_name(target_name)
 	if target == null:
+		# not in this zone: the server finds them in any zone (world_link.gd); it says whether it arrived
+		var link := get_tree().get_first_node_in_group("world_link")
+		if Net.remote_character_mode and link != null:
+			var clean := ChatChannels.clean(message)
+			var l := Languages.speaking()
+			link.request_tell(target_name, Languages.encode(l, Languages.pronounce(l, clean)), clean, l)
+			return
 		GameLog.log_general("[color=red]No player named '%s' is currently online.[/color]" % target_name)
 		return
 	if target == self:
@@ -3300,8 +3322,22 @@ func die(attacker: Node = null) -> void:
 		if is_instance_valid(m) and m.has_method("force_disengage"):
 			m.force_disengage()
 
-	if animation_player and animation_player.has_animation("death"):
-		animation_player.play("death")
+	var death_anim := pick_variant(animation_player, "death")
+	if not death_anim.is_empty():
+		animation_player.play(death_anim)
+
+
+# One of a clip's variants at random: "cast_beneficial", "cast_beneficial_2", ... (the animation pack,
+# tools/make_animation_pack.gd, gives every race the other races' casts and deaths). "" if it has none.
+static func pick_variant(ap: AnimationPlayer, base: String) -> String:
+	if ap == null or not ap.has_animation(base):
+		return ""
+	var names := [base]
+	var i := 2
+	while ap.has_animation("%s_%d" % [base, i]):
+		names.append("%s_%d" % [base, i])
+		i += 1
+	return names.pick_random()
 
 
 func _tick_bleedout(delta: float) -> void:
@@ -3430,6 +3466,7 @@ func _restore_last_position() -> void:
 	var zone_in := str(Global.player_data.get("zone_in", ""))
 	if not zone_in.is_empty():
 		Global.player_data.erase("zone_in")
+		_arrived_by_zone_line = true
 		if zone_in == "@spawn":   # a game master's /teleport: the zone's arrival point
 			global_position = _zone_safe_spot()
 			_lift_above_ground.call_deferred()
@@ -3439,6 +3476,8 @@ func _restore_last_position() -> void:
 			marker = get_tree().current_scene.get_node_or_null("Markers/" + zone_in) as Node3D
 		if zone_in == "@bind" or marker != null:
 			global_position = get_bind_point() if marker == null else marker.global_position + Vector3(0, 1.0, 0)
+			if marker != null:
+				face_into_zone()
 			_lift_above_ground.call_deferred()
 			return
 		push_warning("Zone-in marker '%s' not found in this zone — using the zone's spawn point." % zone_in)
@@ -3449,6 +3488,40 @@ func _restore_last_position() -> void:
 		if float(arr[1]) < FALL_RESCUE_Y:
 			global_position = _zone_safe_spot()   # logged out while falling out of the world
 		_lift_above_ground.call_deferred()
+
+
+# A poison, disease or burn ticking on you: say so, in the damage-taken colour (only on your own screen).
+func _on_effect_ticked(effect_name: String, amount: int) -> void:
+	if not is_multiplayer_authority() or dying:
+		return
+	var spell: Dictionary = _spell_by_name.get(effect_name, {})
+	var what := spell_display_name(effect_name) if not spell.is_empty() else effect_name.replace("_", " ").capitalize()
+	GameLog.log_combat("[color=#ff7766]You have taken %d point%s of damage from %s.[/color]" % [amount, "" if amount == 1 else "s", what])
+
+
+# Just through a zone line: turn to face INTO the zone, away from the nearest zone line (test 37: you arrived facing
+# back the way you came, and walking forward took you straight back over the line).
+func face_into_zone() -> void:
+	var here := Vector3(global_position.x, 0.0, global_position.z)
+	var nearest: Node3D = null
+	var best := INF
+	for line in get_tree().get_nodes_in_group("zone_line"):
+		var d := here.distance_to(Vector3(line.global_position.x, 0.0, line.global_position.z))
+		if d < best:
+			best = d
+			nearest = line
+	if nearest == null:
+		return
+	# across the line (its thin side, local Z), on our side of it: a wide line's middle can be far off to one side
+	var across := nearest.global_transform.basis.z
+	across.y = 0.0
+	if across.length() < 0.01:
+		return
+	across = across.normalized()
+	var away := here - Vector3(nearest.global_position.x, 0.0, nearest.global_position.z)
+	if away.dot(across) < 0.0:
+		across = -across
+	look_at(global_position + across, Vector3.UP)
 
 
 # EverQuest style: "You have entered Dustwind Plateaus." on logging in and on every zone change. Waits a moment so the
@@ -5871,7 +5944,7 @@ func _check_bleedout_revival() -> void:
 		return
 	dying = false
 	is_incapacitated = false
-	if animation_player and animation_player.has_animation("death") and animation_player.is_playing():
+	if animation_player and str(animation_player.current_animation).begins_with("death") and animation_player.is_playing():
 		animation_player.stop()
 	var msg := "[color=#88ff88][b]%s[/b] comes back to life![/color]" % player_name
 	GameLog.log_combat(msg)
