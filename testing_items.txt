@@ -2,11 +2,11 @@ ALDENEXIA: LIGHTFALL — TESTING CHECKLIST
 New features and fixes waiting for a real playtest, in two parts: OUTSTANDING (not passed yet) and COMPLETED (passed).
 When an item passes, change [ ] to [x] and move it to the same section under COMPLETED (or just add "- working" and it
 gets moved). A failure goes to outstanding_items.txt with what went wrong. Last updated 2026-09-25 (test 35 Tenchijin).
-Everything below was built after test 26.   Outstanding: 170   Completed: 24
+Everything below was built after test 26.   Outstanding: 195   Completed: 24
 
 
 ################################################################################
-  OUTSTANDING — still to test (170)
+  OUTSTANDING — still to test (195)
 ################################################################################
 
 == ACCOUNTS AND JOINING ==
@@ -262,6 +262,54 @@ Everything below was built after test 26.   Outstanding: 170   Completed: 24
 [ ] New ailments show on the status window with a description and are removed by a cure: weakening venom (sandstinger),
     sundered armour (ravager), blinded (Djhanid), grave miasma (restless corpse), withering touch (wraith).
 [ ] Two players: one zones, the other stays; both keep playing (chat across zones doesn't work yet).
+
+== APPEARANCE (2026-09-25) — a two-part test ==
+[ ] NEW character: Appearance... on the creation screen. The preview turns when dragged; every slider changes the body
+    (women: bust, waist, hips too); skin / hair / eye swatches recolour just those parts (not the clothes). Save, make
+    the character: in game you look like the preview, and other players see the same.
+[ ] EXISTING character: right-click the Silvered Mirror by the town gate (about X 66, Z 20). The full window opens;
+    Save asks "This is final: save?". After saving, use the mirror again: only hair colour, nothing else.
+[ ] After the mirror (or creation), log out and in: the look is kept. Another player sees your new hair colour at once.
+[ ] Every race: hair colour changes the hair (and a beard) without tinting leather or cloth; skin tone changes face,
+    neck and hands evenly. Note any model where it bleeds.
+[ ] Height: extremes look right, feet on the ground; weight / muscle don't tear clothes when running or casting.
+
+== CHARACTER MODELS (2026-09-25 overnight) ==
+[ ] Zoom in on your character's face (and Lira, Aldric): smooth and rounded, no facets. Same for every race.
+[ ] Animations still look right on the new meshes (idle, walk, run, cast, sit, death) — no stretched or torn spots.
+[ ] Male elf running: feet land apart, knees don't knock. Walking unchanged.
+[ ] The women's new shapes (every race): fuller bust, narrower waist, rounder hips; clothes follow; nothing tears when
+    they run, cast, sit or die.
+[ ] Frame rate with a crowd (the meshes are ~62k triangles now, with distance LODs).
+
+== ASHFALL DUNES (2026-09-25 overnight; flat ground, borrowed models) ==
+[ ] Walk south out of Dustwind (the whole south edge is the line): "You have entered Ashfall Dunes." Walk north: back
+    in Dustwind near its south edge.
+[ ] Bonegnawer camps north-east; beetles and sandshifters on the northern dunes; phantoms in the middle; the Mass
+    Gravesite's skeletons and wights; Tak'Majir camps west; the Djhanid Encampment south-east leaves you be.
+[ ] Levels feel right: 7-12 soloable-ish; the phantom lord, Dustwalker commander, Tak'Majir spymaster and Djhanid warden
+    need a group.
+[ ] Sahren turns up in Ashfall (guards in the Outskirts say "out in the Ashfall Dunes"), at the Oasis, the vendor camp
+    and the Djhanid Encampment.
+[ ] Start the world with tools/run_world.sh: the Ashfall server starts too (port +11).
+
+== MONSTER ABILITIES (2026-09-25 overnight; numbers are a first pass) ==
+[ ] Grukka Bonechewer: "begins to cast Bone Shard." shows in chat and "(casting Bone Shard)" on the target window; a stun
+    or bash breaks it ("...is interrupted!"). Low on health he casts Marrow Feast (heals) — interrupt that too.
+[ ] Weavemother Vhessa webs you (ensnared: slow, on the buff bar); at half health two broodlings appear; they vanish
+    when she dies.
+[ ] Tomb guardian: Silence of the Tomb — you can't cast spells ("You can't cast spells while silenced!"), skills work.
+[ ] Grave abomination: Miasma Belch hits everyone near; below 20% it frenzies (hits harder and faster).
+[ ] Dessik blinds you (coins); Rask dazes you and rages at 30%; Halvek terrifies you and raises a skeleton; the
+    Dustwalker warlord sunders armour and calls two raiders.
+[ ] Two players: the one a monster targets gets the spell (their log), the other sees "begins to cast".
+
+== FACTIONS (2026-09-25 overnight) ==
+[ ] The Djhanid in Dustwind don't attack you even standing right next to them (they're wary).
+[ ] Kill a Djhanid nomad: "Your faction standing with the Djhanid Clans got worse." After the third: "The Djhanid will now
+    attack you on sight." — the others come for you from further off, and con as (Enemy).
+[ ] Kill Dustwalkers: "...with the Djhanid Clans got better." Log out and back in: your standing is kept.
+[ ] The Outskirts spider den spawns inside the painted den in the northwest (about X 35, Z -815).
 
 == TEST 34 FIXES (2026-09-24) ==
 [ ] A new character reaches level 2 at 100 XP and KEEPS it (the server used to put it back to level 1 on every save), and

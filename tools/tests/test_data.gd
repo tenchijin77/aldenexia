@@ -57,4 +57,5 @@ func run() -> void:
 	eq(outskirts_ley.get("nodes", []).size(), 0, "no ley-line sites in the Outskirts (the first is in Dustwind)")
 	check(outskirts_ley.has("zone_entrance"), "the Outskirts still has an evacuation point")
 	for obj in _json("res://Data/world_objects.json").get("lumora_outskirts", []):
-		check(items.has(obj.get("give_item", "")), "world object gives unknown %s" % obj.get("give_item"))
+		if obj.has("give_item"):   # (the mirror gives nothing)
+			check(items.has(obj.get("give_item", "")), "world object gives unknown %s" % obj.get("give_item"))

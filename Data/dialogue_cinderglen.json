@@ -30,11 +30,11 @@
 	  "name": "Marla Berrytwist",
 	  "role": "Guildmaster - Bard",
 	  "race": "Halfling",
-	  "faction": "Echoes of the Deep",
+	  "faction": "Lirael's Concord",
 	  "dialogue": {
 		"greeting": "Ah, a fellow lover of song and story! What brings you to my stage?",
 		"help": "We’re composing a ballad of the Lightfall—care to lend your voice?",
-		"lore": "The Echoes of the Deep believe every melody carries a memory of the world.",
+		"lore": "The Lirael's Concord believe every melody carries a memory of the world.",
 		"farewell": "Sing loud, sing proud!"
 	  }
 	}

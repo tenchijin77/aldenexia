@@ -59,6 +59,15 @@ properties/15/replication_mode = 2
 properties/16/path = NodePath(".:surname")
 properties/16/spawn = true
 properties/16/replication_mode = 2
+properties/17/path = NodePath(".:kos_factions")
+properties/17/spawn = true
+properties/17/replication_mode = 2
+properties/18/path = NodePath(".:ally_factions")
+properties/18/spawn = true
+properties/18/replication_mode = 2
+properties/19/path = NodePath(".:appearance_json")
+properties/19/spawn = true
+properties/19/replication_mode = 2
 
 [node name="CharacterBody3D" type="CharacterBody3D" unique_id=992623004 groups=["player"]]
 script = ExtResource("1_w11xc")

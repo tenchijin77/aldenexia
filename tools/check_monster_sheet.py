@@ -49,7 +49,9 @@ def areas_in(zone):
     return {k: ", ".join(v) for k, v in out.items()}
 
 
-def spawned_in(zone):
+def spawned_in(zone, monsters=None):
+    """Every monster found in the zone: its spawn points' monsters, plus the adds they call (monsters.json abilities
+    "summon": the broodlings a broodmother calls are in her zone too)."""
     path = os.path.join(ROOT, "Data", "%s_spawns.json" % zone)
     if not os.path.exists(path):
         return []
@@ -61,7 +63,24 @@ def spawned_in(zone):
     for s in data.get("spawns", []):
         if s.get("mob_type") not in seen:
             seen.append(s.get("mob_type"))
+    for mid in list(seen):
+        for called in summoned_by(mid, monsters or {}):
+            if called not in seen:
+                seen.append(called)
     return seen
+
+
+def summoned_by(mid, monsters):
+    return [str(a.get("summon")) for a in monsters.get(mid, {}).get("abilities", []) if a.get("type") == "summon" and a.get("summon")]
+
+
+def called_areas(zone, monsters):
+    """summoned monster id -> "Called by Weavemother Vhessa" for the Area column."""
+    out = {}
+    for mid in spawned_in(zone):
+        for called in summoned_by(mid, monsters):
+            out.setdefault(called, []).append(str(monsters[mid].get("description", mid)))
+    return out
 
 
 def level_text(mon):
@@ -112,13 +131,24 @@ def main():
                         changed = True
         col_area = headers.index("Area") + 1 if "Area" in headers else 0
         areas = areas_in(zone) if built else {}
+        for called, callers in (called_areas(zone, monsters) if built else {}).items():
+            if called not in areas:   # an add that only comes when called
+                areas[called] = "Called by " + ", ".join(sorted(set(callers)))
+        col_special = headers.index("Special Attack") + 1 if "Special Attack" in headers else 0
+        for mid, r in rows.items():   # a monster with abilities: its appraisal text (special_ability) is what it does
+            want = str(monsters[mid].get("special_ability", ""))
+            if col_special and monsters[mid].get("abilities") and str(ws.cell(r, col_special).value or "") != want:
+                problems.append("%s %s: sheet Special Attack '%s', monsters.json '%s'" % (tab, mid, ws.cell(r, col_special).value or "", want))
+                if write:
+                    ws.cell(r, col_special).value = want
+                    changed = True
         for mid, r in rows.items():
             if col_area and mid in areas and str(ws.cell(r, col_area).value or "") != areas[mid]:
                 problems.append("%s %s: sheet Area '%s', spawns '%s'" % (tab, mid, ws.cell(r, col_area).value or "", areas[mid]))
                 if write:
                     ws.cell(r, col_area).value = areas[mid]
                     changed = True
-        for mid in spawned_in(zone):
+        for mid in spawned_in(zone, monsters):
             if mid in monsters and mid not in rows:
                 problems.append("%s: %s spawns there but has no row" % (tab, mid))
                 if write:

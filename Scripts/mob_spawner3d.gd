@@ -176,6 +176,16 @@ func _spawn(idx: int, entry: Dictionary, mob_type: String) -> void:
 	print("🐾 Spawned %s at %.0f, %.0f, %.0f" % [mob_type, spawn_pos.x, spawn_pos.y, spawn_pos.z])
 
 
+# A monster another one called in (monster3d.gd abilities, "summon"): spawned like any other so every player sees it,
+# but outside this spawner's counts and respawn timers.
+func spawn_extra(mob_type: String, at: Vector3) -> Node:
+	var map_rid: RID = get_world_3d().navigation_map
+	var snapped: Vector3 = NavigationServer3D.map_get_closest_point(map_rid, at)
+	_next_mob_id += 1
+	return spawner.spawn({"id": _next_mob_id, "mob_type": mob_type, "position": [snapped.x if snapped != Vector3.ZERO else at.x,
+			snapped.y if snapped != Vector3.ZERO else at.y, snapped.z if snapped != Vector3.ZERO else at.z]})
+
+
 # Runs on every peer (server included) as part of MultiplayerSpawner's
 # replication, building an identical local node from the same spawn_data —
 # mirrors multiplayer_player_spawner.gd's _spawn_player(). Authority is

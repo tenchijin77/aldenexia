@@ -1,133 +1,364 @@
 {
-  "_comment": "factions.json: This table is used for all of the factions in the game.",
+  "_comment": "factions.json - every faction of Aldenexia (canonical: ~/NCT/Aldenexia-Lightfall/Finalized Documents/Aldenexia_Player_Information_Updated.xlsx 'Factions' and Faction_Relationships_Final_Updated.txt, 2026-09-25). type 'player' = you have standing with it (starting standing base_standing, also in player_faction.json); 'monster' = the monster factions (always hostile for now). hostile_threshold: at or below it, that faction's monsters attack you on sight; friendly_threshold: at or above it they count you an ally. relations: a standing change with this faction also moves your standing with these by that share (allies +, rivals -), EverQuest style. Renamed 2026-09-25: Twilight Accord -> Tenebrae Obscurium, Echoes of the Deep -> Lirael's Concord, Umbral Talon -> The Moribund Order, Verdant Kin -> The Verdant Kin. type 'order' = a named order WITHIN another faction (parent): it shares the parent's standing — anything that changes or checks it uses the parent's. Circle of Thorns (The Verdant Kin), Hands of the Eternal Forge (Ironclad Brotherhood) and Arcane Dominion (Arcane Synod) became orders (user, 2026-09-25): the Pantheon map and the Vaelwyn / Brondrak Hold dialogue keep their names.",
   "factions": [
     {
+      "name": "Luminar Covenant",
+      "type": "player",
+      "races": "Humans, Aasimar, Elves, Dwarves, Half-Elves",
+      "alignment": "Neutral Good",
+      "description": "The primary heroic faction opposing The Moribund Order. Seeks to preserve balance between light and shadow while protecting the Solstice Aegis; houses the Dawn Shard. Led by champions like Tenchijin and supported by Annadaeus.",
+      "base_standing": 40,
+      "dialogue_tone": "noble",
+      "hostile_threshold": -25,
+      "friendly_threshold": 90,
+      "relations": {
+        "Wardens of the Sacred Flame": 0.5,
+        "The Verdant Kin": 0.25,
+        "Lirael's Concord": 0.5,
+        "The Moribund Order": -0.5,
+        "Tenebrae Obscurium": -0.25
+      }
+    },
+    {
       "name": "Wardens of the Sacred Flame",
-      "description": "Noble knights protecting Aldenexia, tied to the Sword of Light.",
+      "type": "player",
+      "races": "Humans, Aasimar, Dwarves",
+      "alignment": "Lawful Good",
+      "description": "Elite subfaction of the Luminar Covenant sworn to protect the Solstice Aegis. Based in Sanctum Pyraeth; the most zealous opponents of The Moribund Order. Paladins and clerics devoted to Aurethiel.",
       "base_standing": 50,
       "dialogue_tone": "noble",
       "hostile_threshold": -20,
-      "friendly_threshold": 100
+      "friendly_threshold": 100,
+      "relations": {
+        "Luminar Covenant": 0.5,
+        "The Moribund Order": -0.5
+      }
     },
     {
-      "name": "Twilight Accord",
-      "description": "Secretive rogues seeking the Void’s power.",
+      "name": "The Moribund Order",
+      "type": "player",
+      "races": "Ogres, Trolls, Lizardkin, Dark Elves, corrupted Half-Orcs",
+      "alignment": "Neutral Evil to Chaotic Evil",
+      "description": "The main antagonist faction (formerly the Umbral Talon), seeking to corrupt the Solstice Aegis and unleash the Lightfall. Necromancers, shadow knights and Void-touched cultists; True Believers and Useful Idiots. Led by figures like Zozuur Blackmaw and Freuda Iridusk.",
+      "base_standing": 0,
+      "dialogue_tone": "sinister",
+      "hostile_threshold": -30,
+      "friendly_threshold": 90,
+      "relations": {
+        "Luminar Covenant": -0.5,
+        "Wardens of the Sacred Flame": -0.5,
+        "Tenebrae Obscurium": 0.25,
+        "Stoneblood Clan": 0.5,
+        "Brood of Fennarach": 0.5,
+        "Shattered Horn Tribe": 0.5
+      }
+    },
+    {
+      "name": "Tenebrae Obscurium",
+      "type": "player",
+      "races": "Dark Elves, Humans, Gnomes, Half-Elves",
+      "alignment": "Neutral Evil",
+      "description": "The shadowy guild of rogues, assassins and shadow mages (formerly the Twilight Accord). Affiliated with Virexus; not inherently evil but works in moral grey. Shelters exiled enchanters and practitioners of the dark arts.",
       "base_standing": 0,
       "dialogue_tone": "sly",
       "hostile_threshold": -30,
-      "friendly_threshold": 80
+      "friendly_threshold": 80,
+      "relations": {
+        "The Moribund Order": 0.25,
+        "Luminar Covenant": -0.25,
+        "Covenant of the Dark Kris": 0.5
+      }
     },
     {
-      "name": "Villagers of Lumora",
-      "description": "Neutral townsfolk wary of conflict.",
-      "base_standing": 25,
-      "dialogue_tone": "simple",
-      "hostile_threshold": -10,
-      "friendly_threshold": 60
-    },
-    {
-      "name": "Luminar Covenant",
-      "description": "Devout followers of Aurethiel, upholding justice and light.",
-      "base_standing": 40,
-      "dialogue_tone": "righteous",
-      "hostile_threshold": -25,
-      "friendly_threshold": 90
-    },
-    {
-      "name": "Circle of Thorns",
-      "description": "Elven mystics attuned to nature and balance, guided by Thalorun.",
-      "base_standing": 20,
-      "dialogue_tone": "mystical",
-      "hostile_threshold": -15,
-      "friendly_threshold": 70
-    },
-    {
-      "name": "Verdant Kin",
-      "description": "Nature-bound protectors of Aldenexia’s forests, allied with elves and halflings.",
-      "base_standing": 30,
-      "dialogue_tone": "earthy",
-      "hostile_threshold": -20,
-      "friendly_threshold": 75
-    },
-    {
-      "name": "Hands of the Eternal Forge",
-      "description": "Dwarven craftsmen devoted to Durnhal, masters of creation and endurance.",
-      "base_standing": 35,
-      "dialogue_tone": "stoic",
-      "hostile_threshold": -20,
-      "friendly_threshold": 85
-    },
-    {
-      "name": "Ironclad Brotherhood",
-      "description": "Dwarven and half-orc warriors valuing strength and loyalty.",
-      "base_standing": 20,
-      "dialogue_tone": "gruff",
-      "hostile_threshold": -25,
-      "friendly_threshold": 80
-    },
-    {
-      "name": "Arcane Synod",
-      "description": "Gnomish scholars of magic, dedicated to knowledge and Sylaen.",
-      "base_standing": 15,
-      "dialogue_tone": "scholarly",
-      "hostile_threshold": -15,
-      "friendly_threshold": 70
-    },
-    {
-      "name": "Arcane Dominion",
-      "description": "Ambitious gnomes wielding arcane power, wary of Lumora’s simplicity.",
-      "base_standing": 10,
-      "dialogue_tone": "haughty",
-      "hostile_threshold": -20,
-      "friendly_threshold": 75
-    },
-    {
-      "name": "Echoes of the Deep",
-      "description": "Half-elven wanderers inspired by Lirael, seeking peace and harmony.",
+      "name": "Lirael's Concord",
+      "type": "player",
+      "races": "Half-Elves, Humans, Elves, Halflings",
+      "alignment": "Neutral Good",
+      "description": "Bards, diplomats and lore-keepers (formerly the Echoes of the Deep), making concord between fractured peoples. Led by Annadaeus Beidsdottir; serves Lirael and guards knowledge of the Aegis fragments.",
       "base_standing": 30,
       "dialogue_tone": "poetic",
       "hostile_threshold": -15,
-      "friendly_threshold": 70
+      "friendly_threshold": 70,
+      "relations": {
+        "Luminar Covenant": 0.5,
+        "The Verdant Kin": 0.5
+      }
     },
     {
-      "name": "Umbral Talon",
-      "description": "Fierce warriors of ogres, trolls, and others, sworn to Kaerun’s conquest.",
-      "base_standing": 0,
-      "dialogue_tone": "brutal",
-      "hostile_threshold": -30,
-      "friendly_threshold": 90
+      "name": "The Verdant Kin",
+      "type": "player",
+      "races": "Elves, Halflings, Humans, Half-Elves",
+      "alignment": "Neutral Good to Chaotic Good",
+      "description": "All Druids and Rangers protecting nature against civilization's encroachment. Guards an Aegis fragment in Thornspire Glade. Worships Thalorun, some Elyndra.",
+      "base_standing": 30,
+      "dialogue_tone": "earthy",
+      "hostile_threshold": -20,
+      "friendly_threshold": 75,
+      "relations": {
+        "Luminar Covenant": 0.25,
+        "Lirael's Concord": 0.5,
+        "Arcane Synod": -0.5
+      }
     },
     {
-      "name": "Shattered Horn Tribe",
-      "description": "Ogre clans united by strength, honoring Kaerun’s warlike spirit.",
-      "base_standing": 5,
-      "dialogue_tone": "aggressive",
+      "name": "Arcane Synod",
+      "type": "player",
+      "races": "Gnomes, Elves, Humans, Dwarves",
+      "alignment": "Lawful Neutral",
+      "description": "Scholars who believe magic should be studied, catalogued and controlled; research halls in Grebblewick and Starreach. Rivals of The Verdant Kin; exiled the enchanters and necromancers after the Chronoglass Incident.",
+      "base_standing": 15,
+      "dialogue_tone": "scholarly",
+      "hostile_threshold": -15,
+      "friendly_threshold": 70,
+      "relations": {
+        "The Verdant Kin": -0.5,
+        "Guild of the Eclipsed Mind": -0.25
+      }
+    },
+    {
+      "name": "Ironclad Brotherhood",
+      "type": "player",
+      "races": "Dwarves, Half-Orcs, Humans",
+      "alignment": "Lawful Neutral",
+      "description": "A disciplined mercenary company of honour-bound contracts and martial prowess; trains in Brondrak Hold and Ironfist Hold.",
+      "base_standing": 20,
+      "dialogue_tone": "gruff",
       "hostile_threshold": -25,
-      "friendly_threshold": 85
+      "friendly_threshold": 80,
+      "relations": {
+        "Order of the Silent Fist": 0.25
+      }
+    },
+    {
+      "name": "Order of the Silent Fist",
+      "type": "player",
+      "races": "Half-Orcs, Humans, Monks of all races",
+      "alignment": "Lawful Neutral",
+      "description": "A monastic order seeking enlightenment through restraint and discipline, based in Ironfist Hold's Silent Temple.",
+      "base_standing": 20,
+      "dialogue_tone": "calm",
+      "hostile_threshold": -30,
+      "friendly_threshold": 80,
+      "relations": {
+        "Ironclad Brotherhood": 0.25
+      }
+    },
+    {
+      "name": "Celestial Weavers",
+      "type": "player",
+      "races": "Humans, Aasimar, Dwarves, Halflings",
+      "alignment": "Neutral Good",
+      "description": "Spiritual guides and divine healers drawing on celestial and elemental power; healing sanctuaries in Brondrak Hold and other sacred sites.",
+      "base_standing": 30,
+      "dialogue_tone": "gentle",
+      "hostile_threshold": -30,
+      "friendly_threshold": 80,
+      "relations": {}
+    },
+    {
+      "name": "Guild of the Eclipsed Mind",
+      "type": "player",
+      "races": "Gnomes, Dark Elves",
+      "alignment": "Neutral Evil",
+      "description": "Gnomish tinkerers and dark elf illusionists studying forbidden magic, formed by the Pact of the Veil; heretics to the Arcane Synod, useful to The Moribund Order.",
+      "base_standing": -10,
+      "dialogue_tone": "cryptic",
+      "hostile_threshold": -30,
+      "friendly_threshold": 80,
+      "relations": {
+        "Arcane Synod": -0.25,
+        "The Moribund Order": 0.25
+      }
+    },
+    {
+      "name": "Villagers of Lumora",
+      "type": "player",
+      "races": "Humans, Halflings, Half-Elves",
+      "alignment": "Neutral Good",
+      "description": "The common folk of Lumora, caught between the Covenant's ideals and the Order's schemes: farmers, merchants and craftspeople.",
+      "base_standing": 25,
+      "dialogue_tone": "simple",
+      "hostile_threshold": -10,
+      "friendly_threshold": 60,
+      "relations": {
+        "Luminar Covenant": 0.25
+      }
     },
     {
       "name": "Stoneblood Clan",
-      "description": "Troll warriors bound by Morthan, embracing death and decay.",
+      "type": "player",
+      "races": "Trolls",
+      "alignment": "Chaotic Neutral to Chaotic Evil",
+      "description": "Troll shamans within The Moribund Order practising necrotic rites in Veyra's Hollow; serve Morthan. Led by Zozuur Blackmaw.",
       "base_standing": 0,
       "dialogue_tone": "grim",
       "hostile_threshold": -30,
-      "friendly_threshold": 80
-    },
-    {
-      "name": "Veilstriders",
-      "description": "Vol'kyne agents of Virexus, masters of shadows and secrets.",
-      "base_standing": -10,
-      "dialogue_tone": "cryptic",
-      "hostile_threshold": -35,
-      "friendly_threshold": 85
+      "friendly_threshold": 80,
+      "relations": {
+        "The Moribund Order": 0.5,
+        "Brood of Fennarach": 0.5
+      }
     },
     {
       "name": "Brood of Fennarach",
-      "description": "LizardKin devotees of Kaerun, thriving in the swamps of Shadowfen.",
+      "type": "player",
+      "races": "Lizardkin",
+      "alignment": "Chaotic Evil",
+      "description": "The lizardkin warrior caste serving The Moribund Order through Kaerun, in the Sauros Reach district of Veyra's Hollow.",
       "base_standing": 5,
       "dialogue_tone": "hiss",
       "hostile_threshold": -25,
-      "friendly_threshold": 80
+      "friendly_threshold": 80,
+      "relations": {
+        "The Moribund Order": 0.5,
+        "Stoneblood Clan": 0.5
+      }
+    },
+    {
+      "name": "Shattered Horn Tribe",
+      "type": "player",
+      "races": "Ogres",
+      "alignment": "Chaotic Evil",
+      "description": "Brutal ogre clans of Thalden's Reach who worship Kaerun and serve The Moribund Order for the battles.",
+      "base_standing": 5,
+      "dialogue_tone": "aggressive",
+      "hostile_threshold": -25,
+      "friendly_threshold": 85,
+      "relations": {
+        "The Moribund Order": 0.5
+      }
+    },
+    {
+      "name": "Veilstriders",
+      "type": "player",
+      "races": "Dark Elves, Night-Dwellers",
+      "alignment": "Neutral Evil",
+      "description": "Dark elves who walk between worlds studying the Veil itself; based in Shadowfen alongside The Moribund Order and the Tenebrae Obscurium.",
+      "base_standing": -10,
+      "dialogue_tone": "cryptic",
+      "hostile_threshold": -35,
+      "friendly_threshold": 85,
+      "relations": {}
+    },
+    {
+      "name": "Covenant of the Dark Kris",
+      "type": "player",
+      "races": "Dark Elves, assassins of many races",
+      "alignment": "Neutral Evil",
+      "description": "A secretive network of contract killers and political assassins, close to the Tenebrae Obscurium.",
+      "base_standing": -20,
+      "dialogue_tone": "cold",
+      "hostile_threshold": -30,
+      "friendly_threshold": 80,
+      "relations": {
+        "Tenebrae Obscurium": 0.5
+      }
+    },
+    {
+      "name": "Djhanid Clans",
+      "type": "player",
+      "races": "Humans (desert nomads)",
+      "alignment": "Neutral",
+      "description": "The desert-born nomads of the dunes: wary of outsiders, who mistake them for the Dustwalker bandits. Kill or mistreat them and they attack on sight; treat them well and they become allies (The Djhanid.txt).",
+      "base_standing": -5,
+      "dialogue_tone": "wary",
+      "hostile_threshold": -40,
+      "friendly_threshold": 40,
+      "relations": {}
+    },
+    {
+      "name": "Circle of Thorns",
+      "type": "order",
+      "races": "Elves, Half-Elves",
+      "alignment": "Neutral Good",
+      "description": "The druid order within The Verdant Kin, born of the Second Bloom; sworn to Thalorun and Elyndra, keepers of Vaelwyn's groves.",
+      "parent": "The Verdant Kin"
+    },
+    {
+      "name": "Hands of the Eternal Forge",
+      "type": "order",
+      "races": "Dwarves, Humans",
+      "alignment": "Lawful Good",
+      "description": "Durnhal's forge-priests of Brondrak Hold, the Ironclad Brotherhood's temple: they bless the steel the Brotherhood carries.",
+      "parent": "Ironclad Brotherhood"
+    },
+    {
+      "name": "Arcane Dominion",
+      "type": "order",
+      "races": "Elves, Gnomes",
+      "alignment": "Neutral",
+      "description": "The Arcane Synod's hardline wing, who hold that magic is for ruling; followers of Nyssara and Sylaen.",
+      "parent": "Arcane Synod"
+    },
+    {
+      "name": "The Hollow Crown",
+      "type": "monster",
+      "races": "Wights, Revenants, Fallen Nobility",
+      "alignment": "Lawful Evil",
+      "description": "Once rulers of great kingdoms, these undead aristocrats cling to their former glory, commanding legions of spectral knights and cursed retainers."
+    },
+    {
+      "name": "Graveblight Swarm",
+      "type": "monster",
+      "races": "Zombies, Ghouls, Lesser Undead",
+      "alignment": "Chaotic Evil",
+      "description": "A mindless horde of decaying corpses and ravenous ghouls, driven by necromantic will or primal hunger, spreading corruption wherever they roam."
+    },
+    {
+      "name": "Whispers of the Hollow",
+      "type": "monster",
+      "races": "Liches, Banshees, Ghosts",
+      "alignment": "Neutral Evil",
+      "description": "Ethereal undead who whisper secrets of the netherworld, seeking forbidden knowledge and dominion over the veil between life and death."
+    },
+    {
+      "name": "Stoneheart Collective",
+      "type": "monster",
+      "races": "Golems, Earth Elementals, Runic Constructs",
+      "alignment": "Lawful Neutral",
+      "description": "Ancient guardians of sacred sites and forgotten ruins, animated by elemental magic and bound to eternal duty."
+    },
+    {
+      "name": "Stormbinders of Mael'Thun",
+      "type": "monster",
+      "races": "Air Elementals, Sky Spirits",
+      "alignment": "Chaotic Neutral",
+      "description": "Servants of a forgotten storm god who command the skies with thunder and wind, often appearing as omens of change."
+    },
+    {
+      "name": "Glare of Zetherin",
+      "type": "monster",
+      "races": "Light Elementals, Crystal Entities",
+      "alignment": "Lawful Good",
+      "description": "Beings of radiant energy and crystalline form, revered by some as divine messengers or avatars of celestial order."
+    },
+    {
+      "name": "Shardscale Brood",
+      "type": "monster",
+      "races": "Dragonkin, Wyverns, Serpents",
+      "alignment": "Neutral Evil",
+      "description": "A proud and ancient draconic lineage seeking to reclaim dominion over the skies and hoard the world's arcane treasures."
+    },
+    {
+      "name": "Lunaborne Conclave",
+      "type": "monster",
+      "races": "Werebeasts, Shapeshifters",
+      "alignment": "Chaotic Neutral",
+      "description": "Bound by blood and moonlight, primal beings walking the line between man and beast in secretive packs with their own laws."
+    },
+    {
+      "name": "Ashenborn Pact",
+      "type": "monster",
+      "races": "Demons, Infernals",
+      "alignment": "Chaotic Evil",
+      "description": "Fiends from charred realms beyond the veil, breaching into Aldenexia through scorched gateways to spread chaos and corruption."
+    },
+    {
+      "name": "The Verdant Maw",
+      "type": "monster",
+      "races": "Corrupted Nature Spirits, Carnivorous Plants",
+      "alignment": "Chaotic Evil",
+      "description": "Twisted remnants of once-pure nature that seek to reclaim the world through overgrowth, decay and predation."
     }
   ]
 }

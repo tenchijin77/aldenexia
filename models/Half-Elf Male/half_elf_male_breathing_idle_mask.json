@@ -1,0 +1,14 @@
+{
+ "_comment": "make_masks.py: each region's original colour (sRGB 0-1); the mask is half_elf_male_breathing_idle_mask.png",
+ "skin": [
+  0.6984,
+  0.5409,
+  0.4522
+ ],
+ "hair": [
+  0.2098,
+  0.1321,
+  0.0608
+ ],
+ "eyes": null
+}

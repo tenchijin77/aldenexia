@@ -2303,6 +2303,132 @@ GATE RAIDS (`Scripts/gate_raid_manager.gd`, `Data/gate_raids.json`, node "GateRa
   patrol also uses that marker, so his rounds now reach the pass — intended: travellers come in there, user 2026-09-25.)
 - Tests: test_merchant.gd (the loop and its order, the same answer everywhere, drift, the guards' report, mid-visit
   arrival on the road and at a stop, the roadside stop and walking on, once per loop).
+### Overnight 2026-09-25 (1): spider den, every faction, standing that changes, the Djhanid
+- Outskirts: the stray monster_template skeleton by the spider den removed; the Spider Den marker and its spawns moved into
+  the painted den in the northwest (35, -815).
+- Data/factions.json rewritten from the finalized docs (Aldenexia_Player_Information_Updated.xlsx "Factions",
+  Faction_Relationships_Final_Updated.txt): 18 player factions + 10 monster factions, each with races, alignment,
+  description, thresholds and "relations" (allies +, rivals -). Renamed: Twilight Accord -> Tenebrae Obscurium, Echoes of
+  the Deep -> Lirael's Concord, Umbral Talon -> The Moribund Order, Verdant Kin -> The Verdant Kin (also in every
+  dialogue*.json and deities.json). New: Order of the Silent Fist, Celestial Weavers, Guild of the Eclipsed Mind, Covenant
+  of the Dark Kris, Djhanid Clans. Circle of Thorns, Hands of the Eternal Forge, Arcane Dominion aren't on the Factions
+  sheet but the Pantheon map uses them: kept, marked "pending" (questions in outstanding_items.txt).
+- player_faction.json: starting standing for all 21. race_faction_affiliations.json rewritten to the canonical primaries
+  and now USED (it wasn't read before): a race's lean is added on top of standing (Player3D.race_standing_modifiers()).
+- Standing changes: Player3D.adjust_standing(): EverQuest messages ("Your faction standing with the Djhanid Clans got
+  worse." / "could not possibly get any worse" / "The Djhanid will now attack you on sight."), -100..100, saved with the
+  character, ripples to that faction's relations (help the Covenant: the Wardens like you more, the Order less).
+  monsters.json "kill_standing" applies it to whoever gets the kill (the server sends it: receive_standing_changes on the
+  player node, not Net).
+- The Djhanid: "wary" (monsters.json) — they never start a fight. Kill three (-15 each from -5) and they attack on sight
+  from further off; killing Dustwalker bandits raises it (+2); at +40 they're allies and never attack. Monsters read the
+  player's replicated kos_factions / ally_factions; the target window cons them Enemy / Ally.
+- Tests: test_factions.gd (190 checks). Suite: 2,700 checks pass; Net RPC list unchanged.
+### Overnight 2026-09-25 (2): monsters cast, curse, heal, call for help and enrage
+- monster3d.gd "Abilities": monsters.json "abilities" — nuke / debuff (the current target), aoe (everyone near), heal,
+  summon, enrage; cast time, cooldown, first use, hp_below, once, range, radius, damage (scaled with the monster's
+  level like its swings), school (the target rolls that resist: EverQuest-style full resist, resist vs caster level),
+  effect (an ailment), message. The server runs them; a hit lands on the player's own machine (_rpc_ability_on_owner on
+  the monster, like swings; Net untouched).
+- Casting shows: "Tomb guardian begins to cast Void Bolt." to everyone near, "(casting Void Bolt)" on the target window
+  and under its nameplate (a replicated "casting"). It stands still while casting. A stun or bash breaks it ("... Void
+  Bolt is interrupted!") and nothing is used while stunned; a silenced monster can't cast (skills still go).
+- Summoned adds spawn through the zone's MobSpawner (spawn_extra: every player sees them, outside the spawn counts), join
+  the fight, and go when the caller dies or gives up. New monster: the broodling (4-5, summoned_only).
+- Frenzies (enrage) happen the moment health drops, even mid-cast; they end when the fight does.
+- Silence now works on players too: a silenced player can't cast spells (mana cost), skills still work. It was never
+  enforced before — the players' own silence spells (Void Silence, chaos shield) now stop monster casts.
+- New ailments (buff bar descriptions/icons, cures remove them): ensnared, silenced, cursed, burning, chilled, terrified.
+- Kits (first pass, to tune): Dessik Coinhand (Dirty Trick blind; Call the Crew at half), Rask Ironjaw (Skull Crack daze;
+  Iron Rage at 30%), Grukka Bonechewer (Bone Shard 2.5 s cast; Marrow Feast heal 3 s; Goblin Horn two goblins),
+  Sergeant Halvek (Grave Command terrify; Rally the Fallen skeleton), Weavemother Vhessa (Ensnaring Web; Poison Bite;
+  two broodlings at half), spider broodmother (Web Spray; Brood Call every 45 s), Dustwalker warlord (Sundering Blow;
+  two raiders at half; War Frenzy), tomb guardian (Void Bolt; Silence of the Tomb; Phantom Blades aoe), grave abomination
+  (Miasma Belch aoe disease; Corpse Feast heal; Death Throes). Their appraisal text says what they do.
+- check_monster_sheet.py: adds a monster calls count as in its zone (rows added: broodling, dustwalker, Area "Called by
+  ..."); a monster with abilities keeps its sheet "Special Attack" = its appraisal text. Sheet synced.
+- Tests: test_monster_abilities.gd (113). Suite: 2,824 checks pass; Net RPC list unchanged.
+
+### Overnight 2026-09-25 (3): Ashfall Dunes opens (first pass: flat terrain, placeholder models)
+- Zone line: Dustwind's south edge (z 505, full width) <-> Ashfall's north edge (z -505); arrival markers
+  ashfall_dunes_zone (Dustwind, z 474) and dustwind_plateaus_zone (Ashfall, z -474).
+- Layout from Solgrave Expanse Map.drawio's Ashfall section (Markers in ashfall_dunes.tscn): the Oasis, the Corrupted
+  Altar, three Bonegnawer camps, the Mass Gravesite, the Kragthar Entrance (dungeon not built), the Neutral Vendor Camp,
+  Tak'Majir camps, the Bleached Forest and two Ritual Circles, the Djhanid Encampment, the Twilight Moors road.
+- Monsters (monsters.json; the Zone Spawn Sheet's Ashfall tab now has real ids, levels, areas): levels 7-12 across the
+  zone — Bonegnawer / hunter (bola snare) / shaman (Rot Hex, Sluggish Blood, heal), khepri beetle, sandshifter (resists
+  physical, sand blind), mirage phantom (Ashfall's, 9-11: Dread Mirage), tomb skeleton, wight (Life Tap, Grave Chill),
+  Tak'Majir scout / assassin (poison) / ritualist (Shadow Lance, Veil of Doubt), Dustwalker defiler (Drain Life, raises a
+  skeleton), Djhanid guardian / tracker / spiritist (wary, standing decides). Group content 13-16 (is_boss, abilities):
+  sandshifter elite and alpha (rare), phantom lord (Mass Gravesite), Tak'Majir bladestorm and spymaster, Dustwalker
+  commander (Corrupted Altar), Djhanid warden. Killing Tak'Majir and Dustwalkers raises your Djhanid standing.
+  The old unused level-2/3 placeholders (bonegnawer, khepri_beetle, sandshifter) became the real ones; the plain
+  dustwalker is now the Dustwind warlord's raider (5-6). Data/ashfall_dunes_spawns.json: 40 spawn points, no-monster
+  areas at the zone-in, the Oasis, the vendor camp, Sahren's Djhanid stop and the Moors road. The draft .jsonc is gone.
+- Sahren now walks all three zones: Ashfall leg on (the Oasis, the Neutral Vendor Camp, the Djhanid Encampment, out by
+  the Twilight Moors road). To fit a 90-minute loop: Dustwind starts at 36 min, Ashfall at 62, Ashfall stays 170 s,
+  drift +/-4 min (was 8). BUG FIXED: the loop's "random" drift barely changed from one loop to the next (hash of the
+  loop number, ~5 s apart); it now seeds a generator.
+- Tests: test_merchant (all three zones, no leg runs into the next over 400 loops, the drift really scatters).
+  Suite: 3,316 checks pass. An Ashfall server boots ("World check ... OK").
+
+### Appearance: sliders at creation, the Silvered Mirror, the look locked (2026-09-25)
+- User's rules: the look is chosen once — at character creation, or once at Lumora's mirror for characters made before
+  this (both test the same window) — then locked; afterwards only the hair (colour now; hair and beard styles and
+  accessories when their models exist) can change.
+- Scripts/appearance.gd (Appearance): sliders height (-1..1: +/-6% of the model, 5% dwarf/gnome/halfling, 7% ogre/troll),
+  weight (-0.5..1), muscle (-0.3..1), and for women bust, waist, hips (-1..1); skin colour (a palette per race), hair
+  colour (14), eye colour (10, SWITCHED OFF: EYE_COLOUR_ENABLED, the automatic eye masks only work on a few models), "" = as painted; hair_style / beard_style / accessories keys, empty for now. validate(),
+  merge() (the lock), apply() (blend shapes, height, material). Saved as player_data "appearance", replicated as
+  Player3D.appearance_json (so everyone sees it), applied whenever the model is built. Player3D.set_appearance().
+- The server enforces it: ServerTrust.check keeps a locked look except the changeable keys, keeps every value in range,
+  locks a look the first time it arrives, and logs attempts to change a locked one.
+- Body sliders are blend shapes in the rebuilt meshes: tools/blender/shape_body.py morph() (weight, muscle for all;
+  bust, waist, hips for women), each built on its own copy, subdivided identically, stored as the difference;
+  make_smooth_models.gd carries them into the .res. All 22 models rebuilt.
+- Colours: tools/blender/make_masks.py finds each model's skin, hair and eyes (a flood fill over the mesh from seeds at
+  the cheeks / nose / forehead and the back of the head, voting and competing colours, the clothes as rivals so a white
+  blouse isn't skin), per-model tuning in tools/blender/mask_config.json; tools/make_masks.sh -> <scene>_mask.png +
+  .json (each region's own colour). Shaders/appearance.gdshader recolours a region keeping its light and shade.
+- Scripts/appearance_editor.gd: the window — a turning preview (drag), sliders, colour swatches, Reset / Cancel /
+  Save; at the mirror's first use saving asks "This is final: save?". Character creation: "Appearance..." button (the
+  look is saved locked with the new character). The mirror: "The Silvered Mirror" by the town gate (66, 20;
+  world_objects.json, WorldNote opens "mirror").
+- Tests: test_appearance.gd.
+
+### Factions folded; the women sculpted (2026-09-25)
+- Circle of Thorns, Hands of the Eternal Forge and Arcane Dominion are now ORDERS within The Verdant Kin, the Ironclad
+  Brotherhood and the Arcane Synod (factions.json type "order", "parent"): no standing of their own; anything that
+  changes or reads theirs uses the parent's (Player3D.standing_name()). Removed from player_faction.json.
+- Female bodies reshaped (user: "keep them busty and beautiful"): tools/blender/shape_body.py, run by
+  smooth_character.py before subdividing — the bust swells forward, up and a touch apart around each breast's apex
+  (found from the mesh and mirrored; the cleavage is kept), the waist draws in, the hips widen. Strengths per race in
+  tools/smooth_models.sh (0.4 for most; gnome 0.35; troll and ogre 0.3; lizardkin 0.2). All 11 female models rebuilt;
+  the FBX files still untouched. RENDERS=<folder> bash tools/smooth_models.sh saves check renders.
+
+### Monster id tidy (2026-09-25, user: "rename the lower level one")
+- The Outskirts' level-3 ghost (shown as "a shimmering desert ghost") had the id mirage_phantom; it is now desert_ghost
+  (monsters.json, its loot table, the Outskirts spawns, the sheet). Ashfall's real mirage phantom (9-11) takes the id
+  mirage_phantom, which the old Kragthar draft and Data/mirage_phantom_loot.json were written for. It borrows the
+  desert ghost's loot until its own table is in.
+
+### Overnight 2026-09-25 (4): character models rebuilt smooth; the elf male's run
+- Diagnosis (Blender renders): the TEXTURES are fine; the GEOMETRY was the "low poly" look — ~10k triangles with hard
+  edges on most of them and flat custom normals (a nose of four triangles). Shade Smooth didn't help because the file's
+  custom normals override it. Runtime normal smoothing (test 35) only half-fixed it.
+- tools/blender/smooth_character.py: clears the custom normals and sharp edges, merges split vertices, shades smooth,
+  one level of Catmull-Clark subdivision (skin weights interpolated): ~10k -> ~62k triangles. (Decimating back down
+  smeared the lips, so it doesn't.) tools/make_smooth_models.gd turns that into <scene>_smooth_mesh.res next to the FBX:
+  bone indices remapped by name onto the FBX's own skin, distance LODs generated, compressed. tools/smooth_models.sh
+  does all 22 race models (done). The FBX files are NOT changed: MeshSmoothing.use_rebuilt_mesh() swaps the mesh in at
+  load (players, NPCs, vendors, pets, the editor preview); delete a .res to go back. +39 MB of meshes.
+- Elf male "pigeon toed, run doesn't look right": measured and rendered — his feet toe OUT like everyone's, but his
+  Mixamo run was made for wider hips: each foot landed on or across the middle (closest 0.028 m apart), knees knocking.
+  tools/widen_stride.gd swings both thighs out 2 degrees in his run (closest now 0.061 m, like the human's scaled to his
+  hips); walk untouched (it was fine). The library is edited in place and marked, so re-running changes nothing.
+- Tests: test_models.gd (each rebuilt mesh fits its skeleton and skin, weights, sits vertex for vertex on the old one,
+  is subdivided; the elf's feet never cross). Suite: 3,451 checks pass.
+
 ### Test 34: Shonuff (Aetherfist), Zozuur (Voidknight), build 77506fa (2026-09-24)
 - /stuck freed him; perception at the gate and the tower spires worked; Common rose talking to guards.
 - /STUCK LEFT THE PET BEHIND: the pet is now recalled to you (recall_to_owner(), or placed beside you).

@@ -96,6 +96,7 @@ func _add_model(scene_path: String, texture_path: String, model_scale: float) ->
 		add_child(capsule)
 		return 2.0
 	var model: Node3D = (load(scene_path) as PackedScene).instantiate()
+	MeshSmoothing.use_rebuilt_mesh(model)   # the smooth Blender-rebuilt mesh, as in game
 	model.transform = Transform3D(Basis(Vector3.UP, PI).scaled(Vector3.ONE * model_scale), Vector3.ZERO)
 	add_child(model)
 	if not texture_path.is_empty() and ResourceLoader.exists(texture_path):

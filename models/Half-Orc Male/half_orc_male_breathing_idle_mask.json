@@ -1,0 +1,14 @@
+{
+ "_comment": "make_masks.py: each region's original colour (sRGB 0-1); the mask is half_orc_male_breathing_idle_mask.png",
+ "skin": [
+  0.4885,
+  0.4522,
+  0.3672
+ ],
+ "hair": [
+  0.1535,
+  0.1191,
+  0.0886
+ ],
+ "eyes": null
+}

@@ -19,7 +19,7 @@
   "name": "Annadeus Beidsdottir",
   "role": "High Songweaver & Diplomat",
   "race": "Human",
-  "faction": "Echoes of the Deep",
+  "faction": "Lirael's Concord",
   "dialogue": {
     "greeting": "May harmony guide your steps. Sylvaren listens, even from afar.",
     "help": "The Deep Echo speaks again. Seek the Resonant Vault beneath the flowering arches, but only if your heart is tuned to truth.",
@@ -34,7 +34,7 @@
       "faction": "Villagers of Lumora",
       "dialogue": {
         "greeting": "Need a place to rest? The hearth is warm and the beds are clean.",
-        "help": "I hear the Twilight Accord has been seen near the woods. Be careful.",
+        "help": "I hear the Tenebrae Obscurium has been seen near the woods. Be careful.",
         "lore": "They say the Sword of Light once passed through this very town.",
         "farewell": "Rest well, friend."
       }

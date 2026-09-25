@@ -7,7 +7,9 @@
 #   - coin may rise only at a generous rate (COIN_PER_MINUTE) plus quest coin rewards;
 #   - skills never above their cap (combat_balance.json skill_cap_per_level x level, or what you already had); spells must exist and be your class's;
 #     recipes must exist; languages at most 100 and at most one point per LANGUAGE_SECONDS;
-#   - a surname only at level 10 (or from a game master).
+#   - a surname only at level 10 (or from a game master);
+#   - the look (appearance) is set once, at creation or at Lumora's mirror, then locked: afterwards only hair colour,
+#     hair and beard style and accessories may change (Appearance.merge); every value is kept within its range.
 # Game masters are trusted (their tools grant things). Item changes are reported (telemetry), not refused — yet.
 # Pure functions: no scene, no network — the regression suite (tools/tests) calls check() directly.
 class_name ServerTrust
@@ -34,8 +36,20 @@ static func check(stored: Dictionary, incoming: Dictionary, kill_xp: int, elapse
 		quests_def: Dictionary, xp_table: Dictionary, spells: Dictionary, recipes: Dictionary, coin_allowance: int = -1) -> Dictionary:
 	var data: Dictionary = incoming.duplicate(true)
 	var anomalies: Array = []
+	if data.has("appearance") or stored.has("appearance"):
+		var sex := str(stored.get("player_sex", data.get("player_sex", "male")))
+		var race := str(stored.get("player_race", data.get("player_race", "human")))
+		var merged: Dictionary = Appearance.merge(stored.get("appearance"), data.get("appearance", stored.get("appearance", {})), sex, race)
+		if not (merged["refused"] as Array).is_empty() and not is_gm:
+			anomalies.append("appearance is locked: %s kept" % ", ".join(merged["refused"]))
+		if data.has("appearance") or stored.has("appearance"):
+			var look: Dictionary = merged["appearance"]
+			if data.has("appearance"):
+				look["locked"] = true   # a look reaching the server is final
+			data["appearance"] = look
+	var look_fixed := JSON.stringify(data.get("appearance")) != JSON.stringify(incoming.get("appearance"))
 	if stored.is_empty() or is_gm:
-		return {"data": data, "anomalies": anomalies, "changed": false, "coin_gained": 0}
+		return {"data": data, "anomalies": anomalies, "changed": look_fixed, "coin_gained": 0}
 
 	for field in IMMUTABLE:
 		if stored.has(field) and JSON.stringify(data.get(field)) != JSON.stringify(stored[field]):
@@ -129,7 +143,7 @@ static func check(stored: Dictionary, incoming: Dictionary, kill_xp: int, elapse
 		anomalies.append("surname below level 10 (kept the stored one)")
 		data["surname"] = str(stored.get("surname", ""))
 
-	return {"data": data, "anomalies": anomalies, "changed": not anomalies.is_empty(),
+	return {"data": data, "anomalies": anomalies, "changed": not anomalies.is_empty() or look_fixed,
 			"coin_gained": maxi(0, coin_value(data) - old_coin - quest_coin)}
 
 

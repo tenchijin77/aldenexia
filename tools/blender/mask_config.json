@@ -1,0 +1,42 @@
+{
+  "_comment": "mask_config.json - per-model tuning for make_masks.py, keyed by model folder: skin_threshold / hair_threshold (colour distance, default 12 / 15), hair_seed (back | crown), skin_seed (forehead: for a beard over the nose and cheeks), cheek_below_nose (default 0.04), nohair, no_cloth_rivals (bare arms / scales that differ from the face: don't treat them as clothes), skin_max_x (skin only within this share of the height from the middle: sleeves the very colour of the skin).",
+  "Lizardkin Female": {
+    "nohair": true,
+    "no_cloth_rivals": true
+  },
+  "Lizardkin Male": {
+    "nohair": true,
+    "no_cloth_rivals": true
+  },
+  "Dwarf Male": {
+    "skin_seed": "forehead"
+  },
+  "Human Female": {},
+  "Elf Female": {
+    "hair_threshold": 10,
+    "skin_max_x": 0.12
+  },
+  "Elf Male": {
+    "skin_threshold": 6,
+    "hair_threshold": 7
+  },
+  "Ogre Male": {
+    "skin_threshold": 8
+  },
+  "Ogre Female": {
+    "skin_threshold": 8
+  },
+  "Troll Male": {
+    "skin_threshold": 8,
+    "no_cloth_rivals": true
+  },
+  "Gnome Female": {
+    "hair_threshold": 22
+  },
+  "Half-Orc Female": {
+    "skin_threshold": 10
+  },
+  "Troll Female": {
+    "no_cloth_rivals": true
+  }
+}

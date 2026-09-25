@@ -34,6 +34,9 @@ properties/5/replication_mode = 2
 properties/6/path = NodePath(".:target_key")
 properties/6/spawn = true
 properties/6/replication_mode = 2
+properties/7/path = NodePath(".:casting")
+properties/7/spawn = true
+properties/7/replication_mode = 2
 
 [node name="monster_template" type="CharacterBody3D" unique_id=1915340231 groups=["monsters"]]
 script = ExtResource("1_mn001")

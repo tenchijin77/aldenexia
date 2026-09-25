@@ -1,0 +1,18 @@
+{
+ "_comment": "make_masks.py: each region's original colour (sRGB 0-1); the mask is human_female_breathing_idle_mask.png",
+ "skin": [
+  0.7106,
+  0.5769,
+  0.5163
+ ],
+ "hair": [
+  0.1858,
+  0.1112,
+  0.0687
+ ],
+ "eyes": [
+  0.4157,
+  0.3059,
+  0.251
+ ]
+}

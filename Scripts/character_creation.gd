@@ -60,6 +60,9 @@ var casting_stats: Dictionary = {
 # memory instead of writing user://saves, and Begin hands it to the server, which stores it there.
 var _pending_server_character: Dictionary = {}
 var _status_label: Label
+# The look chosen in the Appearance window (Scripts/appearance.gd); saved with the character and locked from the start.
+var _appearance: Dictionary = {}
+var _appearance_button: Button
 
 func _ready() -> void:
 	Global.free_game_ui()  # no leftover HUD from a character played earlier this session
@@ -78,6 +81,12 @@ func _ready() -> void:
 	sex_select.item_selected.connect(_on_sex_selected)
 	class_select.item_selected.connect(_on_class_selected)
 	confirm_button.pressed.connect(_on_confirm_pressed)
+	_appearance_button = Button.new()
+	_appearance_button.text = "Appearance..."
+	_appearance_button.tooltip_text = "Height, build, skin, hair and eye colour. Chosen once: later only your hair can change."
+	_appearance_button.pressed.connect(_on_appearance_pressed)
+	confirm_button.get_parent().add_child(_appearance_button)
+	confirm_button.get_parent().move_child(_appearance_button, confirm_button.get_index())
 	back_button.pressed.connect(_on_back_button_pressed)
 
 	# Reached via the multiplayer menu's "Create New Character" shortcut —
@@ -151,6 +160,7 @@ func _on_race_selected(index: int) -> void:
 	var meta: Variant = race_select.get_item_metadata(index)
 	var race_key: String = str(meta)
 	selected_race = race_key
+	_appearance = {}   # another race: another body and palette
 
 	var race_display_name: String = Global.character_options["races"][race_key]["name"]
 	update_class_options_for_race(race_display_name)
@@ -164,7 +174,20 @@ func _on_race_selected(index: int) -> void:
 	if class_select.item_count > 0:
 		_on_class_selected(0)
 
+func _on_appearance_pressed() -> void:
+	var key := "%s_%s" % [selected_race.to_lower(), selected_sex]
+	var info: Dictionary = Player3D.CHARACTER_MODELS.get(key, {})
+	if info.is_empty():
+		_status_label.text = "No model for that race yet."
+		return
+	AppearanceEditor.open(self, selected_race, selected_sex, info, _appearance, "full", func(look: Dictionary):
+		if not look.is_empty():
+			_appearance = look
+			_status_label.text = "Appearance chosen.")
+
+
 func _on_sex_selected(index: int) -> void:
+	_appearance = {}
 	var meta: Variant = sex_select.get_item_metadata(index)
 	selected_sex = str(meta)
 	update_portrait(selected_race)
@@ -368,6 +391,9 @@ func _on_confirm_pressed() -> void:
 		"inventory_data": build_starting_inventory(p_class),
 		"skill_levels": build_starting_skill_levels(p_class),
 	}
+	var look := Appearance.validate(_appearance, selected_sex, selected_race)
+	look["locked"] = true   # chosen at creation: from now on only the hair can change (the mirror)
+	character_data["appearance"] = look
 
 	if not Global.server_creation.is_empty():
 		_pending_server_character = character_data

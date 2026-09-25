@@ -1,0 +1,10 @@
+{
+ "_comment": "make_masks.py: each region's original colour (sRGB 0-1); the mask is lizardkin_male_breathing_idle_mask.png",
+ "skin": [
+  0.448,
+  0.4789,
+  0.2571
+ ],
+ "hair": null,
+ "eyes": null
+}

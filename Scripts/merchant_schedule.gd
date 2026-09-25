@@ -33,9 +33,12 @@ static func _v(xz: Variant) -> Vector3:
 
 
 # The same "random" number on every server for a given loop and slot: 0..1.
+# (hash() alone barely changes from one loop's number to the next — every loop drifted ~5 s from the last, not up to
+# drift_minutes — so it seeds a generator, which scatters properly and is the same everywhere.)
 static func _roll(cycle: int, slot: int) -> float:
-	var h := hash("%d:%d" % [cycle, slot])
-	return float(absi(h) % 100000) / 100000.0
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hash("%d:%d" % [cycle, slot])
+	return rng.randf()
 
 
 # A leg as a timeline: [{kind: "walk"|"stay", from, to, seconds, name}], with the loop's rolls applied.

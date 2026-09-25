@@ -310,6 +310,10 @@ func _refresh_name_and_con() -> void:
 	var faction := faction_status(_target)
 	faction_label.text = "(%s)" % faction
 	faction_label.add_theme_color_override("font_color", _faction_color(faction))
+	var spell := str(_target.get("casting")) if _target.get("casting") != null else ""
+	if not spell.is_empty():   # a monster casting (monster3d.gd abilities): what's coming, so you can stun or run
+		faction_label.text = "(casting %s)" % spell
+		faction_label.add_theme_color_override("font_color", Color(1.0, 0.6, 0.2))
 
 
 # Prefers combat_node.level (the real, replicated value for a player —
@@ -342,6 +346,14 @@ static func faction_status(target: Node) -> String:
 	# behavior_type), not a separate faction-standing system. See game_flow.txt.
 	if target.is_in_group("player") or target.is_in_group("npc_guard") or target.is_in_group("npc_vendor") or target.is_in_group("pets"):
 		return "Ally"
+	# A faction's attitude to YOU (your standing: player3d.gd kos_factions / ally_factions) wins over its usual temper.
+	var me := local_player()
+	var fac := str(target.get("faction")) if target.get("faction") != null else ""
+	if is_instance_valid(me) and not fac.is_empty() and fac != "None":
+		if (me.get("kos_factions") as PackedStringArray).has(fac):
+			return "Enemy"
+		if (me.get("ally_factions") as PackedStringArray).has(fac):
+			return "Ally"
 	if target.get("behavior_type") == "passive":
 		return "Neutral"
 	return "Enemy"

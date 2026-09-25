@@ -1,0 +1,14 @@
+{
+ "_comment": "make_masks.py: each region's original colour (sRGB 0-1); the mask is ogre_female_breathing_idle_mask.png",
+ "skin": [
+  0.6433,
+  0.557,
+  0.4649
+ ],
+ "hair": [
+  0.1755,
+  0.1121,
+  0.0699
+ ],
+ "eyes": null
+}

@@ -1,0 +1,14 @@
+{
+ "_comment": "make_masks.py: each region's original colour (sRGB 0-1); the mask is halfling_male_breathing_idle_mask.png",
+ "skin": [
+  0.6732,
+  0.4875,
+  0.3897
+ ],
+ "hair": [
+  0.3409,
+  0.1973,
+  0.0571
+ ],
+ "eyes": null
+}

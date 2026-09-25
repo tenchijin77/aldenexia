@@ -29,6 +29,10 @@ const TEXT_COLOR := "#e8dcc0"
 @export_multiline var found_text: String = ""
 ## Draw a low flat stone instead of the paper.
 @export var show_stone: bool = false
+## Draw a standing mirror instead of the paper.
+@export var show_mirror: bool = false
+## Using it opens something instead of reading: "mirror" = the appearance window (Scripts/appearance_editor.gd).
+@export var opens: String = ""
 
 var _label: Label3D
 var _light: OmniLight3D
@@ -38,7 +42,9 @@ var _label_timer := 0.0
 
 func _ready() -> void:
 	add_to_group("world_note")
-	if show_stone:
+	if show_mirror:
+		_build_mirror()
+	elif show_stone:
 		_build_stone()
 	elif show_paper:
 		_build_paper()
@@ -111,8 +117,36 @@ func _process(delta: float) -> void:
 		_label.visible = is_instance_valid(player) and player.global_position.distance_to(global_position) <= LABEL_RANGE
 
 
+# A tall standing mirror in a dark wooden frame (stand-in).
+func _build_mirror() -> void:
+	var frame := MeshInstance3D.new()
+	var box := BoxMesh.new()
+	box.size = Vector3(0.9, 1.9, 0.12)
+	frame.mesh = box
+	var wood := StandardMaterial3D.new()
+	wood.albedo_color = Color(0.3, 0.2, 0.12)
+	frame.material_override = wood
+	frame.position = Vector3(0, 0.95, 0)
+	add_child(frame)
+	var glass := MeshInstance3D.new()
+	var quad := QuadMesh.new()
+	quad.size = Vector2(0.72, 1.7)
+	glass.mesh = quad
+	var silver := StandardMaterial3D.new()
+	silver.albedo_color = Color(0.75, 0.78, 0.82)
+	silver.metallic = 1.0
+	silver.roughness = 0.05
+	glass.material_override = silver
+	glass.position = Vector3(0, 0.95, -0.065)
+	glass.rotation_degrees.y = 180.0
+	add_child(glass)
+
+
 # Right-click within range.
 func read(_player: Node) -> void:
+	if opens == "mirror":
+		_open_mirror(_player)
+		return
 	if not give_item.is_empty():
 		_search()
 		return
@@ -140,3 +174,25 @@ func _search() -> void:
 		GameLog.log_general("[color=%s][i]%s[/i][/color]" % [TEXT_COLOR, paragraph])
 	if not Inventory.add_item(give_item, 1):
 		GameLog.log_general("[color=#ff8866]Your bags are full. Make room and search again.[/color]")
+
+
+# Lumora's mirror (2026-09-25): a character made before the appearance sliders chooses its look here ONCE (then it's
+# locked, like one made at the creation screen); after that, only the hair can change here.
+func _open_mirror(player: Node) -> void:
+	if not player.has_method("set_appearance"):
+		return
+	var stored = Global.player_data.get("appearance")
+	var locked := typeof(stored) == TYPE_DICTIONARY and bool(stored.get("locked", false))
+	var info: Dictionary = Player3D.CHARACTER_MODELS.get("%s_%s" % [str(player.player_race).to_lower(), str(player.player_sex).to_lower()], {})
+	if info.is_empty():
+		GameLog.log_general("[color=%s]The mirror shows only mist.[/color]" % TEXT_COLOR)
+		return
+	GameLog.log_general("[color=%s]You study your reflection in the silvered glass.[/color]" % TEXT_COLOR)
+	AppearanceEditor.open(get_tree().root, str(player.player_race), str(player.player_sex), info,
+			stored if typeof(stored) == TYPE_DICTIONARY else {}, "locked" if locked else "full",
+			func(look: Dictionary):
+				if look.is_empty() or not is_instance_valid(player):
+					return
+				player.set_appearance(look)
+				GameLog.log_general("[color=%s]%s[/color]" % [TEXT_COLOR, "Your hair is different now." if locked else "That's you now. From here on, only your hair can change."]),
+			not locked)

@@ -2,6 +2,7 @@
 
 [ext_resource type="PackedScene" path="res://Scenes/zones/zone_template.tscn" id="1_template"]
 [ext_resource type="NavigationMesh" path="res://Data/ashfall_dunes_navmesh.tres" id="2_navmesh"]
+[ext_resource type="Script" path="res://Scripts/zone_line.gd" id="3_zone_line"]
 
 [node name="Zone" instance=ExtResource("1_template")]
 zone_id = "ashfall_dunes"
@@ -12,3 +13,58 @@ data_directory = "res://zones/ashfall_dunes_terrain"
 
 [node name="NavigationRegion3D" parent="." index="15"]
 navigation_mesh = ExtResource("2_navmesh")
+
+[node name="dustwind_plateaus_zone" type="Marker3D" parent="Markers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -474)
+
+[node name="Oasis" type="Marker3D" parent="Markers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -271, 0, -247)
+
+[node name="Corrupted Altar" type="Marker3D" parent="Markers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 100, 0, -347)
+
+[node name="Bonegnawer Camp North" type="Marker3D" parent="Markers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 445, 0, -393)
+
+[node name="Bonegnawer Camp West" type="Marker3D" parent="Markers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 325, 0, -287)
+
+[node name="Bonegnawer Camp South" type="Marker3D" parent="Markers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 445, 0, -207)
+
+[node name="Mass Gravesite" type="Marker3D" parent="Markers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 139, 0, -120)
+
+[node name="Kragthar Entrance" type="Marker3D" parent="Markers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 399, 0, 20)
+
+[node name="Neutral Vendor Camp" type="Marker3D" parent="Markers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 27, 0, 100)
+
+[node name="Tak'Majir Camp" type="Marker3D" parent="Markers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -390, 0, 73)
+
+[node name="Tak'Majir Spymaster Camp" type="Marker3D" parent="Markers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -436, 0, 413)
+
+[node name="Bleached Forest" type="Marker3D" parent="Markers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18, 0, 327)
+
+[node name="Ritual Circle East" type="Marker3D" parent="Markers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 151, 0, 233)
+
+[node name="Ritual Circle West" type="Marker3D" parent="Markers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -115, 0, 360)
+
+[node name="Djhanid Encampment" type="Marker3D" parent="Markers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 353, 0, 327)
+
+[node name="Twilight Moors Road" type="Marker3D" parent="Markers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 480)
+
+[node name="To Dustwind Plateaus" type="Area3D" parent="ZoneLines"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -5, -505)
+script = ExtResource("3_zone_line")
+target_zone = "dustwind_plateaus"
+target_marker = "ashfall_dunes_zone"
+size = Vector3(1040, 60, 8)

@@ -1,5 +1,5 @@
 {
-  "_comment": "monsters.json - THE source of truth for every monster (stats, levels, looks, special attacks); tune here. Levels: each spawn rolls a level from level_min..level_max (spawn files don't set levels); health and damage are for 'level' and scale by Data/combat_balance.json monster_hp_per_level / monster_damage_per_level for each level above or below it. Fields: description (shown name), level / level_min / level_max, health, damage, armor_class, speed, xp_gain, coin_modifier, category (animal/insect/reptile/humanoid/undead/elemental: category loot table, undead never flee), faction (monsters of one faction help each other; 'None' = on their own), behavior_type (aggressive / skitter / neutral = aggro at half range / passive = stays put, aggro at a third; aggro_range 0 = only fights back), is_social (calls nearby allies), aggro_range, flees (false = fights to the death), is_boss, zone (where it lives), special_ability (appraisal text), resistances / weaknesses, attack_verbs, death_text, secret_note, language. on_hit_effect {name, chance, tick_damage, tick_interval, duration, modifiers, message}: an ailment a landed hit may leave (names: weak_poison, strong_poison, weakening_venom, disease, grave_miasma, withering_touch, bleeding, sundered_armor, crippled, blinded, dazed; modifiers such as speed_slow, hit_chance, damage_mult, armor_bonus). Looks: a monster with its own model is listed in monster3d.gd; any other borrows one with model_from (+ model_scale, tint [r,g,b]). loot_from: use that monster's loot table (Data/solgrave_expanse_loot.json) until it has its own. Where they spawn: Data/<zone>_spawns.json.",
+  "_comment": "monsters.json - THE source of truth for every monster (stats, levels, looks, special attacks); tune here. Levels: each spawn rolls a level from level_min..level_max (spawn files don't set levels); health and damage are for 'level' and scale by Data/combat_balance.json monster_hp_per_level / monster_damage_per_level for each level above or below it. Fields: description (shown name), level / level_min / level_max, health, damage, armor_class, speed, xp_gain, coin_modifier, category (animal/insect/reptile/humanoid/undead/elemental: category loot table, undead never flee), faction (monsters of one faction help each other; 'None' = on their own), behavior_type (aggressive / skitter / neutral = aggro at half range / passive = stays put, aggro at a third; aggro_range 0 = only fights back), is_social (calls nearby allies), aggro_range, flees (false = fights to the death), is_boss, zone (where it lives), special_ability (appraisal text), resistances / weaknesses, attack_verbs, death_text, secret_note, language. on_hit_effect {name, chance, tick_damage, tick_interval, duration, modifiers, message}: an ailment a landed hit may leave (names: weak_poison, strong_poison, weakening_venom, disease, grave_miasma, withering_touch, bleeding, sundered_armor, crippled, blinded, dazed; modifiers such as speed_slow, hit_chance, damage_mult, armor_bonus). Looks: a monster with its own model is listed in monster3d.gd; any other borrows one with model_from (+ model_scale, tint [r,g,b]). kill_standing {\"Djhanid Clans\": -15}: standing changes for whoever gets the kill (factions.json thresholds: at or below hostile_threshold that faction's monsters attack you on sight; at or above friendly_threshold they're allies). wary: true = never attacks first unless your standing makes that faction hate you (the Djhanid). abilities [...]: what a monster casts or does in a fight (see monster3d.gd Abilities section: nuke, debuff, aoe, heal, summon, enrage). summoned_only: only ever called by another monster (no spawn point). loot_from: use that monster's loot table (Data/solgrave_expanse_loot.json) until it has its own. Where they spawn: Data/<zone>_spawns.json.",
   "slime": {
     "description": "an acidic slime",
     "speed": 30.0,
@@ -164,24 +164,29 @@
     "model_scale": 1.0,
     "tint": [0.9, 0.78, 0.55],
     "speed": 34.0,
-    "health": 90,
-    "damage": 10,
+    "health": 150,
+    "damage": 16,
     "behavior_type": "aggressive",
     "category": "humanoid",
     "faction": "Dustwalker",
     "coin_modifier": 0.35,
-    "xp_gain": 18,
-    "zone": "ashfall_dunes",
-    "armor_class": 13,
+    "xp_gain": 50,
+    "zone": "dustwind_plateaus",
+    "armor_class": 15,
     "is_social": true,
-    "level": 2,
+    "level": 5,
+    "level_min": 5,
+    "level_max": 6,
     "aggro_range": 150.0,
     "animations": {
       "idle": "dustwalker_idle",
       "walk": "dustwalker_walk",
       "attack": "dustwalker_attack"
     },
-    "death_text": ""
+    "death_text": "",
+    "kill_standing": {
+      "Djhanid Clans": 2
+    }
   },
   "dustwalker_scout": {
     "description": "a Dustwalker scout",
@@ -209,7 +214,10 @@
     "death_text": "",
     "level_min": 5,
     "level_max": 7,
-    "attack_verbs": ["slashes", "stabs"]
+    "attack_verbs": ["slashes", "stabs"],
+    "kill_standing": {
+      "Djhanid Clans": 2
+    }
   },
   "dustwalker_ravager": {
     "description": "a Dustwalker ravager",
@@ -239,9 +247,17 @@
     "level_max": 7,
     "special_ability": "Armor Weakening Attacks",
     "attack_verbs": ["hacks", "cleaves"],
-    "on_hit_effect": {"name": "sundered_armor", "chance": 0.25, "duration": 30, "modifiers": {"armor_bonus": -4}, "message": "%s's blow batters your armour loose!"}
+    "on_hit_effect": {"name": "sundered_armor", "chance": 0.25, "duration": 30, "modifiers": {"armor_bonus": -4}, "message": "%s's blow batters your armour loose!"},
+    "kill_standing": {
+      "Djhanid Clans": 2
+    }
   },
   "dustwalker_warlord": {
+    "abilities": [
+      {"name": "Sundering Blow", "type": "debuff", "cast": 0, "cooldown": 18, "first": 5, "range": 4, "damage": 25, "effect": {"name": "sundered_armor", "duration": 20, "modifiers": {"armor_bonus": -6}}, "message": "%s's axe bites through your armour!"},
+      {"name": "Raiders to Me", "type": "summon", "summon": "dustwalker", "count": 2, "hp_below": 0.5, "once": true, "message": "%s bellows: \"Dustwalkers, to me!\""},
+      {"name": "War Frenzy", "type": "enrage", "hp_below": 0.25, "once": true, "enrage": {"damage_mult": 0.5, "attack_speed": 0.3}, "message": "%s goes into a killing frenzy!"}
+    ],
     "description": "a Dustwalker warlord",
     "model_from": "bandit",
     "model_scale": 1.3,
@@ -269,9 +285,12 @@
     "level_max": 9,
     "is_boss": true,
     "flees": false,
-    "special_ability": "Casts Blademaster spells (monsters don't cast yet)",
+    "special_ability": "Sundering Blow (armour); calls raiders; war frenzy at low health.",
     "attack_verbs": ["cleaves", "slashes"],
-    "on_hit_effect": {"name": "bleeding", "chance": 0.2, "tick_damage": 8, "tick_interval": 4, "duration": 20, "message": "%s's blade opens a deep wound!"}
+    "on_hit_effect": {"name": "bleeding", "chance": 0.2, "tick_damage": 8, "tick_interval": 4, "duration": 20, "message": "%s's blade opens a deep wound!"},
+    "kill_standing": {
+      "Djhanid Clans": 2
+    }
   },
   "wild_dog": {
     "description": "a feral desert hound",
@@ -327,29 +346,29 @@
     "death_text": ""
   },
   "khepri_beetle": {
-    "description": "a large aggressive beetle",
+    "description": "a khepri beetle",
     "model_from": "dune_scarab",
-    "model_scale": 1.6,
-    "tint": [0.55, 0.85, 0.75],
-    "speed": 36.0,
-    "health": 120,
-    "damage": 15,
+    "model_scale": 2.4,
+    "tint": [0.55, 0.75, 0.65],
+    "speed": 28.0,
+    "health": 220,
+    "damage": 23,
     "behavior_type": "aggressive",
     "category": "insect",
     "faction": "None",
-    "coin_modifier": 0.28,
-    "xp_gain": 36,
+    "coin_modifier": 0.3,
+    "xp_gain": 86,
     "zone": "ashfall_dunes",
-    "armor_class": 14,
-    "is_social": true,
-    "level": 3,
-    "aggro_range": 150.0,
-    "animations": {
-      "idle": "khepri_beetle_idle",
-      "walk": "khepri_beetle_walk",
-      "attack": "khepri_beetle_attack"
-    },
-    "death_text": ""
+    "armor_class": 17,
+    "is_social": false,
+    "level": 8,
+    "level_min": 8,
+    "level_max": 10,
+    "aggro_range": 120.0,
+    "loot_from": "khepri_beetle",
+    "special_ability": "Crushing mandibles that daze.",
+    "on_hit_effect": {"name": "dazed", "chance": 0.15, "duration": 2, "modifiers": {"speed_slow": 0.8}, "message": "%s's mandibles slam you off your feet!"},
+    "attack_verbs": ["crushes", "bites"]
   },
   "sand_stinger": {
     "description": "a scorched sandstinger",
@@ -407,31 +426,34 @@
     "death_text": ""
   },
   "sandshifter": {
-    "description": "a shifting sand elemental",
+    "description": "a sandshifter",
     "model_from": "slime",
-    "model_scale": 1.6,
-    "tint": [0.95, 0.85, 0.55],
+    "model_scale": 2.0,
+    "tint": [0.95, 0.8, 0.5],
     "speed": 40.0,
-    "health": 110,
-    "damage": 12,
+    "health": 250,
+    "damage": 25,
     "behavior_type": "aggressive",
     "category": "elemental",
     "faction": "None",
-    "coin_modifier": 0.25,
-    "xp_gain": 30,
+    "coin_modifier": 0.3,
+    "xp_gain": 98,
     "zone": "ashfall_dunes",
-    "armor_class": 14,
+    "armor_class": 17,
     "is_social": false,
-    "level": 3,
-    "aggro_range": 150.0,
-    "animations": {
-      "idle": "sandshifter_idle",
-      "walk": "sandshifter_walk",
-      "attack": "sandshifter_attack"
-    },
-    "death_text": ""
+    "level": 9,
+    "level_min": 9,
+    "level_max": 11,
+    "aggro_range": 120.0,
+    "loot_from": "sandshifter",
+    "resistances": ["physical"],
+    "special_ability": "Half sand, half crystal: blades bite less (resists physical). Scours you with sand.",
+    "abilities": [
+      {"name": "Scouring Sand", "type": "debuff", "cast": 0, "cooldown": 20, "first": 4, "range": 6, "damage": 14, "effect": {"name": "blinded", "duration": 10, "modifiers": {"hit_chance": -20}}, "message": "%s blasts sand into your eyes!"}
+    ],
+    "attack_verbs": ["scours", "lashes"]
   },
-  "mirage_phantom": {
+  "desert_ghost": {
     "description": "a shimmering desert ghost",
     "model_from": "ghost",
     "model_scale": 1.05,
@@ -444,15 +466,15 @@
     "faction": "None",
     "coin_modifier": 0.45,
     "xp_gain": 39,
-    "zone": "ashfall_dunes",
+    "zone": "lumora_outskirts",
     "armor_class": 13,
     "is_social": false,
     "level": 3,
     "aggro_range": 150.0,
     "animations": {
-      "idle": "mirage_phantom_idle",
-      "walk": "mirage_phantom_walk",
-      "attack": "mirage_phantom_attack"
+      "idle": "desert_ghost_idle",
+      "walk": "desert_ghost_walk",
+      "attack": "desert_ghost_attack"
     },
     "death_text": "",
     "on_hit_effect": {"name": "disease", "chance": 0.25, "tick_damage": 5, "tick_interval": 6, "duration": 90, "message": "%s's rotting touch sickens you!"}
@@ -483,29 +505,30 @@
     "death_text": ""
   },
   "bonegnawer": {
-    "description": "a savage scavenger gnoll",
-    "model_from": "bandit",
-    "model_scale": 1.05,
+    "description": "a Bonegnawer",
+    "model_from": "goblin_warrior",
+    "model_scale": 1.35,
     "tint": [0.75, 0.6, 0.45],
-    "speed": 38.0,
-    "health": 90,
-    "damage": 8,
+    "speed": 34.0,
+    "health": 190,
+    "damage": 20,
     "behavior_type": "aggressive",
     "category": "humanoid",
-    "faction": "None",
-    "coin_modifier": 0.24,
-    "xp_gain": 22,
+    "faction": "Bonegnawer",
+    "coin_modifier": 0.3,
+    "xp_gain": 74,
     "zone": "ashfall_dunes",
-    "armor_class": 13,
+    "armor_class": 16,
     "is_social": true,
-    "level": 2,
-    "aggro_range": 150.0,
-    "animations": {
-      "idle": "bonegnawer_idle",
-      "walk": "bonegnawer_walk",
-      "attack": "bonegnawer_attack"
-    },
-    "death_text": ""
+    "level": 7,
+    "level_min": 7,
+    "level_max": 9,
+    "aggro_range": 120.0,
+    "loot_from": "bonegnawer",
+    "special_ability": "Poisoned bone blades.",
+    "on_hit_effect": {"name": "weak_poison", "chance": 0.2, "tick_damage": 6, "tick_interval": 6, "duration": 45, "message": "%s's bone blade poisons you!"},
+    "attack_verbs": ["slashes", "bites"],
+    "secret_note": "Gnolls of the Bonegnawer clan, driven out of the Kragthar warrens by something worse below."
   },
   "sunmaddened_wanderer": {
     "description": "a sun maddened wanderer",
@@ -530,7 +553,10 @@
       "attack": "sunmaddened_wanderer_attack"
     },
     "death_text": "",
-    "special_ability": "Casts Arcanist spells (monsters don't cast yet)"
+    "special_ability": "Casts Arcanist spells (monsters don't cast yet)",
+    "kill_standing": {
+      "Djhanid Clans": 1
+    }
   },
   "mummy": {
     "description": "a reanimated sand mummy",
@@ -745,6 +771,11 @@
     "death_text": ""
   },
   "dessik_coinhand": {
+    "special_ability": "Dirty tricks: coins in your eyes (blind); whistles for a bandit when hurt.",
+    "abilities": [
+      {"name": "Dirty Trick", "type": "debuff", "cast": 0, "cooldown": 18, "first": 6, "range": 4, "effect": {"name": "blinded", "duration": 12, "modifiers": {"hit_chance": -20}}, "message": "%s flings a fistful of coins in your eyes!"},
+      {"name": "Call the Crew", "type": "summon", "summon": "bandit", "count": 1, "hp_below": 0.5, "once": true, "message": "%s whistles for his crew!"}
+    ],
     "description": "Dessik Coinhand",
     "speed": 34.0,
     "health": 260,
@@ -774,6 +805,11 @@
     "is_boss": true
   },
   "rask_ironjaw": {
+    "special_ability": "Skull Crack (dazes); flies into a rage when badly hurt.",
+    "abilities": [
+      {"name": "Skull Crack", "type": "debuff", "cast": 0, "cooldown": 20, "first": 8, "range": 4, "damage": 20, "effect": {"name": "dazed", "duration": 3, "modifiers": {"speed_slow": 0.8}}, "message": "%s smashes his forehead into yours!"},
+      {"name": "Iron Rage", "type": "enrage", "hp_below": 0.3, "once": true, "enrage": {"damage_mult": 0.4, "attack_speed": 0.25}, "message": "%s spits out a tooth and roars!"}
+    ],
     "description": "Rask Ironjaw",
     "speed": 34.0,
     "health": 340,
@@ -803,6 +839,12 @@
     "is_boss": true
   },
   "grukka_bonechewer": {
+    "special_ability": "Casts Bone Shard; gnaws a bone to heal (stun it!); calls goblins when losing.",
+    "abilities": [
+      {"name": "Bone Shard", "type": "nuke", "cast": 2.5, "cooldown": 16, "first": 5, "range": 20, "damage": 30, "school": "magic", "message": "A shard of bone from %s tears into you!"},
+      {"name": "Marrow Feast", "type": "heal", "cast": 3, "cooldown": 30, "hp_below": 0.5, "heal": 0.15, "message": "%s gnaws a bone and its wounds knit shut!"},
+      {"name": "Goblin Horn", "type": "summon", "summon": "goblin_warrior", "count": 2, "hp_below": 0.35, "once": true, "message": "%s blows a cracked horn: goblins come running!"}
+    ],
     "description": "Grukka Bonechewer",
     "speed": 28.0,
     "health": 380,
@@ -832,6 +874,10 @@
     "is_boss": true
   },
   "sergeant_halvek": {
+    "abilities": [
+      {"name": "Grave Command", "type": "debuff", "cast": 2, "cooldown": 25, "first": 7, "range": 15, "school": "spirit", "effect": {"name": "terrified", "duration": 15, "modifiers": {"hit_chance": -15}}, "message": "%s's hollow voice orders you to kneel, and your hands shake!"},
+      {"name": "Rally the Fallen", "type": "summon", "summon": "skeleton", "count": 1, "hp_below": 0.6, "once": true, "message": "%s bellows a muster call and the dead answer!"}
+    ],
     "description": "Sergeant Halvek",
     "speed": 26.0,
     "health": 300,
@@ -858,7 +904,7 @@
       "blunt",
       "fire"
     ],
-    "special_ability": "",
+    "special_ability": "Grave Command (terrifies); raises a dead soldier.",
     "is_boss": true,
     "secret_note": "A Warden who died holding this road and never stopped holding it. Whatever kept him standing is not rest.",
     "corruption": "",
@@ -871,6 +917,11 @@
     "on_hit_effect": {"name": "disease", "chance": 0.25, "tick_damage": 5, "tick_interval": 6, "duration": 90, "message": "%s's rotting touch sickens you!"}
   },
   "weavemother_vhessa": {
+    "abilities": [
+      {"name": "Ensnaring Web", "type": "debuff", "cast": 0, "cooldown": 20, "first": 4, "range": 15, "effect": {"name": "ensnared", "duration": 8, "modifiers": {"speed_slow": 0.7}}, "message": "%s spits a web over you!"},
+      {"name": "Poison Bite", "type": "nuke", "cast": 0, "cooldown": 14, "first": 9, "range": 4, "damage": 18, "school": "poison", "effect": {"name": "strong_poison", "duration": 30, "tick_damage": 8, "tick_interval": 6}, "message": "%s sinks her fangs in deep!"},
+      {"name": "The Den Stirs", "type": "summon", "summon": "broodling", "count": 2, "hp_below": 0.5, "once": true, "message": "%s shrieks: broodlings pour from the silk!"}
+    ],
     "description": "Weavemother Vhessa",
     "speed": 30.0,
     "health": 480,
@@ -885,7 +936,7 @@
     "is_social": false,
     "level": 7,
     "aggro_range": 100.0,
-    "special_ability": "Poison Bite, Ensnaring Web",
+    "special_ability": "Ensnaring Web (root); Poison Bite; broodlings pour out when she's hurt.",
     "animations": {
       "idle": "spider_idle",
       "walk": "spider_walk",
@@ -992,7 +1043,10 @@
     "death_text": "",
     "special_ability": "Traps, Poison Attacks",
     "on_hit_effect": {"name": "weak_poison", "chance": 0.3, "tick_damage": 5, "tick_interval": 6, "duration": 60, "message": "%s's blade was poisoned!"},
-    "attack_verbs": ["stabs", "slashes"]
+    "attack_verbs": ["stabs", "slashes"],
+    "kill_standing": {
+      "Djhanid Clans": 2
+    }
   },
   "gravedigger_skeleton": {
     "description": "a gravedigger skeleton",
@@ -1059,7 +1113,10 @@
     "flees": false,
     "special_ability": "Stuns",
     "on_hit_effect": {"name": "dazed", "chance": 0.15, "duration": 3, "modifiers": {"speed_slow": 0.8}, "message": "%s's wild blow leaves you reeling!"},
-    "attack_verbs": ["batters", "flails at"]
+    "attack_verbs": ["batters", "flails at"],
+    "kill_standing": {
+      "Djhanid Clans": 1
+    }
   },
   "djhanid_nomad": {
     "description": "a Djhanid nomad",
@@ -1089,7 +1146,11 @@
     "special_ability": "Blinding Spells",
     "language": "djhanid",
     "on_hit_effect": {"name": "blinded", "chance": 0.15, "duration": 8, "modifiers": {"hit_chance": -20}, "message": "%s flings sand into your eyes!"},
-    "attack_verbs": ["slashes", "stabs"]
+    "attack_verbs": ["slashes", "stabs"],
+    "wary": true,
+    "kill_standing": {
+      "Djhanid Clans": -15
+    }
   },
   "restless_corpse": {
     "description": "a restless corpse",
@@ -1148,7 +1209,11 @@
     "death_text": "",
     "special_ability": "Casts Spiritwalker spells (monsters don't cast yet)",
     "language": "djhanid",
-    "attack_verbs": ["slashes", "stabs"]
+    "attack_verbs": ["slashes", "stabs"],
+    "wary": true,
+    "kill_standing": {
+      "Djhanid Clans": -15
+    }
   },
   "sand_stinger_elite": {
     "description": "a sand stinger elite",
@@ -1183,6 +1248,10 @@
     "attack_verbs": ["stings", "pinches"]
   },
   "spider_broodmother": {
+    "abilities": [
+      {"name": "Web Spray", "type": "debuff", "cast": 0, "cooldown": 22, "first": 6, "range": 12, "effect": {"name": "ensnared", "duration": 6, "modifiers": {"speed_slow": 0.6}}, "message": "%s sprays you with sticky webbing!"},
+      {"name": "Brood Call", "type": "summon", "summon": "broodling", "count": 2, "cooldown": 45, "first": 12, "message": "%s calls her brood!"}
+    ],
     "description": "a spider broodmother",
     "model_from": "spider",
     "model_scale": 2.2,
@@ -1211,8 +1280,33 @@
     "death_text": "",
     "is_boss": true,
     "flees": false,
-    "special_ability": "Strong Poison, Snaring Attack (summoning spiderlings not built yet)",
+    "special_ability": "Strong poison; webs; keeps calling broodlings.",
     "on_hit_effect": {"name": "strong_poison", "chance": 0.3, "tick_damage": 10, "tick_interval": 6, "duration": 60, "message": "%s's fangs flood you with venom!"},
+    "attack_verbs": ["bites"]
+  },
+  "broodling": {
+    "description": "a broodling",
+    "model_from": "spider",
+    "model_scale": 0.8,
+    "tint": [0.7, 0.62, 0.5],
+    "loot_from": "spider",
+    "speed": 34.0,
+    "health": 90,
+    "damage": 9,
+    "behavior_type": "aggressive",
+    "category": "insect",
+    "faction": "None",
+    "coin_modifier": 0.0,
+    "xp_gain": 12,
+    "zone": "dustwind_plateaus",
+    "armor_class": 10,
+    "is_social": true,
+    "level": 4,
+    "level_min": 4,
+    "level_max": 5,
+    "aggro_range": 120.0,
+    "summoned_only": true,
+    "special_ability": "Called by broodmothers (Weavemother Vhessa, the spider broodmother); never spawns on its own.",
     "attack_verbs": ["bites"]
   },
   "wraith": {
@@ -1284,6 +1378,11 @@
     "attack_verbs": ["strikes"]
   },
   "tomb_guardian": {
+    "abilities": [
+      {"name": "Void Bolt", "type": "nuke", "cast": 2.5, "cooldown": 15, "first": 4, "range": 25, "damage": 45, "school": "magic", "message": "%s's Void Bolt slams into you!"},
+      {"name": "Silence of the Tomb", "type": "debuff", "cast": 2, "cooldown": 30, "first": 12, "range": 20, "school": "spirit", "effect": {"name": "silenced", "duration": 8, "modifiers": {"silenced": 1.0}}, "message": "The tomb's silence closes your throat!"},
+      {"name": "Phantom Blades", "type": "aoe", "cast": 0, "cooldown": 22, "first": 10, "radius": 6, "damage": 25, "say": "%s's phantom weapons whirl around it!", "message": "A phantom blade cuts you!"}
+    ],
     "description": "a tomb guardian",
     "model_from": "ghost",
     "model_scale": 1.3,
@@ -1311,11 +1410,17 @@
     },
     "death_text": "",
     "is_boss": true,
-    "special_ability": "Casts Voidknight spells (monsters don't cast yet); phantom weapons",
+    "special_ability": "Casts Void Bolt and Silence of the Tomb (interrupt them); phantom blades strike everyone near.",
     "on_hit_effect": {"name": "sundered_armor", "chance": 0.25, "duration": 30, "modifiers": {"armor_bonus": -4}, "message": "%s's phantom blade passes through your armour!"},
     "attack_verbs": ["slashes", "cuts"]
   },
   "grave_abomination": {
+    "special_ability": "Miasma Belch (disease, everyone near); feeds on corpses to heal (interrupt it!); frenzies near death.",
+    "abilities": [
+      {"name": "Miasma Belch", "type": "aoe", "cast": 2, "cooldown": 20, "first": 6, "radius": 8, "damage": 20, "school": "disease", "effect": {"name": "grave_miasma", "duration": 30, "tick_damage": 6, "tick_interval": 6, "modifiers": {"damage_mult": -0.1}}, "say": "%s heaves out a cloud of grave-rot!", "message": "The miasma chokes you!"},
+      {"name": "Corpse Feast", "type": "heal", "cast": 3, "cooldown": 40, "hp_below": 0.4, "heal": 0.2, "message": "%s tears at the dead stitched into it and grows whole!"},
+      {"name": "Death Throes", "type": "enrage", "hp_below": 0.2, "once": true, "enrage": {"damage_mult": 0.4, "attack_speed": 0.2}, "message": "%s thrashes wildly!"}
+    ],
     "description": "a grave abomination",
     "model_from": "mummy",
     "model_scale": 1.5,
@@ -1345,5 +1450,559 @@
     "is_boss": true,
     "on_hit_effect": {"name": "dazed", "chance": 0.2, "duration": 3, "modifiers": {"speed_slow": 0.8}, "message": "%s's crushing blow staggers you!"},
     "attack_verbs": ["crushes", "slams"]
+  },
+  "bonegnawer_hunter": {
+    "description": "a Bonegnawer hunter",
+    "model_from": "goblin_scout",
+    "model_scale": 1.3,
+    "tint": [0.7, 0.58, 0.42],
+    "speed": 42.0,
+    "health": 220,
+    "damage": 23,
+    "behavior_type": "aggressive",
+    "category": "humanoid",
+    "faction": "Bonegnawer",
+    "coin_modifier": 0.3,
+    "xp_gain": 86,
+    "zone": "ashfall_dunes",
+    "armor_class": 17,
+    "is_social": true,
+    "level": 8,
+    "level_min": 8,
+    "level_max": 10,
+    "aggro_range": 120.0,
+    "loot_from": "bonegnawer",
+    "special_ability": "Throws a bola that hobbles you (snare).",
+    "abilities": [
+      {"name": "Hobbling Bola", "type": "debuff", "cast": 0, "cooldown": 25, "first": 3, "range": 15, "effect": {"name": "ensnared", "duration": 6, "modifiers": {"speed_slow": 0.5}}, "message": "%s's bola wraps around your legs!"}
+    ],
+    "attack_verbs": ["stabs", "bites"]
+  },
+  "bonegnawer_shaman": {
+    "description": "a Bonegnawer shaman",
+    "model_from": "goblin",
+    "model_scale": 1.3,
+    "tint": [0.6, 0.5, 0.7],
+    "speed": 34.0,
+    "health": 250,
+    "damage": 25,
+    "behavior_type": "aggressive",
+    "category": "humanoid",
+    "faction": "Bonegnawer",
+    "coin_modifier": 0.3,
+    "xp_gain": 98,
+    "zone": "ashfall_dunes",
+    "armor_class": 17,
+    "is_social": true,
+    "level": 9,
+    "level_min": 9,
+    "level_max": 11,
+    "aggro_range": 120.0,
+    "loot_from": "bonegnawer",
+    "special_ability": "Casts Rot Hex (poison) and Sluggish Blood (slow); mends its wounds.",
+    "abilities": [
+      {"name": "Rot Hex", "type": "nuke", "cast": 2, "cooldown": 14, "first": 3, "range": 20, "damage": 22, "school": "poison", "effect": {"name": "weak_poison", "duration": 30, "tick_damage": 6, "tick_interval": 6}, "message": "%s's Rot Hex sickens you!"},
+      {"name": "Sluggish Blood", "type": "debuff", "cast": 2, "cooldown": 30, "first": 8, "range": 20, "school": "magic", "effect": {"name": "chilled", "duration": 20, "modifiers": {"attack_speed_slow": 0.25, "speed_slow": 0.2}}, "message": "Your blood runs thick and slow!"},
+      {"name": "Gnaw Mend", "type": "heal", "cast": 2.5, "cooldown": 25, "hp_below": 0.5, "heal": 0.2, "message": "%s chews a root and its wounds close!"}
+    ],
+    "attack_verbs": ["strikes"]
+  },
+  "mirage_phantom": {
+    "description": "a mirage phantom",
+    "model_from": "ghost",
+    "model_scale": 1.1,
+    "tint": [0.85, 0.8, 0.6],
+    "speed": 48.0,
+    "health": 250,
+    "damage": 25,
+    "behavior_type": "aggressive",
+    "category": "undead",
+    "faction": "None",
+    "coin_modifier": 0.3,
+    "xp_gain": 98,
+    "zone": "ashfall_dunes",
+    "armor_class": 17,
+    "is_social": false,
+    "level": 9,
+    "level_min": 9,
+    "level_max": 11,
+    "aggro_range": 120.0,
+    "loot_from": "desert_ghost",
+    "special_ability": "Casts Dread Mirage (terrifies); hard to pin down.",
+    "abilities": [
+      {"name": "Dread Mirage", "type": "debuff", "cast": 1.5, "cooldown": 25, "first": 4, "range": 20, "school": "spirit", "effect": {"name": "terrified", "duration": 12, "modifiers": {"hit_chance": -15}}, "message": "Your worst memory rises from %s's shimmer!"}
+    ],
+    "attack_verbs": ["claws", "touches"]
+  },
+  "tomb_skeleton": {
+    "description": "a tomb skeleton",
+    "model_from": "skeleton",
+    "model_scale": 1.1,
+    "tint": [0.85, 0.8, 0.7],
+    "speed": 34.0,
+    "health": 220,
+    "damage": 23,
+    "behavior_type": "aggressive",
+    "category": "undead",
+    "faction": "None",
+    "coin_modifier": 0.3,
+    "xp_gain": 86,
+    "zone": "ashfall_dunes",
+    "armor_class": 17,
+    "is_social": true,
+    "level": 8,
+    "level_min": 8,
+    "level_max": 10,
+    "aggro_range": 120.0,
+    "loot_from": "skeleton",
+    "resistances": ["piercing"],
+    "special_ability": "Old soldiers of the mass grave: they fight in ranks.",
+    "attack_verbs": ["slashes", "bashes"]
+  },
+  "wight": {
+    "description": "a wight",
+    "model_from": "mummy",
+    "model_scale": 1.05,
+    "tint": [0.45, 0.45, 0.6],
+    "speed": 40.0,
+    "health": 280,
+    "damage": 28,
+    "behavior_type": "aggressive",
+    "category": "undead",
+    "faction": "None",
+    "coin_modifier": 0.3,
+    "xp_gain": 110,
+    "zone": "ashfall_dunes",
+    "armor_class": 18,
+    "is_social": false,
+    "level": 10,
+    "level_min": 10,
+    "level_max": 12,
+    "aggro_range": 120.0,
+    "loot_from": "mummy",
+    "special_ability": "Casts Life Tap and Grave Chill (slows).",
+    "abilities": [
+      {"name": "Life Tap", "type": "nuke", "cast": 2, "cooldown": 15, "first": 4, "range": 15, "damage": 26, "school": "spirit", "message": "%s drinks the life from you!"},
+      {"name": "Grave Chill", "type": "debuff", "cast": 0, "cooldown": 25, "first": 9, "range": 5, "effect": {"name": "chilled", "duration": 18, "tick_damage": 5, "tick_interval": 6, "modifiers": {"speed_slow": 0.3, "attack_speed_slow": 0.15}}, "message": "%s's touch chills you to the bone!"}
+    ],
+    "attack_verbs": ["claws", "touches"]
+  },
+  "takmajir_scout": {
+    "description": "a Tak'Majir scout",
+    "model_from": "sunmaddened_wanderer",
+    "model_scale": 1.0,
+    "tint": [0.45, 0.42, 0.6],
+    "speed": 44.0,
+    "health": 250,
+    "damage": 25,
+    "behavior_type": "aggressive",
+    "category": "humanoid",
+    "faction": "TakMajir",
+    "coin_modifier": 0.3,
+    "xp_gain": 98,
+    "zone": "ashfall_dunes",
+    "armor_class": 17,
+    "is_social": true,
+    "level": 9,
+    "level_min": 9,
+    "level_max": 11,
+    "aggro_range": 120.0,
+    "loot_from": "dustwalker_scout",
+    "special_ability": "Drow spies from Xul-Dura: quick blades.",
+    "kill_standing": {"Djhanid Clans": 2},
+    "attack_verbs": ["slashes", "stabs"]
+  },
+  "takmajir_assassin": {
+    "description": "a Tak'Majir assassin",
+    "model_from": "sunmaddened_wanderer",
+    "model_scale": 1.0,
+    "tint": [0.3, 0.28, 0.45],
+    "speed": 46.0,
+    "health": 280,
+    "damage": 28,
+    "behavior_type": "aggressive",
+    "category": "humanoid",
+    "faction": "TakMajir",
+    "coin_modifier": 0.3,
+    "xp_gain": 110,
+    "zone": "ashfall_dunes",
+    "armor_class": 18,
+    "is_social": true,
+    "level": 10,
+    "level_min": 10,
+    "level_max": 12,
+    "aggro_range": 120.0,
+    "loot_from": "dustwalker_scout",
+    "special_ability": "Poisoned daggers.",
+    "kill_standing": {"Djhanid Clans": 2},
+    "on_hit_effect": {"name": "weakening_venom", "chance": 0.25, "tick_damage": 6, "tick_interval": 6, "duration": 40, "modifiers": {"damage_mult": -0.15}, "message": "%s's dagger was poisoned!"},
+    "attack_verbs": ["stabs", "slices"]
+  },
+  "takmajir_ritualist": {
+    "description": "a Tak'Majir ritualist",
+    "model_from": "sunmaddened_wanderer",
+    "model_scale": 1.0,
+    "tint": [0.5, 0.35, 0.65],
+    "speed": 34.0,
+    "health": 280,
+    "damage": 28,
+    "behavior_type": "aggressive",
+    "category": "humanoid",
+    "faction": "TakMajir",
+    "coin_modifier": 0.3,
+    "xp_gain": 110,
+    "zone": "ashfall_dunes",
+    "armor_class": 18,
+    "is_social": true,
+    "level": 10,
+    "level_min": 10,
+    "level_max": 12,
+    "aggro_range": 120.0,
+    "loot_from": "dustwalker_scout",
+    "special_ability": "Casts Shadow Lance and Veil of Doubt (curse).",
+    "kill_standing": {"Djhanid Clans": 2},
+    "abilities": [
+      {"name": "Shadow Lance", "type": "nuke", "cast": 2.5, "cooldown": 14, "first": 3, "range": 25, "damage": 30, "school": "magic", "message": "%s's Shadow Lance pierces you!"},
+      {"name": "Veil of Doubt", "type": "debuff", "cast": 2, "cooldown": 30, "first": 9, "range": 20, "school": "psychic", "effect": {"name": "cursed", "duration": 20, "modifiers": {"hit_chance": -15, "damage_mult": -0.1}}, "message": "Doubt clouds your mind!"}
+    ],
+    "attack_verbs": ["strikes"]
+  },
+  "dustwalker_defiler": {
+    "description": "a Dustwalker defiler",
+    "model_from": "bandit",
+    "model_scale": 1.0,
+    "tint": [0.55, 0.45, 0.55],
+    "speed": 34.0,
+    "health": 250,
+    "damage": 25,
+    "behavior_type": "aggressive",
+    "category": "humanoid",
+    "faction": "Dustwalker",
+    "coin_modifier": 0.3,
+    "xp_gain": 98,
+    "zone": "ashfall_dunes",
+    "armor_class": 17,
+    "is_social": true,
+    "level": 9,
+    "level_min": 9,
+    "level_max": 11,
+    "aggro_range": 120.0,
+    "loot_from": "dustwalker_ravager",
+    "special_ability": "Chaos-touched caster: Drain Life, and raises a skeleton.",
+    "kill_standing": {"Djhanid Clans": 2},
+    "abilities": [
+      {"name": "Drain Life", "type": "nuke", "cast": 2, "cooldown": 15, "first": 3, "range": 20, "damage": 24, "school": "disease", "message": "%s's Drain Life rots your flesh!"},
+      {"name": "Raise Thrall", "type": "summon", "summon": "tomb_skeleton", "count": 1, "cooldown": 90, "first": 6, "once": true, "message": "%s drags a skeleton up out of the sand!"}
+    ],
+    "attack_verbs": ["strikes"]
+  },
+  "djhanid_guardian": {
+    "description": "a Djhanid guardian",
+    "model_from": "bandit",
+    "model_scale": 1.05,
+    "tint": [0.6, 0.7, 0.95],
+    "speed": 34.0,
+    "health": 280,
+    "damage": 28,
+    "behavior_type": "passive",
+    "category": "humanoid",
+    "faction": "Djhanid",
+    "coin_modifier": 0.3,
+    "xp_gain": 110,
+    "zone": "ashfall_dunes",
+    "armor_class": 18,
+    "is_social": true,
+    "level": 10,
+    "level_min": 10,
+    "level_max": 12,
+    "aggro_range": 0.0,
+    "loot_from": "dustwalker_ravager",
+    "wary": true,
+    "language": "djhanid",
+    "special_ability": "Honour-bound spear of the clans; wary of strangers.",
+    "kill_standing": {"Djhanid Clans": -15},
+    "attack_verbs": ["thrusts", "slashes"]
+  },
+  "djhanid_tracker": {
+    "description": "a Djhanid tracker",
+    "model_from": "bandit",
+    "model_scale": 1.0,
+    "tint": [0.65, 0.75, 0.9],
+    "speed": 46.0,
+    "health": 280,
+    "damage": 28,
+    "behavior_type": "passive",
+    "category": "humanoid",
+    "faction": "Djhanid",
+    "coin_modifier": 0.3,
+    "xp_gain": 110,
+    "zone": "ashfall_dunes",
+    "armor_class": 18,
+    "is_social": true,
+    "level": 10,
+    "level_min": 10,
+    "level_max": 12,
+    "aggro_range": 0.0,
+    "loot_from": "dustwalker_ravager",
+    "wary": true,
+    "language": "djhanid",
+    "special_ability": "Pins you with a glass-tipped arrow (snare).",
+    "kill_standing": {"Djhanid Clans": -15},
+    "abilities": [
+      {"name": "Pinning Shot", "type": "debuff", "cast": 0, "cooldown": 20, "first": 3, "range": 25, "damage": 15, "effect": {"name": "crippled", "duration": 8, "modifiers": {"speed_slow": 0.4}}, "message": "%s's arrow pins your leg!"}
+    ],
+    "attack_verbs": ["slashes", "shoots"]
+  },
+  "djhanid_spiritist": {
+    "description": "a Djhanid spiritist",
+    "model_from": "bandit",
+    "model_scale": 1.0,
+    "tint": [0.7, 0.6, 0.95],
+    "speed": 34.0,
+    "health": 310,
+    "damage": 30,
+    "behavior_type": "passive",
+    "category": "humanoid",
+    "faction": "Djhanid",
+    "coin_modifier": 0.3,
+    "xp_gain": 122,
+    "zone": "ashfall_dunes",
+    "armor_class": 18,
+    "is_social": true,
+    "level": 11,
+    "level_min": 11,
+    "level_max": 12,
+    "aggro_range": 0.0,
+    "loot_from": "dustwalker_ravager",
+    "wary": true,
+    "language": "djhanid",
+    "special_ability": "Calls on the sand spirits: Spirit Lash, and heals.",
+    "kill_standing": {"Djhanid Clans": -15},
+    "abilities": [
+      {"name": "Spirit Lash", "type": "nuke", "cast": 2, "cooldown": 15, "first": 3, "range": 20, "damage": 28, "school": "spirit", "message": "The sand spirits lash you at %s's call!"},
+      {"name": "Waters of the Clan", "type": "heal", "cast": 2.5, "cooldown": 25, "hp_below": 0.6, "heal": 0.2, "message": "%s pours water on the sand and is made whole!"}
+    ],
+    "attack_verbs": ["strikes"]
+  },
+  "sandshifter_elite": {
+    "description": "a sandshifter elite",
+    "model_from": "slime",
+    "model_scale": 2.6,
+    "tint": [1.0, 0.7, 0.4],
+    "speed": 40.0,
+    "health": 1040,
+    "damage": 41,
+    "behavior_type": "aggressive",
+    "category": "elemental",
+    "faction": "None",
+    "coin_modifier": 0.3,
+    "xp_gain": 520,
+    "zone": "ashfall_dunes",
+    "armor_class": 22,
+    "is_social": false,
+    "level": 13,
+    "level_min": 13,
+    "level_max": 14,
+    "aggro_range": 120.0,
+    "loot_from": "sandshifter",
+    "resistances": ["physical"],
+    "special_ability": "Group: shard trail hits everyone near; grinds your armour away.",
+    "abilities": [
+      {"name": "Shard Storm", "type": "aoe", "cast": 0, "cooldown": 18, "first": 6, "radius": 7, "damage": 28, "say": "%s bursts into a storm of crystal shards!", "message": "Crystal shards cut you!"},
+      {"name": "Grinding Sand", "type": "debuff", "cast": 0, "cooldown": 22, "first": 10, "range": 5, "effect": {"name": "sundered_armor", "duration": 20, "modifiers": {"armor_bonus": -8}}, "message": "%s grinds your armour down!"}
+    ],
+    "attack_verbs": ["lashes", "scours"]
+  },
+  "sandshifter_alpha": {
+    "description": "a sandshifter alpha",
+    "model_from": "slime",
+    "model_scale": 3.4,
+    "tint": [1.0, 0.55, 0.3],
+    "speed": 36.0,
+    "health": 1120,
+    "damage": 44,
+    "behavior_type": "aggressive",
+    "category": "elemental",
+    "faction": "None",
+    "coin_modifier": 0.3,
+    "xp_gain": 560,
+    "zone": "ashfall_dunes",
+    "armor_class": 23,
+    "is_social": false,
+    "level": 14,
+    "level_min": 14,
+    "level_max": 15,
+    "aggro_range": 120.0,
+    "loot_from": "sandshifter",
+    "is_boss": true,
+    "flees": false,
+    "resistances": ["physical"],
+    "special_ability": "Rare group boss: Shard Storm, Sand Fade (hard to hit), calls sandshifters.",
+    "abilities": [
+      {"name": "Shard Storm", "type": "aoe", "cast": 0, "cooldown": 16, "first": 5, "radius": 8, "damage": 34, "say": "%s erupts into whirling crystal!", "message": "Crystal shards cut you!"},
+      {"name": "Call the Dunes", "type": "summon", "summon": "sandshifter", "count": 2, "hp_below": 0.6, "once": true, "message": "The dunes rise at %s's call!"},
+      {"name": "Unstable Core", "type": "enrage", "hp_below": 0.25, "once": true, "enrage": {"damage_mult": 0.5, "attack_speed": 0.3}, "message": "%s's core cracks and blazes!"}
+    ],
+    "attack_verbs": ["crushes", "lashes"]
+  },
+  "phantom_lord": {
+    "description": "a phantom lord",
+    "model_from": "ghost",
+    "model_scale": 1.6,
+    "tint": [0.5, 0.55, 0.85],
+    "speed": 36.0,
+    "health": 1040,
+    "damage": 41,
+    "behavior_type": "aggressive",
+    "category": "undead",
+    "faction": "None",
+    "coin_modifier": 0.3,
+    "xp_gain": 520,
+    "zone": "ashfall_dunes",
+    "armor_class": 22,
+    "is_social": true,
+    "level": 13,
+    "level_min": 13,
+    "level_max": 15,
+    "aggro_range": 120.0,
+    "loot_from": "mummy",
+    "is_boss": true,
+    "flees": false,
+    "special_ability": "Group boss of the Mass Gravesite: Spectral Blade (bypasses armour), Wail of the Grave (terrifies everyone near), raises tomb skeletons.",
+    "abilities": [
+      {"name": "Spectral Blade", "type": "nuke", "cast": 0, "cooldown": 12, "first": 4, "range": 5, "damage": 40, "school": "spirit", "message": "%s's spectral blade passes through your armour!"},
+      {"name": "Wail of the Grave", "type": "aoe", "cast": 2.5, "cooldown": 30, "first": 10, "radius": 10, "school": "spirit", "effect": {"name": "terrified", "duration": 10, "modifiers": {"hit_chance": -20}}, "say": "%s lets out a wail from beyond the grave!", "message": "Terror grips you!"},
+      {"name": "Rise, Soldiers", "type": "summon", "summon": "tomb_skeleton", "count": 2, "cooldown": 60, "first": 15, "message": "%s calls the buried soldiers to rise!"}
+    ],
+    "attack_verbs": ["slashes", "touches"]
+  },
+  "takmajir_bladestorm": {
+    "description": "a Tak'Majir bladestorm",
+    "model_from": "sunmaddened_wanderer",
+    "model_scale": 1.15,
+    "tint": [0.25, 0.22, 0.4],
+    "speed": 40.0,
+    "health": 1040,
+    "damage": 41,
+    "behavior_type": "aggressive",
+    "category": "humanoid",
+    "faction": "TakMajir",
+    "coin_modifier": 0.3,
+    "xp_gain": 520,
+    "zone": "ashfall_dunes",
+    "armor_class": 22,
+    "is_social": true,
+    "level": 13,
+    "level_min": 13,
+    "level_max": 15,
+    "aggro_range": 120.0,
+    "loot_from": "dustwalker_ravager",
+    "special_ability": "Group: the Spymaster's bodyguards. Whirling Blades hits everyone near; bleeding cuts.",
+    "kill_standing": {"Djhanid Clans": 3},
+    "abilities": [
+      {"name": "Whirling Blades", "type": "aoe", "cast": 0, "cooldown": 16, "first": 5, "radius": 5, "damage": 30, "say": "%s spins into a storm of blades!", "message": "Twin blades cut you!"}
+    ],
+    "on_hit_effect": {"name": "bleeding", "chance": 0.2, "tick_damage": 8, "tick_interval": 5, "duration": 20, "message": "%s's blade opens a deep cut!"},
+    "attack_verbs": ["slashes", "slices"]
+  },
+  "takmajir_spymaster": {
+    "description": "a Tak'Majir spymaster",
+    "model_from": "sunmaddened_wanderer",
+    "model_scale": 1.1,
+    "tint": [0.35, 0.2, 0.5],
+    "speed": 42.0,
+    "health": 1120,
+    "damage": 44,
+    "behavior_type": "aggressive",
+    "category": "humanoid",
+    "faction": "TakMajir",
+    "coin_modifier": 1.5,
+    "xp_gain": 560,
+    "zone": "ashfall_dunes",
+    "armor_class": 23,
+    "is_social": true,
+    "level": 14,
+    "level_min": 14,
+    "level_max": 16,
+    "aggro_range": 120.0,
+    "loot_from": "dustwalker_warlord",
+    "is_boss": true,
+    "flees": false,
+    "special_ability": "Group boss: Shadowstep Strike, Poisoned Mind (silence), calls bladestorms.",
+    "kill_standing": {"Djhanid Clans": 5},
+    "abilities": [
+      {"name": "Shadowstep Strike", "type": "nuke", "cast": 0, "cooldown": 14, "first": 4, "range": 6, "damage": 45, "message": "%s steps out of your shadow and strikes!"},
+      {"name": "Poisoned Mind", "type": "debuff", "cast": 2, "cooldown": 30, "first": 10, "range": 20, "school": "psychic", "effect": {"name": "silenced", "duration": 8, "modifiers": {"silenced": 1.0}}, "message": "Your thoughts scatter: you can't find the words of your spells!"},
+      {"name": "To Me, Blades", "type": "summon", "summon": "takmajir_bladestorm", "count": 1, "hp_below": 0.5, "once": true, "message": "%s snaps her fingers: a bladestorm answers!"}
+    ],
+    "attack_verbs": ["stabs", "slices"]
+  },
+  "dustwalker_commander": {
+    "description": "a Dustwalker commander",
+    "model_from": "bandit",
+    "model_scale": 1.25,
+    "tint": [0.85, 0.55, 0.4],
+    "speed": 34.0,
+    "health": 1120,
+    "damage": 44,
+    "behavior_type": "aggressive",
+    "category": "humanoid",
+    "faction": "Dustwalker",
+    "coin_modifier": 1.5,
+    "xp_gain": 560,
+    "zone": "ashfall_dunes",
+    "armor_class": 23,
+    "is_social": true,
+    "level": 14,
+    "level_min": 14,
+    "level_max": 15,
+    "aggro_range": 120.0,
+    "loot_from": "dustwalker_warlord",
+    "is_boss": true,
+    "flees": false,
+    "special_ability": "Group boss: Shield Bash (stun-daze), Hamstring (snare), bleeding cuts, Void Bolt; calls raiders.",
+    "kill_standing": {"Djhanid Clans": 5},
+    "abilities": [
+      {"name": "Shield Bash", "type": "debuff", "cast": 0, "cooldown": 18, "first": 5, "range": 4, "damage": 30, "effect": {"name": "dazed", "duration": 3, "modifiers": {"speed_slow": 0.9}}, "message": "%s's shield smashes you senseless!"},
+      {"name": "Hamstring", "type": "debuff", "cast": 0, "cooldown": 24, "first": 9, "range": 4, "damage": 20, "effect": {"name": "crippled", "duration": 10, "modifiers": {"speed_slow": 0.5}}, "message": "%s cuts the back of your leg!"},
+      {"name": "Void Bolt", "type": "nuke", "cast": 2.5, "cooldown": 20, "first": 12, "range": 25, "damage": 50, "school": "magic", "message": "%s's Void Bolt slams into you!"},
+      {"name": "Raiders, Now!", "type": "summon", "summon": "dustwalker_ravager", "count": 2, "hp_below": 0.5, "once": true, "message": "%s roars for his raiders!"}
+    ],
+    "on_hit_effect": {"name": "bleeding", "chance": 0.2, "tick_damage": 8, "tick_interval": 5, "duration": 20, "message": "%s's blade opens a deep cut!"},
+    "attack_verbs": ["cleaves", "slashes"]
+  },
+  "djhanid_warden": {
+    "description": "a Djhanid warden",
+    "model_from": "bandit",
+    "model_scale": 1.2,
+    "tint": [0.55, 0.65, 1.0],
+    "speed": 34.0,
+    "health": 1200,
+    "damage": 47,
+    "behavior_type": "passive",
+    "category": "humanoid",
+    "faction": "Djhanid",
+    "coin_modifier": 0.3,
+    "xp_gain": 600,
+    "zone": "ashfall_dunes",
+    "armor_class": 23,
+    "is_social": true,
+    "level": 15,
+    "level_min": 15,
+    "level_max": 16,
+    "aggro_range": 0.0,
+    "loot_from": "dustwalker_warlord",
+    "wary": true,
+    "language": "djhanid",
+    "is_boss": true,
+    "flees": false,
+    "special_ability": "Commander of the clans in Ashfall (group): Sunfire Spear, Rallying Cry, and the guardians answer. Wary, not hostile.",
+    "kill_standing": {"Djhanid Clans": -30},
+    "abilities": [
+      {"name": "Sunfire Spear", "type": "nuke", "cast": 2, "cooldown": 14, "first": 4, "range": 20, "damage": 48, "school": "fire", "message": "%s's Sunfire Spear sears you!"},
+      {"name": "Rallying Cry", "type": "heal", "cast": 0, "cooldown": 40, "hp_below": 0.5, "heal": 0.2, "message": "%s raises the war-spear and fights on renewed!"},
+      {"name": "Clan, To Me", "type": "summon", "summon": "djhanid_guardian", "count": 2, "hp_below": 0.5, "once": true, "message": "%s calls the clan to arms!"}
+    ],
+    "attack_verbs": ["thrusts", "slashes"]
   }
 }

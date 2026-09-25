@@ -1,10 +1,12 @@
 {
- "_comment": "world_objects.json - readable / searchable objects placed by Scripts/crafting_world_spawner.gd as WorldNote nodes (Scripts/world_note.gd), per zone. Fields are WorldNote's: title, note_text, label_text, start_quest, give_item, night_only, day_text, found_text, show_paper, show_stone. 'position' is [x, z]; the height comes from the ground. Hand-edited; positions are first guesses - check them in play (/location).",
+ "_comment": "world_objects.json - readable / searchable objects placed by Scripts/crafting_world_spawner.gd as WorldNote nodes (Scripts/world_note.gd), per zone. Fields are WorldNote's: title, note_text, label_text, start_quest, give_item, night_only, day_text, found_text, show_paper, show_stone, show_mirror, opens ('mirror': the appearance window). 'position' is [x, z]; the height comes from the ground. Hand-edited; positions are first guesses - check them in play (/location).",
  "lumora_outskirts": [
   {"title": "Old Foundation Stone", "position": [48, -232], "show_stone": true, "label_height": 1.0,
    "give_item": "aelrics_letter", "night_only": true,
    "note_text": "You lever up the old foundation stone. Beneath it, wrapped in oilcloth, lie a sealed letter and a small book.",
    "day_text": "A heavy, worn foundation stone among the ruins. It doesn't budge, and in daylight you'd be seen trying. The note said nightfall.",
-   "found_text": "The hollow under the foundation stone is empty now."}
+   "found_text": "The hollow under the foundation stone is empty now."},
+  {"title": "The Silvered Mirror", "position": [66, 20], "show_paper": false, "show_mirror": true, "label_height": 2.2,
+   "opens": "mirror", "note_text": "A tall mirror in a dark wooden frame, its silver clear as still water."}
  ]
 }

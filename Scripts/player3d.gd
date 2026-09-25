@@ -53,6 +53,15 @@ var surname := "":
 		surname = value
 		if is_inside_tree():
 			_refresh_nameplate()
+# The character's look (Scripts/appearance.gd): body sliders, height, skin / hair / eye colour. Replicated as JSON so
+# everyone sees it; saved as Global.player_data["appearance"]. A change (the mirror, a new hair colour) re-applies it.
+var appearance_json := "":
+	set(value):
+		if value == appearance_json:
+			return
+		appearance_json = value
+		if is_inside_tree() and has_node("Character"):
+			_apply_appearance()
 var known_spells: Array = []
 var known_skills: Array = []
 var known_recipes: Array = []  # tradeskill recipe ids learned from scrolls/quests (innate recipes are always known)
@@ -857,7 +866,8 @@ const APPRAISAL_FACTION_TEXT := {
 
 # Monster faction names ("Bandit"/"Dustwalker"/"Lumora"/"None") mostly don't
 # match player_faction.json's named factions — alias the ones that do.
-const FACTION_STANDING_ALIASES := {"Lumora": "Villagers of Lumora"}
+# Monster "faction" names -> the standing they use (Data/player_faction.json / factions.json).
+const FACTION_STANDING_ALIASES := {"Lumora": "Villagers of Lumora", "Djhanid": "Djhanid Clans"}
 
 
 func _appraisal_tier(diff: int) -> Dictionary:
@@ -884,7 +894,7 @@ func _faction_reputation_text(target: Node) -> String:
 		target_faction = target.get("faction")
 	elif "npc_faction" in target:
 		target_faction = target.get("npc_faction")
-	var mapped: String = FACTION_STANDING_ALIASES.get(target_faction, target_faction)
+	var mapped: String = standing_name(target_faction)
 	if not faction_standing.has(mapped):
 		return "Unaligned"
 	var standing: int = faction_standing.get(mapped, 0) + race_faction_offset
@@ -1317,8 +1327,33 @@ func _build_character_model() -> void:
 
 	if model_info.has("texture_override"):
 		_apply_texture_override(character, model_info["texture_override"])
-
+	character.set_meta("base_scale", character.scale)
 	_built_character_model_key = key
+	_apply_appearance()
+
+
+# Puts this character's look (appearance_json) on the built model.
+func _apply_appearance() -> void:
+	var character := get_node_or_null("Character") as Node3D
+	if character == null:
+		return
+	var model_info: Dictionary = CHARACTER_MODELS.get(_character_model_key(), DEFAULT_CHARACTER_MODEL)
+	var parsed = JSON.parse_string(appearance_json) if not appearance_json.is_empty() else {}
+	var a: Dictionary = Appearance.validate(parsed if typeof(parsed) == TYPE_DICTIONARY else {}, player_sex, player_race)
+	Appearance.apply(character, str(model_info["scene"]), str(model_info.get("texture_override", "")), a, player_race,
+			character.get_meta("base_scale", character.scale))
+
+
+# Saves a new look (the mirror or the creation screen): the whole thing while it isn't locked yet, afterwards only what
+# may still change (Appearance.CHANGEABLE_AFTER_LOCK; the server keeps the rest anyway). Locks it.
+func set_appearance(new_look: Dictionary) -> Dictionary:
+	var stored = Global.player_data.get("appearance")
+	var merged: Dictionary = Appearance.merge(stored, new_look, player_sex, player_race)["appearance"]
+	merged["locked"] = true
+	Global.player_data["appearance"] = merged
+	appearance_json = JSON.stringify(merged)
+	Global.save_player_data_to_file()
+	return merged
 
 
 # Overrides every mesh surface under `node` with a fresh StandardMaterial3D
@@ -3740,6 +3775,7 @@ func load_character_data(data: Dictionary) -> void:
 	player_race  = data.get("player_race",  "Human")
 	player_sex   = data.get("player_sex",   "male")
 	stats        = data.get("stats",        {})
+	appearance_json = JSON.stringify(data.get("appearance", {})) if typeof(data.get("appearance")) == TYPE_DICTIONARY else ""
 	# On a server the flag is granted per session by the server's password (gm_commands.gd), never restored from the save.
 	is_game_master = bool(data.get("is_game_master", false)) and not (Net.is_multiplayer_game and multiplayer.has_multiplayer_peer() and not multiplayer.is_server())
 
@@ -3951,6 +3987,8 @@ func apply_racial_traits(race_name: String) -> void:
 	race_hp_regen_mult = 1.0 + float(traits.get("health_regeneration_bonus", 0.0))
 	race_mana_regen_mult = 1.0 + float(traits.get("mana_regeneration_bonus", 0.0))
 	race_faction_offset = int(traits.get("faction_bonus_all", 0)) + int(traits.get("faction_standing_bonus_all", 0))
+	race_faction_modifiers = race_standing_modifiers(race_key)
+	_refresh_faction_attitudes()   # the racial offset moves every standing
 	# Every zone is outdoors so far, so the Elf's outdoor speed always applies (indoor zones will have to switch it off).
 	if traits.has("movement_speed_outdoors_bonus"):
 		combat_node.race_movement_speed_mult = float(traits["movement_speed_outdoors_bonus"])  # Elf: no other speed modifier
@@ -4015,6 +4053,7 @@ func racial_skill_bonus(skill_name: String) -> int:
 #endregion
 
 #region Faction
+# Starting standings (Data/player_faction.json), then this character's own (saved: "faction_standing").
 func load_faction_standing() -> void:
 	var file: FileAccess = FileAccess.open("res://Data/player_faction.json", FileAccess.READ)
 	if file:
@@ -4024,13 +4063,133 @@ func load_faction_standing() -> void:
 			for faction in json_data["factions"]:
 				if faction.has("name") and faction.has("standing"):
 					faction_standing[faction["name"]] = faction["standing"]
-		print("✅ Loaded faction standing")
+	var mine = Global.player_data.get("faction_standing", {})
+	if typeof(mine) == TYPE_DICTIONARY:
+		for name in mine:
+			faction_standing[str(name)] = int(mine[name])
+	_load_faction_rules()
+	_refresh_faction_attitudes()
+
+
+# ── Standing that changes (2026-09-25): kills (monsters.json "kill_standing"), later quests and choices ──
+const STANDING_MIN := -100
+const STANDING_MAX := 100
+static var _faction_rules: Dictionary = {}
+var race_faction_modifiers: Dictionary = {}   # this race's lean for or against factions (Data/race_faction_affiliations.json)   # standing name -> {hostile_threshold, friendly_threshold} (Data/factions.json)
+
+## Monster factions that attack THIS player on sight / count them as an ally, from their standing. Replicated (the
+## server's monsters decide who to attack by it — monster3d.gd can_see_player()).
+var kos_factions: PackedStringArray = PackedStringArray()
+var ally_factions: PackedStringArray = PackedStringArray()
+
+
+func _load_faction_rules() -> void:
+	if not _faction_rules.is_empty():
+		return
+	var parsed = JSON.parse_string(FileAccess.get_file_as_string("res://Data/factions.json")) if FileAccess.file_exists("res://Data/factions.json") else null
+	if typeof(parsed) == TYPE_DICTIONARY:
+		for f in parsed.get("factions", []):
+			if typeof(f) == TYPE_DICTIONARY and f.has("name"):
+				_faction_rules[str(f["name"])] = f
+
+
+# A race's standing modifiers: {"The Moribund Order": 15, ...}. Always added on top of the saved standing, never saved.
+static func race_standing_modifiers(race_key: String) -> Dictionary:
+	var parsed = JSON.parse_string(FileAccess.get_file_as_string("res://Data/race_faction_affiliations.json")) if FileAccess.file_exists("res://Data/race_faction_affiliations.json") else null
+	if typeof(parsed) != TYPE_DICTIONARY:
+		return {}
+	var key := race_key.to_lower().replace("-", "_").replace(" ", "_")
+	return parsed.get("races", {}).get(key, {}).get("standing_modifiers", {})
+
+
+# The standing a name really uses: a monster faction's (FACTION_STANDING_ALIASES: "Djhanid" -> "Djhanid Clans"), or an
+# order's parent (factions.json type "order": Circle of Thorns -> The Verdant Kin), else the name itself.
+static func standing_name(faction_name: String) -> String:
+	var name: String = FACTION_STANDING_ALIASES.get(faction_name, faction_name)
+	if _faction_rules.is_empty():
+		var parsed = JSON.parse_string(FileAccess.get_file_as_string("res://Data/factions.json")) if FileAccess.file_exists("res://Data/factions.json") else null
+		if typeof(parsed) == TYPE_DICTIONARY:
+			for f in parsed.get("factions", []):
+				if typeof(f) == TYPE_DICTIONARY and f.has("name"):
+					_faction_rules[str(f["name"])] = f
+	var rule: Dictionary = _faction_rules.get(name, {})
+	return str(rule.get("parent", name)) if str(rule.get("type", "")) == "order" else name
+
+
+# Which monster factions hate / befriend this character right now.
+func _refresh_faction_attitudes() -> void:
+	var kos := PackedStringArray()
+	var allies := PackedStringArray()
+	for monster_faction in FACTION_STANDING_ALIASES:
+		var name: String = FACTION_STANDING_ALIASES[monster_faction]
+		var rule: Dictionary = _faction_rules.get(name, {})
+		if rule.is_empty() or not faction_standing.has(name):
+			continue
+		var standing := get_faction_standing(name)
+		if standing <= int(rule.get("hostile_threshold", -1000)):
+			kos.append(monster_faction)
+		elif standing >= int(rule.get("friendly_threshold", 1000)):
+			allies.append(monster_faction)
+	kos_factions = kos
+	ally_factions = allies
+
+
+# EverQuest style: "Your faction standing with the Djhanid Clans got worse." A change also ripples to that faction's
+# friends and enemies (factions.json "relations": killing for the Covenant pleases the Wardens and angers the Order).
+func adjust_standing(faction_name: String, delta: int, ripple := true) -> void:
+	if delta == 0 or faction_name.is_empty():
+		return
+	_load_faction_rules()
+	faction_name = standing_name(faction_name)   # an order (Circle of Thorns) moves its parent's standing
+	var was_kos := kos_factions.duplicate()
+	var old := int(faction_standing.get(faction_name, 0))
+	var now := clampi(old + delta, STANDING_MIN, STANDING_MAX)
+	faction_standing[faction_name] = now
+	var saved: Dictionary = Global.player_data.get("faction_standing", {}) if typeof(Global.player_data.get("faction_standing")) == TYPE_DICTIONARY else {}
+	saved[faction_name] = now
+	Global.player_data["faction_standing"] = saved
+	var called := faction_display_name(faction_name)
+	if now == old:
+		GameLog.log_general("[color=#cccccc]Your faction standing with %s could not possibly get any %s.[/color]" % [called, "better" if delta > 0 else "worse"])
 	else:
-		print("⚠️ player_faction.json not found (optional)")
+		GameLog.log_general("[color=%s]Your faction standing with %s got %s.[/color]" % ["#88ccff" if delta > 0 else "#ff8866", called, "better" if delta > 0 else "worse"])
+	if ripple:
+		var relations: Dictionary = _faction_rules.get(faction_name, {}).get("relations", {})
+		for other in relations:
+			var share := int(round(delta * float(relations[other])))
+			if share != 0:
+				adjust_standing(str(other), share, false)
+	_refresh_faction_attitudes()
+	for monster_faction in kos_factions:
+		if not was_kos.has(monster_faction):
+			var who := faction_display_name(str(FACTION_STANDING_ALIASES.get(monster_faction, monster_faction)))
+			GameLog.log_general("[color=#ff4444]%s will now attack you on sight.[/color]" % (who[0].to_upper() + who.substr(1)))
+	if ripple:
+		Global.save_player_data_to_file()
+
+
+# "the Djhanid Clans", "The Moribund Order" (names that carry their own article keep it).
+static func faction_display_name(faction_name: String) -> String:
+	return faction_name if faction_name.begins_with("The ") else "the " + faction_name
+
+
+# The server's kill credit carries the killed monster's standing changes ({"Djhanid Clans": -15}): applied on this
+# player's own machine, which keeps their standing (sent by the server, or called directly in single-player / on the host).
+@rpc("any_peer", "call_remote", "reliable")
+func receive_standing_changes(changes_json: String) -> void:
+	var sender := multiplayer.get_remote_sender_id()
+	if (sender != 0 and sender != 1) or not is_multiplayer_authority():
+		return
+	var changes = JSON.parse_string(changes_json)
+	if typeof(changes) != TYPE_DICTIONARY:
+		return
+	for name in changes:
+		adjust_standing(str(name), int(changes[name]))
 
 
 func get_faction_standing(faction_name: String) -> int:
-	return faction_standing.get(faction_name, 0) + race_faction_offset
+	faction_name = standing_name(faction_name)
+	return int(faction_standing.get(faction_name, 0)) + race_faction_offset + int(race_faction_modifiers.get(faction_name, 0))
 #endregion
 
 #region Helpers
@@ -4334,6 +4493,10 @@ func cast_spell(spell_name: String, is_auto_recast: bool = false) -> bool:
 		return false
 
 	var cost: int = int(spell.get("mana_cost", 0.0))
+	if cost > 0 and combat_node.get_modifier("silenced") > 0.0:   # a silence (a monster's, or a player's) stops spells, not skills
+		if not is_auto_recast:
+			GameLog.log_general("[color=#8888ff]You can't cast spells while silenced![/color]")
+		return false
 	if combat_node.current_mana < cost:
 		if is_auto_recast:
 			GameLog.log_combat("[color=#ff8866]You don't have enough mana to keep playing [b]%s[/b] — the song fades.[/color]" % spell_display_name(spell_name))
@@ -5734,7 +5897,7 @@ func _find_debuff_to_cure(target_cn) -> String:
 
 # Harmful effects monsters leave on players (monsters.json "on_hit_effect") that cure spells remove.
 const MONSTER_AILMENTS := ["weak_poison", "disease", "strong_poison", "weakening_venom", "sundered_armor", "crippled", "blinded",
-		"dazed", "withering_touch", "bleeding", "grave_miasma"]
+		"dazed", "withering_touch", "bleeding", "grave_miasma", "ensnared", "silenced", "cursed", "burning", "chilled", "terrified"]
 
 
 func _remove_effect_from_target(target_node: Node, target_cn, effect_name: String) -> void:
@@ -5786,6 +5949,8 @@ func _disable_target(target_node: Node, duration: float) -> void:
 	if target_node.is_multiplayer_authority() or not target_node.has_method("apply_networked_disable"):
 		target_node.can_attack = false
 		target_node.attack_timer = duration
+		if target_node.has_method("interrupt_cast"):
+			target_node.interrupt_cast(duration)   # a stun or bash breaks a monster's spell
 		return
 	target_node.apply_networked_disable.rpc_id(1, duration)
 

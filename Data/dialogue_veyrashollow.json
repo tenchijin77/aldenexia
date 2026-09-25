@@ -7,7 +7,7 @@
       "name": "Soren Nightshade",
       "role": "Town Leader",
       "race": "Mixed",
-      "faction": "Twilight Accord",
+      "faction": "Tenebrae Obscurium",
       "dialogue": {
         "greeting": "Welcome to the Hollow. Speak softly—shadows have ears.",
         "help": "There are whispers of movement in the marsh. We need someone discreet.",
@@ -19,7 +19,7 @@
       "name": "Vespera Moonfire",
       "role": "Guildmaster - Rogue",
       "race": "Mixed",
-      "faction": "Twilight Accord",
+      "faction": "Tenebrae Obscurium",
       "dialogue": {
         "greeting": "You’ve got the look of someone who knows how to vanish.",
         "help": "We’ve a job—quiet, quick, and no questions asked.",

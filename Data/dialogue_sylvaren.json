@@ -30,11 +30,11 @@
       "name": "Caladwen Brightbloom",
       "role": "Trainer - Bard",
       "race": "Half-Elf",
-      "faction": "Echoes of the Deep",
+      "faction": "Lirael's Concord",
       "dialogue": {
         "greeting": "A song can open doors no key ever could.",
         "help": "We’re composing a harmony to calm the forest’s unrest. Will you lend your voice?",
-        "lore": "The Echoes of the Deep say Sylvaren’s twilight hums with forgotten melodies.",
+        "lore": "The Lirael's Concord say Sylvaren’s twilight hums with forgotten melodies.",
         "farewell": "Sing your truth, and the world will listen."
       }
     }

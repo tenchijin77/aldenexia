@@ -1,22 +1,24 @@
 {
-		"_comment": "player_faction.json: This table is used for tracking player faction.",
+	"_comment": "player_faction.json: every character's STARTING standing with each faction (Data/factions.json has the rules). A character's own standing is saved with it (\"faction_standing\") and changes with kills, quests and choices; race_faction_affiliations.json adjusts the start by race.",
 
   "factions": [
-	{ "name": "Wardens of the Sacred Flame", "standing": 50 },
-	{ "name": "Twilight Accord", "standing": 0 },
-	{ "name": "Villagers of Lumora", "standing": 25 },
 	{ "name": "Luminar Covenant", "standing": 40 },
-	{ "name": "Circle of Thorns", "standing": 20 },
-	{ "name": "Verdant Kin", "standing": 30 },
-	{ "name": "Hands of the Eternal Forge", "standing": 35 },
-	{ "name": "Ironclad Brotherhood", "standing": 20 },
+	{ "name": "Wardens of the Sacred Flame", "standing": 50 },
+	{ "name": "The Moribund Order", "standing": 0 },
+	{ "name": "Tenebrae Obscurium", "standing": 0 },
+	{ "name": "Lirael's Concord", "standing": 30 },
+	{ "name": "The Verdant Kin", "standing": 30 },
 	{ "name": "Arcane Synod", "standing": 15 },
-	{ "name": "Arcane Dominion", "standing": 10 },
-	{ "name": "Echoes of the Deep", "standing": 30 },
-	{ "name": "Umbral Talon", "standing": 0 },
-	{ "name": "Shattered Horn Tribe", "standing": 5 },
+	{ "name": "Ironclad Brotherhood", "standing": 20 },
+	{ "name": "Order of the Silent Fist", "standing": 20 },
+	{ "name": "Celestial Weavers", "standing": 30 },
+	{ "name": "Guild of the Eclipsed Mind", "standing": -10 },
+	{ "name": "Villagers of Lumora", "standing": 25 },
 	{ "name": "Stoneblood Clan", "standing": 0 },
+	{ "name": "Brood of Fennarach", "standing": 5 },
+	{ "name": "Shattered Horn Tribe", "standing": 5 },
 	{ "name": "Veilstriders", "standing": -10 },
-	{ "name": "Brood of Fennarach", "standing": 5 }
+	{ "name": "Covenant of the Dark Kris", "standing": -20 },
+	{ "name": "Djhanid Clans", "standing": -5 }
   ]
 }

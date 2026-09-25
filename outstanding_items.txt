@@ -79,17 +79,25 @@ an item (delete it, note it in change_log.txt) when it's done. Last updated 2026
   spider nest at the Stone Circles (not in the design). Ashfall's layout (oasis spring, gnoll camps, Djhanid encampment,
   Bleached Forest, Kragthar dungeon entrance, zone connector to Twilight Moors) is in the same diagram.
 - Spawn layout is a first pass on flat terrain (Data/dustwind_plateaus_spawns.json): move to match the terrain.
-- Not built: monster spellcasting (Sunmaddened: Arcanist; Sand Walker: Spiritwalker; Risen Priest: Lightsworn; Warlord:
-  Blademaster; Tomb Guardian: Voidknight), Broodmother summoning spiderlings, Ambusher traps, Djhanid vs Dustwalker
-  fighting, Djhanid "won't attack exiles". Fast Attack (hounds) has no attack-speed field yet.
-- Djhanid faction: monsters have faction "Djhanid"/"Dustwalker" (they help their own) but there is no player standing
-  for either yet (factions.json has neither).
+- Monster abilities exist now (2026-09-25) and every NAMED monster has a kit; the non-named casters on the sheet still
+  don't cast (Sunmaddened: Arcanist; Sand Walker: Spiritwalker; Risen Priest: Lightsworn). Not built: Ambusher traps,
+  Djhanid vs Dustwalker fighting each other, Djhanid "won't attack exiles", monsters healing EACH OTHER (heals are self
+  only), phasing / "needs a magic weapon" (sandshifters just resist physical). Fast Attack (hounds): no field yet.
+- Ability numbers are a first pass (damage, cooldowns, resist formula in monster3d.gd ability_resisted()): tune in play.
 - Loot: the new monsters borrow their base type's table (loot_from) — bespoke tables (Dustwalker tokens, water-debt
   tokens, grave soil, scorpion parts...) to write. The sheet's Loot column is empty.
 - Grave Abomination is level 10-12 per the sheet, in a 4-9 zone (rare spawn). Deliberate?
-- Ashfall Dunes monsters (sheet tab AshfallDunes) aren't in monsters.json yet — add when Ashfall is built.
-- Sahren's Ashfall leg (Oasis, Neutral Vendor Camp, Djhanid Encampment) is in traveling_merchant.json with "enabled":
-  false and placeholder positions: set the positions and enable it when Ashfall is built.
+
+== ASHFALL DUNES (first pass 2026-09-25) — still open ==
+- Terrain is FLAT: sculpt it (the dunes, the Oasis basin, the Mass Gravesite, the Bleached Forest), then move the spawns
+  and Markers to match and re-bake the navmesh (Scenes/zones/README.txt step 3).
+- Kragthar (Bonegnawer Warrens), the first dungeon: only a Marker (399, 20). Needs its own zone scene, layout, monsters
+  (challenging group content with monster magic) and the zone line.
+- Twilight Moors: only a Marker on the south edge (0, 480); the zone doesn't exist.
+- The Oasis spring (fill water containers), the Neutral Vendor Camp's vendors, the Djhanid Encampment's NPCs: not built.
+- The sheet's Ashfall row "A Djhanid Sand Walker" (12-15) points at Dustwind's sand walker (7-9). A tougher Ashfall one?
+- Sahren's loop is tight with three zones: Ashfall stays are 170 s, drift +/-4 min. A 105-minute loop would give every
+  stop 4-5 minutes again. Your call.
 
 == LANGUAGES (built 2026-09-23; see change_log.txt) — still open ==
 - NPC languages: every NPC but Sahren (Common + Djhanid) speaks only Common today — faction towns will use the fields.
@@ -124,6 +132,9 @@ an item (delete it, note it in change_log.txt) when it's done. Last updated 2026
 
 
 == ART AND MODELS (stand-ins in use) ==
+- Character meshes rebuilt smooth (2026-09-25). Women reshaped 2026-09-25 (shape_body.py); faces still
+  depend on the texture (new Meshy runs next month); the monster/NPC mob models (bandit, skeleton,
+  goblin...) aren't rebuilt yet (run tools/smooth_models.sh on their FBX if they need it). The rebuilt meshes add 39 MB.
 - Sinking into steep hills (test 34): on a steep slope the player capsule's rounded bottom rests uphill of its centre, so
   the feet sink into the downhill side. Options: a smaller capsule radius, or foot IK. Need a /location if it happens on
   gentle ground (that would be a collision gap instead).
@@ -139,6 +150,26 @@ an item (delete it, note it in change_log.txt) when it's done. Last updated 2026
 - /assist has no hotkey (F works; a patch can't add InputMap actions, so a new key would be a raw key).
 - Chat tabs: no filtering by a single sender, no colour per tab, no "hide from General" switch.
 
+
+== FACTIONS AND DOC CLEANUP (2026-09-25; the game now has all 28 factions: Data/factions.json) ==
+Sources: Aldenexia_Player_Information_Updated.xlsx "Factions" (canonical list) + Faction_Relationships_Final_Updated.txt.
+The Pantheon map (Aldenexia_Pantheon_Reputation_Map_Updated.xlsx + Aldenexia Reputation Map.drawio) disagrees with them:
+- DONE 2026-09-25: Circle of Thorns, Hands of the Eternal Forge and Arcane Dominion are ORDERS within The Verdant Kin,
+  the Ironclad Brotherhood and the Arcane Synod (factions.json type "order": they share the parent's standing).
+- Thalindra's temple is still "Echoes of the Deep" (renamed to Lirael's Concord). Rename the temple, or keep it as a
+  separate sea cult?
+- Stormbinders of Mael'Thun (Zephyra) and Whispers of the Hollow (Morthan) are MONSTER factions on the Factions sheet
+  but deity factions on the Pantheon map. Can players earn standing with them?
+- Virexus and Morthan both have temple "Umbral Synod" (the old "Umbral" naming). Two temples or one?
+- The drawio's Good/Neutral/Evil columns vs the sheet's alignments: Nyssara (Neutral) sits under Good; Thalindra
+  (Neutral), Virexus and Varneth (Chaotic Neutral) sit under Evil; Durnhal has no position.
+- Durnhal and Dromek share "Craft, Endurance" and dwarves; Sylaen and Nyssara share magic/knowledge. Intended pairs?
+- Data/deities.json has 10 of the 16 gods (no Nyssara, Dromek, Zephyra, Thalindra, Varneth, Elarion) and nothing reads
+  it yet. Old faction names in it are renamed.
+- The Factions sheet has a #VALUE! row near the top, and the older monster list (Emerald Vanguard, Arcane Dominion)
+  below the canonical one.
+- Faction standing lives in the character save, which the client can edit (like the rest of the save: ServerTrust
+  should range-check it).
 
 == WORLD AND SYSTEMS ==
 - SERVER TRUST, what's still trusted (next steps): item gains (loot is picked up client-side; vendor buying/selling is
@@ -182,6 +213,14 @@ an item (delete it, note it in change_log.txt) when it's done. Last updated 2026
   icon's own background (arcane_target.png, arcane_aoe.png, arcane_group.png). Real arcane art wanted for all three.
   targetarcane.png (the swords) now marks physical direct-damage skills (user's call, test 34).
 
+== APPEARANCE (2026-09-25) ==
+- Hair styles, beard styles (men) and accessories/jewellery: need separate meshes (every model's hair is part of its
+  one mesh). The appearance keys exist and stay changeable after the lock; the window says "coming with new models".
+- Masks: the gnome female's lower (orange) hair isn't in her hair mask (a different shade from the top curls). Eye
+  colour is SWITCHED OFF (Appearance.EYE_COLOUR_ENABLED): automatic eye masks catch the iris on only the dwarf male and
+  human male (partly the half-elf female); the rest need hand-painted eye areas (blue channel of <scene>_mask.png). Re-run tools/make_masks.sh (+ mask_config.json) for any new model.
+- The mirror's spot (66, 20 by the gate) is a first guess; its model is a stand-in frame.
+
 == FOR THE NEXT ZONES (Dustwind Plateaus, Ashfall Dunes) ==
 - Dustwind landmarks from the design (models or kits of parts): Warning Sign, Stone Circles, Abandoned Watchtower, Old
   Bleached Banners, Skeletal Remains, Destroyed Caravan, Nomad Camp (Djhanid tents), Bandit Camps, Dustwalker camps,
@@ -191,7 +230,12 @@ an item (delete it, note it in change_log.txt) when it's done. Last updated 2026
   Risen Priest (skeleton); Sunmaddened Berserker (human male); Restless Corpse, Grave Abomination (mummy); Wraith, Tomb
   Guardian (ghost). Plus the six older ones listed below.
 - Status icons for the new ailments borrow spell icons (buff_bar.gd): strong poison, weakening venom, sundered armour,
-  crippled, blinded, dazed, withering touch, bleeding, grave miasma.
+  crippled, blinded, dazed, withering touch, bleeding, grave miasma, ensnared, silenced, cursed, burning, chilled,
+  terrified.
+- Ashfall monsters borrowing models (monsters.json model_from): Bonegnawer / hunter / shaman (goblins, scaled up and
+  tinted — want gnolls), khepri beetle (dune scarab x2.4), sandshifter / elite / alpha (slime), mirage phantom, phantom
+  lord (ghost), tomb skeleton (skeleton), wight (mummy), Tak'Majir x5 (the human male, dark tint — want drow), Dustwalker
+  defiler / commander, Djhanid x4 (sand brigand). Broodling (spider x0.8).
 - Terrain for both: Scenes/zones/dustwind_plateaus.tscn and ashfall_dunes.tscn are flat 1 km squares of Terrain3D ready to
   sculpt (zones/<zone>_terrain/). Dustwind: three tiers; the zone line from the Outskirts through the gap in the
   southern mountains; the goblins on the top tier; the Dustwind Spire hidden in its own area.

@@ -24,3 +24,13 @@ script = ExtResource("3_zone_line")
 target_zone = "lumora_outskirts"
 target_marker = "dustwind_plateaus_zone"
 size = Vector3(1040, 60, 8)
+
+[node name="ashfall_dunes_zone" type="Marker3D" parent="Markers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 474)
+
+[node name="To Ashfall Dunes" type="Area3D" parent="ZoneLines"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -5, 505)
+script = ExtResource("3_zone_line")
+target_zone = "ashfall_dunes"
+target_marker = "dustwind_plateaus_zone"
+size = Vector3(1040, 60, 8)

@@ -1,0 +1,584 @@
+{
+ "_comment": "ashfall_dunes_spawns.json - where Ashfall Dunes' monsters appear (Scripts/mob_spawner3d.gd). Monster stats AND levels are in Data/monsters.json. Positions [x, y, z]; y=2 drops them onto the ground. LAYOUT (2026-09-25, first pass; the terrain is still flat) from ~/NCT/Aldenexia-Lightfall/Solgrave Expanse Map.drawio's Ashfall section (map x -120..970 -> world x -500..500, map y 1100..1850 -> world z -500..500; north = -Z): the way in from Dustwind on the north edge (0, -474); the Oasis north-west (-271, -247: Sahren's stop, water); the Corrupted Altar (100, -347) with chaos-touched Dustwalkers and the Dustwalker Commander (group); three Bonegnawer camps north-east (445,-393) (325,-287) (445,-207); the Mass Gravesite (139, -120) with the Phantom Lord (group); the mirage dunes in the middle (the rare Sandshifter Elite and Alpha, group); the Kragthar entrance east (399, 20: the first dungeon, not built yet); the Neutral Vendor Camp (27, 100: Sahren's stop); Tak'Majir camps west with the Spymaster and her Bladestorms in the south-west (group); the Bleached Forest and its Ritual Circles south; the Djhanid Encampment south-east (353, 327: wary, standing decides, the Warden is group content); the road to the Twilight Moors on the south edge. Levels: 7-12 across the zone, 13-16 = group content. spawn_chance per second, max_active per point, respawn_time seconds.",
+ "density": 1.0,
+ "activation_range": 400,
+ "no_monster_zones": [
+  {
+   "name": "Zone-in from Dustwind",
+   "min": [
+    -40,
+    -512
+   ],
+   "max": [
+    40,
+    -430
+   ]
+  },
+  {
+   "name": "The Oasis (Sahren's stop; the spring)",
+   "min": [
+    -340,
+    -310
+   ],
+   "max": [
+    -200,
+    -180
+   ]
+  },
+  {
+   "name": "The Neutral Vendor Camp (Sahren's stop)",
+   "min": [
+    -20,
+    60
+   ],
+   "max": [
+    75,
+    140
+   ]
+  },
+  {
+   "name": "Sahren's stop: the Djhanid Encampment",
+   "min": [
+    380,
+    260
+   ],
+   "max": [
+    440,
+    320
+   ]
+  },
+  {
+   "name": "The Twilight Moors road (south edge)",
+   "min": [
+    -40,
+    440
+   ],
+   "max": [
+    40,
+    512
+   ]
+  }
+ ],
+ "spawns": [
+  {
+   "mob_type": "khepri_beetle",
+   "position": [
+    -150,
+    2,
+    -380
+   ],
+   "spawn_radius": 40.0,
+   "spawn_chance": 0.6,
+   "max_active": 3,
+   "respawn_time": 25,
+   "spawn_zone": "northern_dunes"
+  },
+  {
+   "mob_type": "khepri_beetle",
+   "position": [
+    180,
+    2,
+    -400
+   ],
+   "spawn_radius": 40.0,
+   "spawn_chance": 0.6,
+   "max_active": 3,
+   "respawn_time": 25,
+   "spawn_zone": "northern_dunes"
+  },
+  {
+   "mob_type": "sandshifter",
+   "position": [
+    -60,
+    2,
+    -300
+   ],
+   "spawn_radius": 35.0,
+   "spawn_chance": 0.5,
+   "max_active": 2,
+   "respawn_time": 30,
+   "spawn_zone": "northern_dunes"
+  },
+  {
+   "mob_type": "sandshifter",
+   "position": [
+    250,
+    2,
+    -300
+   ],
+   "spawn_radius": 35.0,
+   "spawn_chance": 0.5,
+   "max_active": 2,
+   "respawn_time": 30,
+   "spawn_zone": "northern_dunes"
+  },
+  {
+   "mob_type": "bonegnawer",
+   "position": [
+    445,
+    2,
+    -393
+   ],
+   "spawn_radius": 15.0,
+   "spawn_chance": 0.7,
+   "max_active": 3,
+   "respawn_time": 22,
+   "spawn_zone": "bonegnawer_camp_north"
+  },
+  {
+   "mob_type": "bonegnawer_hunter",
+   "position": [
+    445,
+    2,
+    -393
+   ],
+   "spawn_radius": 15.0,
+   "spawn_chance": 0.45,
+   "max_active": 2,
+   "respawn_time": 25,
+   "spawn_zone": "bonegnawer_camp_north"
+  },
+  {
+   "mob_type": "bonegnawer",
+   "position": [
+    325,
+    2,
+    -287
+   ],
+   "spawn_radius": 15.0,
+   "spawn_chance": 0.7,
+   "max_active": 3,
+   "respawn_time": 22,
+   "spawn_zone": "bonegnawer_camp_west"
+  },
+  {
+   "mob_type": "bonegnawer_shaman",
+   "position": [
+    325,
+    2,
+    -287
+   ],
+   "spawn_radius": 10.0,
+   "spawn_chance": 0.35,
+   "max_active": 1,
+   "respawn_time": 35,
+   "spawn_zone": "bonegnawer_camp_west"
+  },
+  {
+   "mob_type": "bonegnawer",
+   "position": [
+    445,
+    2,
+    -207
+   ],
+   "spawn_radius": 15.0,
+   "spawn_chance": 0.7,
+   "max_active": 3,
+   "respawn_time": 22,
+   "spawn_zone": "bonegnawer_camp_south"
+  },
+  {
+   "mob_type": "bonegnawer_hunter",
+   "position": [
+    445,
+    2,
+    -207
+   ],
+   "spawn_radius": 15.0,
+   "spawn_chance": 0.45,
+   "max_active": 2,
+   "respawn_time": 25,
+   "spawn_zone": "bonegnawer_camp_south"
+  },
+  {
+   "mob_type": "bonegnawer_shaman",
+   "position": [
+    445,
+    2,
+    -207
+   ],
+   "spawn_radius": 10.0,
+   "spawn_chance": 0.35,
+   "max_active": 1,
+   "respawn_time": 35,
+   "spawn_zone": "bonegnawer_camp_south"
+  },
+  {
+   "mob_type": "dustwalker_defiler",
+   "position": [
+    100,
+    2,
+    -347
+   ],
+   "spawn_radius": 15.0,
+   "spawn_chance": 0.5,
+   "max_active": 2,
+   "respawn_time": 30,
+   "spawn_zone": "corrupted_altar"
+  },
+  {
+   "mob_type": "sandshifter",
+   "position": [
+    130,
+    2,
+    -320
+   ],
+   "spawn_radius": 25.0,
+   "spawn_chance": 0.5,
+   "max_active": 2,
+   "respawn_time": 30,
+   "spawn_zone": "corrupted_altar"
+  },
+  {
+   "mob_type": "dustwalker_commander",
+   "position": [
+    100,
+    2,
+    -360
+   ],
+   "spawn_radius": 4.0,
+   "spawn_chance": 0.02,
+   "max_active": 1,
+   "respawn_time": 1800,
+   "spawn_zone": "corrupted_altar_named"
+  },
+  {
+   "mob_type": "mirage_phantom",
+   "position": [
+    -100,
+    2,
+    -60
+   ],
+   "spawn_radius": 45.0,
+   "spawn_chance": 0.5,
+   "max_active": 2,
+   "respawn_time": 30,
+   "spawn_zone": "mirage_dunes"
+  },
+  {
+   "mob_type": "khepri_beetle",
+   "position": [
+    250,
+    2,
+    -60
+   ],
+   "spawn_radius": 40.0,
+   "spawn_chance": 0.5,
+   "max_active": 2,
+   "respawn_time": 25,
+   "spawn_zone": "mirage_dunes"
+  },
+  {
+   "mob_type": "sandshifter_elite",
+   "position": [
+    -20,
+    2,
+    -150
+   ],
+   "spawn_radius": 30.0,
+   "spawn_chance": 0.03,
+   "max_active": 1,
+   "respawn_time": 900,
+   "spawn_zone": "mirage_dunes_rare"
+  },
+  {
+   "mob_type": "sandshifter_alpha",
+   "position": [
+    280,
+    2,
+    20
+   ],
+   "spawn_radius": 10.0,
+   "spawn_chance": 0.01,
+   "max_active": 1,
+   "respawn_time": 3600,
+   "spawn_zone": "mirage_dunes_rare"
+  },
+  {
+   "mob_type": "tomb_skeleton",
+   "position": [
+    139,
+    2,
+    -120
+   ],
+   "spawn_radius": 35.0,
+   "spawn_chance": 0.7,
+   "max_active": 4,
+   "respawn_time": 22,
+   "spawn_zone": "mass_gravesite"
+  },
+  {
+   "mob_type": "wight",
+   "position": [
+    170,
+    2,
+    -100
+   ],
+   "spawn_radius": 30.0,
+   "spawn_chance": 0.4,
+   "max_active": 2,
+   "respawn_time": 35,
+   "spawn_zone": "mass_gravesite"
+  },
+  {
+   "mob_type": "mirage_phantom",
+   "position": [
+    110,
+    2,
+    -150
+   ],
+   "spawn_radius": 30.0,
+   "spawn_chance": 0.4,
+   "max_active": 1,
+   "respawn_time": 35,
+   "spawn_zone": "mass_gravesite"
+  },
+  {
+   "mob_type": "phantom_lord",
+   "position": [
+    139,
+    2,
+    -120
+   ],
+   "spawn_radius": 4.0,
+   "spawn_chance": 0.02,
+   "max_active": 1,
+   "respawn_time": 1800,
+   "spawn_zone": "mass_gravesite_named"
+  },
+  {
+   "mob_type": "takmajir_scout",
+   "position": [
+    -390,
+    2,
+    73
+   ],
+   "spawn_radius": 15.0,
+   "spawn_chance": 0.6,
+   "max_active": 2,
+   "respawn_time": 25,
+   "spawn_zone": "takmajir_camp"
+  },
+  {
+   "mob_type": "takmajir_assassin",
+   "position": [
+    -390,
+    2,
+    73
+   ],
+   "spawn_radius": 15.0,
+   "spawn_chance": 0.4,
+   "max_active": 1,
+   "respawn_time": 30,
+   "spawn_zone": "takmajir_camp"
+  },
+  {
+   "mob_type": "takmajir_scout",
+   "position": [
+    -262,
+    2,
+    127
+   ],
+   "spawn_radius": 15.0,
+   "spawn_chance": 0.6,
+   "max_active": 2,
+   "respawn_time": 25,
+   "spawn_zone": "takmajir_camp"
+  },
+  {
+   "mob_type": "takmajir_ritualist",
+   "position": [
+    -262,
+    2,
+    127
+   ],
+   "spawn_radius": 10.0,
+   "spawn_chance": 0.4,
+   "max_active": 1,
+   "respawn_time": 35,
+   "spawn_zone": "takmajir_camp"
+  },
+  {
+   "mob_type": "takmajir_assassin",
+   "position": [
+    -380,
+    2,
+    233
+   ],
+   "spawn_radius": 15.0,
+   "spawn_chance": 0.5,
+   "max_active": 2,
+   "respawn_time": 30,
+   "spawn_zone": "takmajir_camp"
+  },
+  {
+   "mob_type": "takmajir_ritualist",
+   "position": [
+    -380,
+    2,
+    233
+   ],
+   "spawn_radius": 10.0,
+   "spawn_chance": 0.4,
+   "max_active": 1,
+   "respawn_time": 35,
+   "spawn_zone": "takmajir_camp"
+  },
+  {
+   "mob_type": "takmajir_bladestorm",
+   "position": [
+    -436,
+    2,
+    413
+   ],
+   "spawn_radius": 8.0,
+   "spawn_chance": 0.3,
+   "max_active": 2,
+   "respawn_time": 600,
+   "spawn_zone": "takmajir_camp_south_named"
+  },
+  {
+   "mob_type": "takmajir_spymaster",
+   "position": [
+    -436,
+    2,
+    413
+   ],
+   "spawn_radius": 4.0,
+   "spawn_chance": 0.02,
+   "max_active": 1,
+   "respawn_time": 1800,
+   "spawn_zone": "takmajir_camp_south_named"
+  },
+  {
+   "mob_type": "wight",
+   "position": [
+    18,
+    2,
+    327
+   ],
+   "spawn_radius": 50.0,
+   "spawn_chance": 0.5,
+   "max_active": 2,
+   "respawn_time": 30,
+   "spawn_zone": "bleached_forest"
+  },
+  {
+   "mob_type": "mirage_phantom",
+   "position": [
+    60,
+    2,
+    280
+   ],
+   "spawn_radius": 45.0,
+   "spawn_chance": 0.5,
+   "max_active": 2,
+   "respawn_time": 30,
+   "spawn_zone": "bleached_forest"
+  },
+  {
+   "mob_type": "dustwalker_defiler",
+   "position": [
+    151,
+    2,
+    233
+   ],
+   "spawn_radius": 10.0,
+   "spawn_chance": 0.4,
+   "max_active": 1,
+   "respawn_time": 35,
+   "spawn_zone": "ritual_circles"
+  },
+  {
+   "mob_type": "dustwalker_defiler",
+   "position": [
+    -115,
+    2,
+    360
+   ],
+   "spawn_radius": 10.0,
+   "spawn_chance": 0.4,
+   "max_active": 1,
+   "respawn_time": 35,
+   "spawn_zone": "ritual_circles"
+  },
+  {
+   "mob_type": "djhanid_guardian",
+   "position": [
+    353,
+    2,
+    327
+   ],
+   "spawn_radius": 20.0,
+   "spawn_chance": 0.8,
+   "max_active": 3,
+   "respawn_time": 40,
+   "spawn_zone": "djhanid_encampment"
+  },
+  {
+   "mob_type": "djhanid_tracker",
+   "position": [
+    330,
+    2,
+    300
+   ],
+   "spawn_radius": 25.0,
+   "spawn_chance": 0.6,
+   "max_active": 2,
+   "respawn_time": 40,
+   "spawn_zone": "djhanid_encampment"
+  },
+  {
+   "mob_type": "djhanid_spiritist",
+   "position": [
+    370,
+    2,
+    345
+   ],
+   "spawn_radius": 10.0,
+   "spawn_chance": 0.5,
+   "max_active": 1,
+   "respawn_time": 60,
+   "spawn_zone": "djhanid_encampment"
+  },
+  {
+   "mob_type": "djhanid_warden",
+   "position": [
+    360,
+    2,
+    350
+   ],
+   "spawn_radius": 3.0,
+   "spawn_chance": 0.03,
+   "max_active": 1,
+   "respawn_time": 1800,
+   "spawn_zone": "djhanid_encampment_named"
+  },
+  {
+   "mob_type": "bonegnawer_hunter",
+   "position": [
+    399,
+    2,
+    20
+   ],
+   "spawn_radius": 20.0,
+   "spawn_chance": 0.5,
+   "max_active": 2,
+   "respawn_time": 25,
+   "spawn_zone": "kragthar_approach"
+  },
+  {
+   "mob_type": "bonegnawer",
+   "position": [
+    399,
+    2,
+    40
+   ],
+   "spawn_radius": 20.0,
+   "spawn_chance": 0.6,
+   "max_active": 2,
+   "respawn_time": 22,
+   "spawn_zone": "kragthar_approach"
+  }
+ ]
+}

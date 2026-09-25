@@ -1,0 +1,18 @@
+{
+ "_comment": "make_masks.py: each region's original colour (sRGB 0-1); the mask is gnome_female_breathing_idle_mask.png",
+ "skin": [
+  0.7212,
+  0.5502,
+  0.4685
+ ],
+ "hair": [
+  0.651,
+  0.3191,
+  0.091
+ ],
+ "eyes": [
+  0.5199,
+  0.3003,
+  0.1631
+ ]
+}

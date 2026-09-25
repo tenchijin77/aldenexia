@@ -297,6 +297,12 @@ const ENVIRONMENTAL_EFFECT_DESCRIPTIONS := {
 	"withering_touch": "A withering touch drains your life every few seconds until it fades, or a cure removes it.",
 	"bleeding": "Bleeding: a deep wound that hurts every few seconds until it closes.",
 	"grave_miasma": "The grave's miasma: you are weakened (10% softer blows) and sickened until it passes, or a cure removes it.",
+	"ensnared": "Ensnared: webs or roots hold your legs; you can barely move until you break free.",
+	"silenced": "Silenced: you can't cast spells (skills still work) until it wears off, or a cure removes it.",
+	"cursed": "Cursed: your blows land softer and you miss more often until the curse lifts, or a cure removes it.",
+	"burning": "Burning: flames eat at you every few seconds until they go out.",
+	"chilled": "Chilled to the bone: you move and swing more slowly until you warm up.",
+	"terrified": "Terrified: your hands shake; you miss more often until your nerve returns.",
 	"lit_torch": "A burning torch lights the way. Rain will put it out, and it gives away a sneaking Shadowblade. Right-click to put it out.",
 }
 # Effects that borrow one of the spell icons (effect name -> icon path). There is no dedicated art for these yet, so they
@@ -315,10 +321,16 @@ const ENVIRONMENTAL_EFFECT_SPELL_ICONS := {
 	"withering_touch": "res://Assets/icons/spells/aoenecromancy.png",
 	"bleeding": "res://Assets/icons/spells/aoephysical.png",
 	"grave_miasma": "res://Assets/icons/spells/groupnecromancy.png",
+	"ensnared": "res://Assets/icons/spells/targetroot.png",
+	"silenced": "res://Assets/icons/spells/targetsilence.png",
+	"cursed": "res://Assets/icons/spells/targetnecromancy.png",
+	"burning": "res://Assets/icons/spells/aoefire.png",
+	"chilled": "res://Assets/icons/spells/targetice.png",
+	"terrified": "res://Assets/icons/spells/targetfear.png",
 }
 # Environmental effects that are harmful (red box, yellow border).
 const ENVIRONMENTAL_DEBUFFS := ["weak_poison", "disease", "strong_poison", "weakening_venom", "sundered_armor", "crippled", "blinded",
-		"dazed", "withering_touch", "bleeding", "grave_miasma"]
+		"dazed", "withering_touch", "bleeding", "grave_miasma", "ensnared", "silenced", "cursed", "burning", "chilled", "terrified"]
 # Effects that show an item's icon on the buff bar (effect name -> items.json id).
 const ENVIRONMENTAL_EFFECT_ITEM_ICONS := {
 	"lit_torch": "torch",

@@ -368,9 +368,9 @@
   {
    "mob_type": "blighted_spider",
    "position": [
-    0,
+    35,
     2,
-    -850.86
+    -815
    ],
    "spawn_radius": 26.0,
    "spawn_chance": 0.75,
@@ -381,9 +381,9 @@
   {
    "mob_type": "blighted_spider",
    "position": [
-    0,
+    35,
     2,
-    -850.86
+    -815
    ],
    "spawn_radius": 24.0,
    "spawn_chance": 0.7,
@@ -394,9 +394,9 @@
   {
    "mob_type": "blighted_spider",
    "position": [
-    0,
+    35,
     2,
-    -850.86
+    -815
    ],
    "spawn_radius": 24.0,
    "spawn_chance": 0.65,
@@ -407,9 +407,9 @@
   {
    "mob_type": "blighted_spider",
    "position": [
-    0,
+    35,
     2,
-    -850.86
+    -815
    ],
    "spawn_radius": 24.0,
    "spawn_chance": 0.65,
@@ -420,9 +420,9 @@
   {
    "mob_type": "spiderling",
    "position": [
-    0,
+    35,
     2,
-    -850.86
+    -815
    ],
    "spawn_radius": 32.0,
    "spawn_chance": 0.8,
@@ -548,7 +548,7 @@
    "spawn_zone": "south_b"
   },
   {
-   "mob_type": "mirage_phantom",
+   "mob_type": "desert_ghost",
    "position": [
     -80,
     2,
@@ -639,7 +639,7 @@
    "spawn_zone": "road_west"
   },
   {
-   "mob_type": "mirage_phantom",
+   "mob_type": "desert_ghost",
    "position": [
     -520,
     2,
@@ -888,9 +888,9 @@
   {
    "mob_type": "weavemother_vhessa",
    "position": [
-    0,
+    35,
     2,
-    -850.86
+    -815
    ],
    "spawn_radius": 5.0,
    "spawn_chance": 1.0,

@@ -5,7 +5,7 @@ extends "res://tools/tests/test_base.gd"
 
 func run() -> void:
 	var base := 1790000000.0
-	# The loop: Outskirts, then Dustwind (Ashfall is off until it's built); never two zones at once (one answer per moment)
+	# The loop: Outskirts, Dustwind, Ashfall; never two zones at once (one answer per moment)
 	var zones_seen: Array = []
 	var order: Array = []
 	var t := base
@@ -18,7 +18,15 @@ func run() -> void:
 			zones_seen.append(z)
 		t += 30.0
 	check(zones_seen.has("lumora_outskirts") and zones_seen.has("dustwind_plateaus"), "he visits the Outskirts and Dustwind: %s" % str(zones_seen))
-	check(not zones_seen.has("ashfall_dunes"), "not Ashfall while it's switched off")
+	check(zones_seen.has("ashfall_dunes"), "and Ashfall")
+	var legs := MerchantSchedule.legs()
+	var overlap := false
+	for cycle in range(19000, 19400):   # every loop's last leg ends before the next loop's first begins, whatever the drift
+		var last: Dictionary = legs[-1]
+		overlap = overlap or MerchantSchedule.leg_start(last, cycle) + MerchantSchedule.leg_seconds(last, cycle) >= MerchantSchedule.leg_start(legs[0], cycle + 1)
+		for i in range(1, legs.size()):
+			overlap = overlap or MerchantSchedule.leg_start(legs[i - 1], cycle) + MerchantSchedule.leg_seconds(legs[i - 1], cycle) >= MerchantSchedule.leg_start(legs[i], cycle)
+	check(not overlap, "no leg runs into the next (400 loops)")
 	var alternates := true
 	for i in range(1, order.size()):
 		alternates = alternates and order[i] != order[i - 1]
@@ -28,6 +36,11 @@ func run() -> void:
 	for cycle in range(20, 26):
 		starts.append(fmod(MerchantSchedule.leg_start(MerchantSchedule.legs()[0], cycle), 5400.0))
 	check(starts.any(func(s): return absf(s - starts[0]) > 30.0), "the loop drifts a little from one to the next")
+	var drifts: Array = []
+	for cycle in range(100, 140):
+		drifts.append(MerchantSchedule.leg_start(MerchantSchedule.legs()[0], cycle) - cycle * 5400.0)
+	var drift_max := float(MerchantSchedule.journey().get("drift_minutes", 8)) * 60.0
+	check(drifts.max() - drifts.min() > drift_max, "and really scatters across +/- drift_minutes (spread %d s)" % int(drifts.max() - drifts.min()))
 
 	# A moment when he's trading at the docks, and one when he's walking in Dustwind
 	var at_docks := -1.0

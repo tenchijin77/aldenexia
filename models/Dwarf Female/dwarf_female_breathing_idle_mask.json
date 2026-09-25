@@ -1,0 +1,14 @@
+{
+ "_comment": "make_masks.py: each region's original colour (sRGB 0-1); the mask is dwarf_female_breathing_idle_mask.png",
+ "skin": [
+  0.6993,
+  0.5464,
+  0.4699
+ ],
+ "hair": [
+  0.3677,
+  0.1907,
+  0.0486
+ ],
+ "eyes": null
+}

@@ -13,14 +13,37 @@ const SMOOTH_ANGLE := 60.0           # degrees: like Blender's auto smooth
 static var SMOOTH_COS := cos(deg_to_rad(SMOOTH_ANGLE))
 
 
-# Smooths every MeshInstance3D under `root` (a character model just instantiated).
+# Smooths every MeshInstance3D under `root` (a character model just instantiated). A model rebuilt in Blender
+# (tools/smooth_models.sh: subdivided, truly smooth) has a <scene>_smooth_mesh.res next to its FBX: that mesh is used
+# instead — same skeleton, skin and animations, only the triangles differ. Otherwise the normals are smoothed here.
 static func smooth_model(root: Node) -> void:
 	if root == null or Net.is_dedicated_server or DisplayServer.get_name() == "headless":
 		return   # nothing is drawn there
+	if use_rebuilt_mesh(root):
+		return
 	for mi in root.find_children("*", "MeshInstance3D", true, false):
 		var inst := mi as MeshInstance3D
 		if inst.mesh is ArrayMesh:
 			inst.mesh = smoothed(inst.mesh)
+
+
+static func rebuilt_mesh_path(scene_path: String) -> String:
+	return scene_path.get_base_dir().path_join(scene_path.get_file().get_basename().to_snake_case() + "_smooth_mesh.res")
+
+
+# Swaps in the Blender-rebuilt mesh if this model has one. True if it did.
+static func use_rebuilt_mesh(root: Node) -> bool:
+	var scene_path := root.scene_file_path
+	if scene_path.is_empty():
+		return false
+	var path := rebuilt_mesh_path(scene_path)
+	if not ResourceLoader.exists(path):
+		return false
+	var meshes := root.find_children("*", "MeshInstance3D", true, false)
+	if meshes.size() != 1:
+		return false   # built for single-mesh models only
+	(meshes[0] as MeshInstance3D).mesh = load(path)
+	return true
 
 
 static func smoothed(mesh: ArrayMesh) -> ArrayMesh:

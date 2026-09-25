@@ -10,8 +10,8 @@
 				"luminar covenant": 20,
 				"wardens of the sacred flame": 15,
 				"villagers of lumora": 5,
-				"umbral talon": -20,
-				"twilight accord": -15,
+				"the moribund order": -20,
+				"tenebrae obscurium": -15,
 				"veilstriders": -15,
 				"stoneblood clan": -10
 			},
@@ -34,9 +34,9 @@
 			"base_standing": 45,
 			"faction_standing_modifiers": {
 				"circle of thorns": 20,
-				"verdant kin": 15,
+				"the verdant kin": 15,
 				"villagers of lumora": 5,
-				"umbral talon": -15,
+				"the moribund order": -15,
 				"arcane dominion": -10,
 				"brood of fennarach": -5
 			},
@@ -59,7 +59,7 @@
 				"hands of the eternal forge": 20,
 				"ironclad brotherhood": 15,
 				"luminar covenant": 5,
-				"umbral talon": -10,
+				"the moribund order": -10,
 				"stoneblood clan": -5
 			},
 			"deity_standing_modifiers": {
@@ -80,7 +80,7 @@
 				"arcane synod": 20,
 				"luminar covenant": 5,
 				"arcane dominion": -10,
-				"umbral talon": -5
+				"the moribund order": -5
 			},
 			"deity_standing_modifiers": {
 				"aurethiel": 5,
@@ -98,9 +98,9 @@
 			"faction_standing_modifiers": {
 				"villagers of lumora": 15,
 				"circle of thorns": 10,
-				"verdant kin": 10,
+				"the verdant kin": 10,
 				"luminar covenant": 5,
-				"umbral talon": -10,
+				"the moribund order": -10,
 				"stoneblood clan": -5
 			},
 			"deity_standing_modifiers": {
@@ -118,10 +118,10 @@
 			"description": "Half-elven muse of harmony and artistic expression, calming strife.",
 			"base_standing": 40,
 			"faction_standing_modifiers": {
-				"echoes of the deep": 20,
+				"lirael's concord": 20,
 				"villagers of lumora": 10,
 				"luminar covenant": 5,
-				"umbral talon": -10
+				"the moribund order": -10
 			},
 			"deity_standing_modifiers": {
 				"aurethiel": 5,
@@ -138,7 +138,7 @@
 			"description": "Ogre/Lizardkin war god, inspiring might and territorial expansion.",
 			"base_standing": 10,
 			"faction_standing_modifiers": {
-				"umbral talon": 20,
+				"the moribund order": 20,
 				"shattered horn tribe": 15,
 				"brood of fennarach": 15,
 				"ironclad brotherhood": 10,
@@ -146,8 +146,8 @@
 				"wardens of the sacred flame": -15,
 				"villagers of lumora": -10,
 				"circle of thorns": -10,
-				"verdant kin": -10,
-				"echoes of the deep": -10
+				"the verdant kin": -10,
+				"lirael's concord": -10
 			},
 			"deity_standing_modifiers": {
 				"aurethiel": -20,
@@ -168,13 +168,13 @@
 			"base_standing": 10,
 			"faction_standing_modifiers": {
 				"stoneblood clan": 20,
-				"umbral talon": 10,
+				"the moribund order": 10,
 				"luminar covenant": -15,
 				"wardens of the sacred flame": -10,
 				"villagers of lumora": -5,
 				"circle of thorns": -5,
-				"verdant kin": -5,
-				"echoes of the deep": -5
+				"the verdant kin": -5,
+				"lirael's concord": -5
 			},
 			"deity_standing_modifiers": {
 				"aurethiel": -15,
@@ -192,15 +192,15 @@
 			"description": "Vol'kyne patron of stealth and hidden knowledge, dwelling in the dark places.",
 			"base_standing": 15,
 			"faction_standing_modifiers": {
-				"umbral talon": 10,
-				"twilight accord": 15,
+				"the moribund order": 10,
+				"tenebrae obscurium": 15,
 				"veilstriders": 20,
 				"luminar covenant": -15,
 				"wardens of the sacred flame": -10,
 				"villagers of lumora": -5,
 				"circle of thorns": -5,
-				"verdant kin": -5,
-				"echoes of the deep": -5
+				"the verdant kin": -5,
+				"lirael's concord": -5
 			},
 			"deity_standing_modifiers": {
 				"aurethiel": -15,
@@ -221,7 +221,7 @@
 			"base_standing": 20,
 			"faction_standing_modifiers": {
 				"ironclad brotherhood": 15,
-				"umbral talon": 10,
+				"the moribund order": 10,
 				"villagers of lumora": -10,
 				"luminar covenant": -5
 			},

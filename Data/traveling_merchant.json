@@ -4,8 +4,9 @@
   "JOURNEY: he walks one loop through Solgrave's zones on a shared timetable ('journey' below) and is only ever in ONE zone: every zone's",
   "server works out from the clock where he is, so they agree without talking to each other. Each loop starts up to drift_minutes early",
   "or late and his stays vary by stay_jitter (the same roll on every server). A leg: he appears at 'enter' ([x, z] in that zone), walks",
-  "to each stop in turn and trades there for its stay_seconds, then walks to 'exit' and is gone. A leg with enabled false (Ashfall until",
-  "it is built) is skipped: he goes on to the next. start_minute = minutes into the loop the leg begins; cycle_minutes = the whole loop.",
+  "to each stop in turn and trades there for its stay_seconds, then walks to 'exit' and is gone. A leg with enabled false is skipped: he",
+  "goes on to the next. The loop is tight with three zones (drift 4, Ashfall stays under 3 min): the last leg must end 2 x drift before",
+  "the next loop starts, or he'd be in two zones at once (test_merchant.gd checks). start_minute = minutes into the loop the leg begins; cycle_minutes = the whole loop.",
   "walk_speed is metres per second; walk_factor allows for paths longer than a straight line when the timetable estimates a walk.",
   "He trades at his stops AND on the road: hail him (or right-click him) while he walks and he stops for a chat and a sale, then goes on",
   "after 'roadside_pause_seconds' without a customer.",
@@ -383,7 +384,7 @@
  "roadside_pause_seconds": 60,
  "journey": {
   "cycle_minutes": 90,
-  "drift_minutes": 8,
+  "drift_minutes": 4,
   "stay_jitter": 0.2,
   "walk_speed": 3.5,
   "walk_factor": 1.25,
@@ -423,7 +424,7 @@
    },
    {
     "zone": "dustwind_plateaus",
-    "start_minute": 42,
+    "start_minute": 36,
     "enter": [
      0,
      -470
@@ -462,8 +463,7 @@
    },
    {
     "zone": "ashfall_dunes",
-    "enabled": false,
-    "start_minute": 68,
+    "start_minute": 62,
     "enter": [
      0,
      -470
@@ -472,34 +472,33 @@
      {
       "name": "the Oasis",
       "at": [
-       -200,
-       -100
+       -271,
+       -247
       ],
-      "stay_seconds": 240
+      "stay_seconds": 170
      },
      {
       "name": "the Neutral Vendor Camp",
       "at": [
-       100,
-       250
+       27,
+       100
       ],
-      "stay_seconds": 240
+      "stay_seconds": 170
      },
      {
       "name": "the Djhanid Encampment",
       "at": [
-       380,
-       350
+       410,
+       290
       ],
-      "stay_seconds": 300
+      "stay_seconds": 170
      }
     ],
     "exit": [
      0,
-     -470
+     495
     ],
-    "exit_name": "the north road",
-    "_note": "Positions are placeholders until Ashfall is built (from Solgrave Expanse Map.drawio); set enabled true then."
+    "exit_name": "the Twilight Moors road"
    }
   ]
  }

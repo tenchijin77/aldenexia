@@ -1,7 +1,6 @@
 [gd_scene format=3 uid="uid://bdunec8ddde6y"]
 
 [ext_resource type="PackedScene" uid="uid://gbkq7dbtvcwh" path="res://Scenes/campfire.tscn" id="1_17dwb"]
-[ext_resource type="PackedScene" uid="uid://b4k2monster3d" path="res://Scenes/monster_template.tscn" id="1_buoj8"]
 [ext_resource type="PackedScene" uid="uid://cvn5f0j0b3bwg" path="res://Scenes/player3d.tscn" id="1_xodo7"]
 [ext_resource type="PackedScene" uid="uid://fykigyrbdxvm" path="res://models/water/water.glb" id="2_1c7kq"]
 [ext_resource type="PackedScene" uid="uid://n22wbhn8u3rq" path="res://models/Tower Spike/Tower Spike.glb" id="2_4das3"]
@@ -175,10 +174,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20.184368, -2.2893581, -282.
 [node name="torch5" parent="Torches" unique_id=730755703 instance=ExtResource("4_axp1o")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -19.915846, -2.087597, -195.03049)
 
-[node name="monster_template" parent="." unique_id=2031395971 instance=ExtResource("1_buoj8")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -56.570557, 0, -786.9494)
-monster_name = "skeleton"
-
 [node name="monster_spawner" type="Node3D" parent="." unique_id=1015832831]
 script = ExtResource("3_u020j")
 
@@ -300,7 +295,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -33.49823, 0, 125.7903)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -36.372375, 0, -244.27975)
 
 [node name="Spider Den" type="Marker3D" parent="Markers" unique_id=487491048]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -850.8617)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 35, 0, -815)
 
 [node name="Goblin Camp 1" type="Marker3D" parent="Markers" unique_id=453703295]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -572.32983, 0, 605.41705)

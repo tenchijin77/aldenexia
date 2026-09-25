@@ -399,7 +399,10 @@ func _ready() -> void:
 		# bigger or smaller, "tint" ([r, g, b], multiplied into the texture) recolours it. No new art needed.
 		model_from      = str(stats.get("model_from", ""))
 		loot_from       = str(stats.get("loot_from", ""))
+		kill_standing   = stats.get("kill_standing", {}) if stats.get("kill_standing") is Dictionary else {}
 		knockback_immune = bool(stats.get("knockback_immune", false))
+		wary = bool(stats.get("wary", false))
+		_load_abilities(stats)
 		on_hit_effect = stats.get("on_hit_effect", {}) if stats.get("on_hit_effect") is Dictionary else {}
 		attack_verbs = stats.get("attack_verbs", []) if stats.get("attack_verbs") is Array else []
 		model_scale     = float(stats.get("model_scale", 1.0))
@@ -806,6 +809,14 @@ func _physics_process(delta: float) -> void:
 	if not _has_fled and flees_at_low_health and (current_state == State.CHASE or current_state == State.ATTACK) \
 			and combat_node.current_hp > 0 and combat_node.current_hp <= int(combat_node.max_hp * LOW_HEALTH_FLEE_FRACTION):
 		_start_low_health_flee()
+
+	# A spell being cast: it stands still and doesn't swing until it's done (or broken)
+	if _tick_abilities(delta):
+		if not is_on_floor():
+			velocity.y -= 20.0 * delta
+			move_and_slide()
+		_update_animation()
+		return
 
 	# State machine
 	match current_state:
@@ -1590,6 +1601,8 @@ func die(award_xp: bool = true, drop_loot: bool = true, credited_peer_id: int = 
 	if _death_handled:
 		return
 	_death_handled = true
+	_cancel_cast()
+	_dismiss_summons()
 	change_state(State.DEAD)
 	target_key = ""
 	print("💀 %s died! (XP: %d, Coins: %.2f, Category: %s)" % [monster_name, xp_gain, coin_modifier, category])
@@ -1640,6 +1653,12 @@ func die(award_xp: bool = true, drop_loot: bool = true, credited_peer_id: int = 
 				p.grant_xp(xp_gain)
 			elif p.has_method("receive_kill_credit"):
 				p.receive_kill_credit.rpc_id(p.get_multiplayer_authority(), xp_gain)
+			# Faction: killing a Djhanid costs standing with the clans; killing the Dustwalkers who ruin their name earns some.
+			if not kill_standing.is_empty() and p.has_method("receive_standing_changes"):
+				if p.is_multiplayer_authority():
+					p.receive_standing_changes(JSON.stringify(kill_standing))
+				else:
+					p.receive_standing_changes.rpc_id(p.get_multiplayer_authority(), JSON.stringify(kill_standing))
 
 	if animation_player and animation_player.has_animation("death"):
 		anim_state = "death"  # replicated — see _play_replicated_animation()
@@ -1775,6 +1794,8 @@ var knockback_immune := false
 # the player (snakes and spiders: Weak Poison). Applied on the player's own machine, where their health lives.
 var on_hit_effect: Dictionary = {}
 var loot_from := ""   # monsters.json "loot_from": use this monster's loot table while this one has none of its own
+var wary := false   # monsters.json "wary": never attacks first unless the player's standing makes it hate them
+var kill_standing: Dictionary = {}   # monsters.json "kill_standing": {"Djhanid Clans": -15} applied to whoever gets the kill
 var _knockback_time := 0.0
 var _knockback_velocity := Vector3.ZERO
 
@@ -1836,6 +1857,7 @@ func apply_networked_disable(duration: float) -> void:
 		return
 	can_attack = false
 	attack_timer = duration
+	interrupt_cast(duration)
 
 
 @rpc("any_peer", "call_remote", "reliable")
@@ -2103,7 +2125,7 @@ func _refresh_nameplate() -> void:
 	var near := is_instance_valid(me) and global_position.distance_squared_to(me.global_position) <= NAMEPLATE_DISTANCE * NAMEPLATE_DISTANCE
 	label.visible = near and not hidden
 	if label.visible:
-		label.text = TargetFrame.nameplate_name(self)
+		label.text = TargetFrame.nameplate_name(self) + ("\n(casting %s)" % casting if not casting.is_empty() else "")
 
 
 func _nearest_player() -> Node:
@@ -2129,6 +2151,19 @@ func can_see_player() -> bool:
 
 	var distance: float = global_position.distance_to(player.global_position)
 	var effective_range: float = minf(aggro_range / AGGRO_RANGE_SCALE, MAX_AGGRO_DISTANCE)
+
+	# Faction standing (player3d.gd kos_factions / ally_factions, replicated): a faction that hates this player attacks on
+	# sight whatever its usual temper (the Djhanid after you've killed their people); one that counts them an ally never
+	# starts a fight with them.
+	if faction != "None" and not faction.is_empty():
+		var hated_by = player.get("kos_factions")
+		if hated_by is PackedStringArray and (hated_by as PackedStringArray).has(faction):
+			return distance <= minf(maxf(aggro_range, 150.0) / AGGRO_RANGE_SCALE, MAX_AGGRO_DISTANCE)
+		var liked_by = player.get("ally_factions")
+		if liked_by is PackedStringArray and (liked_by as PackedStringArray).has(faction):
+			return false
+	if wary:
+		return false   # wary folk (the Djhanid) watch you but never start it — unless you're hated (above)
 
 	match behavior_type:
 		"passive":
@@ -2229,3 +2264,274 @@ func _apply_effect_here_or_server(effect_name: String, duration: float, mods: Di
 		combat_node.apply_effect(effect_name, duration, mods)
 	else:
 		apply_networked_effect.rpc_id(1, effect_name, duration, mods, 0, 1.0)
+
+
+# ── Abilities (2026-09-25): monsters.json "abilities" — named monsters cast, curse, heal, call for help and enrage ──
+# Each entry: {name, type, cast (seconds, 0 = instant), cooldown, first (seconds into a fight before its first use;
+# default 5, or 0 for one with hp_below),
+# hp_below (only under that share of health), once, range (m), radius (aoe, m), damage (at the monster's listed level,
+# scaled like its swings), school (the resist the target rolls: fire, cold, magic, poison, disease, spirit...),
+# effect {name, duration, modifiers, tick_damage, tick_interval} (a MONSTER_AILMENTS name, so cures and the buff bar know
+# it), heal (share of max health), summon (monster id) + count, enrage {damage_mult, attack_speed}, message ("%s" = the
+# monster's name)}. Types: nuke / debuff (the current target), aoe (every player within radius), heal, summon, enrage.
+# The server runs them. A spell with a cast time shows on the target window and nameplate ("casting ...") and is broken
+# by a stun, bash or silence; skills (cast 0) are not. Hits reach a player on their own machine (_rpc_ability_on_owner),
+# like swings do.
+const ABILITY_TYPES := ["nuke", "debuff", "aoe", "heal", "summon", "enrage"]
+var abilities: Array = []
+var casting := ""                     # replicated: the ability being cast ("" = none)
+var _ability_ready_at: Array = []     # fight seconds when each can next be used
+var _ability_used: Array = []         # once-only ones spent this fight
+var _fight_time := 0.0
+var _cast_left := 0.0
+var _cast_index := -1
+var _cast_target: Node = null
+var _stunned_left := 0.0
+var _summons: Array = []              # adds this monster called (they go when it dies or gives up)
+
+
+func _load_abilities(stats: Dictionary) -> void:
+	abilities = []
+	for a in stats.get("abilities", []):
+		if typeof(a) == TYPE_DICTIONARY and ABILITY_TYPES.has(str(a.get("type", ""))):
+			abilities.append(a)
+	_reset_abilities()
+
+
+func _reset_abilities() -> void:
+	_fight_time = 0.0
+	_ability_ready_at = []
+	_ability_used = []
+	for a in abilities:
+		_ability_ready_at.append(float(a.get("first", 0.0 if a.has("hp_below") else 5.0)))   # a low-health one: as soon as it's low
+		_ability_used.append(false)
+	_cancel_cast()
+	if combat_node and combat_node.active_effects.has("enraged"):
+		combat_node.remove_effect("enraged")
+
+
+func _cancel_cast() -> void:
+	_cast_index = -1
+	_cast_left = 0.0
+	_cast_target = null
+	casting = ""
+
+
+# A stun, bash or knock-down breaks a spell being cast (skills are instant), and nothing is used while it lasts.
+# Called by the disable paths with the stun's length.
+func interrupt_cast(stun_seconds := 0.0) -> void:
+	_stunned_left = maxf(_stunned_left, stun_seconds)
+	if _cast_index < 0:
+		return
+	var a: Dictionary = abilities[_cast_index]
+	_ability_ready_at[_cast_index] = _fight_time + 3.0   # it tries again soon
+	_cancel_cast()
+	_say("%s's %s is interrupted!" % [_desc().capitalize(), str(a.get("name", "spell"))])
+
+
+func _desc() -> String:
+	return monster_description if monster_description != "" else get_monster_name()
+
+
+# Everyone near hears it: the server tells the players around; a host or single player logs it too.
+func _say(text: String, color := "#ffcc66") -> void:
+	if text.is_empty():
+		return
+	var line := "[color=%s]%s[/color]" % [color, text]
+	if Net.is_multiplayer_game and multiplayer.has_multiplayer_peer() and multiplayer.is_server():
+		Net.broadcast_combat_message(line, global_position)
+	if not Net.is_dedicated_server:
+		GameLog.log_combat(line, global_position)
+
+
+# Server, every physics frame while fighting. Returns true while casting (the monster stands and doesn't swing).
+func _tick_abilities(delta: float) -> bool:
+	if abilities.is_empty():
+		return false
+	var fighting := current_state == State.CHASE or current_state == State.ATTACK
+	if not fighting:
+		if _fight_time > 0.0:
+			_reset_abilities()
+			_dismiss_summons()
+		return false
+	_fight_time += delta
+	for i in abilities.size():   # a frenzy isn't an action: it comes the moment health drops, even mid-cast
+		var e: Dictionary = abilities[i]
+		if str(e["type"]) == "enrage" and not _ability_used[i] and combat_node.current_hp <= int(combat_node.max_hp * float(e.get("hp_below", 0.25))):
+			_ability_used[i] = true
+			_use_ability(i, null)
+	if _cast_index >= 0:
+		if combat_node.get_modifier("silenced") > 0.0:
+			interrupt_cast()
+			return false
+		_cast_left -= delta
+		if is_instance_valid(_cast_target):
+			look_at_target(_cast_target.global_position)
+		if _cast_left <= 0.0:
+			var i := _cast_index
+			var target := _cast_target
+			_cancel_cast()
+			_use_ability(i, target)
+		return _cast_index >= 0 or _cast_left > 0.0
+	if _stunned_left > 0.0:
+		_stunned_left -= delta
+		return false   # stunned: no abilities either
+	var target := get_current_target()
+	for i in abilities.size():
+		var a: Dictionary = abilities[i]
+		if str(a["type"]) == "enrage" or _fight_time < float(_ability_ready_at[i]) or (bool(a.get("once", false)) and _ability_used[i]):
+			continue
+		if a.has("hp_below") and combat_node.current_hp > int(combat_node.max_hp * float(a["hp_below"])):
+			continue
+		var cast := float(a.get("cast", 0.0))
+		if cast > 0.0 and combat_node.get_modifier("silenced") > 0.0:
+			continue
+		var kind := str(a["type"])
+		if kind in ["nuke", "debuff"]:
+			if not is_instance_valid(target) or global_position.distance_to(target.global_position) > float(a.get("range", 20.0)):
+				continue
+		elif kind == "aoe" and _players_within(float(a.get("radius", 6.0))).is_empty():
+			continue
+		elif kind == "heal" and combat_node.current_hp >= combat_node.max_hp:
+			continue
+		_ability_ready_at[i] = _fight_time + float(a.get("cooldown", 20.0))
+		_ability_used[i] = true
+		if cast > 0.0:
+			_cast_index = i
+			_cast_left = cast
+			_cast_target = target
+			casting = str(a.get("name", "a spell"))
+			velocity.x = 0.0
+			velocity.z = 0.0
+			_say("%s begins to cast %s." % [_desc().capitalize(), casting])
+			return true
+		_use_ability(i, target)
+		return false
+	return false
+
+
+func _players_within(radius: float) -> Array:
+	var out: Array = []
+	for node in get_tree().get_nodes_in_group("player"):
+		if is_instance_valid(node) and not _player_is_down(node) and global_position.distance_to(node.global_position) <= radius:
+			out.append(node)
+	return out
+
+
+func _use_ability(i: int, target: Node) -> void:
+	if current_state == State.DEAD:
+		return
+	var a: Dictionary = abilities[i]
+	var who := _desc().capitalize()
+	match str(a["type"]):
+		"nuke", "debuff":
+			if is_instance_valid(target) and global_position.distance_to(target.global_position) <= float(a.get("range", 20.0)) + 5.0:
+				_ability_hit(target, i)
+		"aoe":
+			if a.has("say"):
+				_say(str(a["say"]) % who, "#ff9966")
+			for p in _players_within(float(a.get("radius", 6.0))):
+				_ability_hit(p, i)
+		"heal":
+			combat_node.heal(int(combat_node.max_hp * float(a.get("heal", 0.15))))
+			_say(str(a.get("message", "%s is bathed in healing light.")) % who, "#88ff88")
+		"summon":
+			_summon(str(a.get("summon", "")), int(a.get("count", 1)))
+			_say(str(a.get("message", "%s calls for help!")) % who, "#ff9966")
+		"enrage":
+			var e: Dictionary = a.get("enrage", {})
+			combat_node.apply_effect("enraged", 3600.0, {"damage_mult": float(e.get("damage_mult", 0.5)),
+					"attack_speed_slow": -float(e.get("attack_speed", 0.3))})
+			_say(str(a.get("message", "%s goes into a frenzy!")) % who, "#ff4444")
+
+
+# Hands one ability hit to whoever owns the target (a remote player's own machine), or lands it here.
+func _ability_hit(target: Node, i: int) -> void:
+	var amount := int(round(float(abilities[i].get("damage", 0)) * _balance_damage_scale))
+	if Net.is_multiplayer_game and target.is_inside_tree() and not target.is_multiplayer_authority():
+		_rpc_ability_on_owner.rpc_id(target.get_multiplayer_authority(), target.get_path(), i, amount)
+		return
+	land_ability(target, i, amount)
+
+
+@rpc("authority", "call_remote", "reliable")
+func _rpc_ability_on_owner(target_path: NodePath, i: int, amount: int) -> void:
+	var target := get_node_or_null(target_path)
+	if is_instance_valid(target) and target.is_multiplayer_authority() and i >= 0 and i < abilities.size():
+		land_ability(target, i, amount)
+
+
+# On the target's own machine: the resist roll, the damage, the ailment, the message.
+func land_ability(target: Node, i: int, amount: int) -> void:
+	var cn = target.get("combat_node") if "combat_node" in target else null
+	if not (cn is CombatNode) or (target.is_in_group("player") and _player_is_down(target)):
+		return
+	var a: Dictionary = abilities[i]
+	var who := _desc().capitalize()
+	var spell := str(a.get("name", "a spell"))
+	var is_player := target.is_in_group("player")
+	if ability_resisted(cn, str(a.get("school", "")), level):
+		if is_player:
+			GameLog.log_combat("[color=#aaddff]You resist %s's %s![/color]" % [who, spell])
+		return
+	var taken := 0
+	if amount > 0:
+		taken = cn.take_damage(amount)
+	var effect: Dictionary = a.get("effect", {})
+	var afflicted := false
+	if not effect.is_empty() and not cn.rolls_resist_negative_effect():
+		var mods: Dictionary = effect.get("modifiers", {}) if effect.get("modifiers") is Dictionary else {}
+		cn.apply_effect(str(effect.get("name", "cursed")), float(effect.get("duration", 20.0)), mods.duplicate(),
+				int(effect.get("tick_damage", 0)), float(effect.get("tick_interval", 6.0)))
+		afflicted = true
+	if is_player:
+		var line := str(a.get("message", "%s's " + spell + " strikes you!"))
+		line = line % who if line.contains("%s") else line
+		if taken > 0:
+			line += " (%d damage)" % taken
+		GameLog.log_combat("[color=%s]%s[/color]" % ["#ff7766" if taken > 0 else "#cc88ff", line])
+		if afflicted and target.has_method("on_attacked"):
+			target.on_attacked(self)
+	elif not cn.is_alive() and target.has_method("die"):
+		target.die()
+
+
+# The target's resist against a monster's spell: a full resist, EverQuest style — the resist stat against the caster's
+# level. No school (a skill, a thrown net) = never resisted.
+static func ability_resisted(cn: CombatNode, school: String, caster_level: int) -> bool:
+	if school.is_empty() or school == "physical":
+		return false
+	var resist := float(cn.get_derived_stat(school + "_resist"))
+	var chance := clampf(resist / (resist + 10.0 * float(caster_level) + 50.0), 0.02, 0.75)
+	return randf() < chance
+
+
+# Adds the monster calls: spawned by its zone's MobSpawner like any monster (so every player sees them), outside the
+# spawn counts; they go when it dies or gives up the fight.
+func _summon(mob_type: String, count: int) -> void:
+	if mob_type.is_empty():
+		return
+	var spawner_node := get_parent().get_parent() if get_parent() else null
+	for n in count:
+		var at := global_position + Vector3(randf_range(-2.5, 2.5), 0.0, randf_range(-2.5, 2.5))
+		var add: Node = null
+		if spawner_node and spawner_node.has_method("spawn_extra"):
+			add = spawner_node.spawn_extra(mob_type, at)
+		else:
+			add = load("res://Scenes/monster_template.tscn").instantiate()
+			add.monster_name = mob_type
+			add.position = at
+			get_parent().add_child(add)
+		if add:
+			_summons.append(add)
+			var t := get_current_target()
+			if is_instance_valid(t) and add.has_method("add_threat"):
+				add.call_deferred("add_threat", t, 1.0)
+				add.call_deferred("change_state", State.CHASE)
+
+
+func _dismiss_summons() -> void:
+	for add in _summons:
+		if is_instance_valid(add) and add.current_state != State.DEAD:
+			add.queue_free()
+	_summons.clear()

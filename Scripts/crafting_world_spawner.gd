@@ -61,7 +61,7 @@ func _ready() -> void:
 	# Readable / searchable objects (Data/world_objects.json): quest caches like the stone in The Guildmaster's Note.
 	for entry in _load("res://Data/world_objects.json").get(zone_key, []):
 		var obj := WorldNote.new()
-		for field in ["title", "note_text", "label_text", "start_quest", "give_item", "night_only", "day_text", "found_text", "show_paper", "show_stone", "label_height"]:
+		for field in ["title", "note_text", "label_text", "start_quest", "give_item", "night_only", "day_text", "found_text", "show_paper", "show_stone", "label_height", "show_mirror", "opens"]:
 			if entry.has(field):
 				obj.set(field, entry[field])
 		add_child(obj)
