@@ -616,7 +616,7 @@ func _on_chat_input_gui_input(event: InputEvent) -> void:
 # and "/location" both resolve to "/location" since no other command starts
 # with "loc"; "/f" would be ambiguous if two commands both started with "f".
 const GMCommandsScript := preload("res://Scripts/gm_commands.gd")
-const COMMANDS := ["/location", "/hail", "/appraise", "/time", "/follow", "/camp", "/exit", "/log", "/invite", "/disband", "/say", "/tell", "/party", "/zone", "/played", "/resetui", "/who", "/weather", "/pet", "/quests", "/compass", "/raid", "/gm", "/focus", "/assist", "/announce", "/maintenance", "/trade", "/ban", "/unban", "/bans", "/language", "/surname", "/stuck", "/cast", "/target", "/pause", "/macro"]
+const COMMANDS := ["/location", "/hail", "/appraise", "/time", "/follow", "/camp", "/exit", "/log", "/invite", "/disband", "/say", "/tell", "/party", "/zone", "/played", "/resetui", "/who", "/weather", "/pet", "/quests", "/compass", "/raid", "/gm", "/focus", "/assist", "/announce", "/maintenance", "/trade", "/ban", "/unban", "/bans", "/language", "/surname", "/stuck", "/cast", "/target", "/pause", "/macro", "/kill", "/give", "/teleport"]
 
 
 # /surname            what yours is
@@ -674,6 +674,17 @@ func _handle_slash_command(text: String) -> bool:
 			player.assist_target()
 		"/gm":
 			GMCommandsScript.set_mode(player, arg)
+		"/kill":
+			# Game masters: your target, or yourself (/kill me). The server does it (gm_commands.gd).
+			var victim: Node = player if arg.to_lower() in ["me", "self", "myself"] else player.current_target
+			if not is_instance_valid(victim):
+				GameLog.log_general("Usage: /kill (your target)   or   /kill me")
+				return false
+			GMCommandsScript.request(player, "kill", TargetFrame.target_key_of(victim), get_tree())
+		"/give":
+			GMCommandsScript.request(player, "give", arg, get_tree())
+		"/teleport":
+			return _teleport_command(arg)
 		"/weather", "/raid", "/announce", "/maintenance", "/ban", "/unban", "/bans":
 			# Game masters only (/gm enable). On a dedicated server the command is sent to the server.
 			GMCommandsScript.request(player, cmd.substr(1), arg, get_tree())
@@ -754,6 +765,33 @@ func _handle_slash_command(text: String) -> bool:
 				hour12 = 12
 			var ampm := "AM" if d.hour < 12 else "PM"
 			GameLog.log_general("[color=green]Real time: %d:%02d %s[/color]" % [hour12, d.minute, ampm])
+	return true
+
+
+# /teleport <zone>: game masters go straight to a zone's arrival spot (its spawn point). Any start of the zone's name or
+# id works ("/teleport dust"). The server accepts a game master's zone change from anywhere (net.gd _check_zone_change()).
+func _teleport_command(arg: String) -> bool:
+	if not GMCommandsScript.is_gm(player):
+		GameLog.log_general(GMCommandsScript.DENIED)
+		return false
+	var want := arg.strip_edges().to_lower()
+	var hits: Array = []
+	for id in ZoneInfo.zones():
+		var shown := ZoneInfo.name_for(id).to_lower()
+		if want == str(id) or want == shown:
+			hits = [id]
+			break
+		if not want.is_empty() and (str(id).begins_with(want.replace(" ", "_")) or shown.begins_with(want)):
+			hits.append(id)
+	if hits.size() != 1:
+		GameLog.log_general("Usage: /teleport <zone>: %s" % ", ".join(ZoneInfo.zones().keys().map(func(z): return ZoneInfo.name_for(z))))
+		return false
+	if hits[0] == ZoneInfo.current_id():
+		player.global_position = get_tree().current_scene.get("spawn_position") if get_tree().current_scene.get("spawn_position") is Vector3 else player.global_position
+		GameLog.log_general("[color=#88ccff]You return to %s's arrival point.[/color]" % ZoneInfo.name_for(hits[0]))
+		return true
+	GameLog.log_general("[color=#88ccff]Teleporting to %s...[/color]" % ZoneInfo.name_for(hits[0]))
+	Net.zone_travel(hits[0], "@spawn")
 	return true
 
 
@@ -916,7 +954,7 @@ func _save_and_quit() -> void:
 # Short forms that must keep working when a new command shares their first letters (/s was /say before /surname existed).
 # /g and /gsay are EverQuest's group chat (without them /g meant /gm); /pa and /ca kept their old meaning when /pause and
 # /cast arrived.
-const COMMAND_ALIASES := {"/s": "/say", "/g": "/party", "/gsay": "/party", "/pa": "/party", "/ca": "/camp"}
+const COMMAND_ALIASES := {"/s": "/say", "/g": "/party", "/gsay": "/party", "/pa": "/party", "/ca": "/camp", "/tel": "/tell"}
 
 
 func _resolve_command(typed: String) -> String:

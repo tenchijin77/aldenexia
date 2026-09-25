@@ -283,6 +283,9 @@ const GM_COMMANDS := [
 	["/unban <ip>", "Lift a ban"],
 	["/bans", "List banned addresses"],
 	["/surname <player> <Name|clear>", "Set or remove anyone's surname (or /surname Name for your own at any level)"],
+	["/kill  (or /kill me)", "Kill your target (a monster: no experience or loot) or yourself — for getting unstuck"],
+	["/give <item> [count]", "Put an item in your bags (its name, or the start of it: /give tin shi)"],
+	["/teleport <zone>", "Go straight to a zone's arrival point (/teleport dust)"],
 ]
 
 

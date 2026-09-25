@@ -23,4 +23,4 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -5, -505)
 script = ExtResource("3_zone_line")
 target_zone = "lumora_outskirts"
 target_marker = "dustwind_plateaus_zone"
-size = Vector3(60, 30, 6)
+size = Vector3(1040, 60, 8)

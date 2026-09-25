@@ -1064,6 +1064,7 @@ func _ready() -> void:
 	load_player_data_from_global()
 	call_deferred("_restore_pet_if_saved")
 	Global.start_playtime_tracking()  # the /played clock starts when you enter the world
+	_announce_zone.call_deferred()
 	_death_flavor = NPCFlavorText.new("res://Data/player_death_flavor.json")
 	_food_drink_flavor = NPCFlavorText.new("res://Data/food_drink_flavor.json")
 	_restore_last_position()
@@ -3393,6 +3394,10 @@ func _restore_last_position() -> void:
 	var zone_in := str(Global.player_data.get("zone_in", ""))
 	if not zone_in.is_empty():
 		Global.player_data.erase("zone_in")
+		if zone_in == "@spawn":   # a game master's /teleport: the zone's arrival point
+			global_position = _zone_safe_spot()
+			_lift_above_ground.call_deferred()
+			return
 		var marker: Node3D = null
 		if zone_in != "@bind" and get_tree().current_scene != null:
 			marker = get_tree().current_scene.get_node_or_null("Markers/" + zone_in) as Node3D
@@ -3405,12 +3410,40 @@ func _restore_last_position() -> void:
 	var arr: Array = Global.player_data.get("last_position", [])
 	if arr.size() == 3:
 		global_position = Vector3(arr[0], arr[1], arr[2])
+		if float(arr[1]) < FALL_RESCUE_Y:
+			global_position = _zone_safe_spot()   # logged out while falling out of the world
 		_lift_above_ground.call_deferred()
+
+
+# EverQuest style: "You have entered Dustwind Plateaus." on logging in and on every zone change. Waits a moment so the
+# chat window (built as the character enters the world) is there to show it.
+func _announce_zone() -> void:
+	await get_tree().create_timer(0.5).timeout
+	if is_inside_tree() and is_multiplayer_authority():
+		GameLog.log_general("[color=#ffdd88]You have entered %s.[/color]" % WorldAnnouncer.zone_display_name())
 
 
 # The ground is a heightmap: there is never anything to stand on UNDER it. If the character ends up more than half a metre
 # below the terrain surface where they stand (slipped through a steep slope), put them back on top. Checked 4 times a second.
 const UNDER_TERRAIN_MARGIN := 0.5
+# Fell out of the world altogether (off an edge, through a gap): below this you're put back at the zone's safe spot.
+const FALL_RESCUE_Y := -150.0
+
+
+# The zone's safe spot: where new characters appear (the zone root's spawn_position).
+func _zone_safe_spot() -> Vector3:
+	var scene := get_tree().current_scene
+	var spot = scene.get("spawn_position") if scene != null else null
+	return spot if spot is Vector3 else Vector3(0, 2, 0)
+
+
+func _rescue_from_fall() -> void:
+	global_position = _zone_safe_spot() + Vector3(0, 1.0, 0)
+	velocity = Vector3.ZERO
+	_fall_grace_until_ms = Time.get_ticks_msec() + FALL_GRACE_MS
+	_lift_above_ground.call_deferred()
+	GameLog.log_general("[color=#ffdd88]You tumble through the void... and find yourself on solid ground again.[/color]")
+	Global.save_player_data_to_file()
 var _terrain_check_timer := 0.0
 var _terrain_node: Node = null
 
@@ -3419,6 +3452,9 @@ func _check_under_terrain(delta: float) -> void:
 	if _terrain_check_timer < 0.25:
 		return
 	_terrain_check_timer = 0.0
+	if global_position.y < FALL_RESCUE_Y:
+		_rescue_from_fall()
+		return
 	if not is_instance_valid(_terrain_node):
 		var scene := get_tree().current_scene
 		_terrain_node = scene.get_node_or_null("Terrain3D") if scene != null else null
@@ -6765,6 +6801,34 @@ func _apply_surname(value: String) -> void:
 	surname = value
 	Global.player_data["surname"] = value
 	Global.save_player_data_to_file()
+
+
+# A game master's /kill of this player (or of themselves): run on the player's own machine, which owns the character.
+# Direct call on the host / single-player; from anyone but the server it's ignored.
+@rpc("any_peer", "call_remote", "reliable")
+func gm_kill() -> void:
+	var sender := multiplayer.get_remote_sender_id()
+	if (sender != 0 and sender != 1) or not is_multiplayer_authority() or dying:
+		return
+	_last_attacker_desc = "a game master"
+	combat_node.current_hp = DEATH_HP
+	die(null)
+
+
+# A game master's /give: the item lands in this player's bags (their own machine keeps their inventory).
+@rpc("any_peer", "call_remote", "reliable")
+func gm_receive_item(item_id: String, count: int) -> void:
+	var sender := multiplayer.get_remote_sender_id()
+	if (sender != 0 and sender != 1) or not is_multiplayer_authority():
+		return
+	var def := Inventory.get_item_definition(item_id)
+	if def.is_empty():
+		return
+	if Inventory.add_item(item_id, clampi(count, 1, 1000)):
+		GameLog.log_general("[color=#88ccff]You receive %s%s.[/color]" % [str(def.get("name", item_id)), " x%d" % Inventory.last_added_count if Inventory.last_added_count > 1 else ""])
+		Global.save_player_data_to_file()
+	else:
+		GameLog.log_general("[color=#ff8866]No room in your bags for %s.[/color]" % str(def.get("name", item_id)))
 
 
 # A game master set (or cleared) this player's surname; sent by the server to the player's own machine.

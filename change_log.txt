@@ -55,6 +55,8 @@ candidates instead of guessing; a typo that matches nothing prints "Unknown comm
   `/maintenance [minutes|cancel]`, `/ban <ip | name>` (bans the address and disconnects everyone on it), `/unban <ip>`,
   `/bans` (added 2026-09-23), `/surname <player> <Name|clear>` (added 2026-09-24: set or remove anyone's surname; a GM can
   also /surname Name their own at any level, and /surname clear).
+  `/kill` (your target: a monster dies without experience or loot, a player on their own machine; `/kill me`), `/give <item>
+  [count]` (into your bags; name or its start), `/teleport <zone>` (to that zone's arrival point) — added 2026-09-25.
 - `/surname [Name]` (added 2026-09-24) — from level 10, choose your last name, once (letters, an apostrophe or hyphen inside
   is fine); with no name, shows yours. Shown on nameplates, the target frame and /who. `/s` still means /say.
 - `/stuck` (added 2026-09-24, test 33) — moves you 5 m in a random direction to a spot with floor and room to stand
@@ -2202,6 +2204,32 @@ GATE RAIDS (`Scripts/gate_raid_manager.gd`, `Data/gate_raids.json`, node "GateRa
   only: the game remembers the last server by address, and the server's own --name stays "test" (it prefixes every
   character and account file). TESTER_GUIDE.html updated and republished. The user now runs 12 players per zone from
   their own start script (run_world.sh underneath).
+
+### run_world.sh finds the server's TLS certificate by itself (2026-09-25)
+- After deploying 9ad0be2 nobody could connect ("TLS handshake error: -30592" in the Outskirts log): the new start script
+  called run_world.sh without --tls-dir, so the servers made a NEW certificate (user://server_tls) that no game client
+  trusts. run_world.sh now passes --tls-dir=<its folder>/tls whenever that folder has server.crt (the server layout) and
+  no --tls-dir was given.
+
+### Zone-in message (2026-09-25)
+- First live zoning into Dustwind worked (user). EverQuest-style "You have entered <zone name>." in the chat (warm yellow)
+  on logging in and on every zone change (player3d.gd _announce_zone(), half a second after entering so the chat window
+  exists; the zone's zone_name, else its file name). Test in test_zones.gd.
+
+### Fell off Dustwind's edge: edge walls, fall rescue, wider zone line; GM /kill, /give, /teleport (2026-09-25)
+- Test: zoning back to the Outskirts "fell through the world" — really, Dustwind's line back was only 60 m wide (x -30..30)
+  and Tenchijin walked past it at x 46 off the terrain's north edge (z -512): no ground, /stuck can't help. The line now
+  spans the whole north edge (1040 wide). His save was moved back to Dustwind's arrival point by a script the user ran.
+- New Scripts/zone_boundary.gd ("ZoneBoundary" in zone_template.tscn — so every zone — and in the Outskirts): four
+  invisible walls just outside the rectangle around the zone's Terrain3D regions, from y -60 to 260. Zone lines sit a
+  few metres inside the edge, so you reach them first.
+- Fall rescue (player3d.gd): below y -150 you're put back at the zone's arrival point ("You tumble through the void...
+  and find yourself on solid ground again."), checked 4 times a second; a save made while falling is fixed at login.
+- GM commands: /kill (your target — a monster dies without experience or loot; a player dies on their own machine via
+  Player3D.gm_kill(); /kill me), /give <item> [count] (into your own bags, Player3D.gm_receive_item(); name or unique
+  start of it, lists the choices when several match), /teleport <zone> (straight to its arrival point: a zone trip with
+  zone_in "@spawn"; the server already accepts a GM's zone change from anywhere). /tel stays /tell. In the pause menu's
+  GM list. Tests: test_gm_safety.gd.
 ### Test 34: Shonuff (Aetherfist), Zozuur (Voidknight), build 77506fa (2026-09-24)
 - /stuck freed him; perception at the gate and the tower spires worked; Common rose talking to guards.
 - /STUCK LEFT THE PET BEHIND: the pet is now recalled to you (recall_to_owner(), or placed beside you).

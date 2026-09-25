@@ -12,6 +12,7 @@
 [ext_resource type="Script" uid="uid://bdstjd1dmbnsq" path="res://Scripts/server_notice.gd" id="10_notice"]
 [ext_resource type="Script" uid="uid://bo5m5prkrbmj3" path="res://Scripts/crafting_world_spawner.gd" id="11_crafting"]
 [ext_resource type="Terrain3DAssets" uid="uid://dc71og8dndkvp" path="res://zones/lumora_terrain/terrain_assets.res" id="12_terrain_assets"]
+[ext_resource type="Script" path="res://Scripts/zone_boundary.gd" id="13_boundary"]
 
 [sub_resource type="Gradient" id="Gradient_zone"]
 offsets = PackedFloat32Array(0.2, 1)
@@ -121,3 +122,6 @@ visible = false
 [node name="Markers" type="Node3D" parent="."]
 
 [node name="ZoneLines" type="Node3D" parent="."]
+
+[node name="ZoneBoundary" type="Node3D" parent="."]
+script = ExtResource("13_boundary")

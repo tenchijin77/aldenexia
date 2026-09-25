@@ -109,3 +109,13 @@ func run() -> void:
 	eq(str(JSON.parse_string(text).get("last_zone", "")), "Dustwind Plateaus", "the character list shows the zone you logged out in")
 	Global.player_data = saved
 
+	# EverQuest-style zone-in message
+	var said: Array = []
+	var listen := func(text: String) -> void: said.append(text)
+	GameLog.general_message.connect(listen)
+	var walker = await make_player()
+	await get_tree().create_timer(0.8).timeout
+	GameLog.general_message.disconnect(listen)
+	check(said.any(func(t): return str(t).contains("You have entered %s." % WorldAnnouncer.zone_display_name())), "\"You have entered <zone>.\" on entering the world")
+	walker.queue_free()
+

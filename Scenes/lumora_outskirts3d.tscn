@@ -44,6 +44,7 @@
 [ext_resource type="Script" uid="uid://bgf2lkk12k3hx" path="res://Scripts/world_items.gd" id="world_items_scr"]
 [ext_resource type="Script" uid="uid://t6wjhuirmwsb" path="res://Scripts/world_note.gd" id="world_note_scr"]
 [ext_resource type="Script" uid="uid://clm5l4nhm5j6k" path="res://Scripts/zone_line.gd" id="zone_line_scr"]
+[ext_resource type="Script" path="res://Scripts/zone_boundary.gd" id="zone_boundary_scr"]
 
 [sub_resource type="Gradient" id="Gradient_6a7en"]
 offsets = PackedFloat32Array(0.2, 1)
@@ -534,3 +535,6 @@ script = ExtResource("zone_line_scr")
 target_zone = "dustwind_plateaus"
 target_marker = "lumora_outskirts_zone"
 size = Vector3(250, 60, 8)
+
+[node name="ZoneBoundary" type="Node3D" parent="."]
+script = ExtResource("zone_boundary_scr")

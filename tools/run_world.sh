@@ -21,14 +21,23 @@ fi
 BASE=8910
 ZONES=""
 PASS=()
+TLS_GIVEN=0
 for arg in "$@"; do
 	case "$arg" in
 		--base-port=*) BASE="${arg#*=}" ;;
 		--zones=*)     ZONES="${arg#*=}" ;;
 		--port=*|--zone=*) echo "run_world.sh sets --port and --zone itself (use --base-port / --zones)"; exit 1 ;;
+		--tls-dir=*)   TLS_GIVEN=1; PASS+=("$arg") ;;
 		*) PASS+=("$arg") ;;
 	esac
 done
+# The server's TLS key and certificate: on the server they live in a "tls" folder next to this script (update.sh creates
+# it). Without --tls-dir a server makes a NEW certificate that no game client trusts (test 34.5: every connection failed
+# with "TLS handshake error"), so use that folder whenever it has a certificate.
+if [ "$TLS_GIVEN" = 0 ] && [ -f "$SCRIPT_DIR/tls/server.crt" ]; then
+	PASS+=("--tls-dir=$SCRIPT_DIR/tls")
+	echo "[run_world] Using the TLS certificate in $SCRIPT_DIR/tls"
+fi
 # The zones this build has (Data/zones.json, asked from the build itself): "ZONE <id> <port offset>"
 if [ -n "${ALDENEXIA_SERVER_BIN:-}" ]; then
 	LIST=$("$ALDENEXIA_SERVER_BIN" --headless -- --server --list-zones 2>/dev/null)

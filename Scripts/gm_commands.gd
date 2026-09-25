@@ -14,7 +14,7 @@
 extends RefCounted   # no class_name on purpose: net.gd (an autoload) uses it, and a brand-new class name is not known to Godot until its class cache is rebuilt; users preload() it instead
 
 const DENIED := "[color=red]Only game masters can do that.[/color]"
-const COMMANDS := ["weather", "raid", "announce", "maintenance", "ban", "unban", "bans", "surname"]
+const COMMANDS := ["weather", "raid", "announce", "maintenance", "ban", "unban", "bans", "surname", "kill", "give"]
 
 
 static func is_gm(player: Node) -> bool:
@@ -113,6 +113,75 @@ static func _surname(arg: String, tree: SceneTree) -> String:
 	return "[color=#88ccff]%s[/color]" % ("%s is now %s %s." % [who, who, value] if not value.is_empty() else "%s's surname is removed." % who)
 
 
+# /kill: the chat window sends the target's key (TargetFrame.target_key_of: "p:<peer>", "m:<monster>", "n:<npc>").
+# A monster dies here (the server owns monsters) without experience or loot; a player dies on their own machine.
+static func _kill(key: String) -> String:
+	var target := TargetFrame.resolve_target_key(key)
+	if target == null:
+		return "Target something to kill (or /kill me)."
+	var who := TargetFrame.display_name(target)
+	if target.is_in_group("player"):
+		if target.is_multiplayer_authority():
+			target.gm_kill()
+		else:
+			target.gm_kill.rpc_id(target.get_multiplayer_authority())
+		return "[color=#88ccff]%s is struck down.[/color]" % who
+	if target.is_in_group("monsters") and target.has_method("die"):
+		if not target.is_multiplayer_authority():
+			return "That monster isn't this server's to kill."
+		if target.get("current_state") == target.State.DEAD:
+			return "%s is already dead." % who
+		target.die(false, false)
+		return "[color=#88ccff]%s is struck down (no experience or loot).[/color]" % who
+	return "%s can't be killed that way." % who
+
+
+# /give <item name or id> [count]: into the game master's own bags. A name matches exactly, or by the start of it when
+# only one item fits ("/give tin shi" = Tin Shield). The player's own machine adds it (Player3D.gm_receive_item()).
+static func _give(arg: String, gm: Node) -> String:
+	if arg.is_empty():
+		return "Usage: /give <item name> [count]"
+	var words := arg.split(" ", false)
+	var count := 1
+	if words.size() > 1 and words[-1].is_valid_int():
+		count = clampi(int(words[-1]), 1, 1000)
+		words.remove_at(words.size() - 1)
+	var found := find_item(" ".join(words))
+	if found.size() != 1:
+		if found.is_empty():
+			return "No item called '%s'." % " ".join(words)
+		return "'%s' could be: %s" % [" ".join(words), ", ".join(found.slice(0, 8).map(func(i): return str(Inventory.item_data[i].get("name", i))))]
+	if not is_instance_valid(gm):
+		return "Nobody to give it to."
+	if gm.is_multiplayer_authority():
+		gm.gm_receive_item(found[0], count)
+	else:
+		gm.gm_receive_item.rpc_id(gm.get_multiplayer_authority(), found[0], count)
+	return "[color=#88ccff]Given: %s x%d.[/color]" % [str(Inventory.item_data[found[0]].get("name", found[0])), count]
+
+
+# Item ids matching a typed name: the exact id or name (a leading "a"/"an"/"the" ignored) wins; else every name that
+# starts with it.
+static func find_item(text: String) -> Array:
+	var want := text.strip_edges().to_lower()
+	for article in ["a ", "an ", "the "]:
+		want = want.trim_prefix(article)
+	if want.is_empty():
+		return []
+	var starts: Array = []
+	for id in Inventory.item_data:
+		if typeof(Inventory.item_data[id]) != TYPE_DICTIONARY:
+			continue   # the file's comments
+		var name := str(Inventory.item_data[id].get("name", "")).to_lower()
+		for article in ["a ", "an ", "the "]:
+			name = name.trim_prefix(article)
+		if str(id).to_lower() == want or name == want or str(id).to_lower() == want.replace(" ", "_"):
+			return [id]
+		if name.begins_with(want):
+			starts.append(id)
+	return starts
+
+
 # Compares every byte whatever the outcome, so the time it takes does not tell how much of a guess was right.
 static func _same_text(a: String, b: String) -> bool:
 	var x := a.to_utf8_buffer()
@@ -174,6 +243,10 @@ static func run(_player: Node, command: String, arg: String, tree: SceneTree, au
 		return _bans(command, arg.strip_edges(), _player)
 	if command == "surname":
 		return _surname(arg.strip_edges(), tree)
+	if command == "kill":
+		return _kill(arg.strip_edges())
+	if command == "give":
+		return _give(arg.strip_edges(), _player)
 	if command == "announce" or command == "maintenance":
 		var notice := tree.get_first_node_in_group("server_notice")
 		if notice == null:
