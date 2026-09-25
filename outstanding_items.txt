@@ -63,10 +63,14 @@ an item (delete it, note it in change_log.txt) when it's done. Last updated 2026
 - Cross-zone: /who, tells, groups and GM tools only see the zone you're in; world announcements too. Needs the relay.
 - The Load/Join screens' character delete runs on the login server: it can't tell a character is online in another zone.
 - The character list's "online" dot comes from the login server only: a character online in Dustwind shows as offline.
+- The Join screen's player count ("Online — 3/12 players") is the login server's (the Outskirts) only.
 - LAN games: zone lines say they aren't supported (single-player and dedicated servers work).
 - The world clock of an already-connected client isn't re-synced when its zone's server catches up (only at login).
-- Outskirts zone line is at the middle of the south edge (-1500, 0) as a placeholder — move it when the mountains and gap
-  are sculpted (and the arrival marker "dustwind_plateaus_zone" with it).
+- Outskirts south edge (2026-09-24): the user sculpted the southern mountains; the zone line spans the whole opening
+  (z -9..241 at x -1274) and the land south of the ridge was trimmed (region column x -1536..-1280 removed). The east
+  end past the ridge (z > 1024) already ended at an open edge at x -1280 — a wall or more mountains there some day.
+- Tenchijin (test 34): the server undid his level 2 and three skills on every save (XP table / skill cap mismatch, fixed).
+  Restore level 2 and defense 7, hand_to_hand 5, meditation 8 on the server AFTER the fix is deployed (and a starting dagger).
 
 == DUSTWIND MONSTERS (2026-09-24) — still open ==
 - Spawn layout is a first pass on flat terrain (Data/dustwind_plateaus_spawns.json): move to match the terrain.
@@ -166,6 +170,12 @@ an item (delete it, note it in change_log.txt) when it's done. Last updated 2026
   MISSING ASSETS — art, models and sound the game needs (add to this as we go; delete a line when the asset is in)
   Started 2026-09-24. "Stand-in" = what the game uses meanwhile, so nothing is blocked.
 ################################################################################
+
+== SPELL ICONS ==
+- The three ARCANE spell icons are crossed swords (Assets/icons/spells/targetarcane.png, aoearcane.png, grouparcane.png) —
+  wrong art. 96 arcane / psychic / nature spells now use stand-ins made from the dispel swirl, tinted violet on each
+  icon's own background (arcane_target.png, arcane_aoe.png, arcane_group.png). Real arcane art wanted for all three.
+  targetarcane.png (the swords) now marks physical direct-damage skills (user's call, test 34).
 
 == FOR THE NEXT ZONES (Dustwind Plateaus, Ashfall Dunes) ==
 - Dustwind monsters borrowing another's model (monsters.json model_from): Plateau Spider, Sand Stinger Elite, Spider

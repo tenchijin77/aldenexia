@@ -35,11 +35,18 @@ func _ready() -> void:
 
 # ── VendorNPC hooks ──
 func _build_character_model() -> void:
+	# A vendor with a model of its own (Vendor Model Key "male"/"female": Aldric's and Lira's Meshy models) keeps it;
+	# everyone else is dressed as a person of their race (Model Key).
+	if VENDOR_MODELS.has(vendor_model_key):
+		super._build_character_model()
+		return
 	animation_player = NPCRaceModel.build(self, model_key)
 
 
 func _setup_animation() -> void:
-	pass  # NPCRaceModel.build() already loaded the library and started idle
+	if VENDOR_MODELS.has(vendor_model_key):
+		super._setup_animation()   # a vendor model's own animation library
+	# otherwise NPCRaceModel.build() already loaded the library and started idle
 
 
 # Said when the shop opens (right-click or hail).

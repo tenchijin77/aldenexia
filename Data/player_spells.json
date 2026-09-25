@@ -1780,7 +1780,7 @@
     {
         "spell_id": 61,
         "spell_name": "aura_of_divinity",
-        "icon": "res://Assets/icons/spells/grouparcane.png",
+        "icon": "res://Assets/icons/spells/arcane_group.png",
         "description": "Allies in 10m gain 10 magic resistance and +5% damage for 15 minutes.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -1869,7 +1869,7 @@
     {
         "spell_id": 64,
         "spell_name": "lights_call",
-        "icon": "res://Assets/icons/spells/grouparcane.png",
+        "icon": "res://Assets/icons/spells/arcane_group.png",
         "description": "Allies in 10m gain +10% critical chance for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -2790,7 +2790,7 @@
     {
         "spell_id": 95,
         "spell_name": "defensive_strike",
-        "icon": "res://Assets/icons/spells/selfbuff.png",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Deals 55 damage; on a hit you take 5% less damage for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 0.0,
@@ -5179,7 +5179,7 @@
     {
         "spell_id": 175,
         "spell_name": "hex",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "Turns an enemy into a frog: it can do nothing for 4 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -5290,7 +5290,7 @@
     {
         "spell_id": 179,
         "spell_name": "elemental_wrath",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "Deals 100 elemental damage to the target and enemies within 8m of it.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -5471,7 +5471,7 @@
     {
         "spell_id": 185,
         "spell_name": "curse_of_elements",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "Lowers the target's magic resistance by 15 for 10 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -5596,7 +5596,7 @@
     {
         "spell_id": 189,
         "spell_name": "tempest_call",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "Deals 150 mixed elemental damage, slows by 20% in 10m.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -5684,7 +5684,7 @@
     {
         "spell_id": 192,
         "spell_name": "improved_elemental_wrath",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "Deals 200 elemental damage to the target and enemies within 8m of it.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -5892,7 +5892,7 @@
     {
         "spell_id": 199,
         "spell_name": "elemental_cataclysm",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "Deals 400 mixed elemental damage in 15m, stuns for 3 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -6038,7 +6038,7 @@
     {
         "spell_id": 204,
         "spell_name": "moonfire",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "Deals 20 nature damage, then 7 a second for 6 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -6099,7 +6099,7 @@
     {
         "spell_id": 206,
         "spell_name": "thorn_whip",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "Deals 60 nature damage.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -6249,7 +6249,7 @@
     {
         "spell_id": 211,
         "spell_name": "starfire",
-        "icon": "res://Assets/icons/spells/aoearcane.png",
+        "icon": "res://Assets/icons/spells/arcane_aoe.png",
         "description": "Deals 80 arcane/nature damage to one target.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -6367,7 +6367,7 @@
     {
         "spell_id": 215,
         "spell_name": "hurricane",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "Deals 60 nature damage to the target and enemies within 8m of it, slowing them 20% for 6 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -6581,7 +6581,7 @@
     {
         "spell_id": 222,
         "spell_name": "vine_lash",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "Deals 100 nature damage in 5m, roots enemies for 2 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -6700,7 +6700,7 @@
     {
         "spell_id": 226,
         "spell_name": "natures_vengeance",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "Reduces enemy damage by 10% for 8 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -6765,7 +6765,7 @@
     {
         "spell_id": 228,
         "spell_name": "starfall",
-        "icon": "res://Assets/icons/spells/aoearcane.png",
+        "icon": "res://Assets/icons/spells/arcane_aoe.png",
         "description": "Deals 120 nature damage to the target and enemies within 8m, then 5 a second for 5 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -6889,7 +6889,7 @@
     {
         "spell_id": 232,
         "spell_name": "feral_tempest",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "Deals 150 nature damage in 10m, slows by 30% for 6 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -6975,7 +6975,7 @@
     {
         "spell_id": 235,
         "spell_name": "improved_starfall",
-        "icon": "res://Assets/icons/spells/aoearcane.png",
+        "icon": "res://Assets/icons/spells/arcane_aoe.png",
         "description": "Deals 200 nature damage to the target and enemies within 8m, then 10 a second for 6 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -7071,7 +7071,7 @@
     {
         "spell_id": 238,
         "spell_name": "natures_surge",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "Deals 200 nature damage in 10m, roots enemies for 3 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -7128,7 +7128,7 @@
     {
         "spell_id": 240,
         "spell_name": "wrath_of_the_wild",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "Deals 400 nature damage in 15m, roots enemies for 5 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -8264,7 +8264,7 @@
     {
         "spell_id": 279,
         "spell_name": "zen_apotheosis",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "Deals 400 force damage in 10m, stuns for 3 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -10020,7 +10020,7 @@
     {
         "spell_id": 338,
         "spell_name": "assassinate",
-        "icon": "res://Assets/icons/spells/groupheal.png",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Deals 150 damage.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -10309,7 +10309,7 @@
     {
         "spell_id": 348,
         "spell_name": "improved_assassinate",
-        "icon": "res://Assets/icons/spells/groupheal.png",
+        "icon": "res://Assets/icons/spells/targetarcane.png",
         "description": "Deals 200 damage.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -10672,7 +10672,7 @@
     {
         "spell_id": 360,
         "spell_name": "dissonant_chord",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "Reduces enemy accuracy/attack speed and does minor damage.",
         "caster_proficiency": "none",
         "mana_cost": 0.0,
@@ -10730,7 +10730,7 @@
     {
         "spell_id": 362,
         "spell_name": "charm_melody",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "Charms an enemy to fight for you.",
         "caster_proficiency": "none",
         "mana_cost": 0.0,
@@ -10789,7 +10789,7 @@
     {
         "spell_id": 364,
         "spell_name": "piercing_note",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "Deals 70 sonic damage to one enemy.",
         "caster_proficiency": "none",
         "mana_cost": 0.0,
@@ -10816,7 +10816,7 @@
     {
         "spell_id": 365,
         "spell_name": "illusory_mask",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "You draw half as much attention from enemies for 8 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 0.0,
@@ -10879,7 +10879,7 @@
     {
         "spell_id": 367,
         "spell_name": "sonic_blast",
-        "icon": "res://Assets/icons/spells/aoearcane.png",
+        "icon": "res://Assets/icons/spells/arcane_aoe.png",
         "description": "Deals 60 sonic damage in 5m cone, disorients for 2 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 20.0,
@@ -10937,7 +10937,7 @@
     {
         "spell_id": 369,
         "spell_name": "dirge_of_doom",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "Reduces enemy damage/resistance by 10%.",
         "caster_proficiency": "none",
         "mana_cost": 0.0,
@@ -11088,7 +11088,7 @@
     {
         "spell_id": 374,
         "spell_name": "symphony_of_fate",
-        "icon": "res://Assets/icons/spells/grouparcane.png",
+        "icon": "res://Assets/icons/spells/arcane_group.png",
         "description": "Deals 100 sonic damage, buffs allies +5% damage in 8m.",
         "caster_proficiency": "none",
         "mana_cost": 0.0,
@@ -11144,7 +11144,7 @@
     {
         "spell_id": 376,
         "spell_name": "sonic_slash",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "Deals 100 sonic damage, disorients for 1 second.",
         "caster_proficiency": "none",
         "mana_cost": 0.0,
@@ -11233,7 +11233,7 @@
     {
         "spell_id": 379,
         "spell_name": "illusory_strike",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "Deals 80 damage, distracts enemy for 4 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 0.0,
@@ -11260,7 +11260,7 @@
     {
         "spell_id": 380,
         "spell_name": "crescendo",
-        "icon": "res://Assets/icons/spells/grouparcane.png",
+        "icon": "res://Assets/icons/spells/arcane_group.png",
         "description": "Deals 120 sonic damage in 8m, buffs allies +10% speed.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -11347,7 +11347,7 @@
     {
         "spell_id": 383,
         "spell_name": "sonic_tempest",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "Deals 150 sonic damage in 10m, disorients for 3 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -11434,7 +11434,7 @@
     {
         "spell_id": 386,
         "spell_name": "improved_symphony",
-        "icon": "res://Assets/icons/spells/grouparcane.png",
+        "icon": "res://Assets/icons/spells/arcane_group.png",
         "description": "Deals 200 sonic damage to enemies within 8m.",
         "caster_proficiency": "none",
         "mana_cost": 0.0,
@@ -11493,7 +11493,7 @@
     {
         "spell_id": 388,
         "spell_name": "finale",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "Deals 350 damage, +15% per active song.",
         "caster_proficiency": "none",
         "mana_cost": 50.0,
@@ -11520,7 +11520,7 @@
     {
         "spell_id": 389,
         "spell_name": "sonic_barrage",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "Deals 150 sonic damage in 10m, +10% critical chance.",
         "caster_proficiency": "none",
         "mana_cost": 30.0,
@@ -11582,7 +11582,7 @@
     {
         "spell_id": 391,
         "spell_name": "illusory_harmony",
-        "icon": "res://Assets/icons/spells/aoearcane.png",
+        "icon": "res://Assets/icons/spells/arcane_aoe.png",
         "description": "Enemies within 10m lose 10% accuracy.",
         "caster_proficiency": "none",
         "mana_cost": 0.0,
@@ -11670,7 +11670,7 @@
     {
         "spell_id": 394,
         "spell_name": "sonic_apocalypse",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "Deals 400 sonic damage in 15m, stuns targets in range.",
         "caster_proficiency": "none",
         "mana_cost": 80.0,
@@ -12917,7 +12917,7 @@
     {
         "spell_id": 436,
         "spell_name": "charm",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "Charms enemy to fight for you for 6 seconds (D&D-inspired).",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -12945,7 +12945,7 @@
     {
         "spell_id": 437,
         "spell_name": "illusionary_bolt",
-        "icon": "res://Assets/icons/spells/aoearcane.png",
+        "icon": "res://Assets/icons/spells/arcane_aoe.png",
         "description": "Deals 50 arcane damage, 10% chance to confuse for 2 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -13060,7 +13060,7 @@
     {
         "spell_id": 441,
         "spell_name": "mind_blast",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "Deals 60 psychic damage and interrupts casting.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -13088,7 +13088,7 @@
     {
         "spell_id": 442,
         "spell_name": "disorient",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "Reduces enemy accuracy/movement speed by 10% for 6 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -13120,7 +13120,7 @@
     {
         "spell_id": 443,
         "spell_name": "mirror_image",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "Creates 2 illusions to distract enemies for 15 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -13151,7 +13151,7 @@
     {
         "spell_id": 444,
         "spell_name": "mass_charm",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "Charms 2 weak enemies for 5 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -13300,7 +13300,7 @@
     {
         "spell_id": 449,
         "spell_name": "mind_flay",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "Deals 10 psychic damage a second for 6 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -13359,7 +13359,7 @@
     {
         "spell_id": 451,
         "spell_name": "pacify",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "Prevents enemy from attacking for 4 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -13418,7 +13418,7 @@
     {
         "spell_id": 453,
         "spell_name": "improved_charm",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "Charms an enemy to fight for you for 8 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -13449,7 +13449,7 @@
     {
         "spell_id": 454,
         "spell_name": "dominate",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "Fully controls one enemy for 6 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -13476,7 +13476,7 @@
     {
         "spell_id": 455,
         "spell_name": "phantasmal_force",
-        "icon": "res://Assets/icons/spells/aoearcane.png",
+        "icon": "res://Assets/icons/spells/arcane_aoe.png",
         "description": "Deals 100 psychic damage, confuses enemies in 8m for 4 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -13505,7 +13505,7 @@
     {
         "spell_id": 456,
         "spell_name": "arcane_echo",
-        "icon": "res://Assets/icons/spells/aoearcane.png",
+        "icon": "res://Assets/icons/spells/arcane_aoe.png",
         "description": "Deals 120 arcane damage, 10% chance to chain to 1 enemy.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -13652,7 +13652,7 @@
     {
         "spell_id": 461,
         "spell_name": "phantom_strike",
-        "icon": "res://Assets/icons/spells/aoearcane.png",
+        "icon": "res://Assets/icons/spells/arcane_aoe.png",
         "description": "Deals 100 arcane damage, distracts enemy for 3 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -13679,7 +13679,7 @@
     {
         "spell_id": 462,
         "spell_name": "mass_disorient",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "Reduces accuracy/movement speed by 15% in 10m for 6 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -13744,7 +13744,7 @@
     {
         "spell_id": 464,
         "spell_name": "phantasmal_barrage",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "Deals 150 psychic damage in 10m, confuses for 3 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -13803,7 +13803,7 @@
     {
         "spell_id": 466,
         "spell_name": "improved_mind_flay",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "Deals 20 psychic damage a second for 8 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -13836,7 +13836,7 @@
     {
         "spell_id": 467,
         "spell_name": "psychic_nova",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "Deals 120 psychic damage in 8m, interrupts casting.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -13863,7 +13863,7 @@
     {
         "spell_id": 468,
         "spell_name": "dominate_mind",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "Controls one enemy for 8 seconds, +10% damage taken.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -13919,7 +13919,7 @@
     {
         "spell_id": 470,
         "spell_name": "improved_phantasmal_force",
-        "icon": "res://Assets/icons/spells/aoearcane.png",
+        "icon": "res://Assets/icons/spells/arcane_aoe.png",
         "description": "Deals 200 psychic damage and confuses enemies in 10m for 4 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -13951,7 +13951,7 @@
     {
         "spell_id": 471,
         "spell_name": "mind_surge",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "Deals 150 psychic damage, +15% critical chance.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -14013,7 +14013,7 @@
     {
         "spell_id": 473,
         "spell_name": "illusory_tempest",
-        "icon": "res://Assets/icons/spells/aoearcane.png",
+        "icon": "res://Assets/icons/spells/arcane_aoe.png",
         "description": "Deals 200 arcane damage in 10m, confuses for 4 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -14042,7 +14042,7 @@
     {
         "spell_id": 474,
         "spell_name": "mind_apocalypse",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "Deals 400 psychic damage, stuns for 3 seconds in 15m.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -14102,7 +14102,7 @@
     {
         "spell_id": 476,
         "spell_name": "phantasmal_apotheosis",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "Deals 400 psychic damage in 15m, confuses for 5 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -14130,7 +14130,7 @@
     {
         "spell_id": 477,
         "spell_name": "magic_missile",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "Magic Missile: fires 3 bolts, each dealing 6 arcane damage.",
         "caster_proficiency": "intelligence",
         "mana_cost": 25.0,
@@ -14388,7 +14388,7 @@
     {
         "spell_id": 486,
         "spell_name": "arcane_barrage",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "Fires 3 bolts, each dealing 20 arcane damage.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -14416,7 +14416,7 @@
     {
         "spell_id": 487,
         "spell_name": "slow",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "Reduces enemy movement/attack speed by 15% for 6 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -14501,7 +14501,7 @@
     {
         "spell_id": 490,
         "spell_name": "polymorph",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "Turns an enemy into a sheep: it can do nothing for 6 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -14529,7 +14529,7 @@
     {
         "spell_id": 491,
         "spell_name": "arcane_explosion",
-        "icon": "res://Assets/icons/spells/aoearcane.png",
+        "icon": "res://Assets/icons/spells/arcane_aoe.png",
         "description": "Deals 60 arcane damage to all enemies in 5m.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -14588,7 +14588,7 @@
     {
         "spell_id": 494,
         "spell_name": "improved_magic_missile",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "Fires 4 bolts, each dealing 7 arcane damage.",
         "caster_proficiency": "intelligence",
         "mana_cost": 25.0,
@@ -14711,7 +14711,7 @@
     {
         "spell_id": 498,
         "spell_name": "arcane_surge",
-        "icon": "res://Assets/icons/spells/aoearcane.png",
+        "icon": "res://Assets/icons/spells/arcane_aoe.png",
         "description": "Deals 120 arcane damage, +10% critical chance.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -14828,7 +14828,7 @@
     {
         "spell_id": 502,
         "spell_name": "improved_polymorph",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "Turns an enemy into a sheep: it can do nothing for 8 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -15009,7 +15009,7 @@
     {
         "spell_id": 508,
         "spell_name": "arcane_nova",
-        "icon": "res://Assets/icons/spells/aoearcane.png",
+        "icon": "res://Assets/icons/spells/arcane_aoe.png",
         "description": "Deals 150 arcane damage in 8m, +10% critical chance.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -15101,7 +15101,7 @@
     {
         "spell_id": 511,
         "spell_name": "disintegrate",
-        "icon": "res://Assets/icons/spells/aoearcane.png",
+        "icon": "res://Assets/icons/spells/arcane_aoe.png",
         "description": "Deals 200 arcane damage to one target, ignores 25% armor.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -15194,7 +15194,7 @@
     {
         "spell_id": 514,
         "spell_name": "arcane_apocalypse",
-        "icon": "res://Assets/icons/spells/aoearcane.png",
+        "icon": "res://Assets/icons/spells/arcane_aoe.png",
         "description": "Deals 400 arcane damage in 15m, stuns for 3 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -15344,7 +15344,7 @@
     {
         "spell_id": 519,
         "spell_name": "entropic_blast",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "Deals 35 damage to the target and enemies within 5m of it, 5% chance to stun for 1 second.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -15405,7 +15405,7 @@
     {
         "spell_id": 521,
         "spell_name": "prismatic_spray",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "Deals 60 elemental damage, 10% chance to add a 5 damage/sec burn for 5 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -15466,7 +15466,7 @@
     {
         "spell_id": 523,
         "spell_name": "volatile_spark",
-        "icon": "res://Assets/icons/spells/aoearcane.png",
+        "icon": "res://Assets/icons/spells/arcane_aoe.png",
         "description": "Deals 70 arcane damage.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -15522,7 +15522,7 @@
     {
         "spell_id": 525,
         "spell_name": "surge_of_entropy",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "Deals 60 elemental damage to the target and enemies within 5m of it.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -15581,7 +15581,7 @@
     {
         "spell_id": 527,
         "spell_name": "unstable_missile",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "Fires 3 bolts, each dealing 30 random elemental damage, 10% chance for extra bolt.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -15610,7 +15610,7 @@
     {
         "spell_id": 528,
         "spell_name": "polymorphic_surge",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "Transforms enemy into a random creature (sheep, frog, or chicken) for 4 seconds, 10% chance to affect 1 extra enemy.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -15638,7 +15638,7 @@
     {
         "spell_id": 529,
         "spell_name": "elemental_burst",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "Deals 70 elemental damage to the target and enemies within 5m of it, 10% chance of a 10 damage/sec burn for 5 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -15702,7 +15702,7 @@
     {
         "spell_id": 531,
         "spell_name": "entropic_strike",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "Deals 90 elemental damage, 15% chance to lower its magic resistance by 5 for 6 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -15764,7 +15764,7 @@
     {
         "spell_id": 533,
         "spell_name": "wild_cascade",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "Deals 80 random elemental damage in 10m, 10% chance to refresh a random cooldown.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -15791,7 +15791,7 @@
     {
         "spell_id": 534,
         "spell_name": "chaos_storm",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "A 10m storm around the target: 20 elemental damage a second for 8 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -15822,7 +15822,7 @@
     {
         "spell_id": 535,
         "spell_name": "arcane_anomaly",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "Deals 150 random elemental damage, 20% chance to double damage.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -15914,7 +15914,7 @@
     {
         "spell_id": 539,
         "spell_name": "chaos_barrage",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "Fires 4 bolts, each dealing 40 random elemental damage, 15% chance for extra bolt.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -16004,7 +16004,7 @@
     {
         "spell_id": 542,
         "spell_name": "improved_polymorphic_surge",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "Transforms an enemy into a random creature for 5 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -16035,7 +16035,7 @@
     {
         "spell_id": 543,
         "spell_name": "chaos_nova",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "Deals 150 elemental damage to the target and enemies within 10m, 15% chance of a 10 damage/sec burn for 5 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -16095,7 +16095,7 @@
     {
         "spell_id": 545,
         "spell_name": "prismatic_strike",
-        "icon": "res://Assets/icons/spells/grouparcane.png",
+        "icon": "res://Assets/icons/spells/arcane_group.png",
         "description": "Deals 120 random elemental damage, 20% chance to chain to 2 enemies for 50% damage.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -16123,7 +16123,7 @@
     {
         "spell_id": 546,
         "spell_name": "improved_chaos_storm",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "A 12m storm around the target: 30 elemental damage a second for 8 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -16214,7 +16214,7 @@
     {
         "spell_id": 549,
         "spell_name": "chaos_vortex",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "Creates 10m vortex dealing 150 random elemental damage, pulls enemies to center.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -16241,7 +16241,7 @@
     {
         "spell_id": 550,
         "spell_name": "improved_arcane_anomaly",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "Deals 200 elemental damage.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -16271,7 +16271,7 @@
     {
         "spell_id": 551,
         "spell_name": "wild_tempest",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "Deals 150 random elemental damage in 12m, 20% chance to refresh all cooldowns.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -16332,7 +16332,7 @@
     {
         "spell_id": 553,
         "spell_name": "prismatic_nova",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "Deals 200 random elemental damage in 12m, 20% chance to apply two random debuffs.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -16359,7 +16359,7 @@
     {
         "spell_id": 554,
         "spell_name": "chaos_apotheosis",
-        "icon": "res://Assets/icons/spells/targetarcane.png",
+        "icon": "res://Assets/icons/spells/arcane_target.png",
         "description": "Deals 400 random elemental damage in 15m, 25% chance to stun for 3 seconds.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
@@ -16419,7 +16419,7 @@
     {
         "spell_id": 556,
         "spell_name": "entropic_cataclysm",
-        "icon": "res://Assets/icons/spells/grouparcane.png",
+        "icon": "res://Assets/icons/spells/arcane_group.png",
         "description": "Creates 15m zone dealing 50 random elemental damage/sec for 10 seconds, 20% chance to cast random beneficial spell on allies.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,

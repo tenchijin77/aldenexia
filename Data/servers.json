@@ -1,7 +1,7 @@
 {
-	"_comment": "Servers shown in the main menu's Join a Server list. 'address' is the server's public IP or hostname; 'port' defaults to 8910. Anyone can also type an address by hand. Game updates are downloaded from http://<address>:8911 (tools/run_update_server.sh on the server); a server entry can set 'update_port' or a full 'update_url' to change that.",
+	"_comment": "Servers shown in the main menu's Join a Server list. 'address' is the server's public IP or hostname; 'port' defaults to 8910. Anyone can also type an address by hand. 'name' is only the label in the list (the game remembers the last server by address); it is NOT the server's --name, which prefixes every character and account file on the server (still 'test'). Game updates are downloaded from http://<address>:8911 (tools/run_update_server.sh on the server); a server entry can set 'update_port' or a full 'update_url' to change that.",
 	"servers": [
-		{ "name": "test", "address": "192.168.77.100", "port": 8910 },
-		{ "name": "test-public", "address": "vpn.nctlv.org", "port": 8910 }
+		{ "name": "test-us-west-lan", "address": "192.168.77.100", "port": 8910 },
+		{ "name": "test-us-west", "address": "vpn.nctlv.org", "port": 8910 }
 	]
 }

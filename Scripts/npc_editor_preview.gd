@@ -41,6 +41,8 @@ func _key() -> String:
 	var consts: Dictionary = npc.get_script().get_script_constant_map() if npc.get_script() != null else {}
 	if consts.has("MODEL_BASE"):
 		return "cat:%s:%s" % [consts["MODEL_BASE"], str(npc.get("model_scale"))]
+	if consts.get("VENDOR_MODELS", {}).has(str(npc.get("vendor_model_key"))):
+		return "vendor:" + str(npc.get("vendor_model_key"))   # a vendor's own model wins over its race
 	if npc.get("model_key") != null:
 		return "race:" + str(npc.get("model_key"))
 	if npc.get("vendor_model_key") != null:

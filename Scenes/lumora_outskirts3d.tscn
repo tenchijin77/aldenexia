@@ -308,7 +308,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -313.709, 0, 635.21643)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -592.9677, 0, -570.0188)
 
 [node name="dustwind_plateaus_zone" type="Marker3D" parent="Markers" unique_id=984064061]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1460, 0, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1235, 0, 116)
 
 [node name="NetworkWidget" parent="." unique_id=95073630 instance=ExtResource("14_netwidget")]
 
@@ -396,6 +396,7 @@ transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 65.143135, 0, -20.666174)
 config_path = "res://Data/aldric.json"
 title = "Provisioner"
 npc_name = "Aldric the Provisioner"
+vendor_model_key = "male"
 
 [node name="Lira Solarpetal" parent="NPCs" unique_id=59779779 instance=ExtResource("talking_vendor_scn")]
 transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 71.7245, 0, -20.793158)
@@ -404,6 +405,7 @@ model_key = "human_female"
 title = "Apothecary"
 npc_name = "Lira Solarpetal"
 shop_id = "lumora_apothecary"
+vendor_model_key = "female"
 
 [node name="TobbleTinkerer" parent="NPCs" unique_id=15958158 instance=ExtResource("tobble_npc_scn")]
 transform = Transform3D(-0.029708143, 0, -0.9995586, 0, 1, 0, 0.9995586, 0, -0.029708143, 64.05699, 0, 46.16)
@@ -527,8 +529,8 @@ start_quest = "wagon_crash"
 [node name="ZoneLines" type="Node3D" parent="." unique_id=659336733]
 
 [node name="To Dustwind Plateaus" type="Area3D" parent="ZoneLines" unique_id=344018196]
-transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -1500, -5, 0)
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -1274, -10, 116)
 script = ExtResource("zone_line_scr")
 target_zone = "dustwind_plateaus"
 target_marker = "lumora_outskirts_zone"
-size = Vector3(60, 30, 6)
+size = Vector3(250, 60, 8)

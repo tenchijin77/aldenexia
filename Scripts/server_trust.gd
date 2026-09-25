@@ -5,7 +5,7 @@
 #   - XP may rise only by what the server itself awarded for kills since the last save (Net's kill-XP ledger), plus the
 #     XP of quests the save newly completes (Kenji's included), plus a small margin; your level must match your XP;
 #   - coin may rise only at a generous rate (COIN_PER_MINUTE) plus quest coin rewards;
-#   - skills never above their cap (4 per level, or what you already had); spells must exist and be your class's;
+#   - skills never above their cap (combat_balance.json skill_cap_per_level x level, or what you already had); spells must exist and be your class's;
 #     recipes must exist; languages at most 100 and at most one point per LANGUAGE_SECONDS;
 #   - a surname only at level 10 (or from a game master).
 # Game masters are trusted (their tools grant things). Item changes are reported (telemetry), not refused — yet.
@@ -19,7 +19,6 @@ const COIN_PER_MINUTE := 200          # copper; selling loot and gear, coin drop
 const COIN_BASE := 1000               # copper a character's coin allowance starts with at login
 const COIN_BUCKET_MAX := COIN_PER_MINUTE * 60   # the allowance refills over time but never holds more than an hour's worth
 const LANGUAGE_SECONDS := 4.0         # Languages.PRACTICE_COOLDOWN_MS
-const SKILL_CAP_PER_LEVEL := 4
 const COPPER := {"copper": 1, "silver": 10, "gold": 100, "platinum": 1000}
 
 
@@ -79,8 +78,12 @@ static func check(stored: Dictionary, incoming: Dictionary, kill_xp: int, elapse
 	var level := int(data.get("player_level", 1))
 	var skills: Dictionary = data.get("skill_levels", {}) if typeof(data.get("skill_levels")) == TYPE_DICTIONARY else {}
 	var old_skills: Dictionary = stored.get("skill_levels", {}) if typeof(stored.get("skill_levels")) == TYPE_DICTIONARY else {}
+	# The game's own cap (Data/combat_balance.json skill_cap_per_level, as Player3D.skill_cap_for() uses; 0 = no cap).
+	var per_level := int(CombatBalance.num("skill_cap_per_level"))
 	for skill in skills:
-		var cap := maxi(level * SKILL_CAP_PER_LEVEL, int(old_skills.get(skill, 0)))
+		if per_level <= 0:
+			break
+		var cap := maxi(level * per_level, int(old_skills.get(skill, 0)))
 		if int(skills[skill]) > cap:
 			anomalies.append("skill %s %d above its cap %d" % [skill, int(skills[skill]), cap])
 			skills[skill] = cap

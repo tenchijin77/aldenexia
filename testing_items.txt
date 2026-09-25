@@ -1,12 +1,12 @@
 ALDENEXIA: LIGHTFALL — TESTING CHECKLIST
 New features and fixes waiting for a real playtest, in two parts: OUTSTANDING (not passed yet) and COMPLETED (passed).
 When an item passes, change [ ] to [x] and move it to the same section under COMPLETED (or just add "- working" and it
-gets moved). A failure goes to outstanding_items.txt with what went wrong. Last updated 2026-09-24 (test 34, then macros).
-Everything below was built after test 26.   Outstanding: 141   Completed: 24
+gets moved). A failure goes to outstanding_items.txt with what went wrong. Last updated 2026-09-24 (test 34 Tenchijin).
+Everything below was built after test 26.   Outstanding: 151   Completed: 24
 
 
 ################################################################################
-  OUTSTANDING — still to test (141)
+  OUTSTANDING — still to test (151)
 ################################################################################
 
 == ACCOUNTS AND JOINING ==
@@ -25,7 +25,8 @@ Everything below was built after test 26.   Outstanding: 141   Completed: 24
 [ ] The rats by the west wall (Zozuur's spot) come to you and fight back; no monster freezes in combat just out of reach.
 [ ] Snakes/spiders/rats/bats "bite", stingers "sting", beetles "pinch" in the combat log.
 [ ] Blood Ritual lasts 30 seconds.
-[ ] Die with a pet out: when you wake at your bind point the pet is beside you, and the monster it was fighting doesn't follow.
+[ ] Die with a pet out (changed in test 34): the pet fades as you fall; summon it again after you wake. Its gear is still
+    on it when you do, and the monster it was fighting doesn't follow you.
 [ ] Appraising (I) raises Perception (abilities book shows "+N to appraisal checks").
 [ ] Chat text: drag to select, right-click > Copy works in General, Combat and custom tabs; movement keys still work after.
 [ ] Your client log no longer shows "Node 'CombatNode:current_hp' not found" when monsters appear.
@@ -184,7 +185,7 @@ Everything below was built after test 26.   Outstanding: 141   Completed: 24
 
 == ARMOUR SETS, SMITH, DECONSTRUCT (2026-09-24, overnight) ==
 [ ] Borgrim Emberforge (looks good in test 32 — still check:) hail and shop work; he sells the smithing patterns;
-    Aldric no longer does. Aldric and Lira now talk (greetings, ambient lines) and look like human NPCs.
+    Aldric no longer does. Aldric and Lira now talk (greetings, ambient lines) and wear their own vendor models again (test 34).
 [ ] Tailor/Leatherworker: Oasis Linen / Dunehide gloves and boots are known from the start; the other patterns are at
     Aldric. Smith: Copper Links (known at 5), Copperlink gloves/boots, Bronzeguard gauntlets/sabatons known; rest at Borgrim.
 [ ] Wear all 9 pieces of one set: "Your ... set is complete" and the AC/stat bonus; take one off and it goes away. The
@@ -261,6 +262,26 @@ Everything below was built after test 26.   Outstanding: 141   Completed: 24
 [ ] New ailments show on the status window with a description and are removed by a cure: weakening venom (sandstinger),
     sundered armour (ravager), blinded (Djhanid), grave miasma (restless corpse), withering touch (wraith).
 [ ] Two players: one zones, the other stays; both keep playing (chat across zones doesn't work yet).
+
+== TEST 34 FIXES (2026-09-24) ==
+[ ] A new character reaches level 2 at 100 XP and KEEPS it (the server used to put it back to level 1 on every save), and
+    its skills keep rising past 4 at level 2 (up to 8).
+[ ] Magic Missile: the purple arcane icon (not crossed swords); three small orbs spinning in a ring as they fly, landing
+    together; still three hits. Other arcane spells have the new arcane icons; Assassinate, Defensive Strike and the
+    Aetherfist strikes have the crossed swords.
+[ ] Arcane Armor: "Your Arcane Armor absorbs N damage!" on each hit it soaks; after 100 in total, "...is spent and
+    fades" and the buff icon is gone.
+[ ] Die with buffs up: they're all gone when you wake (your stance and a lit torch stay). Your pet is gone too; summon it
+    again and its gear is still on it.
+[ ] Buy 4 Small Bags: 4 bags arrive (one per slot). With room for only 2: you get 2, pay for 2, and are told.
+[ ] A new Arcanist / Chaosborn / Gravecaller / Troubadour / Lightmender starts with a dagger; Wildspeaker / Spiritweaver with
+    a Fir Staff.
+[ ] Aldric and Lira look like their original models again (and in the editor).
+[ ] The steep hills east of (-376, 179): you don't fall through them any more (if you slip in, you pop back on top);
+    slopes up to 50 degrees can be climbed, cliffs can't.
+[ ] Click in the chat log, then hold W to run: the chat doesn't scroll.
+[ ] Walk through the gap in the southern mountains (around X -1270, Z 0..230) anywhere across it: you zone into Dustwind.
+    South of the mountains the land is gone (trimmed). The world must be started with run_world.sh.
 
 ################################################################################
   COMPLETED — passed (24)

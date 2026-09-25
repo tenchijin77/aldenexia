@@ -600,8 +600,24 @@ func get_basic_inventory_slot(slot_index: int) -> Dictionary:
 # truly no room anywhere — callers MUST check this before claiming success
 # (add_to_basic_inventory's return value being ignored at several call sites
 # was why "You receive X" could log while the item silently failed to fit).
+## How many the last add_item() actually placed: all of them for a stack, maybe fewer for things that don't stack (four
+## bags are four items, and the inventory can fill up after two).
+var last_added_count := 0
+
+
 func add_item(item_id: String, quantity: int = 1) -> bool:
-	var added := _add_item(item_id, quantity)
+	var added := false
+	last_added_count = 0
+	if item_data.has(item_id) and not item_data[item_id].get("stackable", false) and quantity > 1:
+		# Things that don't stack are separate items, one per slot (it used to add ONE bag "x4").
+		for i in quantity:
+			if not _add_item(item_id, 1):
+				break
+			last_added_count += 1
+		added = last_added_count > 0
+	else:
+		added = _add_item(item_id, quantity)
+		last_added_count = quantity if added else 0
 	if added and not Net.is_dedicated_server:
 		Quests.on_item_gained.call_deferred(item_id)  # picking up a quest item can start its quest (deferred: never mid-load)
 	return added

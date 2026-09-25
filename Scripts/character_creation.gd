@@ -352,7 +352,7 @@ func _on_confirm_pressed() -> void:
 		"thirst": 100,
 
 		"xp": 0,
-		"xp_next_level": 100,
+		"xp_next_level": int(Global.xp_table.get("2", 100)),   # Data/xp_table.json decides when level 2 comes
 		"copper": 20,
 		"silver": 0,
 		"gold": 0,
@@ -499,6 +499,12 @@ func build_starting_inventory(p_class: String) -> Dictionary:
 			gear.push_front("dagger")
 		"Aetherfist":
 			gear.push_front("worn_hand_wraps")
+		# Casters carry something too (test 34): a dagger, or a staff for the nature and spirit callers (two-handed, so not
+		# for the Lightmender, who may want a shield).
+		"Arcanist", "Chaosborn", "Gravecaller", "Troubadour", "Lightmender":
+			gear.push_front("dagger")
+		"Wildspeaker", "Spiritweaver":
+			gear.push_front("fir_staff")
 
 	# No starting scroll case anymore — the class's first two spells are now
 	# granted directly via known_spells (get_starting_spells() above), and

@@ -1,6 +1,6 @@
 {
-"_comment": "dialogue.json: This file is used to track the xp needed per level",
-  "2": 300,
+"_comment": "xp_table.json: the total XP needed to reach each level. The game and the server's save check both read it; level 2 is 100 (what new characters have always used).",
+  "2": 100,
   "3": 900,
   "4": 2100,
   "5": 4000,
@@ -19,5 +19,5 @@
   "18": 131000,
   "19": 151000,
   "20": 172500,
-  "max_level": 20,
+  "max_level": 20
 }

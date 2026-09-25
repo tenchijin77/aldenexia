@@ -2155,6 +2155,53 @@ GATE RAIDS (`Scripts/gate_raid_manager.gd`, `Data/gate_raids.json`, node "GateRa
 - Tests: test_zones.gd (zones.json, every zone line's target zone and marker exist, covers(), the server's zone-change
   check), new test_monsters.gd (every monster: fields, level range, a look, loot_from, known ailments; built zones' spawn
   files name real monsters and set no levels; Dustwind monsters load). Suite: 2,383 checks pass.
+
+### Test 34: Tenchijin (Arcanist), build 1d9dd27 (2026-09-24)
+- SERVER TRUST UNDID A REAL LEVEL-UP: new characters level at 100 XP (character creation hardcoded "xp_next_level": 100)
+  but the XP table said 300, and the server's check uses the table: every save put Tenchijin back to level 1, and then
+  his skills (defense 7, hand to hand 5, meditation 8, fine at level 2) above the level-1 cap. Data/xp_table.json is now
+  the one source (level 2 = 100, what players have always had; also fixed its trailing comma); character creation and
+  new-character defaults read it. ServerTrust's skill cap now reads combat_balance.json skill_cap_per_level (was a copy).
+- Magic Missile icon: targetarcane.png / aoearcane.png / grouparcane.png are crossed-swords art. New stand-ins
+  arcane_target / arcane_aoe / arcane_group.png (the dispel swirl, violet, on each icon's background) for the 96 spells
+  that used them; targetarcane.png (the swords) now on the direct-damage skills: Defensive Strike, Assassinate, Improved
+  Assassinate (both had a group-heal icon), Improved/Master Ki Strike, Earth Strike, Water Strike.
+- Magic Missile's look: a volley (any "bolt_count" > 1) flies as that many small orbs spinning in a ring around the line
+  of flight, closing as it arrives, a little slower (18 m/s) so the spin reads (spell_projectile.gd). Range 15 m (already
+  enforced). Three hits is by design.
+- Absorb shields (Arcane Armor...): each soak logs "Your Arcane Armor absorbs N damage!"; when the pool is used up the
+  effect is removed ("...is spent and fades") — it used to linger for its full 15 minutes doing nothing.
+- Death removes every spell effect (buffs and debuffs; stances, a lit torch and hunger/thirst stay) and sends the pet away
+  (its gear stays with you; summon it again) — player3d.gd _clear_on_death().
+- Buying 4 of a non-stacking item (Small Bag) gave ONE bag "x4": add_item() now adds them one per slot and reports how many
+  fit (Inventory.last_added_count); the shop charges only for those.
+- Casters start with a weapon: dagger (Arcanist, Chaosborn, Gravecaller, Troubadour, Lightmender), Fir Staff (Wildspeaker,
+  Spiritweaver).
+- Aldric and Lira had lost their own vendor models when they became talking vendors: vendor_model_key "male"/"female" set
+  on them, and talking_vendor_npc.gd uses a vendor model (and its animations) when one is set; the editor preview too.
+- Hills (-376, 179 area: the slopes east of there reach 60+ degrees): the player's safe_margin 0.04, floor snap 0.4, max
+  walkable slope 50 degrees; and a safety net — more than 0.5 m under the terrain surface (slipped through a steep slope)
+  puts you back on top, 4 checks a second.
+- Holding W scrolled a focused chat log: the project binds W/S to ui_up/ui_down too; they're removed from those at startup
+  (global.gd, alongside the runtime key bindings — project.godot can't change in a patch).
+- Zone line moved to the user's spot: Outskirts "To Dustwind Plateaus" at (-1275, 116), arrival marker (-1235, 116). The
+  live server had been started with run_server.sh (no world_logs/): Dustwind wasn't running, so zoning couldn't work yet.
+- Tests: new test_test34.gd (the XP/skill save, Arcane Armor, death clearing, 4 bags, caster weapons, W/S, Magic Missile).
+
+### Southern mountains: the zone line fills the opening; land south of it trimmed (2026-09-24)
+- The user sculpted the Outskirts' southern mountains (a ridge along x -1256..-1288 from z -1020 to 1020, one flat opening
+  at z 0..232). "To Dustwind Plateaus" now spans the whole opening: centre (-1274, 116), 250 wide (z -9..241), 60 tall,
+  8 deep. Arrival marker from Dustwind stays at (-1235, 116).
+- Trimmed everything south of the ridge: Terrain3D region column -6 (x -1536..-1280, 8 regions) removed and saved
+  (58 regions left); the ridge crest (x ~-1272) is kept whole. Nothing was placed there (spawns, crafting, markers, NPCs
+  checked). Backup of the terrain folder before the trim kept in the session scratchpad. Outskirts navmesh re-baked
+  (unchanged: it covers x -940..270). Verified: a bot walking into the opening at z 60 zoned into Dustwind.
+
+### Server list names: test-us-west (2026-09-25)
+- Data/servers.json: "test-public" -> "test-us-west" (vpn.nctlv.org), "test" -> "test-us-west-lan" (192.168.77.100). Labels
+  only: the game remembers the last server by address, and the server's own --name stays "test" (it prefixes every
+  character and account file). TESTER_GUIDE.html updated and republished. The user now runs 12 players per zone from
+  their own start script (run_world.sh underneath).
 ### Test 34: Shonuff (Aetherfist), Zozuur (Voidknight), build 77506fa (2026-09-24)
 - /stuck freed him; perception at the gate and the tower spires worked; Common rose talking to guards.
 - /STUCK LEFT THE PET BEHIND: the pet is now recalled to you (recall_to_owner(), or placed beside you).

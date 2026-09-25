@@ -3,6 +3,8 @@
 # land when it arrives (the `on_arrive` callback), with the spell's sound at the target. It homes on the target, so it
 # always arrives; if the target is gone by then, it just fizzles out. Built entirely in code: a glowing orb in the colour
 # of the spell's school with a short trail and a light (an arrow is a thin shaft instead), and a flash where it lands.
+# A volley ("bolt_count" > 1: Magic Missile's three bolts) is that many smaller orbs spinning in a ring around the line of
+# flight, the ring closing as they reach the target.
 extends Node3D
 
 const SPEED := 28.0            # metres per second
@@ -24,6 +26,12 @@ var _on_arrive: Callable
 var _time := 0.0
 var _arrow := false
 var _colour := Color.WHITE
+var _count := 1                # bolts in a volley
+var _ring: Node3D = null       # the spinning ring a volley's bolts ride on
+var _start_distance := 1.0
+const VOLLEY_RADIUS := 0.45    # metres from the line of flight
+const VOLLEY_SPIN := 15.0      # radians per second (about two turns over 15 m)
+const VOLLEY_SPEED := 18.0     # a volley flies a little slower than a single bolt, so the spin reads
 
 
 # Whether a spell aimed at an enemy flies to it as a projectile: harmful ranged spells and archery skills. Melee weapon
@@ -57,6 +65,7 @@ static func launch(caster: Node3D, target: Node3D, spell: Dictionary, on_arrive:
 	bolt.set("_on_arrive", on_arrive)
 	bolt.set("_arrow", str(spell.get("skill_category", "")) == "archery")
 	bolt.set("_colour", SCHOOL_COLOURS.get(str(spell.get("spell_school", "magic")), SCHOOL_COLOURS["magic"]))
+	bolt.set("_count", clampi(int(spell.get("bolt_count", 1)), 1, 8))
 	scene.add_child(bolt)
 	var forward := -caster.global_transform.basis.z
 	bolt.global_position = caster.global_position + Vector3(0, 1.4, 0) + forward * 0.6  # from the caster's hands
@@ -67,8 +76,12 @@ static func launch(caster: Node3D, target: Node3D, spell: Dictionary, on_arrive:
 func _ready() -> void:
 	if _arrow:
 		_build_arrow()
+	elif _count > 1:
+		_build_volley()
 	else:
 		_build_orb()
+	if is_instance_valid(_target):
+		_start_distance = maxf(1.0, global_position.distance_to(_target.global_position))
 
 
 func _process(delta: float) -> void:
@@ -78,7 +91,7 @@ func _process(delta: float) -> void:
 		return
 	var aim := _target.global_position + Vector3(0, CHEST_HEIGHT, 0)
 	var to_target := aim - global_position
-	var step := SPEED * delta
+	var step := (SPEED if _count == 1 else VOLLEY_SPEED) * delta
 	if to_target.length() <= step or _time >= MAX_FLIGHT:
 		global_position = aim
 		_arrive()
@@ -86,6 +99,11 @@ func _process(delta: float) -> void:
 	global_position += to_target.normalized() * step
 	if to_target.length() > 0.01:
 		look_at(aim, Vector3.UP)
+	if _ring != null:
+		# spin around the line of flight (look_at points -Z at the target); the ring closes in over the last stretch
+		_ring.rotate_object_local(Vector3.FORWARD, VOLLEY_SPIN * delta)
+		var closing := clampf(to_target.length() / minf(_start_distance, 6.0), 0.15, 1.0)
+		_ring.scale = Vector3(closing, closing, 1.0)
 
 
 func _arrive() -> void:
@@ -102,8 +120,34 @@ func _fizzle() -> void:
 	queue_free()
 
 
+# A volley: _count small orbs evenly spaced on a ring, sharing one light.
+func _build_volley() -> void:
+	_ring = Node3D.new()
+	add_child(_ring)
+	for i in _count:
+		var a := TAU * i / _count
+		var holder := Node3D.new()
+		holder.position = Vector3(cos(a), sin(a), 0.0) * VOLLEY_RADIUS
+		_ring.add_child(holder)
+		_add_orb(holder, 0.09)
+	var light := OmniLight3D.new()
+	light.light_color = _colour
+	light.light_energy = 2.0
+	light.omni_range = 4.5
+	add_child(light)
+
+
 # A glowing orb in the school's colour, a soft light and a short fading trail.
 func _build_orb() -> void:
+	_add_orb(self, 0.14)
+	var light := OmniLight3D.new()
+	light.light_color = _colour
+	light.light_energy = 1.6
+	light.omni_range = 4.0
+	add_child(light)
+
+
+func _add_orb(parent: Node3D, radius: float) -> void:
 	var mat := StandardMaterial3D.new()
 	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	mat.albedo_color = _colour.lightened(0.35)
@@ -112,17 +156,12 @@ func _build_orb() -> void:
 	mat.emission_energy_multiplier = 3.0
 	var orb := MeshInstance3D.new()
 	var sphere := SphereMesh.new()
-	sphere.radius = 0.14
-	sphere.height = 0.28
+	sphere.radius = radius
+	sphere.height = radius * 2.0
 	orb.mesh = sphere
 	orb.material_override = mat
 	orb.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	add_child(orb)
-	var light := OmniLight3D.new()
-	light.light_color = _colour
-	light.light_energy = 1.6
-	light.omni_range = 4.0
-	add_child(light)
+	parent.add_child(orb)
 	var trail := CPUParticles3D.new()
 	trail.amount = 24
 	trail.lifetime = 0.35
@@ -139,11 +178,11 @@ func _build_orb() -> void:
 	fade.add_point(Vector2(1, 0))
 	trail.scale_amount_curve = fade
 	var dot := SphereMesh.new()
-	dot.radius = 0.07
-	dot.height = 0.14
+	dot.radius = radius * 0.5
+	dot.height = radius
 	dot.material = mat
 	trail.mesh = dot
-	add_child(trail)
+	parent.add_child(trail)
 
 
 # An arrow: a thin wooden shaft with a dark head, pointing where it flies.

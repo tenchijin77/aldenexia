@@ -1068,6 +1068,11 @@ func _ready() -> void:
 	_food_drink_flavor = NPCFlavorText.new("res://Data/food_drink_flavor.json")
 	_restore_last_position()
 	_ensure_bind_point()
+	# Hills (test 34): a slightly thicker collision margin and a longer floor snap keep the capsule from slipping into a
+	# steep heightmap slope, and slopes up to 50 degrees are walkable (Godot's default is 45).
+	safe_margin = 0.04
+	floor_snap_length = 0.4
+	floor_max_angle = deg_to_rad(50.0)
 
 	# Dictionaries are references in GDScript — aliasing these means every
 	# future apply_effect()/remove_effect() (stances, campfire warmth, spell
@@ -1581,6 +1586,8 @@ func _physics_process(delta: float) -> void:
 
 	if not chat_focused and Input.is_action_just_pressed("toggle_backpack"):
 		toggle_backpack()
+
+	_check_under_terrain(delta)
 
 	if dying:
 		return
@@ -3288,9 +3295,29 @@ func _die_for_real() -> void:
 		var line := _death_flavor.get_line("death")
 		if line != "":
 			GameLog.log_general("[color=#999999]%s[/color]" % line)
+	_clear_on_death()
 	_show_death_screen()
 	await get_tree().create_timer(RESPAWN_DELAY).timeout
 	_respawn()
+
+
+# Death strips every spell effect, good and bad, and sends your pet away (summon it again; its gear stays with you, it
+# isn't lost the way it is when the pet itself is killed). Stances, a lit torch and being fed or hungry aren't spells.
+const KEPT_THROUGH_DEATH := ["lit_torch", "well_fed", "starving", "thirsty"]
+
+func _clear_on_death() -> void:
+	for effect_name in combat_node.active_effects.keys():
+		if str(effect_name).begins_with("stance_") or KEPT_THROUGH_DEATH.has(str(effect_name)):
+			continue
+		combat_node.remove_effect(str(effect_name))
+	combat_node._stats_dirty = true
+	if is_instance_valid(active_pet):
+		GameLog.log_general("[color=#cccccc]Your pet fades away as you fall. Summon it again when you're back on your feet.[/color]")
+		active_pet.dismissed.emit()      # the same bookkeeping as Dismiss: gear kept, "pet_active" saved as false
+		active_pet.queue_free()
+		active_pet = null
+	if is_instance_valid(active_pet_frame):
+		active_pet_frame.queue_free()
 
 
 func _show_death_screen() -> void:
@@ -3379,6 +3406,34 @@ func _restore_last_position() -> void:
 	if arr.size() == 3:
 		global_position = Vector3(arr[0], arr[1], arr[2])
 		_lift_above_ground.call_deferred()
+
+
+# The ground is a heightmap: there is never anything to stand on UNDER it. If the character ends up more than half a metre
+# below the terrain surface where they stand (slipped through a steep slope), put them back on top. Checked 4 times a second.
+const UNDER_TERRAIN_MARGIN := 0.5
+var _terrain_check_timer := 0.0
+var _terrain_node: Node = null
+
+func _check_under_terrain(delta: float) -> void:
+	_terrain_check_timer += delta
+	if _terrain_check_timer < 0.25:
+		return
+	_terrain_check_timer = 0.0
+	if not is_instance_valid(_terrain_node):
+		var scene := get_tree().current_scene
+		_terrain_node = scene.get_node_or_null("Terrain3D") if scene != null else null
+		if _terrain_node == null:
+			return
+	var data = _terrain_node.get("data")
+	if data == null:
+		return
+	var h: float = data.get_height(global_position)
+	if is_nan(h) or h > 10000.0:
+		return   # outside the terrain's regions
+	if global_position.y < h - UNDER_TERRAIN_MARGIN:
+		global_position.y = h + 0.2
+		velocity.y = 0.0
+		_fall_grace_until_ms = Time.get_ticks_msec() + FALL_GRACE_MS   # no fall damage for being put back
 
 
 # A saved position from before the ground changed (the flat zone -> the Terrain3D rebuild, or a re-sculpted hill) can now
@@ -3591,7 +3646,7 @@ func load_player_data_from_global() -> void:
 			],
 			"inventory_data": Inventory.save_inventory_data(),
 			"copper": 15, "silver": 2, "gold": 0, "platinum": 0,
-			"xp": 0, "xp_next_level": 100
+			"xp": 0, "xp_next_level": int(Global.xp_table.get("2", 100))
 		})
 
 	load_character_data(Global.player_data)

@@ -701,6 +701,14 @@ func _ensure_input_actions() -> void:
 		var key := InputEventKey.new()
 		key.physical_keycode = RUNTIME_ACTIONS[action]
 		InputMap.action_add_event(action, key)
+	# W and S were also bound to ui_up / ui_down, so a focused chat log (after clicking in it to select text) scrolled while
+	# you held W to run (test 34). UI lists keep the arrow keys; movement keeps W and S.
+	for ui_action in ["ui_up", "ui_down"]:
+		if not InputMap.has_action(ui_action):
+			continue
+		for ev in InputMap.action_get_events(ui_action):
+			if ev is InputEventKey and (ev.physical_keycode in [KEY_W, KEY_S] or ev.keycode in [KEY_W, KEY_S]):
+				InputMap.action_erase_event(ui_action, ev)
 
 
 # intersect_ray() for rays dropped straight down (or up) onto the ground. Godot's built-in physics can miss a

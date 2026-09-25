@@ -340,14 +340,29 @@ func has_passive(spell_name: String) -> bool:
 # once the pool hits zero. Not part of the generic modifiers dict because it
 # needs to be consumed (drained), not just summed like get_modifier().
 func absorb_incoming_damage(amount: int) -> int:
-	for effect in active_effects.values():
+	var spent: Array = []
+	for effect_name in active_effects.keys():
+		var effect: Dictionary = active_effects[effect_name]
 		if amount <= 0:
 			break
 		if effect.get("absorb_remaining", 0) > 0:
 			var absorbed: int = mini(amount, effect["absorb_remaining"])
 			effect["absorb_remaining"] -= absorbed
 			amount -= absorbed
+			_tell_owner("[color=#9fd0ff]Your %s absorbs %d damage![/color]" % [Player3D.spell_display_name(str(effect_name)), absorbed])
+			if int(effect["absorb_remaining"]) <= 0:
+				spent.append(effect_name)
+	# A spent shield is gone (it used to linger, doing nothing, until its duration ran out).
+	for effect_name in spent:
+		remove_effect(effect_name)
+		_tell_owner("[color=#9fd0ff]Your %s is spent and fades.[/color]" % Player3D.spell_display_name(str(effect_name)))
 	return amount
+
+
+# A combat-log line for the local player's own combat node only (a monster's or another player's shield stays quiet).
+func _tell_owner(text: String) -> void:
+	if get_parent() != null and get_parent() == TargetFrame.local_player():
+		GameLog.log_combat(text)
 
 # Voidknight's Death's Echo — "killing an enemy boosts next attack damage by
 # 10%." Callers invoke this right where they already confirm a kill (player3d.gd's

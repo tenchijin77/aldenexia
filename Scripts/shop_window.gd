@@ -217,10 +217,14 @@ func _buy(entry: Dictionary, qty: int) -> void:
 	if not Inventory.add_item(item_id, qty):
 		GameLog.log_general("Your inventory is full.")
 		return
+	var got: int = Inventory.last_added_count   # things that don't stack need a slot each: maybe only some fit
+	total_price = unit_price * got
 	Global.spend_currency_copper(total_price)
 	Global.play_coin_sound()  # buying: the same coin sound as selling and looting coin
-	var name_str: String = item_def.get("name", item_id) + (" x%d" % qty if qty > 1 else "")
+	var name_str: String = item_def.get("name", item_id) + (" x%d" % got if got > 1 else "")
 	GameLog.log_general("You purchase %s for %d copper." % [name_str, total_price])
+	if got < qty:
+		GameLog.log_general("[color=#ffaa66]You only had room for %d.[/color]" % got)
 	_rebuild_buy_list()  # add_item() emits inventory_changed itself, which refreshes the sell list
 
 
