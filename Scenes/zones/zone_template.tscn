@@ -13,6 +13,7 @@
 [ext_resource type="Script" uid="uid://bo5m5prkrbmj3" path="res://Scripts/crafting_world_spawner.gd" id="11_crafting"]
 [ext_resource type="Terrain3DAssets" uid="uid://dc71og8dndkvp" path="res://zones/lumora_terrain/terrain_assets.res" id="12_terrain_assets"]
 [ext_resource type="Script" path="res://Scripts/zone_boundary.gd" id="13_boundary"]
+[ext_resource type="Script" uid="uid://o0ptow04njqn" path="res://Scripts/traveling_merchant_spawner.gd" id="14_merchant"]
 
 [sub_resource type="Gradient" id="Gradient_zone"]
 offsets = PackedFloat32Array(0.2, 1)
@@ -125,3 +126,11 @@ visible = false
 
 [node name="ZoneBoundary" type="Node3D" parent="."]
 script = ExtResource("13_boundary")
+
+[node name="TravelingMerchantSpawner" type="Node3D" parent="."]
+script = ExtResource("14_merchant")
+
+[node name="Merchants" type="Node3D" parent="TravelingMerchantSpawner"]
+
+[node name="MerchantSpawner" type="MultiplayerSpawner" parent="TravelingMerchantSpawner"]
+spawn_path = NodePath("../Merchants")

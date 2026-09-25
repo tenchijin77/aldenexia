@@ -204,6 +204,7 @@ func _build_character_model() -> void:
 		return
 	var character: Node3D = character_scene.instantiate()
 	character.name = "Character"
+	MeshSmoothing.smooth_model(character)   # smooth shading (mesh_smoothing.gd): Lira's and Aldric's models were faceted
 	character.transform = Transform3D.IDENTITY.rotated(Vector3.UP, PI)
 	add_child(character)
 	animation_player = character.get_node_or_null("AnimationPlayer")

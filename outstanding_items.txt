@@ -73,6 +73,11 @@ an item (delete it, note it in change_log.txt) when it's done. Last updated 2026
   Restore level 2 and defense 7, hand_to_hand 5, meditation 8 on the server AFTER the fix is deployed (and a starting dagger).
 
 == DUSTWIND MONSTERS (2026-09-24) — still open ==
+- The user's design for the first three zones: ~/NCT/Aldenexia-Lightfall/Solgrave Expanse Map.drawio (+ .png). Dustwind's
+  spawns follow it (2026-09-25). Open: the Mirage Zone's heat-mirage effect (false enemies / oases, Zones Master), the
+  Warning Sign at the entry, whether the "Bandit Camps" are Dustwalkers (they are for now) or a bandit faction, and the
+  spider nest at the Stone Circles (not in the design). Ashfall's layout (oasis spring, gnoll camps, Djhanid encampment,
+  Bleached Forest, Kragthar dungeon entrance, zone connector to Twilight Moors) is in the same diagram.
 - Spawn layout is a first pass on flat terrain (Data/dustwind_plateaus_spawns.json): move to match the terrain.
 - Not built: monster spellcasting (Sunmaddened: Arcanist; Sand Walker: Spiritwalker; Risen Priest: Lightsworn; Warlord:
   Blademaster; Tomb Guardian: Voidknight), Broodmother summoning spiderlings, Ambusher traps, Djhanid vs Dustwalker
@@ -83,6 +88,8 @@ an item (delete it, note it in change_log.txt) when it's done. Last updated 2026
   tokens, grave soil, scorpion parts...) to write. The sheet's Loot column is empty.
 - Grave Abomination is level 10-12 per the sheet, in a 4-9 zone (rare spawn). Deliberate?
 - Ashfall Dunes monsters (sheet tab AshfallDunes) aren't in monsters.json yet — add when Ashfall is built.
+- Sahren's Ashfall leg (Oasis, Neutral Vendor Camp, Djhanid Encampment) is in traveling_merchant.json with "enabled":
+  false and placeholder positions: set the positions and enable it when Ashfall is built.
 
 == LANGUAGES (built 2026-09-23; see change_log.txt) — still open ==
 - NPC languages: every NPC but Sahren (Common + Djhanid) speaks only Common today — faction towns will use the fields.
@@ -120,8 +127,6 @@ an item (delete it, note it in change_log.txt) when it's done. Last updated 2026
 - Sinking into steep hills (test 34): on a steep slope the player capsule's rounded bottom rests uphill of its centre, so
   the feet sink into the downhill side. Options: a smaller capsule radius, or foot IK. Need a /location if it happens on
   gentle ground (that would be a collision gap instead).
-- The mausoleum's collision doesn't match its door (test 33): you can walk into the doorway and get trapped. Needs a
-  collision fix on the model (or a simpler hand-made collider); /stuck gets players out meanwhile.
 - Pets (Scripts/summoned_pet.gd KINDS): wolf, hawk, bear, panther (static critter models — no animations), ghoul,
   abomination, wraith, shade, spiritual weapon.
 - Spirit of the Woods (Wildspeaker pet) placeholder visual.
@@ -178,6 +183,9 @@ an item (delete it, note it in change_log.txt) when it's done. Last updated 2026
   targetarcane.png (the swords) now marks physical direct-damage skills (user's call, test 34).
 
 == FOR THE NEXT ZONES (Dustwind Plateaus, Ashfall Dunes) ==
+- Dustwind landmarks from the design (models or kits of parts): Warning Sign, Stone Circles, Abandoned Watchtower, Old
+  Bleached Banners, Skeletal Remains, Destroyed Caravan, Nomad Camp (Djhanid tents), Bandit Camps, Dustwalker camps,
+  a graveyard for the mesa.
 - Dustwind monsters borrowing another's model (monsters.json model_from): Plateau Spider, Sand Stinger Elite, Spider
   Broodmother (spider); Dustwalker Ambusher, Djhanid Nomad, Djhanid Sand Walker (sand brigand); Gravedigger Skeleton,
   Risen Priest (skeleton); Sunmaddened Berserker (human male); Restless Corpse, Grave Abomination (mummy); Wraith, Tomb

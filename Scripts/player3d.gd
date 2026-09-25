@@ -1294,6 +1294,7 @@ func _build_character_model() -> void:
 		return
 	var character: Node3D = character_scene.instantiate()
 	character.name = "Character"
+	MeshSmoothing.smooth_model(character)   # the Meshy exports' hard edges made faces look faceted (test 35)
 	character.transform = CHARACTER_MODEL_TRANSFORM
 	# Per-model scale correction for a source mesh exported at the wrong unit
 	# scale (see elf_female's entry above) — most models don't need this and

@@ -9,7 +9,14 @@ const WALL_THICKNESS := 2.0
 const WALL_BOTTOM := -60.0
 const WALL_TOP := 260.0
 
-var bounds := Rect2()   # x, z of the terrain's outer rectangle (set once built; for tests)
+## Pull an edge in from the terrain's own edge (world coordinates; leave at +/-100000 to use the terrain's edge). The
+## Outskirts' north edge is x 133: the land past its mountains was cut away (terrain holes), so the wall stands there.
+@export var limit_min_x := -100000.0
+@export var limit_max_x := 100000.0
+@export var limit_min_z := -100000.0
+@export var limit_max_z := 100000.0
+
+var bounds := Rect2()   # x, z of the walled rectangle (set once built; for tests)
 
 
 func _ready() -> void:
@@ -28,6 +35,8 @@ func _ready() -> void:
 	for loc in locations:
 		lo = Vector2(minf(lo.x, loc.x * size), minf(lo.y, loc.y * size))
 		hi = Vector2(maxf(hi.x, (loc.x + 1) * size), maxf(hi.y, (loc.y + 1) * size))
+	lo = Vector2(maxf(lo.x, limit_min_x), maxf(lo.y, limit_min_z))
+	hi = Vector2(minf(hi.x, limit_max_x), minf(hi.y, limit_max_z))
 	bounds = Rect2(lo, hi - lo)
 	var height := WALL_TOP - WALL_BOTTOM
 	var mid_y := (WALL_TOP + WALL_BOTTOM) / 2.0

@@ -30,9 +30,9 @@
   {
    "mob_type": "rat",
    "position": [
-    150,
+    20,
     2,
-    45
+    75
    ],
    "spawn_radius": 10.0,
    "spawn_chance": 0.7,

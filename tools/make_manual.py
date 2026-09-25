@@ -481,7 +481,7 @@ NPCS = [
     ("Xalvyr Tenn", "Vol'kyne copyist, Sandveil Bazaar", "Spell scrolls for the dark classes, and language primers. Tolerated in Lumora only under Zyra Sandveil's protection. “Coin acknowledges no gods.”"),
     ("Oswin Coinwright", "Banker", "Right-click him to open your bank."),
     ("Harbour Master Tobias Sandcrest", "Sandcrest Landing", "Runs the docks and sells passage north to Thallia's Bastion. The ferry isn't running yet."),
-    ("Sahren of the Deep Wells", "Travelling Djhanid merchant", "Walks the roads between the landmarks, so you'll have to find him. Sells rare goods and the Djhanid primer, and asks for help releasing the Hollowed. Speak to him in Djhanid and he answers in kind."),
+    ("Sahren of the Deep Wells", "Travelling Djhanid merchant", "Walks a long loop through Solgrave: into the Outskirts by the southern pass, to the docks, then the town gate, and on to the Dustwind Plateaus (the Stone Circles, the Nomad Camp, the Destroyed Caravan) before coming round again. Ask a guard where he is: they know. Hail him on the road and he'll stop to trade. Sells rare goods and the Djhanid primer, and asks for help releasing the Hollowed. Speak to him in Djhanid and he answers in kind."),
     ("Kenji", "The gate cat", "Sits by the town gate. Bring him 10 rat tails (drag them onto him, a few at a time if you like) for 40 experience and Kenji's Blessing: better regeneration and accuracy for 15 minutes. It shows in your journal as Kenji's Rat Tails, and he never tires of them."),
     ("Oni", "The hunting cat", "Patrols the town and hunts rats. /pet her if she lets you."),
 ]

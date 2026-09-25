@@ -142,6 +142,9 @@ func _build_ui() -> void:
 	vbox.add_child(server_row)
 	server_select = OptionButton.new()
 	server_select.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	# Don't size to the longest entry ("test-us-west-lan (update needed)") — that pushed every row past the window's edge.
+	server_select.fit_to_longest_item = false
+	server_select.clip_text = true
 	for entry in _servers:
 		server_select.add_item(str(entry.get("name", entry["address"])))
 		_status.append({"state": "unknown", "text": "Not checked yet"})
@@ -164,6 +167,7 @@ func _build_ui() -> void:
 
 	server_status_label = Label.new()
 	server_status_label.add_theme_font_size_override("font_size", 11)
+	server_status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART   # a long message wraps instead of widening the window
 	server_status_label.custom_minimum_size = Vector2(0, 16)
 	vbox.add_child(server_status_label)
 

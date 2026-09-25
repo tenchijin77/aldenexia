@@ -2230,6 +2230,79 @@ GATE RAIDS (`Scripts/gate_raid_manager.gd`, `Data/gate_raids.json`, node "GateRa
   start of it, lists the choices when several match), /teleport <zone> (straight to its arrival point: a zone trip with
   zone_in "@spawn"; the server already accepts a GM's zone change from anywhere). /tel stays /tell. In the pause menu's
   GM list. Tests: test_gm_safety.gd.
+
+### Join a Server window: fields no longer run past its border (2026-09-25)
+- During an update every row stuck out past the window's right edge (screenshot): the yellow server-status line didn't
+  wrap, so a long message ("Can't reach the server, and a different build is published... Try updating.") widened the
+  whole column, and the server dropdown sized itself to its longest entry ("test-us-west-lan (update needed)"). The
+  status line now wraps and the dropdown clips its text. New tools/tests/test_ui.gd fills the window with the longest
+  texts and checks nothing passes the border (325 px over on the old code; 0 now).
+- Found while testing it: leaving a server set the connection to null, and Godot then reports our own id as 0, so a
+  single-player game started afterwards in the same session wouldn't count your own character as yours. net.gd now goes
+  back to an OfflineMultiplayerPeer (Godot's startup state) in all 7 places. Zoning round trip re-verified with a bot.
+
+### Test 35: Tenchijin (Arcanist), build 8748b53 (2026-09-25)
+- Passed: logging in after the fall put him at the zone-in point; /teleport; Magic Missile's volley ("looks amazing").
+- FACETED CHARACTER FACES (half-elf female, Lira; screenshots): not LOD — measured: the Meshy FBX exports carry hard edges
+  on many triangles (27% of the half-elf female's were flat-shaded, 12% of Lira's, 16% of the guard's; the old player
+  model 1%), so each facet was lit on its own. New Scripts/mesh_smoothing.gd (MeshSmoothing): recomputes vertex normals
+  from the triangles touching each point within 60 degrees (Blender-style auto smooth: real creases stay sharp), keeps
+  skinning/UVs/blend shapes, re-aligns tangents, cached per model (~60 ms once), skipped on the dedicated server. Used for
+  player race models, NPC race models (NPCRaceModel), vendor models and humanoid monsters; NOT the guards (the user likes
+  them as they are). Faceted share after: 1%. Also set meshes/generate_lods=false on all 336 character/monster FBX imports
+  (Godot's automatic LODs on skinned models; scenery GLBs keep theirs).
+- OUTSKIRTS NORTH TRIMMED past the mountains: the user's ridge runs x ~100-116 from z -992 to 1024 with the gap to Lumora
+  City's gate (z ~-30..70). The last region column also holds the town area, so instead of removing regions the terrain
+  is cut with HOLES north of x 132 (314,880 points; the ridge and town side untouched) and ZoneBoundary (new
+  limit_min/max_x/z exports) walls the zone at x 133. The one rat spawn at (150, 45) moved to (20, 75). Navmesh re-baked
+  (10,451 -> 10,376 polygons). Terrain backup in the session scratchpad.
+- THE MAUSOLEUM (outstanding since test 33): a walking capsule couldn't get in through its (open, 14 m) door, and inside
+  stuck at random spots. Cause: its floor sits exactly on the ground (y 0), and a trimesh floor coinciding with the
+  terrain snags a moving character on its triangle edges; its walls were also one-sided (some face inward), so they could
+  be walked through from the wrong side. structure_collision.gd now leaves out upward faces lying on the ground (within
+  0.25 m of the terrain) and makes every structure's collision solid from both sides. Verified with a capsule: in and out
+  through the door, all the way to the back wall, and every wall solid from inside and outside.
+- The user's zone design (~/NCT/Aldenexia-Lightfall/Solgrave Expanse Map.drawio): Dustwind's spawns re-laid to follow it —
+  Stone Circles west (spiders + Broodmother; the nest is our addition), two Dustwalker camps in the Mirage Zone (the
+  Warlord's in the south one), the Undead Roaming Area east (skeletal remains, the Abandoned Watchtower, the Old Bleached
+  Banners) with the Graveyard Area on the mesa (higher undead, Tomb Guardian, rare Grave Abomination), and along the south
+  the Nomad Camp (Djhanid), the Arcanist Portal (kept clear), the Destroyed Caravan and two Bandit Camps (Dustwalker
+  raiders for now); rare Sunmaddened and the Stinger Elite on the high dunes. 36 spawn points.
+- check_monster_sheet.py also keeps the sheet's Area column = the places each monster spawns; filled for the Outskirts and
+  Dustwind (backup Zone Spawn Sheet.before_sync_2026-09-25.xlsx).
+- Tests: test_gm_safety.gd (north trim, rat moved, mausoleum walk-through, smoothing keeps skinning and removes facets).
+  Suite: 2,457 checks pass.
+
+### Sahren walks Solgrave on a shared timetable; stops on the road when hailed (2026-09-25)
+- New Scripts/merchant_schedule.gd (MerchantSchedule): one loop every 90 real minutes (Data/traveling_merchant.json
+  "journey"): the Outskirts (in by the southern pass, the docks, the town gate, out by the pass), then Dustwind (the
+  zone-in, the Stone Circles, the Nomad Camp, the Destroyed Caravan, out by the south road — the quiet way round the
+  enemies), then Ashfall (the Oasis, the Neutral Vendor Camp, the Djhanid Encampment: "enabled": false, placeholder
+  positions until Ashfall is built). Every server computes where he is from the clock, so he's only ever in one zone.
+  Randomness the same on every server (seeded by the loop's number): each loop starts up to 8 minutes early or late and
+  his stays vary +/-20%.
+- traveling_merchant_spawner.gd rewritten: brings him in when the timetable reaches its zone — mid-visit if the server
+  starts late (partway along the road, or at his stop with the rest of his stay left) — once per loop; packs him up if
+  he's still there 3 minutes after his time in the zone is over. In zone_template.tscn now (every zone has one).
+- traveling_merchant.gd: a route of stops (Stage ROAD / AT_STOP / LEAVING / CHATTING) instead of dock-then-gate. Hail or
+  right-click him on the road (or talk to him, or hand him something) and he stops, turns to you and trades
+  (CHATTING); he walks on after roadside_pause_seconds (60) without a customer ("resume" lines; "roadside" lines when
+  stopped). Server-side walking as before; a client's hail reaches the server through _rpc_request_pause (on the
+  merchant, not Net).
+- Guards answer "Sahren" / "merchant" from the timetable, with where and when: "He'll be at the docks at Sandcrest
+  Landing in about 3 minutes: X -757, Z -1018", "trading at the town gate... about 4 more minutes", "out in the Dustwind
+  Plateaus... back through here in about 40 minutes" (Data/guard_topics.json merchant_lines templates). Harbour Master
+  Tobias's remarks too.
+- The Outskirts navmesh now covers the whole zone (x -1280..140, was -940..270): 13,759 polygons. Dustwind spawns moved
+  off his stops: the spider nest to the rocky northwest corner, the caravan raiders east; no-monster areas round his three
+  Dustwind stops.
+- The user moved the Outskirts' "Traveling Merchant" marker to the southern zone line (-1208, 111): his way in from
+  Dustwind and out again. The leg's enter/exit follow it: traveling_merchant.json enter/exit [-1208, 111] (what other zones
+  and the guards time by) plus "enter_marker"/"exit_marker" — that zone's server uses the marker's live position, so
+  moving it in the editor just works; a test flags the marker and the [x, z] drifting over 50 m apart. (Sergeant Bryn's
+  patrol also uses that marker, so his rounds now reach the pass.)
+- Tests: test_merchant.gd (the loop and its order, the same answer everywhere, drift, the guards' report, mid-visit
+  arrival on the road and at a stop, the roadside stop and walking on, once per loop).
 ### Test 34: Shonuff (Aetherfist), Zozuur (Voidknight), build 77506fa (2026-09-24)
 - /stuck freed him; perception at the gate and the tower spires worked; Common rose talking to guards.
 - /STUCK LEFT THE PET BEHIND: the pet is now recalled to you (recall_to_owner(), or placed beside you).

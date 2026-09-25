@@ -43,8 +43,8 @@
 [ext_resource type="Script" uid="uid://wqmn351jhvbo" path="res://Scripts/weather_manager.gd" id="weather_mgr_script"]
 [ext_resource type="Script" uid="uid://bgf2lkk12k3hx" path="res://Scripts/world_items.gd" id="world_items_scr"]
 [ext_resource type="Script" uid="uid://t6wjhuirmwsb" path="res://Scripts/world_note.gd" id="world_note_scr"]
+[ext_resource type="Script" uid="uid://c2olnatq3g6a5" path="res://Scripts/zone_boundary.gd" id="zone_boundary_scr"]
 [ext_resource type="Script" uid="uid://clm5l4nhm5j6k" path="res://Scripts/zone_line.gd" id="zone_line_scr"]
-[ext_resource type="Script" path="res://Scripts/zone_boundary.gd" id="zone_boundary_scr"]
 
 [sub_resource type="Gradient" id="Gradient_6a7en"]
 offsets = PackedFloat32Array(0.2, 1)
@@ -161,19 +161,19 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 1.5, 13)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.4489846, 5.5579767, -4.742223)
 
 [node name="torch" parent="Torches" unique_id=232192674 instance=ExtResource("4_axp1o")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 57.41037, -4, 9.799281)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 57.06573, -4, 9.799281)
 
 [node name="torch2" parent="Torches" unique_id=937113326 instance=ExtResource("4_axp1o")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 56.929, -4, 28.577)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 56.748352, -4, 28.577)
 
 [node name="torch3" parent="Torches" unique_id=1065124224 instance=ExtResource("4_axp1o")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 67.23271, 2.030017, -239.9035)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 67.11562, 2.030017, -239.9035)
 
 [node name="torch4" parent="Torches" unique_id=1851909395 instance=ExtResource("4_axp1o")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -19.96826, -2.2893581, -282.02216)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20.184368, -2.2893581, -282.02216)
 
 [node name="torch5" parent="Torches" unique_id=730755703 instance=ExtResource("4_axp1o")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -19.899061, -2.087597, -195.03049)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -19.915846, -2.087597, -195.03049)
 
 [node name="monster_template" parent="." unique_id=2031395971 instance=ExtResource("1_buoj8")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -56.570557, 0, -786.9494)
@@ -194,7 +194,13 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.503235, -10.436493, -341.3
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 52.592503, 10.446568, 387.36313)
 
 [node name="campfire2" parent="Campfires" unique_id=451820088 instance=ExtResource("1_17dwb")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -565.75, 0, 934.534)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -563.83246, 10.350242, 943.05896)
+
+[node name="campfire3" parent="Campfires" unique_id=731631802 instance=ExtResource("1_17dwb")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -268.66635, 10.476639, 960.70544)
+
+[node name="campfire4" parent="Campfires" unique_id=842810579 instance=ExtResource("1_17dwb")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -413.9323, 10.436493, 704.52515)
 
 [node name="Guards" type="Node3D" parent="." unique_id=1644611143]
 
@@ -282,7 +288,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -759.6306, 0, -1020.1924)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -783.5, 0, -983.4)
 
 [node name="Traveling Merchant" type="Marker3D" parent="Markers" unique_id=1711146770]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -759.1615, 0, 743.90625)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1208.2644, 0, 111.173035)
 
 [node name="Signpost" type="Marker3D" parent="Markers" unique_id=1359139698]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -529.1732, 0, 0)
@@ -536,5 +542,6 @@ target_zone = "dustwind_plateaus"
 target_marker = "lumora_outskirts_zone"
 size = Vector3(250, 60, 8)
 
-[node name="ZoneBoundary" type="Node3D" parent="."]
+[node name="ZoneBoundary" type="Node3D" parent="." unique_id=1646338612]
 script = ExtResource("zone_boundary_scr")
+limit_max_x = 133.0

@@ -644,22 +644,22 @@
  },
  "merchant_lines": {
   "coming": [
-   "A peddler's coming up the west road with a pack the size of a house. Sahren, the Djhanid. He always stops at the docks first.",
-   "Sahren's on the road, heading for the docks. You'll catch him there if you're quick."
+   "Sahren, the Djhanid peddler, is on the road. He'll be at {stop} in about {minutes} minute{s}: X {x}, Z {z}.",
+   "The peddler's in the Outskirts. Heading for {stop}, around X {x}, Z {z}. Give him {minutes} minute{s}."
   ],
-  "dock": [
-   "The Djhanid peddler, Sahren, is set up at the docks. He won't stay long. Go now.",
-   "Sahren's at the docks with his pack. He'll be along to the gate afterward, if you'd rather wait."
+  "trading": [
+   "Sahren's set up at {stop} right now, X {x}, Z {z}. He'll stay about {minutes} more minute{s}. Go now.",
+   "The Djhanid peddler is trading at {stop} (X {x}, Z {z}). Rare goods, or so he says. Not for long, though."
   ],
-  "gate": [
-   "Sahren's at the gate right now. The Djhanid peddler with the pack. Rare goods, or so he says.",
-   "The peddler's here! By the wall, near the gate. Take a look before he packs up."
+  "leaving": [
+   "Sahren's packing up and heading out by {stop}. Catch him on the road if you're quick: he'll stop for a customer."
   ],
-  "gone": [
-   "Sahren left already. Gone back to the sands. He'll be along again, though I couldn't say when."
+  "elsewhere": [
+   "Sahren? He's out in the {zone} right now. He'll come back through here in about {minutes} minute{s}.",
+   "The peddler's gone on to the {zone}. Give it {minutes} minute{s} or so and he'll be back this way."
   ],
-  "none": [
-   "A Djhanid peddler comes through now and then. Sahren, they call him. I couldn't give you a day."
+  "away": [
+   "Sahren's on the long road between the lands. He'll be through here in about {minutes} minute{s}."
   ]
  },
  "hail_hooks": {

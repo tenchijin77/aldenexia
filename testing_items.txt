@@ -1,12 +1,12 @@
 ALDENEXIA: LIGHTFALL — TESTING CHECKLIST
 New features and fixes waiting for a real playtest, in two parts: OUTSTANDING (not passed yet) and COMPLETED (passed).
 When an item passes, change [ ] to [x] and move it to the same section under COMPLETED (or just add "- working" and it
-gets moved). A failure goes to outstanding_items.txt with what went wrong. Last updated 2026-09-24 (test 34 Tenchijin).
-Everything below was built after test 26.   Outstanding: 158   Completed: 24
+gets moved). A failure goes to outstanding_items.txt with what went wrong. Last updated 2026-09-25 (test 35 Tenchijin).
+Everything below was built after test 26.   Outstanding: 170   Completed: 24
 
 
 ################################################################################
-  OUTSTANDING — still to test (158)
+  OUTSTANDING — still to test (170)
 ################################################################################
 
 == ACCOUNTS AND JOINING ==
@@ -290,7 +290,27 @@ Everything below was built after test 26.   Outstanding: 158   Completed: 24
 [ ] If you ever fall out of the world, a moment later you're back at the zone's arrival point with a message.
 [ ] GM: /kill on a monster (dies, no XP or loot), /kill me (you die and wake at your bind point).
 [ ] GM: /give tin shi (a Tin Shield in your bags), /give iron rations 5, /give tin sh (lists the two it could be).
+[ ] Join a Server while an update is needed or downloading: every field stays inside the window's border.
 [ ] GM: /teleport dust from the Outskirts, /teleport lumora back: you arrive at each zone's arrival point.
+
+== TEST 35 FIXES (2026-09-25) ==
+[ ] Lira, Ilsabet and a half-elf female player: faces and clothes look smooth, not faceted. Guards look as before.
+[ ] Goblins, skeletons, mummies, brigands and the other race models look smooth too.
+[ ] Walk into the mausoleum through its door, all the way to the back, and back out; you can't walk through its walls.
+[ ] The Outskirts' north: past the mountains the land is gone; an invisible wall stops you just behind them (also at the
+    town gate gap and past both ends of the ridge).
+[ ] Dustwind's monsters are where the design puts them (Stone Circles west, Dustwalker camps in the middle, undead to the
+    east, the graveyard on the mesa, the Nomad Camp / caravan / bandit camps along the south).
+
+== SAHREN'S JOURNEY (2026-09-25) ==
+[ ] Ask a guard "Sahren" (or "merchant"): the answer says where he is (here: which stop, X/Z, how many minutes; or in
+    Dustwind and when he'll be back). Go to the X/Z given: he's there or arriving.
+[ ] Watch him in the Outskirts: in by the southern pass, the docks, the town gate, out by the pass.
+[ ] In Dustwind: the zone-in, the Stone Circles, the Nomad Camp, the Destroyed Caravan, out by the south road.
+[ ] Hail (H) or right-click him while he walks: he stops, turns to you, says a roadside line and his shop opens. He walks
+    on about a minute after you're done.
+[ ] He's never in two zones at once (a friend in the other zone can check /who... or just look).
+[ ] Restart the world while he's mid-visit: he comes back where he should be (on the road, or at his stop), not from the start.
 
 ################################################################################
   COMPLETED — passed (24)

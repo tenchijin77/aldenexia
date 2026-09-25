@@ -83,18 +83,17 @@ func _pick(category: String) -> String:
 	return "" if typeof(lines) != TYPE_ARRAY or lines.is_empty() else str(lines[randi() % lines.size()])
 
 
-# Which remark about the traveling merchant fits right now ("" = he is not in the world).
+# Which remark about the traveling merchant fits right now ("" = he isn't in this zone): from his timetable
+# (merchant_schedule.gd). His first stop here is the docks.
 func _merchant_category() -> String:
-	for node in get_tree().get_nodes_in_group("traveling_merchant"):
-		if not is_instance_valid(node):
-			continue
-		match int(node.get("stage")):
-			TravelingMerchant.Stage.ROAD_TO_DOCK:
-				return "merchant_coming"
-			TravelingMerchant.Stage.AT_DOCK:
-				return "merchant_here"
-			_:
-				return "merchant_gone"
+	var r := MerchantSchedule.report(ZoneInfo.current_id(), Time.get_unix_time_from_system())
+	match str(r.get("key", "")):
+		"coming":
+			return "merchant_coming" if str(r.get("stop", "")).contains("dock") else "merchant_gone"
+		"trading":
+			return "merchant_here" if str(r.get("stop", "")).contains("dock") else "merchant_gone"
+		"leaving":
+			return "merchant_gone"
 	return ""
 
 

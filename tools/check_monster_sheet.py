@@ -8,8 +8,9 @@
 #                                                 and a row for every monster that spawns in the zone but has none
 #                                                 (a backup "Zone Spawn Sheet.before_sync_<date>.xlsx" is kept)
 #
-# Checked per tab: every row names a monster that exists; its level range equals level_min-level_max; every monster that
-# SPAWNS in that zone (Data/<zone>_spawns.json) has a row. Tabs for zones not built yet are only checked for their ids.
+# Checked per tab: every row names a monster that exists; its level range equals level_min-level_max; its Area lists the
+# places it spawns (the spawn points' spawn_zone labels); every monster that SPAWNS in that zone (Data/<zone>_spawns.json)
+# has a row. Tabs for zones not built yet are only checked for their ids.
 import datetime
 import json
 import os
@@ -27,6 +28,25 @@ ID_HEADER = "Monster ID (monsters.json)"
 def load_json(path):
     with open(os.path.join(ROOT, path)) as f:
         return json.load(f)
+
+
+def areas_in(zone):
+    """monster id -> "Stone Circles, Mirage Zone" (the spawn points' labels, tidied), for the sheet's Area column."""
+    path = os.path.join(ROOT, "Data", "%s_spawns.json" % zone)
+    try:
+        data = load_json(path)
+    except (OSError, json.JSONDecodeError):
+        return {}
+    out = {}
+    for sp in data.get("spawns", []):
+        label = str(sp.get("spawn_zone", ""))
+        for suffix in ("_named", "_rare", "_north", "_south", "_east", "_west"):
+            label = label[: -len(suffix)] if label.endswith(suffix) else label
+        label = label.replace("_", " ").title()
+        names = out.setdefault(sp.get("mob_type"), [])
+        if label and label not in names:
+            names.append(label)
+    return {k: ", ".join(v) for k, v in out.items()}
 
 
 def spawned_in(zone):
@@ -90,6 +110,14 @@ def main():
                     if write:
                         ws.cell(r, col_level).value = want
                         changed = True
+        col_area = headers.index("Area") + 1 if "Area" in headers else 0
+        areas = areas_in(zone) if built else {}
+        for mid, r in rows.items():
+            if col_area and mid in areas and str(ws.cell(r, col_area).value or "") != areas[mid]:
+                problems.append("%s %s: sheet Area '%s', spawns '%s'" % (tab, mid, ws.cell(r, col_area).value or "", areas[mid]))
+                if write:
+                    ws.cell(r, col_area).value = areas[mid]
+                    changed = True
         for mid in spawned_in(zone):
             if mid in monsters and mid not in rows:
                 problems.append("%s: %s spawns there but has no row" % (tab, mid))

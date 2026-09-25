@@ -1,48 +1,26 @@
 {
  "_help": [
-  "The traveling merchant (Scripts/traveling_merchant_spawner.gd + traveling_merchant.gd). Edit and restart to tune.",
-  "He is not always around: after the server starts he first shows up after a random number of minutes in 'first_visit_delay_minutes',",
-  "and after each visit he is gone for a random number of minutes in 'visit_gap_minutes' (both [min, max], real-world minutes).",
-  "A visit: he appears at the 'spawn' marker, walks to the 'dock' marker and trades there for 'dock_stay_seconds', walks to the town",
-  "'gate' marker and trades there for 'gate_stay_seconds', then packs up and disappears. He only trades while he is standing still.",
-  "Markers are node paths in the zone scene (the Markers node). *_stand_offset moves where he stands, relative to the marker [x, y, z],",
-  "so he does not stand on top of another NPC. walk_speed is metres per second. shop_id is a key in Data/vendor_shop.json: THAT is his stock.",
-  "model is a key of Player3D.CHARACTER_MODELS (a race + sex, e.g. halfling_male, human_male, half_orc_female). Lines are picked at random.",
-  "greeting = hail or right-click at a stop; ambient = said to nearby players every 1-2 minutes while he trades (at night a 20% chance it is a 'secret' line instead);",
-  "sales = said when his shop opens; token_surprise = his reaction (once per visit per player) if you are carrying a Ceramic Water-Token. quest_hooks is kept here for the quest system to use.",
-  "Lines: greeting / ambient / sales / secret / quest_hooks are the user's own text (with {keyword} markup added). Everything in 'topics' plus busy, warn, farewell, hail_leaving, token_surprise_emote, wrong_item are DRAFTS in his voice, awaiting approval.",
-  "topics: see Scripts/npc_conversation.gd. {word} in a line is a clickable keyword; what the player says near him (typed /say or clicked) picks the first topic whose keyword matches and whose 'requires' hold."
+  "The traveling merchant, Sahren of the Deep Wells (Scripts/merchant_schedule.gd, traveling_merchant_spawner.gd, traveling_merchant.gd).",
+  "JOURNEY: he walks one loop through Solgrave's zones on a shared timetable ('journey' below) and is only ever in ONE zone: every zone's",
+  "server works out from the clock where he is, so they agree without talking to each other. Each loop starts up to drift_minutes early",
+  "or late and his stays vary by stay_jitter (the same roll on every server). A leg: he appears at 'enter' ([x, z] in that zone), walks",
+  "to each stop in turn and trades there for its stay_seconds, then walks to 'exit' and is gone. A leg with enabled false (Ashfall until",
+  "it is built) is skipped: he goes on to the next. start_minute = minutes into the loop the leg begins; cycle_minutes = the whole loop.",
+  "walk_speed is metres per second; walk_factor allows for paths longer than a straight line when the timetable estimates a walk.",
+  "He trades at his stops AND on the road: hail him (or right-click him) while he walks and he stops for a chat and a sale, then goes on",
+  "after 'roadside_pause_seconds' without a customer.",
+  "shop_id is a key in Data/vendor_shop.json: THAT is his stock. model is a key of Player3D.CHARACTER_MODELS. Guards say where he is from",
+  "the timetable (Data/guard_topics.json 'merchant_lines'). Lines are picked at random.",
+  "greeting = hail or right-click at a stop; roadside = the same on the road (he stops); ambient = said to nearby players every 1-2 minutes",
+  "while he trades (at night a 20% chance it is a 'secret' line instead); sales = said when his shop opens; token_surprise = his reaction",
+  "(once per visit per player) if you are carrying a Ceramic Water-Token; resume = when he picks up his pack and walks on.",
+  "enter_marker / exit_marker (optional): a Marker3D in that zone's scene; its server uses the marker's position live (move it in the editor), while the [x, z] beside it are what other zones and the guards use for timings. Keep them close (a test checks within 50 m)."
  ],
  "name": "Sahren of the Deep Wells",
  "shop_id": "traveling_merchant",
  "model": "human_male",
  "walk_speed": 3.5,
- "dock_stay_seconds": 300,
- "gate_stay_seconds": 300,
  "warn_before_leaving_seconds": 30,
- "first_visit_delay_minutes": [
-  2,
-  8
- ],
- "visit_gap_minutes": [
-  20,
-  50
- ],
- "markers": {
-  "spawn": "Markers/Traveling Merchant",
-  "dock": "Markers/Dock",
-  "gate": "Markers/Town Gate"
- },
- "dock_stand_offset": [
-  2.5,
-  0,
-  2.5
- ],
- "gate_stand_offset": [
-  6,
-  0,
-  -5
- ],
  "lines": {
   "greeting": [
    "Traveler! You look like someone seeking what others cannot find. I am Sahren, of the {Djhanid}.",
@@ -99,6 +77,15 @@
   ],
   "wrong_item": [
    "Sahren looks at it, then at you. \"That is not what I am looking for.\""
+  ],
+  "roadside": [
+   "Ah, a customer on the road! Sahren is never too hurried for coin. Let me set down this pack.",
+   "You wave, Sahren stops. Such is the way of the sands. What do you need, friend?",
+   "The road is long and the wares are heavy. Lighten my load, and I will thank you."
+  ],
+  "resume": [
+   "The sands do not wait, and neither can Sahren. Walk well, friend.",
+   "My pack will not carry itself. Until the next well, friend."
   ]
  },
  "token_item": "ceramic_water_token",
@@ -392,5 +379,128 @@
     "open_shop": true
    }
   }
- ]
+ ],
+ "roadside_pause_seconds": 60,
+ "journey": {
+  "cycle_minutes": 90,
+  "drift_minutes": 8,
+  "stay_jitter": 0.2,
+  "walk_speed": 3.5,
+  "walk_factor": 1.25,
+  "legs": [
+   {
+    "zone": "lumora_outskirts",
+    "start_minute": 0,
+    "enter": [
+     -1208,
+     111
+    ],
+    "stops": [
+     {
+      "name": "the docks at Sandcrest Landing",
+      "at": [
+       -757,
+       -1018
+      ],
+      "stay_seconds": 300
+     },
+     {
+      "name": "the town gate",
+      "at": [
+       58,
+       8
+      ],
+      "stay_seconds": 300
+     }
+    ],
+    "exit": [
+     -1208,
+     111
+    ],
+    "exit_name": "the southern pass",
+    "enter_marker": "Markers/Traveling Merchant",
+    "exit_marker": "Markers/Traveling Merchant"
+   },
+   {
+    "zone": "dustwind_plateaus",
+    "start_minute": 42,
+    "enter": [
+     0,
+     -470
+    ],
+    "stops": [
+     {
+      "name": "the Stone Circles",
+      "at": [
+       -440,
+       -195
+      ],
+      "stay_seconds": 240
+     },
+     {
+      "name": "the Nomad Camp",
+      "at": [
+       -400,
+       380
+      ],
+      "stay_seconds": 300
+     },
+     {
+      "name": "the Destroyed Caravan",
+      "at": [
+       -17,
+       380
+      ],
+      "stay_seconds": 240
+     }
+    ],
+    "exit": [
+     -17,
+     495
+    ],
+    "exit_name": "the south road"
+   },
+   {
+    "zone": "ashfall_dunes",
+    "enabled": false,
+    "start_minute": 68,
+    "enter": [
+     0,
+     -470
+    ],
+    "stops": [
+     {
+      "name": "the Oasis",
+      "at": [
+       -200,
+       -100
+      ],
+      "stay_seconds": 240
+     },
+     {
+      "name": "the Neutral Vendor Camp",
+      "at": [
+       100,
+       250
+      ],
+      "stay_seconds": 240
+     },
+     {
+      "name": "the Djhanid Encampment",
+      "at": [
+       380,
+       350
+      ],
+      "stay_seconds": 300
+     }
+    ],
+    "exit": [
+     0,
+     -470
+    ],
+    "exit_name": "the north road",
+    "_note": "Positions are placeholders until Ashfall is built (from Solgrave Expanse Map.drawio); set enabled true then."
+   }
+  ]
+ }
 }

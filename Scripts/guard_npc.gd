@@ -222,20 +222,19 @@ func progress_summary() -> String:
 	return Quests.progress_summary(npc_name)
 
 
-# A remark about the traveling merchant that fits where he is right now.
+# Where the traveling merchant is, from his timetable (merchant_schedule.gd) — so a guard knows even when he's in another
+# zone: on his way to a stop here (and where it is, X/Z as /loc shows them), trading at one, leaving, elsewhere, or away.
+# Templates in Data/guard_topics.json "merchant_lines": {stop} {x} {z} {minutes} {zone}.
 func dynamic_lines(name: String) -> Array:
 	if name != "merchant_remark":
 		return []
-	var kind := "none"
-	for node in get_tree().get_nodes_in_group("traveling_merchant"):
-		if is_instance_valid(node):
-			match int(node.get("stage")):
-				TravelingMerchant.Stage.ROAD_TO_DOCK: kind = "coming"
-				TravelingMerchant.Stage.AT_DOCK: kind = "dock"
-				TravelingMerchant.Stage.ROAD_TO_GATE, TravelingMerchant.Stage.AT_GATE: kind = "gate"
-				_: kind = "gone"
-	var pool = _merchant_lines.get(kind, [])
-	return pool if typeof(pool) == TYPE_ARRAY else []
+	var r := MerchantSchedule.report(ZoneInfo.current_id(), Time.get_unix_time_from_system())
+	var pool = _merchant_lines.get(str(r.get("key", "away")), [])
+	if typeof(pool) != TYPE_ARRAY:
+		return []
+	return pool.map(func(line): return str(line).replace("{stop}", str(r.get("stop", ""))).replace("{x}", str(r.get("x", 0))) \
+			.replace("{z}", str(r.get("z", 0))).replace("{minutes}", str(r.get("minutes", 0))).replace("{zone}", str(r.get("zone", ""))) \
+			.replace("{s}", "" if int(r.get("minutes", 0)) == 1 else "s"))
 
 
 func _setup_patrol() -> void:

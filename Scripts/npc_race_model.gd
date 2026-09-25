@@ -14,6 +14,7 @@ static func build(npc: Node3D, model_key: String) -> AnimationPlayer:
 		return null
 	var character: Node3D = scene.instantiate()
 	character.name = "Character"
+	MeshSmoothing.smooth_model(character)   # smooth shading (mesh_smoothing.gd)
 	character.transform = Transform3D.IDENTITY.rotated(Vector3.UP, PI)  # the facing correction every Mixamo export needs
 	var model_scale: float = info.get("scale", 1.0)
 	if model_scale != 1.0:

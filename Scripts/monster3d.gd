@@ -452,6 +452,7 @@ func _setup_humanoid_visual(visual_key: String) -> void:
 	var character_scene := load(model_info["scene"])
 	var character: Node3D = character_scene.instantiate()
 	character.name = "Character"
+	MeshSmoothing.smooth_model(character)   # smooth shading (mesh_smoothing.gd)
 	character.transform = Transform3D.IDENTITY.rotated(Vector3.UP, PI)  # same 180°-Y facing fix baked into player3d.tscn/guard_npc.tscn's Character node
 	character.scale = Vector3.ONE * model_scale
 	add_child(character)

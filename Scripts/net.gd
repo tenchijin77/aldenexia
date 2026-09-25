@@ -422,7 +422,7 @@ func disconnect_game() -> void:
 	_forget_remote_character()
 	if multiplayer.multiplayer_peer != null:
 		multiplayer.multiplayer_peer.close()
-	multiplayer.multiplayer_peer = null
+	multiplayer.multiplayer_peer = OfflineMultiplayerPeer.new()   # back to Godot's startup state (null would make our own id 0)
 	is_multiplayer_game = false
 	omit_preplaced_player = false
 	_pending_join_address = ""
@@ -725,7 +725,7 @@ func _fail_join(reason: String, kind: String = "") -> void:
 	last_failure_kind = kind
 	if multiplayer.multiplayer_peer != null:
 		multiplayer.multiplayer_peer.close()
-	multiplayer.multiplayer_peer = null
+	multiplayer.multiplayer_peer = OfflineMultiplayerPeer.new()   # back to Godot's startup state (null would make our own id 0)
 	is_multiplayer_game = false
 	omit_preplaced_player = false
 	_forget_remote_character()
@@ -899,7 +899,7 @@ func _on_connection_failed() -> void:
 	if not _menu_request.is_empty():
 		_finish_menu_request(false, "offline", "Could not connect. Check the address and make sure the server is running.")
 		return
-	multiplayer.multiplayer_peer = null
+	multiplayer.multiplayer_peer = OfflineMultiplayerPeer.new()   # back to Godot's startup state (null would make our own id 0)
 	is_multiplayer_game = false
 	omit_preplaced_player = false
 	_forget_remote_character()
@@ -914,7 +914,7 @@ func _on_server_disconnected() -> void:
 	if not _menu_request.is_empty():
 		_finish_menu_request(false, "", "The server closed the connection.")
 		return
-	multiplayer.multiplayer_peer = null
+	multiplayer.multiplayer_peer = OfflineMultiplayerPeer.new()   # back to Godot's startup state (null would make our own id 0)
 	is_multiplayer_game = false
 	omit_preplaced_player = false
 	_remote_save_pending = false
@@ -1352,7 +1352,7 @@ func cancel_menu_request() -> void:
 	_menu_request = {}
 	if multiplayer.multiplayer_peer != null:
 		multiplayer.multiplayer_peer.close()
-	multiplayer.multiplayer_peer = null
+	multiplayer.multiplayer_peer = OfflineMultiplayerPeer.new()   # back to Godot's startup state (null would make our own id 0)
 
 
 # True while a real connection exists. Godot's idle state is an OfflineMultiplayerPeer at startup but null
@@ -1366,7 +1366,7 @@ func _finish_menu_request(ok: bool, kind: String, reason: String, info: Dictiona
 	_menu_request = {}
 	if multiplayer.multiplayer_peer != null:
 		multiplayer.multiplayer_peer.close()
-	multiplayer.multiplayer_peer = null
+	multiplayer.multiplayer_peer = OfflineMultiplayerPeer.new()   # back to Godot's startup state (null would make our own id 0)
 	server_request_done.emit(ok, kind, reason, info)
 
 
@@ -1421,7 +1421,7 @@ func _follow_redirect(zone: String, port: int) -> void:
 	_set_zone_hint(address, who, zone)
 	if multiplayer.multiplayer_peer != null:
 		multiplayer.multiplayer_peer.close()
-	multiplayer.multiplayer_peer = null
+	multiplayer.multiplayer_peer = OfflineMultiplayerPeer.new()   # back to Godot's startup state (null would make our own id 0)
 	_free_zone_ui()
 	begin_join_server(address, port, who, password, {}, zone)
 

@@ -1,8 +1,9 @@
-# traveling_merchant.gd — Sahren of the Deep Wells, the Djhanid traveling merchant. Not a permanent fixture: traveling_merchant_spawner.gd brings him into
-# the world at random times. A visit: he appears at the far marker, WALKS (a real navmesh path, at a walking pace) to the
-# dock, trades there for a while, walks to the town gate, trades there for a while, then packs up and is gone.
-# He only trades while he is standing still — on the road he says he's busy (show, don't tell). His stock is a shop in
-# Data/vendor_shop.json (shop_id), his timings and lines are in Data/traveling_merchant.json.
+# traveling_merchant.gd — Sahren of the Deep Wells, the Djhanid traveling merchant. Not a permanent fixture: he walks a loop
+# through Solgrave's zones on a timetable (merchant_schedule.gd), and traveling_merchant_spawner.gd brings him into a zone
+# when his loop reaches it. In a zone he WALKS (a real navmesh path, at a walking pace) from stop to stop (route: the
+# Outskirts' docks and gate; Dustwind's Stone Circles, Nomad Camp and Destroyed Caravan), trades at each for a while, then
+# walks out of the zone and is gone. Hail him on the road and he stops for a chat and a sale (CHATTING), then walks on.
+# His stock is a shop in Data/vendor_shop.json (shop_id), his timings and lines are in Data/traveling_merchant.json.
 #
 # Built on VendorNPC to reuse its plumbing (targeting, hail range, shop stock/prices). Multiplayer: the SERVER walks him
 # and keeps the schedule; every other peer just mirrors what is replicated (position, rotation, stage, anim_state — see the
@@ -11,7 +12,7 @@ extends VendorNPC
 class_name TravelingMerchant
 
 
-enum Stage { ROAD_TO_DOCK, AT_DOCK, ROAD_TO_GATE, AT_GATE, LEAVING }
+enum Stage { ROAD, AT_STOP, LEAVING, CHATTING }
 
 const CONFIG_PATH := "res://Data/traveling_merchant.json"
 const INTERACT_RANGE := 8.0
@@ -29,18 +30,20 @@ const HAWK_MAX_SECONDS := 120.0
 const EMOTE_COLOR := "#ffd9a0"
 
 ## Replicated to every peer (see the scene's MultiplayerSynchronizer).
-var stage: int = Stage.ROAD_TO_DOCK
+var stage: int = Stage.ROAD
 var anim_state: String = "idle"
 
-var route_dock := Vector3.ZERO     # set by the spawner (server side uses them; clients never walk)
-var route_gate := Vector3.ZERO
+var route: Array = []              # set by the spawner: [{pos: Vector3, name: String, stay: seconds}] (server side walks; clients never do)
+var route_exit := Vector3.ZERO     # where he walks out of the zone
+var route_index := 0               # the stop he is heading for or standing at (== route.size(): heading for the exit)
+var start_stay_left := -1.0        # spawned at a stop mid-stay (a zone's server started while he was there): seconds left
 
 var _config: Dictionary = {}
 var _lines: Dictionary = {}
 var _model_key := "halfling_male"
 var _walk_speed := 3.5
-var _dock_stay := 300.0
-var _gate_stay := 300.0
+var _pause_seconds := 60.0        # how long he waits on the road for a customer
+var _chat_until_msec := 0
 var _warn_before := 30.0
 
 var _path: PackedVector3Array = PackedVector3Array()
@@ -73,7 +76,11 @@ func _ready() -> void:
 	_conversation = NPCConversation.new(self, _config.get("topics", []))
 	_next_hawk_msec = Time.get_ticks_msec() + int(randf_range(HAWK_MIN_SECONDS, HAWK_MAX_SECONDS) * 1000.0)
 	if _is_server_side():
-		_begin_leg(Stage.ROAD_TO_DOCK)
+		if start_stay_left >= 0.0 and route_index < route.size():
+			_arrive()   # a zone's server started while he was trading here: he is standing at the stop already
+			_leave_at_msec = Time.get_ticks_msec() + int(start_stay_left * 1000.0)
+		else:
+			_begin_leg()
 
 
 func _load_config() -> void:
@@ -83,8 +90,7 @@ func _load_config() -> void:
 	shop_id = str(_config.get("shop_id", "traveling_merchant"))
 	_model_key = str(_config.get("model", _model_key))
 	_walk_speed = float(_config.get("walk_speed", _walk_speed))
-	_dock_stay = float(_config.get("dock_stay_seconds", _dock_stay))
-	_gate_stay = float(_config.get("gate_stay_seconds", _gate_stay))
+	_pause_seconds = float(_config.get("roadside_pause_seconds", _pause_seconds))
 	_warn_before = float(_config.get("warn_before_leaving_seconds", _warn_before))
 	_lines = _config.get("lines", {}) if typeof(_config.get("lines")) == TYPE_DICTIONARY else {}
 
@@ -107,16 +113,62 @@ func die() -> void:
 	pass
 
 
-# True only while he is standing at a stop with his wares out.
+# True while he is standing with his wares out: at a stop, or stopped on the road for a customer.
 func can_trade() -> bool:
-	return stage == Stage.AT_DOCK or stage == Stage.AT_GATE
+	return stage == Stage.AT_STOP or stage == Stage.CHATTING
 
 
 func respond_to_hail() -> void:
+	if stage == Stage.ROAD:
+		request_pause()   # on the road: he stops for you
+		say_local(_pick("roadside"))
+		return
 	_face_player()
 	if _notice_token():
 		return
 	say_local(_line_for_stage("hail"))
+
+
+# A player hailed or clicked him while he walked: ask the server to stop him (it owns his walking).
+func request_pause() -> void:
+	if _is_server_side():
+		_pause_on_road()
+	else:
+		_rpc_request_pause.rpc_id(1)
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func _rpc_request_pause() -> void:
+	if not _is_server_side():
+		return
+	_pause_on_road()
+	var customer := TargetFrame.peer_id_to_player_node(multiplayer.get_remote_sender_id()) as Node3D
+	if customer != null and stage == Stage.CHATTING:   # turn to whoever stopped him (his rotation replicates)
+		var target := customer.global_position
+		target.y = global_position.y
+		if target.distance_to(global_position) > 0.01:
+			look_at(target, Vector3.UP)
+
+
+# SERVER: stop for a customer (or keep waiting a little longer if he already has).
+func _pause_on_road() -> void:
+	if stage == Stage.ROAD:
+		stage = Stage.CHATTING
+		_travelling = false
+		velocity.x = 0.0
+		velocity.z = 0.0
+	if stage == Stage.CHATTING:
+		_chat_until_msec = Time.get_ticks_msec() + int(_pause_seconds * 1000.0)
+
+
+# SERVER: his time in this zone is up (the timetable moved on): he packs up where he is.
+func pack_up() -> void:
+	if stage == Stage.LEAVING:
+		return
+	stage = Stage.LEAVING
+	_travelling = false
+	_leaving_until_msec = Time.get_ticks_msec() + int(LEAVING_SECONDS * 1000.0)
+	say_to_all(_pick("farewell"))
 
 
 # Called by Player3D when his shop opens: if you carry a Ceramic Water-Token he reacts to THAT first; otherwise a sales line.
@@ -143,10 +195,17 @@ func open_interaction(player: Node) -> void:
 	if not is_instance_valid(player) or global_position.distance_to(player.global_position) > INTERACT_RANGE:
 		GameLog.log_general("You are too far away to trade with %s." % npc_name)
 		return
+	if stage == Stage.ROAD:
+		request_pause()   # he stops on the road to sell to you
+		say_local(_pick("roadside"))
+		player.open_shop_window(self)
+		return
 	_face_player()
 	if not can_trade():
-		say_local(_pick("busy") if stage != Stage.LEAVING else _pick("hail_leaving"))
+		say_local(_pick("hail_leaving"))
 		return
+	if stage == Stage.CHATTING:
+		request_pause()   # still here: wait a little longer
 	player.open_shop_window(self)
 
 
@@ -158,9 +217,9 @@ func _pick(category: String) -> String:
 
 func _line_for_stage(_kind: String) -> String:
 	match stage:
-		Stage.AT_DOCK, Stage.AT_GATE: return _pick("greeting")
+		Stage.AT_STOP, Stage.CHATTING: return _pick("greeting")
 		Stage.LEAVING: return _pick("hail_leaving")
-		_: return _pick("busy")
+		_: return _pick("roadside")
 
 
 # Said only to the local player, and only when close enough to hear. {word} marks a clickable keyword.
@@ -196,18 +255,23 @@ func can_answer(player: Node, text: String) -> bool:
 func hear_say(player: Node, text: String) -> void:
 	if _conversation == null:
 		return
-	if not can_trade():
+	if stage == Stage.ROAD and not _conversation.find_topic(text).is_empty() \
+			and global_position.distance_to(player.global_position) <= NPCConversation.TALK_RANGE:
+		request_pause()   # talk to him on the road and he stops to answer
+	elif not can_trade():
 		if not _conversation.find_topic(text).is_empty() and global_position.distance_to(player.global_position) <= NPCConversation.TALK_RANGE:
-			say_local(_pick("busy") if stage != Stage.LEAVING else _pick("hail_leaving"))
+			say_local(_pick("hail_leaving"))
 		return
 	_conversation.hear(player, text)
 
 
 # ── Quest hand-in (EverQuest style: drag items from the bags onto him -> the Give window) ──
 func receive_item_drop(item: Dictionary, player: Node) -> void:
-	if not can_trade():
+	if stage == Stage.ROAD:
+		request_pause()
+	elif not can_trade():
 		_face_player()
-		say_local(_pick("busy"))
+		say_local(_pick("hail_leaving"))
 		return
 	var existing := get_tree().root.get_node_or_null("GiveWindow")
 	if existing:
@@ -284,12 +348,18 @@ func _physics_process(delta: float) -> void:
 	_apply_gravity(delta)
 	var now := Time.get_ticks_msec()
 	match stage:
-		Stage.ROAD_TO_DOCK, Stage.ROAD_TO_GATE:
+		Stage.ROAD:
 			_walk(delta, now)
-		Stage.AT_DOCK, Stage.AT_GATE:
+		Stage.AT_STOP:
 			velocity.x = 0.0
 			velocity.z = 0.0
 			_tick_stay(now)
+		Stage.CHATTING:
+			velocity.x = 0.0
+			velocity.z = 0.0
+			if now >= _chat_until_msec:
+				say_to_all(_pick("resume"))
+				_begin_leg()   # back on the road to the same stop
 		Stage.LEAVING:
 			velocity.x = 0.0
 			velocity.z = 0.0
@@ -316,15 +386,12 @@ func _show_anim(clip: String) -> void:
 		animation_player.play(clip)
 
 
-# ── The schedule ──
-func _stand_point(marker_pos: Vector3, key: String) -> Vector3:
-	var off: Array = _config.get(key, [0, 0, 0])
-	return marker_pos + Vector3(float(off[0]), float(off[1]), float(off[2]))
-
-
-func _begin_leg(next_stage: int) -> void:
-	stage = next_stage
-	_dest = _stand_point(route_dock, "dock_stand_offset") if next_stage == Stage.ROAD_TO_DOCK else _stand_point(route_gate, "gate_stand_offset")
+# ── The route ──
+# Walk to route[route_index] (or the exit once the stops are done).
+func _begin_leg() -> void:
+	stage = Stage.ROAD
+	var stop: Dictionary = route[route_index] if route_index < route.size() else {}
+	_dest = stop.get("pos", route_exit) if not stop.is_empty() else route_exit
 	_dest.y = floor_y_at(_dest, _dest.y)
 	_travelling = true
 	_off_mesh = false
@@ -441,12 +508,12 @@ func _arrive() -> void:
 	velocity.x = 0.0
 	velocity.z = 0.0
 	_warned = false
-	if stage == Stage.ROAD_TO_DOCK:
-		stage = Stage.AT_DOCK
-		_leave_at_msec = Time.get_ticks_msec() + int(_dock_stay * 1000.0)
-	else:
-		stage = Stage.AT_GATE
-		_leave_at_msec = Time.get_ticks_msec() + int(_gate_stay * 1000.0)
+	if route_index >= route.size():   # reached the way out of the zone
+		stage = Stage.LEAVING
+		_leaving_until_msec = Time.get_ticks_msec() + int(LEAVING_SECONDS * 1000.0)
+		return
+	stage = Stage.AT_STOP
+	_leave_at_msec = Time.get_ticks_msec() + int(float(route[route_index].get("stay", 300.0)) * 1000.0)
 	_next_hawk_msec = Time.get_ticks_msec() + int(randf_range(HAWK_MIN_SECONDS * 0.3, HAWK_MAX_SECONDS * 0.5) * 1000.0)
 
 
@@ -459,12 +526,10 @@ func _tick_stay(now: int) -> void:
 		say_to_all(_ambient_line())
 	if now < _leave_at_msec:
 		return
-	if stage == Stage.AT_DOCK:
-		_begin_leg(Stage.ROAD_TO_GATE)
-	else:
-		stage = Stage.LEAVING
-		_leaving_until_msec = now + int(LEAVING_SECONDS * 1000.0)
-		say_to_all(_pick("farewell"))
+	route_index += 1
+	if route_index >= route.size():
+		say_to_all(_pick("farewell"))   # the last stop: he packs up and walks out of the zone
+	_begin_leg()
 
 
 # Ambient chatter while he trades; at night there is a chance it is one of his secret lines instead.
