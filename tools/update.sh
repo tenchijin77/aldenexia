@@ -16,6 +16,8 @@
 #   tools/update.sh --host user@host --dir aldenexia     where to upload (defaults below)
 #   (Before exporting, the Lumora navmesh is rebaked automatically if the terrain or zone scene changed since it was baked.)
 #   tools/update.sh --local DIR         "upload" into a local folder instead — for testing this script
+#   tools/update.sh --skip-tests        don't run the regression suite first (tools/run_tests.sh — it runs by default before
+#                                       any export, and a failing test stops the update)
 #
 # HOW CLIENT UPDATES WORK. Players install one FULL client build per platform (Builds/Windows: exe + .pck + dll, Builds/Linux:
 # binary + .pck + .so). That build is the BASE. Every update is only a PATCH: a small .pck holding the files that changed since
@@ -46,7 +48,7 @@ DIR="${ALDENEXIA_DEPLOY_DIR:-aldenexia}"
 KEY="${ALDENEXIA_SIGNING_KEY:-$HOME/.config/aldenexia/update_signing.key}"
 UPDATE_PORT="${ALDENEXIA_UPDATE_PORT:-8911}"
 PLATFORMS="windows,linux"
-DO_STAMP=0; NEW_BASE=0; DO_SERVER=1; DO_CLIENT=1; DO_EXPORT=1; RESTART_CMD=""; LOCAL_DEST=""; REBOOT_IN=""
+DO_STAMP=0; NEW_BASE=0; DO_SERVER=1; DO_CLIENT=1; DO_EXPORT=1; RESTART_CMD=""; LOCAL_DEST=""; REBOOT_IN=""; DO_TESTS=1
 
 while [ $# -gt 0 ]; do
 	case "$1" in
@@ -61,7 +63,8 @@ while [ $# -gt 0 ]; do
 		--skip-export) DO_EXPORT=0; shift ;;
 		--restart)     RESTART_CMD="${2:?--restart needs a command}"; shift 2 ;;
 		--reboot-in)   REBOOT_IN="${2:?--reboot-in needs minutes}"; shift 2 ;;
-		-h|--help)     sed -n '2,37p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+		--skip-tests)  DO_TESTS=0; shift ;;
+		-h|--help)     sed -n '2,39p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
 		*) echo "Unknown option: $1 (try --help)" >&2; exit 2 ;;
 	esac
 done
@@ -76,6 +79,14 @@ BASE_DIR="${ALDENEXIA_BASE_DIR:-Builds/Base}"; UPD_DIR="${ALDENEXIA_UPDATE_DIR:-
 say()  { printf '\033[1m[update]\033[0m %s\n' "$*"; }
 warn() { printf '\033[1;33m[update] WARNING:\033[0m %s\n' "$*" >&2; }
 die()  { printf '\033[1;31m[update] ERROR:\033[0m %s\n' "$*" >&2; exit 1; }
+
+# The regression suite first: a build that breaks something we already fixed never reaches the testers.
+if [ "$DO_TESTS" = 1 ] && [ "$DO_EXPORT" = 1 ]; then
+	say "Running the regression suite (tools/run_tests.sh; --skip-tests to skip)"
+	if ! GODOT="$GODOT" bash tools/run_tests.sh; then
+		die "The regression suite failed — fix it (or run with --skip-tests) before updating."
+	fi
+fi
 json() { python3 -c "import json,sys; d=json.load(open(sys.argv[1])); print(d.get(sys.argv[2],''))" "$1" "$2" 2>/dev/null || true; }
 
 # Sets P_PRESET, P_DIR, P_BIN, P_PCK for one client platform.

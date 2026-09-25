@@ -2015,6 +2015,33 @@ GATE RAIDS (`Scripts/gate_raid_manager.gd`, `Data/gate_raids.json`, node "GateRa
 - Stances work (Lightsworn). Wrong-password lockout and Log Out passed. All three moved to COMPLETED in testing_items.txt.
 - "Blessing of Light, no regen message" — NOT A BUG, measured headless with a real Lightsworn player: the cast lands, the effect is active, and health rose 96 -> 115 of 156 in 6 s (3 a second after the 2 s cast, plus natural regen). The only lines are "You begin casting a spell." and "You begin regenerating health.", both in the COMBAT tab, not General; the ticks themselves are silent, and at full health they heal nothing.
 
+### Server trust, telemetry, regression suite (2026-09-24)
+- SERVER TRUST (new Scripts/server_trust.gd, called from net.gd _rpc_save_character()): every uploaded save is checked
+  against the one the server holds. Name/class/race/sex/base stats/birthday can't change; XP may rise only by the kill XP
+  the SERVER awarded since the last save (new ledger: monster3d.gd die() -> Net.note_kill()) plus the XP of quests the
+  save newly completes (repeatables and Kenji included) — the 50-XP rounding margin only applies to XP really earned;
+  the level must match the XP; coin may rise only from a per-character allowance (1,000 copper at login, +200 a minute,
+  at most an hour's worth — so saving often gains nothing) plus quest coin; skills at most 4 x level (or what you had);
+  spells must exist and be your class's; recipes must exist; languages at most one point per 4 s (and at least 1 s
+  between saves for a point); surname at level 10. Anything impossible keeps the stored value and is logged ("TRUST"
+  lines in the server log). Game masters are trusted. Items are logged, not refused (yet). The old surname-only check is
+  folded in.
+- TELEMETRY (dedicated server): user://logs/telemetry.jsonl — login, logout, every kill (character, class, level,
+  monster, XP), every save's changes (XP, level, coin, deaths and what killed you — players now count "deaths" and
+  "last_death_by" — items gained/lost, quests completed), and every trust anomaly. New tools/telemetry_report.py
+  (fetches the log over ssh by default): per class hours / XP / kills / deaths / coin per hour, time to each level,
+  most-killed monsters, what kills players, quests, items, anomalies.
+- REGRESSION SUITE (new tools/tests/, tools/run_tests.sh): 9 test files, ~1,440 checks, headless, about a minute:
+  data integrity (every shop, recipe, quest and scroll id resolves; 9 pieces per armour set), server trust, quests
+  (multi-item, repeatables, the foundation stone, Kenji, Reyna's hail), crafting (Tin Shield picker, How many, split,
+  Deconstruct, bags in bags), armour types / shields / set bonus, racial traits, travel / evac / gates / binding, names and
+  surnames, and combat (poison vs combat music, language rate, /stuck). tools/update.sh runs it before any export and
+  stops on a failure (--skip-tests to skip).
+- Verified end to end: a bot client joined a local dedicated server, created a level-1 character and uploaded a save
+  claiming Arcanist, level 15, 999,999 XP and 99 platinum: the server kept Blademaster, level 1, 0 XP and the old coin,
+  and logged four anomalies; the report read the log. (That run found the XP-margin and per-save allowances loophole,
+  fixed above.) Net's RPC list unchanged.
+
 ### Test 34: Shonuff (Aetherfist), Zozuur (Voidknight), build 77506fa (2026-09-24)
 - /stuck freed him; perception at the gate and the tower spires worked; Common rose talking to guards.
 - /STUCK LEFT THE PET BEHIND: the pet is now recalled to you (recall_to_owner(), or placed beside you).

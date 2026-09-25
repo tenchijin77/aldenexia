@@ -1632,6 +1632,8 @@ func die(award_xp: bool = true, drop_loot: bool = true, credited_peer_id: int = 
 	if award_xp:
 		var p: Node = TargetFrame.peer_id_to_player_node(credited_peer_id) if credited_peer_id != -1 else TargetFrame.local_player()
 		if is_instance_valid(p):
+			# The server's own record of the XP it awarded (server trust checks saves against it; telemetry logs the kill).
+			Net.note_kill(p.get_multiplayer_authority(), xp_gain, str(monster_description if monster_description != "" else get_monster_name()), int(combat_node.level) if combat_node else 0)
 			if p.is_multiplayer_authority():
 				p.grant_xp(xp_gain)
 			elif p.has_method("receive_kill_credit"):

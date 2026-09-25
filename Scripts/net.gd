@@ -600,6 +600,8 @@ func _on_peer_disconnected(id: int) -> void:
 		# Name the character (the key is "<server>_<name>"); a peer that never logged one in says so.
 		_slog("%s disconnected — peer %d, %s (%d/%d)." % [_character_label(id), id, _last_ip.get(id, "?"), multiplayer.get_peers().size(), max_players])
 		_audit("DISCONNECT", str(_last_ip.get(id, "?")), _character_label(id) if _peer_character.has(id) else "")
+		if _peer_character.has(id):
+			_telemetry({"event": "logout", "character": str(_peer_character[id]).trim_prefix(server_name + "_")})
 	_last_ip.erase(id)
 	_unverified_peers.erase(id)
 	_awaiting_login.erase(id)
@@ -783,6 +785,63 @@ static func _display_name(character: String) -> String:
 # login), disconnect, refusal, kick and ban, never rotated or trimmed (unlike godot.log, of which Godot keeps only the
 # last five, one per server start). Tab-separated: date time, event, IP, character, details.
 const AUDIT_LOG := "user://logs/connections.log"
+
+# ── Telemetry (dedicated server): user://logs/telemetry.jsonl, one JSON object per line — kills, character saves (what
+# changed: XP, level, coin, deaths, items, quests), trust anomalies. tools/telemetry_report.py summarises it (XP per
+# hour by class, deaths, coin flow, time to each level). Never trimmed.
+const TELEMETRY_LOG := "user://logs/telemetry.jsonl"
+var _kill_xp := {}        # character key -> XP the server awarded for kills since that character's last save
+var _last_save_at := {}   # character key -> unix time of its last save (or login)
+var _coin_bucket := {}    # character key -> copper it may still gain (ServerTrust coin allowance)
+var _trust_data := {}     # cached game data for ServerTrust
+
+
+func _telemetry(event: Dictionary) -> void:
+	if not is_dedicated_server:
+		return
+	event["t"] = Time.get_datetime_string_from_system(false, true)
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(TELEMETRY_LOG.get_base_dir()))
+	var f := FileAccess.open(TELEMETRY_LOG, FileAccess.READ_WRITE) if FileAccess.file_exists(TELEMETRY_LOG) else FileAccess.open(TELEMETRY_LOG, FileAccess.WRITE)
+	if f == null:
+		return
+	f.seek_end()
+	f.store_line(JSON.stringify(event))
+	f.close()
+
+
+# SERVER: a monster the server runs was killed and `peer_id`'s character got `xp` for it (monster3d.gd die()).
+func note_kill(peer_id: int, xp: int, monster: String, monster_level: int) -> void:
+	if not is_dedicated_server:
+		return
+	var key: String = _peer_character.get(peer_id, "")
+	if key.is_empty():
+		return
+	_kill_xp[key] = int(_kill_xp.get(key, 0)) + xp
+	var p := TargetFrame.peer_id_to_player_node(peer_id)
+	_telemetry({"event": "kill", "character": key.trim_prefix(server_name + "_"), "class": str(p.get("player_class")) if p else "",
+			"level": int(p.combat_node.level) if p and p.combat_node else 0, "monster": monster, "monster_level": monster_level, "xp": xp})
+
+
+func _trust_quests() -> Dictionary:
+	Quests.definition("")
+	return Quests._data
+
+
+func _trust_spells() -> Dictionary:
+	if not _trust_data.has("spells"):
+		var by_name := {}
+		var parsed = JSON.parse_string(FileAccess.get_file_as_string("res://Data/player_spells.json"))
+		for sp in (parsed if typeof(parsed) == TYPE_ARRAY else []):
+			by_name[str(sp.get("spell_name", ""))] = sp
+		_trust_data["spells"] = by_name
+	return _trust_data["spells"]
+
+
+func _trust_recipes() -> Dictionary:
+	if not _trust_data.has("recipes"):
+		var parsed = JSON.parse_string(FileAccess.get_file_as_string("res://Data/tradeskill_recipes.json"))
+		_trust_data["recipes"] = parsed.get("recipes", {}) if typeof(parsed) == TYPE_DICTIONARY else {}
+	return _trust_data["recipes"]
 
 func _audit(event: String, ip: String, character: String = "", details: String = "") -> void:
 	if not is_dedicated_server:
@@ -1140,6 +1199,10 @@ func _rpc_login(character_name: String, password: String, creation_json: String)
 		DirAccess.copy_absolute(path, path.get_basename() + ".bak")  # last known-good copy, refreshed every login
 	_awaiting_login.erase(id)
 	_peer_character[id] = key
+	_last_save_at[key] = Time.get_unix_time_from_system()
+	_kill_xp.erase(key)
+	_coin_bucket[key] = float(ServerTrust.COIN_BASE)
+	_telemetry({"event": "login", "character": key.trim_prefix(server_name + "_")})
 	get_tree().call_group("net_synchronizers", "update_visibility", id)  # the world now replicates to them (see _peer_in_world)
 	var notes := PackedStringArray()
 	if not account.is_empty():
@@ -1297,14 +1360,33 @@ func _rpc_save_character(json_text: String) -> void:
 	if incoming.is_empty():
 		push_warning("[server] Refused a save from peer %d for %s (unreadable, oversized or wrong character)." % [id, key])
 		return
-	# A surname only arrives through /surname (level 10) or a game master: a save below level 10 that changes it keeps the old one.
+	# Server trust (server_trust.gd): the save is checked against the one we hold — identity, XP against the kill XP we
+	# awarded, level, coin rate, skill caps, spells, recipes, languages, surname — and anything impossible keeps the stored
+	# value. Every save's changes also go to the telemetry log.
 	var stored := _parse_character(FileAccess.get_file_as_string(_character_path(key)), player) if FileAccess.file_exists(_character_path(key)) else {}
 	var relay := get_tree().get_first_node_in_group("gm_relay")
 	var is_gm: bool = relay != null and relay._authorized.has(id)
-	if str(incoming.get("surname", "")) != str(stored.get("surname", "")) and int(incoming.get("player_level", 1)) < 10 and not is_gm:
-		incoming["surname"] = str(stored.get("surname", ""))
-		json_text = JSON.stringify(incoming)
-		_slog("Kept %s's surname: a save below level 10 tried to change it." % key)
+	var now := Time.get_unix_time_from_system()
+	var elapsed := now - float(_last_save_at.get(key, now - 60.0))
+	# Coin allowance: refills at COIN_PER_MINUTE while you play, never above an hour's worth; spent by what you gain.
+	var bucket: float = minf(float(ServerTrust.COIN_BUCKET_MAX), float(_coin_bucket.get(key, ServerTrust.COIN_BASE)) + ServerTrust.COIN_PER_MINUTE * elapsed / 60.0)
+	var result := ServerTrust.check(stored, incoming, int(_kill_xp.get(key, 0)), elapsed, is_gm, _trust_quests(),
+			Global.xp_table, _trust_spells(), _trust_recipes(), int(bucket))
+	_coin_bucket[key] = maxf(0.0, bucket - float(result.get("coin_gained", 0)))
+	for problem in result["anomalies"]:
+		_slog("TRUST %s: %s" % [key, problem])
+		_telemetry({"event": "anomaly", "character": player, "detail": problem})
+	if result["changed"]:
+		json_text = JSON.stringify(result["data"])
+	if not stored.is_empty():
+		var d := ServerTrust.delta(stored, result["data"])
+		if d["xp"] != 0 or d["coin"] != 0 or d["deaths"] != 0 or not d["items_gained"].is_empty() or not d["items_lost"].is_empty() \
+				or not d["quests_completed"].is_empty():
+			d.merge({"event": "save", "character": player, "class": str(result["data"].get("player_class", "")),
+					"race": str(result["data"].get("player_race", "")), "seconds": int(elapsed), "kill_xp": int(_kill_xp.get(key, 0))})
+			_telemetry(d)
+	_kill_xp.erase(key)
+	_last_save_at[key] = now
 	if _write_character(key, json_text):
 		_rpc_save_acknowledged.rpc_id(id)
 

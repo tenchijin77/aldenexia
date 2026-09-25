@@ -3270,6 +3270,9 @@ func _tick_bleedout(delta: float) -> void:
 
 func _die_for_real() -> void:
 	is_incapacitated = false
+	# Counted for the server's telemetry (deaths per hour by class, what killed you).
+	Global.player_data["deaths"] = int(Global.player_data.get("deaths", 0)) + 1
+	Global.player_data["last_death_by"] = str(_last_attacker_desc)
 	combat_node.current_hp = DEATH_HP
 	Sfx.play("death_female" if player_sex.to_lower() == "female" else "death_male")
 	GameLog.log_combat("[color=#ff4444]You have been defeated by %s![/color]" % _last_attacker_desc.capitalize())

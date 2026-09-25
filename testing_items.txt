@@ -2,11 +2,11 @@ ALDENEXIA: LIGHTFALL — TESTING CHECKLIST
 New features and fixes waiting for a real playtest, in two parts: OUTSTANDING (not passed yet) and COMPLETED (passed).
 When an item passes, change [ ] to [x] and move it to the same section under COMPLETED (or just add "- working" and it
 gets moved). A failure goes to outstanding_items.txt with what went wrong. Last updated 2026-09-24 (test 34).
-Everything below was built after test 26.   Outstanding: 120   Completed: 24
+Everything below was built after test 26.   Outstanding: 122   Completed: 24
 
 
 ################################################################################
-  OUTSTANDING — still to test (120)
+  OUTSTANDING — still to test (122)
 ################################################################################
 
 == ACCOUNTS AND JOINING ==
@@ -223,6 +223,11 @@ Everything below was built after test 26.   Outstanding: 120   Completed: 24
 [ ] Status window: a debuff (Weak Poison, Starving) has a yellow rectangle round the whole row, not round the icon.
 [ ] With every character-sheet slot full and room in a bag, looting a Small Bag goes into the bag (it used to say
     "inventory full" unless one of your bags was completely empty).
+
+== SERVER TRUST AND TELEMETRY (2026-09-24) ==
+[ ] Play normally for an hour (kill, loot, sell, quest, level up, learn a language point): nothing you earned is lost
+    after logging out and back in. Then: grep TRUST in the server's godot log — it should be empty for honest play.
+[ ] python3 tools/telemetry_report.py shows your session: XP/h by class, kills, time to each level, deaths and causes.
 
 ################################################################################
   COMPLETED — passed (24)

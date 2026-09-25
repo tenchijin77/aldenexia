@@ -80,6 +80,11 @@ an item (delete it, note it in change_log.txt) when it's done. Last updated 2026
 
 
 == WORLD AND SYSTEMS ==
+- SERVER TRUST, what's still trusted (next steps): item gains (loot is picked up client-side; vendor buying/selling is
+  client-side), quest completion itself (a forged "complete" earns that quest's XP once), combat damage dealt by players.
+  Next: roll loot on the server and hand it out from there; server-side shop transactions; log items first (done) and
+  watch the report before refusing anything.
+- Telemetry and trust numbers to tune once real data exists: COIN_PER_MINUTE 200 copper, XP_MARGIN 50.
 - Racial traits with no system behind them yet: Gnome research +20, Ogre/Half-Orc intimidation, Troll/Lizardkin swamp
   speed/survival/perception (no swamps), Lizardkin fear saves (nothing fears players), Dwarf knockback immunity (nothing
   knocks players back). The Elf's outdoor speed is always on (every zone is outdoors) — indoor zones must switch it off.
