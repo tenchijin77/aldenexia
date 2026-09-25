@@ -3414,6 +3414,12 @@ func cmd_stuck() -> void:
 	velocity = Vector3.ZERO
 	global_position = spot
 	_fall_grace_until_ms = Time.get_ticks_msec() + FALL_GRACE_MS
+	# Your pet comes too (test 34: it stayed trapped).
+	if is_instance_valid(active_pet):
+		if active_pet.has_method("recall_to_owner"):
+			active_pet.recall_to_owner()
+		elif active_pet is Node3D:
+			active_pet.global_position = spot + Vector3(1.0, 0.2, 1.0)
 	GameLog.log_general("[color=#88ccff]You wriggle free.[/color]")
 
 

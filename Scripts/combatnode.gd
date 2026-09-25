@@ -394,7 +394,7 @@ func _process(delta: float) -> void:
 			if effect["tick_accum"] >= effect["tick_interval"]:
 				effect["tick_accum"] -= effect["tick_interval"]
 				if effect["tick_dmg"] > 0:
-					take_damage(effect["tick_dmg"])
+					take_damage(effect["tick_dmg"], false)
 				if effect.get("tick_heal", 0) > 0:
 					heal(effect["tick_heal"])
 		if effect["remaining"] != INF:
@@ -1371,9 +1371,10 @@ func reset_threat():
 # ⭐ HEALTH & RESOURCE MANAGEMENT
 # ================================================================================
 
-func take_damage(amount: int) -> int:
-	"""Take damage and return actual damage taken"""
-	if amount > 0:
+func take_damage(amount: int, engage: bool = true) -> int:
+	"""Take damage and return actual damage taken. `engage` false for damage over time (poison, disease, burns): those
+	ticks must not keep you "in a fight" — they kept the combat music playing for a whole poison (test 34)."""
+	if amount > 0 and engage:
 		mark_engaged()
 	var damage_taken = min(amount, current_hp)
 	current_hp -= damage_taken

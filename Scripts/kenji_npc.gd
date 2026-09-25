@@ -17,6 +17,7 @@ const MODEL_BASE := "res://models/Kenji/Meshy_AI_kenji_3d_model_0919110711_image
 const REQUIRED_ITEM := "rat_tail"
 const PROGRESS_KEY := "kenji_rat_tails_given"  # int in Global.player_data (the character's save file)
 const BLESSING_ID := "kenjis_blessing"
+const QUEST_ID := "kenjis_rat_tails"   # the journal entry (Data/quests.json); Kenji keeps his own count and mirrors it there
 # Small comfort buff, same modifier shapes campfire_warmth/well_fed use.
 const BLESSING_MODIFIERS := {
 	"hp_regen_bonus": 2.0,
@@ -171,6 +172,7 @@ func try_give(item_id: String, player: Node) -> bool:
 
 	# Total reached — reset the counter (repeatable) and reward.
 	_set_given(0)
+	Quests.sync_complete(QUEST_ID)
 	_emote(reward_text)
 	if player.has_method("grant_xp"):
 		player.grant_xp(xp_reward)
@@ -187,6 +189,8 @@ func get_given() -> int:
 
 func _set_given(count: int) -> void:
 	Global.player_data[PROGRESS_KEY] = count
+	if count > 0:
+		Quests.sync_progress(QUEST_ID, REQUIRED_ITEM, count)   # the journal shows how many he has had
 	Global.save_player_data_to_file()
 
 

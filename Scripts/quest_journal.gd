@@ -227,6 +227,8 @@ func _rewards_text(rewards: Dictionary) -> String:
 	var parts: Array = []
 	if int(rewards.get("xp", 0)) > 0:
 		parts.append("%d experience" % int(rewards["xp"]))
+	if not str(rewards.get("note", "")).is_empty():
+		parts.append(str(rewards["note"]))
 	for coin in rewards.get("coin", {}):
 		parts.append("%d %s" % [int(rewards["coin"][coin]), coin])
 	for item in rewards.get("items", []):

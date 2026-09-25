@@ -258,3 +258,25 @@ static func journal_entries() -> Array:
 				"requirements": requirements(id), "given": given(id),
 				"started": float(entry.get("started", 0.0)), "completed": float(entry.get("completed", 0.0))})
 	return out
+
+
+# For NPCs that keep their own hand-in logic (Kenji): mirror their progress into the journal. Starts the quest if needed.
+static func sync_progress(id: String, item_id: String, count: int) -> void:
+	if definition(id).is_empty():
+		return
+	if state(id) != "active":
+		var times := int(_entry(id).get("times", 0))
+		_quests()[id] = {"state": "active", "progress": 0, "given": {}, "times": times, "started": Time.get_unix_time_from_system()}
+	_entry(id)["given"] = {item_id: count}
+	_entry(id)["progress"] = count
+
+
+static func sync_complete(id: String) -> void:
+	if definition(id).is_empty():
+		return
+	if state(id) == "none":
+		start(id)
+	_entry(id)["state"] = "complete"
+	_entry(id)["completed"] = Time.get_unix_time_from_system()
+	_entry(id)["times"] = int(_entry(id).get("times", 0)) + 1
+	GameLog.log_general("[color=#ffdd44][b]Quest complete:[/b] %s[/color]" % definition(id).get("name", id))

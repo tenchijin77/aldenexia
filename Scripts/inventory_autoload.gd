@@ -527,18 +527,14 @@ func calculate_total_bag_slots() -> int:
 			total += get_bag_size(item)
 	return total
 
-func can_place_bag_in_bag(bag_item: Dictionary, target_bag_slot: int) -> bool:
-	# Validates nested bag rule: inner bag must be empty
+func can_place_bag_in_bag(bag_item: Dictionary, _target_bag_slot: int) -> bool:
+	# Nested bag rule: the INNER bag must be empty. It used to check the TARGET bag instead, so a looted Small Bag only
+	# fitted into a completely empty bag — with every character-sheet slot full, looting a bag said "inventory full"
+	# even with room in a Traveler's Pack (test 34). A bag item (loot, a new instance) carries no contents of its own;
+	# a bag's contents only exist while it sits in a character-sheet slot (bag_contents), which is not this path.
 	if not is_bag(bag_item):
 		return true
-
-	var bag_key = str(target_bag_slot)
-	if bag_contents.has(bag_key):
-		var contents = bag_contents[bag_key]
-		if contents.size() > 0:
-			return false
-
-	return true
+	return typeof(bag_item.get("contents")) != TYPE_ARRAY or (bag_item["contents"] as Array).is_empty()
 #endregion
 
 #region Basic Inventory Management

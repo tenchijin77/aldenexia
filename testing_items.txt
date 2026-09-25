@@ -1,12 +1,12 @@
 ALDENEXIA: LIGHTFALL — TESTING CHECKLIST
 New features and fixes waiting for a real playtest, in two parts: OUTSTANDING (not passed yet) and COMPLETED (passed).
 When an item passes, change [ ] to [x] and move it to the same section under COMPLETED (or just add "- working" and it
-gets moved). A failure goes to outstanding_items.txt with what went wrong. Last updated 2026-09-24 (test 33).
-Everything below was built after test 26.   Outstanding: 117   Completed: 22
+gets moved). A failure goes to outstanding_items.txt with what went wrong. Last updated 2026-09-24 (test 34).
+Everything below was built after test 26.   Outstanding: 120   Completed: 24
 
 
 ################################################################################
-  OUTSTANDING — still to test (117)
+  OUTSTANDING — still to test (120)
 ################################################################################
 
 == ACCOUNTS AND JOINING ==
@@ -174,8 +174,6 @@ Everything below was built after test 26.   Outstanding: 117   Completed: 22
 [ ] Every class's gate (level 6) takes you to your bind point; it can't be cast in combat; a Troubadour's isn't a song.
 
 == PERCEPTION (2026-09-24) ==
-[ ] Walk up to the town gate, the docks, the mausoleum...: now and then "You notice something. ..." appears in chat; a
-    notice never repeats; a higher-Wisdom character notices more. Perception rises in the abilities book.
 
 == NAMES AND SURNAMES (2026-09-24) ==
 [ ] Character creation: spaces and digits can't be typed; a one-letter name is refused with an explanation.
@@ -215,11 +213,19 @@ Everything below was built after test 26.   Outstanding: 117   Completed: 22
 == TEST 33 FIXES ==
 [ ] Walk up to a ley-stone as a non-caster: its label reads "Old Standing Stone"; right-click: a faint description and
     "You feel like a person with magical knowledge could make use of this." Casters still see "Mausoleum Ley-Stone".
-[ ] /stuck (e.g. inside the mausoleum doorway): you pop out 5 m away onto clear ground; not usable in a fight; once
-    every 30 s. Listed in Esc > Controls & Commands.
+
+== TEST 34 FIXES ==
+[ ] /stuck with a pet out: the pet comes with you.
+[ ] Get bitten (Weak Poison), walk into town: the combat music hands back to the zone music about 8 s after the fight,
+    not after the poison wears off.
+[ ] Journal: pick up a rat tail -> "Kenji's Rat Tails" appears; giving Kenji tails updates it; at 10 it completes and
+    picking up more starts it again.
+[ ] Status window: a debuff (Weak Poison, Starving) has a yellow rectangle round the whole row, not round the icon.
+[ ] With every character-sheet slot full and room in a bag, looting a Small Bag goes into the bag (it used to say
+    "inventory full" unless one of your bags was completely empty).
 
 ################################################################################
-  COMPLETED — passed (22)
+  COMPLETED — passed (24)
 ################################################################################
 
 == ACCOUNTS AND JOINING ==
@@ -267,3 +273,11 @@ Everything below was built after test 26.   Outstanding: 117   Completed: 22
 == TEST 32 FIXES ==
 [x] Two players grouped: a Troll hearing or speaking Common with a Half-Elf gains a point about every 4-5 lines (lines
     closer than 4 s apart don't all count); the book's Languages list updates while open.
+
+== TEST 33 FIXES ==
+[x] /stuck (e.g. inside the mausoleum doorway): you pop out 5 m away onto clear ground; not usable in a fight; once
+    every 30 s. Listed in Esc > Controls & Commands.
+
+== PERCEPTION (2026-09-24) ==
+[x] Walk up to the town gate, the docks, the mausoleum...: now and then "You notice something. ..." appears in chat; a
+    notice never repeats; a higher-Wisdom character notices more. Perception rises in the abilities book.

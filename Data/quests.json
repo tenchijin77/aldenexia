@@ -410,5 +410,27 @@
    "complete": "\"That's a season of packs. Here, two leather patterns I don't sell to just anyone.\""
   },
   "_comment": "DRAFT texts and rewards (2026-09-24), awaiting the user's approval."
+ },
+ "kenjis_rat_tails": {
+  "name": "Kenji's Rat Tails",
+  "giver": "Kenji",
+  "short": "Bring Kenji, the cat by the town gate, ten rat tails. Drag them onto him; he keeps count.",
+  "summary": "Kenji, the cat who sits by the town gate, is very interested in rat tails. Bring him ten, a few at a time if you like, and he'll show his gratitude. He never tires of them.",
+  "objective": {
+   "type": "hand_in",
+   "items": {
+    "rat_tail": 10
+   }
+  },
+  "rewards": {
+   "xp": 40,
+   "note": "Kenji's Blessing: better regeneration and accuracy for 15 minutes"
+  },
+  "repeatable": true,
+  "auto_start": true,
+  "texts": {
+   "complete": "Kenji purrs loudly and rubs against your legs. A warm glow settles over you."
+  },
+  "_comment": "Journal entry for Kenji's rat-tail hand-in (test 34). Kenji keeps his own logic (kenji_npc.gd) and mirrors it here through Quests.sync_progress()/sync_complete(); this quest is never handed in through Quests.try_hand_in()."
  }
 }

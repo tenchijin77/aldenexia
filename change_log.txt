@@ -2015,6 +2015,22 @@ GATE RAIDS (`Scripts/gate_raid_manager.gd`, `Data/gate_raids.json`, node "GateRa
 - Stances work (Lightsworn). Wrong-password lockout and Log Out passed. All three moved to COMPLETED in testing_items.txt.
 - "Blessing of Light, no regen message" — NOT A BUG, measured headless with a real Lightsworn player: the cast lands, the effect is active, and health rose 96 -> 115 of 156 in 6 s (3 a second after the 2 s cast, plus natural regen). The only lines are "You begin casting a spell." and "You begin regenerating health.", both in the COMBAT tab, not General; the ticks themselves are silent, and at full health they heal nothing.
 
+### Test 34: Shonuff (Aetherfist), Zozuur (Voidknight), build 77506fa (2026-09-24)
+- /stuck freed him; perception at the gate and the tower spires worked; Common rose talking to guards.
+- /STUCK LEFT THE PET BEHIND: the pet is now recalled to you (recall_to_owner(), or placed beside you).
+- COMBAT MUSIC RAN ON (30 s in town, "the whole song"): every point of damage counted as being in a fight, including
+  poison / disease / burn ticks (Weak Poison ticks every 6 s for a minute; the music waits 8 quiet seconds). Damage over
+  time no longer marks you engaged (CombatNode.take_damage(amount, engage)).
+- KENJI IN THE JOURNAL: new repeatable quest "Kenji's Rat Tails" (auto-starts when you pick up a rat tail). Kenji keeps
+  his own count and rewards; Quests.sync_progress()/sync_complete() mirror it into the journal ("3 / 10", completed,
+  starts again). The journal shows reward notes ("Kenji's Blessing ...").
+- DEBUFF OUTLINE: the yellow border drawn round the icon is gone; a debuff row is now framed as a whole (a yellow
+  rectangle round icon, name and time). Starving/Thirsty keep their red-washed icons without the icon border.
+- "INVENTORY FULL WHILE MY BAGS HAVE ROOM": the bag-in-bag rule checked the TARGET bag instead of the bag being put in,
+  so a looted Small Bag only fitted into a completely empty bag — with the character sheet full it was refused.
+  Reproduced with Shonuff's own save; fixed (Inventory.can_place_bag_in_bag()).
+- Sinking into steep hills: the round bottom of the collision capsule on a slope; noted in outstanding_items.txt.
+
 ### Test 33: Zozuur (Voidknight), Maedianie (Wildspeaker), build eec411d (2026-09-24)
 - Learning Common works (a point gained).
 - LEY-STONES less on the nose: a non-caster sees "Old Standing Stone" and reads a faint description plus "You feel like

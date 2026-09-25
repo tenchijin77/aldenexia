@@ -111,7 +111,7 @@ func _build_row(effect_name: String, display_name: String, description: String, 
 	icon_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	if icon != null:
 		var icon_rect := TextureRect.new()
-		icon_rect.texture = _outlined(icon) if is_debuff and not VITAL_DEBUFFS.has(effect_name) else icon  # debuffs: yellow border
+		icon_rect.texture = icon   # (debuffs used to get a yellow border drawn round the icon; now the whole row is framed below)
 		icon_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
 		icon_rect.offset_left   = 2
 		icon_rect.offset_top    = 2
@@ -147,7 +147,22 @@ func _build_row(effect_name: String, display_name: String, description: String, 
 	name_row.add_child(time_label)
 	_row_time_labels[effect_name] = time_label
 
-	buff_list.add_child(row)
+	if not is_debuff:
+		buff_list.add_child(row)
+		return
+	# A debuff: a yellow rectangle round the whole row (icon, name and time), so harmful effects stand out (test 34:
+	# the old border round only the icon looked odd).
+	var frame := PanelContainer.new()
+	var frame_style := StyleBoxFlat.new()
+	frame_style.bg_color = Color(0.35, 0.08, 0.08, 0.25)
+	frame_style.border_color = Color(0.95, 0.8, 0.2)
+	frame_style.set_border_width_all(1)
+	frame_style.set_corner_radius_all(3)
+	frame_style.set_content_margin_all(2)
+	frame.add_theme_stylebox_override("panel", frame_style)
+	frame.mouse_filter = Control.MOUSE_FILTER_PASS
+	frame.add_child(row)
+	buff_list.add_child(frame)
 
 
 # Cancelling only ever touches the LOCAL player's own combat_node — buff_bar.gd
@@ -218,15 +233,15 @@ func _with_vitals(active_effects: Dictionary) -> Dictionary:
 
 # The item's own icon washed red, with a yellow border round it (Starving, Thirsty): a warning at a glance.
 static func _warning_icon(item_id: String) -> Texture2D:
-	return _outlined(ItemIcon.texture(Inventory.get_item_definition(item_id)), true)
+	return _outlined(ItemIcon.texture(Inventory.get_item_definition(item_id)), true, false)   # the row frame is the border now
 
 
 # Every debuff's icon gets a yellow border (and, with `wash_red`, a red wash) so harmful effects stand out on the bar.
 # Cached per source texture.
-static func _outlined(base: Texture2D, wash_red: bool = false) -> Texture2D:
+static func _outlined(base: Texture2D, wash_red: bool = false, border_on: bool = true) -> Texture2D:
 	if base == null:
 		return null
-	var key := "%d|%s" % [base.get_instance_id(), wash_red]
+	var key := "%d|%s|%s" % [base.get_instance_id(), wash_red, border_on]
 	if _warning_icons.has(key):
 		return _warning_icons[key]
 	var tex: Texture2D = base
@@ -240,7 +255,7 @@ static func _outlined(base: Texture2D, wash_red: bool = false) -> Texture2D:
 		var border := maxi(2, int(round(mini(w, h) * 0.06)))
 		for y in h:
 			for x in w:
-				if x < border or y < border or x >= w - border or y >= h - border:
+				if border_on and (x < border or y < border or x >= w - border or y >= h - border):
 					img.set_pixel(x, y, WARNING_OUTLINE)
 				elif wash_red:
 					var c := img.get_pixel(x, y)
