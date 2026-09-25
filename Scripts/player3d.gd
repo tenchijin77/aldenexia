@@ -3316,6 +3316,13 @@ func _respawn() -> void:
 		_death_screen.queue_free()
 	_death_screen = null
 
+	if bind_is_elsewhere():
+		# bound in another zone: wake up there (full health is restored below and saved with the trip)
+		combat_node.current_hp = combat_node.max_hp
+		combat_node.current_mana = combat_node.max_mana
+		dying = false
+		Net.zone_travel(str(Global.player_data.get("bind_zone")), "", true)
+		return
 	global_position = get_bind_point()
 	_fall_grace_until_ms = Time.get_ticks_msec() + FALL_GRACE_MS
 	combat_node.current_hp = combat_node.max_hp
@@ -3336,7 +3343,16 @@ func _respawn() -> void:
 func _ensure_bind_point() -> void:
 	if not Global.player_data.has("bind_point"):
 		Global.player_data["bind_point"] = [global_position.x, global_position.y, global_position.z]
+		Global.player_data["bind_zone"] = ZoneInfo.current_id()
 		Global.save_player_data_to_file()
+
+
+# Bound in another zone (Global.player_data "bind_zone"; characters from before zones are bound in the starting zone)?
+# Death and gate spells then take you home through Net.zone_travel(), not to these coordinates here.
+func bind_is_elsewhere() -> bool:
+	var bz := str(Global.player_data.get("bind_zone", ZoneInfo.DEFAULT_ID))
+	var here := ZoneInfo.current_id()
+	return ZoneInfo.exists(bz) and ZoneInfo.exists(here) and bz != here
 
 
 # Restores the position saved by Global.save_player_data_to_file() so the
@@ -3346,6 +3362,19 @@ func _ensure_bind_point() -> void:
 # default spawn.
 func _restore_last_position() -> void:
 	_fall_grace_until_ms = Time.get_ticks_msec() + FALL_GRACE_MS
+	# Just came through a zone line (Net.zone_travel()): arrive at its marker in this zone, or at the bind point.
+	var zone_in := str(Global.player_data.get("zone_in", ""))
+	if not zone_in.is_empty():
+		Global.player_data.erase("zone_in")
+		var marker: Node3D = null
+		if zone_in != "@bind" and get_tree().current_scene != null:
+			marker = get_tree().current_scene.get_node_or_null("Markers/" + zone_in) as Node3D
+		if zone_in == "@bind" or marker != null:
+			global_position = get_bind_point() if marker == null else marker.global_position + Vector3(0, 1.0, 0)
+			_lift_above_ground.call_deferred()
+			return
+		push_warning("Zone-in marker '%s' not found in this zone — using the zone's spawn point." % zone_in)
+		return
 	var arr: Array = Global.player_data.get("last_position", [])
 	if arr.size() == 3:
 		global_position = Vector3(arr[0], arr[1], arr[2])
@@ -5612,7 +5641,8 @@ func _find_debuff_to_cure(target_cn) -> String:
 
 
 # Harmful effects monsters leave on players (monsters.json "on_hit_effect") that cure spells remove.
-const MONSTER_AILMENTS := ["weak_poison", "disease"]
+const MONSTER_AILMENTS := ["weak_poison", "disease", "strong_poison", "weakening_venom", "sundered_armor", "crippled", "blinded",
+		"dazed", "withering_touch", "bleeding", "grave_miasma"]
 
 
 func _remove_effect_from_target(target_node: Node, target_cn, effect_name: String) -> void:

@@ -288,6 +288,15 @@ const ENVIRONMENTAL_EFFECT_DESCRIPTIONS := {
 	"kenjis_blessing": "Kenji's blessing. +2 HP/Mana/Stamina regeneration and +3 to hit.",
 	"weak_poison": "A weak poison from a snake or spider bite: 5 damage every 6 seconds. It wears off after a minute, or a cure removes it.",
 	"disease": "A disease from an undead creature's touch: 5 damage every 6 seconds. It wears off after a minute and a half, or a cure removes it.",
+	"strong_poison": "A strong venom: heavy damage every few seconds until it wears off, or a cure removes it.",
+	"weakening_venom": "A weakening venom: your blows land 15% softer and it burns a little, until it wears off or a cure removes it.",
+	"sundered_armor": "Your armour has been battered loose: 4 less armour class until you set it right (it wears off).",
+	"crippled": "Crippled: you move much more slowly until it wears off, or a cure removes it.",
+	"blinded": "Blinded: sand or light in your eyes, 20 less to hit until it clears.",
+	"dazed": "Dazed by a heavy blow: you can barely move for a moment.",
+	"withering_touch": "A withering touch drains your life every few seconds until it fades, or a cure removes it.",
+	"bleeding": "Bleeding: a deep wound that hurts every few seconds until it closes.",
+	"grave_miasma": "The grave's miasma: you are weakened (10% softer blows) and sickened until it passes, or a cure removes it.",
 	"lit_torch": "A burning torch lights the way. Rain will put it out, and it gives away a sneaking Shadowblade. Right-click to put it out.",
 }
 # Effects that borrow one of the spell icons (effect name -> icon path). There is no dedicated art for these yet, so they
@@ -297,9 +306,19 @@ const ENVIRONMENTAL_EFFECT_SPELL_ICONS := {
 	"kenjis_blessing": "res://Assets/icons/spells/aoedivine.png",
 	"weak_poison": "res://Assets/icons/spells/aoepoison.png",  # the green skull
 	"disease": "res://Assets/icons/spells/targetnecromancy.png",
+	"strong_poison": "res://Assets/icons/spells/grouppoison.png",
+	"weakening_venom": "res://Assets/icons/spells/targetpoison.png",
+	"sundered_armor": "res://Assets/icons/spells/aoephysical.png",
+	"crippled": "res://Assets/icons/spells/targetroot.png",
+	"blinded": "res://Assets/icons/spells/targetblind.png",
+	"dazed": "res://Assets/icons/spells/targetstun.png",
+	"withering_touch": "res://Assets/icons/spells/aoenecromancy.png",
+	"bleeding": "res://Assets/icons/spells/aoephysical.png",
+	"grave_miasma": "res://Assets/icons/spells/groupnecromancy.png",
 }
 # Environmental effects that are harmful (red box, yellow border).
-const ENVIRONMENTAL_DEBUFFS := ["weak_poison", "disease"]
+const ENVIRONMENTAL_DEBUFFS := ["weak_poison", "disease", "strong_poison", "weakening_venom", "sundered_armor", "crippled", "blinded",
+		"dazed", "withering_touch", "bleeding", "grave_miasma"]
 # Effects that show an item's icon on the buff bar (effect name -> items.json id).
 const ENVIRONMENTAL_EFFECT_ITEM_ICONS := {
 	"lit_torch": "torch",

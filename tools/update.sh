@@ -87,6 +87,11 @@ if [ "$DO_TESTS" = 1 ] && [ "$DO_EXPORT" = 1 ]; then
 		die "The regression suite failed — fix it (or run with --skip-tests) before updating."
 	fi
 fi
+# The Zone Spawn Sheet must match Data/monsters.json (tools/check_monster_sheet.py). Only a warning: the sheet lives on the
+# designer's machine, and the fix is usually "run it with --write".
+if [ "$DO_TESTS" = 1 ] && python3 -c "import openpyxl" 2>/dev/null; then
+	python3 tools/check_monster_sheet.py >/dev/null 2>&1 || warn "The Zone Spawn Sheet and Data/monsters.json differ — run: python3 tools/check_monster_sheet.py"
+fi
 json() { python3 -c "import json,sys; d=json.load(open(sys.argv[1])); print(d.get(sys.argv[2],''))" "$1" "$2" 2>/dev/null || true; }
 
 # Sets P_PRESET, P_DIR, P_BIN, P_PCK for one client platform.
@@ -277,7 +282,7 @@ if [ "$DO_SERVER" = 1 ]; then
 	SERVER_LIBS=("$(dirname "$SERVER_BIN")"/*.so)
 	[ -e "${SERVER_LIBS[0]}" ] || SERVER_LIBS=()
 	[ "${#SERVER_LIBS[@]}" -gt 0 ] || warn "no .so next to $SERVER_BIN — a Terrain3D zone will not load on the server."
-	"${RS[@]}" "${RSH[@]}" --chmod=F755 "$SERVER_BIN" "${SERVER_LIBS[@]}" tools/run_server.sh tools/run_update_server.sh "$DEST/"
+	"${RS[@]}" "${RSH[@]}" --chmod=F755 "$SERVER_BIN" "${SERVER_LIBS[@]}" tools/run_server.sh tools/run_world.sh tools/run_update_server.sh "$DEST/"
 fi
 if [ "$DO_CLIENT" = 1 ]; then
 	if [ "${#PATCH_FILES[@]}" -gt 0 ]; then "${RS[@]}" "${RSH[@]}" "${PATCH_FILES[@]}" "$DEST/updates/"; fi

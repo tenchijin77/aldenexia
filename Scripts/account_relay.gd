@@ -149,6 +149,8 @@ func _check_account(id: int, account: String, password: String) -> bool:
 # password. Returns "" to carry on with the old per-character password, the account name when the account opened
 # (and may use this character), or "!" when the login was refused (the peer has been told).
 func check_login(id: int, character: String, password: String, creating: bool) -> String:
+	# Every zone's server shares the account files and any of them may have added a character since: read them fresh.
+	_load_index()
 	var creds := _unpack(password)
 	var owner := owner_of(character)
 	if creds.is_empty():
@@ -200,7 +202,8 @@ func _listing(account: String) -> Dictionary:
 			"name": str(character), "display": str(save.get("player_name", character)).capitalize(),
 			"level": int(save.get("player_level", 1)), "class": str(save.get("player_class", "")),
 			"race": str(save.get("player_race", "")), "sex": str(save.get("player_sex", "male")),
-			"zone": str(save.get("last_zone", DEFAULT_ZONE)), "online": online.has(key),
+			"zone": ZoneInfo.name_for(str(save["zone"])) if ZoneInfo.exists(str(save.get("zone", ""))) else str(save.get("last_zone", DEFAULT_ZONE)),
+			"online": online.has(key),
 		})
 	return {"account": account, "characters": rows, "max": MAX_CHARACTERS}
 

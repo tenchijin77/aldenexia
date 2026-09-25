@@ -1,165 +1,384 @@
 {
-  "_comment": "Dustwind Plateaus spawn definitions. Coordinates TBD until zone layout is finalized.",
-  "spawns": [
-
-    /* ============================
-       CORE WILDLIFE & GENERAL MOBS
-       ============================ */
-
-    {
-      "mob_type": "sand_stinger",
-      "spawn_radius": "TBD",
-      "spawn_chance": 0.6,
-      "max_active": 6,
-      "respawn_time": 18,
-      "min_level": 4,
-      "max_level": 6,
-      "spawn_zone": "core"
-    },
-    {
-      "mob_type": "wild_dog",
-      "spawn_radius": "TBD",
-      "spawn_chance": 0.7,
-      "max_active": 5,
-      "respawn_time": 20,
-      "min_level": 4,
-      "max_level": 6,
-      "spawn_zone": "core"
-    },
-    {
-      "mob_type": "spider",
-      "spawn_radius": "TBD",
-      "spawn_chance": 0.5,
-      "max_active": 4,
-      "respawn_time": 22,
-      "min_level": 4,
-      "max_level": 6,
-      "spawn_zone": "core"
-    },
-
-    /* ============================
-       DUSTWALKERS (PRIMARY HOSTILES)
-       ============================ */
-
-    {
-      "mob_type": "dustwalker_scout",
-      "spawn_radius": "TBD",
-      "spawn_chance": 0.55,
-      "max_active": 6,
-      "respawn_time": 18,
-      "min_level": 5,
-      "max_level": 7,
-      "spawn_zone": "core"
-    },
-    {
-      "mob_type": "dustwalker_ravager",
-      "spawn_radius": "TBD",
-      "spawn_chance": 0.45,
-      "max_active": 4,
-      "respawn_time": 22,
-      "min_level": 6,
-      "max_level": 7,
-      "spawn_zone": "core"
-    },
-    {
-      "mob_type": "dustwalker_ambusher",
-      "spawn_radius": "TBD",
-      "spawn_chance": 0.35,
-      "max_active": 3,
-      "respawn_time": 25,
-      "min_level": 6,
-      "max_level": 7,
-      "spawn_zone": "core"
-    },
-
-    /* ============================
-       EDGE / RARE / FACTION MOBS
-       ============================ */
-
-    {
-      "mob_type": "djhanid_nomad",
-      "spawn_radius": "TBD",
-      "spawn_chance": 0.25,
-      "max_active": 2,
-      "respawn_time": 30,
-      "min_level": 5,
-      "max_level": 7,
-      "spawn_zone": "edge"
-    },
-    {
-      "mob_type": "sunmaddened_wanderer",
-      "spawn_radius": "TBD",
-      "spawn_chance": 0.20,
-      "max_active": 2,
-      "respawn_time": 35,
-      "min_level": 6,
-      "max_level": 7,
-      "spawn_zone": "edge"
-    },
-
-    /* ============================
-       SPIDER NEST OUTCROPS
-       ============================ */
-
-    {
-      "mob_type": "spider",
-      "spawn_radius": "TBD",
-      "spawn_chance": 0.7,
-      "max_active": 5,
-      "respawn_time": 20,
-      "min_level": 5,
-      "max_level": 7,
-      "spawn_zone": "nest"
-    },
-    {
-      "mob_type": "spider_broodmother",
-      "spawn_radius": "TBD",
-      "spawn_chance": 0.15,
-      "max_active": 1,
-      "respawn_time": 45,
-      "min_level": 7,
-      "max_level": 7,
-      "spawn_zone": "nest"
-    },
-
-    /* ============================
-       RARE / NIGHT / EVENT SPAWNS
-       ============================ */
-
-    {
-      "mob_type": "sand_stinger_elite",
-      "spawn_radius": "TBD",
-      "spawn_chance": 0.10,
-      "max_active": 1,
-      "respawn_time": 60,
-      "min_level": 7,
-      "max_level": 7,
-      "spawn_zone": "rare"
-    },
-    {
-      "mob_type": "sunmaddened_berserker",
-      "spawn_radius": "TBD",
-      "spawn_chance": 0.08,
-      "max_active": 1,
-      "respawn_time": 75,
-      "min_level": 7,
-      "max_level": 7,
-      "spawn_zone": "rare"
-    },
-
-    /* ============================
-       BOSS SPAWN
-       ============================ */
-
-    {
-      "mob_type": "dustwalker_warlord",
-      "spawn_radius": "TBD",
-      "spawn_chance": 1.0,
-      "max_active": 1,
-      "respawn_time": 7200,
-      "min_level": 7,
-      "max_level": 7,
-      "spawn_zone": "boss"
-    }
-  ]
+ "_comment": "dustwind_plateaus_spawns.json - where Dustwind Plateaus' monsters appear (Scripts/mob_spawner3d.gd; the zone finds this file by its zone_id). Monster stats AND levels are in Data/monsters.json - nothing here sets them. Positions are [x, y, z]; y=2 drops them onto the ground. FIRST-PASS LAYOUT (2026-09-24) on the flat placeholder terrain: the zone-in from the Outskirts is north (0, -474) and kept clear; wild dogs, sandstingers and plateau spiders across the open middle; Dustwalker camps to the west with the Warlord's camp in the far west; the Djhanid encampment to the east (passive: they only fight back); burial mounds to the southwest (gravediggers, restless corpses, a wraith, a risen priest, the Tomb Guardian, a rare Grave Abomination); the spider nest on the mesa to the northeast with the Broodmother; rare Sunmaddened and the Sand Stinger Elite on the southern dunes. Move them to match the terrain as you build it. spawn_chance per second (0.02 = rare), max_active per spawn point, respawn_time in seconds, spawn_zone is just a label.",
+ "density": 1.0,
+ "activation_range": 400,
+ "no_monster_zones": [
+  {
+   "name": "Zone-in from the Outskirts",
+   "min": [
+    -40,
+    -512
+   ],
+   "max": [
+    40,
+    -430
+   ]
+  }
+ ],
+ "spawns": [
+  {
+   "mob_type": "wild_dog",
+   "position": [
+    -120,
+    2,
+    -250
+   ],
+   "spawn_radius": 25.0,
+   "spawn_chance": 0.7,
+   "max_active": 3,
+   "respawn_time": 20,
+   "spawn_zone": "open_plateau"
+  },
+  {
+   "mob_type": "wild_dog",
+   "position": [
+    100,
+    2,
+    -150
+   ],
+   "spawn_radius": 25.0,
+   "spawn_chance": 0.7,
+   "max_active": 3,
+   "respawn_time": 20,
+   "spawn_zone": "open_plateau"
+  },
+  {
+   "mob_type": "wild_dog",
+   "position": [
+    -40,
+    2,
+    60
+   ],
+   "spawn_radius": 25.0,
+   "spawn_chance": 0.7,
+   "max_active": 3,
+   "respawn_time": 20,
+   "spawn_zone": "open_plateau"
+  },
+  {
+   "mob_type": "sand_stinger",
+   "position": [
+    40,
+    2,
+    -320
+   ],
+   "spawn_radius": 20.0,
+   "spawn_chance": 0.6,
+   "max_active": 2,
+   "respawn_time": 18,
+   "spawn_zone": "open_plateau"
+  },
+  {
+   "mob_type": "sand_stinger",
+   "position": [
+    -200,
+    2,
+    -40
+   ],
+   "spawn_radius": 20.0,
+   "spawn_chance": 0.6,
+   "max_active": 2,
+   "respawn_time": 18,
+   "spawn_zone": "open_plateau"
+  },
+  {
+   "mob_type": "sand_stinger",
+   "position": [
+    150,
+    2,
+    120
+   ],
+   "spawn_radius": 20.0,
+   "spawn_chance": 0.6,
+   "max_active": 2,
+   "respawn_time": 18,
+   "spawn_zone": "open_plateau"
+  },
+  {
+   "mob_type": "plateau_spider",
+   "position": [
+    -60,
+    2,
+    -120
+   ],
+   "spawn_radius": 18.0,
+   "spawn_chance": 0.5,
+   "max_active": 2,
+   "respawn_time": 22,
+   "spawn_zone": "open_plateau"
+  },
+  {
+   "mob_type": "dustwalker_scout",
+   "position": [
+    -300,
+    2,
+    -220
+   ],
+   "spawn_radius": 20.0,
+   "spawn_chance": 0.6,
+   "max_active": 2,
+   "respawn_time": 18,
+   "spawn_zone": "dustwalker_camp"
+  },
+  {
+   "mob_type": "dustwalker_scout",
+   "position": [
+    -330,
+    2,
+    -60
+   ],
+   "spawn_radius": 20.0,
+   "spawn_chance": 0.6,
+   "max_active": 2,
+   "respawn_time": 18,
+   "spawn_zone": "dustwalker_camp"
+  },
+  {
+   "mob_type": "dustwalker_ambusher",
+   "position": [
+    -280,
+    2,
+    -140
+   ],
+   "spawn_radius": 25.0,
+   "spawn_chance": 0.5,
+   "max_active": 2,
+   "respawn_time": 25,
+   "spawn_zone": "dustwalker_camp"
+  },
+  {
+   "mob_type": "dustwalker_ravager",
+   "position": [
+    -380,
+    2,
+    -120
+   ],
+   "spawn_radius": 15.0,
+   "spawn_chance": 0.6,
+   "max_active": 2,
+   "respawn_time": 22,
+   "spawn_zone": "dustwalker_camp"
+  },
+  {
+   "mob_type": "dustwalker_ravager",
+   "position": [
+    -400,
+    2,
+    60
+   ],
+   "spawn_radius": 15.0,
+   "spawn_chance": 0.6,
+   "max_active": 2,
+   "respawn_time": 22,
+   "spawn_zone": "dustwalker_camp"
+  },
+  {
+   "mob_type": "dustwalker_warlord",
+   "position": [
+    -430,
+    2,
+    180
+   ],
+   "spawn_radius": 5.0,
+   "spawn_chance": 1.0,
+   "max_active": 1,
+   "respawn_time": 1800,
+   "spawn_zone": "dustwalker_camp_named"
+  },
+  {
+   "mob_type": "dustwalker_ravager",
+   "position": [
+    -410,
+    2,
+    200
+   ],
+   "spawn_radius": 12.0,
+   "spawn_chance": 0.6,
+   "max_active": 2,
+   "respawn_time": 30,
+   "spawn_zone": "dustwalker_camp_named"
+  },
+  {
+   "mob_type": "djhanid_nomad",
+   "position": [
+    300,
+    2,
+    20
+   ],
+   "spawn_radius": 20.0,
+   "spawn_chance": 0.8,
+   "max_active": 3,
+   "respawn_time": 60,
+   "spawn_zone": "djhanid_camp"
+  },
+  {
+   "mob_type": "djhanid_sand_walker",
+   "position": [
+    330,
+    2,
+    60
+   ],
+   "spawn_radius": 10.0,
+   "spawn_chance": 0.5,
+   "max_active": 1,
+   "respawn_time": 300,
+   "spawn_zone": "djhanid_camp"
+  },
+  {
+   "mob_type": "gravedigger_skeleton",
+   "position": [
+    -250,
+    2,
+    330
+   ],
+   "spawn_radius": 25.0,
+   "spawn_chance": 0.6,
+   "max_active": 3,
+   "respawn_time": 20,
+   "spawn_zone": "burial_mounds"
+  },
+  {
+   "mob_type": "restless_corpse",
+   "position": [
+    -300,
+    2,
+    380
+   ],
+   "spawn_radius": 20.0,
+   "spawn_chance": 0.6,
+   "max_active": 2,
+   "respawn_time": 25,
+   "spawn_zone": "burial_mounds"
+  },
+  {
+   "mob_type": "wraith",
+   "position": [
+    -220,
+    2,
+    420
+   ],
+   "spawn_radius": 20.0,
+   "spawn_chance": 0.5,
+   "max_active": 1,
+   "respawn_time": 40,
+   "spawn_zone": "burial_mounds"
+  },
+  {
+   "mob_type": "risen_priest",
+   "position": [
+    -330,
+    2,
+    440
+   ],
+   "spawn_radius": 10.0,
+   "spawn_chance": 0.6,
+   "max_active": 1,
+   "respawn_time": 60,
+   "spawn_zone": "burial_mounds"
+  },
+  {
+   "mob_type": "tomb_guardian",
+   "position": [
+    -380,
+    2,
+    460
+   ],
+   "spawn_radius": 5.0,
+   "spawn_chance": 1.0,
+   "max_active": 1,
+   "respawn_time": 900,
+   "spawn_zone": "burial_mounds_named"
+  },
+  {
+   "mob_type": "grave_abomination",
+   "position": [
+    -300,
+    2,
+    470
+   ],
+   "spawn_radius": 15.0,
+   "spawn_chance": 0.02,
+   "max_active": 1,
+   "respawn_time": 480,
+   "spawn_zone": "burial_mounds_rare"
+  },
+  {
+   "mob_type": "plateau_spider",
+   "position": [
+    380,
+    2,
+    -400
+   ],
+   "spawn_radius": 30.0,
+   "spawn_chance": 0.6,
+   "max_active": 3,
+   "respawn_time": 20,
+   "spawn_zone": "spider_nest"
+  },
+  {
+   "mob_type": "plateau_spider",
+   "position": [
+    330,
+    2,
+    -320
+   ],
+   "spawn_radius": 25.0,
+   "spawn_chance": 0.6,
+   "max_active": 2,
+   "respawn_time": 20,
+   "spawn_zone": "spider_nest"
+  },
+  {
+   "mob_type": "spider_broodmother",
+   "position": [
+    420,
+    2,
+    -370
+   ],
+   "spawn_radius": 5.0,
+   "spawn_chance": 1.0,
+   "max_active": 1,
+   "respawn_time": 1200,
+   "spawn_zone": "spider_nest_named"
+  },
+  {
+   "mob_type": "sunmaddened_wanderer",
+   "position": [
+    150,
+    2,
+    380
+   ],
+   "spawn_radius": 60.0,
+   "spawn_chance": 0.02,
+   "max_active": 1,
+   "respawn_time": 480,
+   "spawn_zone": "southern_dunes"
+  },
+  {
+   "mob_type": "sunmaddened_berserker",
+   "position": [
+    -60,
+    2,
+    420
+   ],
+   "spawn_radius": 60.0,
+   "spawn_chance": 0.02,
+   "max_active": 1,
+   "respawn_time": 600,
+   "spawn_zone": "southern_dunes"
+  },
+  {
+   "mob_type": "sand_stinger_elite",
+   "position": [
+    250,
+    2,
+    300
+   ],
+   "spawn_radius": 30.0,
+   "spawn_chance": 0.02,
+   "max_active": 1,
+   "respawn_time": 900,
+   "spawn_zone": "southern_dunes"
+  }
+ ]
 }

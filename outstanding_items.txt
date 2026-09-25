@@ -57,6 +57,29 @@ an item (delete it, note it in change_log.txt) when it's done. Last updated 2026
   characters). Until then zoning is dedicated-server only; solo/LAN stay single-zone.
 - Ports for zones: UDP 8910 (login/coordinator), UDP 8920-9019 (zone servers), TCP 8911 (updates) — sent to the user.
 
+== ZONING (built 2026-09-24, first version) — still open ==
+- Zones are started all together by tools/run_world.sh; ON-DEMAND start/stop (a zone only runs while someone is in it) is
+  the next step for ~70 zones.
+- Cross-zone: /who, tells, groups and GM tools only see the zone you're in; world announcements too. Needs the relay.
+- The Load/Join screens' character delete runs on the login server: it can't tell a character is online in another zone.
+- The character list's "online" dot comes from the login server only: a character online in Dustwind shows as offline.
+- LAN games: zone lines say they aren't supported (single-player and dedicated servers work).
+- The world clock of an already-connected client isn't re-synced when its zone's server catches up (only at login).
+- Outskirts zone line is at the middle of the south edge (-1500, 0) as a placeholder — move it when the mountains and gap
+  are sculpted (and the arrival marker "dustwind_plateaus_zone" with it).
+
+== DUSTWIND MONSTERS (2026-09-24) — still open ==
+- Spawn layout is a first pass on flat terrain (Data/dustwind_plateaus_spawns.json): move to match the terrain.
+- Not built: monster spellcasting (Sunmaddened: Arcanist; Sand Walker: Spiritwalker; Risen Priest: Lightsworn; Warlord:
+  Blademaster; Tomb Guardian: Voidknight), Broodmother summoning spiderlings, Ambusher traps, Djhanid vs Dustwalker
+  fighting, Djhanid "won't attack exiles". Fast Attack (hounds) has no attack-speed field yet.
+- Djhanid faction: monsters have faction "Djhanid"/"Dustwalker" (they help their own) but there is no player standing
+  for either yet (factions.json has neither).
+- Loot: the new monsters borrow their base type's table (loot_from) — bespoke tables (Dustwalker tokens, water-debt
+  tokens, grave soil, scorpion parts...) to write. The sheet's Loot column is empty.
+- Grave Abomination is level 10-12 per the sheet, in a 4-9 zone (rare spawn). Deliberate?
+- Ashfall Dunes monsters (sheet tab AshfallDunes) aren't in monsters.json yet — add when Ashfall is built.
+
 == LANGUAGES (built 2026-09-23; see change_log.txt) — still open ==
 - NPC languages: every NPC but Sahren (Common + Djhanid) speaks only Common today — faction towns will use the fields.
 - High Arcanum (work in progress): the scroll item exists but nothing gives it yet (future: higher arcanists, quest rewards, relics); no
@@ -145,6 +168,12 @@ an item (delete it, note it in change_log.txt) when it's done. Last updated 2026
 ################################################################################
 
 == FOR THE NEXT ZONES (Dustwind Plateaus, Ashfall Dunes) ==
+- Dustwind monsters borrowing another's model (monsters.json model_from): Plateau Spider, Sand Stinger Elite, Spider
+  Broodmother (spider); Dustwalker Ambusher, Djhanid Nomad, Djhanid Sand Walker (sand brigand); Gravedigger Skeleton,
+  Risen Priest (skeleton); Sunmaddened Berserker (human male); Restless Corpse, Grave Abomination (mummy); Wraith, Tomb
+  Guardian (ghost). Plus the six older ones listed below.
+- Status icons for the new ailments borrow spell icons (buff_bar.gd): strong poison, weakening venom, sundered armour,
+  crippled, blinded, dazed, withering touch, bleeding, grave miasma.
 - Terrain for both: Scenes/zones/dustwind_plateaus.tscn and ashfall_dunes.tscn are flat 1 km squares of Terrain3D ready to
   sculpt (zones/<zone>_terrain/). Dustwind: three tiers; the zone line from the Outskirts through the gap in the
   southern mountains; the goblins on the top tier; the Dustwind Spire hidden in its own area.

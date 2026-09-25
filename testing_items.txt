@@ -2,11 +2,11 @@ ALDENEXIA: LIGHTFALL — TESTING CHECKLIST
 New features and fixes waiting for a real playtest, in two parts: OUTSTANDING (not passed yet) and COMPLETED (passed).
 When an item passes, change [ ] to [x] and move it to the same section under COMPLETED (or just add "- working" and it
 gets moved). A failure goes to outstanding_items.txt with what went wrong. Last updated 2026-09-24 (test 34, then macros).
-Everything below was built after test 26.   Outstanding: 133   Completed: 24
+Everything below was built after test 26.   Outstanding: 141   Completed: 24
 
 
 ################################################################################
-  OUTSTANDING — still to test (133)
+  OUTSTANDING — still to test (141)
 ################################################################################
 
 == ACCOUNTS AND JOINING ==
@@ -247,6 +247,20 @@ Everything below was built after test 26.   Outstanding: 133   Completed: 24
     it saves into zones/dustwind_plateaus_terrain/. Same for ashfall_dunes.tscn.
 [ ] Change something in zone_template.tscn (e.g. the sun angle): both zones show the change.
 [ ] The Outskirts still has its monsters, gathering nodes and crafting stations in play (the zone-id change touched them).
+[ ] In the editor, the Outskirts' vendors, Tobble, Kenji, Oni, the harbour master and the banker show their models and names;
+    drag one somewhere new (a bit above the ground is fine), play: it stands on the ground there. Nobody floats or sinks.
+
+== ZONING AND DUSTWIND (2026-09-24; needs UDP 8920 open and the world started with tools/run_world.sh) ==
+[ ] Walk to the middle of the Outskirts' south edge (around X -1500, Z 0: /loc): you load into Dustwind Plateaus at the
+    zone-in point. Walk north through Dustwind's edge line: back in the Outskirts, a little inside the south edge.
+[ ] Log out in Dustwind and back in: you're in Dustwind (not the Outskirts), where you left.
+[ ] After logging out in Dustwind, the character list says "Dustwind Plateaus" for that character.
+[ ] Die in Dustwind (bound in the Outskirts): you wake at your bind point in the Outskirts. A gate spell does the same.
+[ ] Dustwind monsters: hounds, sandstingers, plateau spiders near the middle; Dustwalkers west; Djhanid east (they ignore
+    you until you hit one, then fight); burial mounds southwest; spider nest on the mesa northeast.
+[ ] New ailments show on the status window with a description and are removed by a cure: weakening venom (sandstinger),
+    sundered armour (ravager), blinded (Djhanid), grave miasma (restless corpse), withering touch (wraith).
+[ ] Two players: one zones, the other stays; both keep playing (chat across zones doesn't work yet).
 
 ################################################################################
   COMPLETED — passed (24)

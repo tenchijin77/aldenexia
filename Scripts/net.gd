@@ -40,7 +40,7 @@ const MENU_REQUEST_TIMEOUT := 5.0  # seconds a probe/errand waits for the server
 const TLS_CN := "aldenexia"  # the name the server certificate is issued for; clients pin the certificate itself
 const TRUSTED_CERT_PATHS := ["res://Data/server_cert.crt", "user://server_tls/server.crt"]  # certificates a client will trust (see _client_tls_options)
 const SHUTDOWN_GRACE := 8.0  # seconds a shutting-down server waits for players' final saves
-const WORLD_SAVE_INTERVAL := 300.0  # seconds between world-state saves while running
+const WORLD_SAVE_INTERVAL := 20.0   # seconds between world-clock saves (the login server) / reads (every other zone's server)
 const HITCH_LOG_SECONDS := 0.5  # a server frame longer than this is logged ("Long frame") — stalls make clients time out
 # ENet gives up on a silent connection after ~5-6 s by default. Measured: a server (or network) stall of 6+ s dropped a client,
 # which is easily reached by WiFi power-save/roaming or a starved VM. Both ends now wait longer before declaring the other dead.
@@ -63,6 +63,15 @@ var pending_zone_path := Global.START_ZONE_PATH
 var omit_preplaced_player := false
 ## True on a headless server: it hosts the world but has no character of its own.
 var is_dedicated_server := false
+## Zones (Data/zones.json, zone_info.gd): which zone this dedicated server runs, and the login server's port that every
+## zone's port is counted from. A zone other than the default one follows the login server's world clock.
+var zone_id := ZoneInfo.DEFAULT_ID
+var base_port := DEFAULT_PORT
+var _join_address := ""       # client: the server address we joined (zone changes go to another port on it)
+var _zoning := false          # client: a zone change is under way
+var _client_base_port := DEFAULT_PORT   # client: the login server's port (a zone's port = this + its offset)
+const ZONE_HINTS_PATH := "user://zone_hints.json"   # client: the zone each character was last in, per server, so logging
+													# in goes straight to the right zone's server (no hop via the login server)
 ## Players allowed in the world at once. A listen-server host takes one of these slots
 ## for their own character; a dedicated server has no character, so all of them are free.
 var max_players := MAX_PLAYERS
@@ -234,9 +243,24 @@ func _cmdline_value(name: String, fallback: String) -> String:
 
 
 func _start_dedicated_server() -> void:
+	if _cmdline_flag("list-zones"):   # tools/run_world.sh asks the build which zones it has ("ZONE <id> <port offset>")
+		for id in ZoneInfo.zones():
+			print("ZONE %s %d" % [id, int(ZoneInfo.zones()[id].get("port_offset", 0))])
+		get_tree().quit(0)
+		return
 	is_dedicated_server = true
 	Engine.max_fps = SERVER_MAX_FPS
-	var port := int(_cmdline_value("port", str(DEFAULT_PORT)))
+	# --zone=<id> (Data/zones.json): which zone this server runs. --base-port: the login server's port (the default zone's);
+	# every zone's port is base-port + its port_offset, so --port is only needed to override that.
+	var zone_arg := _cmdline_value("zone", ZoneInfo.DEFAULT_ID)
+	if not ZoneInfo.exists(zone_arg):
+		_slog_err("--zone: there is no zone '%s' in Data/zones.json." % zone_arg)
+		get_tree().quit(1)
+		return
+	zone_id = zone_arg
+	pending_zone_path = ZoneInfo.scene_for(zone_id)
+	base_port = int(_cmdline_value("base-port", _cmdline_value("port", str(DEFAULT_PORT)) if zone_id == ZoneInfo.DEFAULT_ID else str(DEFAULT_PORT)))
+	var port := int(_cmdline_value("port", str(ZoneInfo.port_for(zone_id, base_port))))
 	max_players = clampi(int(_cmdline_value("max-players", str(MAX_PLAYERS))), 1, 64)
 	tls_dir = _cmdline_value("tls-dir", tls_dir)
 	stop_file = _cmdline_value("stop-file", stop_file)
@@ -245,29 +269,20 @@ func _start_dedicated_server() -> void:
 	banned_ips_file = _cmdline_value("banned-ips-file", banned_ips_file)
 	get_tree().auto_accept_quit = false  # a close request starts a graceful shutdown instead of dropping everyone
 	get_tree().node_added.connect(_on_node_added_server)
-	# --zone=<id> (Scenes/zones/<id>.tscn) or a scene path: which zone this server runs (default: the starting zone).
-	# Until zoning exists, clients always load the starting zone, so only use this for testing a zone's server side.
-	var zone_arg := _cmdline_value("zone", "")
-	if not zone_arg.is_empty():
-		var zone_path := zone_arg if zone_arg.begins_with("res://") else "res://Scenes/zones/%s.tscn" % zone_arg
-		if not ResourceLoader.exists(zone_path):
-			_slog_err("--zone: there is no zone scene %s." % zone_path)
-			get_tree().quit(1)
-			return
-		pending_zone_path = zone_path
 	var wanted_name := _cmdline_value("name", server_name)
 	server_name = sanitize_name(wanted_name)
 	if server_name.is_empty():
 		_slog_err("--name must be letters/numbers only (got '%s')." % wanted_name)
 		get_tree().quit(1)
 		return
-	Global.load_world_state(server_name)
+	Global.load_world_state(server_name, zone_id != ZoneInfo.DEFAULT_ID)   # another zone's server catches up with the login server's clock
 	accounts().server_start()
 	if host_game(port) != OK:
 		_slog_err("Could not start (UDP port %d in use, or no usable TLS key/certificate — see errors above)." % port)
 		get_tree().quit(1)
 		return
-	_slog("'%s' — Aldenexia %s listening on UDP %d (encrypted), up to %d players." % [server_name, GameVersion.display(), port, max_players])
+	_slog("'%s' — Aldenexia %s listening on UDP %d (encrypted), up to %d players. Zone: %s%s." % [server_name, GameVersion.display(), port, max_players,
+			ZoneInfo.name_for(zone_id), " (the login server)" if zone_id == ZoneInfo.DEFAULT_ID else " (login server on %d)" % base_port])
 	_slog("Stop it gracefully by creating the file %s (tools/run_server.sh does this on Ctrl-C / SIGTERM)." % ProjectSettings.globalize_path(stop_file))
 	_slog("Update countdown: write the minutes to wait into %s (tools/server_maintenance.sh does this), or a GM types /maintenance." % ProjectSettings.globalize_path(maintenance_file))
 	var gm_path := ProjectSettings.globalize_path(gm_password_file)
@@ -355,6 +370,7 @@ func join_game(address: String, port: int = DEFAULT_PORT, encrypted: bool = fals
 # own character, any monsters, or the host's real name/model ("Default Hero").
 func begin_join(address: String, port: int = DEFAULT_PORT) -> void:
 	last_join_was_server = remote_character_mode
+	_join_address = address
 	_pending_join_address = address
 	_pending_join_port = port
 	last_failure_reason = ""
@@ -366,7 +382,14 @@ func begin_join(address: String, port: int = DEFAULT_PORT) -> void:
 # Join a dedicated server: the character isn't loaded from this machine's saves — it is
 # fetched from the server once connected (or created there, when creation_data is given).
 # Same zone-first flow as begin_join(); see the server-side characters section below.
-func begin_join_server(address: String, port: int, character_name: String, password: String, creation_data: Dictionary = {}) -> void:
+# `port` is the login server's port; a character last seen in another zone connects straight to that zone's server
+# (zone_hints). `zone` is set when we already know the zone (a zone line, a redirect): then `port` is that zone's port.
+func begin_join_server(address: String, port: int, character_name: String, password: String, creation_data: Dictionary = {}, zone: String = "") -> void:
+	if zone.is_empty():
+		_client_base_port = port
+		zone = _zone_hint(address, character_name) if creation_data.is_empty() else ZoneInfo.DEFAULT_ID
+		port = ZoneInfo.port_for(zone, port)
+	pending_zone_path = ZoneInfo.scene_for(zone)
 	Global.clear_current_character_data()
 	remote_character_mode = true
 	last_join_was_server = true
@@ -1008,6 +1031,16 @@ func _character_path(key: String) -> String:
 	return "%s/%s_character_stats.json" % [CHARACTER_DIR, key]
 
 
+# Login answer "you're in another zone": kind "zone_redirect", reason "<zone id>|<port>" (the client's _rpc_login_failed
+# reconnects there). Not a failure, so it isn't audited as one.
+func _redirect_to_zone(id: int, player: String, zone: String) -> void:
+	_awaiting_login.erase(id)
+	var port := ZoneInfo.port_for(zone, base_port)
+	_slog("%s is in %s — sent to its server (port %d)." % [_display_name(player), ZoneInfo.name_for(zone), port])
+	_rpc_login_failed.rpc_id(id, "zone_redirect", "%s|%d" % [zone, port])
+	get_tree().create_timer(0.6).timeout.connect(_kick.bind(id))
+
+
 func _login_fail(id: int, kind: String, reason: String) -> void:
 	if is_dedicated_server:
 		_audit("LOGIN FAILED", peer_ip(id), "", kind)
@@ -1208,6 +1241,12 @@ func _rpc_login(character_name: String, password: String, creation_json: String)
 			_login_fail(id, "server_error", "%s's save on the server is unreadable." % player.capitalize())
 			return
 		DirAccess.copy_absolute(path, path.get_basename() + ".bak")  # last known-good copy, refreshed every login
+	# Zones: a character logs in where it is. Another zone's character is sent to that zone's server (the client reconnects
+	# there with the same name and password); a brand-new character belongs to the starting zone.
+	var home := ZoneInfo.DEFAULT_ID if status == "created" else ZoneInfo.of_character(_parse_character(json_text, player))
+	if home != zone_id:
+		_redirect_to_zone(id, player, home)
+		return
 	_awaiting_login.erase(id)
 	_peer_character[id] = key
 	_last_save_at[key] = Time.get_unix_time_from_system()
@@ -1333,7 +1372,82 @@ func _finish_menu_request(ok: bool, kind: String, reason: String, info: Dictiona
 
 @rpc("authority", "call_remote", "reliable")
 func _rpc_login_failed(kind: String, reason: String) -> void:
+	if kind == "zone_redirect" and remote_character_mode and reason.contains("|"):
+		_follow_redirect(reason.get_slice("|", 0), int(reason.get_slice("|", 1)))
+		return
 	_fail_join(reason, kind)
+
+
+# ── Zones (client) ────────────────────────────────────────────────────────
+# Walking into a zone line (zone_line.gd), or dying / gating home to a bind point in another zone: the character is
+# saved with its new "zone" and where to arrive ("zone_in": a marker name, or "@bind"), then the game leaves this zone's
+# server and joins that zone's (same address, its own port — Data/zones.json), which puts us at the marker. In
+# single-player the zone scene simply changes. The server checks the move (net.gd _check_zone_change()).
+func zone_travel(target: String, marker: String, to_bind: bool = false) -> void:
+	if _zoning or not ZoneInfo.exists(target):
+		return
+	if is_multiplayer_game and not remote_character_mode:
+		GameLog.log_general("[color=#ffaa66]Zone lines work on a server or in single-player, not in a LAN game (yet).[/color]")
+		return
+	_zoning = true
+	Global.player_data["zone"] = target
+	Global.player_data["zone_in"] = "@bind" if to_bind else marker
+	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+	if remote_character_mode:
+		var who := _login_name
+		var password := _login_password
+		var address := _join_address
+		Global.save_player_data_to_file()
+		disconnect_game()                        # uploads that save and waits for the server to confirm it
+		_set_zone_hint(address, who, target)
+		_free_zone_ui()
+		_zoning = false
+		begin_join_server(address, ZoneInfo.port_for(target, _client_base_port), who, password, {}, target)
+	else:
+		Global.save_player_data_to_file()
+		_free_zone_ui()
+		_zoning = false
+		get_tree().change_scene_to_file(ZoneInfo.scene_for(target))
+
+
+# The server said our character is in another zone: join that zone's server instead.
+func _follow_redirect(zone: String, port: int) -> void:
+	if not ZoneInfo.exists(zone):
+		_fail_join("The server sent you to a zone this build doesn't have (%s). Update your game." % zone, "server_error")
+		return
+	var who := _login_name
+	var password := _login_password
+	var address := _join_address
+	_set_zone_hint(address, who, zone)
+	if multiplayer.multiplayer_peer != null:
+		multiplayer.multiplayer_peer.close()
+	multiplayer.multiplayer_peer = null
+	_free_zone_ui()
+	begin_join_server(address, port, who, password, {}, zone)
+
+
+# The HUD and windows live on the root, not in the zone scene: take them down before the next zone builds its own.
+func _free_zone_ui() -> void:
+	for node in get_tree().root.get_children():
+		if node is CanvasLayer:
+			node.queue_free()
+
+
+func _zone_hint(address: String, who: String) -> String:
+	var hints = JSON.parse_string(FileAccess.get_file_as_string(ZONE_HINTS_PATH)) if FileAccess.file_exists(ZONE_HINTS_PATH) else null
+	var id := str(hints.get("%s|%s" % [address, who.to_lower()], "")) if typeof(hints) == TYPE_DICTIONARY else ""
+	return id if ZoneInfo.exists(id) else ZoneInfo.DEFAULT_ID
+
+
+func _set_zone_hint(address: String, who: String, zone: String) -> void:
+	var hints = JSON.parse_string(FileAccess.get_file_as_string(ZONE_HINTS_PATH)) if FileAccess.file_exists(ZONE_HINTS_PATH) else null
+	if typeof(hints) != TYPE_DICTIONARY:
+		hints = {}
+	hints["%s|%s" % [address, who.to_lower()]] = zone
+	var f := FileAccess.open(ZONE_HINTS_PATH, FileAccess.WRITE)
+	if f:
+		f.store_string(JSON.stringify(hints, "\t"))
+		f.close()
 
 
 @rpc("authority", "call_remote", "reliable")
@@ -1378,6 +1492,7 @@ func _rpc_save_character(json_text: String) -> void:
 	var stored := _parse_character(FileAccess.get_file_as_string(_character_path(key)), player) if FileAccess.file_exists(_character_path(key)) else {}
 	var relay := get_tree().get_first_node_in_group("gm_relay")
 	var is_gm: bool = relay != null and relay._authorized.has(id)
+	var zone_fixed := _check_zone_change(id, player, stored, incoming, is_gm)
 	var now := Time.get_unix_time_from_system()
 	var elapsed := now - float(_last_save_at.get(key, now - 60.0))
 	# Coin allowance: refills at COIN_PER_MINUTE while you play, never above an hour's worth; spent by what you gain.
@@ -1388,7 +1503,7 @@ func _rpc_save_character(json_text: String) -> void:
 	for problem in result["anomalies"]:
 		_slog("TRUST %s: %s" % [key, problem])
 		_telemetry({"event": "anomaly", "character": player, "detail": problem})
-	if result["changed"]:
+	if result["changed"] or zone_fixed:
 		json_text = JSON.stringify(result["data"])
 	if not stored.is_empty():
 		var d := ServerTrust.delta(stored, result["data"])
@@ -1439,6 +1554,44 @@ func _file_shared_macros(key: String, player: String, data: Dictionary) -> void:
 	if accounts().set_shared_macros(account, list):
 		_shared_macros_seen[key] = list_json
 		_slog("%s saved their account's shared macros (account %s)." % [_display_name(player), account])
+
+
+# A save that moves the character to another zone ("zone") is only kept when the move was possible: the player is standing
+# at a zone line to that zone (they arrive at its marker), or is going home to the zone they're bound in (death, gate:
+# "zone_in" "@bind"), or is a game master. Anything else keeps the stored zone. Changes `incoming` in place; true = changed.
+func _check_zone_change(id: int, player: String, stored: Dictionary, incoming: Dictionary, is_gm: bool) -> bool:
+	var from := ZoneInfo.of_character(stored) if not stored.is_empty() else zone_id
+	var to := str(incoming.get("zone", from))
+	if to == from or to.is_empty():
+		return false
+	var ok := false
+	var why := ""
+	if not ZoneInfo.exists(to):
+		why = "no such zone"
+	elif is_gm:
+		ok = true
+	elif str(incoming.get("zone_in", "")) == "@bind":
+		ok = to == str(stored.get("bind_zone", ZoneInfo.DEFAULT_ID))
+		why = "not the zone they are bound in"
+	else:
+		var body := TargetFrame.peer_id_to_player_node(id)
+		for line in get_tree().get_nodes_in_group("zone_line"):
+			if str(line.target_zone) == to and body != null and line.covers(body.global_position):
+				ok = true
+				incoming["zone_in"] = str(line.target_marker)
+				break
+		why = "not at a zone line to it"
+	if not ok:
+		_slog("TRUST %s: zone %s -> %s refused (%s)" % [player, from, to, why])
+		_telemetry({"event": "anomaly", "character": player, "detail": "zone %s -> %s refused (%s)" % [from, to, why]})
+		incoming["zone"] = from
+		incoming.erase("zone_in")
+		return true
+	incoming.erase("last_position")   # they arrive at the marker / bind point, not at old-zone coordinates
+	incoming["last_zone"] = ZoneInfo.name_for(to)   # the character list shows where they are now
+	_slog("%s leaves for %s." % [_display_name(player), ZoneInfo.name_for(to)])
+	_telemetry({"event": "zone", "character": player, "from": from, "to": to})
+	return true
 
 
 # Client side. Global.save_player_data_to_file() lands here in remote_character_mode; several
@@ -1511,7 +1664,11 @@ func _process(delta: float) -> void:
 	_world_save_timer += delta
 	if _world_save_timer >= WORLD_SAVE_INTERVAL:
 		_world_save_timer = 0.0
-		Global.save_world_state(server_name)
+		# The login server owns the world clock; other zones' servers follow what it last saved.
+		if zone_id == ZoneInfo.DEFAULT_ID:
+			Global.save_world_state(server_name)
+		else:
+			Global.load_world_state(server_name, true)
 
 
 # How many players are logged in with a character right now (the dedicated server's view).
@@ -1542,8 +1699,11 @@ func _finish_shutdown() -> void:
 	_shutdown_done = true
 	if not _shutdown_waiting.is_empty():
 		_slog("%d player(s) did not confirm their save in time." % _shutdown_waiting.size())
-	Global.save_world_state(server_name)
-	_slog("World state saved. Goodbye.")
+	if zone_id == ZoneInfo.DEFAULT_ID:
+		Global.save_world_state(server_name)
+		_slog("World state saved. Goodbye.")
+	else:
+		_slog("Goodbye.")   # the login server keeps the world clock
 	# Tell everyone goodbye but leave the peer itself open until we quit: closing it made other nodes' _process
 	# (weather, mob spawner) log errors reading multiplayer state during the last frame.
 	if multiplayer.multiplayer_peer != null:

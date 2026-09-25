@@ -297,11 +297,12 @@ func _process(delta: float):
 func save_world_state(server_name: String) -> void:
 	var file := FileAccess.open("user://server_state_%s.json" % server_name, FileAccess.WRITE)
 	if file:
-		file.store_string(JSON.stringify({"game_time": game_time, "time_accumulator": time_accumulator}, "\t"))
+		file.store_string(JSON.stringify({"game_time": game_time, "time_accumulator": time_accumulator,
+				"saved_at": Time.get_unix_time_from_system()}, "\t"))
 		file.close()
 
 
-func load_world_state(server_name: String) -> void:
+func load_world_state(server_name: String, quiet: bool = false) -> void:
 	var path := "user://server_state_%s.json" % server_name
 	if not FileAccess.file_exists(path):
 		return
@@ -312,7 +313,17 @@ func load_world_state(server_name: String) -> void:
 		if data["game_time"].has(key):
 			game_time[key] = int(data["game_time"][key])
 	time_accumulator = float(data.get("time_accumulator", 0.0))
+	if quiet and data.has("saved_at"):
+		# Following the login server's clock (another zone's server): add the real time since it wrote the file.
+		var behind := maxf(0.0, Time.get_unix_time_from_system() - float(data["saved_at"]))
+		if behind < 600.0:
+			var minutes := int((time_accumulator + behind) / REAL_SECONDS_PER_GAME_MINUTE)
+			time_accumulator = fmod(time_accumulator + behind, REAL_SECONDS_PER_GAME_MINUTE)
+			if minutes > 0:
+				advance_game_time(minutes)
 	initialize_time_system()
+	if quiet:
+		return
 	Net._slog("Restored the world clock: day %d, %02d:%02d." % [game_time.day, game_time.hour, game_time.minute])
 
 
@@ -660,7 +671,11 @@ func serialize_player_data() -> String:
 	var p: Node3D = TargetFrame.local_player()
 	if is_instance_valid(p):
 		player_data["last_position"] = [p.global_position.x, p.global_position.y, p.global_position.z]
-		player_data["last_zone"] = WorldAnnouncer.zone_display_name()  # shown on the server's character list
+		player_data["last_zone"] = WorldAnnouncer.zone_display_name()
+	# Shown on the character lists: the zone the character is IN. A zone trip saves just before leaving, with "zone" already
+	# set to where it's going, so that name wins over the zone still loaded.
+	if ZoneInfo.exists(str(player_data.get("zone", ""))):
+		player_data["last_zone"] = ZoneInfo.name_for(str(player_data["zone"]))
 	# Bank the running total into the save. Before this the total only reached the character
 	# sheet's display, so every save kept "playtime_seconds": 0 no matter how long you played.
 	player_data["playtime_seconds"] = get_total_playtime()

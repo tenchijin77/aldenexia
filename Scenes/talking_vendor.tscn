@@ -1,6 +1,7 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://Scripts/talking_vendor_npc.gd" id="1_talkvendor"]
+[ext_resource type="Script" path="res://Scripts/npc_editor_preview.gd" id="npc_editor_preview"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_talkvendor"]
 radius = 0.45
@@ -20,3 +21,6 @@ billboard = 1
 alpha_cut = 2
 text = "Vendor"
 outline_size = 6
+
+[node name="EditorPreview" type="Node3D" parent="."]
+script = ExtResource("npc_editor_preview")

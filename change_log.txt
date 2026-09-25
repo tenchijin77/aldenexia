@@ -2096,6 +2096,65 @@ GATE RAIDS (`Scripts/gate_raid_manager.gd`, `Data/gate_raids.json`, node "GateRa
 - tests/test_zones.gd (every zone scene: id, terrain, navmesh baked, no stray monsters). Suite: 1,519 checks pass.
 - outstanding_items.txt ends with a MISSING ASSETS list (zone art/music, travel sites, borrowed monster and summon
   models, stand-in objects), built from a scan of the data: every item/spell icon, sound, race model and portrait exists.
+
+### NPCs show in the editor and stand on the ground (2026-09-24)
+- New Scripts/npc_editor_preview.gd (@tool), an "EditorPreview" child of talking_vendor, vendor_npc, tobble_npc, kenji_npc,
+  oni_npc and harbour_master scenes: in the EDITOR it builds the NPC's real model (its Model Key race model, VENDOR_MODELS,
+  or the cat's MODEL_BASE) and a name label, and follows Inspector changes; in the game it deletes itself (the NPC's
+  script builds the body as before). Guards already had their model in guard_npc.tscn. Like crafting stations, NPCs can
+  now be seen and dragged anywhere in the zone scene.
+- Every VendorNPC stands on the ground under it when the game starts (snap_to_floor(), which only the harbour master
+  used); the traveling merchant opts out (he walks a route). Verified in a headless editor on the Outskirts: no script
+  errors. Test: test_zones.gd (preview removed in play; a vendor dropped 2.5 m up lands on the ground).
+
+### Zoning: Outskirts <-> Dustwind Plateaus; Dustwind's monsters; sheets and JSON kept in step (2026-09-24)
+- ZONING (dedicated servers; single-player just changes scene; LAN games say it isn't supported). Data/zones.json lists every
+  zone: scene + port_offset (Outskirts 0 = the login server, Dustwind +10, Ashfall +11: live 8910 / 8920 / 8921). Each zone
+  runs as its own server process sharing the character and account files: tools/run_world.sh starts them all (and stops
+  them all gracefully); a server started with --zone=<id> [--base-port=] runs that zone. The login server owns the world
+  clock and saves it every 20 s; the other zones follow it (catching up by the time since it was written).
+- Scripts/zone_line.gd (ZoneLine, @tool Area3D in a zone's ZoneLines folder): Target Zone, Target Marker (a Marker3D under
+  the other zone's Markers), Size; an orange see-through wall with its destination in the editor, invisible in game. Walking
+  in: Net.zone_travel() saves the character with "zone" + "zone_in", waits for the server to confirm the save, leaves, and
+  joins that zone's server (same address, its port), arriving at the marker. Placed: Outskirts "To Dustwind Plateaus" in
+  the middle of the south edge (-1500, 0) + arrival marker "dustwind_plateaus_zone" (-1460, 0); Dustwind "To Lumora
+  Outskirts" on the north edge behind the user's "lumora_outskirts_zone" marker.
+- Login: a character logs in where it is ("zone" in the save; older characters are in the Outskirts). Any other zone's
+  server answers "zone_redirect" (through the existing login-failed message: no new RPC, no new base) and the client joins
+  the right one; a per-server zone hint (user://zone_hints.json) makes the next login go straight there. Account lists are
+  re-read at every login (another zone's server may have added a character).
+- Server trust: a save that changes zone is kept only if the player is at a zone line to that zone (ZoneLine.covers(),
+  12 m slack), is going home to its bind zone ("@bind": death / gate), or is a GM — else the stored zone is kept and a
+  TRUST line logged. Accepted moves drop last_position (you arrive at the marker).
+- Bind points now remember their zone (bind_zone). Dying or casting a gate while bound in another zone takes you there.
+- The character list shows the zone the character is in: saves name their "zone" (a zone trip's last save already names
+  the destination), the server sets it when it accepts a zone change, and the account listing reads it. Verified live:
+  after zoning, the list reads "Zzwalker in Dustwind Plateaus".
+- Verified end to end with a local world (run_world.sh --base-port=8990) and a bot: Outskirts -> Dustwind arriving at
+  (0, 0, -474); a faked zone change refused; a fresh login on the login port sent to Dustwind; Dustwind -> Outskirts
+  arriving at (-1460, 0, 0); all servers stop gracefully.
+- DUSTWIND MONSTERS from the Zone Spawn Sheet (DustwindPlateaus tab): 13 new in monsters.json (plateau_spider,
+  dustwalker_ambusher, gravedigger_skeleton, sunmaddened_berserker, djhanid_nomad, restless_corpse, djhanid_sand_walker,
+  sand_stinger_elite, spider_broodmother, wraith, risen_priest, tomb_guardian, grave_abomination) and 6 brought in line
+  (wild_dog = Feral Desert Hound, sand_stinger = Scorched Sandstinger, sunmaddened_wanderer 4-7, dustwalker_scout,
+  dustwalker_ravager, dustwalker_warlord). Levels from the sheet; stats from a level curve (elites x1.8 health, bosses
+  x2.6); looks borrowed (model_from + tint/scale); special attacks as on-hit ailments. The Djhanid are passive with aggro
+  range 0 (they only fight back). Casting and summoning (Risen Priest, Broodmother) are noted, not built.
+- On-hit ailments can carry modifiers now; new ailments (status window text + icon, cures remove them): strong_poison,
+  weakening_venom, sundered_armor, crippled, blinded, dazed, withering_touch, bleeding, grave_miasma.
+- monsters.json "loot_from": a monster with no loot table borrows another's (the new ones use their base type's).
+- Data/dustwind_plateaus_spawns.json rewritten (the old draft had comments and no positions): 28 spawn points, first-pass
+  layout; zone-in kept clear. Verified: a bot in Dustwind saw hounds, stingers, scouts and plateau spiders, levels in range.
+  Old Ashfall draft parked as Data/ashfall_dunes_spawns.draft.jsonc. Dustwind navmesh rebaked with the mesa.
+- monsters.json is THE source of truth for monsters (its _comment documents every field). Spawn files no longer carry
+  min_level/max_level (the game never used them; the manual did — tools/make_manual.py now reads monsters.json).
+- tools/check_monster_sheet.py: compares the Zone Spawn Sheet with monsters.json (ids, level ranges, a row for everything
+  that spawns); --write fixes the sheet (backup kept). Ran it: column A of each tab is now "Monster ID (monsters.json)",
+  Dustwind ids filled in, 8 rows added to the Outskirts tab (the named mobs, blighted spider, mirage phantom, Sunmaddened).
+  tools/update.sh warns when they differ. Backup: Zone Spawn Sheet.before_sync_2026-09-24.xlsx.
+- Tests: test_zones.gd (zones.json, every zone line's target zone and marker exist, covers(), the server's zone-change
+  check), new test_monsters.gd (every monster: fields, level range, a look, loot_from, known ailments; built zones' spawn
+  files name real monsters and set no levels; Dustwind monsters load). Suite: 2,383 checks pass.
 ### Test 34: Shonuff (Aetherfist), Zozuur (Voidknight), build 77506fa (2026-09-24)
 - /stuck freed him; perception at the gate and the tower spires worked; Common rose talking to guards.
 - /STUCK LEFT THE PET BEHIND: the pet is now recalled to you (recall_to_owner(), or placed beside you).

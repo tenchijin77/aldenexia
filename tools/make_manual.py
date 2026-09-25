@@ -48,6 +48,12 @@ EFFECTS = load("skill_effects.json")["effects"]
 BALANCE = load("combat_balance.json")
 MONSTERS = load("monsters.json")
 SPAWNS = load("lumora_outskirts_spawns.json")["spawns"]
+
+
+def mlv(m):
+    """A monster's level range from monsters.json (the source of truth; spawn files don't set levels)."""
+    d = MONSTERS[m]
+    return int(d.get("level_min", d["level"])), int(d.get("level_max", d["level"]))
 QUESTS = load("quests.json")
 BUILD = load("build_info.json")
 
@@ -455,9 +461,8 @@ def places():
     for title, zones, text in AREAS:
         mobs = sorted({MONSTERS[m]["description"] for z in zones for m in zone_mobs.get(z, set()) if m in MONSTERS},
                       key=str.lower)
-        lv = [(s.get("min_level"), s.get("max_level")) for s in SPAWNS if s["spawn_zone"] in zones]
-        lows = [MONSTERS[s["mob_type"]]["level"] if s["spawn_zone"].endswith("named") else (s.get("min_level") or 1) for s in SPAWNS if s["spawn_zone"] in zones]
-        highs = [MONSTERS[s["mob_type"]]["level"] if s["spawn_zone"].endswith("named") else (s.get("max_level") or 1) for s in SPAWNS if s["spawn_zone"] in zones]
+        lows = [mlv(s["mob_type"])[0] for s in SPAWNS if s["spawn_zone"] in zones]
+        highs = [mlv(s["mob_type"])[1] for s in SPAWNS if s["spawn_zone"] in zones]
         levels = f"{min(lows)}–{max(highs)}" if lows else ""
         rows.append(f'<tr><td class="name">{e(title)}</td><td class="num">{levels}</td><td>{e(text)}</td></tr>')
     return table(["Place", "Levels", "What's there"], rows, (1,))
@@ -508,7 +513,7 @@ def bestiary():
     lv = defaultdict(list)
     for s in SPAWNS:
         if not s["spawn_zone"].endswith("named"):
-            lv[s["mob_type"]] += [s.get("min_level") or MONSTERS[s["mob_type"]]["level"], s.get("max_level") or MONSTERS[s["mob_type"]]["level"]]
+            lv[s["mob_type"]] += list(mlv(s["mob_type"]))
     seen, rows = [], []
     for s in SPAWNS:
         m = s["mob_type"]

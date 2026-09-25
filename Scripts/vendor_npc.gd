@@ -48,9 +48,16 @@ var combat_node: CombatNode
 var _shop_data: Dictionary = {}
 
 
+## Stand on the ground under where the scene put this NPC when the game starts, so NPCs can be dragged around the editor
+## without matching the terrain's height exactly (npc_editor_preview.gd shows them there). Off for the traveling merchant.
+var snap_on_ready := true
+
+
 func _ready() -> void:
 	add_to_group("npc_vendor")
 	NPCRespawner.register_home(self)
+	if snap_on_ready:
+		snap_to_floor()
 	if name_label:
 		name_label.text = npc_name
 	_load_shop_data()

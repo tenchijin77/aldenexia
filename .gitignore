@@ -14,3 +14,4 @@ Data/build_info.json
 # Everything tools/update.sh and the editor export: client builds (Windows/Linux), the dedicated server (~150 MB binary;
 # GitHub rejects files over 100 MB), the update bases (Builds/Base) and the last patches/manifest (Builds/Update).
 Builds/
+/logs/

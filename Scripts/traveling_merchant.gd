@@ -66,6 +66,7 @@ func _ready() -> void:
 	if extra_languages.is_empty():
 		extra_languages = ["djhanid"]  # Sahren trades in Common and his own Djhanid
 	_load_config()
+	snap_on_ready = false   # he walks his route (traveling_merchant_spawner.gd places him)
 	super._ready()
 	add_to_group("traveling_merchant")
 	add_to_group("npc_talker")  # hears what nearby players say (keyword conversation, npc_conversation.gd)

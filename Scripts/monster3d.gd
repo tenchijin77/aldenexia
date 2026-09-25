@@ -398,6 +398,7 @@ func _ready() -> void:
 		# A variant (a named mob, a blighted spider) reuses another type's model: "model_from" is that type, "model_scale" makes it
 		# bigger or smaller, "tint" ([r, g, b], multiplied into the texture) recolours it. No new art needed.
 		model_from      = str(stats.get("model_from", ""))
+		loot_from       = str(stats.get("loot_from", ""))
 		knockback_immune = bool(stats.get("knockback_immune", false))
 		on_hit_effect = stats.get("on_hit_effect", {}) if stats.get("on_hit_effect") is Dictionary else {}
 		attack_verbs = stats.get("attack_verbs", []) if stats.get("attack_verbs") is Array else []
@@ -1767,9 +1768,12 @@ func _check_never_swung() -> void:
 const KNOCKBACK_TIME := 0.25
 const KNOCKBACK_GRAVITY := 20.0
 var knockback_immune := false
-# monsters.json "on_hit_effect": {"name", "chance", "tick_damage", "tick_interval", "duration"} — a landed hit may leave it on
+# monsters.json "on_hit_effect": {"name", "chance", "tick_damage", "tick_interval", "duration", "modifiers"} — a landed hit may leave it on
+# (modifiers: {"speed_slow": 0.35} a snare, {"hit_chance": -20} blindness, {"damage_mult": -0.15} weakness,
+# {"armor_bonus": -4} sundered armour; the ailment names and texts are in buff_bar.gd / player3d.gd MONSTER_AILMENTS)
 # the player (snakes and spiders: Weak Poison). Applied on the player's own machine, where their health lives.
 var on_hit_effect: Dictionary = {}
+var loot_from := ""   # monsters.json "loot_from": use this monster's loot table while this one has none of its own
 var _knockback_time := 0.0
 var _knockback_velocity := Vector3.ZERO
 
@@ -1995,6 +1999,11 @@ func _find_mob_loot(mob_name: String, loot_data: Dictionary) -> Array:
 	for zone in loot_data.get("zone_loot_tables", {}).values():
 		if zone.has(mob_name):
 			return zone[mob_name]
+	# No table of its own yet: monsters.json "loot_from" borrows another monster's (a Plateau Spider drops what a spider does).
+	if not loot_from.is_empty() and loot_from != mob_name:
+		for zone in loot_data.get("zone_loot_tables", {}).values():
+			if zone.has(loot_from):
+				return zone[loot_from]
 	return []
 
 func _roll_table(table: Array) -> Array:
@@ -2198,7 +2207,8 @@ func _on_hit_defender_effects(target: Node) -> void:
 	if not on_hit_effect.is_empty() and randf() < float(on_hit_effect.get("chance", 0.0)):
 		var effect_name := str(on_hit_effect.get("name", "poison"))
 		var fresh: bool = not cn.active_effects.has(effect_name)
-		cn.apply_effect(effect_name, float(on_hit_effect.get("duration", 60.0)), {}, int(on_hit_effect.get("tick_damage", 0)), float(on_hit_effect.get("tick_interval", 6.0)))
+		var mods: Dictionary = on_hit_effect.get("modifiers", {}) if on_hit_effect.get("modifiers") is Dictionary else {}
+		cn.apply_effect(effect_name, float(on_hit_effect.get("duration", 60.0)), mods.duplicate(), int(on_hit_effect.get("tick_damage", 0)), float(on_hit_effect.get("tick_interval", 6.0)))
 		if fresh:
 			var who := (monster_description if monster_description != "" else get_monster_name()).capitalize()
 			GameLog.log_combat("[color=#77cc44]%s[/color]" % (str(on_hit_effect.get("message", "%s afflicts you!")) % who))

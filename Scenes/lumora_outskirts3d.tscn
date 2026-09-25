@@ -15,7 +15,6 @@
 [ext_resource type="PackedScene" uid="uid://ceo8hclmqk88t" path="res://models/Bone Spear.glb" id="9_xcm1m"]
 [ext_resource type="PackedScene" uid="uid://brlrefu4jo8b0" path="res://models/Archery Target.glb" id="10_867tm"]
 [ext_resource type="Script" uid="uid://dlymcplumwpqu" path="res://Scripts/npc_scripted_conversation.gd" id="11_gdconv1"]
-[ext_resource type="PackedScene" uid="uid://bvendor01npc" path="res://Scenes/vendor_npc.tscn" id="13_vendor1"]
 [ext_resource type="PackedScene" path="res://Scenes/network_widget.tscn" id="14_netwidget"]
 [ext_resource type="AudioStream" uid="uid://canimf824sbt2" path="res://Assets/sounds/ambient/wind_loop.ogg" id="14_windamb"]
 [ext_resource type="Script" uid="uid://c1gpx5b7imou1" path="res://Scripts/multiplayer_player_spawner.gd" id="15_mpspawn"]
@@ -44,6 +43,7 @@
 [ext_resource type="Script" uid="uid://wqmn351jhvbo" path="res://Scripts/weather_manager.gd" id="weather_mgr_script"]
 [ext_resource type="Script" uid="uid://bgf2lkk12k3hx" path="res://Scripts/world_items.gd" id="world_items_scr"]
 [ext_resource type="Script" uid="uid://t6wjhuirmwsb" path="res://Scripts/world_note.gd" id="world_note_scr"]
+[ext_resource type="Script" uid="uid://clm5l4nhm5j6k" path="res://Scripts/zone_line.gd" id="zone_line_scr"]
 
 [sub_resource type="Gradient" id="Gradient_6a7en"]
 offsets = PackedFloat32Array(0.2, 1)
@@ -111,7 +111,7 @@ transform = Transform3D(0.82321274, 0, 0.567733, 0, 1, 0, -0.567733, 0, 0.823212
 transform = Transform3D(0.85, 0, 0, 0, 0.85, 0, 0, 0, 0.85, -657.43256, 2.3536584, -1094.5881)
 
 [node name="dock" parent="." unique_id=1404211095 instance=ExtResource("2_p1o5r")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -755.921, -2, -1057.5494)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -755.921, -0.40880966, -1057.5494)
 
 [node name="graveyard" parent="." unique_id=506551331 instance=ExtResource("2_71scv")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 56.905777, 0, -275.02563)
@@ -307,6 +307,9 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -313.709, 0, 635.21643)
 [node name="Wagon Crash Site" type="Marker3D" parent="Markers" unique_id=788774885]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -592.9677, 0, -570.0188)
 
+[node name="dustwind_plateaus_zone" type="Marker3D" parent="Markers" unique_id=984064061]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1460, 0, 0)
+
 [node name="NetworkWidget" parent="." unique_id=95073630 instance=ExtResource("14_netwidget")]
 
 [node name="GateRaidManager" type="Node" parent="." unique_id=1906862897]
@@ -389,15 +392,13 @@ display_name = "Tailor's Bench"
 [node name="NPCs" type="Node3D" parent="." unique_id=968523518]
 
 [node name="Aldric the Provisioner" parent="NPCs" unique_id=59779778 instance=ExtResource("talking_vendor_scn")]
-transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 65.143135, 0, -22.2)
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 65.143135, 0, -20.666174)
 config_path = "res://Data/aldric.json"
-model_key = "human_male"
 title = "Provisioner"
 npc_name = "Aldric the Provisioner"
-shop_id = "lumora_general_goods"
 
 [node name="Lira Solarpetal" parent="NPCs" unique_id=59779779 instance=ExtResource("talking_vendor_scn")]
-transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 71.7245, 0, -21.4)
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 71.7245, 0, -20.793158)
 config_path = "res://Data/lira.json"
 model_key = "human_female"
 title = "Apothecary"
@@ -405,10 +406,10 @@ npc_name = "Lira Solarpetal"
 shop_id = "lumora_apothecary"
 
 [node name="TobbleTinkerer" parent="NPCs" unique_id=15958158 instance=ExtResource("tobble_npc_scn")]
-transform = Transform3D(-0.029708143, 0, -0.9995586, 0, 1, 0, 0.9995586, 0, -0.029708143, 63.83, 0, 46.16)
+transform = Transform3D(-0.029708143, 0, -0.9995586, 0, 1, 0, 0.9995586, 0, -0.029708143, 64.05699, 0, 46.16)
 
 [node name="ScribeIlsabet" parent="NPCs" unique_id=786175410 instance=ExtResource("talking_vendor_scn")]
-transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 77.85952, 0, -21.4)
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 77.85952, 0, -21.243036)
 config_path = "res://Data/scribe_ilsabet.json"
 model_key = "half_elf_female"
 title = "Archivist of the Oasis Wardens"
@@ -416,14 +417,14 @@ npc_name = "Ilsabet Thornmere"
 shop_id = "lumora_scribe_light"
 
 [node name="BankerOswin" parent="NPCs" unique_id=2067820927 instance=ExtResource("talking_vendor_scn")]
-transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 84, 0, -21.4)
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 86.335, 0, -21.4)
 script = ExtResource("banker_scr")
 config_path = "res://Data/banker.json"
 title = "Keeper of the Lumora Vault"
 npc_name = "Oswin Coinwright"
 
 [node name="ScribeXalvyr" parent="NPCs" unique_id=726775322 instance=ExtResource("talking_vendor_scn")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 62, 0, -12)
+transform = Transform3D(-0.9764502, 0, -0.21574292, 0, 1, 0, 0.21574292, 0, -0.9764502, 62.947853, 0, -10.635584)
 config_path = "res://Data/scribe_xalvyr.json"
 model_key = "dark_elf_male"
 title = "Copyist of the Bazaar"
@@ -522,3 +523,12 @@ note_text = "A shipping note, water-stained and scorched at one corner, pinned u
 Consignment 14: one strongbox, house seal, for the Wardens' paymaster at Lumora. Brigands on the south road, the driver says. If this reaches anyone: we were robbed by a man called Dessik. He wears the box on his belt like a trophy, and he laughs about it.
 Take it back for us, whoever you are. The Wardens will pay."
 start_quest = "wagon_crash"
+
+[node name="ZoneLines" type="Node3D" parent="." unique_id=659336733]
+
+[node name="To Dustwind Plateaus" type="Area3D" parent="ZoneLines" unique_id=344018196]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -1500, -5, 0)
+script = ExtResource("zone_line_scr")
+target_zone = "dustwind_plateaus"
+target_marker = "lumora_outskirts_zone"
+size = Vector3(60, 30, 6)

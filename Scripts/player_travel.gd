@@ -111,10 +111,14 @@ func resolve(spell_name: String, spell: Dictionary) -> void:
 	match str(spell.get("travel", "")):
 		"bind":
 			Global.player_data["bind_point"] = [player.global_position.x, player.global_position.y, player.global_position.z]
+			Global.player_data["bind_zone"] = ZoneInfo.current_id()
 			Global.player_data["bind_attuned_at"] = Time.get_unix_time_from_system()
 			Global.save_player_data_to_file()
 			GameLog.log_general("[color=#ffdd44]Your spirit settles into this place. You will return here when you fall, and your gate spell brings you here.[/color]")
 		"gate":
+			if player.bind_is_elsewhere():
+				Net.zone_travel(str(Global.player_data.get("bind_zone")), "", true)
+				return
 			var bind: Vector3 = player.get_bind_point()
 			arrive("gate", Vector2(bind.x, bind.z), {"name": "your bind point", "exact_y": bind.y}, str(player.player_name))
 		"ritual":

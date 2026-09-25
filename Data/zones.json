@@ -1,0 +1,9 @@
+{
+ "_comment": "zones.json - every zone the world has (Scripts/zone_info.gd). 'scene' is the zone scene; 'port_offset' is added to the login server's port (8910 live, so Dustwind listens on 8920): each zone runs as its own server process on that port (tools/run_world.sh starts them all). The default zone is where new characters start and the login server runs it. A zone line (Scripts/zone_line.gd) names its target zone and the Marker3D (under Markers) you arrive at.",
+ "default": "lumora_outskirts",
+ "zones": {
+  "lumora_outskirts": {"name": "Lumora Outskirts", "scene": "res://Scenes/lumora_outskirts3d.tscn", "port_offset": 0},
+  "dustwind_plateaus": {"name": "Dustwind Plateaus", "scene": "res://Scenes/zones/dustwind_plateaus.tscn", "port_offset": 10},
+  "ashfall_dunes": {"name": "Ashfall Dunes", "scene": "res://Scenes/zones/ashfall_dunes.tscn", "port_offset": 11}
+ }
+}

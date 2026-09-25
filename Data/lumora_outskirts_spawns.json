@@ -1,5 +1,5 @@
 {
- "_comment": "lumora_outskirts_spawns.json - 3D spawn definitions for Lumora Outskirts zone. Positions are [x, y, z] world coords. Y=2 ensures spawn above terrain so mobs drop to ground via gravity. Layout matches the zone's hand-drawn area map (2026-09-14 balance pass): Sand Dunes starter area near the origin, Mausoleum/Graveyard/Crypts undead cluster to the southeast, Bandit Camps strung between the dunes and the Goblin Camps to the northwest, and a dedicated Spider Den to the southwest. | 2026-09-20: max_active is now PER ENTRY (each spawn point's own cap; before it was shared by every entry of the same mob type). Gate ring and the mausoleum/graveyard were thinned out, and small groups were added along the roads between the landmarks. 'density' multiplies every max_active (1.0 = as written). 'activation_range' (400 m) = a spawn point only makes mobs while a player is that close, so far parts of the zone cost nothing until someone gets there. | 'deep_dunes_south': two RARE Sunmaddened wanderer spawn points in the far south (level 4-6, tough; each drops a Ceramic Water-Token for the Release the Hollowed quest): a 2%/second chance while a player is within range and an 8 minute wait after each one dies. no_monster_zones: rectangles ({min:[x,z], max:[x,z]}) where monsters never spawn and never wander on their own (chasing a player in, and gate raids, still can).",
+ "_comment": "lumora_outskirts_spawns.json - 3D spawn definitions for Lumora Outskirts zone. Positions are [x, y, z] world coords. Monster levels (and stats) come from Data/monsters.json, not from here. Y=2 ensures spawn above terrain so mobs drop to ground via gravity. Layout matches the zone's hand-drawn area map (2026-09-14 balance pass): Sand Dunes starter area near the origin, Mausoleum/Graveyard/Crypts undead cluster to the southeast, Bandit Camps strung between the dunes and the Goblin Camps to the northwest, and a dedicated Spider Den to the southwest. | 2026-09-20: max_active is now PER ENTRY (each spawn point's own cap; before it was shared by every entry of the same mob type). Gate ring and the mausoleum/graveyard were thinned out, and small groups were added along the roads between the landmarks. 'density' multiplies every max_active (1.0 = as written). 'activation_range' (400 m) = a spawn point only makes mobs while a player is that close, so far parts of the zone cost nothing until someone gets there. | 'deep_dunes_south': two RARE Sunmaddened wanderer spawn points in the far south (level 4-6, tough; each drops a Ceramic Water-Token for the Release the Hollowed quest): a 2%/second chance while a player is within range and an 8 minute wait after each one dies. no_monster_zones: rectangles ({min:[x,z], max:[x,z]}) where monsters never spawn and never wander on their own (chasing a player in, and gate raids, still can).",
  "spawns": [
   {
    "mob_type": "rat",
@@ -12,8 +12,6 @@
    "spawn_chance": 0.7,
    "max_active": 2,
    "respawn_time": 12,
-   "min_level": 1,
-   "max_level": 2,
    "spawn_zone": "dunes_start"
   },
   {
@@ -27,8 +25,6 @@
    "spawn_chance": 0.6,
    "max_active": 1,
    "respawn_time": 12,
-   "min_level": 1,
-   "max_level": 2,
    "spawn_zone": "dunes_start"
   },
   {
@@ -42,8 +38,6 @@
    "spawn_chance": 0.7,
    "max_active": 2,
    "respawn_time": 12,
-   "min_level": 1,
-   "max_level": 2,
    "spawn_zone": "dunes_far"
   },
   {
@@ -57,8 +51,6 @@
    "spawn_chance": 0.7,
    "max_active": 1,
    "respawn_time": 12,
-   "min_level": 1,
-   "max_level": 2,
    "spawn_zone": "dunes_far"
   },
   {
@@ -72,8 +64,6 @@
    "spawn_chance": 0.7,
    "max_active": 2,
    "respawn_time": 12,
-   "min_level": 1,
-   "max_level": 2,
    "spawn_zone": "dunes_far"
   },
   {
@@ -87,8 +77,6 @@
    "spawn_chance": 0.7,
    "max_active": 1,
    "respawn_time": 12,
-   "min_level": 1,
-   "max_level": 2,
    "spawn_zone": "dunes_far"
   },
   {
@@ -102,8 +90,6 @@
    "spawn_chance": 0.5,
    "max_active": 1,
    "respawn_time": 18,
-   "min_level": 1,
-   "max_level": 2,
    "spawn_zone": "dunes_start"
   },
   {
@@ -117,8 +103,6 @@
    "spawn_chance": 0.4,
    "max_active": 1,
    "respawn_time": 18,
-   "min_level": 1,
-   "max_level": 2,
    "spawn_zone": "dunes_start"
   },
   {
@@ -132,8 +116,6 @@
    "spawn_chance": 0.7,
    "max_active": 2,
    "respawn_time": 20,
-   "min_level": 1,
-   "max_level": 2,
    "spawn_zone": "dunes_start"
   },
   {
@@ -147,8 +129,6 @@
    "spawn_chance": 0.6,
    "max_active": 2,
    "respawn_time": 15,
-   "min_level": 1,
-   "max_level": 1,
    "spawn_zone": "dunes_start"
   },
   {
@@ -162,8 +142,6 @@
    "spawn_chance": 0.5,
    "max_active": 1,
    "respawn_time": 15,
-   "min_level": 1,
-   "max_level": 1,
    "spawn_zone": "dunes_start"
   },
   {
@@ -177,8 +155,6 @@
    "spawn_chance": 0.5,
    "max_active": 1,
    "respawn_time": 14,
-   "min_level": 1,
-   "max_level": 1,
    "spawn_zone": "dunes_start"
   },
   {
@@ -192,8 +168,6 @@
    "spawn_chance": 0.4,
    "max_active": 1,
    "respawn_time": 14,
-   "min_level": 1,
-   "max_level": 1,
    "spawn_zone": "dunes_start"
   },
   {
@@ -207,8 +181,6 @@
    "spawn_chance": 0.75,
    "max_active": 4,
    "respawn_time": 20,
-   "min_level": 2,
-   "max_level": 3,
    "spawn_zone": "mausoleum"
   },
   {
@@ -222,8 +194,6 @@
    "spawn_chance": 0.7,
    "max_active": 3,
    "respawn_time": 20,
-   "min_level": 2,
-   "max_level": 3,
    "spawn_zone": "graveyard"
   },
   {
@@ -237,8 +207,6 @@
    "spawn_chance": 0.65,
    "max_active": 2,
    "respawn_time": 18,
-   "min_level": 2,
-   "max_level": 3,
    "spawn_zone": "small_crypt_1"
   },
   {
@@ -252,8 +220,6 @@
    "spawn_chance": 0.65,
    "max_active": 2,
    "respawn_time": 18,
-   "min_level": 2,
-   "max_level": 3,
    "spawn_zone": "small_crypt_2"
   },
   {
@@ -267,8 +233,6 @@
    "spawn_chance": 0.3,
    "max_active": 2,
    "respawn_time": 35,
-   "min_level": 3,
-   "max_level": 3,
    "spawn_zone": "mausoleum"
   },
   {
@@ -282,8 +246,6 @@
    "spawn_chance": 0.25,
    "max_active": 1,
    "respawn_time": 32,
-   "min_level": 3,
-   "max_level": 3,
    "spawn_zone": "graveyard"
   },
   {
@@ -297,8 +259,6 @@
    "spawn_chance": 0.75,
    "max_active": 4,
    "respawn_time": 18,
-   "min_level": 2,
-   "max_level": 3,
    "spawn_zone": "goblin_camp_1"
   },
   {
@@ -312,8 +272,6 @@
    "spawn_chance": 0.3,
    "max_active": 10,
    "respawn_time": 30,
-   "min_level": 3,
-   "max_level": 4,
    "spawn_zone": "goblin_camp_1"
   },
   {
@@ -327,8 +285,6 @@
    "spawn_chance": 0.75,
    "max_active": 4,
    "respawn_time": 18,
-   "min_level": 2,
-   "max_level": 3,
    "spawn_zone": "goblin_camp_2"
   },
   {
@@ -342,8 +298,6 @@
    "spawn_chance": 0.5,
    "max_active": 10,
    "respawn_time": 16,
-   "min_level": 1,
-   "max_level": 2,
    "spawn_zone": "goblin_camp_2"
   },
   {
@@ -357,8 +311,6 @@
    "spawn_chance": 0.7,
    "max_active": 4,
    "respawn_time": 18,
-   "min_level": 2,
-   "max_level": 3,
    "spawn_zone": "goblin_camp_3"
   },
   {
@@ -372,8 +324,6 @@
    "spawn_chance": 0.7,
    "max_active": 2,
    "respawn_time": 20,
-   "min_level": 3,
-   "max_level": 4,
    "spawn_zone": "bandit_camp_1"
   },
   {
@@ -387,8 +337,6 @@
    "spawn_chance": 0.6,
    "max_active": 2,
    "respawn_time": 20,
-   "min_level": 3,
-   "max_level": 4,
    "spawn_zone": "bandit_camp_1"
   },
   {
@@ -402,8 +350,6 @@
    "spawn_chance": 0.7,
    "max_active": 2,
    "respawn_time": 20,
-   "min_level": 3,
-   "max_level": 4,
    "spawn_zone": "bandit_camp_2"
   },
   {
@@ -417,8 +363,6 @@
    "spawn_chance": 0.6,
    "max_active": 2,
    "respawn_time": 20,
-   "min_level": 3,
-   "max_level": 4,
    "spawn_zone": "bandit_camp_2"
   },
   {
@@ -432,8 +376,6 @@
    "spawn_chance": 0.75,
    "max_active": 3,
    "respawn_time": 16,
-   "min_level": 3,
-   "max_level": 4,
    "spawn_zone": "spider_den"
   },
   {
@@ -447,8 +389,6 @@
    "spawn_chance": 0.7,
    "max_active": 3,
    "respawn_time": 16,
-   "min_level": 3,
-   "max_level": 4,
    "spawn_zone": "spider_den"
   },
   {
@@ -462,8 +402,6 @@
    "spawn_chance": 0.65,
    "max_active": 2,
    "respawn_time": 16,
-   "min_level": 3,
-   "max_level": 4,
    "spawn_zone": "spider_den"
   },
   {
@@ -477,8 +415,6 @@
    "spawn_chance": 0.65,
    "max_active": 2,
    "respawn_time": 16,
-   "min_level": 3,
-   "max_level": 4,
    "spawn_zone": "spider_den"
   },
   {
@@ -492,8 +428,6 @@
    "spawn_chance": 0.8,
    "max_active": 10,
    "respawn_time": 10,
-   "min_level": 1,
-   "max_level": 1,
    "spawn_zone": "spider_den"
   },
   {
@@ -507,8 +441,6 @@
    "spawn_chance": 0.6,
    "max_active": 1,
    "respawn_time": 20,
-   "min_level": 2,
-   "max_level": 4,
    "spawn_zone": "road_south"
   },
   {
@@ -522,8 +454,6 @@
    "spawn_chance": 0.6,
    "max_active": 2,
    "respawn_time": 16,
-   "min_level": 2,
-   "max_level": 5,
    "spawn_zone": "road_south"
   },
   {
@@ -537,8 +467,6 @@
    "spawn_chance": 0.6,
    "max_active": 2,
    "respawn_time": 14,
-   "min_level": 1,
-   "max_level": 3,
    "spawn_zone": "road_south"
   },
   {
@@ -552,8 +480,6 @@
    "spawn_chance": 0.6,
    "max_active": 1,
    "respawn_time": 16,
-   "min_level": 1,
-   "max_level": 3,
    "spawn_zone": "road_south"
   },
   {
@@ -567,8 +493,6 @@
    "spawn_chance": 0.6,
    "max_active": 1,
    "respawn_time": 22,
-   "min_level": 1,
-   "max_level": 3,
    "spawn_zone": "road_south"
   },
   {
@@ -582,8 +506,6 @@
    "spawn_chance": 0.6,
    "max_active": 2,
    "respawn_time": 22,
-   "min_level": 1,
-   "max_level": 3,
    "spawn_zone": "south_a"
   },
   {
@@ -597,8 +519,6 @@
    "spawn_chance": 0.6,
    "max_active": 2,
    "respawn_time": 16,
-   "min_level": 1,
-   "max_level": 3,
    "spawn_zone": "south_a"
   },
   {
@@ -612,8 +532,6 @@
    "spawn_chance": 0.6,
    "max_active": 2,
    "respawn_time": 18,
-   "min_level": 2,
-   "max_level": 4,
    "spawn_zone": "south_b"
   },
   {
@@ -627,8 +545,6 @@
    "spawn_chance": 0.6,
    "max_active": 2,
    "respawn_time": 18,
-   "min_level": 2,
-   "max_level": 4,
    "spawn_zone": "south_b"
   },
   {
@@ -642,8 +558,6 @@
    "spawn_chance": 0.4,
    "max_active": 1,
    "respawn_time": 40,
-   "min_level": 3,
-   "max_level": 3,
    "spawn_zone": "south_b"
   },
   {
@@ -657,8 +571,6 @@
    "spawn_chance": 0.6,
    "max_active": 2,
    "respawn_time": 18,
-   "min_level": 2,
-   "max_level": 4,
    "spawn_zone": "south_c"
   },
   {
@@ -672,8 +584,6 @@
    "spawn_chance": 0.6,
    "max_active": 2,
    "respawn_time": 22,
-   "min_level": 1,
-   "max_level": 3,
    "spawn_zone": "south_c"
   },
   {
@@ -687,8 +597,6 @@
    "spawn_chance": 0.6,
    "max_active": 2,
    "respawn_time": 14,
-   "min_level": 1,
-   "max_level": 3,
    "spawn_zone": "road_west"
   },
   {
@@ -702,8 +610,6 @@
    "spawn_chance": 0.6,
    "max_active": 2,
    "respawn_time": 18,
-   "min_level": 2,
-   "max_level": 4,
    "spawn_zone": "road_west"
   },
   {
@@ -717,8 +623,6 @@
    "spawn_chance": 0.6,
    "max_active": 2,
    "respawn_time": 16,
-   "min_level": 2,
-   "max_level": 5,
    "spawn_zone": "road_west"
   },
   {
@@ -732,8 +636,6 @@
    "spawn_chance": 0.6,
    "max_active": 2,
    "respawn_time": 16,
-   "min_level": 1,
-   "max_level": 3,
    "spawn_zone": "road_west"
   },
   {
@@ -747,8 +649,6 @@
    "spawn_chance": 0.4,
    "max_active": 1,
    "respawn_time": 40,
-   "min_level": 3,
-   "max_level": 3,
    "spawn_zone": "road_west"
   },
   {
@@ -762,8 +662,6 @@
    "spawn_chance": 0.6,
    "max_active": 2,
    "respawn_time": 14,
-   "min_level": 1,
-   "max_level": 3,
    "spawn_zone": "nw_approach"
   },
   {
@@ -777,8 +675,6 @@
    "spawn_chance": 0.6,
    "max_active": 2,
    "respawn_time": 18,
-   "min_level": 2,
-   "max_level": 4,
    "spawn_zone": "nw_approach"
   },
   {
@@ -792,8 +688,6 @@
    "spawn_chance": 0.6,
    "max_active": 2,
    "respawn_time": 20,
-   "min_level": 2,
-   "max_level": 4,
    "spawn_zone": "nw_approach"
   },
   {
@@ -807,8 +701,6 @@
    "spawn_chance": 0.6,
    "max_active": 2,
    "respawn_time": 16,
-   "min_level": 1,
-   "max_level": 3,
    "spawn_zone": "nw_approach"
   },
   {
@@ -822,8 +714,6 @@
    "spawn_chance": 0.6,
    "max_active": 2,
    "respawn_time": 18,
-   "min_level": 1,
-   "max_level": 4,
    "spawn_zone": "nw_approach"
   },
   {
@@ -837,8 +727,6 @@
    "spawn_chance": 0.6,
    "max_active": 2,
    "respawn_time": 18,
-   "min_level": 2,
-   "max_level": 4,
    "spawn_zone": "southwest"
   },
   {
@@ -852,8 +740,6 @@
    "spawn_chance": 0.6,
    "max_active": 2,
    "respawn_time": 18,
-   "min_level": 2,
-   "max_level": 4,
    "spawn_zone": "southwest"
   },
   {
@@ -867,8 +753,6 @@
    "spawn_chance": 0.6,
    "max_active": 2,
    "respawn_time": 16,
-   "min_level": 2,
-   "max_level": 5,
    "spawn_zone": "southwest"
   },
   {
@@ -882,8 +766,6 @@
    "spawn_chance": 0.6,
    "max_active": 2,
    "respawn_time": 20,
-   "min_level": 2,
-   "max_level": 4,
    "spawn_zone": "wagon_crash"
   },
   {
@@ -897,8 +779,6 @@
    "spawn_chance": 0.6,
    "max_active": 2,
    "respawn_time": 14,
-   "min_level": 1,
-   "max_level": 3,
    "spawn_zone": "wagon_crash"
   },
   {
@@ -912,8 +792,6 @@
    "spawn_chance": 0.6,
    "max_active": 2,
    "respawn_time": 14,
-   "min_level": 1,
-   "max_level": 3,
    "spawn_zone": "far_west"
   },
   {
@@ -927,8 +805,6 @@
    "spawn_chance": 0.6,
    "max_active": 2,
    "respawn_time": 18,
-   "min_level": 2,
-   "max_level": 4,
    "spawn_zone": "far_west"
   },
   {
@@ -942,8 +818,6 @@
    "spawn_chance": 0.02,
    "max_active": 1,
    "respawn_time": 480,
-   "min_level": 4,
-   "max_level": 6,
    "spawn_zone": "deep_dunes_south"
   },
   {
@@ -957,8 +831,6 @@
    "spawn_chance": 0.02,
    "max_active": 1,
    "respawn_time": 480,
-   "min_level": 4,
-   "max_level": 6,
    "spawn_zone": "deep_dunes_south"
   },
   {
@@ -972,8 +844,6 @@
    "spawn_chance": 1.0,
    "max_active": 1,
    "respawn_time": 900,
-   "min_level": 1,
-   "max_level": 1,
    "spawn_zone": "wagon_crash_named"
   },
   {
@@ -987,8 +857,6 @@
    "spawn_chance": 1.0,
    "max_active": 1,
    "respawn_time": 900,
-   "min_level": 1,
-   "max_level": 1,
    "spawn_zone": "bandit_camp_1_named"
   },
   {
@@ -1002,8 +870,6 @@
    "spawn_chance": 1.0,
    "max_active": 1,
    "respawn_time": 900,
-   "min_level": 1,
-   "max_level": 1,
    "spawn_zone": "goblin_camp_1_named"
   },
   {
@@ -1017,8 +883,6 @@
    "spawn_chance": 1.0,
    "max_active": 1,
    "respawn_time": 900,
-   "min_level": 1,
-   "max_level": 1,
    "spawn_zone": "mausoleum_named"
   },
   {
@@ -1032,8 +896,6 @@
    "spawn_chance": 1.0,
    "max_active": 1,
    "respawn_time": 1200,
-   "min_level": 1,
-   "max_level": 1,
    "spawn_zone": "spider_den_named"
   }
  ],
