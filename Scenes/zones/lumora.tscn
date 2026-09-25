@@ -1,0 +1,30 @@
+[gd_scene format=3 uid="uid://d4kwcc00q6r5w"]
+
+[ext_resource type="PackedScene" path="res://Scenes/zones/zone_template.tscn" id="1_template"]
+[ext_resource type="NavigationMesh" path="res://Data/lumora_navmesh.tres" id="2_navmesh"]
+[ext_resource type="Script" uid="uid://clm5l4nhm5j6k" path="res://Scripts/zone_line.gd" id="3_zone_line"]
+[ext_resource type="PackedScene" uid="uid://btft0af2pxlqr" path="res://models/Lumora Gates/City Wall.glb" id="4_8h4ym"]
+
+[node name="Zone" unique_id=1932174881 instance=ExtResource("1_template")]
+zone_id = "lumora"
+zone_name = "Lumora"
+
+[node name="Terrain3D" parent="." index="0"]
+data_directory = "res://zones/lumora_city_terrain"
+metadata/_edit_lock_ = true
+
+[node name="NavigationRegion3D" parent="." index="15"]
+navigation_mesh = ExtResource("2_navmesh")
+
+[node name="lumora_outskirts_zone" type="Marker3D" parent="Markers" index="0" unique_id=1611331563]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 474)
+
+[node name="To Lumora Outskirts" type="Area3D" parent="ZoneLines" index="0" unique_id=694394732]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -5, 505)
+script = ExtResource("3_zone_line")
+target_zone = "lumora_outskirts"
+target_marker = "lumora_zone"
+size = Vector3(1040, 60, 8)
+
+[node name="City Wall2" parent="." index="23" unique_id=1399819986 instance=ExtResource("4_8h4ym")]
+transform = Transform3D(-0.99967986, 0, 0.0253026, 0, 1, 0, -0.0253026, 0, -0.99967986, 0.271349, 0, 558.051613)

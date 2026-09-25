@@ -141,6 +141,9 @@ const WORLD_ONLY_MASK := 1 << 6
 
 
 func _ready() -> void:
+	# Never ride another body (test 38: standing on a player's head, you were carried when they gated or zoned 1,200 m away).
+	# There are no moving platforms in the world, so nothing underfoot should move you.
+	platform_floor_layers = 0
 	_setup_visual()
 
 

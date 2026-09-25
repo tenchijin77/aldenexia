@@ -3,6 +3,16 @@
 [ext_resource type="PackedScene" path="res://Scenes/zones/zone_template.tscn" id="1_template"]
 [ext_resource type="NavigationMesh" path="res://Data/dustwind_plateaus_navmesh.tres" id="2_navmesh"]
 [ext_resource type="Script" path="res://Scripts/zone_line.gd" id="3_zone_line"]
+[ext_resource type="PackedScene" path="res://Scenes/props/abandoned_watchtower.tscn" id="prop_abandoned_watchtower"]
+[ext_resource type="PackedScene" path="res://Scenes/props/desert_tent.tscn" id="prop_desert_tent"]
+[ext_resource type="PackedScene" path="res://Scenes/props/destroyed_caravan.tscn" id="prop_destroyed_caravan"]
+[ext_resource type="PackedScene" path="res://Scenes/props/medieval_banner.tscn" id="prop_medieval_banner"]
+[ext_resource type="PackedScene" path="res://Scenes/props/nomad_camp.tscn" id="prop_nomad_camp"]
+[ext_resource type="PackedScene" path="res://Scenes/props/old_bleached_banners.tscn" id="prop_old_bleached_banners"]
+[ext_resource type="PackedScene" path="res://Scenes/props/old_foundation_stone.tscn" id="prop_old_foundation_stone"]
+[ext_resource type="PackedScene" path="res://Scenes/props/stone_circles.tscn" id="prop_stone_circles"]
+[ext_resource type="PackedScene" path="res://Scenes/props/warning_sign.tscn" id="prop_warning_sign"]
+[ext_resource type="PackedScene" path="res://Scenes/props/wrecked_caravan.tscn" id="prop_wrecked_caravan"]
 
 [node name="Zone" unique_id=1108771575 instance=ExtResource("1_template")]
 zone_id = "dustwind_plateaus"
@@ -34,3 +44,59 @@ script = ExtResource("3_zone_line")
 target_zone = "ashfall_dunes"
 target_marker = "dustwind_plateaus_zone"
 size = Vector3(1040, 60, 8)
+
+[node name="Terrain Art" type="Node3D" parent="."]
+
+[node name="Warning Sign" parent="Terrain Art" instance=ExtResource("prop_warning_sign")]
+transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, 6, 0, -458)
+
+[node name="Stone Circles" parent="Terrain Art" instance=ExtResource("prop_stone_circles")]
+transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, -440, 0, -195)
+
+[node name="Abandoned Watchtower" parent="Terrain Art" instance=ExtResource("prop_abandoned_watchtower")]
+transform = Transform3D(0.939693, 0, -0.34202, 0, 1, 0, 0.34202, 0, 0.939693, 301, 0, 140)
+
+[node name="Watchtower Foundation" parent="Terrain Art" instance=ExtResource("prop_old_foundation_stone")]
+transform = Transform3D(0.819152, 0, -0.573576, 0, 1, 0, 0.573576, 0, 0.819152, 309, 0, 131)
+
+[node name="Old Bleached Banners" parent="Terrain Art" instance=ExtResource("prop_old_bleached_banners")]
+transform = Transform3D(0.866025, 0, 0.5, 0, 1, 0, -0.5, 0, 0.866025, 399, 0, 223)
+
+[node name="Nomad Camp" parent="Terrain Art" instance=ExtResource("prop_nomad_camp")]
+transform = Transform3D(0.984808, 0, -0.173648, 0, 1, 0, 0.173648, 0, 0.984808, -400, 0, 380)
+
+[node name="Nomad Tent 1" parent="Terrain Art" instance=ExtResource("prop_desert_tent")]
+transform = Transform3D(0.5, 0, -0.866025, 0, 1, 0, 0.866025, 0, 0.5, -412, 0, 393)
+
+[node name="Nomad Tent 2" parent="Terrain Art" instance=ExtResource("prop_desert_tent")]
+transform = Transform3D(0.766044, 0, 0.642788, 0, 1, 0, -0.642788, 0, 0.766044, -386, 0, 368)
+
+[node name="Destroyed Caravan" parent="Terrain Art" instance=ExtResource("prop_destroyed_caravan")]
+transform = Transform3D(0.906308, 0, -0.422618, 0, 1, 0, 0.422618, 0, 0.906308, -17, 0, 380)
+
+[node name="Wrecked Caravan (raided)" parent="Terrain Art" instance=ExtResource("prop_wrecked_caravan")]
+transform = Transform3D(0.965926, 0, 0.258819, 0, 1, 0, -0.258819, 0, 0.965926, 270, 0, 425)
+
+[node name="Dustwalker North Tent" parent="Terrain Art" instance=ExtResource("prop_desert_tent")]
+transform = Transform3D(0.866025, 0, -0.5, 0, 1, 0, 0.5, 0, 0.866025, -205, 0, -235)
+
+[node name="Dustwalker North Banner" parent="Terrain Art" instance=ExtResource("prop_medieval_banner")]
+transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, -230, 0, -238)
+
+[node name="Dustwalker South Tent" parent="Terrain Art" instance=ExtResource("prop_desert_tent")]
+transform = Transform3D(0.939693, 0, 0.34202, 0, 1, 0, -0.34202, 0, 0.939693, -355, 0, 58)
+
+[node name="Dustwalker South Banner" parent="Terrain Art" instance=ExtResource("prop_medieval_banner")]
+transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, -328, 0, 40)
+
+[node name="Dustwalker Camp SW Tent" parent="Terrain Art" instance=ExtResource("prop_desert_tent")]
+transform = Transform3D(-1, 0, -0, 0, 1, 0, 0, 0, -1, 170, 0, 442)
+
+[node name="Dustwalker Camp SW Banner" parent="Terrain Art" instance=ExtResource("prop_medieval_banner")]
+transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, 150, 0, 418)
+
+[node name="Dustwalker Camp SE Tent" parent="Terrain Art" instance=ExtResource("prop_desert_tent")]
+transform = Transform3D(-1, 0, -0, 0, 1, 0, 0, 0, -1, 390, 0, 442)
+
+[node name="Dustwalker Camp SE Banner" parent="Terrain Art" instance=ExtResource("prop_medieval_banner")]
+transform = Transform3D(1, 0, -0, 0, 1, 0, 0, 0, 1, 370, 0, 418)

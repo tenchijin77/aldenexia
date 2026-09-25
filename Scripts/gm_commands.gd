@@ -58,17 +58,22 @@ static func set_mode(player: Node, arg: String) -> void:
 # The server said yes (or no) to a password.
 static func apply_login_result(player: Node, ok: bool, message: String) -> void:
 	if ok and is_instance_valid(player):
-		_set_gm(player, true)
+		_set_gm(player, true, message == RESTORED)
 	elif not message.is_empty():
 		GameLog.log_general(message)
 
 
-static func _set_gm(player: Node, on: bool) -> void:
+# The server restoring a game master's mode after they zone (gm_relay.gd): quietly, it was never switched off.
+const RESTORED := "@restored"
+
+
+static func _set_gm(player: Node, on: bool, quiet: bool = false) -> void:
 	player.is_game_master = on
-	if not is_joined_client(player.get_tree()):   # on a server it is granted per session, never remembered
+	if not is_joined_client(player.get_tree()):   # single-player / host: remembered in the save
 		Global.player_data["is_game_master"] = on
 		Global.save_player_data_to_file()
-	GameLog.log_general("[color=#88ccff]Game master mode %s.[/color]" % ("enabled" if on else "disabled"))
+	if not quiet:
+		GameLog.log_general("[color=#88ccff]Game master mode %s.[/color]" % ("enabled" if on else "disabled"))
 
 
 # SERVER: is this password right? Returns "" when it is, otherwise the reason. The file is read fresh every time.
@@ -255,6 +260,9 @@ static func run(_player: Node, command: String, arg: String, tree: SceneTree, au
 			if arg.strip_edges().is_empty():
 				return "Usage: /announce <text>: a red message in the middle of everyone's screen."
 			notice.broadcast(arg.strip_edges())
+			var link := tree.get_first_node_in_group("world_link")
+			if link != null:
+				link.share_notice(arg.strip_edges())   # every zone (world_link.gd)
 			return "[color=#88ccff]Announced.[/color]"
 		var word := arg.strip_edges().to_lower()
 		if word == "cancel":

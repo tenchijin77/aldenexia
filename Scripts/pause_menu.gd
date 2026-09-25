@@ -250,7 +250,7 @@ const CHAT_COMMANDS := [
 	["/trade [name]", "Trade items and coin with your target or a named player (or right-click them)"],
 	["/disband [name]", "Leave your group, or kick a named member"],
 	["/say [message]", "Talk to players within 10 m (yellow) — also switches the chat channel"],
-	["/party [message]", "Talk to your group (blue) — also switches the chat channel"],
+	["/party [message]", "Talk to your group (blue), in any zone — also switches the chat channel"],
 	["/zone [message]", "Shout to everyone in the zone (orange) — also switches the chat channel"],
 	["/tell <name> [message]", "Private message to a player in any zone (purple) — later text keeps going to them"],
 	["/played", "Show your character's birthday and time played"],

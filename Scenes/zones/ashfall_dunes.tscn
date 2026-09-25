@@ -3,6 +3,8 @@
 [ext_resource type="PackedScene" path="res://Scenes/zones/zone_template.tscn" id="1_template"]
 [ext_resource type="NavigationMesh" path="res://Data/ashfall_dunes_navmesh.tres" id="2_navmesh"]
 [ext_resource type="Script" path="res://Scripts/zone_line.gd" id="3_zone_line"]
+[ext_resource type="PackedScene" path="res://Scenes/props/desert_tent.tscn" id="prop_desert_tent"]
+[ext_resource type="PackedScene" path="res://Scenes/props/nomad_camp.tscn" id="prop_nomad_camp"]
 
 [node name="Zone" instance=ExtResource("1_template")]
 zone_id = "ashfall_dunes"
@@ -68,3 +70,17 @@ script = ExtResource("3_zone_line")
 target_zone = "dustwind_plateaus"
 target_marker = "ashfall_dunes_zone"
 size = Vector3(1040, 60, 8)
+
+[node name="Terrain Art" type="Node3D" parent="."]
+
+[node name="Vendor Camp Tent 1" parent="Terrain Art" instance=ExtResource("prop_desert_tent")]
+transform = Transform3D(0.965926, 0, -0.258819, 0, 1, 0, 0.258819, 0, 0.965926, 20, 0, 110)
+
+[node name="Vendor Camp Tent 2" parent="Terrain Art" instance=ExtResource("prop_desert_tent")]
+transform = Transform3D(0.5, 0, 0.866025, 0, 1, 0, -0.866025, 0, 0.5, 36, 0, 92)
+
+[node name="Djhanid Encampment" parent="Terrain Art" instance=ExtResource("prop_nomad_camp")]
+transform = Transform3D(0.707107, 0, -0.707107, 0, 1, 0, 0.707107, 0, 0.707107, 343, 0, 312)
+
+[node name="Djhanid Tent" parent="Terrain Art" instance=ExtResource("prop_desert_tent")]
+transform = Transform3D(0.866025, 0, 0.5, 0, 1, 0, -0.5, 0, 0.866025, 372, 0, 338)

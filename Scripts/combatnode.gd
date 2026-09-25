@@ -232,6 +232,9 @@ var active_effects: Dictionary = {}  # name -> {remaining, modifiers, tick_dmg, 
 ## A damage-over-time tick landed (poison, disease, a burn): the effect's name and the damage taken. The player logs its
 ## own ("You have taken 5 points of damage from Disease."); test 37: ailments hurt without a word.
 signal effect_ticked(effect_name: String, amount: int)
+## Who put each effect on (effect name -> caster's name), for the status window's tooltip ("Caster: Zozuur"). Set by
+## whoever applies it (Player3D records itself, or the player a networked buff came from); cleared with the effect.
+var effect_casters: Dictionary = {}
 
 func apply_effect(effect_name: String, duration: float, modifiers: Dictionary, tick_dmg: int = 0, tick_interval: float = 1.0, tick_heal: int = 0) -> void:
 	"""Apply (or refresh) a named timed effect with a dict of additive modifiers.
@@ -266,6 +269,7 @@ func _cheat_death_effect() -> String:
 
 
 func remove_effect(effect_name: String) -> void:
+	effect_casters.erase(effect_name)
 	if _has_stat_modifiers(active_effects.get(effect_name, {}).get("modifiers", {})):
 		_stats_dirty = true
 	active_effects.erase(effect_name)

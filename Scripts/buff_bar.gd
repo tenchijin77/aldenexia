@@ -80,6 +80,9 @@ func _build_row(effect_name: String, display_name: String, description: String, 
 	# window per the user's feedback 2026-09-17) — needs MOUSE_FILTER_STOP,
 	# since a Container's default filter (IGNORE) never receives the hover
 	# events a tooltip needs.
+	var caster := str(_player.combat_node.effect_casters.get(effect_name, "")) if is_instance_valid(_player) and "combat_node" in _player and _player.combat_node != null else ""
+	if not caster.is_empty() and is_instance_valid(_player) and caster != str(_player.get("player_name")):
+		description += "\n\nCaster: %s" % caster   # a buff from someone else (test 38: the name used to say it came from your group)
 	row.tooltip_text = SpellInfo.wrap_text(description)
 	row.mouse_filter = Control.MOUSE_FILTER_STOP
 	# Right-click cancels the effect, EQ-style — stances excluded since they
@@ -305,28 +308,28 @@ const ENVIRONMENTAL_EFFECT_DESCRIPTIONS := {
 	"terrified": "Terrified: your hands shake; you miss more often until your nerve returns.",
 	"lit_torch": "A burning torch lights the way. Rain will put it out, and it gives away a sneaking Shadowblade. Right-click to put it out.",
 }
-# Effects that borrow one of the spell icons (effect name -> icon path). There is no dedicated art for these yet, so they
-# reuse the closest spell icon: a red flame for the campfire and the golden sunburst (the divine icon) for Kenji's blessing.
+# Effect icons (effect name -> icon path). Most have their own art in Assets/icons/effects/<effect name>.png (the user's,
+# 2026-09-25); weak poison and disease still borrow the closest spell icon.
 const ENVIRONMENTAL_EFFECT_SPELL_ICONS := {
-	"campfire_warmth": "res://Assets/icons/spells/groupfire.png",
-	"kenjis_blessing": "res://Assets/icons/spells/aoedivine.png",
 	"weak_poison": "res://Assets/icons/spells/aoepoison.png",  # the green skull
 	"disease": "res://Assets/icons/spells/targetnecromancy.png",
-	"strong_poison": "res://Assets/icons/spells/aoepoison.png",
-	"weakening_venom": "res://Assets/icons/spells/aoepoison.png",
-	"sundered_armor": "res://Assets/icons/spells/sunder_armor.png",
-	"crippled": "res://Assets/icons/spells/targetroot.png",
-	"blinded": "res://Assets/icons/spells/targetblind.png",
-	"dazed": "res://Assets/icons/spells/targetstun.png",
-	"withering_touch": "res://Assets/icons/spells/aoenecromancy.png",
-	"bleeding": "res://Assets/icons/spells/rend.png",
-	"grave_miasma": "res://Assets/icons/spells/groupnecromancy.png",
-	"ensnared": "res://Assets/icons/spells/targetroot.png",
-	"silenced": "res://Assets/icons/spells/targetsilence.png",
-	"cursed": "res://Assets/icons/spells/targetnecromancy.png",
-	"burning": "res://Assets/icons/spells/aoefire.png",
-	"chilled": "res://Assets/icons/spells/aoeice.png",
-	"terrified": "res://Assets/icons/spells/targetfear.png",
+	"campfire_warmth": "res://Assets/icons/effects/campfire_warmth.png",
+	"kenjis_blessing": "res://Assets/icons/effects/kenjis_blessing.png",
+	"strong_poison": "res://Assets/icons/effects/strong_poison.png",
+	"weakening_venom": "res://Assets/icons/effects/weakening_venom.png",
+	"sundered_armor": "res://Assets/icons/effects/sundered_armor.png",
+	"crippled": "res://Assets/icons/effects/crippled.png",
+	"blinded": "res://Assets/icons/effects/blinded.png",
+	"dazed": "res://Assets/icons/effects/dazed.png",
+	"withering_touch": "res://Assets/icons/effects/withering_touch.png",
+	"bleeding": "res://Assets/icons/effects/bleeding.png",
+	"grave_miasma": "res://Assets/icons/effects/grave_miasma.png",
+	"ensnared": "res://Assets/icons/effects/ensnared.png",
+	"silenced": "res://Assets/icons/effects/silenced.png",
+	"cursed": "res://Assets/icons/effects/cursed.png",
+	"burning": "res://Assets/icons/effects/burning.png",
+	"chilled": "res://Assets/icons/effects/chilled.png",
+	"terrified": "res://Assets/icons/effects/terrified.png",
 }
 # Environmental effects that are harmful (red box, yellow border).
 const ENVIRONMENTAL_DEBUFFS := ["weak_poison", "disease", "strong_poison", "weakening_venom", "sundered_armor", "crippled", "blinded",
@@ -352,14 +355,13 @@ func _resolve_effect_display(effect_name: String) -> Dictionary:
 		var vital: Dictionary = VITAL_DEBUFFS[effect_name]
 		return {"name": vital["name"], "description": vital["description"], "is_debuff": true, "icon": _warning_icon(vital["item"])}
 	if effect_name.begins_with("stance_") or effect_name.begins_with("group_stance_"):
-		var from_group := effect_name.begins_with("group_stance_")
 		var stance_id := effect_name.trim_prefix("group_stance_").trim_prefix("stance_")
 		for class_stances in _class_stances.values():
 			if not (class_stances is Array):
 				continue  # the file's "_comment"
 			for stance in class_stances:
 				if stance.get("stance_id", "") == stance_id:
-					var shown: String = str(stance.get("name", stance_id)) + (" (from your group)" if from_group else "")
+					var shown: String = str(stance.get("name", stance_id))   # who it's from is on the tooltip ("Caster: ...")
 					return {"name": shown, "description": stance.get("description", ""), "is_debuff": false, "icon": SpellInfo.icon_texture(stance)}
 
 	if "_spell_by_name" in _player:

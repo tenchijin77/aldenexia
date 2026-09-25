@@ -7,7 +7,7 @@
 # and their travel spell (Spectral Bridge, Root-Tunnel, Chaos Rift) can take them there afterwards. The other two travel
 # classes recognise it but can't use it; everyone else sees an old tower / overgrown ruins / scarred ground. A site with no
 # "class" in the data is open to all three (tests). Attunements are the character's own (Global.player_data
-# ["attuned_ley_lines"]) and never fade. Stand-in look per kind until real models exist.
+# ["attuned_ley_lines"]) and never fade. Each kind has its model (MODELS); a plain stand-in if one is missing.
 extends Node3D
 class_name LeyLineNode
 
@@ -62,8 +62,41 @@ static func site_phrase(player_class: String) -> String:
 static func usable_by(entry_class: String, player_class: String) -> bool:
 	return RITUALS.has(player_class) and (entry_class.is_empty() or entry_class == player_class)
 
+# Each kind's model (the user's, 2026-09-25; tools/blender/fix_props.py stood them on the origin). A site of no class, or
+# a missing model, gets the plain stand-in below.
+const MODELS := {
+	"Arcanist": "res://models/Arcanist Spires.glb",
+	"Wildspeaker": "res://models/Wildspeaker Ruins.glb",
+	"Chaosborn": "res://models/Chaosborn Rifts.glb",
+}
+const LABEL_HEIGHTS := {"Arcanist": 8.0, "Wildspeaker": 4.2, "Chaosborn": 3.4}
+
+
 func _ready() -> void:
 	add_to_group("ley_line_node")
+	var model_path := str(MODELS.get(site_class, ""))
+	if not model_path.is_empty() and ResourceLoader.exists(model_path):
+		add_child((load(model_path) as PackedScene).instantiate())
+	else:
+		_build_stand_in()
+	_light = OmniLight3D.new()
+	_light.light_color = KINDS.get(site_class, {}).get("colour", Color(0.35, 0.95, 0.85))
+	_light.omni_range = 6.0
+	_light.position.y = 2.0
+	add_child(_light)
+	_label = Label3D.new()
+	_label.text = display_name
+	_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	_label.no_depth_test = true
+	_label.font_size = 40
+	_label.pixel_size = 0.004
+	_label.modulate = Color(0.7, 1.0, 0.95)
+	_label.position.y = float(LABEL_HEIGHTS.get(site_class, 3.4))
+	_label.visible = false
+	add_child(_label)
+
+
+func _build_stand_in() -> void:
 	var stone := MeshInstance3D.new()
 	var mesh := CylinderMesh.new()
 	mesh.top_radius = 0.35
@@ -103,21 +136,6 @@ func _ready() -> void:
 			piece.position = Vector3(cos(a) * 2.2, box.size.y / 2.0, sin(a) * 2.2)
 			piece.rotation.y = -a
 			add_child(piece)
-	_light = OmniLight3D.new()
-	_light.light_color = KINDS.get(site_class, {}).get("colour", Color(0.35, 0.95, 0.85))
-	_light.omni_range = 6.0
-	_light.position.y = 2.0
-	add_child(_light)
-	_label = Label3D.new()
-	_label.text = display_name
-	_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	_label.no_depth_test = true
-	_label.font_size = 40
-	_label.pixel_size = 0.004
-	_label.modulate = Color(0.7, 1.0, 0.95)
-	_label.position.y = 5.8 if site_class == "Arcanist" else 3.4
-	_label.visible = false
-	add_child(_label)
 
 
 func _process(delta: float) -> void:

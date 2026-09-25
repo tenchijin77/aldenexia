@@ -9,6 +9,7 @@ const GM := preload("res://Scripts/gm_commands.gd")
 const MAX_WRONG_PASSWORDS := 5
 
 var _authorized := {}   # SERVER: peer id -> true for everyone who logged in as a game master with the password
+var _checked := {}      # SERVER: peer id -> true once we've looked for a game master flag carried over from another zone
 var _wrong := {}        # SERVER: peer id -> wrong passwords typed on this connection
 
 
@@ -16,7 +17,42 @@ func _ready() -> void:
 	add_to_group("gm_relay")
 	multiplayer.peer_disconnected.connect(func(id: int) -> void:
 		_authorized.erase(id)
+		_checked.erase(id)
 		_wrong.erase(id))
+
+
+# Game master mode belongs to the CHARACTER (test 38: it was lost at every zone line, a new connection each time). A
+# successful /gm login leaves a flag file next to the character on the server (like its password file: players can
+# never upload or read it); every zone server honours it when that character arrives; /gm disable removes it.
+static func flag_path(key: String) -> String:
+	return "%s/%s_gm.json" % [Net.CHARACTER_DIR, key]
+
+
+func _set_flag(peer: int, on: bool) -> void:
+	var key := str(Net._peer_character.get(peer, ""))
+	if key.is_empty():
+		return
+	if on:
+		var f := FileAccess.open(flag_path(key), FileAccess.WRITE)
+		if f:
+			f.store_string(JSON.stringify({"since": Time.get_datetime_string_from_system()}))
+	elif FileAccess.file_exists(flag_path(key)):
+		DirAccess.remove_absolute(flag_path(key))
+
+
+func _process(_delta: float) -> void:
+	if not (Net.is_dedicated_server and multiplayer.has_multiplayer_peer() and multiplayer.is_server()):
+		return
+	for peer in Net._peer_character:
+		if _checked.has(peer) or not multiplayer.get_peers().has(peer):
+			continue
+		if TargetFrame.peer_id_to_player_node(peer) == null:
+			continue   # wait until their character is in the zone
+		_checked[peer] = true
+		if FileAccess.file_exists(flag_path(str(Net._peer_character[peer]))):
+			_authorized[peer] = true
+			Net._slog("GM mode carried over: %s (peer %d)" % [_who(peer), peer])
+			_rpc_gm_login_result.rpc_id(peer, true, GM.RESTORED)
 
 
 # Client side: ask the server to run it.
@@ -52,6 +88,7 @@ func _rpc_gm_login(password: String) -> void:
 	var problem: String = GM.check_password(password)
 	if problem.is_empty():
 		_authorized[sender] = true
+		_set_flag(sender, true)
 		_wrong.erase(sender)
 		Net._slog("GM login: %s (peer %d)" % [_who(sender), sender])
 		_rpc_gm_login_result.rpc_id(sender, true, "")
@@ -66,6 +103,7 @@ func _rpc_gm_login(password: String) -> void:
 func _rpc_gm_logout() -> void:
 	if multiplayer.is_server():
 		var sender := multiplayer.get_remote_sender_id()
+		_set_flag(sender, false)
 		if _authorized.erase(sender) and Net.is_dedicated_server:
 			Net._slog("GM logout: %s (peer %d)" % [_who(sender), sender])
 

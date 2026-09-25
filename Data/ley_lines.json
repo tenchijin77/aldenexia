@@ -3,5 +3,12 @@
  "lumora_outskirts": {
   "zone_entrance": [20, 13],
   "nodes": []
+ },
+ "dustwind_plateaus": {
+  "zone_entrance": [0, -470],
+  "nodes": [
+   {"id": "dustwind_spire", "name": "the Dustwind Spire", "class": "Arcanist", "position": [-211, 391],
+    "flavour": "A slim spire of blue stone, older than Lumora's walls. Lycaeum runes climb it in exact, unbroken lines."}
+  ]
  }
 }

@@ -2400,6 +2400,80 @@ GATE RAIDS (`Scripts/gate_raid_manager.gd`, `Data/gate_raids.json`, node "GateRa
   warmth of the campfire -> groupfire.
 - Tests: test_test37.gd. Suite: 3,808 checks pass.
 
+### Lumora's city wall lines up with the Outskirts; buildings solid in every zone (2026-09-25)
+- The user's City Wall (models/Lumora Gates/City Wall.glb) continues the Outskirts' gate walls: it was modelled in
+  the same frame as Lumora Gates.glb (the gates end at local z 51.27, the wall starts at 51.25). It now stands exactly
+  where the Outskirts' walls would carry on through the zone line (the Outskirts' (x, z) is Lumora's (z - 14, 618 - x):
+  its north line at x 113 is Lumora's south line at z 505): its ends meet the gates' within centimetres, on the ground
+  (was 0.34 m up and 22 m off), with the arrival point between the walls as when you leave the Outskirts.
+- Structure collision (Scripts/structure_collision.gd) is in the zone template now, so every zone's buildings are
+  solid, as the Outskirts' were (before, Lumora's wall and Dustwind's scenery could be walked through). The prop scenes
+  (Scenes/props) count as buildings. Navmeshes rebaked for Lumora (was Ashfall's copy), Dustwind and Ashfall so
+  monsters path round them.
+- Tests (test_test38): the wall's ends meet the Outskirts' across the line; on the ground; arriving between the walls;
+  collision in every zone and for prop scenes.
+
+### New art: ailment icons, weapons, travel sites, summoned pets, scenery (2026-09-25)
+- AILMENT ICONS: the user's 17 status icons moved to Assets/icons/effects/<effect name>.png (strong_poison, weakening_venom,
+  sundered_armor, crippled, blinded, dazed, withering_touch, bleeding, grave_miasma, ensnared, silenced, cursed, burning,
+  chilled, terrified, campfire_warmth, kenjis_blessing — the grey cat). buff_bar.gd uses them instead of the borrowed spell
+  icons; weak poison and disease still borrow (no art yet).
+- WEAPONS (models/Weapons): renamed to one name per type — shortsword, two_handed_sword, one_handed_axe, staff, dagger,
+  buckler, round_shield (was "metal shield"), tower_shield, kite_shield, bow, and arrow (split out of the bow: the
+  ammunition and the projectile). Originals kept outside the repo (~/Documents/aldenexia_model_originals/2026-09-25).
+- Fixed in Blender (tools/blender/fix_props.py, reusable for new props): every material was fully metallic, so wood,
+  leather and stone rendered near black — only metal parts are metal now; one layout for hand attachment: weapons have
+  the grip at the origin pointing +Y; shields the handle at the origin, face +Z, top +Y (the kite shield's point down);
+  the arrow centred, head toward -Z; parts joined into one mesh; weapon textures 512 px. Not in hands yet (the animation
+  pack's held-gear step).
+- TRAVEL SITES: the Arcanist Spire, Wildspeaker Ruins and Chaosborn Rift models replace the stand-in shapes
+  (ley_line_node.gd MODELS; the stand-in stays as a fallback). Fixed the same way: non-metal, a faint glow from their own
+  texture, standing on the origin (the rift re-centred on its main shard). The spire is 7.4 m: its name label moved up.
+- SUMMONED PETS (models/Summoned Pets): renamed wolf, bear, panther, hawk, ghoul, abomination, wraith, shade,
+  spiritual_weapon. The spiritual weapon is fixed (upright, the floating tip joined to the blade, a stray "aura" strip
+  removed). The other eight are NOT usable yet and not wired in: no skeleton (can't walk or attack), only one of each
+  limb (the generator didn't export the mirrored legs / arms / wings), lying on their sides.
+- ENVIRONMENT (models/Environmental): wrecked_caravan, medieval_signpost, desert_tent, medieval_banner,
+  old_foundation_stone, warning_sign, stone_circles, abandoned_watchtower, old_bleached_banners, destroyed_caravan,
+  nomad_camp (the numbers dropped). All were lying on their backs (height along the wrong axis) and fully metallic: stood
+  up, centred with the base on the origin (drop one in a scene and it sits on the ground), non-metal (fix_props.py
+  "prop"). The watchtower was 3.8 m, shorter than a building: doubled to 7.6 m.
+- PLACED from the Solgrave Expanse drawio (the Zone Design master's coordinates), as scenes you can move in the editor:
+  each model has Scenes/props/<name>.tscn; the zones instance them under a "Terrain Art" node. Dustwind (18): the
+  Warning Sign at the zone-in (6, -458), Stone Circles (-440, -195), Abandoned Watchtower (301, 140) with a broken
+  foundation beside it, Old Bleached Banners (399, 223), the Nomad Camp (-400, 380) with two tents, the Destroyed
+  Caravan (-17, 380), a wrecked caravan by the southern raider camps (270, 425), and a tent and banner at each of the
+  four Dustwalker camps. Ashfall (4): two tents at the Neutral Vendor Camp, the nomad camp and a tent at the Djhanid
+  Encampment. Solid (see below). The medieval signpost isn't on the drawio: not placed.
+- THE DUSTWIND SPIRE: the first Arcanist travel site, at the drawio's Arcanist Portal (-211, 391) (Data/ley_lines.json;
+  its position stays in data because Spectral Bridge reads it). Dustwind's evacuation point is its zone-in (0, -470).
+- Tests (test_test38): every ailment icon loads; every weapon stands the right way with its grip at the origin; shields
+  face +Z; the arrow; each travel site shows its model.
+
+### Test 38: Zozuur (Voidknight), Maedianie (Wildspeaker) (2026-09-25)
+- Hail a targeted player or pet: you say "Hail, Zozuur!" (H or /hail; guards and NPCs as before).
+- LUMORA is its own zone (Scenes/zones/lumora.tscn, zone id "lumora", port 8922 — inside the opened 8920-9019 range;
+  first pass: flat ground, town music, rain, the world link). Entered through the Outskirts' town at its far north end
+  (a zone line across the gated area, x 113); the Outskirts' north wall moved in to x 118. You arrive at the matching
+  marker facing into the zone.
+- GROUPS SURVIVE ZONING: the world link keeps every group by character name for the whole server (the hub holds them,
+  every zone gets a copy). Your group frame lists members in other zones as "Name (Zone)" without bars; /party reaches
+  every member in any zone; a real logout (not a zone change) leaves the group and the next member leads.
+- GM announcements (/announce) reach every zone.
+- /gm enable is the character's: a flag file next to its server password file (server_characters/<key>_gm.json). Zoning
+  keeps game master mode on quietly; /gm disable (or logging out of GM) clears it.
+- A group buff's tooltip says "Caster: Maedianie" (any buff someone else cast on you), instead of "(from your group)".
+- Rain works in every zone (checked by test for each).
+- BUG FOUND IN TESTING, FIXED: two characters on the same spot stood on each other's heads. Each client lifts its own
+  body on top of the other, so they could climb 140 m into the sky and fall to their deaths; and one standing on
+  another was carried off with them when they zoned or gated (dragged 1,200 m, through the zone line). Players now pass
+  through each other as in EverQuest (collision exceptions both ways; targeting rays still hit them), and nothing
+  underfoot carries a player, monster or pet (platform_floor_layers 0: there are no moving platforms).
+- Checked end to end with two headless clients on a local four-zone world, both arriving on the same spot: the one
+  staying behind stayed put; the group kept both members on both sides ("Zzstay (Lumora Outskirts)" / "(Dustwind
+  Plateaus)"); /party both ways across zones; the zoner's logout emptied the other's group.
+- Tests: test_test38 (34 checks).
+
 ### Animation pack, step 1: every race gets every cast and death (2026-09-25)
 - tools/make_animation_pack.gd pools the casting, buff and death animations from all 22 race folders (32 files) and
   retargets each onto every race's skeleton. Each model's pack (<library>_pack.res, what CHARACTER_MODELS now loads)

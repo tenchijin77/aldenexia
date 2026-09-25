@@ -241,9 +241,22 @@ func _process(_delta: float) -> void:
 		return
 
 	var group_members: Array = _player.group_members
+	var remote: Array = _player.get("group_remote") if _player.get("group_remote") is Array else []
 
 	for i in range(MAX_ROWS):
 		var row: Dictionary = _member_rows[i]
+		if i >= group_members.size() and i - group_members.size() < remote.size():
+			# a member in another zone (world_link.gd): name and where, no bars (test 38)
+			var r: Dictionary = remote[i - group_members.size()]
+			row["wrapper"].visible = true
+			row["member"] = null
+			row["pet"] = null
+			row["pet_wrapper"].visible = false
+			row["name_label"].text = "%s (%s)" % [str(r.get("name", "?")), str(r.get("zone", ""))]
+			for bar in ["hp_bar", "mp_bar"]:
+				row[bar].max_value = 1
+				row[bar].value = 0
+			continue
 		if i >= group_members.size():
 			row["wrapper"].visible = false
 			row["member"] = null

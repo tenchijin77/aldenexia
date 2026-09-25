@@ -24,7 +24,7 @@ func run() -> void:
 	add_child(outskirts)
 	await frames(6)
 	var ob = outskirts.get_node("ZoneBoundary")
-	eq(ob.bounds.end.x, 133.0, "the Outskirts' north wall at x 133")
+	eq(ob.bounds.end.x, 118.0, "the Outskirts' north wall at x 118, just past the town's north wall (test 38)")
 	var t = outskirts.get_node("Terrain3D")
 	check(t.data.get_control_hole(Vector3(150, 0, 45)), "north of the ridge is cut away")
 	check(not t.data.get_control_hole(Vector3(100, 0, 45)), "the town side is still there")

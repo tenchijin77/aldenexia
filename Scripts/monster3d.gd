@@ -326,6 +326,9 @@ func _init() -> void:
 
 
 func _ready() -> void:
+	# Never ride another body (test 38: standing on a player's head, you were carried when they gated or zoned 1,200 m away).
+	# There are no moving platforms in the world, so nothing underfoot should move you.
+	platform_floor_layers = 0
 	add_to_group("monsters")
 
 	# Collision layers

@@ -562,6 +562,7 @@ func _announce_departure(id: int) -> void:
 	var link := get_tree().get_first_node_in_group("world_link")
 	if link != null:
 		link.share_announce("leave", info["name"], info["level"], info["class"], variant)
+		link.player_left_world(info["name"])   # a real logout leaves the group (zoning doesn't)
 	for pid in multiplayer.get_peers():
 		if pid != id:
 			_rpc_receive_world_announce.rpc_id(pid, "leave", info["name"], info["level"], info["class"], variant)

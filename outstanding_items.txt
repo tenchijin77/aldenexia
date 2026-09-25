@@ -60,7 +60,11 @@ an item (delete it, note it in change_log.txt) when it's done. Last updated 2026
 == ZONING (built 2026-09-24, first version) — still open ==
 - Zones are started all together by tools/run_world.sh; ON-DEMAND start/stop (a zone only runs while someone is in it) is
   the next step for ~70 zones.
-- Cross-zone: /who, tells, groups and GM tools only see the zone you're in; world announcements too. Needs the relay.
+- Cross-zone (world_link.gd, tests 37-38): /who, /tell, /party, groups, world and GM announcements and the GM flag now
+  cross zones. Still zone-only: GM /kill, /give, /ban lookups and /follow of someone who zoned; a group member in another
+  zone shows no health bars (only name and zone).
+- Lumora (2026-09-25, first pass): its own zone now, but flat placeholder ground with no city yet: needs the terrain,
+  buildings, NPCs and its own music (town_theme for now). The city wall is in (2026-09-25, lined up with the Outskirts).
 - The Load/Join screens' character delete runs on the login server: it can't tell a character is online in another zone.
 - The character list's "online" dot comes from the login server only: a character online in Dustwind shows as offline.
 - The Join screen's player count ("Online — 3/12 players") is the login server's (the Outskirts) only.
@@ -120,8 +124,8 @@ an item (delete it, note it in change_log.txt) when it's done. Last updated 2026
   Aimed Shot / Shadow Bolt / Chaos Bolt crit riders, Arcane Flux backfire, Chaos Weave mana penalty, charm/polymorph
   "success rate" bonuses, Thorn Whip's pull, Radiant/Healing "chain" heals, Symphony/Crescendo's ally buff half,
   Wild Surge "random effect" variety, Soul Harvest (targets corpses; corpse targeting isn't supported).
-- Monster spellcasting doesn't exist yet. When it's built: casts break when the monster moves (knockback already cancels
-  one), Enhanced Block's 10% magic reduction and spell reflection start to matter.
+- Monster spellcasting exists (2026-09-25, monster3d.gd Abilities). Still to connect: a knockback should break a cast
+  (stuns and silences already do), Enhanced Block's 10% magic reduction and spell reflection against monster spells.
 - Perfect Balance / Master Balance knockback immunity: nothing knocks players back yet.
 - Death Pact spends its mana and recast even when there is no pet to sacrifice (it says so); a pre-check before the cast
   would refund it.
@@ -142,7 +146,7 @@ an item (delete it, note it in change_log.txt) when it's done. Last updated 2026
   abomination, wraith, shade, spiritual weapon.
 - Spirit of the Woods (Wildspeaker pet) placeholder visual.
 - Sahren (traveling merchant) and Harbour Master Tobias use race models; Sunmaddened wanderer uses a tinted human model.
-- Placeholder icons: stance icons, environmental buff icons (Warmth of the Campfire, Kenji's Blessing), game icon.
+- Placeholder icons: stance icons, game icon.
 
 
 == CONTROLS AND UI ==
@@ -188,8 +192,8 @@ The Pantheon map (Aldenexia_Pantheon_Reputation_Map_Updated.xlsx + Aldenexia Rep
 - The Guildmaster's Note (built): Aelric and his letter are placeholders — the main story after the letter is the user's.
 - Data/mirage_phantom_loot.json: kept for nested per-mob loot tables (user); its 5 items (echo_shard, memory_fragment,
   phantom_dust, shimmering_fabric, spectral_residue) need items.json entries when it is used.
-- MAIN STORY Chapter One drafted (~/NCT/Aldenexia-Lightfall/Main Story Draft - The Guildmaster.txt) — waiting for review;
-  4 questions at the end of it (Aelric's guild, the Light of Solara swap, Captain Hale, permanent choice?).
+- MAIN STORY: now in "Finalized Documents/Aldenexia Main Story - Master.txt" (decisions so far recorded; its question
+  list is what's open). Factions and zones have master files there too.
 - Draft numbers to approve: set bonuses (Data/armor_sets.json), set piece stats/skills, new quest rewards (XP/silver).
 - Stand-in art: set shoulders/arms/waist icons reuse chest/bracer/cloth art; Borgrim, Aldric, Lira use race models.
 - Deconstruct: bone/wood shields and loot jewellery without a recipe give nothing (no material rule for them).
@@ -248,20 +252,24 @@ Decisions:
 - The mirror's spot (66, 20 by the gate) is a first guess; its model is a stand-in frame.
 
 == HELD GEAR AND PROPS (for the animation pack) ==
-- Weapon models to show in hands (every weapon type), bows and quivers, fishing rod, pickaxe, woodcutting axe, smithing
-  hammer; later armour pieces worn on the model. Stand-ins: simple shapes.
+- Weapon models are in (models/Weapons, 2026-09-25: one per type, grip at the origin pointing +Y, shields facing +Z) but
+  simple and low-poly; next: attach them to each race's hand bone (per-race offset) and show the equipped item. Still
+  missing: blunt weapons (mace / hammer), hand-to-hand, quivers, fishing rod, pickaxe, woodcutting axe, smithing hammer;
+  later armour pieces worn on the model. New props: run tools/blender/fix_props.py.
 
 == FOR THE NEXT ZONES (Dustwind Plateaus, Ashfall Dunes) ==
-- Dustwind landmarks from the design (models or kits of parts): Warning Sign, Stone Circles, Abandoned Watchtower, Old
-  Bleached Banners, Skeletal Remains, Destroyed Caravan, Nomad Camp (Djhanid tents), Bandit Camps, Dustwalker camps,
-  a graveyard for the mesa.
+- Dustwind landmarks: models IN and PLACED (2026-09-25; Scenes/props, "Terrain Art" in Dustwind / Ashfall; simple
+  models, solid): Warning Sign, Stone Circles, Abandoned Watchtower, Old Bleached Banners, Destroyed Caravan,
+  Nomad Camp, tents and banners at the camps. The medieval signpost isn't placed (not on the drawio). Still missing: Skeletal Remains, Bandit Camps, Dustwalker camps, a mesa graveyard.
+  ("Stone circles" came out as wooden stumps: a stone version wanted.)
 - Dustwind monsters borrowing another's model (monsters.json model_from): Plateau Spider, Sand Stinger Elite, Spider
   Broodmother (spider); Dustwalker Ambusher, Djhanid Nomad, Djhanid Sand Walker (sand brigand); Gravedigger Skeleton,
   Risen Priest (skeleton); Sunmaddened Berserker (human male); Restless Corpse, Grave Abomination (mummy); Wraith, Tomb
   Guardian (ghost). Plus the six older ones listed below.
-- Status icons for the new ailments borrow spell icons (buff_bar.gd): strong poison, weakening venom, sundered armour,
-  crippled, blinded, dazed, withering touch, bleeding, grave miasma, ensnared, silenced, cursed, burning, chilled,
-  terrified.
+- Status icons: weak poison and disease still borrow spell icons (buff_bar.gd); every other ailment has its own art now.
+- Summoned pet models (models/Summoned Pets, 2026-09-25): wolf, bear, panther, hawk, ghoul, abomination, wraith, shade are
+  unusable as they are: no skeleton, one of each limb only (mirrored legs / arms / wings missing), lying sideways. Need
+  a remake (Meshy + rig, like the other creatures) or a fixed export. spiritual_weapon.glb is ready (static, floats).
 - Ashfall monsters borrowing models (monsters.json model_from): Bonegnawer / hunter / shaman (goblins, scaled up and
   tinted — want gnolls), khepri beetle (dune scarab x2.4), sandshifter / elite / alpha (slime), mirage phantom, phantom
   lord (ghost), tomb skeleton (skeleton), wight (mummy), Tak'Majir x5 (the human male, dark tint — want drow), Dustwalker
@@ -271,15 +279,13 @@ Decisions:
   southern mountains; the goblins on the top tier; the Dustwind Spire hidden in its own area.
 - Terrain textures for rocky plateau / cliff / hardpan and for dunes / ash sand. Stand-in: Lumora's texture list.
 - Ambient sound: desert wind with sand hiss (plateaus), a sandstorm loop (Zones Master: sandstorms). Stand-in: wind_loop.
-- Arcanist Spire model (the Dustwind Spire; reused for all 7 Arcanist sites). Stand-in: a tall slim blue shape.
 - Structures that move out of the Outskirts to Dustwind: the vendor camp, Dustwalker camps, the Djhanid encampment
   (tents, banners, a Djhanid NPC look for Sahren and company), the main goblin encampment (or the next zone).
 - Caravan wrecks (the zone's description; the Outskirts' "wagon crash" model can stand in).
 - A zone-line marker/look for the mountain gap (EverQuest-style: just the terrain gap is fine; optional arch or signpost).
 
 == TRAVEL ==
-- Wildspeaker Ruins model (6 sites) — stand-in: a green centre stone in a broken ring of blocks.
-- Chaosborn Rift model/effect (6 sites) — stand-in: a jagged leaning violet shard.
+- Travel-site models are in (2026-09-25), simple: better versions welcome; a Chaosborn Rift effect (a tear of light).
 - Spell visuals built from plain shapes: Spectral Bridge (walkway, rune ring, arch), Root-Tunnel (spirit-vines), Chaos
   Rift (violet tear), evacuation "fold" sphere (Scripts/travel_portal.gd).
 

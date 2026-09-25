@@ -210,6 +210,8 @@ var _target_idx: int = -1
 # sync across a real multiplayer session via Net's invite/roster RPCs — see
 # invite_to_group(), _on_group_invite_response(), _on_group_roster_received().
 var group_members: Array = []
+var group_names: Array = []    # every member's name, in any zone (from the server: world_link.gd); [] = no group
+var group_remote: Array = []   # members in other zones: [{name, zone}] (the group frame shows them without bars)
 #endregion
 
 #region Movement state
@@ -797,6 +799,11 @@ func try_pet_nearby() -> void:
 	nearest.receive_pet(self)
 
 func try_hail_nearby_npc() -> void:
+	# Your target is another player, or a pet (anyone's, or a charmed monster): greet them out loud (test 38).
+	var t := current_target
+	if is_instance_valid(t) and t != self and (t.is_in_group("player") or t.is_in_group("pets") or not str(t.get("pet_name") if "pet_name" in t else "").is_empty()):
+		send_say("Hail, %s!" % TargetFrame.display_name(t).capitalize() if not t.is_in_group("player") else "Hail, %s!" % str(t.get("player_name")))
+		return
 	var nearest: Node = null
 	var nearest_dist := HAIL_RANGE
 
@@ -1028,9 +1035,18 @@ func _enter_tree() -> void:
 
 
 func _ready() -> void:
+	# Never ride another body (test 38: standing on a player's head, you were carried when they gated or zoned 1,200 m away).
+	# There are no moving platforms in the world, so nothing underfoot should move you.
+	platform_floor_layers = 0
 	_fall_grace_until_ms = Time.get_ticks_msec() + FALL_GRACE_MS  # the game drops you onto the ground when you arrive
 	if is_queued_for_deletion():
 		return
+	# Players pass through each other, as in EverQuest (test 38: two characters arriving on the same spot each climbed on
+	# top of the other, 140 m up, then fell to their deaths). Targeting rays still hit them.
+	for other in get_tree().get_nodes_in_group("player"):
+		if other is PhysicsBody3D and other != self:
+			add_collision_exception_with(other)
+			other.add_collision_exception_with(self)
 	add_to_group("player")
 	_build_character_model()
 
@@ -2648,6 +2664,7 @@ func _on_group_invite_response(responder_id: int, accepted: bool) -> void:
 	group_members.append(responder_id)
 	GameLog.log_general("[color=#88ccff]%s has joined your group.[/color]" % _display_name_for_peer(responder_id))
 	Net.broadcast_group_roster(group_members)
+	_report_group()
 
 
 # Fires on every OTHER member's machine (new joiner included) whenever the
@@ -2676,6 +2693,7 @@ func disband_or_kick_from_group(target: Node = null) -> void:
 			GameLog.log_general("[color=#ffaa66]%s has been removed from the group.[/color]" % TargetFrame.display_name(target))
 			Net.send_group_removed(target_id, "You have been removed from the group.")
 			Net.broadcast_group_roster(group_members)
+			_report_group([str(target.get("player_name"))])
 			return
 
 	if group_members.size() <= 1:
@@ -2683,10 +2701,44 @@ func disband_or_kick_from_group(target: Node = null) -> void:
 		return
 	var old_members := group_members.duplicate()
 	group_members = [get_multiplayer_authority()]
+	group_remote = []
 	GameLog.log_general("[color=#ffaa66]The group has been disbanded.[/color]")
+	var link := get_tree().get_first_node_in_group("world_link")
+	if Net.remote_character_mode and link != null:
+		link.request_group_set([player_name])
 	for pid in old_members:
 		if pid != get_multiplayer_authority():
 			Net.send_group_removed(pid, "The group has been disbanded.")
+
+
+# Tells the server the group as this machine now has it: the members here plus those in other zones (world_link.gd
+# keeps groups by name across every zone). `dropping` = names just removed.
+func _report_group(dropping: Array = []) -> void:
+	var link := get_tree().get_first_node_in_group("world_link")
+	if not (Net.remote_character_mode and link != null):
+		return
+	var names: Array = []
+	for pid in group_members:
+		var node := _peer_id_to_player_node(pid)
+		if is_instance_valid(node):
+			names.append(str(node.get("player_name")))
+	for r in group_remote:
+		if not names.has(str(r["name"])):
+			names.append(str(r["name"]))
+	names = names.filter(func(n): return not dropping.has(n))
+	link.request_group_set(names)
+
+
+# The server's word on the group (world_link.gd): everyone's names, the ones in this zone by connection, the rest by
+# zone. Keeps a group together across zone lines (test 38).
+func apply_group_state(members: Array, local_peers: Array, remote: Array) -> void:
+	group_names = members.duplicate()
+	var me := get_multiplayer_authority()
+	var peers := local_peers.map(func(p): return int(p))
+	if not peers.has(me):
+		peers.insert(0, me)
+	group_members = peers if members.size() > 1 else [me]
+	group_remote = remote.duplicate() if members.size() > 1 else []
 
 
 # Looks up a player by character name instead of by targeting/proximity —
@@ -2763,11 +2815,18 @@ func send_party_message(message: String) -> void:
 		return
 	var my_id := get_multiplayer_authority()
 	var peer_ids: Array = group_members.filter(func(pid): return pid != my_id)
-	if peer_ids.is_empty():
+	if peer_ids.is_empty() and group_remote.is_empty():
 		GameLog.log_general("[color=red]You aren't in a group.[/color]")
 		return
 	message = ChatChannels.clean(message)
 	var lang := Languages.speaking()
+	var link := get_tree().get_first_node_in_group("world_link")
+	if Net.remote_character_mode and link != null:
+		# through the server: every member hears it, in any zone (world_link.gd)
+		link.request_party(Languages.encode(lang, Languages.pronounce(lang, message)))
+		GameLog.log_general(ChatChannels.party_self(message, lang))
+		_practice_speaking(lang, peer_ids.map(func(pid): return TargetFrame.peer_id_to_player_node(pid)))
+		return
 	Net.send_party_message(peer_ids, player_name, Languages.encode(lang, Languages.pronounce(lang, message)))
 	GameLog.log_general(ChatChannels.party_self(message, lang))
 	_practice_speaking(lang, peer_ids.map(func(pid): return TargetFrame.peer_id_to_player_node(pid)))
@@ -5844,6 +5903,7 @@ func _buff_target(target_node: Node, target_cn, effect_name: String, duration: f
 		return
 	if target_node == self or target_node.is_multiplayer_authority():
 		target_cn.apply_effect(effect_name, duration, modifiers, tick_dmg, tick_interval, tick_heal)
+		target_cn.effect_casters[effect_name] = player_name
 		return
 	if target_node.has_method("apply_networked_buff"):
 		# A remote PLAYER — each player is self-authoritative, so relay to
@@ -5996,6 +6056,9 @@ func apply_networked_buff(effect_name: String, duration: float, modifiers: Dicti
 	if not is_multiplayer_authority():
 		return
 	combat_node.apply_effect(effect_name, duration, modifiers, tick_dmg, tick_interval, tick_heal)
+	var caster := TargetFrame.peer_id_to_player_node(multiplayer.get_remote_sender_id())
+	if is_instance_valid(caster):
+		combat_node.effect_casters[effect_name] = str(caster.get("player_name"))   # who sent it: the tooltip's "Caster:"
 
 
 # stun/fear/charm/mesmerize/confuse are mechanically distinct in a full CC

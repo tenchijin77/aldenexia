@@ -1,7 +1,7 @@
 # structure_collision.gd — gives a zone's building models solid collision when the zone loads, so a model dragged in
 # from Blender (the gates, the graveyard, the docks, ...) needs no hand-made collision. Every imported model sitting
 # directly under the zone's root (.glb / .gltf / .blend / .fbx), or inside a plain Node3D used to group them (e.g.
-# "Vendor Stalls", "Enemy Camps"), gets a StaticBody3D with an exact-shape (trimesh)
+# "Vendor Stalls", "Enemy Camps", "Terrain Art"), and every prop scene from Scenes/props, gets a StaticBody3D with an exact-shape (trimesh)
 # collider for each of its meshes (solid from both sides; floors lying on the ground left out — the terrain is the floor),
 # on collision layer 65 — layer 1 for players and monsters plus layer 7, which pets
 # only collide with (pet_minion.gd WORLD_ONLY_MASK). A model that already has collision of its own is left alone, and any
@@ -11,6 +11,7 @@ extends Node
 
 const WORLD_LAYER := 65
 const MODEL_EXTENSIONS := [".glb", ".gltf", ".blend", ".fbx"]
+const PROP_SCENES := "res://Scenes/props/"   # the scenery scenes (fix_props.py models, placed in "Terrain Art")
 
 @export var skip_names: PackedStringArray = PackedStringArray(["water"])
 
@@ -85,6 +86,8 @@ func _solid_faces(mesh_instance: MeshInstance3D, terrain: Node) -> PackedVector3
 func _is_model(node: Node) -> bool:
 	if not (node is Node3D) or node.scene_file_path.is_empty():
 		return false
+	if node.scene_file_path.begins_with(PROP_SCENES):   # a prop scene wrapping a model (Scenes/props/<name>.tscn)
+		return true
 	for ext in MODEL_EXTENSIONS:
 		if node.scene_file_path.to_lower().ends_with(ext):
 			return true

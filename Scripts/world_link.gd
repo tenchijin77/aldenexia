@@ -26,6 +26,13 @@ var _last_roster := ""
 var _roster_timer := 0.0
 var _reconnect_timer := 0.0
 var _pending_tells := {}                   # client: lower-case name -> {message, lang} waiting for the server's answer
+# Groups (test 38: zoning dropped your group). The hub keeps every group by character NAME — a zone's peer ids mean
+# nothing in another zone — and hands the list to every zone: {leader lower-case: {"leader": Name, "members": [Names]}}.
+# Each zone tells its players who is in their group and which of them are here (the local ones get group heals, the
+# frame's health bars, XP sharing...). Invites still happen face to face (the popup); the leader's game reports the
+# new list (request_group_set). /party goes through here to every member in any zone.
+var groups: Dictionary = {}
+var _pushed := {}                          # zone: peer id -> the group state last sent to them
 
 
 func _ready() -> void:
@@ -90,9 +97,11 @@ func _hub_handle(from: Dictionary, msg: Dictionary) -> void:
 		"hello":
 			from["zone"] = str(msg.get("zone", ""))
 			Net._slog("World link: %s connected" % from["zone"])
+			_write(from["tcp"], {"t": "groups", "groups": groups})
 		"roster":
 			_world[str(msg.get("zone", ""))] = msg.get("players", [])
 			_hub_send_world()
+			_push_groups()   # a member arriving in the hub's zone
 		"announce":
 			_deliver_announce(msg)                       # the hub's own players
 			for p in _peers:
@@ -102,6 +111,13 @@ func _hub_handle(from: Dictionary, msg: Dictionary) -> void:
 			_route_tell(msg)
 		"tell_result":
 			_route_to_zone(str(msg.get("origin", "")), msg)
+		"notice", "party":
+			_handle_local(msg)                           # the hub's own players
+			for p in _peers:
+				if p != from:
+					_write(p["tcp"], msg)
+		"group_set", "group_leave":
+			_hub_group(msg)
 
 
 func _hub_send_world() -> void:
@@ -164,8 +180,19 @@ func _handle_local(msg: Dictionary) -> void:
 	match str(msg.get("t", "")):
 		"world":
 			_world = msg.get("world", {})
+			_push_groups()
 		"announce":
 			_deliver_announce(msg)
+		"notice":
+			if str(msg.get("from", "")) != ZoneInfo.current_id():
+				var board := get_tree().get_first_node_in_group("server_notice")
+				if board != null:
+					board.broadcast(str(msg.get("text", "")))
+		"party":
+			_deliver_party(msg)
+		"groups":
+			groups = msg.get("groups", {})
+			_push_groups()
 		"tell":
 			_deliver_tell(msg)
 		"tell_result":
@@ -361,3 +388,162 @@ func _read(tcp: StreamPeerTCP, holder: Dictionary) -> Array:
 		if typeof(parsed) == TYPE_DICTIONARY:
 			out.append(parsed)
 	return out
+
+
+# ── Groups ──
+func _group_of(player_name: String) -> String:
+	var want := player_name.to_lower()
+	for leader in groups:
+		for m in groups[leader]["members"]:
+			if str(m).to_lower() == want:
+				return leader
+	return ""
+
+
+# Hub: apply a change and tell every zone.
+func _hub_group(msg: Dictionary) -> void:
+	var by := str(msg.get("by", ""))
+	if str(msg.get("t", "")) == "group_leave":
+		_remove_member(by)
+	else:
+		var members: Array = (msg.get("members", []) as Array).map(func(m): return str(m))
+		if members.size() <= 1:
+			var g := _group_of(by)
+			if not g.is_empty() and g == by.to_lower():
+				groups.erase(g)          # the leader disbanded it
+			else:
+				_remove_member(by)       # a member left it
+		else:
+			for m in members:
+				var g := _group_of(m)
+				if not g.is_empty() and g != by.to_lower():
+					_remove_member(m)    # in someone else's group before: not any more
+			groups[by.to_lower()] = {"leader": by, "members": members}
+	var out := {"t": "groups", "groups": groups}
+	for p in _peers:
+		_write(p["tcp"], out)
+	_push_groups()
+
+
+func _remove_member(player_name: String) -> void:
+	var g := _group_of(player_name)
+	if g.is_empty():
+		return
+	var members: Array = groups[g]["members"].filter(func(m): return str(m).to_lower() != player_name.to_lower())
+	groups.erase(g)
+	if members.size() > 1:
+		var leader := str(members[0])   # the next member leads
+		groups[leader.to_lower()] = {"leader": leader, "members": members}
+
+
+func _group_change(msg: Dictionary) -> void:
+	if is_hub():
+		_hub_group(msg)
+	else:
+		_send_up(msg)
+
+
+# Zone: tell each local player in a group who's in it and who of them is here (only when it changed).
+func _push_groups() -> void:
+	if not _server_active():
+		return
+	var here := {}
+	for row in local_players():
+		here[str(row["name"]).to_lower()] = int(row["peer"])
+	var where := {}
+	for zone in _world:
+		for row in _world[zone]:
+			where[str(row.get("name", "")).to_lower()] = zone
+	for name_lower in here:
+		var peer: int = here[name_lower]
+		var g := _group_of(name_lower)
+		var state := {"members": [], "local": [], "remote": []}
+		if not g.is_empty():
+			for m in groups[g]["members"]:
+				var ml := str(m).to_lower()
+				state["members"].append(str(m))
+				if here.has(ml):
+					state["local"].append(here[ml])
+				else:
+					state["remote"].append({"name": str(m), "zone": ZoneInfo.name_for(str(where.get(ml, ""))) if where.has(ml) else "offline"})
+		var text := JSON.stringify(state)
+		if _pushed.get(peer, "") == text:
+			continue
+		_pushed[peer] = text
+		if multiplayer.get_peers().has(peer):
+			_rpc_group_state.rpc_id(peer, state["members"], state["local"], JSON.stringify(state["remote"]))
+
+
+# A real logout (not a zone change) leaves the group.
+func player_left_world(player_name: String) -> void:
+	if _server_active():
+		_group_change({"t": "group_leave", "by": player_name})
+
+
+func share_notice(text: String) -> void:
+	if not _server_active():
+		return
+	var msg := {"t": "notice", "text": text, "from": ZoneInfo.current_id()}
+	if is_hub():
+		for p in _peers:
+			_write(p["tcp"], msg)
+	else:
+		_send_up(msg)
+
+
+func _deliver_party(msg: Dictionary) -> void:
+	var members: Array = (msg.get("members", []) as Array).map(func(m): return str(m).to_lower())
+	var from := str(msg.get("from", ""))
+	for row in local_players():
+		var n := str(row["name"])
+		if members.has(n.to_lower()) and n != from and multiplayer.get_peers().has(int(row["peer"])):
+			Net._rpc_receive_party_message.rpc_id(int(row["peer"]), from, str(msg.get("message", "")))
+
+
+# Client: the group changed on this machine (someone joined, was removed, the group disbanded).
+func request_group_set(member_names: Array) -> void:
+	_rpc_group_set.rpc_id(1, member_names)
+
+
+func request_party(encoded: String) -> void:
+	_rpc_party.rpc_id(1, encoded)
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func _rpc_group_set(member_names: Array) -> void:
+	if not multiplayer.is_server():
+		return
+	var node := TargetFrame.peer_id_to_player_node(multiplayer.get_remote_sender_id())
+	if not is_instance_valid(node):
+		return
+	var names: Array = member_names.slice(0, 6).map(func(m): return str(m).substr(0, 32))
+	_group_change({"t": "group_set", "by": str(node.get("player_name")), "members": names})
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func _rpc_party(message: String) -> void:
+	if not multiplayer.is_server():
+		return
+	var node := TargetFrame.peer_id_to_player_node(multiplayer.get_remote_sender_id())
+	if not is_instance_valid(node):
+		return
+	var from := str(node.get("player_name"))
+	var g := _group_of(from)
+	if g.is_empty():
+		return
+	var msg := {"t": "party", "from": from, "message": message.substr(0, 600), "members": groups[g]["members"]}
+	_deliver_party(msg)
+	if is_hub():
+		for p in _peers:
+			_write(p["tcp"], msg)
+	else:
+		_send_up(msg)
+
+
+@rpc("authority", "call_remote", "reliable")
+func _rpc_group_state(members: Array, local_peers: Array, remote_json: String) -> void:
+	var me := TargetFrame.local_player()
+	if not is_instance_valid(me):
+		return
+	var parsed = JSON.parse_string(remote_json)
+	me.apply_group_state(members, local_peers, parsed if parsed is Array else [])

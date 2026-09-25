@@ -1,12 +1,12 @@
 ALDENEXIA: LIGHTFALL — TESTING CHECKLIST
 New features and fixes waiting for a real playtest, in two parts: OUTSTANDING (not passed yet) and COMPLETED (passed).
 When an item passes, change [ ] to [x] and move it to the same section under COMPLETED (or just add "- working" and it
-gets moved). A failure goes to outstanding_items.txt with what went wrong. Last updated 2026-09-25 (test 35 Tenchijin).
-Everything below was built after test 26.   Outstanding: 203   Completed: 25
+gets moved). A failure goes to outstanding_items.txt with what went wrong. Last updated 2026-09-25 (test 38).
+Everything below was built after test 26.   Outstanding: 217   Completed: 25
 
 
 ################################################################################
-  OUTSTANDING — still to test (203)
+  OUTSTANDING — still to test (217)
 ################################################################################
 
 == ACCOUNTS AND JOINING ==
@@ -262,6 +262,32 @@ Everything below was built after test 26.   Outstanding: 203   Completed: 25
 [ ] New ailments show on the status window with a description and are removed by a cure: weakening venom (sandstinger),
     sundered armour (ravager), blinded (Djhanid), grave miasma (restless corpse), withering touch (wraith).
 [ ] Two players: one zones, the other stays; both keep playing (chat across zones doesn't work yet).
+
+== NEW ART (2026-09-25) ==
+[ ] Get each ailment (poison from a sandstinger, blinded by a Djhanid, a burn, a chill, ...): its new icon shows on the
+    status window. Warmth of the Campfire shows the campfire icon; Kenji's blessing the grey cat.
+[ ] Dustwind: the Warning Sign greets you at the zone-in; the Stone Circles, the Watchtower (with its foundation), the
+    Bleached Banners, the Nomad Camp (tents), the Destroyed Caravan, and a tent and banner at each Dustwalker camp stand
+    on the ground where the map puts them (use /location). Ashfall: tents at the Vendor Camp, the Djhanid Encampment.
+[ ] Walk north out of the Outskirts' town into Lumora: the city walls carry straight on either side of you, as if
+    there were no zone line; walk back and they meet the Outskirts' walls. You can't walk through the wall.
+[ ] Dustwind / Ashfall scenery is solid (tents, caravans, the watchtower); monsters walk round it.
+[ ] An Arcanist can find the Dustwind Spire at (-211, 391), attune it (right-click) and Spectral Bridge back to it.
+[ ] Visit a travel site (Arcanist Spire, Wildspeaker Ruins, Chaosborn Rift): the new model stands on the ground, not
+    black, faintly glowing; the name label floats above it.
+
+== TEST 38 FIXES (2026-09-25) ==
+[ ] Target another player (or a pet) and hail (H): you say "Hail, <name>!".
+[ ] Walk to the far north of the Outskirts' town (inside the gate): a zone line takes you to Lumora, facing into it;
+    walk back south through Lumora's line to return. You can't walk past the Outskirts' north wall anywhere else.
+[ ] Group up, then one of you zones: both group frames keep the other ("Name (Zone)" without bars); /party works
+    both ways; zone back and the bars return. Log one out: they leave the other's group.
+[ ] /announce as a GM: heard in every zone.
+[ ] /gm enable, then zone: still a GM on arrival (no need to enable again). /gm disable, zone: not a GM.
+[ ] A buff someone else cast on you: the tooltip ends with "Caster: <their name>". Your own buffs don't.
+[ ] Rain in Lumora, Dustwind and Ashfall (/weather rain as host or GM).
+[ ] Two players on the same spot (log in together, or walk into each other): you pass through each other; nobody is
+    lifted onto a head, and when one zones or gates the other stays where they were.
 
 == TEST 37 FIXES (2026-09-25) ==
 [ ] Get diseased or poisoned: each tick shows "You have taken N points of damage from Disease." in the log.
