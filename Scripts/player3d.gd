@@ -308,6 +308,14 @@ func _unhandled_input(event: InputEvent) -> void:
 			match slot.get("type", ""):
 				"spell": cast_spell(slot["name"])
 				"skill": use_skill(slot["name"])
+				"macro": run_macro(str(slot["name"]))
+
+
+# Runs one of your macros (macros.gd) — through the chat window, which knows every chat command.
+func run_macro(ref: String) -> void:
+	var win := get_tree().get_first_node_in_group("game_log_window")
+	if win != null:
+		win.run_macro(ref)
 
 
 # Shows or hides the compass HUD (needs the Compass item). Also /compass.
@@ -6765,6 +6773,15 @@ func toggle_abilities_book() -> void:
 		get_tree().root.add_child(abilities_book_instance)
 		if abilities_book_instance.has_method("set_player"):
 			abilities_book_instance.set_player(self)
+
+
+# /macro: opens the abilities book on one tab (or brings it to that tab if it is open).
+func toggle_abilities_book_tab(tab_name: String) -> void:
+	if not is_instance_valid(abilities_book_instance):
+		abilities_book_instance = null
+		toggle_abilities_book()
+	if abilities_book_instance != null and abilities_book_instance.has_method("show_tab"):
+		abilities_book_instance.show_tab(tab_name)
 
 
 func toggle_backpack() -> void:

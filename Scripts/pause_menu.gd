@@ -264,7 +264,11 @@ const CHAT_COMMANDS := [
 	["/pet", "Pet the cat you are targeting, or the nearest one"],
 	["/language [name]", "List your languages and skill, or switch the language you speak (also the dropdown by the chat box)"],
 	["/surname [Name]", "From level 10, choose your last name (once); with no name, shows yours"],
-	["/stuck", "Trapped in the scenery? Moves you 5 m to a clear spot nearby (not in a fight; once every 30 s)"],
+	["/stuck", "Trapped in the scenery? Moves you 5 m to a clear spot nearby (not in a fight; once every 30 s)"],	["/cast <spell>", "Cast a spell you know by name (the start of the name is enough: /cast fire)"],
+	["/target <name>", "Target the nearest living thing whose name starts with that"],
+	["/macro", "Open the Macros tab (abilities book): up to 5 chat lines on one action-bar button; %t = your target"],
+	["/pause <seconds>", "Inside a macro only: wait before the next line (up to 10 s)"],
+	["/g [message]", "Same as /party (EverQuest's group chat); /gsay too"],
 ]
 
 

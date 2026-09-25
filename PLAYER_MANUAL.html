@@ -189,7 +189,7 @@
   <header>
     <div class="eyebrow">Aldenexia: Lightfall · Player's Manual</div>
     <h1>A traveller's guide to Aldenexia</h1>
-    <p class="lede">Everything you need to play: the world and its trouble, how the game works, every race and class with its full spell list, crafting from the first tin ingot up, and a field guide to Lumora Outskirts, where every adventure starts. This manual describes build 77506fa; the game is in testing, so some things will change.</p>
+    <p class="lede">Everything you need to play: the world and its trouble, how the game works, every race and class with its full spell list, crafting from the first tin ingot up, and a field guide to Lumora Outskirts, where every adventure starts. This manual describes build d146a61; the game is in testing, so some things will change.</p>
   </header>
 
   <nav class="toc" aria-labelledby="toc-h">
@@ -290,6 +290,10 @@
       <div>
         <h3>Groups</h3>
         <p>Type <code>/invite name</code> to group up (up to six), <code>/party</code> to talk to the group and <kbd>F1</kbd>–<kbd>F6</kbd> to target a member. Group heals reach everyone nearby, and tank stances boost group members within 10 m.</p>
+      </div>
+      <div>
+        <h3>Macros</h3>
+        <p>Open the abilities book (<kbd>K</kbd>) on its Macros tab, or type <code>/macro</code>. A macro is up to five chat lines on one action-bar button, run top to bottom: <code>/g Rooting %t, don't break it!</code> then <code>/cast Entangling Roots</code>. <code>%t</code> is your target's name, <code>%T</code> adds its level and health, <code>%s</code> is you; <code>/pause 2</code> waits two seconds. If a <code>/cast</code> fails, the macro stops there, so nobody is told about a spell that never happened. Each character has 24 macros, and the Shared page holds 24 more that every character on your account can use.</p>
       </div>
       <div>
         <h3>Trading and the bank</h3>
@@ -1111,10 +1115,15 @@
             <tr><td><code>/language [name]</code></td><td>List your languages and skill, or switch the language you speak (also the dropdown by the chat box)</td></tr>
             <tr><td><code>/surname [Name]</code></td><td>From level 10, choose your last name (once); with no name, shows yours</td></tr>
             <tr><td><code>/stuck</code></td><td>Trapped in the scenery? Moves you 5 m to a clear spot nearby (not in a fight; once every 30 s)</td></tr>
+            <tr><td><code>/cast &lt;spell&gt;</code></td><td>Cast a spell you know by name (the start of the name is enough: /cast fire)</td></tr>
+            <tr><td><code>/target &lt;name&gt;</code></td><td>Target the nearest living thing whose name starts with that</td></tr>
+            <tr><td><code>/macro</code></td><td>Open the Macros tab (abilities book): up to 5 chat lines on one action-bar button; %t = your target</td></tr>
+            <tr><td><code>/pause &lt;seconds&gt;</code></td><td>Inside a macro only: wait before the next line (up to 10 s)</td></tr>
+            <tr><td><code>/g [message]</code></td><td>Same as /party (EverQuest's group chat); /gsay too</td></tr>
           </table>
         </div>
       </div>
   </section>
 
-  <footer>Aldenexia: Lightfall Player's Manual · build 77506fa · made 2026-09-24 from the game's own data. Spells, recipes, monsters and levels here are read straight from the game files, so they match the build named above.</footer>
+  <footer>Aldenexia: Lightfall Player's Manual · build d146a61 · made 2026-09-24 from the game's own data. Spells, recipes, monsters and levels here are read straight from the game files, so they match the build named above.</footer>
 </div>

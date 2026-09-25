@@ -44,6 +44,7 @@ var _combat_window_resizing := false
 
 
 func _ready() -> void:
+	add_to_group("game_log_window")   # macros (action bar, hotkeys) run their lines through run_macro()
 	GameLog.message_categorized.connect(_on_message)
 	GameLog.combat_message.connect(_on_combat)
 	GameLog.autoattack_changed.connect(_on_autoattack_changed)
@@ -615,7 +616,7 @@ func _on_chat_input_gui_input(event: InputEvent) -> void:
 # and "/location" both resolve to "/location" since no other command starts
 # with "loc"; "/f" would be ambiguous if two commands both started with "f".
 const GMCommandsScript := preload("res://Scripts/gm_commands.gd")
-const COMMANDS := ["/location", "/hail", "/appraise", "/time", "/follow", "/camp", "/exit", "/log", "/invite", "/disband", "/say", "/tell", "/party", "/zone", "/played", "/resetui", "/who", "/weather", "/pet", "/quests", "/compass", "/raid", "/gm", "/focus", "/assist", "/announce", "/maintenance", "/trade", "/ban", "/unban", "/bans", "/language", "/surname", "/stuck"]
+const COMMANDS := ["/location", "/hail", "/appraise", "/time", "/follow", "/camp", "/exit", "/log", "/invite", "/disband", "/say", "/tell", "/party", "/zone", "/played", "/resetui", "/who", "/weather", "/pet", "/quests", "/compass", "/raid", "/gm", "/focus", "/assist", "/announce", "/maintenance", "/trade", "/ban", "/unban", "/bans", "/language", "/surname", "/stuck", "/cast", "/target", "/pause", "/macro"]
 
 
 # /surname            what yours is
@@ -640,16 +641,29 @@ func _surname_command(arg: String) -> void:
 			GMCommandsScript.request(player, "surname", arg, get_tree())
 
 
-func _handle_slash_command(text: String) -> void:
+# Returns false only when the command plainly failed in a way a macro should stop for (a /cast that didn't start).
+func _handle_slash_command(text: String) -> bool:
 	var parts := text.split(" ", false)
 	var typed_cmd := parts[0].to_lower()
 	var arg := text.substr(parts[0].length()).strip_edges()
 
 	var cmd := _resolve_command(typed_cmd)
 	if cmd.is_empty():
-		return  # _resolve_command already logged unknown/ambiguous
+		return false  # _resolve_command already logged unknown/ambiguous
 
 	match cmd:
+		"/cast":
+			if arg.is_empty():
+				GameLog.log_general("Usage: /cast <spell name> (the start of the name is enough)")
+				return false
+			var spell_key := Macros.resolve_spell(arg, player)
+			return not spell_key.is_empty() and player.cast_spell(spell_key)
+		"/target":
+			return _target_command(arg)
+		"/pause":
+			GameLog.log_general("/pause <seconds> only works inside a macro.")
+		"/macro":
+			player.toggle_abilities_book_tab("Macros")
 		"/who":
 			WorldAnnouncer.print_who(player)
 		"/pet":
@@ -740,6 +754,74 @@ func _handle_slash_command(text: String) -> void:
 				hour12 = 12
 			var ampm := "AM" if d.hour < 12 else "PM"
 			GameLog.log_general("[color=green]Real time: %d:%02d %s[/color]" % [hour12, d.minute, ampm])
+	return true
+
+
+# /target <name>: the nearest living monster, NPC, player or pet whose name starts with it ("/target rat", "/target Grep").
+func _target_command(arg: String) -> bool:
+	var want := arg.strip_edges().to_lower()
+	if want.is_empty():
+		GameLog.log_general("Usage: /target <name> (the start of the name is enough)")
+		return false
+	var best: Node3D = null
+	var best_d := INF
+	for group in ["monsters", "npc_guard", "npc_vendor", "player", "pets"]:
+		for node in get_tree().get_nodes_in_group(group):
+			if not (node is Node3D) or not player._is_targetable_alive(node):
+				continue
+			var shown := TargetFrame.display_name(node).to_lower()
+			if not (shown.begins_with(want) or shown.contains(" " + want)):
+				continue
+			var d: float = player.global_position.distance_to(node.global_position)
+			if d < best_d and d <= 200.0:
+				best = node
+				best_d = d
+	if best == null:
+		GameLog.log_general("[color=red]You don't see '%s' nearby.[/color]" % arg.strip_edges())
+		return false
+	player.current_target = best
+	player._announce_target(best)
+	return true
+
+
+# ── Macros (macros.gd) ────────────────────────────────────────────────────────
+
+var _macro_running := false
+
+
+# Runs a macro's lines top to bottom (ref "c3" / "s3"). Pressing it again while it runs does nothing.
+func run_macro(ref: String) -> void:
+	var macro := Macros.get_macro(ref)
+	if macro.is_empty() or Macros.is_empty_macro(macro) or not is_instance_valid(player):
+		return
+	if _macro_running:
+		GameLog.log_general("[color=#cccccc]A macro is already running.[/color]")
+		return
+	_macro_running = true
+	for raw in macro.get("lines", []):
+		var line := str(raw).strip_edges()
+		if line.is_empty():
+			continue
+		if line.to_lower().begins_with("/pause"):
+			var secs := Macros.pause_seconds(line.substr(6))
+			if secs < 0.0:
+				GameLog.log_general("[color=red]Macro %s: /pause needs a number of seconds.[/color]" % Macros.label(macro))
+				break
+			await get_tree().create_timer(secs).timeout
+			if not is_instance_valid(player):
+				break
+			continue
+		if not run_macro_line(Macros.substitute(line, player)):
+			break
+	_macro_running = false
+
+
+# One line as if typed into the chat box (a plain line goes to the current chat channel). False = stop the macro.
+func run_macro_line(text: String) -> bool:
+	if text.begins_with("/"):
+		return _handle_slash_command(text)
+	_send_on_channel(_channel, text)
+	return true
 
 
 # 15-second channel shared by /camp, /exit, and the pause menu's "Save and
@@ -832,7 +914,9 @@ func _save_and_quit() -> void:
 # tab-complete unique abbreviations. Logs "Unknown"/"Ambiguous" itself and
 # returns "" in either failure case, so callers can just bail on empty.
 # Short forms that must keep working when a new command shares their first letters (/s was /say before /surname existed).
-const COMMAND_ALIASES := {"/s": "/say"}
+# /g and /gsay are EverQuest's group chat (without them /g meant /gm); /pa and /ca kept their old meaning when /pause and
+# /cast arrived.
+const COMMAND_ALIASES := {"/s": "/say", "/g": "/party", "/gsay": "/party", "/pa": "/party", "/ca": "/camp"}
 
 
 func _resolve_command(typed: String) -> String:

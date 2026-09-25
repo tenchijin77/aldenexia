@@ -77,6 +77,19 @@ func owner_of(character: String) -> String:
 	return str(_owner_of.get(character, ""))
 
 
+# Shared macros (macros.gd): the account's own list, which every character on it sees.
+func shared_macros(account: String) -> Array:
+	return Macros.sanitize(_read_account(account).get("shared_macros", []), Macros.SHARED_SLOTS)
+
+
+func set_shared_macros(account: String, list: Array) -> bool:
+	var data := _read_account(account)
+	if data.is_empty():
+		return false
+	data["shared_macros"] = Macros.sanitize(list, Macros.SHARED_SLOTS)
+	return _write_account(account, data)
+
+
 func _account_path(account: String) -> String:
 	return "%s/%s_%s.json" % [ACCOUNT_DIR, Net.server_name, account]
 

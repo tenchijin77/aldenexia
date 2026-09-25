@@ -28,6 +28,24 @@ an item (delete it, note it in change_log.txt) when it's done. Last updated 2026
   but NOT for recipe minimums or skill-ups (else a Dwarf could forge Bronze Longswords at level 1). Confirm or change.
 
 
+== ZONES AND DUSTWIND PLATEAUS (decided 2026-09-24, not built) ==
+- Architecture (decided): ONE VM, one small always-on coordinator (login + character select + cross-zone relay) that
+  starts a zone server process (same build, --zone=<id>) when a player needs that zone and stops it after ~10 min empty.
+  Not one process for all zones (Godot game logic is one thread per process; one crash would take every zone down).
+  Measured: a headless Lumora zone is ready ~3-7 s after launch, ~265 MB RAM.
+- Zone lines EverQuest-style. Outskirts -> Dustwind line at the south of the Outskirts: mountains with a gap in the middle.
+- Outskirts was originally the top band of the sketch; the vendor camp, the Dustwalker camps and the Djhanid encampment
+  move to Dustwind; the mausoleum (a haunted tomb) stays in the Outskirts. Goblins on Dustwind's top tier (main goblin
+  encampment there or in the next zone). Monster levels 1-4 in the Outskirts. Djhanid faction yes; Sahren yes.
+  Dustwind's tier layout is still undecided.
+- Macros BUILT 2026-09-24 (see change_log). Not built: /stance <name>, /pet attack|back (pet commands as text), macro
+  pages beyond 24+24, and live refresh of shared macros for a second character already online on the same account
+  (it sees an edit at its next login).
+- LAN hosting / single-player: KEEP for now, revisit later (user, 2026-09-24). Recommendation on file: remove them (one
+  code path, server trust for everyone, test locally with the headless server; offer a one-time import of local solo
+  characters). Until then zoning is dedicated-server only; solo/LAN stay single-zone.
+- Ports for zones: UDP 8910 (login/coordinator), UDP 8920-9019 (zone servers), TCP 8911 (updates) — sent to the user.
+
 == LANGUAGES (built 2026-09-23; see change_log.txt) — still open ==
 - NPC languages: every NPC but Sahren (Common + Djhanid) speaks only Common today — faction towns will use the fields.
 - High Arcanum (work in progress): the scroll item exists but nothing gives it yet (future: higher arcanists, quest rewards, relics); no

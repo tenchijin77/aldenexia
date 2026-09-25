@@ -1,4 +1,4 @@
-# action_bar.gd — Bottom-center HUD bar showing ability slots (spells + skills)
+# action_bar.gd — Bottom-center HUD bar showing ability slots (spells, skills and macros — macros.gd)
 # Arranging: drag an ability from the Abilities Book onto a slot to place it; drag a slot onto another slot to MOVE it (if the other slot
 # has something, the two swap); drag a slot off the bar (drop it anywhere that is not a slot) to REMOVE it. A slot fires on mouse-RELEASE,
 # so picking one up to drag it does not cast it.
@@ -25,6 +25,7 @@ class ActionSlot extends Panel:
 			bar._on_any_drag_end(get_viewport().gui_is_drag_successful())
 
 
+const MacroPanelScript := preload("res://Scripts/macro_panel.gd")
 const SLOT_COUNT  := 12
 const SLOT_SIZE   := 62
 const SLOT_GAP    := 4
@@ -39,6 +40,7 @@ var _drag_from := -1   # the slot being dragged right now (-1: none, or the drag
 
 func _ready() -> void:
 	layer = 4
+	add_to_group("action_bar")   # the macro editor redraws macro slots after a save (refresh_macros())
 	_build_ui()
 
 
@@ -230,6 +232,7 @@ func _activate_slot(idx: int) -> void:
 	match atype:
 		"spell": _player.cast_spell(aname)
 		"skill": _player.use_skill(aname)
+		"macro": _player.run_macro(aname)
 
 
 func _on_slot_drop(idx: int, data: Dictionary) -> void:
@@ -276,7 +279,7 @@ func _begin_slot_drag(idx: int, slot: Control) -> Variant:
 		slot.set_drag_preview(preview)
 	else:
 		var label := Label.new()
-		label.text = Player3D.spell_display_name(aname)
+		label.text = Macros.label(Macros.get_macro(aname)) if atype == "macro" else Player3D.spell_display_name(aname)
 		label.add_theme_font_size_override("font_size", 12)
 		slot.set_drag_preview(label)
 	return {"type": atype, "name": aname, "from_slot": idx}
@@ -313,7 +316,7 @@ func _update_slot_display(i: int) -> void:
 		bg.border_color   = Color(0.35, 0.35, 0.45)
 		return
 
-	var display := Player3D.spell_display_name(aname)
+	var display := Macros.label(Macros.get_macro(aname)) if atype == "macro" else Player3D.spell_display_name(aname)
 	if display.length() > 12:
 		var parts := display.split(" ", true, 1)
 		display = "\n".join(parts)
@@ -332,7 +335,22 @@ func _update_slot_display(i: int) -> void:
 			icon_rect.visible = true
 			name_lbl.text = ""
 
+	if atype == "macro":
+		var macro := Macros.get_macro(aname)
+		slot_panel.tooltip_text = MacroPanelScript.tooltip(macro)
+		var spell_db: Dictionary = _player.get("_spell_by_name") if is_instance_valid(_player) and "_spell_by_name" in _player else {}
+		var key := Macros.icon_spell(macro, _player)
+		_macro_spell[i] = key
+		var tex := SpellInfo.icon_texture(spell_db.get(key, {})) if not key.is_empty() else null
+		if tex != null:
+			icon_rect.texture = tex
+			icon_rect.visible = true
+			name_lbl.text = ""
+
 	match atype:
+		"macro":
+			type_lbl.text   = "M"
+			bg.border_color = Color(0.5, 0.35, 0.65)    # purple — macro
 		"spell":
 			type_lbl.text   = "S"
 			bg.border_color = Color(0.55, 0.45, 0.25)   # gold — spell
@@ -360,12 +378,26 @@ func _process(_delta: float) -> void:
 		var aname: String  = _slots[i]["ability"]
 		if aname.is_empty():
 			continue
-		var cd: float = spell_cds.get(aname, 0.0) if atype == "spell" else skill_cds.get(aname, 0.0)
+		var cd: float
+		match atype:
+			"spell": cd = spell_cds.get(aname, 0.0)
+			"macro": cd = spell_cds.get(_macro_spell.get(i, ""), 0.0)   # a macro shows its icon spell's recast
+			_: cd = skill_cds.get(aname, 0.0)
 		var on_cd := cd > 0.01
 		_slots[i]["cd_overlay"].visible = on_cd
 		_slots[i]["cd_lbl"].visible     = on_cd
 		if on_cd:
 			_slots[i]["cd_lbl"].text = "%.1f" % cd
+
+
+# Macro slots after a macro was edited: new names/icons, and the spell whose recast they show.
+func refresh_macros() -> void:
+	for i in range(SLOT_COUNT):
+		if _slots[i]["type"] == "macro":
+			_update_slot_display(i)
+
+
+var _macro_spell: Dictionary = {}   # slot index -> the spell key a macro slot shows the recast of
 
 
 func _refresh_slots() -> void:

@@ -59,6 +59,12 @@ candidates instead of guessing; a typo that matches nothing prints "Unknown comm
   is fine); with no name, shows yours. Shown on nameplates, the target frame and /who. `/s` still means /say.
 - `/stuck` (added 2026-09-24, test 33) — moves you 5 m in a random direction to a spot with floor and room to stand
   (tries 16 directions); not in a fight, once every 30 s.
+- Macros (added 2026-09-24): `/macro` opens the abilities book's Macros tab — 24 macros per character plus 24 shared
+  by every character on the account; each is a name, an icon (a spell's) and up to 5 chat lines, dragged to the action
+  bar (badge "M"). `/cast <spell>` casts a known spell by name or unique prefix (works in chat too), `/target <name>`
+  targets the nearest living match, `/pause <seconds>` (macro only, max 10) waits. %t = target's name, %T = name, level
+  and health, %s = your name. A failed /cast stops the macro; pressing it while it runs does nothing.
+  `/g` and `/gsay` now mean /party (before, /g ran /gm); `/pa` stays /party and `/ca` stays /camp.
 
 ### Movement
 - `W` / `Up` — move forward
@@ -2042,6 +2048,24 @@ GATE RAIDS (`Scripts/gate_raid_manager.gd`, `Data/gate_raids.json`, node "GateRa
   and logged four anomalies; the report read the log. (That run found the XP-margin and per-save allowances loophole,
   fixed above.) Net's RPC list unchanged.
 
+
+### Macros, account-shared macros (2026-09-24)
+- MACROS (new Scripts/macros.gd, Scripts/macro_panel.gd): EverQuest-style. Abilities book (K) has a new Macros tab
+  (/macro opens it): 24 macros for this character, and a "Shared (account)" page of 24 every character on the account
+  sees. A macro = name, icon (any spell you know; "Automatic" uses the first /cast line's spell), up to 5 lines. Click
+  a button to edit, Save / Clear / Try it; drag it to the action bar (purple border, "M" badge, shows its spell's recast;
+  hotkeys 1-= run it). Lines run through the chat box, so any chat command works; new /cast <spell> (also in chat),
+  /target <name>, /pause <seconds>. %t / %T / %s. A /cast that fails stops the macro (the group isn't told about a
+  spell that never went off); pressing a running macro does nothing.
+- Aliases: /g and /gsay = /party (before, /g ran /gm!), /pa = /party, /ca = /camp (kept when /pause and /cast arrived).
+- SHARED MACROS ON THE SERVER: stored in the ACCOUNT file (server_accounts/<server>_<account>.json "shared_macros"). At
+  login net.gd appends the account's list to the character text sent to the client (text append, no new RPC, no
+  re-stringify); a save whose list differs from what THAT character last had is filed into the account (so a second
+  character online with an older copy can't overwrite it). A character with no account keeps them in its own save;
+  single-player/LAN keeps them in user://shared_macros.json. Lists are cleaned on the server (24 x 5 lines x 120 chars).
+- Net RPC list unchanged (no new base needed). Tests: tools/tests/test_macros.gd (46 checks); suite 1,481 checks pass.
+  Verified end to end with a local server and a bot: account created, character created on it, shared macro saved ->
+  in the account file -> back on the next login; the character macro stays with the character.
 ### Test 34: Shonuff (Aetherfist), Zozuur (Voidknight), build 77506fa (2026-09-24)
 - /stuck freed him; perception at the gate and the tower spires worked; Common rose talking to guards.
 - /STUCK LEFT THE PET BEHIND: the pet is now recalled to you (recall_to_owner(), or placed beside you).

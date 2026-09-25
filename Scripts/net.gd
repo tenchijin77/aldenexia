@@ -792,6 +792,7 @@ const AUDIT_LOG := "user://logs/connections.log"
 const TELEMETRY_LOG := "user://logs/telemetry.jsonl"
 var _kill_xp := {}        # character key -> XP the server awarded for kills since that character's last save
 var _last_save_at := {}   # character key -> unix time of its last save (or login)
+var _shared_macros_seen := {}   # character key -> JSON of the account's shared macros that character last had (login/save)
 var _coin_bucket := {}    # character key -> copper it may still gain (ServerTrust coin allowance)
 var _trust_data := {}     # cached game data for ServerTrust
 
@@ -1203,6 +1204,7 @@ func _rpc_login(character_name: String, password: String, creation_json: String)
 	_kill_xp.erase(key)
 	_coin_bucket[key] = float(ServerTrust.COIN_BASE)
 	_telemetry({"event": "login", "character": key.trim_prefix(server_name + "_")})
+	json_text = _with_shared_macros(key, json_text)
 	get_tree().call_group("net_synchronizers", "update_visibility", id)  # the world now replicates to them (see _peer_in_world)
 	var notes := PackedStringArray()
 	if not account.is_empty():
@@ -1387,8 +1389,46 @@ func _rpc_save_character(json_text: String) -> void:
 			_telemetry(d)
 	_kill_xp.erase(key)
 	_last_save_at[key] = now
+	_file_shared_macros(key, player, result["data"])
 	if _write_character(key, json_text):
 		_rpc_save_acknowledged.rpc_id(id)
+
+
+# Shared macros (macros.gd) belong to the account, not the character: at login the account's list goes to the client
+# inside the character text (appended last, so it wins over any old copy in the file — no new RPC), and a save whose
+# list differs from what that character last had is filed back into the account. Comparing with what THAT character
+# last had means a second character online on the same account with an older copy never overwrites a newer edit.
+# A character with no account keeps its "shared" macros in its own save.
+func _with_shared_macros(key: String, json_text: String) -> String:
+	var account := accounts().owner_of(key.trim_prefix(server_name + "_"))
+	if account.is_empty():
+		return json_text
+	var list_json := JSON.stringify(accounts().shared_macros(account))
+	_shared_macros_seen[key] = list_json
+	return append_json_key(json_text, "shared_macros", list_json)
+
+
+# A JSON object's text with one more key at the end (a parser keeps the LAST of a repeated key, so this also overrides).
+# Text, not parse + stringify: that would turn permanent buffs' 1e99999 durations into finite numbers.
+static func append_json_key(json_text: String, key: String, value_json: String) -> String:
+	var end := json_text.rfind("}")
+	if end < 0:
+		return json_text
+	var head := json_text.left(end).strip_edges()
+	return head + ("" if head.ends_with("{") else ",") + "\n\t\"%s\": %s\n}" % [key, value_json]
+
+
+func _file_shared_macros(key: String, player: String, data: Dictionary) -> void:
+	var account := accounts().owner_of(player)
+	if account.is_empty() or not data.has("shared_macros"):
+		return
+	var list := Macros.sanitize(data["shared_macros"], Macros.SHARED_SLOTS)
+	var list_json := JSON.stringify(list)
+	if list_json == str(_shared_macros_seen.get(key, "")):
+		return
+	if accounts().set_shared_macros(account, list):
+		_shared_macros_seen[key] = list_json
+		_slog("%s saved their account's shared macros (account %s)." % [_display_name(player), account])
 
 
 # Client side. Global.save_player_data_to_file() lands here in remote_character_mode; several

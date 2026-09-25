@@ -1,12 +1,12 @@
 ALDENEXIA: LIGHTFALL — TESTING CHECKLIST
 New features and fixes waiting for a real playtest, in two parts: OUTSTANDING (not passed yet) and COMPLETED (passed).
 When an item passes, change [ ] to [x] and move it to the same section under COMPLETED (or just add "- working" and it
-gets moved). A failure goes to outstanding_items.txt with what went wrong. Last updated 2026-09-24 (test 34).
-Everything below was built after test 26.   Outstanding: 122   Completed: 24
+gets moved). A failure goes to outstanding_items.txt with what went wrong. Last updated 2026-09-24 (test 34, then macros).
+Everything below was built after test 26.   Outstanding: 130   Completed: 24
 
 
 ################################################################################
-  OUTSTANDING — still to test (122)
+  OUTSTANDING — still to test (130)
 ################################################################################
 
 == ACCOUNTS AND JOINING ==
@@ -228,6 +228,17 @@ Everything below was built after test 26.   Outstanding: 122   Completed: 24
 [ ] Play normally for an hour (kill, loot, sell, quest, level up, learn a language point): nothing you earned is lost
     after logging out and back in. Then: grep TRUST in the server's godot log — it should be empty for honest play.
 [ ] python3 tools/telemetry_report.py shows your session: XP/h by class, kills, time to each level, deaths and causes.
+
+== MACROS (2026-09-24) ==
+[ ] K > Macros tab (or /macro): make a macro "/g Pulling %t" + "/cast <a spell of yours>"; the button shows that spell's icon.
+[ ] Drag it to the action bar: purple border, "M", its spell's recast shows; clicking it or its number key runs it —
+    the group sees "Pulling <target name>" and the spell casts.
+[ ] With no mana (or the spell recharging) the macro stops: the group is NOT told.
+[ ] /pause 2 between two lines waits 2 seconds; pressing the macro again meanwhile does nothing.
+[ ] /cast <spell name> typed in chat works (the start of the name is enough); /target rat targets the nearest rat.
+[ ] /g hello goes to the group (it used to try /gm).
+[ ] Shared (account) page: make a macro, log out, log in a DIFFERENT character on the same account — it's there.
+[ ] Macros survive camping and logging back in.
 
 ################################################################################
   COMPLETED — passed (24)

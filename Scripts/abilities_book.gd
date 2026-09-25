@@ -1,4 +1,4 @@
-# abilities_book.gd — Two-tab ability window: Class Skills (spells) and General Skills
+# abilities_book.gd — The ability window: Class Skills (spells), General Skills and Macros (macro_panel.gd)
 extends CanvasLayer
 class_name AbilitiesBook
 
@@ -8,6 +8,7 @@ const WIN_W := 360
 const WIN_H := 440
 const ICON_SIZE := 40
 const POSITION_KEY := "abilities_book"
+const MacroPanelScript := preload("res://Scripts/macro_panel.gd")
 const RESIZE_MARGIN := 16.0
 const MIN_WIDTH := 300.0
 const MIN_HEIGHT := 260.0
@@ -104,6 +105,12 @@ func _build_ui() -> void:
 	gen_vbox.name = "GenVBox"
 	gen_scroll.add_child(gen_vbox)
 
+	# Macros tab (macro_panel.gd builds it once the player is known)
+	var macro_scroll := ScrollContainer.new()
+	macro_scroll.name = "Macros"
+	macro_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	tabs.add_child(macro_scroll)
+
 	title_bar.gui_input.connect(_on_title_gui_input.bind(panel))
 
 
@@ -144,6 +151,21 @@ func _populate() -> void:
 		return
 	_fill_class_skills()
 	_fill_general_skills()
+	var macro_scroll := get_node_or_null("BookPanel/Tabs/Macros")
+	if macro_scroll != null and macro_scroll.get_child_count() == 0:
+		var macros := MacroPanelScript.new()
+		macro_scroll.add_child(macros)
+		macros.setup(_player)
+
+
+# Brings a tab to the front by name ("Macros" for /macro).
+func show_tab(tab_name: String) -> void:
+	var tabs := get_node_or_null("BookPanel/Tabs") as TabContainer
+	if tabs == null:
+		return
+	for i in tabs.get_tab_count():
+		if tabs.get_tab_control(i).name == tab_name:
+			tabs.current_tab = i
 
 
 # ── Class Skills (spells) ─────────────────────────────────────────────────────
