@@ -108,11 +108,9 @@ func run() -> void:
 	w3.queue_free()
 
 	# Lumora's mirror
-	var mirrors: Array = JSON.parse_string(FileAccess.get_file_as_string("res://Data/world_objects.json"))["lumora_outskirts"].filter(func(o): return o.get("opens", "") == "mirror")
-	eq(mirrors.size(), 1, "Lumora has the mirror")
-	var mirror := WorldNote.new()
-	mirror.opens = "mirror"
-	mirror.show_mirror = true
+	check(FileAccess.get_file_as_string("res://Scenes/lumora_outskirts3d.tscn").contains("res://Scenes/silvered_mirror.tscn"), "Lumora has the mirror (a scene you can move in the editor)")
+	var mirror: WorldNote = load("res://Scenes/silvered_mirror.tscn").instantiate()
+	eq(mirror.opens, "mirror", "the mirror scene opens the appearance window")
 	add_child(mirror)
 	mirror.read(p)
 	await frames(2)

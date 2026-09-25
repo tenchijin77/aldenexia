@@ -1,0 +1,36 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://Scripts/world_note.gd" id="1_note"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_frame"]
+size = Vector3(0.9, 1.9, 0.12)
+
+[sub_resource type="StandardMaterial3D" id="Mat_wood"]
+albedo_color = Color(0.3, 0.2, 0.12, 1)
+
+[sub_resource type="QuadMesh" id="QuadMesh_glass"]
+size = Vector2(0.72, 1.7)
+
+[sub_resource type="StandardMaterial3D" id="Mat_silver"]
+albedo_color = Color(0.75, 0.78, 0.82, 1)
+metallic = 1.0
+roughness = 0.05
+
+[node name="SilveredMirror" type="Node3D"]
+script = ExtResource("1_note")
+title = "The Silvered Mirror"
+note_text = "A tall mirror in a dark wooden frame, its silver clear as still water."
+show_paper = false
+label_height = 2.2
+opens = "mirror"
+snap_to_ground = true
+
+[node name="Frame" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.95, 0)
+mesh = SubResource("BoxMesh_frame")
+surface_material_override/0 = SubResource("Mat_wood")
+
+[node name="Glass" type="MeshInstance3D" parent="."]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0.95, -0.065)
+mesh = SubResource("QuadMesh_glass")
+surface_material_override/0 = SubResource("Mat_silver")

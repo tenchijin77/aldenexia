@@ -37,4 +37,7 @@ func run() -> void:
 	var start: Vector3 = p.global_position
 	p.cmd_stuck()
 	check(absf(Vector2(p.global_position.x - start.x, p.global_position.z - start.z).length() - 5.0) < 0.1, "/stuck moves 5 m")
-	check(not (p.global_position.z < -1.5 and absf(p.global_position.x) < 10.5), "/stuck doesn't land inside the wall")
+	# The wall's face is at z -2: the player (a capsule of this radius) is in it only if its centre is closer than that.
+	# (This used -1.5, and a spot /stuck rightly found at z -1.52, clear of the wall, failed about 1 run in 3.)
+	var radius: float = (p.get_node("CollisionShape3D").shape as CapsuleShape3D).radius
+	check(not (p.global_position.z < -2.0 + radius - 0.02 and absf(p.global_position.x) < 10.0 + radius), "/stuck doesn't land inside the wall (at %s)" % str(p.global_position))

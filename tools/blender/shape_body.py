@@ -138,7 +138,13 @@ def morph(obj, kind):
             arms = _smooth(abs(r - 0.79) / 0.05) * _smooth(abs(ax - 0.24) / 0.16)     # shoulders and arms (T-pose)
             chest = _smooth(abs(r - 0.74) / 0.06) * (1.0 if ax < 0.14 else 0.0)
             amount = 0.04 * H * max(arms, chest * 0.7)   # (not the thighs: a tunic's hem ballooned)
-            moved[i] += n * amount * body
+            # not up into the neck, and little upward push on the shoulder tops: that shrugged the shoulders and
+            # shortened the neck, and read as the whole character growing (test 36)
+            neck = min(1.0, max(0.0, (0.76 - r) / 0.03)) if ax < 0.1 else 1.0
+            push = n * amount * body * neck
+            if push.z > 0.0:
+                push.z *= 0.3
+            moved[i] += push
             if r > 0.7 and ax < 0.14:
                 moved[i].x *= 1.0 + 0.08 * _smooth(abs(r - 0.8) / 0.08)             # broader shoulders
     _write(obj, pts, moved)

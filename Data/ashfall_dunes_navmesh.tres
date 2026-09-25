@@ -1,7 +1,7 @@
 [gd_resource type="NavigationMesh" format=3]
 
 [resource]
-vertices = PackedVector3Array(-511, 1, -511, -511, 1, 511, 511, 1, 511, 511, 1, -511)
+vertices = PackedVector3Array(-510, 1, -510, -510, 1, 511, 511, 1, 511, 511, 1, -510)
 polygons = [PackedInt32Array(3, 2, 0), PackedInt32Array(0, 2, 1)]
 geometry_parsed_geometry_type = 1
 cell_size = 1.0

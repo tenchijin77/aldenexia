@@ -240,7 +240,6 @@ The Pantheon map (Aldenexia_Pantheon_Reputation_Map_Updated.xlsx + Aldenexia Rep
   sculpt (zones/<zone>_terrain/). Dustwind: three tiers; the zone line from the Outskirts through the gap in the
   southern mountains; the goblins on the top tier; the Dustwind Spire hidden in its own area.
 - Terrain textures for rocky plateau / cliff / hardpan and for dunes / ash sand. Stand-in: Lumora's texture list.
-- Music: Dustwind Plateaus, Ashfall Dunes. Stand-in: "Sands of Lumora".
 - Ambient sound: desert wind with sand hiss (plateaus), a sandstorm loop (Zones Master: sandstorms). Stand-in: wind_loop.
 - Arcanist Spire model (the Dustwind Spire; reused for all 7 Arcanist sites). Stand-in: a tall slim blue shape.
 - Structures that move out of the Outskirts to Dustwind: the vendor camp, Dustwalker camps, the Djhanid encampment

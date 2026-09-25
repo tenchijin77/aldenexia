@@ -44,6 +44,7 @@
 [ext_resource type="Script" uid="uid://t6wjhuirmwsb" path="res://Scripts/world_note.gd" id="world_note_scr"]
 [ext_resource type="Script" uid="uid://c2olnatq3g6a5" path="res://Scripts/zone_boundary.gd" id="zone_boundary_scr"]
 [ext_resource type="Script" uid="uid://clm5l4nhm5j6k" path="res://Scripts/zone_line.gd" id="zone_line_scr"]
+[ext_resource type="PackedScene" path="res://Scenes/silvered_mirror.tscn" id="mirror_scn"]
 
 [sub_resource type="Gradient" id="Gradient_6a7en"]
 offsets = PackedFloat32Array(0.2, 1)
@@ -540,3 +541,6 @@ size = Vector3(250, 60, 8)
 [node name="ZoneBoundary" type="Node3D" parent="." unique_id=1646338612]
 script = ExtResource("zone_boundary_scr")
 limit_max_x = 133.0
+
+[node name="SilveredMirror" parent="." instance=ExtResource("mirror_scn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 66, 0, 20)

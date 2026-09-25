@@ -2,11 +2,11 @@ ALDENEXIA: LIGHTFALL — TESTING CHECKLIST
 New features and fixes waiting for a real playtest, in two parts: OUTSTANDING (not passed yet) and COMPLETED (passed).
 When an item passes, change [ ] to [x] and move it to the same section under COMPLETED (or just add "- working" and it
 gets moved). A failure goes to outstanding_items.txt with what went wrong. Last updated 2026-09-25 (test 35 Tenchijin).
-Everything below was built after test 26.   Outstanding: 195   Completed: 24
+Everything below was built after test 26.   Outstanding: 196   Completed: 25
 
 
 ################################################################################
-  OUTSTANDING — still to test (195)
+  OUTSTANDING — still to test (196)
 ################################################################################
 
 == ACCOUNTS AND JOINING ==
@@ -267,12 +267,12 @@ Everything below was built after test 26.   Outstanding: 195   Completed: 24
 [ ] NEW character: Appearance... on the creation screen. The preview turns when dragged; every slider changes the body
     (women: bust, waist, hips too); skin / hair / eye swatches recolour just those parts (not the clothes). Save, make
     the character: in game you look like the preview, and other players see the same.
-[ ] EXISTING character: right-click the Silvered Mirror by the town gate (about X 66, Z 20). The full window opens;
-    Save asks "This is final: save?". After saving, use the mirror again: only hair colour, nothing else.
 [ ] After the mirror (or creation), log out and in: the look is kept. Another player sees your new hair colour at once.
 [ ] Every race: hair colour changes the hair (and a beard) without tinting leather or cloth; skin tone changes face,
     neck and hands evenly. Note any model where it bleeds.
 [ ] Height: extremes look right, feet on the ground; weight / muscle don't tear clothes when running or casting.
+[ ] Muscle no longer seems to change height (test 36): it broadens the shoulders, chest and arms; the neck stays put.
+[ ] The mirror is a scene now (Scenes/silvered_mirror.tscn): move it in the editor; in game it stands on the ground.
 
 == CHARACTER MODELS (2026-09-25 overnight) ==
 [ ] Zoom in on your character's face (and Lira, Aldric): smooth and rounded, no facets. Same for every race.
@@ -361,8 +361,12 @@ Everything below was built after test 26.   Outstanding: 195   Completed: 24
 [ ] Restart the world while he's mid-visit: he comes back where he should be (on the road, or at his stop), not from the start.
 
 ################################################################################
-  COMPLETED — passed (24)
+  COMPLETED — passed (25)
 ################################################################################
+
+== APPEARANCE ==
+[x] EXISTING character: right-click the Silvered Mirror by the town gate (about X 66, Z 20). The full window opens;
+    Save asks "This is final: save?". After saving, use the mirror again: only hair colour, nothing else. (test 36: Tenchijin changed his hair to black and saved.)
 
 == ACCOUNTS AND JOINING ==
 [x] Log in as tenchijin / lightfall: Annadaeus, Maedianie, Shonuff, Zozuur are listed with portraits, level, race/class, zone.

@@ -2372,6 +2372,24 @@ GATE RAIDS (`Scripts/gate_raid_manager.gd`, `Data/gate_raids.json`, node "GateRa
 - Tests: test_merchant (all three zones, no leg runs into the next over 400 loops, the drift really scatters).
   Suite: 3,316 checks pass. An Ashfall server boots ("World check ... OK").
 
+### Zone music: Dustwind and Ashfall (2026-09-25)
+- The user's "Weight of the Plateau" plays in Dustwind Plateaus and "The Lost Oasis" in Ashfall Dunes
+  (global_background_music.gd SCENE_MUSIC; were the Sands of Lumora stand-in). Both added to Data/sounds.json "music"
+  at the music target (-20 LUFS) and balanced with tools/balance_sounds.py: -13.2 LUFS -> -6.8 dB, -14.5 LUFS -> -5.5 dB,
+  so they play as loud as every other track. No other sound's level changed.
+
+### Test 36: Tenchijin (Arcanist), build 31ac155
+- The mirror works (hair changed to black and saved).
+- "Changing muscle appears to change height": the muscle shape pushed the shoulder tops and trapezius up into the neck
+  (a shrug, a shorter neck, which read as growing). It now stays off the neck and pushes the shoulder tops up only a
+  third as much: broader shoulders, fuller chest, thicker arms. All 22 models rebuilt.
+- The Silvered Mirror is a scene now (Scenes/silvered_mirror.tscn, in lumora_outskirts3d.tscn): move it in the editor;
+  it settles onto the ground when the game starts (WorldNote snap_to_ground). Removed from world_objects.json.
+- Action bar keys: the game uses 1-9, 0, -, = (12 slots); TESTER_GUIDE.html's quick table said 1-0. Fixed (the pause
+  menu's list and the full table were right).
+- Also: test_combat's /stuck "inside the wall" check was too tight (failed ~1 run in 3, even before this build); it
+  uses the player's capsule radius now.
+
 ### Appearance: sliders at creation, the Silvered Mirror, the look locked (2026-09-25)
 - User's rules: the look is chosen once — at character creation, or once at Lumora's mirror for characters made before
   this (both test the same window) — then locked; afterwards only the hair (colour now; hair and beard styles and

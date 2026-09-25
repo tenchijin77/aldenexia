@@ -20,9 +20,8 @@ extends AudioStreamPlayer
 # code changes needed.
 const SCENE_MUSIC := {
 	"res://Scenes/lumora_outskirts3d.tscn": "res://Assets/music/sands_of_lumora.ogg",
-	# Stand-ins until these zones have their own music (outstanding_items.txt, MISSING ASSETS).
-	"res://Scenes/zones/dustwind_plateaus.tscn": "res://Assets/music/sands_of_lumora.ogg",
-	"res://Scenes/zones/ashfall_dunes.tscn": "res://Assets/music/sands_of_lumora.ogg",
+	"res://Scenes/zones/dustwind_plateaus.tscn": "res://Assets/music/Weight of the Plateau.ogg",
+	"res://Scenes/zones/ashfall_dunes.tscn": "res://Assets/music/The Lost Oasis.ogg",
 }
 
 var _menu_stream: AudioStream

@@ -33,6 +33,9 @@ const TEXT_COLOR := "#e8dcc0"
 @export var show_mirror: bool = false
 ## Using it opens something instead of reading: "mirror" = the appearance window (Scripts/appearance_editor.gd).
 @export var opens: String = ""
+## Placed by hand in a zone scene (Scenes/silvered_mirror.tscn): settle onto the ground under it when the game starts,
+## so it needn't be at exactly the right height in the editor.
+@export var snap_to_ground: bool = false
 
 var _label: Label3D
 var _light: OmniLight3D
@@ -42,6 +45,8 @@ var _label_timer := 0.0
 
 func _ready() -> void:
 	add_to_group("world_note")
+	if snap_to_ground:
+		_settle.call_deferred()
 	if show_mirror:
 		_build_mirror()
 	elif show_stone:
@@ -117,7 +122,15 @@ func _process(delta: float) -> void:
 		_label.visible = is_instance_valid(player) and player.global_position.distance_to(global_position) <= LABEL_RANGE
 
 
-# A tall standing mirror in a dark wooden frame (stand-in).
+func _settle() -> void:
+	var from := global_position + Vector3(0, 5, 0)
+	var q := PhysicsRayQueryParameters3D.create(from, global_position + Vector3(0, -20, 0))
+	var hit := get_world_3d().direct_space_state.intersect_ray(q)
+	if not hit.is_empty():
+		global_position.y = hit["position"].y
+
+
+# A tall standing mirror in a dark wooden frame (stand-in; the scene version, silvered_mirror.tscn, has its own meshes).
 func _build_mirror() -> void:
 	var frame := MeshInstance3D.new()
 	var box := BoxMesh.new()

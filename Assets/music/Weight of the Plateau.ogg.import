@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://djwvhibnhl5x3"
+path="res://.godot/imported/Weight of the Plateau.ogg-05c20a68aef62db6498967f88cf6fe4a.oggvorbisstr"
+
+[deps]
+
+source_file="res://Assets/music/Weight of the Plateau.ogg"
+dest_files=["res://.godot/imported/Weight of the Plateau.ogg-05c20a68aef62db6498967f88cf6fe4a.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4
