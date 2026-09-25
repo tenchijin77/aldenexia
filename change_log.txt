@@ -2300,7 +2300,7 @@ GATE RAIDS (`Scripts/gate_raid_manager.gd`, `Data/gate_raids.json`, node "GateRa
   Dustwind and out again. The leg's enter/exit follow it: traveling_merchant.json enter/exit [-1208, 111] (what other zones
   and the guards time by) plus "enter_marker"/"exit_marker" — that zone's server uses the marker's live position, so
   moving it in the editor just works; a test flags the marker and the [x, z] drifting over 50 m apart. (Sergeant Bryn's
-  patrol also uses that marker, so his rounds now reach the pass.)
+  patrol also uses that marker, so his rounds now reach the pass — intended: travellers come in there, user 2026-09-25.)
 - Tests: test_merchant.gd (the loop and its order, the same answer everywhere, drift, the guards' report, mid-visit
   arrival on the road and at a stop, the roadside stop and walking on, once per loop).
 ### Test 34: Shonuff (Aetherfist), Zozuur (Voidknight), build 77506fa (2026-09-24)
