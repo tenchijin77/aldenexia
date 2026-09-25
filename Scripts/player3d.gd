@@ -3359,6 +3359,64 @@ func _lift_above_ground() -> void:
 		global_position = hit["position"] + Vector3(0, 0.2, 0)
 
 
+# /stuck — for when the world's collision traps you (the mausoleum door, test 33). Moves you STUCK_DISTANCE metres in a
+# random direction: up to STUCK_TRIES directions are tried, and the first one with floor under it (found near your own
+# height, so never on a roof) and room for your body wins; failing that, the first one with any floor. Not in a fight,
+# not while dying, once every STUCK_COOLDOWN_MS.
+const STUCK_DISTANCE := 5.0
+const STUCK_TRIES := 16
+const STUCK_COOLDOWN_MS := 30000
+var _last_stuck_msec := -STUCK_COOLDOWN_MS
+
+
+func cmd_stuck() -> void:
+	if dying:
+		return
+	if Time.get_ticks_msec() - last_attacked_msec < 10000 or combat_node.in_combat:
+		GameLog.log_general("[color=#ff8866]You can't do that in the middle of a fight.[/color]")
+		return
+	var wait := STUCK_COOLDOWN_MS - (Time.get_ticks_msec() - _last_stuck_msec)
+	if wait > 0:
+		GameLog.log_general("[color=#ff8866]Wait %d more seconds before trying that again.[/color]" % int(ceil(wait / 1000.0)))
+		return
+	var space := get_world_3d().direct_space_state
+	var shape_node := get_node_or_null("CollisionShape3D") as CollisionShape3D
+	var fallback := Vector3.INF
+	var spot := Vector3.INF
+	var start_angle := randf() * TAU
+	for i in STUCK_TRIES:
+		var dir := Vector3.FORWARD.rotated(Vector3.UP, start_angle + TAU * i / STUCK_TRIES)
+		var target := global_position + dir * STUCK_DISTANCE
+		var down := PhysicsRayQueryParameters3D.create(target + Vector3(0, 2.5, 0), target + Vector3(0, -4.0, 0))
+		down.exclude = [get_rid()]
+		var hit := Global.ground_ray(space, down)
+		if hit.is_empty():
+			continue
+		var feet: Vector3 = hit["position"] + Vector3(0, 0.1, 0)
+		if fallback == Vector3.INF:
+			fallback = feet
+		if shape_node != null and shape_node.shape != null:
+			var q := PhysicsShapeQueryParameters3D.new()
+			q.shape = shape_node.shape
+			q.transform = Transform3D(shape_node.global_transform.basis, feet + (shape_node.global_position - global_position) + Vector3(0, 0.05, 0))
+			q.exclude = [get_rid()]
+			if not space.intersect_shape(q, 1).is_empty():
+				continue
+		spot = feet
+		break
+	if spot == Vector3.INF:
+		spot = fallback
+	if spot == Vector3.INF:
+		var dir := Vector3.FORWARD.rotated(Vector3.UP, start_angle)
+		spot = global_position + dir * STUCK_DISTANCE
+		_lift_above_ground.call_deferred()
+	_last_stuck_msec = Time.get_ticks_msec()
+	velocity = Vector3.ZERO
+	global_position = spot
+	_fall_grace_until_ms = Time.get_ticks_msec() + FALL_GRACE_MS
+	GameLog.log_general("[color=#88ccff]You wriggle free.[/color]")
+
+
 func get_bind_point() -> Vector3:
 	var arr: Array = Global.player_data.get("bind_point", [])
 	if arr.size() == 3:

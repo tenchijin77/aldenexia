@@ -3,9 +3,24 @@
  "lumora_outskirts": {
   "zone_entrance": [20, 13],
   "nodes": [
-   {"id": "lumora_mausoleum", "name": "Mausoleum Ley-Stone", "position": [-36, -224], "flavour": "An old standing stone by the mausoleum road, cold to the touch. The ley-line under it runs deep, toward the dead."},
-   {"id": "lumora_sandcrest", "name": "Sandcrest Ley-Stone", "position": [-760, -995], "flavour": "A salt-crusted stone above Sandcrest Landing. The ley-line here runs out under the sea."},
-   {"id": "lumora_palm_grove", "name": "Palm Grove Ley-Stone", "position": [-300, -955], "flavour": "A mossy stone among the southern palms, warm even in the shade. The ley-line here is green and strong."}
+   {
+    "id": "lumora_mausoleum",
+    "name": "Mausoleum Ley-Stone",
+    "position": [-36, -224],
+    "flavour": "An old standing stone by the mausoleum road, cold to the touch. Something in it hums, very faintly, like a held breath."
+   },
+   {
+    "id": "lumora_sandcrest",
+    "name": "Sandcrest Ley-Stone",
+    "position": [-760, -995],
+    "flavour": "A salt-crusted standing stone above Sandcrest Landing. When the waves draw back, it seems to hum."
+   },
+   {
+    "id": "lumora_palm_grove",
+    "name": "Palm Grove Ley-Stone",
+    "position": [-300, -955],
+    "flavour": "A mossy standing stone among the southern palms, warm even in the shade. The air around it feels thick, like before a storm."
+   }
   ]
  }
 }

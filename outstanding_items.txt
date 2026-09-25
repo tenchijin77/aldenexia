@@ -61,6 +61,8 @@ an item (delete it, note it in change_log.txt) when it's done. Last updated 2026
 
 
 == ART AND MODELS (stand-ins in use) ==
+- The mausoleum's collision doesn't match its door (test 33): you can walk into the doorway and get trapped. Needs a
+  collision fix on the model (or a simpler hand-made collider); /stuck gets players out meanwhile.
 - Pets (Scripts/summoned_pet.gd KINDS): wolf, hawk, bear, panther (static critter models — no animations), ghoul,
   abomination, wraith, shade, spiritual weapon.
 - Spirit of the Woods (Wildspeaker pet) placeholder visual.

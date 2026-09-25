@@ -57,6 +57,8 @@ candidates instead of guessing; a typo that matches nothing prints "Unknown comm
   also /surname Name their own at any level, and /surname clear).
 - `/surname [Name]` (added 2026-09-24) — from level 10, choose your last name, once (letters, an apostrophe or hyphen inside
   is fine); with no name, shows yours. Shown on nameplates, the target frame and /who. `/s` still means /say.
+- `/stuck` (added 2026-09-24, test 33) — moves you 5 m in a random direction to a spot with floor and room to stand
+  (tries 16 directions); not in a fight, once every 30 s.
 
 ### Movement
 - `W` / `Up` — move forward
@@ -2012,6 +2014,17 @@ GATE RAIDS (`Scripts/gate_raid_manager.gd`, `Data/gate_raids.json`, node "GateRa
 ### Test 30: Targon (Lightsworn), build 8d59f0c (2026-09-24)
 - Stances work (Lightsworn). Wrong-password lockout and Log Out passed. All three moved to COMPLETED in testing_items.txt.
 - "Blessing of Light, no regen message" — NOT A BUG, measured headless with a real Lightsworn player: the cast lands, the effect is active, and health rose 96 -> 115 of 156 in 6 s (3 a second after the 2 s cast, plus natural regen). The only lines are "You begin casting a spell." and "You begin regenerating health.", both in the COMBAT tab, not General; the ticks themselves are silent, and at full health they heal nothing.
+
+### Test 33: Zozuur (Voidknight), Maedianie (Wildspeaker), build eec411d (2026-09-24)
+- Learning Common works (a point gained).
+- LEY-STONES less on the nose: a non-caster sees "Old Standing Stone" and reads a faint description plus "You feel like
+  a person with magical knowledge could make use of this." (user's line); the stones' descriptions no longer say
+  "ley-line". Arcanists, Wildspeakers and Chaosborn still see the real names (their travel menu uses them).
+- STUCK IN THE MAUSOLEUM (its door collision is wrong): new /stuck command (Player3D.cmd_stuck()): 5 m in a random
+  direction to a spot with floor near your own height (never a roof) and room for your capsule, trying 16 directions;
+  not in a fight or while dying; once every 30 s. In the pause-menu list, the tester guide (republished) and the
+  reference above. Verified headless: 5.00 m onto open floor beside a wall block; a second use is refused.
+- The mausoleum door collision itself is a model problem: in outstanding_items.txt.
 
 ### Test 32 (second pass), build 987e9b (2026-09-24)
 - "Common says 'you are speaking this now' when I'm not": the abilities book was built when opened and never updated when

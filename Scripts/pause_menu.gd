@@ -264,6 +264,7 @@ const CHAT_COMMANDS := [
 	["/pet", "Pet the cat you are targeting, or the nearest one"],
 	["/language [name]", "List your languages and skill, or switch the language you speak (also the dropdown by the chat box)"],
 	["/surname [Name]", "From level 10, choose your last name (once); with no name, shows yours"],
+	["/stuck", "Trapped in the scenery? Moves you 5 m to a clear spot nearby (not in a fight; once every 30 s)"],
 ]
 
 

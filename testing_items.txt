@@ -1,12 +1,12 @@
 ALDENEXIA: LIGHTFALL — TESTING CHECKLIST
 New features and fixes waiting for a real playtest, in two parts: OUTSTANDING (not passed yet) and COMPLETED (passed).
 When an item passes, change [ ] to [x] and move it to the same section under COMPLETED (or just add "- working" and it
-gets moved). A failure goes to outstanding_items.txt with what went wrong. Last updated 2026-09-24 (test 32).
-Everything below was built after test 26.   Outstanding: 116   Completed: 21
+gets moved). A failure goes to outstanding_items.txt with what went wrong. Last updated 2026-09-24 (test 33).
+Everything below was built after test 26.   Outstanding: 117   Completed: 22
 
 
 ################################################################################
-  OUTSTANDING — still to test (116)
+  OUTSTANDING — still to test (117)
 ################################################################################
 
 == ACCOUNTS AND JOINING ==
@@ -210,12 +210,16 @@ Everything below was built after test 26.   Outstanding: 116   Completed: 21
 [ ] Crafting window with 20 tin + 20 fir: "Make:" and "How many" sit ABOVE the button; while working, the progress bar
     is inside the window (it grows to fit); the picker is greyed out until the batch ends.
 [ ] Abilities book (K) > General Skills ends with a Languages list (e.g. Twilari 100, Common 75, Aevaryn 40).
-[ ] Two players grouped: a Troll hearing or speaking Common with a Half-Elf gains a point about every 4-5 lines (lines
-    closer than 4 s apart don't all count); the book's Languages list updates while open.
 [ ] Switch language with the dropdown while the abilities book is open: "You are speaking this now" moves to it.
 
+== TEST 33 FIXES ==
+[ ] Walk up to a ley-stone as a non-caster: its label reads "Old Standing Stone"; right-click: a faint description and
+    "You feel like a person with magical knowledge could make use of this." Casters still see "Mausoleum Ley-Stone".
+[ ] /stuck (e.g. inside the mausoleum doorway): you pop out 5 m away onto clear ground; not usable in a fight; once
+    every 30 s. Listed in Esc > Controls & Commands.
+
 ################################################################################
-  COMPLETED — passed (21)
+  COMPLETED — passed (22)
 ################################################################################
 
 == ACCOUNTS AND JOINING ==
@@ -259,3 +263,7 @@ Everything below was built after test 26.   Outstanding: 116   Completed: 21
 
 == TEST 31 FIXES: STACKS AND RECIPE CHOICE ==
 [x] Right-click a stack in your bags > Split: pick how many; they appear as a new stack in a free slot (same bag first).
+
+== TEST 32 FIXES ==
+[x] Two players grouped: a Troll hearing or speaking Common with a Half-Elf gains a point about every 4-5 lines (lines
+    closer than 4 s apart don't all count); the book's Languages list updates while open.

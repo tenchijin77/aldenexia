@@ -69,6 +69,9 @@ func _process(delta: float) -> void:
 	_light.light_energy = 0.8 + 0.4 * sin(_time * 1.3)
 	var player := TargetFrame.local_player()
 	_label.visible = is_instance_valid(player) and global_position.distance_to(player.global_position) <= LABEL_RANGE
+	if _label.visible:
+		# Only a class that can use the ley-lines sees what the stone is; everyone else sees an old stone.
+		_label.text = display_name if RITUALS.has(str(player.get("player_class"))) else "Old Standing Stone"
 
 
 static func attuned() -> Dictionary:
@@ -85,7 +88,7 @@ static func is_attuned(id: String) -> bool:
 func interact(player: Node) -> void:
 	var player_class := str(player.get("player_class"))
 	if not RITUALS.has(player_class):
-		GameLog.log_general("[color=#99ddcc]%s %s An Arcanist, a Wildspeaker or a Chaosborn could anchor this place in memory.[/color]" % [display_name + ".", flavour])
+		GameLog.log_general("[color=#99ddcc]%s You feel like a person with magical knowledge could make use of this.[/color]" % flavour)
 		return
 	if is_attuned(node_id):
 		GameLog.log_general("[color=#99ddcc]You are already attuned to the %s.[/color]" % display_name)
