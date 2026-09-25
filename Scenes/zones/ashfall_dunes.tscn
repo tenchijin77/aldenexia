@@ -1,0 +1,14 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://Scenes/zones/zone_template.tscn" id="1_template"]
+[ext_resource type="NavigationMesh" path="res://Data/ashfall_dunes_navmesh.tres" id="2_navmesh"]
+
+[node name="Zone" instance=ExtResource("1_template")]
+zone_id = "ashfall_dunes"
+zone_name = "Ashfall Dunes"
+
+[node name="Terrain3D" parent="." index="0"]
+data_directory = "res://zones/ashfall_dunes_terrain"
+
+[node name="NavigationRegion3D" parent="." index="15"]
+navigation_mesh = ExtResource("2_navmesh")

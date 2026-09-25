@@ -2138,12 +2138,15 @@ const PATROL_MAX_DISTANCE: float = 18.0  # was a flat 10.0 with no minimum — t
 # The zone's no-monster rectangles (Data/lumora_outskirts_spawns.json "no_monster_zones": the town and the gate front):
 # monsters don't spawn there (mob_spawner3d.gd) or wander there on their own.
 static var _no_monster_zones: Array = []
-static var _zones_loaded := false
+static var _zones_loaded_for := ""
 
 static func in_no_monster_zone(pos: Vector3) -> bool:
-	if not _zones_loaded:
-		_zones_loaded = true
-		var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string("res://Data/lumora_outskirts_spawns.json"))
+	var zone_id := ZoneInfo.current_id()
+	if _zones_loaded_for != zone_id:
+		_zones_loaded_for = zone_id
+		_no_monster_zones = []
+		var path := ZoneInfo.spawns_path(zone_id)
+		var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(path)) if FileAccess.file_exists(path) else null
 		if typeof(parsed) == TYPE_DICTIONARY:
 			_no_monster_zones = parsed.get("no_monster_zones", [])
 	for zone in _no_monster_zones:

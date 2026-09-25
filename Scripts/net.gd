@@ -206,7 +206,7 @@ func _monitor_client_link(delta: float, frame_seconds: float) -> void:
 
 
 # ── Dedicated server ──────────────────────────────────────────────────────
-# `godot --headless --path . -- --server [--name=test] [--port=8910] [--max-players=6]` (or an
+# `godot --headless --path . -- --server [--name=test] [--port=8910] [--max-players=6] [--zone=dustwind_plateaus]` (or an
 # exported binary run the same way, or one built from a dedicated_server export
 # preset, which is always a server). Skips the splash and every menu: hosts, then
 # loads the zone with no character of its own.
@@ -245,6 +245,16 @@ func _start_dedicated_server() -> void:
 	banned_ips_file = _cmdline_value("banned-ips-file", banned_ips_file)
 	get_tree().auto_accept_quit = false  # a close request starts a graceful shutdown instead of dropping everyone
 	get_tree().node_added.connect(_on_node_added_server)
+	# --zone=<id> (Scenes/zones/<id>.tscn) or a scene path: which zone this server runs (default: the starting zone).
+	# Until zoning exists, clients always load the starting zone, so only use this for testing a zone's server side.
+	var zone_arg := _cmdline_value("zone", "")
+	if not zone_arg.is_empty():
+		var zone_path := zone_arg if zone_arg.begins_with("res://") else "res://Scenes/zones/%s.tscn" % zone_arg
+		if not ResourceLoader.exists(zone_path):
+			_slog_err("--zone: there is no zone scene %s." % zone_path)
+			get_tree().quit(1)
+			return
+		pending_zone_path = zone_path
 	var wanted_name := _cmdline_value("name", server_name)
 	server_name = sanitize_name(wanted_name)
 	if server_name.is_empty():

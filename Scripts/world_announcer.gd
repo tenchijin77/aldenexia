@@ -75,6 +75,8 @@ static func zone_display_name() -> String:
 	var tree := Engine.get_main_loop() as SceneTree
 	if not tree or not tree.current_scene:
 		return "Unknown"
+	if not str(tree.current_scene.get("zone_name") if tree.current_scene.get("zone_name") != null else "").is_empty():
+		return str(tree.current_scene.get("zone_name"))
 	var base := tree.current_scene.scene_file_path.get_file().get_basename()
 	if base.ends_with("3d"):
 		base = base.left(base.length() - 2)

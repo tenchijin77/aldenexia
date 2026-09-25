@@ -14,7 +14,7 @@
 # never triggers and every spawn happens exactly as before.
 extends Node3D
 
-@export var spawn_data_path: String = "res://Data/lumora_outskirts_spawns.json"
+@export var spawn_data_path: String = ""   # "" = Data/<zone>_spawns.json (ZoneInfo.spawns_path())
 @export var tick_interval: float = 1.0
 
 # All mobs use the shared 3D template. monster_name is set before _ready() fires
@@ -61,6 +61,11 @@ func _load_valid_mob_types() -> void:
 
 
 func _load_data() -> void:
+	if spawn_data_path.is_empty():
+		spawn_data_path = ZoneInfo.spawns_path(ZoneInfo.id_for(self))
+		if not FileAccess.file_exists(spawn_data_path):
+			print("MobSpawner3D: %s has no spawn file yet (%s) — no monsters." % [ZoneInfo.id_for(self), spawn_data_path])
+			return
 	var file := FileAccess.open(spawn_data_path, FileAccess.READ)
 	if not file:
 		push_error("❌ MobSpawner3D: cannot open %s" % spawn_data_path)

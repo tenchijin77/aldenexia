@@ -170,6 +170,20 @@ if [ "$DO_EXPORT" = 1 ] && [ -n "$(find zones/lumora_terrain Scenes/lumora_outsk
 		|| { tail -20 "$UPD_DIR/navmesh_bake.log" >&2; die "Navmesh bake failed — full output in $UPD_DIR/navmesh_bake.log"; }
 	echo "  navmesh rebaked (commit $NAVMESH afterwards)."
 fi
+# The same for every zone built on Scenes/zones/zone_template.tscn (terrain in zones/<id>_terrain, navmesh Data/<id>_navmesh.tres).
+if [ "$DO_EXPORT" = 1 ]; then
+	for scene in Scenes/zones/*.tscn; do
+		id=$(basename "$scene" .tscn)
+		[ "$id" = "zone_template" ] && continue
+		zone_nav="Data/${id}_navmesh.tres"
+		if [ ! -f "$zone_nav" ] || [ -n "$(find "zones/${id}_terrain" "$scene" -newer "$zone_nav" -print -quit 2>/dev/null)" ]; then
+			echo "Terrain changed since $zone_nav was baked — rebaking..."
+			"$GODOT" --headless --path . --script res://tools/bake_lumora_navmesh.gd -- "res://$scene" >"$UPD_DIR/navmesh_bake_${id}.log" 2>&1 \
+				|| { tail -20 "$UPD_DIR/navmesh_bake_${id}.log" >&2; die "Navmesh bake failed for $id — full output in $UPD_DIR/navmesh_bake_${id}.log"; }
+			echo "  navmesh rebaked (commit $zone_nav afterwards)."
+		fi
+	done
+fi
 if [ "$DO_SERVER" = 1 ] && [ "$DO_EXPORT" = 1 ]; then
 	export_logged "Exporting the dedicated server" "$SERVER_BIN" --export-release "$SERVER_PRESET"
 fi

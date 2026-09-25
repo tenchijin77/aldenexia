@@ -7,7 +7,6 @@ extends Node
 class_name PerceptionWatcher
 
 const SPOTS_PATH := "res://Data/perception_spots.json"
-const ZONE_KEY := "lumora_outskirts"
 const SAVE_KEY := "perception_noticed"
 const CHECK_SECONDS := 1.0
 const COLOUR := "#a8d8c0"
@@ -45,7 +44,7 @@ func _process(delta: float) -> void:
 	var player := get_parent()
 	if player != TargetFrame.local_player() or player.get("dying"):
 		return
-	for spot in data().get(ZONE_KEY, []):
+	for spot in data().get(ZoneInfo.current_id(), []):
 		var p: Array = spot.get("position", [0, 0])
 		var flat := Vector2(player.global_position.x - float(p[0]), player.global_position.z - float(p[1]))
 		if flat.length() > float(spot.get("radius", 10.0)):

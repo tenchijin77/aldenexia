@@ -1,0 +1,14 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://Scenes/zones/zone_template.tscn" id="1_template"]
+[ext_resource type="NavigationMesh" path="res://Data/dustwind_plateaus_navmesh.tres" id="2_navmesh"]
+
+[node name="Zone" instance=ExtResource("1_template")]
+zone_id = "dustwind_plateaus"
+zone_name = "Dustwind Plateaus"
+
+[node name="Terrain3D" parent="." index="0"]
+data_directory = "res://zones/dustwind_plateaus_terrain"
+
+[node name="NavigationRegion3D" parent="." index="15"]
+navigation_mesh = ExtResource("2_navmesh")

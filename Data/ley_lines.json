@@ -1,26 +1,7 @@
 {
- "_comment": "ley_lines.json - caster travel (Scripts/player_travel.gd, Scripts/ley_line_node.gd; design: ~/NCT/Aldenexia-Lightfall/Class teleportation Spell Notes.txt). Per zone: 'nodes' are the Ley-Line Nodes an Arcanist (Spire), Wildspeaker (seed-sowing at a Ring) or Chaosborn (blood imprint at a Rift-Site) attunes to by right-clicking it; Spectral Bridge, Root-Tunnel and Chaos Rift can then take their group there. 'position' is [x, z]; the height comes from the ground. 'zone_entrance' [x, z] is where the evacuation spells (Spatial Redoubt, Wormhole, Phase Snap) land: outside the town gate, where new characters appear. Hand-edited: move the nodes freely (use /location in game). Positions are FIRST GUESSES near the landmarks - check them in play.",
+ "_comment": "ley_lines.json - caster travel (Scripts/player_travel.gd, Scripts/ley_line_node.gd; design: ~/NCT/Aldenexia-Lightfall/Class teleportation Spell Notes.txt). Per zone: 'nodes' are the Ley-Line Nodes an Arcanist (Spire), Wildspeaker (seed-sowing at a Ring) or Chaosborn (blood imprint at a Rift-Site) attunes to by right-clicking it; Spectral Bridge, Root-Tunnel and Chaos Rift can then take their group there. 'position' is [x, z]; the height comes from the ground. 'zone_entrance' [x, z] is where the evacuation spells (Spatial Redoubt, Wormhole, Phase Snap) land: outside the town gate, where new characters appear. Hand-edited: move the nodes freely (use /location in game). Positions are FIRST GUESSES near the landmarks - check them in play. Each class has its OWN sites in different zones (portals on ~/NCT/Aldenexia-Lightfall/Aldenexia Map.png), set with a node's 'class': Arcanist Spires (raised by the Lycaeum before the Lightfall), Wildspeaker Ruins (older than any city; the Green remembers), Chaosborn Rifts (wounds the Lightfall tore in the world). Name them 'the <Zone> Spire' / 'Ruins' / 'Rift'. No 'class' = open to all three. The Outskirts has none - the first is the Dustwind Spire, hidden off the beaten path in its own area.",
  "lumora_outskirts": {
   "zone_entrance": [20, 13],
-  "nodes": [
-   {
-    "id": "lumora_mausoleum",
-    "name": "Mausoleum Ley-Stone",
-    "position": [-36, -224],
-    "flavour": "An old standing stone by the mausoleum road, cold to the touch. Something in it hums, very faintly, like a held breath."
-   },
-   {
-    "id": "lumora_sandcrest",
-    "name": "Sandcrest Ley-Stone",
-    "position": [-760, -995],
-    "flavour": "A salt-crusted standing stone above Sandcrest Landing. When the waves draw back, it seems to hum."
-   },
-   {
-    "id": "lumora_palm_grove",
-    "name": "Palm Grove Ley-Stone",
-    "position": [-300, -955],
-    "flavour": "A mossy standing stone among the southern palms, warm even in the shade. The air around it feels thick, like before a storm."
-   }
-  ]
+  "nodes": []
  }
 }

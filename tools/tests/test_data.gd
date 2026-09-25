@@ -53,6 +53,8 @@ func run() -> void:
 		if set_id != "_comment":
 			eq(int(counts.get(set_id, 0)), 9, "set %s pieces" % set_id)
 	# Ley-lines and world objects reference real things
-	check(PlayerTravel.zone().get("nodes", []).size() == 3, "three ley-stones")
+	var outskirts_ley: Dictionary = _json(PlayerTravel.LEY_LINES_PATH).get("lumora_outskirts", {})
+	eq(outskirts_ley.get("nodes", []).size(), 0, "no ley-line sites in the Outskirts (the first is in Dustwind)")
+	check(outskirts_ley.has("zone_entrance"), "the Outskirts still has an evacuation point")
 	for obj in _json("res://Data/world_objects.json").get("lumora_outskirts", []):
 		check(items.has(obj.get("give_item", "")), "world object gives unknown %s" % obj.get("give_item"))

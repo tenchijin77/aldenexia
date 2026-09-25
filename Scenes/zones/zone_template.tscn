@@ -1,0 +1,123 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" uid="uid://c1gpx5b7imou1" path="res://Scripts/multiplayer_player_spawner.gd" id="1_root"]
+[ext_resource type="PackedScene" uid="uid://cvn5f0j0b3bwg" path="res://Scenes/player3d.tscn" id="2_player"]
+[ext_resource type="Script" uid="uid://mygrtkcm8n8e" path="res://Scripts/day_night_cycle.gd" id="3_daynight"]
+[ext_resource type="Script" uid="uid://wqmn351jhvbo" path="res://Scripts/weather_manager.gd" id="4_weather"]
+[ext_resource type="AudioStream" uid="uid://canimf824sbt2" path="res://Assets/sounds/ambient/wind_loop.ogg" id="5_wind"]
+[ext_resource type="Script" uid="uid://cxepbyra8r8c1" path="res://Scripts/mob_spawner3d.gd" id="6_mobs"]
+[ext_resource type="PackedScene" path="res://Scenes/network_widget.tscn" id="7_netwidget"]
+[ext_resource type="Script" uid="uid://bdfun3bs24dfy" path="res://Scripts/gm_relay.gd" id="8_gm"]
+[ext_resource type="Script" uid="uid://bgf2lkk12k3hx" path="res://Scripts/world_items.gd" id="9_items"]
+[ext_resource type="Script" uid="uid://bdstjd1dmbnsq" path="res://Scripts/server_notice.gd" id="10_notice"]
+[ext_resource type="Script" uid="uid://bo5m5prkrbmj3" path="res://Scripts/crafting_world_spawner.gd" id="11_crafting"]
+[ext_resource type="Terrain3DAssets" uid="uid://dc71og8dndkvp" path="res://zones/lumora_terrain/terrain_assets.res" id="12_terrain_assets"]
+
+[sub_resource type="Gradient" id="Gradient_zone"]
+offsets = PackedFloat32Array(0.2, 1)
+colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 1)
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_zone"]
+noise_type = 2
+frequency = 0.03
+cellular_jitter = 3.0
+cellular_return_type = 0
+domain_warp_enabled = true
+domain_warp_type = 1
+domain_warp_amplitude = 50.0
+domain_warp_fractal_type = 2
+domain_warp_fractal_lacunarity = 1.5
+domain_warp_fractal_gain = 1.0
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_zone"]
+noise = SubResource("FastNoiseLite_zone")
+color_ramp = SubResource("Gradient_zone")
+seamless = true
+
+[sub_resource type="Terrain3DMaterial" id="Terrain3DMaterial_zone"]
+_shader_parameters = {
+&"noise_texture": SubResource("NoiseTexture2D_zone")
+}
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_zone"]
+sky_top_color = Color(0.22986513, 0.3887299, 0.9202023, 1)
+
+[sub_resource type="Sky" id="Sky_zone"]
+sky_material = SubResource("ProceduralSkyMaterial_zone")
+
+[sub_resource type="Environment" id="Environment_zone"]
+background_mode = 2
+sky = SubResource("Sky_zone")
+ambient_light_source = 3
+volumetric_fog_density = 0.375
+
+[node name="Zone" type="Node3D"]
+script = ExtResource("1_root")
+spawn_position = Vector3(0, 1.5, 0)
+
+[node name="Terrain3D" type="Terrain3D" parent="."]
+material = SubResource("Terrain3DMaterial_zone")
+assets = ExtResource("12_terrain_assets")
+collision_mode = 3
+collision_layer = 65
+top_level = true
+
+[node name="RemotePlayers" type="Node3D" parent="."]
+
+[node name="PlayerSpawner" type="MultiplayerSpawner" parent="."]
+spawn_path = NodePath("../RemotePlayers")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.9587106, 0.17053917, -0.22757499, 0, 0.80023974, 0.59968024, 0.2843835, -0.5749198, 0.7671983, 0, 10, 0)
+shadow_enabled = true
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_zone")
+
+[node name="DayNightCycle" type="Node" parent="."]
+script = ExtResource("3_daynight")
+
+[node name="WeatherManager" type="Node" parent="."]
+script = ExtResource("4_weather")
+
+[node name="AmbientWind" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("5_wind")
+volume_db = -10.0
+autoplay = true
+bus = &"SFX"
+
+[node name="CharacterBody3D" parent="." instance=ExtResource("2_player")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
+
+[node name="monster_spawner" type="Node3D" parent="."]
+script = ExtResource("6_mobs")
+
+[node name="SpawnedMobs" type="Node3D" parent="monster_spawner"]
+
+[node name="MobSpawner" type="MultiplayerSpawner" parent="monster_spawner"]
+spawn_path = NodePath("../SpawnedMobs")
+
+[node name="NetworkWidget" parent="." instance=ExtResource("7_netwidget")]
+
+[node name="GMRelay" type="Node" parent="."]
+script = ExtResource("8_gm")
+
+[node name="WorldItems" type="Node" parent="."]
+script = ExtResource("9_items")
+
+[node name="ServerNotice" type="Node" parent="."]
+script = ExtResource("10_notice")
+
+[node name="CraftingWorld" type="Node3D" parent="."]
+script = ExtResource("11_crafting")
+
+[node name="NavigationRegion3D" type="NavigationRegion3D" parent="."]
+visible = false
+
+[node name="NPCs" type="Node3D" parent="."]
+
+[node name="Structures" type="Node3D" parent="."]
+
+[node name="Markers" type="Node3D" parent="."]
+
+[node name="ZoneLines" type="Node3D" parent="."]

@@ -2066,6 +2066,36 @@ GATE RAIDS (`Scripts/gate_raid_manager.gd`, `Data/gate_raids.json`, node "GateRa
 - Net RPC list unchanged (no new base needed). Tests: tools/tests/test_macros.gd (46 checks); suite 1,481 checks pass.
   Verified end to end with a local server and a bot: account created, character created on it, shared macro saved ->
   in the account file -> back on the next login; the character macro stays with the character.
+
+### Travel sites: Spires, Ruins, Rifts (2026-09-24)
+- The three Outskirts ley-stones are REMOVED (Data/ley_lines.json "nodes": []). Per the map (Aldenexia Map.png) each
+  travel class has its OWN sites in different zones: Arcanist Spires (raised by the Lycaeum before the Lightfall),
+  Wildspeaker Ruins (older than any city; the Green remembers), Chaosborn Rifts (wounds the Lightfall tore). The first
+  will be the Dustwind Spire, hidden off the beaten path in its own area.
+- ley_line_node.gd: a node's "class" makes it that class's only (no class = all three, used by tests). The owner sees its
+  name and attunes; the other two travel classes see "Arcanist Spire" etc. and get a line saying it isn't for them;
+  everyone else sees "Old Tower" / "Overgrown Ruins" / "Scarred Ground". Stand-in shapes: a tall slim blue spire, a
+  green centre stone in a broken ring, a jagged leaning violet shard. player_travel.gd offers only your class's
+  attuned sites (an old attunement to another class's site is ignored); "You aren't attuned to any of the Arcanist
+  Spires yet".
+- Tests: test_travel.gd (class-only sites, chooser), test_data.gd (Outskirts has none). Manual's travel section rewritten.
+
+### Zone template, Dustwind Plateaus and Ashfall Dunes scenes, missing-assets list (2026-09-24)
+- Scenes/zones/zone_template.tscn: what every zone needs (root with zone_id / zone_name / spawn_position, Terrain3D
+  sharing Lumora's textures, sun/sky/day-night/weather/wind, pre-placed player, monster spawner, multiplayer spawners,
+  GM relay, world items, server notice, crafting spawner, NavigationRegion3D, NPCs/Structures/Markers/ZoneLines).
+  Scenes/zones/dustwind_plateaus.tscn and ashfall_dunes.tscn INHERIT it; each has a flat 1 km Terrain3D (16 regions,
+  zones/<id>_terrain/) ready to sculpt and a baked navmesh (Data/<id>_navmesh.tres). How-to: Scenes/zones/README.txt.
+- New Scripts/zone_info.gd (ZoneInfo): the loaded zone's id (root's zone_id, else the file name), or the zone a node
+  belongs to (id_for, for tools that load a zone as a child). Zone-keyed data now follows it instead of always meaning
+  the Outskirts: monster spawns (Data/<zone>_spawns.json; none = no monsters), no-monster areas, crafting placements,
+  ley-lines, perception spots, world objects. /who and the character list use zone_name.
+- Dedicated server: --zone=<id> runs that zone (testing its server side; clients still load the Outskirts until zoning).
+  Verified: Dustwind server "World check: ground OK, navmesh OK, 0 monsters"; the Outskirts still loads its 69 spawns.
+- tools/update.sh rebakes a zone's navmesh when its terrain or scene changed. Music stand-in for both new zones.
+- tests/test_zones.gd (every zone scene: id, terrain, navmesh baked, no stray monsters). Suite: 1,519 checks pass.
+- outstanding_items.txt ends with a MISSING ASSETS list (zone art/music, travel sites, borrowed monster and summon
+  models, stand-in objects), built from a scan of the data: every item/spell icon, sound, race model and portrait exists.
 ### Test 34: Shonuff (Aetherfist), Zozuur (Voidknight), build 77506fa (2026-09-24)
 - /stuck freed him; perception at the gate and the tower spires worked; Common rose talking to guards.
 - /STUCK LEFT THE PET BEHIND: the pet is now recalled to you (recall_to_owner(), or placed beside you).

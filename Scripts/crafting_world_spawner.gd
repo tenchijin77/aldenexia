@@ -13,7 +13,7 @@ const RAY_TOP := 300.0
 const RAY_BOTTOM := -100.0
 const PLACE_ATTEMPTS := 12  # re-rolls for a node whose spot is in a keep_clear area or not on open ground
 
-@export var zone_key: String = "lumora_outskirts"
+@export var zone_key: String = ""   # "" = the loaded zone (ZoneInfo.current_id())
 
 var _placements: Dictionary = {}
 var _clusters := {}        # placements "nodes" index -> [GatheringNode] of that cluster
@@ -25,6 +25,8 @@ func _ready() -> void:
 	# Wait for the zone's collision to exist before dropping rays onto it.
 	await get_tree().physics_frame
 	await get_tree().physics_frame
+	if zone_key.is_empty():
+		zone_key = ZoneInfo.id_for(self)
 	var placements: Dictionary = _load(PLACEMENTS_PATH).get(zone_key, {})
 	var node_defs: Dictionary = _load(NODES_PATH).get("nodes", {})
 	var models: Dictionary = _load(MODELS_PATH)

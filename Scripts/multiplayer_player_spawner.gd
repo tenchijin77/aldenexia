@@ -18,6 +18,12 @@ const PLAYER_SCENE := preload("res://Scenes/player3d.tscn")
 ## becomes a new character's bind point (player3d.gd's _ensure_bind_point()).
 @export var spawn_position := Vector3(-32.28161, 1.5000012, 12.601559)
 
+## Which zone this is, for every data file keyed by zone (ZoneInfo.current_id()): "dustwind_plateaus" reads
+## Data/dustwind_plateaus_spawns.json, crafting_placements.json["dustwind_plateaus"], and so on. Empty = from the file name.
+@export var zone_id := ""
+## The name players see (/who, the character list, "You have entered ..."). Empty = from the file name.
+@export var zone_name := ""
+
 
 func _ready() -> void:
 	spawner.spawn_function = _spawn_player

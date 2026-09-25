@@ -2,11 +2,11 @@ ALDENEXIA: LIGHTFALL — TESTING CHECKLIST
 New features and fixes waiting for a real playtest, in two parts: OUTSTANDING (not passed yet) and COMPLETED (passed).
 When an item passes, change [ ] to [x] and move it to the same section under COMPLETED (or just add "- working" and it
 gets moved). A failure goes to outstanding_items.txt with what went wrong. Last updated 2026-09-24 (test 34, then macros).
-Everything below was built after test 26.   Outstanding: 130   Completed: 24
+Everything below was built after test 26.   Outstanding: 133   Completed: 24
 
 
 ################################################################################
-  OUTSTANDING — still to test (130)
+  OUTSTANDING — still to test (133)
 ################################################################################
 
 == ACCOUNTS AND JOINING ==
@@ -162,12 +162,14 @@ Everything below was built after test 26.   Outstanding: 130   Completed: 24
     those four scrolls are no longer sold.
 
 == CASTER TRAVEL, GATES, BINDING (2026-09-24) ==
-[ ] Three ley-stones exist (by the mausoleum, Sandcrest Landing, southern palms) and stand on the ground, not in a wall.
-    Right-click as an Arcanist/Wildspeaker/Chaosborn: attuned; as anyone else: flavour text.
-[ ] Spectral Bridge (Arcanist 6): destination menu, 15 s channel, a glowing bridge behind you; a GROUP member who runs to
+    (The three Outskirts ley-stones were REMOVED 2026-09-24: Arcanist Spires, Wildspeaker Ruins and Chaosborn Rifts
+    are each class's own, in other zones; the first is the Dustwind Spire. Until then the travel rituals below have
+    nowhere to go; gates and evacuations still work.)
+[ ] (needs the Dustwind Spire) A Wildspeaker/Chaosborn at the Spire sees "Arcanist Spire" and can't attune; an Arcanist can.
+[ ] (needs the Dustwind site) Spectral Bridge (Arcanist 6): destination menu, 15 s channel, a glowing bridge behind you; a GROUP member who runs to
     its arch crosses first; you arrive at the stone when it ends. Moving cancels it and the bridge vanishes.
-[ ] Root-Tunnel (Wildspeaker 6): vines rise; group members within 8 m come along; everyone gets Nature's Ward.
-[ ] Chaos Rift (Chaosborn 6): 5-8 s cast; a violet tear behind you that group members can step into.
+[ ] (needs a Wildspeaker site) Root-Tunnel (Wildspeaker 6): vines rise; group members within 8 m come along; everyone gets Nature's Ward.
+[ ] (needs a Chaosborn site) Chaos Rift (Chaosborn 6): 5-8 s cast; a violet tear behind you that group members can step into.
 [ ] Spatial Redoubt / Wormhole / Phase Snap (level 10): the group within 20 m lands outside the town gate; Phase Snap
     shows its d20 and one of: mana burn, Aether-Sickness (slow), a junk item for everyone, a small heal.
 [ ] Attune Spirit (level 4): bind where you stand; again within an hour is refused; dying brings you back there.
@@ -211,8 +213,8 @@ Everything below was built after test 26.   Outstanding: 130   Completed: 24
 [ ] Switch language with the dropdown while the abilities book is open: "You are speaking this now" moves to it.
 
 == TEST 33 FIXES ==
-[ ] Walk up to a ley-stone as a non-caster: its label reads "Old Standing Stone"; right-click: a faint description and
-    "You feel like a person with magical knowledge could make use of this." Casters still see "Mausoleum Ley-Stone".
+[ ] (needs the Dustwind site) As a non-caster, a travel site's label reads "Old Standing Stone"; right-click: a faint
+    description and "You feel like a person with magical knowledge could make use of this."; casters see its real name.
 
 == TEST 34 FIXES ==
 [ ] /stuck with a pet out: the pet comes with you.
@@ -239,6 +241,12 @@ Everything below was built after test 26.   Outstanding: 130   Completed: 24
 [ ] /g hello goes to the group (it used to try /gm).
 [ ] Shared (account) page: make a macro, log out, log in a DIFFERENT character on the same account — it's there.
 [ ] Macros survive camping and logging back in.
+
+== ZONE TEMPLATE (2026-09-24, in the Godot editor) ==
+[ ] Open Scenes/zones/dustwind_plateaus.tscn: a flat 1 km Terrain3D square; the Terrain3D tools sculpt and paint it and
+    it saves into zones/dustwind_plateaus_terrain/. Same for ashfall_dunes.tscn.
+[ ] Change something in zone_template.tscn (e.g. the sun angle): both zones show the change.
+[ ] The Outskirts still has its monsters, gathering nodes and crafting stations in play (the zone-id change touched them).
 
 ################################################################################
   COMPLETED — passed (24)

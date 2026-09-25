@@ -38,6 +38,17 @@ an item (delete it, note it in change_log.txt) when it's done. Last updated 2026
   move to Dustwind; the mausoleum (a haunted tomb) stays in the Outskirts. Goblins on Dustwind's top tier (main goblin
   encampment there or in the next zone). Monster levels 1-4 in the Outskirts. Djhanid faction yes; Sahren yes.
   Dustwind's tier layout is still undecided.
+- TRAVEL SITES (user, 2026-09-24): each class has its OWN portal sites in different zones, EQ wizard/druid-port style
+  with the user's own spin; the list is on ~/NCT/Aldenexia-Lightfall/Aldenexia Map.png:
+    Arcanist (7): The Lycaeum, Starreach, The Burning Scar, Dustwind Plateaus, Gloomfen Frontier, Isle of Merila,
+      Zulgoroth's Temple.
+    Wildspeaker (6): Sirenreach, Frostglen Lake, Emberveil Range, Verdant Expanse, Twilight Moors, Crimson Canyons.
+    Chaosborn (6): Island of Lost Souls, Thallia's Bastion, Stormbreak Highlands, Sunspire Peaks, Blightmoor Wastes,
+      The Sunder-Keel Shoals.
+  Names (decided): Arcanist SPIRES (raised by the Lycaeum before the Lightfall), Wildspeaker RUINS (older than any city;
+  the Green remembers), Chaosborn RIFTS (wounds the Lightfall tore). Built: class-only sites (ley_line_node.gd "class").
+  TO BUILD with the Dustwind zone: the Dustwind Spire, off the beaten path in its own area so it has to be discovered.
+  Level ranges on the map / Zones Master are rough starting points, not hard (user).
 - Macros BUILT 2026-09-24 (see change_log). Not built: /stance <name>, /pet attack|back (pet commands as text), macro
   pages beyond 24+24, and live refresh of shared macros for a second character already online on the same account
   (it sees an edit at its next login).
@@ -126,3 +137,50 @@ an item (delete it, note it in change_log.txt) when it's done. Last updated 2026
   doesn't reduce it yet (verify).
 - Monster count grows during heavy fighting (~25 -> ~70: respawns plus lingering corpses) — watch server load.
 - Not yet verified across two real machines: another player seeing your carried light; ranged-pet projectiles.
+
+
+################################################################################
+  MISSING ASSETS — art, models and sound the game needs (add to this as we go; delete a line when the asset is in)
+  Started 2026-09-24. "Stand-in" = what the game uses meanwhile, so nothing is blocked.
+################################################################################
+
+== FOR THE NEXT ZONES (Dustwind Plateaus, Ashfall Dunes) ==
+- Terrain for both: Scenes/zones/dustwind_plateaus.tscn and ashfall_dunes.tscn are flat 1 km squares of Terrain3D ready to
+  sculpt (zones/<zone>_terrain/). Dustwind: three tiers; the zone line from the Outskirts through the gap in the
+  southern mountains; the goblins on the top tier; the Dustwind Spire hidden in its own area.
+- Terrain textures for rocky plateau / cliff / hardpan and for dunes / ash sand. Stand-in: Lumora's texture list.
+- Music: Dustwind Plateaus, Ashfall Dunes. Stand-in: "Sands of Lumora".
+- Ambient sound: desert wind with sand hiss (plateaus), a sandstorm loop (Zones Master: sandstorms). Stand-in: wind_loop.
+- Arcanist Spire model (the Dustwind Spire; reused for all 7 Arcanist sites). Stand-in: a tall slim blue shape.
+- Structures that move out of the Outskirts to Dustwind: the vendor camp, Dustwalker camps, the Djhanid encampment
+  (tents, banners, a Djhanid NPC look for Sahren and company), the main goblin encampment (or the next zone).
+- Caravan wrecks (the zone's description; the Outskirts' "wagon crash" model can stand in).
+- A zone-line marker/look for the mountain gap (EverQuest-style: just the terrain gap is fine; optional arch or signpost).
+
+== TRAVEL ==
+- Wildspeaker Ruins model (6 sites) — stand-in: a green centre stone in a broken ring of blocks.
+- Chaosborn Rift model/effect (6 sites) — stand-in: a jagged leaning violet shard.
+- Spell visuals built from plain shapes: Spectral Bridge (walkway, rune ring, arch), Root-Tunnel (spirit-vines), Chaos
+  Rift (violet tear), evacuation "fold" sphere (Scripts/travel_portal.gd).
+
+== MONSTERS WEARING ANOTHER MONSTER'S MODEL (Data/monsters.json "model_from" + tint/scale) ==
+- Dustwalker, Dustwalker Scout, Dustwalker Ravager, Dustwalker Warlord (all the sand brigand/bandit model).
+- Lumora Outrider, Lumora Guard (monster version), Bonegnawer, Dessik Coinhand, Rask Ironjaw (bandit model).
+- Wild Dog (desert scavenger rat x1.5), Thornback Lizard (snake), Sand Stinger (spider), Khepri Beetle (dune scarab),
+  Sandshifter (slime), Mirage Phantom (tormented spirit ghost), Blighted Spider and Weavemother Vhessa (spider),
+  Grukka Bonechewer (goblin warrior), Sergeant Halvek (skeleton).
+- Sunmaddened Wanderer: the human male model, faded. Plain "goblin": the old desert goblin model.
+
+== PETS AND SUMMONS (Scripts/summoned_pet.gd KINDS: borrowed monster models) ==
+- Wolf, Bear, Panther (desert scavenger rat scaled), Hawk (bat), Ghoul (mummy, green), Abomination (bandit, big),
+  Wraith and Shade (ghost, tinted), Spiritual Weapon (ghost, gold).
+- Wildspeaker pet and Phantasmal Echo: placeholder visuals (wildspeaker_pet.gd, phantasmal_echo_pet.gd).
+
+== WORLD OBJECTS ==
+- The Old Foundation Stone (The Guildmaster's Note quest): a flat stand-in stone (world_note.gd).
+- Gathering nodes / crafting stations: all have models in Data/crafting_models.json (nothing missing).
+
+== CHECKED AND FINE (2026-09-24) ==
+- Every item and every spell has an icon file; every sound the code plays is in Data/sounds.json with a real file;
+  every playable race has male/female models and creation portraits.
+

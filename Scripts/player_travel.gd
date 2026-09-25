@@ -18,12 +18,12 @@ extends Node
 class_name PlayerTravel
 
 const LEY_LINES_PATH := "res://Data/ley_lines.json"
-const ZONE_KEY := "lumora_outskirts"   # one zone so far
 const BIND_CHANGE_SECONDS := 3600.0
 const TRASH := ["bent_spoon", "stranger_button", "half_a_letter", "warm_pebble"]
 const ARRIVAL_SCATTER := 2.5           # metres: a group doesn't land on one spot
 
 static var _zone_cache: Dictionary = {}
+static var _zone_cache_id := ""
 
 var player: Node                        # the Player3D this belongs to (the caster, on every peer)
 var _destination: Dictionary = {}       # the ley-line picked for the ritual being cast
@@ -36,9 +36,11 @@ func _ready() -> void:
 
 
 static func zone() -> Dictionary:
-	if _zone_cache.is_empty():
+	var id := ZoneInfo.current_id()
+	if _zone_cache_id != id:
 		var parsed = JSON.parse_string(FileAccess.get_file_as_string(LEY_LINES_PATH)) if FileAccess.file_exists(LEY_LINES_PATH) else null
-		_zone_cache = parsed.get(ZONE_KEY, {}) if typeof(parsed) == TYPE_DICTIONARY else {}
+		_zone_cache = parsed.get(id, {}) if typeof(parsed) == TYPE_DICTIONARY else {}
+		_zone_cache_id = id
 	return _zone_cache
 
 
@@ -65,9 +67,12 @@ func pre_cast(spell_name: String, spell: Dictionary) -> bool:
 			GameLog.log_general("[color=#ff8866]Your spirit is still settling from its last attunement. Try again in %d minutes.[/color]" % int(ceil((BIND_CHANGE_SECONDS - since) / 60.0)))
 			return false
 	if kind == "ritual" and (_destination.is_empty() or _destination_for != spell_name):
-		var choices: Array = zone().get("nodes", []).filter(func(e): return LeyLineNode.is_attuned(str(e.get("id", ""))))
+		var pc := str(player.player_class)
+		var choices: Array = zone().get("nodes", []).filter(func(e): return LeyLineNode.is_attuned(str(e.get("id", ""))) \
+				and LeyLineNode.usable_by(str(e.get("class", "")), pc))
 		if choices.is_empty():
-			GameLog.log_general("[color=#ff8866]You aren't attuned to any ley-line yet. Find a ley-stone and right-click it to attune.[/color]")
+			var plural := "%s %s" % [pc, str(LeyLineNode.KINDS.get(pc, {}).get("plural", "sites"))]   # "Arcanist Spires"
+			GameLog.log_general("[color=#ff8866]You aren't attuned to any of the %s yet. Find one and right-click it to attune.[/color]" % plural)
 			return false
 		_open_chooser(spell_name, choices)
 		return false
