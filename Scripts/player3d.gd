@@ -84,6 +84,7 @@ var resisting: bool = false
 var stealthed: bool = false
 var _shown_stealthed := false
 const STEALTH_TRANSPARENCY := 0.65
+const STEALTH_SPEED_MULT := 0.7   # moving in Stealth (Improved Stealth's +10% on top)
 var known_spells: Array = []
 var known_skills: Array = []
 var known_recipes: Array = []  # tradeskill recipe ids learned from scrolls/quests (innate recipes are always known)
@@ -962,6 +963,36 @@ func _faction_reputation_text(target: Node) -> String:
 	return "%s (%d)" % [label, standing]
 
 
+# Run-speed buffs grow with the caster's level, like EverQuest's (Spirit of Wolf 34% at 9 to 55% at 50, Selo's 16% at 5 to 80%
+# at 51): player_spells.json "travel_scale": [at the spell's own level, at TRAVEL_SCALE_LEVEL] becomes the buff's
+# "travel_speed" at the moment it is cast.
+const TRAVEL_SCALE_LEVEL := 50
+
+
+static func scaled_travel_spell(spell: Dictionary, caster_level: int) -> Dictionary:
+	var scale = spell.get("travel_scale")
+	if not (scale is Array) or scale.size() < 2:
+		return spell
+	var from_level := float(spell.get("level", 1))
+	var t := clampf((caster_level - from_level) / maxf(TRAVEL_SCALE_LEVEL - from_level, 1.0), 0.0, 1.0)
+	var out := spell.duplicate(true)
+	var mods: Dictionary = out.get("modifiers", {}) if out.get("modifiers") is Dictionary else {}
+	mods["travel_speed"] = snappedf(lerpf(float(scale[0]), float(scale[1]), t), 0.01)
+	out["modifiers"] = mods
+	return out
+
+
+var _outdoors_cache := {}   # scene instance id -> outdoors (checked once per zone, not every frame)
+
+
+func _outdoors_here() -> bool:
+	var scene := get_tree().current_scene if is_inside_tree() else null
+	var key := scene.get_instance_id() if scene != null else 0
+	if not _outdoors_cache.has(key):
+		_outdoors_cache = {key: zone_is_outdoors()}
+	return _outdoors_cache[key]
+
+
 func zone_is_outdoors() -> bool:
 	var cycle := get_tree().get_first_node_in_group("day_night_cycle") if is_inside_tree() else null
 	return cycle == null or cycle.get("outdoors") != false
@@ -1496,7 +1527,30 @@ var anim_state: String = "idle"
 # keeps playing it every frame while `attacking` is true (called right where
 # `attacking` is set true, in attack_current_target() and perform_melee_attack()).
 func _trigger_attack_animation() -> void:
-	_current_attack_anim = ATTACK_ANIMS[randi() % ATTACK_ANIMS.size()]
+	var swings := _swing_anims()
+	_current_attack_anim = swings[randi() % swings.size()] if not swings.is_empty() else ATTACK_ANIMS[0]
+
+
+# The clips a swing picks from: an Aetherfist fighting bare-handed punches and kicks (the user's Mixamo clips,
+# tools/add_shared_clips.gd); everyone else swings their weapon.
+const AETHERFIST_SWINGS := ["punch", "punch_combo", "kick"]
+# physical skills with a move of their own (anything else swings the weapon)
+const SKILL_CLIPS := {"flying_kick": "flying_kick", "storm_kick": "flying_kick", "flurry_of_blows": "punch_combo",
+		"improved_flurry": "punch_combo", "celestial_flurry": "punch_combo", "blade_flurry": "dual_combo",
+		# the tanks' taunts (the user: "taunt animations were actually for the tank's taunt spells")
+		"taunt": "emote_taunt", "mountains_challenge": "emote_taunt", "defiant_roar": "emote_taunt",
+		# "sword and shield can be for the shield bash or interrupt skills"
+		"shield_bash": "shield_kick"}
+
+
+func _swing_anims() -> Array:
+	var pool: Array = ATTACK_ANIMS
+	if player_class == "Aetherfist" and Inventory.get_equipped_weapon().is_empty():
+		pool = AETHERFIST_SWINGS
+	if animation_player == null:
+		return pool
+	var have := pool.filter(func(a): return animation_player.has_animation(a))
+	return have if not have.is_empty() else ATTACK_ANIMS.filter(func(a): return animation_player.has_animation(a))
 
 
 # How long `attacking` should stay true so the swing clip can play out fully
@@ -1554,22 +1608,130 @@ func _trigger_cast_animation(spell: Dictionary) -> void:
 	_cast_anim_timer = animation_player.get_animation(anim_name).length
 
 
+# ── Emotes (/bow, /kiss, /cheer, /clap, /wave, /dance [1-5]) ──
+# The user's Mixamo clips (tools/add_shared_clips.gd). The clip plays through anim_state, so everyone near sees it; each
+# of them prints the line ("Jaessa bows.") themselves when they see it start (_announce_seen_emote): no network message.
+# command -> [clip, what you see, what others see]
+const EMOTES := {
+	"bow": ["emote_bow", "You bow.", "%s bows."],
+	"kiss": ["emote_kiss", "You blow a kiss.", "%s blows a kiss."],
+	"cheer": ["emote_cheer", "You cheer!", "%s cheers!"],
+	"clap": ["emote_clap", "You clap.", "%s claps."],
+	"wave": ["emote_wave", "You wave.", "%s waves."],
+	"dance": ["dance", "You dance.", "%s dances."],
+}
+const DANCES := 5   # dance_1 belly dance, dance_2 silly, dance_3 hip hop, dance_4 breakdance, dance_5 the Thriller
+var _emote_anim := ""
+var _emote_timer := 0.0
+var _moving_backward := false
+var _seen_anim_state := ""
+
+
+func emote(key: String, arg: String = "") -> bool:
+	if not EMOTES.has(key):
+		return false
+	if combat_node != null and not combat_node.is_alive():
+		return false
+	if combat_node != null and combat_node.is_casting:
+		GameLog.log_general("You can't do that while casting.")
+		return false
+	var anim: String = EMOTES[key][0]
+	if key == "dance":
+		var n := int(arg) if arg.is_valid_int() else randi_range(1, DANCES)
+		anim = "dance_%d" % clampi(n, 1, DANCES)
+	if animation_player == null or not animation_player.has_animation(anim):
+		GameLog.log_general("You can't do that.")
+		return false
+	is_sitting = false
+	_emote_anim = anim
+	_emote_timer = INF if anim.begins_with("dance") else animation_player.get_animation(anim).length
+	GameLog.log_general(EMOTES[key][1])
+	return true
+
+
+# A task's clip (gathering: fishing, foraging) for `seconds`, through the emote slot: moving or fighting ends it too.
+func play_task_clip(clip: String, seconds: float) -> void:
+	if animation_player != null and animation_player.has_animation(clip):
+		is_sitting = false
+		_emote_anim = clip
+		_emote_timer = seconds
+
+
+func stop_task_clip() -> void:
+	if not _emote_anim.begins_with("emote_") and not _emote_anim.begins_with("dance"):
+		_emote_anim = ""
+		_emote_timer = 0.0
+
+
+# Someone else's character starts an emote (its replicated anim_state): say so, if they're close enough to see.
+func _announce_seen_emote(state: String) -> void:
+	var line := ""
+	for key in EMOTES:
+		var clip: String = EMOTES[key][0]
+		if state == clip or (key == "dance" and state.begins_with("dance_")):
+			line = EMOTES[key][2] % player_name
+	if line.is_empty():
+		return
+	var me := TargetFrame.local_player()
+	if me != null and me != self and me.global_position.distance_to(global_position) <= ChatChannels.SAY_RANGE:
+		GameLog.log_general(line)
+
+
+# A big blow (at least BIG_HIT_FRACTION of your health; monsters don't crit yet) makes you flinch, or stagger forward when
+# it came from behind (the user: "hit reactions can be on big hits and crits"). Not over a swing or a cast.
+const BIG_HIT_FRACTION := 0.15
+
+
+func _play_hit_reaction(attacker: Node = null) -> void:
+	if animation_player == null or attacking or _cast_anim_timer > 0.0 or combat_node.is_casting:
+		return
+	var clip := "hit_front"
+	if attacker is Node3D:
+		var to_attacker := ((attacker as Node3D).global_position - global_position)
+		to_attacker.y = 0.0
+		if to_attacker.length() > 0.1 and (-global_transform.basis.z).dot(to_attacker.normalized()) < -0.3:
+			clip = "hit_back"
+	if animation_player.has_animation(clip):
+		_current_cast_anim = clip
+		_cast_anim_timer = minf(animation_player.get_animation(clip).length, 1.0)
+
+
+# A dodged blow: a quick sidestep (an Aetherfist's is the fancier one), unless already swinging or casting.
+func _play_dodge() -> void:
+	if animation_player == null or attacking or _cast_anim_timer > 0.0:
+		return
+	var clip := "dodge_2" if player_class == "Aetherfist" and animation_player.has_animation("dodge_2") else "dodge"
+	if animation_player.has_animation(clip):
+		_current_cast_anim = clip
+		_cast_anim_timer = minf(animation_player.get_animation(clip).length, 1.6)
+
+
 var _sit_anim := ""   # this sit's variant (tools/share_sit.gd: sit, sit_2, sit_3)
 
 func _update_animation() -> void:
 	if not animation_player or animation_player.get_animation_list().is_empty():
 		return
 	var anim_name: String
+	# an emote lasts until it ends (a dance: until you move) or anything else happens
+	if _emote_anim != "" and (current_speed > 0.1 or attacking or _cast_anim_timer > 0.0 or not is_on_floor() or is_sitting):
+		_emote_anim = ""
+		_emote_timer = 0.0
 	if attacking and _current_attack_anim != "":
 		anim_name = _current_attack_anim
 	elif _cast_anim_timer > 0.0 and _current_cast_anim != "":
 		anim_name = _current_cast_anim
 	elif not is_on_floor():
 		anim_name = "jump"
+	elif _emote_anim != "" and animation_player.has_animation(_emote_anim):
+		anim_name = _emote_anim
 	elif is_sitting:
 		if _sit_anim.is_empty() or not animation_player.has_animation(_sit_anim):
 			_sit_anim = pick_variant(animation_player, "sit")   # cross-legged, legs out or reclining, fresh each time you sit
 		anim_name = _sit_anim
+	elif current_speed > 0.1 and combat_node != null and combat_node.is_stealthed() and animation_player.has_animation("sneak"):
+		anim_name = "sneak"   # creeping (Stealth moves at 70%)
+	elif current_speed > 0.1 and _moving_backward and animation_player.has_animation("walk_back"):
+		anim_name = "walk_back"
 	elif current_speed > WALK_SPEED + 0.5:
 		anim_name = "run"
 	elif current_speed > 0.1:
@@ -1591,6 +1753,9 @@ func _update_animation() -> void:
 func _play_replicated_animation() -> void:
 	if not animation_player or animation_player.get_animation_list().is_empty():
 		return
+	if anim_state != _seen_anim_state:
+		_seen_anim_state = anim_state
+		_announce_seen_emote(anim_state)
 	if animation_player.current_animation != anim_state:
 		animation_player.play(anim_state, 0.15)
 
@@ -2137,6 +2302,10 @@ func _process(delta: float) -> void:
 		attack_cooldown -= delta
 	if _cast_anim_timer > 0.0:
 		_cast_anim_timer -= delta
+	if _emote_timer > 0.0:
+		_emote_timer -= delta
+		if _emote_timer <= 0.0:
+			_emote_anim = ""
 
 	update_vitals_decay(delta)
 #endregion
@@ -2357,11 +2526,13 @@ func handle_movement(delta: float) -> void:
 		strafe += 1.0
 
 	var forward := 0.0
+	_moving_backward = false
 	if Input.is_action_pressed("move_forward") or autorun_enabled:
 		forward += 1.0
 	if Input.is_action_pressed("move_backward"):
 		forward -= 1.0
 		autorun_enabled = false
+	_moving_backward = forward < 0.0
 
 	var target_speed: float
 	if is_crouching:
@@ -2371,7 +2542,12 @@ func handle_movement(delta: float) -> void:
 	else:
 		target_speed = WALK_SPEED
 	var hidden_bonus := 0.10 if combat_node.has_passive("improved_stealth") and (combat_node.is_stealthed() or combat_node.is_currently_invisible()) else 0.0
-	target_speed *= maxf(0.2, 1.0 + combat_node.get_modifier("move_speed_bonus") + hidden_bonus - combat_node.get_modifier("speed_slow"))  # Swift Step, stances, snares, Improved Stealth
+	# travel buffs (Ghost Wolf, Windrunner's Blessing, Ludwig's Steadfast March): only the strongest counts
+	# ...and never underground (EverQuest: "run speed modifiers cannot be used in zones that are tagged indoors")
+	var travel := combat_node.get_strongest_modifier("travel_speed") if _outdoors_here() else 0.0
+	target_speed *= maxf(0.2, 1.0 + combat_node.get_modifier("move_speed_bonus") + travel + hidden_bonus - combat_node.get_modifier("speed_slow"))  # Swift Step, stances, snares, Improved Stealth
+	if combat_node.is_stealthed():
+		target_speed *= STEALTH_SPEED_MULT   # creeping to stay silent (test 45: "70% of normal run speed"); not invisibility
 
 	if forward < 0.0:
 		target_speed *= BACKWARD_SPEED_MULT
@@ -3429,6 +3605,8 @@ func take_damage(amount: int, attacker: Node = null) -> void:
 		return
 	last_damage_time_ms = Time.get_ticks_msec()
 	combat_node.take_damage(amount)
+	if combat_node.is_alive() and amount >= combat_node.max_hp * BIG_HIT_FRACTION:
+		_play_hit_reaction(attacker)
 	GameLog.log_combat("💔 You take %d damage. [HP: %d/%d]" % [amount, combat_node.current_hp, combat_node.max_hp])
 	_register_attacker(attacker)
 	_check_spell_interrupt(attacker)
@@ -4941,6 +5119,8 @@ const SPELL_DISPLAY_NAMES := {
 	"deaths_gate": "Death's Gate",
 	"oath_of_return": "Oath of Return",
 	"song_of_remembrance": "Song of Remembrance",
+	"windrunners_blessing": "Windrunner's Blessing",
+	"ludwigs_steadfast_march": "Ludwig's Steadfast March",
 }
 
 static func spell_display_name(spell_name: String) -> String:
@@ -5097,12 +5277,17 @@ func cast_spell(spell_name: String, is_auto_recast: bool = false) -> bool:
 
 	if not is_skill:
 		_trigger_cast_animation(spell)
-	elif str(spell.get("target", "")) in ["enemy", "cone"] and animation_player != null:
+	elif (str(spell.get("target", "")) in ["enemy", "cone"] or SKILL_CLIPS.has(SpellInfo.root_name(spell_name))) and animation_player != null:
 		# a weapon swing, played through the cast-animation slot (it shows while _cast_anim_timer runs)
-		var swings: Array = ATTACK_ANIMS.filter(func(a): return animation_player.has_animation(a))
-		if not swings.is_empty():
-			_current_cast_anim = swings[randi() % swings.size()]
-			_cast_anim_timer = minf(animation_player.get_animation(_current_cast_anim).length, 1.2)
+		var own: String = SKILL_CLIPS.get(SpellInfo.root_name(spell_name), "")
+		if not own.is_empty() and animation_player.has_animation(own):
+			_current_cast_anim = own   # the skill's own move (the user's Mixamo clips): a flying kick, a flurry of blows
+			_cast_anim_timer = minf(animation_player.get_animation(own).length, 3.0)
+		else:
+			var swings: Array = _swing_anims()
+			if not swings.is_empty():
+				_current_cast_anim = swings[randi() % swings.size()]
+				_cast_anim_timer = minf(animation_player.get_animation(_current_cast_anim).length, 1.2)
 
 	var cast_time: float = float(spell.get("casting_time", 0.0))
 	if spell.has("casting_time_max"):  # Chaos Rift: a flickering 5-8 s
@@ -5130,6 +5315,7 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 	if spell.has("travel"):
 		$Travel.resolve(spell_name, spell)
 		return
+	spell = scaled_travel_spell(spell, combat_node.level)
 	var display_name    := spell_display_name(spell_name)
 	# An upgrade (Improved Plague Strike) runs its base spell's special code; its own numbers come from its own data.
 	var spell_key := SpellInfo.root_name(spell_name)
@@ -7400,6 +7586,7 @@ func _tick_defense_skill(result: String) -> void:
 			_tick_skill("parry")
 		"DODGE":
 			_tick_skill("dodge")
+			_play_dodge()
 		"BLOCK":
 			_tick_skill("block")
 		"RIPOSTE":

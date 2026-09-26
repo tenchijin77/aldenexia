@@ -1,12 +1,12 @@
 ALDENEXIA: LIGHTFALL — TESTING CHECKLIST
 New features and fixes waiting for a real playtest, in two parts: OUTSTANDING (not passed yet) and COMPLETED (passed).
 When an item passes, change [ ] to [x] and move it to the same section under COMPLETED (or just add "- working" and it
-gets moved). A failure goes to outstanding_items.txt with what went wrong. Last updated 2026-09-26 (after test 42).
-Everything below was built after test 26.   Outstanding: 262   Completed: 71
+gets moved). A failure goes to outstanding_items.txt with what went wrong. Last updated 2026-09-26 (after test 45).
+Everything below was built after test 26.   Outstanding: 278   Completed: 73
 
 
 ################################################################################
-  OUTSTANDING — still to test (262)
+  OUTSTANDING — still to test (278)
 ################################################################################
 
 == ACCOUNTS AND JOINING ==
@@ -223,6 +223,36 @@ Everything below was built after test 26.   Outstanding: 262   Completed: 71
     sundered armour (ravager), blinded (Djhanid), grave miasma (restless corpse), withering touch (wraith).
 [ ] Two players: one zones, the other stays; both keep playing (chat across zones doesn't work yet).
 
+== EMOTES AND NEW ANIMATIONS (2026-09-26) ==
+[ ] /bow /kiss /cheer /clap /wave: your character acts it out; a player standing near you sees it and gets
+    "Jaessa bows." (etc.) in their chat. Try a big race and a small one.
+[ ] /dance, /dance 1 to /dance 5: dances until you move. Moving, attacking or casting ends any emote.
+[ ] Walk backward (S): a backpedal, not a forward walk. In Stealth: a sneaking crouch.
+[ ] An Aetherfist with no weapon punches and kicks; Flying Kick flies; Flurry of Blows is a punch combo. A dodged blow:
+    a sidestep (the Aetherfist's is fancier).
+[ ] Gather at a fishing spot: you cast a line; forage: you kneel and pick.
+[ ] Taunt (tanks), Mountain's Challenge, Defiant Roar: a taunting gesture. Shield Bash: a shield kick.
+[ ] A big blow (a fifth of your health or more) makes you flinch; from behind you stagger forward. Small hits don't.
+
+== RUN-SPEED BUFFS (2026-09-26) ==
+[ ] Windrunner's Blessing (Spiritweaver or Wildspeaker 8; scroll from the class trainer or the Lumora scribe): cast on a
+    groupmate, they run 30% faster for 36 minutes (more from a higher-level caster). Cast with no target: on yourself.
+[ ] Ludwig's Steadfast March (Troubadour 8): while it plays, everyone within 15 m runs faster (+16% at level 8, growing
+    with level). Click it again to stop.
+[ ] Ghost Wolf + Windrunner's Blessing together: only the stronger one counts.
+[ ] In the Warden Crypts none of them speed you up; back outside they do again.
+
+== TEST 45 FIXES (2026-09-26) ==
+[ ] Invisible players show as (Name) in round brackets; stealthed as [Name] in square ones.
+[ ] Moving in Stealth is slower: 70% of your normal speed (a little more with Improved Stealth). Invisibility isn't slowed.
+[ ] Lumora: the NPCs by the building doors (trainers, the innkeeper, the healers, the Magistrate, Halvar and Jalen, the
+    Soul Binder) face out, toward you, not into the wall.
+[ ] Lumora's east end: the Caravanserai and the Wayfarers' Lodge moved inside the town (they stood past the land's edge,
+    behind the invisible wall). Walk to both.
+[ ] Lumora's notice board is the medieval signpost (right-click it to read).
+[ ] The Old Foundation Stone (The Guildmaster's Note, by the Outskirts graveyard) is the real stone model now.
+[ ] The crypt's wall torches are the hand-torch model in iron brackets, burning.
+
 == THE WARDEN CRYPTS, SPIRITUAL WEAPON, STEALTH NAMES (2026-09-26, afternoon) ==
 [ ] Inside the Outskirts mausoleum, at the east end: a dark stairwell with a stone rim. Walk into it: you load into
     "The Warden Crypts" (its own zone, started on demand, UDP 8923) at the foot of the stairs.
@@ -252,11 +282,10 @@ Everything below was built after test 26.   Outstanding: 262   Completed: 71
 [ ] Go into Stealth: a sneaky sound. Pickpocket an item: a clink.
 
 == THE SHADOWBLADE AND MORE (2026-09-26, overnight) ==
-[ ] Stealth (stance bar): the hooded icon; you turn into a faint shape and your nameplate says [stealth]; a groupmate
+[ ] Stealth (stance bar): the hooded icon; you turn into a faint shape and your nameplate says [Name]; a groupmate
     sees the same. Walk up to a rat or a goblin: it doesn't notice you. Backstab from stealth; then it fights.
 [ ] Shadowstep a monster that hasn't seen you: you appear behind it, hidden, and it doesn't turn on you. Backstab.
 [ ] Backstab, Shadowstep, Evasion, Ambush, Garrote: instant, no mana, no "You begin casting a spell", a weapon swing.
-[ ] Blindside (Jaessa learns it at login): the monster is stunned 3 s and stands still, not turning: step behind, Backstab.
 [ ] A groupmate in another zone: their health and mana bars fill on the group frame (update every few seconds).
 [ ] Summon a wolf / bear / hawk: it moves (legs, tail, wings) and lunges when it bites.
 [ ] A troll female or ogre female running, from behind: no hump across the shoulders.
@@ -271,9 +300,6 @@ Everything below was built after test 26.   Outstanding: 262   Completed: 71
     you couldn't pay stays). Out of town, or with no guard near, nothing happens. A duel in town is fine.
 [ ] Magistrate Corvane (Lumora courthouse, east of the avenue): pays off a bounty; then "make amends" buys back the
     Warden standing the crime cost.
-[ ] Lumora's stand-in buildings: the Sunlit Rest, the Citadel, the Hall of Arms, the Courthouse, the Lycaeum Annex, the
-    Temple of the Dawn (behind the Dawnspire Altar), the Lantern Lodge (Old Town), the Cisterns; walk in through the doors,
-    not through the walls. Guards still patrol without getting stuck on them.
 [ ] Every class trainer in their hall sells their class's scrolls (e.g. the Woodstalker trainer, Ranger Thalen, at the
     Hall of Arms). The Troubadour trainer is at the Sunlit Rest.
 [ ] High Priestess Solenne (Temple): 5 copper heals you fully and cures poisons, disease, curses.
@@ -369,6 +395,7 @@ Everything below was built after test 26.   Outstanding: 262   Completed: 71
     Note anything that clips badly in the attack and cast animations.
 [ ] Binding: a caster's Attune Spirit on a targeted friend binds only that friend; a Blademaster can't cast it ("ask a caster,
     or find a Soul Binder"); Soulbinder Maren at Lumora's temple binds for 1 silver; once an hour either way.
+    - test 45: Maren is there and asks to bind; paying the silver not tried yet.
 
 == LUMORA, THE CITY: FIRST PASS (2026-09-25) ==
 [ ] Walk into Lumora: "Welcome to Lumora" plays, at the same loudness as the other zones' music.
@@ -491,7 +518,7 @@ Everything below was built after test 26.   Outstanding: 262   Completed: 71
 [ ] Restart the world while he's mid-visit: he comes back where he should be (on the road, or at his stop), not from the start.
 
 ################################################################################
-  COMPLETED — passed (71)
+  COMPLETED — passed (73)
 ################################################################################
 
 == TEST 35 FIXES (2026-09-25) ==
@@ -528,6 +555,11 @@ Everything below was built after test 26.   Outstanding: 262   Completed: 71
 [x] Animations still look right on the new meshes (idle, walk, run, cast, sit, death) — no stretched or torn spots. - animations look good.
 [x] The women's new shapes (every race): fuller bust, narrower waist, rounder hips; clothes follow; nothing tears when
     they run, cast, sit or die. - looks great
+
+== TEST 45 CONFIRMED (2026-09-26) ==
+[x] Blindside: the monster is stunned 3 s and stands still, not turning: step behind, Backstab. - working ("the new stun
+    mechanic works well... making rogue soloing viable")
+[x] Lumora's stand-in buildings look good (the two east ones that couldn't be reached are fixed: TEST 45 FIXES).
 
 == TEST 44 CONFIRMED (2026-09-26) ==
 [x] The new sitting postures; the lizardkin tails; on-demand zones (only the Outskirts at login, each zone starts on entry).

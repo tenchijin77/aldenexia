@@ -71,12 +71,21 @@ func _shadowblade() -> void:
 		await get_tree().physics_frame
 	check(p.stealthed, "hidden: the flag is up (replicated)")
 	check(not rat.can_see_player(), "a stealthed player isn't noticed by sight")
+	# test 45: "in stealth, rogues should move a bit slower... 70% of normal run speed"
+	p.combat_node.remove_effect("stance_stealth")
+	var open_speed: float = await _run_speed(p)
+	p.combat_node.apply_effect("stance_stealth", 3600.0, {"stealthed": 1.0})
+	var sneak_speed: float = await _run_speed(p)
+	check(absf(sneak_speed / maxf(open_speed, 0.01) - 0.7) < 0.03, "moving in Stealth: 70%% of the speed (%.2f vs %.2f m/s)" % [sneak_speed, open_speed])
 	check(p.sight_appraisal(rat).contains("can't see you"), "appraisal: you think it can't see you")
 	rat.combat_node.apply_effect("zt_see_invis", 60.0, {"see_invisible": 1.0})
 	check(rat.can_see_player() and p.sight_appraisal(rat).contains("can see you"), "one that sees invisible does, and appraisal says so")
 	rat.combat_node.remove_effect("zt_see_invis")
 	var plate := TargetFrame.nameplate_name(p)
 	check(plate.begins_with("[") and plate.ends_with("]") and not plate.contains("stealth"), "the nameplate shows the name in square brackets (%s)" % plate)
+	p.combat_node.apply_effect("zt_invis", 60.0, {"invisible": 1.0})
+	eq(TargetFrame.nameplate_name(p), "(%s)" % TargetFrame.display_name(p), "invisible: the name in round brackets")
+	p.combat_node.remove_effect("zt_invis")
 	var mi := p.get_node("Character").find_children("*", "GeometryInstance3D", true, false)
 	check(not mi.is_empty() and (mi[0] as GeometryInstance3D).transparency > 0.5, "and the model is a faint shape")
 	p.combat_node.remove_effect("stance_stealth")
@@ -107,3 +116,14 @@ func _shadowblade() -> void:
 	check(load("res://Data/class_stances.json") != null and FileAccess.get_file_as_string("res://Data/class_stances.json").contains("master_stealth.png"), "Stealth has its own (hooded) icon")
 	p.queue_free()
 	await frames(2)
+
+
+func _run_speed(p: Node) -> float:
+	p.autorun_enabled = true
+	for i in 30:
+		await get_tree().physics_frame
+	var v: Vector3 = p.velocity
+	p.autorun_enabled = false
+	for i in 20:
+		await get_tree().physics_frame
+	return Vector2(v.x, v.z).length()

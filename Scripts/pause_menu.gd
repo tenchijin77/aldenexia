@@ -267,6 +267,8 @@ const CHAT_COMMANDS := [
 	["/focus [clear|name]", "Make your target (or a named group member) your FOCUS: beneficial spells go to them while you target an enemy"],
 	["/assist  (or press F)", "Target whatever your current target is targeting"],
 	["/pet", "Pet the cat you are targeting, or the nearest one"],
+	["/bow  /kiss  /cheer  /clap  /wave", "Emotes: your character acts it out and players nearby see it (and a line in their chat)"],
+	["/dance [1-5]", "Dance until you move: 1 belly dance, 2 silly, 3 hip hop, 4 breakdance, 5 the Thriller (no number: any)"],
 	["/language [name]", "List your languages and skill, or switch the language you speak (also the dropdown by the chat box)"],
 	["/surname [Name]", "From level 10, choose your last name (once); with no name, shows yours"],
 	["/stuck", "Trapped in the scenery? Moves you 5 m to a clear spot nearby (not in a fight; once every 30 s)"],	["/cast <spell>", "Cast a spell you know by name (the start of the name is enough: /cast fire)"],

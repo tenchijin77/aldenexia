@@ -45,6 +45,19 @@ func run() -> void:
 	var path := NavigationServer3D.map_get_path(map, Vector3(0, 0, 420), Vector3(0, 0, 292), true)
 	check(path.size() >= 2 and path[path.size() - 1].distance_to(Vector3(0, 0, 292)) < 3.0, "from the south gate to Citadel Plaza")
 
+	# test 45: "all npcs seem to be facing the building they're in front of" — the NPC model's front is its -Z, so an NPC at
+	# a door has its -Z pointing out, the way the building's door (+Z) points
+	var placement: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://Data/lumora_standins_placement.json"))
+	var at_doors := 0
+	for npc in npcs.get_children():
+		for id in placement:
+			var door: Transform3D = str_to_var(placement[id]["transform"])
+			for spot in placement[id]["spots"]:
+				if (str_to_var(spot) as Transform3D).origin.distance_to((npc as Node3D).position) < 0.2:
+					at_doors += 1
+					check((npc as Node3D).basis.z.dot(door.basis.z) < -0.9, "%s faces out from %s" % [npc.name, id])
+	check(at_doors >= 19, "the NPCs at the doors were checked (%d; the Soul Binder stands apart)" % at_doors)
+
 	# the healer
 	var p = await make_player({"player_name": "Zozuur", "player_class": "Voidknight"})
 	p.combat_node.current_hp = 5

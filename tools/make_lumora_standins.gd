@@ -29,8 +29,8 @@ const BUILDINGS := [
 	["cisterns_entrance", "The Cisterns", Vector3(7, 4, 6), "lumora", [330, 80], [0, 80], DARK],
 	["ralphs_last_round", "Ralph's Last Round", Vector3(12, 6, 10), "lumora_outskirts", [68, 40], [68, 14], SANDSTONE],
 	["solaris_vault", "Solaris Vault", Vector3(14, 9, 12), "lumora", [0, 80], [0, 290], DARK],
-	["caravanserai", "The Caravanserai", Vector3(26, 7, 20), "lumora", [610, 180], [785, 180], SANDSTONE],
-	["wayfarers_lodge", "Wayfarers' Lodge", Vector3(14, 7, 10), "lumora", [560, 250], [560, 180], SANDSTONE],
+	["caravanserai", "The Caravanserai", Vector3(26, 7, 20), "lumora", [455, 180], [0, 180], SANDSTONE],   # (test 45: was x 610, past the land's edge at 512)
+	["wayfarers_lodge", "Wayfarers' Lodge", Vector3(14, 7, 10), "lumora", [440, 240], [440, 180], SANDSTONE],   # (was x 560)
 	["paladins_vigil", "The Paladin's Vigil", Vector3(4, 7, 4), "lumora", [0, 260], [0, 290], SANDSTONE],
 ]
 const STATUES := ["paladins_vigil"]   # a statue on a plinth, not a building: stands on its marker
@@ -56,7 +56,9 @@ func _init() -> void:
 		face = face.normalized() if face.length() > 0.01 else Vector3(0, 0, 1)
 		var basis := Basis(Vector3.UP, atan2(face.x, face.z))      # the building's +Z (its door) turned to `face`
 		var center := marker if STATUES.has(id) else marker - face * (size.z * 0.5 + GAP)
-		var npc_basis := basis                                     # NPCs by the door look out the same way
+		# NPCs by the door look out the same way: the NPC model's front is its -Z (test 45: "all npcs seem to be facing the
+		# building they're in front of")
+		var npc_basis := basis.rotated(Vector3.UP, PI)
 		placement[id] = {
 			"scene": path, "zone": b[3], "sign": b[1],
 			"transform": var_to_str(Transform3D(basis, center)),

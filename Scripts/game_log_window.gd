@@ -619,7 +619,7 @@ func _on_chat_input_gui_input(event: InputEvent) -> void:
 # and "/location" both resolve to "/location" since no other command starts
 # with "loc"; "/f" would be ambiguous if two commands both started with "f".
 const GMCommandsScript := preload("res://Scripts/gm_commands.gd")
-const COMMANDS := ["/location", "/hail", "/appraise", "/time", "/follow", "/camp", "/exit", "/log", "/invite", "/disband", "/say", "/tell", "/party", "/zone", "/played", "/resetui", "/who", "/weather", "/pet", "/quests", "/compass", "/raid", "/gm", "/focus", "/assist", "/announce", "/maintenance", "/trade", "/ban", "/unban", "/bans", "/language", "/surname", "/stuck", "/cast", "/target", "/pause", "/macro", "/kill", "/give", "/teleport", "/duel", "/pvp", "/yield"]
+const COMMANDS := ["/location", "/hail", "/appraise", "/time", "/follow", "/camp", "/exit", "/log", "/invite", "/disband", "/say", "/tell", "/party", "/zone", "/played", "/resetui", "/who", "/weather", "/pet", "/quests", "/compass", "/raid", "/gm", "/focus", "/assist", "/announce", "/maintenance", "/trade", "/ban", "/unban", "/bans", "/language", "/surname", "/stuck", "/cast", "/target", "/pause", "/macro", "/kill", "/give", "/teleport", "/duel", "/pvp", "/yield", "/bow", "/kiss", "/cheer", "/clap", "/wave", "/dance"]
 
 
 # /surname            what yours is
@@ -676,6 +676,8 @@ func _handle_slash_command(text: String) -> bool:
 				WorldAnnouncer.print_who(player)
 		"/pet":
 			player.try_pet_nearby()
+		"/bow", "/kiss", "/cheer", "/clap", "/wave", "/dance":
+			return player.emote(cmd.substr(1), arg)   # emotes (player3d.gd EMOTES); /dance 1-5 picks the dance
 		"/focus":
 			player.cmd_focus(arg)
 		"/assist":

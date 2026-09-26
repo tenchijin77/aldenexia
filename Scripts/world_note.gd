@@ -66,8 +66,17 @@ func _ready() -> void:
 	add_child(_label)
 
 
-# A worn, flat foundation stone (stand-in).
+# A worn, flat foundation stone: the user's model (Scenes/props/old_foundation_stone.tscn, 2 x 0.3 x 1.35 m), or a box.
+const STONE_SCENE := "res://Scenes/props/old_foundation_stone.tscn"
+
+
 func _build_stone() -> void:
+	if ResourceLoader.exists(STONE_SCENE):
+		var model: Node3D = (load(STONE_SCENE) as PackedScene).instantiate()
+		model.name = "Stone"
+		model.rotation_degrees.y = randf() * 360.0
+		add_child(model)
+		return
 	var stone := MeshInstance3D.new()
 	var box := BoxMesh.new()
 	box.size = Vector3(1.6, 0.35, 1.2)

@@ -3677,6 +3677,61 @@
     "effect": null,
     "teaches_spell": "ghost_wolf"
   },
+  "scroll_of_windrunners_blessing": {
+    "name": "Scroll of Windrunner's Blessing",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing Windrunner's Blessing. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "spiritweaver",
+      "wildspeaker"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "windrunners_blessing"
+  },
+  "scroll_of_ludwigs_steadfast_march": {
+    "name": "Scroll of Ludwig's Steadfast March",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "A scroll bearing Ludwig's Steadfast March. Right-Click to learn.",
+    "stackable": true,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "troubadour"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "teaches_spell": "ludwigs_steadfast_march"
+  },
   "scroll_of_spirit_link": {
     "name": "Scroll of Spirit Link",
     "icon": "res://Assets/icons/items/scroll.png",

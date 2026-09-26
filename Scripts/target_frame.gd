@@ -255,9 +255,8 @@ static func is_hidden_from_local_player(entity: Node) -> bool:
 # is false, but true identity is still concealed until the entity attacks and
 # actually breaks its own invisibility), this replaces the name entirely with
 # a vague parenthesized descriptor — "(a ghost)" for a monster using its own
-# flavor description, or a generic placeholder for a player, since players
-# don't have an equivalent flavor-text field. Otherwise appends the
-# game-master/stealth tags to the normal name.
+# flavor description; a player shows as their name in round brackets, "(Jaessa)" (test 45). Otherwise the normal
+# name: a game master's in <angle brackets>, a stealthed player's in [square brackets].
 const GM_NAME_COLOR := Color(1.0, 0.6, 0.15)
 
 
@@ -272,6 +271,8 @@ static func nameplate_name(entity: Node) -> String:
 		var desc: String = ""
 		if "monster_description" in entity:
 			desc = str(entity.get("monster_description"))
+		if desc.is_empty() and "stealthed" in entity:
+			desc = display_name(entity)   # an invisible player: their name in round brackets, "(Jaessa)" (test 45)
 		if desc.is_empty():
 			desc = "a shadowy figure"
 		return "(%s)" % desc

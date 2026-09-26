@@ -33,6 +33,11 @@ candidates instead of guessing; a typo that matches nothing prints "Unknown comm
 
 - `/who` (added 2026-09-19) — lists every player in the world with level, class and zone (every zone since 2026-09-25).
 - `/pet` (added 2026-09-19) — pet your targeted cat, or the nearest one within 4m (Kenji, Oni).
+- `/bow`, `/kiss`, `/cheer`, `/clap`, `/wave` (added 2026-09-26) — emotes: the character acts it out (the
+  user's Mixamo clips); players within say range see it and get "Jaessa bows." in their chat. Moving, fighting or casting
+  ends one. Note: `/k` is now ambiguous (/kill, /kiss).
+- `/dance [1-5]` (added 2026-09-26) — dance until you move: 1 belly dance, 2 silly, 3 hip hop, 4 breakdance, 5 the
+  Thriller; no number picks one.
   Note: `/p` is now ambiguous between /party and /pet (use /pa or /pe, or the full names).
 - `/weather rain|clear` (added 2026-09-19, host / single-player only) — start or stop rain; it
   otherwise rains on its own, randomly and rarely.
@@ -2399,6 +2404,60 @@ GATE RAIDS (`Scripts/gate_raid_manager.gd`, `Data/gate_raids.json`, node "GateRa
   silenced, burning, terrified already matched); sundered armour -> sunder_armor, bleeding -> rend (existing art);
   warmth of the campfire -> groupfire.
 - Tests: test_test37.gd. Suite: 3,808 checks pass.
+
+### 2026-09-26: the user's Mixamo animations — emotes, sneaking, backpedal, Aetherfist moves, dodges, gathering
+- 32 clips (downloaded on one of our own models, so our bone names) copied from ~/NCT/.../models/animations to
+  Assets/animations/mixamo/<snake_case>.fbx ("Dodging (1)" = dodging_complex, the Aetherfist's).
+- tools/add_shared_clips.gd (new): retargets each onto all 22 race skeletons (make_animation_pack.gd's retarget) and ADDS
+  them to the existing packs by the game's clip names (emote_bow/kiss/cheer/clap/wave/taunt, dance_1-5, sneak, walk_back,
+  swim, swim_out, climb, climb_top, fish_cast, fish_idle, pick_up, hit_front, hit_back, dodge, dodge_2, punch,
+  punch_combo, kick, flying_kick, shield_kick, dual_combo, club_combo, heavy_swing), so the later pack fixes stay. Clips
+  that walked off (no "In Place": the dances, the lunging combos, climbing out) have their drift taken out. Re-runnable.
+  Pack backups: the session scratchpad (packs_backup).
+- EMOTES: /bow /kiss /cheer /clap /wave, /dance [1-5] (loops until you move). (A /beckon using the taunt gesture was
+  taken back out: the user's taunt clip is for the tanks' taunts.) Everyone near sees the clip (anim_state is replicated) and each viewer's own game
+  prints "Jaessa bows." when it starts - no network message.
+- Moving in Stealth plays the sneak; walking backward plays the backpedal.
+- AETHERFIST bare-handed swings punch / punch combo / kick; a dodged blow plays a dodge (the Aetherfist's is the complex
+  one). Flying Kick and Storm Kick fly, the flurries punch combo, Blade Flurry is the dual-weapon combo (SKILL_CLIPS).
+- GATHERING: fishing casts a line, foraging kneels and picks (gathering_node.gd GATHER_CLIPS) for the gather's length.
+- The user's calls: the taunt gesture is the tanks' Taunt / Mountain's Challenge / Defiant Roar; the sword-and-shield
+  kick is Shield Bash; hit reactions only on big blows (15%+ of your health; a flinch, or staggering forward from behind:
+  Player3D.BIG_HIT_FRACTION) and crits (monsters don't crit yet).
+- Not used yet: swim / swim_out (the water work), climb / climb_top (ladders "if we get there"), fish_idle, club_combo,
+  heavy_swing (5 s: for a big two-handed ability).
+- Commands list: pause menu, TESTER_GUIDE, the reference above. Tests: test_emotes (67).
+
+### 2026-09-26: run-speed buffs (Windrunner's Blessing, Ludwig's Steadfast March)
+- The user: "our world is very large like eq... we will need similar run-speed buffs for the groups". Names are the
+  user's: Windrunner's Blessing (our Spirit of Wolf) and Ludwig's Steadfast March (our Selo's, "for old beethoven").
+- WINDRUNNER'S BLESSING: Spiritweaver & Wildspeaker 8, on your target (or yourself), 36 minutes, 40 mana.
+  LUDWIG'S STEADFAST MARCH: Troubadour 8, a song: every ally within 15 m while it plays.
+- Scaled by the caster's level like EverQuest's (Spirit of Wolf 34% at 9 to 55% at 50; Selo's 16% at 5 to 80% at 51):
+  "travel_scale" in player_spells.json -> Windrunner's +30% to +55%, Ludwig's +16% to +65% (level 8 to 50;
+  Player3D.scaled_travel_spell at cast time). Drums/instruments: later.
+- "travel_speed" buffs don't add up (CombatNode.get_strongest_modifier); Ghost Wolf's +15% became one. None of them work
+  underground (EverQuest: not in zones tagged indoors) - the Warden Crypts.
+- Scrolls: the class trainers and the Lumora scribe. player_spells.xlsx rows added.
+- Tests: test_speed_buffs (21).
+
+### Test 45: Leeia (Woodstalker), Jaessa (Shadowblade), build 83a5623 (2026-09-26)
+- Stealth shows [Name], invisibility (Name) (target_frame.gd nameplate_name); appraisal says whether you think it sees you
+  (both built just before the test's notes arrived).
+- STEALTH MOVES AT 70% (Player3D.STEALTH_SPEED_MULT; Improved Stealth's +10% on top; invisibility isn't slowed).
+- LUMORA NPCS FACE OUT: the NPC model's front is its -Z; make_lumora_standins.gd gave the door spots the building's
+  outward +Z, so 20 NPCs stared at the wall. Spots turned (placement file regenerated), the scene's NPCs flipped.
+- THE EAST BUILDINGS: the Caravanserai (x 610) and the Wayfarers' Lodge (x 560) stood past the terrain's edge (512), behind
+  the zone wall. Moved to x 455 / 440; navmesh re-baked. test_test45 checks every stand-in is inside the walls.
+- THE NOTICE BOARD is the medieval signpost (show_paper off + Scenes/props/medieval_signpost.tscn under it).
+- THE OLD FOUNDATION STONE: the model was already in (Dustwind uses it); the Guildmaster's Note cache (world_note.gd
+  show_stone) drew a box. It uses the model now; struck from ART NEEDED.
+- CRYPT TORCHES: dungeon_builder.gd wall torches are the hand-torch model in an iron bracket, burning (FireFX flickers
+  their lights).
+- Confirmed: Blindside's stun + Backstab ("making rogue soloing viable"); Lumora's buildings; the Soul Binder asks to bind.
+- For discussion (see the reply / outstanding_items.txt): Lumora's size, armour models, animations still needed,
+  water and swimming, group run-speed buffs.
+- Tests: test_test45 (18), test_test44 +3, test_lumora_standins +20.
 
 ### 2026-09-26 afternoon: the Warden Crypts, the Spiritual Weapon, [stealth] names, appraisal sight
 - THE WARDEN CRYPTS (the user: "a small zone... zone into via steps inside the mausoleum building... my first stab at a

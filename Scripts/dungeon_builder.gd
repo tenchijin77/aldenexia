@@ -27,7 +27,6 @@ const TORCH_COLOR := Color(1.0, 0.62, 0.30)
 
 var _rows: PackedStringArray = PackedStringArray()
 var _torches: Array[OmniLight3D] = []
-var _flicker := 0.0
 
 
 func _ready() -> void:
@@ -197,54 +196,56 @@ func _add_stairs(c: int, r: int, faces: PackedVector3Array) -> void:
 		_add_box(centre + dir * along + Vector3(0, h / 2.0, 0), size, STONE_FLOOR.lightened(0.1), faces)
 
 
+# A wall torch: the hand torch (models/Weapons/hand_torch.glb, grip at the origin, 0.65 m) in an iron bracket, leaning out
+# from the wall, burning (fire_fx.gd, which also flickers its light).
+const TORCH_MODEL := "res://models/Weapons/hand_torch.glb"
+const TORCH_HEAD := 0.47   # the torch's head above its grip
+
+
 func _add_torch(c: int, r: int) -> void:
 	var toward := Vector3.ZERO
 	for n in [[0, -1], [0, 1], [-1, 0], [1, 0]]:
 		if not is_open(c + n[0], r + n[1]):
 			toward = Vector3(n[0], 0, n[1])
 			break
-	var pos := Vector3((c + 0.5) * CELL, 2.6, (r + 0.5) * CELL) + toward * (CELL / 2.0 - 0.15)
-	var sconce := MeshInstance3D.new()
+	var torch := Node3D.new()
+	torch.name = "WallTorch%d" % (_torches.size() + 1)
+	torch.position = Vector3((c + 0.5) * CELL, 2.2, (r + 0.5) * CELL) + toward * (CELL / 2.0 - 0.18)
+	_keep(torch)
+	if toward != Vector3.ZERO:
+		torch.look_at(torch.global_position - toward, Vector3.UP)   # -Z away from the wall
+	var bracket := MeshInstance3D.new()
 	var box := BoxMesh.new()
-	box.size = Vector3(0.18, 0.45, 0.18)
-	sconce.mesh = box
-	sconce.position = pos
-	sconce.material_override = _stone(Color(0.2, 0.15, 0.1))
-	_keep(sconce)
-	var flame := MeshInstance3D.new()
-	var ball := SphereMesh.new()
-	ball.radius = 0.12
-	ball.height = 0.3
-	flame.mesh = ball
-	flame.position = pos + Vector3(0, 0.35, 0)
-	var glow := StandardMaterial3D.new()
-	glow.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	glow.albedo_color = TORCH_COLOR
-	glow.emission_enabled = true
-	glow.emission = TORCH_COLOR
-	flame.material_override = glow
-	_keep(flame)
+	box.size = Vector3(0.08, 0.08, 0.3)
+	bracket.mesh = box
+	bracket.position = Vector3(0, -0.05, 0.1)
+	var iron := StandardMaterial3D.new()
+	iron.albedo_color = Color(0.12, 0.11, 0.1)
+	iron.metallic = 0.7
+	iron.roughness = 0.6
+	bracket.material_override = iron
+	torch.add_child(bracket)
+	var lean := Node3D.new()
+	lean.rotation.x = deg_to_rad(-25.0)   # the head leans out from the wall
+	torch.add_child(lean)
+	if ResourceLoader.exists(TORCH_MODEL):
+		lean.add_child((load(TORCH_MODEL) as PackedScene).instantiate())
 	var light := OmniLight3D.new()
-	light.position = pos + Vector3(0, 0.3, 0) - toward * 0.4
+	light.position = Vector3(0, TORCH_HEAD + 0.15, 0)
 	light.light_color = TORCH_COLOR
 	light.light_energy = 2.0
 	light.omni_range = 13.0
 	light.omni_attenuation = 1.2
-	light.set_meta("base_energy", 2.0)
-	light.set_meta("phase", randf() * TAU)
-	_keep(light)
+	lean.add_child(light)
 	_torches.append(light)
+	if DisplayServer.get_name() != "headless" and not Engine.is_editor_hint():
+		var fire := FireFX.new()
+		fire.size = 0.35
+		fire.smoke = false
+		fire.position = Vector3(0, TORCH_HEAD, 0)
+		lean.add_child(fire)
 
 
 func _keep(node: Node) -> void:
 	node.set_meta("built", true)
 	add_child(node)   # no owner: rebuilt every load, never saved into the scene
-
-
-func _process(delta: float) -> void:
-	if _torches.is_empty() or DisplayServer.get_name() == "headless":
-		return
-	_flicker += delta
-	for light in _torches:
-		var ph: float = light.get_meta("phase")
-		light.light_energy = float(light.get_meta("base_energy")) * (0.85 + 0.1 * sin(_flicker * 7.3 + ph) + 0.05 * sin(_flicker * 17.0 + ph * 2.0))

@@ -59,15 +59,37 @@ an item (delete it, note it in change_log.txt) when it's done. Last updated 2026
     (stand-in: the bandit) · khepri beetle · sandshifter · wight · tomb skeleton · wild dog · thornback lizard
     A Djhanid NPC look (Sahren and company)
   World
-    The Old Foundation Stone (flat stand-in stone) · (optional) a better Chaosborn rift and travel sites
+    (optional) a better Chaosborn rift and travel sites
+  ANIMATIONS (Mixamo, FBX "Without Skin" on one of our models, 30 fps, "In Place" for anything that moves; drop them in
+  ~/NCT/Aldenexia-Lightfall/models/animations and say so; tools/add_shared_clips.gd shares them to every race)
+  ★ Bow draw + shoot · crossbow shoot · a throw
+  ★ Strafe left / strafe right (walking backward is in)
+    Stunned (dazed loop) · a cowering run (for fear) · block with a shield · mining (pick swing) · chopping (axe) ·
+    hammering at the forge / anvil · a short two-handed strike (the heavy swing is 5 s, too long for auto-attack)
   Also (not models): terrain textures for Dustwind and Ashfall; a desert wind / sandstorm ambient sound; (optional) a
   crypt ambience loop (dripping water, distant moans) and its own music (it borrows cave_theme_b4 now).
 
 DONE recently (for reference, 2026-09-26): all axes, maces, hammers, clubs, wand, crossbow, hand torch, lantern, mining
-pick, fishing pole, woodcutter's axe, quiver, quarterstaff, treasure chest, spiritual weapon (the Lightmender's pet).
+pick, fishing pole, woodcutter's axe, quiver, quarterstaff, treasure chest, spiritual weapon (the Lightmender's pet); the Old
+Foundation Stone (the model was already in: now used for the Guildmaster's Note cache too); the notice board uses the
+medieval signpost.
 
 
 == WAITING ON THE USER ==
+- APPROVED 2026-09-26, TO BUILD (the longer tasks):
+  . LUMORA SMALLER: pull the buildings in (it's sparse) and move the walls; trim the terrain after.
+  . ARMOUR, OPTION A (EQ-style): cloth / leather / chain / plate as textures + tints on each of the 22 bodies; helms,
+    shoulders and shields as bone attachments. Special rare armour models later.
+  . WATER: the oasis a bit bigger and a ~4 ft (1.2 m) deep pool, real water; in the Outskirts, the west section that the
+    user's water TEXTURE stands for becomes real water (remove the texture) to test swimming. Swim clips are in.
+  . Troubadour instruments (drums boost Ludwig's march): later.
+  . ASSETS CLEANUP (overnight, editor closed): also move the animations where they make sense (the user, 2026-09-26);
+    today they are Assets/animations/mixamo/ + each race folder's own FBX clips. Keep tools/add_shared_clips.gd's DIR in step.
+- TEST 45 QUESTIONS (2026-09-26; answered in chat, waiting on the user's call):
+  Lumora's size (shrink the city: pull the buildings in and move the walls, or trim the terrain to 768 m / 512 m);
+  armour models (4 families: cloth, leather, chain, plate; how they fit 22 body models and animate); the animations (first batch IN 2026-09-26; what's still wanted is in ART
+  NEEDED); water and swimming (a
+  shader water surface, swim volumes, breath); group run-speed buffs: BUILT 2026-09-26 (Windrunner's Blessing, Ludwig's Steadfast March; instruments later).
 - TRAVEL (built 2026-09-24) — still open: gate names and levels approved 2026-09-24; Spatial Redoubt is the Arcanist
   evacuation (user confirmed 2026-09-26; the game has it so). Spirit Walk lost its old movement-immunity effect when it
   became the Spiritweaver gate.

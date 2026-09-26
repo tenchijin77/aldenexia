@@ -28,6 +28,8 @@ var _gather_started_msec := 0
 var _visual: Node3D = null
 var _respawn_timer: Timer = Timer.new()
 var _sound: Node = null   # the gathering sound loop (sfx.gd) while someone gathers here
+# what the character does while gathering (the user's Mixamo clips; mining and woodcutting have none yet)
+const GATHER_CLIPS := {"fishing": "fish_cast", "forage": "pick_up"}
 const GATHER_SOUNDS := {"prospecting": "gather_mining", "woodworking": "gather_wood", "fishing": "gather_fishing", "forage": "gather_forage"}
 
 
@@ -88,6 +90,8 @@ func start_gather(player: Node3D) -> void:
 	_gather_start_pos = player.global_position
 	_gather_started_msec = Time.get_ticks_msec()
 	GameLog.log_general("You begin gathering from the %s..." % def.get("name", "node"))
+	if GATHER_CLIPS.has(skill_name) and player.has_method("play_task_clip"):
+		player.play_task_clip(GATHER_CLIPS[skill_name], _gather_left)   # casting a line, kneeling to pick
 	if GATHER_SOUNDS.has(skill_name):
 		_sound = Sfx.start_loop(GATHER_SOUNDS[skill_name], self)
 	set_process(true)
@@ -113,6 +117,8 @@ func _process(delta: float) -> void:
 func _cancel(message: String) -> void:
 	Sfx.stop(_sound)
 	_sound = null
+	if is_instance_valid(_gatherer) and _gatherer.has_method("stop_task_clip"):
+		_gatherer.stop_task_clip()
 	if is_instance_valid(_gatherer) and _gatherer.has_method("clear_task_progress"):
 		_gatherer.clear_task_progress()
 	_gatherer = null
@@ -129,6 +135,8 @@ func _finish() -> void:
 	_gatherer = null
 	if player.has_method("clear_task_progress"):
 		player.clear_task_progress()
+	if player.has_method("stop_task_clip"):
+		player.stop_task_clip()
 	set_process(false)
 	var skill: int = _skill_of(player)
 	var tool: Dictionary = ItemHelper.best_gather_tool(str(def.get("tool", ""))) if not str(def.get("tool", "")).is_empty() else {}

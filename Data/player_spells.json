@@ -5077,7 +5077,7 @@
         "spell_id": 166,
         "spell_name": "ghost_wolf",
         "icon": "res://Assets/icons/spells/selfbuff.png",
-        "description": "Take the form of a spirit wolf: +15% movement speed for 15 minutes.",
+        "description": "Take the form of a spirit wolf: +15% run speed for 15 minutes. Travel speed: the strongest one you have counts, they don't add up; none underground.",
         "caster_proficiency": "none",
         "mana_cost": 25.0,
         "recast_time": 10.0,
@@ -5102,8 +5102,45 @@
         "channel": false,
         "effect_type": "buff",
         "modifiers": {
-            "move_speed_bonus": 0.15
+            "travel_speed": 0.15
         }
+    },
+    {
+        "spell_id": 586,
+        "spell_name": "windrunners_blessing",
+        "icon": "res://Assets/icons/spells/groupbuff.png",
+        "description": "The wind's own swiftness runs with a friend: +30% run speed (up to +55% from a level 50 caster) for 36 minutes. Cast on your target (or yourself). Travel speed: the strongest one counts, they don't add up; none underground.",
+        "caster_proficiency": "none",
+        "mana_cost": 40.0,
+        "recast_time": 6.0,
+        "level": 8,
+        "spell_school": "magic",
+        "skill_category": "alteration",
+        "damage": 0,
+        "target": "group",
+        "range": "30m",
+        "duration": 2160,
+        "casting_time": 3.0,
+        "failure_rate": 0.0,
+        "location": "all",
+        "blockable": true,
+        "dispellable": true,
+        "spell_type": "beneficial",
+        "cast_message": "The wind rises at $targetname's heels.",
+        "interruptable": true,
+        "class_level_requirements": {
+            "Spiritweaver": 8,
+            "Wildspeaker": 8
+        },
+        "channel": false,
+        "effect_type": "buff",
+        "modifiers": {
+            "travel_speed": 0.3
+        },
+        "travel_scale": [
+            0.3,
+            0.55
+        ]
     },
     {
         "spell_id": 167,
@@ -11265,6 +11302,42 @@
             "attack_speed_bonus": 0.1,
             "move_speed_bonus": 0.1
         }
+    },
+    {
+        "spell_id": 587,
+        "spell_name": "ludwigs_steadfast_march",
+        "icon": "res://Assets/icons/spells/groupbuff.png",
+        "description": "The steady march of Ludwig, the old master composer: allies within 15m run 16% faster (up to 65% from a level 50 bard) while you play it. Travel speed: the strongest one counts, they don't add up; none underground.",
+        "caster_proficiency": "none",
+        "mana_cost": 0.0,
+        "recast_time": 5.0,
+        "level": 8,
+        "spell_school": "psychic",
+        "skill_category": "enchantment",
+        "damage": 0,
+        "target": "group",
+        "range": "15m",
+        "duration": 8,
+        "casting_time": 1.5,
+        "failure_rate": 0.0,
+        "location": "all",
+        "blockable": true,
+        "dispellable": true,
+        "spell_type": "beneficial",
+        "cast_message": "",
+        "interruptable": true,
+        "class_level_requirements": {
+            "Troubadour": 8
+        },
+        "effect_type": "buff",
+        "channel": false,
+        "modifiers": {
+            "travel_speed": 0.16
+        },
+        "travel_scale": [
+            0.16,
+            0.65
+        ]
     },
     {
         "spell_id": 367,

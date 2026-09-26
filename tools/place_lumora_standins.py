@@ -213,13 +213,16 @@ for zone, scene_path in [("lumora", "Scenes/zones/lumora.tscn"), ("lumora_outski
             added.append("TownCrier")
         if '[node name="NoticeBoard"' not in s:
             s = add_ext(s, "Script", "res://Scripts/world_note.gd", "world_note_scr")
+            s = add_ext(s, "PackedScene", "res://Scenes/props/medieval_signpost.tscn", "notice_signpost")
             s += ('\n[node name="NoticeBoard" type="Node3D" parent="StandIns"]\ntransform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 1.2, 292)\n'
                   'script = ExtResource("world_note_scr")\ntitle = "Notice Board"\n'
                   'note_text = "NOTICES, by order of the Oasis Wardens:\\n- Dustwalker raiders on the south road. Travel in company.\\n'
                   '- Fines for crimes within the walls are paid at the courthouse (Magistrate Corvane).\\n'
                   '- The Temple of the Dawn heals the sick and wounded. It does not raise the dead.\\n'
                   '- Guild halls: the Hall of Arms, the Lycaeum Annex, the Temple of the Dawn. Others know where to find theirs.\\n'
-                  '- Rooms and meals at the Sunlit Rest."\nlabel_text = "Notice Board"\nlabel_height = 1.0\n')
+                  '- Rooms and meals at the Sunlit Rest."\nlabel_text = "Notice Board"\nlabel_height = 1.5\nshow_paper = false\n'
+                  '\n[node name="Signpost" parent="StandIns/NoticeBoard" instance=ExtResource("notice_signpost")]\n'
+                  'transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.2, 0)\n')   # test 45: the medieval signpost, not the wagon quest's note
             added.append("NoticeBoard")
         court = placement["courthouse"]["spots"][0]
         s = re.sub(r'(\[node name="Magistrate" parent="NPCs"[^\n]*\]\ntransform = )Transform3D\([^)]*\)', lambda m: m.group(1) + court, s)

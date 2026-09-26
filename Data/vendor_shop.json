@@ -398,7 +398,9 @@
       "scroll_of_khuzdul_basics",
       "scroll_of_kithren_basics",
       "scroll_of_cant_basics",
-      "scroll_of_twilari_basics"
+      "scroll_of_twilari_basics",
+      "scroll_of_windrunners_blessing",
+      "scroll_of_ludwigs_steadfast_march"
     ]
   },
   "lumora_scribe_dark": {
@@ -536,7 +538,8 @@
       "scroll_of_master_stealth",
       "scroll_of_master_pickpocket",
       "scroll_of_improved_symphony",
-      "scroll_of_master_anthem"
+      "scroll_of_master_anthem",
+      "scroll_of_ludwigs_steadfast_march"
     ]
   },
   "trainer_blademaster": {
@@ -808,7 +811,8 @@
       "scroll_of_greater_mass_healing",
       "scroll_of_improved_ancestral_revival",
       "scroll_of_improved_elemental_wrath",
-      "scroll_of_greater_totem_of_harmony"
+      "scroll_of_greater_totem_of_harmony",
+      "scroll_of_windrunners_blessing"
     ]
   },
   "trainer_wildspeaker": {
@@ -839,7 +843,8 @@
       "scroll_of_greater_tranquility",
       "scroll_of_improved_natures_bounty",
       "scroll_of_improved_starfall",
-      "scroll_of_greater_thorn_shield"
+      "scroll_of_greater_thorn_shield",
+      "scroll_of_windrunners_blessing"
     ]
   },
   "trainer_voidknight": {

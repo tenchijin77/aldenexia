@@ -36,7 +36,9 @@ func run() -> void:
 	var dungeon := zone.get_node("Structures/Dungeon")
 	check(dungeon.get_node_or_null("DungeonCollision") != null, "rooms built with collision")
 	check(dungeon.get_node("DungeonCollision").owner == null, "(built at load, never saved into the scene)")
-	check(dungeon.get_children().filter(func(n): return n is OmniLight3D).size() >= 10, "wall torches light it")
+	var torches := dungeon.get_children().filter(func(n): return n.name.begins_with("WallTorch"))
+	check(torches.size() >= 10, "wall torches light it (%d)" % torches.size())
+	check(torches.all(func(t): return t.find_children("*", "OmniLight3D", true, false).size() == 1 and t.find_children("*", "MeshInstance3D", true, false).size() >= 2), "each one the hand torch model in a bracket, with its light")
 	check(not zone.get_node("DirectionalLight3D").visible, "no sun underground")
 	check(zone.get_node("DayNightCycle").outdoors == false, "the day/night cycle knows it's underground")
 	for i in 5:

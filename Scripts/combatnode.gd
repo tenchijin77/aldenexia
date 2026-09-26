@@ -294,6 +294,15 @@ func get_modifier(key: String) -> float:
 	return total
 
 
+## The strongest single value of a modifier across active effects (not their sum): "travel_speed", the run-speed buffs
+## (Ghost Wolf, Windrunner's Blessing, Ludwig's Steadfast March), don't add up; the best one counts.
+func get_strongest_modifier(key: String) -> float:
+	var best: float = 0.0
+	for effect in active_effects.values():
+		best = maxf(best, float(effect["modifiers"].get(key, 0.0)))
+	return best
+
+
 # ── Invisibility / stealth ──────────────────────────────────────────────────
 # "invisible" and "see_invisible" are modifier keys on ordinary timed effects
 # (player3d.gd's "invisibility" spell cast, deathly_visage's see-invisible
