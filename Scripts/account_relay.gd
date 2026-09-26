@@ -186,9 +186,16 @@ func add_character(account: String, character: String) -> void:
 
 
 # What the character list shows: one entry per character, in the order they were added.
+# Online anywhere in the world (the hub knows every zone's players), not just in this server's zone.
+func _is_online(character: String) -> bool:
+	if Net._peer_character.values().has(_character_key(character)):
+		return true
+	var link := Net.get_tree().get_first_node_in_group("world_link")
+	return link != null and link.has_method("online_everywhere") and link.online_everywhere().has(character.to_lower())
+
+
 func _listing(account: String) -> Dictionary:
 	var rows: Array = []
-	var online: Array = Net._peer_character.values()
 	for character in _read_account(account).get("characters", []):
 		var key := _character_key(str(character))
 		var path := Net._character_path(key)
@@ -196,14 +203,14 @@ func _listing(account: String) -> Dictionary:
 			continue
 		var save := Net._parse_character(FileAccess.get_file_as_string(path), str(character))
 		if save.is_empty():
-			rows.append({"name": str(character), "level": 0, "class": "", "race": "", "sex": "", "zone": "(save unreadable)", "online": online.has(key)})
+			rows.append({"name": str(character), "level": 0, "class": "", "race": "", "sex": "", "zone": "(save unreadable)", "online": _is_online(str(character))})
 			continue
 		rows.append({
 			"name": str(character), "display": str(save.get("player_name", character)).capitalize(),
 			"level": int(save.get("player_level", 1)), "class": str(save.get("player_class", "")),
 			"race": str(save.get("player_race", "")), "sex": str(save.get("player_sex", "male")),
 			"zone": ZoneInfo.name_for(str(save["zone"])) if ZoneInfo.exists(str(save.get("zone", ""))) else str(save.get("last_zone", DEFAULT_ZONE)),
-			"online": online.has(key),
+			"online": _is_online(str(character)),
 		})
 	return {"account": account, "characters": rows, "max": MAX_CHARACTERS}
 
@@ -270,7 +277,7 @@ func _delete_character(id: int, account: String, character: String) -> void:
 	if character.is_empty() or owner_of(character) != account:
 		Net._login_fail(id, "no_character", "That character isn't on this account.")
 		return
-	if Net._peer_character.values().has(key):
+	if _is_online(character):   # in any zone
 		Net._login_fail(id, "already_online", "%s is in the world right now and can't be deleted." % character.capitalize())
 		return
 	var stamp := int(Time.get_unix_time_from_system())

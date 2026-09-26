@@ -5,7 +5,12 @@
 #
 #   tools/run_world.sh --name=test                      login server on 8910, Dustwind on 8920, Ashfall on 8921
 #   tools/run_world.sh --name=test --base-port=8990     a local test world on 8990, 9000, 9001
-#   tools/run_world.sh --name=test --zones=lumora_outskirts,dustwind_plateaus   only these zones
+#   tools/run_world.sh --name=test --zones=lumora_outskirts,dustwind_plateaus   start these zones (others still on demand)
+#   tools/run_world.sh --name=test --all-zones          start every zone and keep them all running (the old way)
+# Zones run ON DEMAND (2026-09-26): only the "always_on" zones in Data/zones.json start here (the starting zone, which is
+# also the login server); the login server starts any other zone when a player travels there (world_link.gd), using the
+# command this script hands it in ALDENEXIA_ZONE_LAUNCH, and a zone with nobody in it for 10 minutes shuts itself down
+# (--idle-shutdown=<seconds> changes that, for testing). Ctrl-C stops every zone, the on-demand ones too.
 # Other options (--max-players=, --tls-dir= ...) go to every server. ALDENEXIA_SERVER_BIN works as in run_server.sh.
 # Each zone's output goes to its own log: world_logs/world_<zone>.log next to this script on the server (logs/ in the
 # repo), and the servers' own user://logs/godot*.log as before.
@@ -20,12 +25,14 @@ if [ -z "${ALDENEXIA_SERVER_BIN:-}" ] && [ -x "$SCRIPT_DIR/Aldenexia_Server.x86_
 fi
 BASE=8910
 ZONES=""
+ALL=0
 PASS=()
 TLS_GIVEN=0
 for arg in "$@"; do
 	case "$arg" in
 		--base-port=*) BASE="${arg#*=}" ;;
 		--zones=*)     ZONES="${arg#*=}" ;;
+		--all-zones)   ALL=1 ;;
 		--port=*|--zone=*) echo "run_world.sh sets --port and --zone itself (use --base-port / --zones)"; exit 1 ;;
 		--tls-dir=*)   TLS_GIVEN=1; PASS+=("$arg") ;;
 		*) PASS+=("$arg") ;;
@@ -45,12 +52,21 @@ else
 	LIST=$("${GODOT:-godot}" --headless --path "$SCRIPT_DIR/.." -- --server --list-zones 2>/dev/null)
 fi
 ENTRIES=()
-while read -r tag zone offset; do
+while read -r tag zone offset mode; do
 	[ "$tag" = "ZONE" ] || continue
-	if [ -z "$ZONES" ] || [[ ",$ZONES," == *",$zone,"* ]]; then ENTRIES+=("$zone $offset"); fi
+	if [ "$ALL" = 1 ] || [ "${mode:-always}" = "always" ] || [[ ",$ZONES," == *",$zone,"* ]]; then ENTRIES+=("$zone $offset"); fi
 done <<< "$LIST"
 [ ${#ENTRIES[@]} -gt 0 ] || { echo "No zones to run (could not ask the build for its zones)."; exit 1; }
 mkdir -p "$LOG_DIR"
+# How the login server starts a zone on demand: %ZONE% and %PORT% are filled in (world_link.gd _launch()). It runs under
+# run_server.sh like the others (graceful stop, its own log), with --on-demand so it stops itself once empty.
+if [ "$ALL" = 0 ]; then
+	LAUNCH="exec $(printf '%q' "$RUN_SERVER") --zone=%ZONE% --base-port=$BASE --port=%PORT% --on-demand"
+	for a in "${PASS[@]}"; do LAUNCH+=" $(printf '%q' "$a")"; done
+	LAUNCH+=" >$(printf '%q' "$LOG_DIR")/world_%ZONE%.log 2>&1"
+	export ALDENEXIA_ZONE_LAUNCH="$LAUNCH"
+	echo "[run_world] Other zones start when a player travels there, and stop after 10 minutes empty."
+fi
 PIDS=()
 for entry in "${ENTRIES[@]}"; do
 	zone="${entry% *}"; offset="${entry#* }"; port=$((BASE + offset))

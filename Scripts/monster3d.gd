@@ -840,7 +840,6 @@ func _physics_process(delta: float) -> void:
 	if current_state == State.DEAD:
 		return
 
-	_check_never_swung()
 
 	# Knocked back: slide away from the blow (walls stop it), nothing else happens meanwhile.
 	if _knockback_time > 0.0:
@@ -1469,7 +1468,6 @@ func handle_movement(delta: float) -> void:
 # ===== COMBAT =====
 func perform_attack() -> void:
 	can_attack = false
-	_hit_since_msec = 0  # it fights back: nothing to report
 	_play_attack_animation()
 	# Match the actual swing clip length (humanoid mobs only — _attack_anim_timer
 	# stays 0 for the placeholder-box mobs with no AnimationPlayer, so they fall
@@ -1627,8 +1625,6 @@ func _attack_text_on_other(result: Dictionary, attacker_desc: String, target_nam
 func apply_damage(amount: int, damage_type: String = "physical") -> void:
 	if current_state == State.DEAD:
 		return
-	if _hit_since_msec == 0:
-		_hit_since_msec = Time.get_ticks_msec()  # see _check_never_swung()
 
 	# Allow child classes to apply resistances/weaknesses before CombatNode takes over
 	var modified_damage = modify_damage(amount, damage_type)
@@ -1945,30 +1941,6 @@ func apply_networked_damage(amount: int, attacker_peer_id: int) -> void:
 		die(true, true, attacker_peer_id)
 
 
-# A non-host player's Taunt: threat lives only in the server's aggro_table, so the caster's own puppet copy of the monster cannot be
-# Diagnostic for "some rats never fight back" (tests 26 and 29; not reproduced here): a monster that has been hurt but
-# hasn't swung within NEVER_SWUNG_MS writes one line to the log (the server log on a dedicated server) with everything
-# that decides whether it attacks. Remove once the cause is found.
-const NEVER_SWUNG_MS := 6000
-var _hit_since_msec := 0
-
-func _check_never_swung() -> void:
-	if _hit_since_msec == 0 or Time.get_ticks_msec() - _hit_since_msec < NEVER_SWUNG_MS:
-		return
-	_hit_since_msec = 0
-	if current_state == State.FLEEING or current_state == State.CHARMED or not combat_node.is_alive():
-		return
-	var target: Node = get_current_target()
-	var tpos: Vector3 = (target as Node3D).global_position if target is Node3D else Vector3.INF
-	var flat := Vector2(tpos.x - global_position.x, tpos.z - global_position.z).length() if target is Node3D else -1.0
-	print("[monster-diag] %s (%s, Lv%d) hurt 6 s ago but never swung: state=%s target=%s dist3d=%.2f flat=%.2f dy=%.2f attack_range=%.1f can_attack=%s attack_timer=%.2f nav_finished=%s vel=%.2f on_floor=%s pos=%s hp=%d/%d aggro=%d player=%s" % [
-		monster_name, name, level, State.keys()[current_state], target.name if target else "none",
-		global_position.distance_to(tpos) if target is Node3D else -1.0, flat, (tpos.y - global_position.y) if target is Node3D else 0.0,
-		attack_range, can_attack, attack_timer, nav_agent.is_navigation_finished() if nav_agent else "no agent",
-		velocity.length(), is_on_floor(), "%s spawn=%s" % [global_position.snapped(Vector3(0.1, 0.1, 0.1)), spawn_position.snapped(Vector3(0.1, 0.1, 0.1))], combat_node.current_hp, combat_node.max_hp,
-		aggro_table.size(), player.name if is_instance_valid(player) else "none"])
-
-
 # Knockback (Power Strike, Earth Strike, Titan's Strike: "knockback" metres in player_spells.json): pushes the monster
 # straight away from `from` over KNOCKBACK_TIME. Only the authority moves it; a client's puppet asks the server
 # (apply_networked_knockback). monsters.json "knockback_immune": true opts a monster out.
@@ -2006,6 +1978,7 @@ func apply_networked_knockback(from: Vector3, distance: float) -> void:
 	knockback(from, clampf(distance, 0.0, 10.0))
 
 
+# A non-host player's Taunt: threat lives only in the server's aggro_table, so the caster's own puppet copy of the monster cannot be
 # taunted — the request goes to the server, which sets the caster's threat just above the highest (see taunt()).
 @rpc("any_peer", "call_remote", "reliable")
 func apply_networked_taunt(attacker_peer_id: int) -> void:

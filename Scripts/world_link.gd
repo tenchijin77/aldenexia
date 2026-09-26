@@ -43,8 +43,10 @@ func _server_active() -> bool:
 	return Net.is_dedicated_server and multiplayer.has_multiplayer_peer() and multiplayer.is_server()
 
 
+var as_hub := false   # the tests: act as the hub whatever the scene
+
 func is_hub() -> bool:
-	return ZoneInfo.current_id() == ZoneInfo.DEFAULT_ID
+	return as_hub or ZoneInfo.current_id() == ZoneInfo.DEFAULT_ID
 
 
 func link_port() -> int:
@@ -79,6 +81,12 @@ func _hub_process() -> void:
 		var tcp := _hub.take_connection()
 		tcp.set_no_delay(true)
 		_peers.append({"tcp": tcp, "buf": "", "zone": ""})
+	_tick_waking()
+	if Net._shutting_down and not _told_zones_to_stop:
+		_told_zones_to_stop = true
+		for p in _peers:
+			if _launched.has(p["zone"]):
+				_write(p["tcp"], {"t": "shutdown"})   # the zones this hub started go down with it
 	for p in _peers.duplicate():
 		var tcp: StreamPeerTCP = p["tcp"]
 		tcp.poll()
@@ -88,6 +96,9 @@ func _hub_process() -> void:
 				_world.erase(p["zone"])
 				Net._slog("World link: %s disconnected" % p["zone"])
 				_hub_send_world()
+				_closing.erase(p["zone"])
+				if _waking.has(p["zone"]) and not _waking[p["zone"]]["launched"]:
+					_launch(str(p["zone"]))   # it finished closing just as someone wanted in: start it again
 			continue
 		for msg in _read(tcp, p):
 			_hub_handle(p, msg)
@@ -99,6 +110,15 @@ func _hub_handle(from: Dictionary, msg: Dictionary) -> void:
 			from["zone"] = str(msg.get("zone", ""))
 			Net._slog("World link: %s connected" % from["zone"])
 			_write(from["tcp"], {"t": "groups", "groups": groups})
+			_zone_came_up(str(from["zone"]))
+		"wake":
+			var origin := str(msg.get("origin", ""))
+			var req := int(msg.get("req", 0))
+			var target := str(msg.get("zone", ""))
+			ensure_zone(target, func(ok: bool) -> void: _route_to_zone(origin, {"t": "wake_result", "req": req, "zone": target, "ok": ok}))
+		"closing":
+			_closing[str(msg.get("zone", ""))] = true
+			Net._slog("World link: %s is empty and shutting down" % str(msg.get("zone", "")))
 		"roster":
 			_world[str(msg.get("zone", ""))] = msg.get("players", [])
 			_hub_send_world()
@@ -153,6 +173,7 @@ func _route_to_zone(zone: String, msg: Dictionary) -> void:
 
 # ── A zone ──
 func _zone_process(delta: float) -> void:
+	_tick_idle(delta)
 	if _up == null or _up.get_status() == StreamPeerTCP.STATUS_NONE or _up.get_status() == StreamPeerTCP.STATUS_ERROR:
 		_reconnect_timer -= delta
 		if _reconnect_timer > 0.0:
@@ -200,6 +221,14 @@ func _handle_local(msg: Dictionary) -> void:
 			_deliver_tell(msg)
 		"to_player":
 			_deliver_to_player(msg)
+		"wake_result":
+			var done: Variant = _wake_calls.get(int(msg.get("req", 0)))
+			_wake_calls.erase(int(msg.get("req", 0)))
+			if done is Callable:
+				(done as Callable).call(bool(msg.get("ok", false)))
+		"shutdown":
+			Net._slog("World link: the login server is stopping, so this zone stops too.")
+			Net.begin_shutdown()
 		"tell_result":
 			var peer := int(msg.get("peer", 0))
 			if peer > 0 and multiplayer.get_peers().has(peer):
@@ -213,6 +242,150 @@ func _send_up(msg: Dictionary) -> bool:
 		return false
 	_write(_up, msg)
 	return true
+
+
+# ── Zones on demand (2026-09-26; the user: "build on demand zones. this will help with server resources") ──
+# Only the always-on zones run all the time (Data/zones.json "always_on"; the login server's own zone always is). When a
+# player needs another zone (crossing a zone line, gating to a bind there, logging in to a character left there) the
+# server they're on asks for it: ensure_zone(). The hub starts that zone's server (the command tools/run_world.sh gives it
+# in ALDENEXIA_ZONE_LAUNCH), and answers once the zone's world link says hello (it's up and listening). A zone started
+# this way (--on-demand) shuts itself down after IDLE_SHUTDOWN_SECONDS with nobody in it, saying "closing" first so the
+# hub doesn't send anyone its way while it goes. Without ALDENEXIA_ZONE_LAUNCH (run_world.sh --all-zones, or a server
+# started by hand) every zone is expected to be running already, as before.
+const ZONE_START_TIMEOUT := 60.0        # seconds for a zone to come up (measured: 3-7 s headless)
+const IDLE_SHUTDOWN_SECONDS := 600.0
+var _waking := {}          # hub: zone -> {"since": msec, "launched": bool, "waiters": [Callable]}
+var _closing := {}         # hub: zones that said they're shutting down
+var _launched := {}        # hub: zone -> the launcher's pid (the zones this hub started)
+var _told_zones_to_stop := false
+var _wake_calls := {}      # a zone: request id -> Callable waiting for the hub's answer
+var _next_wake := 1
+var _idle := 0.0
+
+
+# Is `zone`'s server up (as far as the hub knows)?
+func zone_running(zone: String) -> bool:
+	if zone == ZoneInfo.current_id() or (as_hub and zone == ZoneInfo.DEFAULT_ID):
+		return true
+	if _closing.has(zone):
+		return false
+	for p in _peers:
+		if p["zone"] == zone:
+			return true
+	return false
+
+
+# Makes sure `zone` is running, then calls done(ok). Works on any server: the hub does it, a zone asks the hub.
+func ensure_zone(zone: String, done: Callable) -> void:
+	if not ZoneInfo.exists(zone):
+		done.call(false)
+		return
+	if not is_hub():
+		if zone == ZoneInfo.current_id():
+			done.call(true)
+			return
+		var req := _next_wake
+		_next_wake += 1
+		if not _send_up({"t": "wake", "zone": zone, "origin": ZoneInfo.current_id(), "req": req}):
+			done.call(true)   # no link to the hub: we can't know; let the player try (it may be running)
+			return
+		_wake_calls[req] = done
+		get_tree().create_timer(ZONE_START_TIMEOUT + 5.0).timeout.connect(func() -> void:
+			if _wake_calls.has(req):
+				_wake_calls.erase(req)
+				done.call(false))
+		return
+	if zone_running(zone):
+		done.call(true)
+		return
+	if _waking.has(zone):
+		_waking[zone]["waiters"].append(done)
+		return
+	_waking[zone] = {"since": Time.get_ticks_msec(), "launched": false, "waiters": [done]}
+	if not _closing.has(zone):
+		_launch(zone)   # (a closing zone is started again once its old server has gone)
+
+
+func _launch(zone: String) -> void:
+	var template := OS.get_environment("ALDENEXIA_ZONE_LAUNCH")
+	if template.is_empty():
+		Net._slog("World link: %s isn't running and this server can't start zones (start the world with tools/run_world.sh)." % ZoneInfo.name_for(zone))
+		_finish_waking(zone, false)
+		return
+	var command := template.replace("%ZONE%", zone).replace("%PORT%", str(ZoneInfo.port_for(zone, int(Net.base_port))))
+	var pid := OS.create_process("bash", ["-c", command])
+	if pid <= 0:
+		Net._slog("World link: couldn't start %s." % ZoneInfo.name_for(zone))
+		_finish_waking(zone, false)
+		return
+	_launched[zone] = pid
+	if _waking.has(zone):
+		_waking[zone]["launched"] = true
+		_waking[zone]["since"] = Time.get_ticks_msec()
+	Net._slog("World link: starting %s for a player (pid %d)." % [ZoneInfo.name_for(zone), pid])
+
+
+func _zone_came_up(zone: String) -> void:
+	_closing.erase(zone)
+	_finish_waking(zone, true)
+
+
+func _finish_waking(zone: String, ok: bool) -> void:
+	var w: Dictionary = _waking.get(zone, {})
+	_waking.erase(zone)
+	for done in w.get("waiters", []):
+		(done as Callable).call(ok)
+
+
+func _tick_waking() -> void:
+	for zone in _waking.keys():
+		if Time.get_ticks_msec() - int(_waking[zone]["since"]) > int(ZONE_START_TIMEOUT * 1000.0):
+			Net._slog("World link: %s didn't come up in %d s." % [ZoneInfo.name_for(zone), int(ZONE_START_TIMEOUT)])
+			_finish_waking(zone, false)
+	for zone in _launched.keys():
+		if not OS.is_process_running(int(_launched[zone])):   # (this also reaps the finished launcher)
+			_launched.erase(zone)
+
+
+# A zone started on demand stops itself once nobody has been in it for IDLE_SHUTDOWN_SECONDS.
+var _on_demand := -1   # started by the hub with --on-demand (cached)
+
+func _tick_idle(delta: float) -> void:
+	if _on_demand < 0:
+		_on_demand = 1 if Net._cmdline_flag("on-demand") else 0
+	if _on_demand == 0 or ZoneInfo.always_on(ZoneInfo.current_id()) or Net._shutting_down:
+		return
+	if not multiplayer.get_peers().is_empty():
+		_idle = 0.0
+		return
+	_idle += delta
+	if _idle < float(Net._cmdline_value("idle-shutdown", str(IDLE_SHUTDOWN_SECONDS))):   # --idle-shutdown=<seconds> (testing)
+		return
+	_send_up({"t": "closing", "zone": ZoneInfo.current_id()})
+	Net._slog("Nobody has been here for %d s: shutting this zone down (the login server starts it again when needed)." % int(_idle))
+	Net.begin_shutdown()
+
+
+# ── A client asking to travel: the server makes sure the zone is up, then says go (or that it can't) ──
+signal zone_ready(zone: String, ok: bool)
+
+func request_zone(zone: String) -> void:
+	_rpc_wake_zone.rpc_id(1, zone)
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func _rpc_wake_zone(zone: String) -> void:
+	if not _server_active():
+		return
+	var peer := multiplayer.get_remote_sender_id()
+	ensure_zone(zone, func(ok: bool) -> void:
+		if multiplayer.get_peers().has(peer):
+			_rpc_zone_ready.rpc_id(peer, zone, ok))
+
+
+@rpc("authority", "call_remote", "reliable")
+func _rpc_zone_ready(zone: String, ok: bool) -> void:
+	zone_ready.emit(zone, ok)
 
 
 # ── Roster ──
@@ -241,6 +414,23 @@ func _share_roster() -> void:
 		_push_groups()   # someone arrived in (or left) the hub's own zone (test 42: back in the Outskirts, she'd lost her group)
 	elif _send_up({"t": "roster", "zone": ZoneInfo.current_id(), "players": rows}):
 		_last_roster = text
+
+
+# Every character online in any zone (lower-case names), and how many: the login server's character list, its
+# "can't delete, they're online" check and the Join screen's player count used to see only the login server's own zone.
+func online_everywhere() -> Array:
+	var names := []
+	for zone in _world:
+		for row in _world[zone]:
+			names.append(str(row.get("name", "")).to_lower())
+	for row in local_players():   # (fresher than the last roster)
+		if not names.has(str(row["name"]).to_lower()):
+			names.append(str(row["name"]).to_lower())
+	return names
+
+
+func world_player_count() -> int:
+	return online_everywhere().size()
 
 
 # The zone a player is in ("" = not online anywhere we know of). The world list covers every zone.

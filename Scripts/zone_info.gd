@@ -63,6 +63,12 @@ static func port_for(id: String, base_port: int) -> int:
 	return base_port + int(zones().get(id, {}).get("port_offset", 0))
 
 
+# Always running (Data/zones.json "always_on"; the starting zone, which is the login server, always is). Every other zone
+# is started by the login server when someone travels there and stops itself when empty (world_link.gd).
+static func always_on(id: String) -> bool:
+	return id == DEFAULT_ID or bool(zones().get(id, {}).get("always_on", false))
+
+
 # The zone a saved character is in ("zone"; characters from before zones are in the starting zone).
 static func of_character(data: Dictionary) -> String:
 	var id := str(data.get("zone", ""))

@@ -2400,6 +2400,34 @@ GATE RAIDS (`Scripts/gate_raid_manager.gd`, `Data/gate_raids.json`, node "GateRa
   warmth of the campfire -> groupfire.
 - Tests: test_test37.gd. Suite: 3,808 checks pass.
 
+### Zones on demand (2026-09-26; the user: "yes build on demand zones. this will help with server resources as well")
+- Only the always-on zones run all the time (Data/zones.json "always_on": the Outskirts, which is also the login server).
+  Every other zone's server is started by the login server (the world link hub) when a player needs it: crossing a zone
+  line, gating or dying to a bind there, or logging in to a character left there. It answers once the new zone's world
+  link says hello (measured locally: up in ~4 s, the player there ~10 s after stepping over the line). A zone started this
+  way (--on-demand) shuts itself down after 10 minutes with nobody in it (saying "closing" first so nobody is sent to it
+  as it goes; someone arriving just then waits for the old server to finish, then it starts again). When the login
+  server stops it tells the zones it started to stop too.
+- tools/run_world.sh: starts only the always-on zones and gives the login server the command to start the rest
+  (ALDENEXIA_ZONE_LAUNCH: run_server.sh, the same options, its own world_logs/world_<zone>.log). --all-zones = the old way
+  (every zone, always); --zones=a,b also starts those; --idle-shutdown=<seconds> for testing. The user's start script
+  needs no change.
+- Client: crossing a zone line says "You set out for <zone>..." and leaves once the server says the zone is up (or "The
+  way to <zone> is closed right now" after a failure / 70 s). Logging in straight to the last zone's port (the zone hint)
+  when that zone is asleep: no answer -> it logs in through the login server, which wakes the zone and sends it on.
+- New RPCs on WorldLink (not Net): _rpc_wake_zone / _rpc_zone_ready. Net's RPC list unchanged.
+- Also across zones now: the character list's "online" dot, the "can't delete, they're online" check, and the Join
+  screen's player count (the whole world, not only the login server's zone).
+- Checked end to end with a local world and a headless client: login (only the Outskirts running), into Dustwind (started
+  for it), logged out (Dustwind stopped itself 26 s later with --idle-shutdown=25), logged back in (the client's hint
+  failed, the login server woke Dustwind and sent it there), back to the Outskirts; stopping the world stopped the
+  on-demand zone too. Tests: test_ondemand (22 checks).
+- Tester guide: a "Travelling to another zone" step (a quiet zone takes a few seconds to open) and "New full builds:
+  download the zip again" (user: when a build can't be patched, testers download the full zip from the same link, which
+  is synced with every build; characters stay on the server).
+- Housekeeping: the "[monster-diag]" rat diagnostic is gone (user: the rats "appear to be working"); its comment had
+  split the Taunt RPC's comment in two, rejoined.
+
 ### Sitting up straight, cross-legged, and lizardkin tails (2026-09-26, during test 42)
 - SITTING, THREE WAYS (user: "i'd like all three of those sitting models in game, and randomly pick one when you sit").
   The models had three kinds of sit between them: cross-legged (the human male's 10.9 s idle; the human, elf and dark elf

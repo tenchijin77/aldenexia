@@ -4,28 +4,16 @@ an item (delete it, note it in change_log.txt) when it's done. Last updated 2026
 
 
 == WAITING ON THE USER ==
-- Gathering nodes placed out of reach (test 29): the screenshot didn't come through — need a /loc of one (or the
-  screenshot) to fix placement.
-- Rats not fighting back: FOUND and fixed 2026-09-24 (monsters froze in chase when navigation had no path). Confirm in
-  play; then remove the "[monster-diag]" server-log diagnostic in monster3d.gd (_check_never_swung).
-- Knockback on bosses: every monster can be knocked back today; monsters.json "knockback_immune": true opts one out.
-  Should the named/boss monsters be immune?
-- Guardian Spirit lasts 15 s (the in-combat buff rule). Longer?
-- PROPOSAL waiting for discussion (2026-09-24, in chat): crafted armour sets for cloth / leather / chain / plate, one
-  quest-reward recipe per trade, 7+ new quests built on the purposeless loot below, and Deconstruct at kits/stations.
-  All built 2026-09-24 overnight (armour sets, Deconstruct, 7 quests, recipe rewards, leftover recipes).
-- TRAVEL (built 2026-09-24) — still open: Spatial Redoubt is the Arcanist evacuation (travel notes) but a damage shield in Classes spell
-  list-updated.txt — the user is reviewing that list. Draft gate names still to approve: Oath of Return (Lightsworn), Blood
-  Recall (Chaosborn). Levels (bind 4, gates/rituals 6, evacs 10; gate recast 30 min, Phase Snap
-  10 min) need approval. Spirit Walk lost its old movement-immunity effect when it became the Spiritweaver gate.
+- Guardian Spirit: the user's design (2026-09-24) is a once-only cheat-death (the first killing blow leaves the ally at 20%),
+  as built. Open: how long the watch lasts once cast (15 s now, the in-combat buff rule).
+- TRAVEL (built 2026-09-24) — still open: gate names and levels approved 2026-09-24; Spatial Redoubt is the Arcanist
+  evacuation (user confirmed 2026-09-26; the game has it so). Spirit Walk lost its old movement-immunity effect when it
+  became the Spiritweaver gate.
   Ley-stone positions are guesses; the Wildspeaker
   seed doesn't "grow for 24 hours"; "World-Tree health" doesn't exist, so Nature's Ward always applies. Bridge/rift
   entry and group pulls not yet tried with two players.
-- Shields (decided and built): tanks, Lightmender, Troubadour, Spiritweaver, Wildspeaker. Optional D&D nuance not built:
-  druids (Wildspeaker) only use wooden/bone shields, never metal.
-- Racial traits: faction penalties given numbers by me (Troll/Vol'kyne -10, Gnome/Half-Orc -5 to every faction), Vol'kyne
-  regen halved by day, Lizardkin -5 accuracy at night, Half-Elf skills 5% slower. Racial skill bonuses count for success
-  but NOT for recipe minimums or skill-ups (else a Dwarf could forge Bronze Longswords at level 1). Confirm or change.
+- Shields (decided and built): tanks, Lightmender, Troubadour, Spiritweaver, Wildspeaker. APPROVED, not built yet
+  (user 2026-09-24: "wildspeakers shouldn't be able to use metal shields"): Wildspeakers use wooden / bone shields only.
 
 
 == ZONES AND DUSTWIND PLATEAUS (decided 2026-09-24, not built) ==
@@ -58,8 +46,9 @@ an item (delete it, note it in change_log.txt) when it's done. Last updated 2026
 - Ports for zones: UDP 8910 (login/coordinator), UDP 8920-9019 (zone servers), TCP 8911 (updates) — sent to the user.
 
 == ZONING (built 2026-09-24, first version) — still open ==
-- Zones are started all together by tools/run_world.sh; ON-DEMAND start/stop (a zone only runs while someone is in it) is
-  the next step for ~70 zones.
+- On-demand zones BUILT 2026-09-26 (world_link.gd). Lumora is on demand too: add "always_on": true to it in
+  Data/zones.json if it should always run. Later: a zone per VM / host (the user may move the game to a bigger Proxmox
+  host); a zone crashing is only noticed when its link drops (the next traveller starts it again).
 - Cross-zone (world_link.gd, tests 37-38): /who, /tell, /party, groups, world and GM announcements and the GM flag now
   cross zones. Still zone-only: GM /kill, /give, /ban lookups and /follow of someone who zoned; a group member in another
   zone shows no health bars (only name and zone).
@@ -68,16 +57,11 @@ an item (delete it, note it in change_log.txt) when it's done. Last updated 2026
   the inn (The Sunlit Rest), Toren and the Citadel, the temple healer, guild halls and trainers (Data/lumora.json has
   names), notice board, courthouse, the Cartographer, the Cisterns, the town crier and daily rhythm; a tavern at the
   Outskirts gate. Guards' hail lines are still the Outskirts' (they mention Kenji "by the gate").
-- The Load/Join screens' character delete runs on the login server: it can't tell a character is online in another zone.
-- The character list's "online" dot comes from the login server only: a character online in Dustwind shows as offline.
-- The Join screen's player count ("Online — 3/12 players") is the login server's (the Outskirts) only.
 - LAN games: zone lines say they aren't supported (single-player and dedicated servers work).
 - The world clock of an already-connected client isn't re-synced when its zone's server catches up (only at login).
 - Outskirts south edge (2026-09-24): the user sculpted the southern mountains; the zone line spans the whole opening
   (z -9..241 at x -1274) and the land south of the ridge was trimmed (region column x -1536..-1280 removed). The east
   end past the ridge (z > 1024) already ended at an open edge at x -1280 — a wall or more mountains there some day.
-- Tenchijin (test 34): the server undid his level 2 and three skills on every save (XP table / skill cap mismatch, fixed).
-  Restore level 2 and defense 7, hand_to_hand 5, meditation 8 on the server AFTER the fix is deployed (and a starting dagger).
 
 == DUSTWIND MONSTERS (2026-09-24) — still open ==
 - The user's design for the first three zones: ~/NCT/Aldenexia-Lightfall/Solgrave Expanse Map.drawio (+ .png). Dustwind's

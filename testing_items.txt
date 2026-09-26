@@ -2,17 +2,16 @@ ALDENEXIA: LIGHTFALL — TESTING CHECKLIST
 New features and fixes waiting for a real playtest, in two parts: OUTSTANDING (not passed yet) and COMPLETED (passed).
 When an item passes, change [ ] to [x] and move it to the same section under COMPLETED (or just add "- working" and it
 gets moved). A failure goes to outstanding_items.txt with what went wrong. Last updated 2026-09-26 (after test 42).
-Everything below was built after test 26.   Outstanding: 224   Completed: 67
+Everything below was built after test 26.   Outstanding: 228   Completed: 69
 
 
 ################################################################################
-  OUTSTANDING — still to test (224)
+  OUTSTANDING — still to test (228)
 ################################################################################
 
 == ACCOUNTS AND JOINING ==
 [ ] Epheo, Evangeline, Wanderer can each log in with their account (same name and old password).
 [ ] Add Existing Character with an old name + password (make a throwaway old-style character first, or skip).
-[ ] The Join a Server screen's console no longer fills with "Node not found" / "not found in cache" errors. - i have not see these errors
 
 == TEST 28 CHANGES ==
 [ ] Run out of food / drink: Starving / Thirsty appear on the status window (red icons, yellow border); they go when you eat/drink.
@@ -25,8 +24,7 @@ Everything below was built after test 26.   Outstanding: 224   Completed: 67
 [ ] The rats by the west wall (Zozuur's spot) come to you and fight back; no monster freezes in combat just out of reach.
 [ ] Snakes/spiders/rats/bats "bite", stingers "sting", beetles "pinch" in the combat log.
 [ ] Die with a pet out (changed in test 34): the pet fades as you fall; summon it again after you wake. Its gear is still
-    on it when you do, and the monster it was fighting doesn't follow you.
-[ ] Your client log no longer shows "Node 'CombatNode:current_hp' not found" when monsters appear.
+    on it when you do, and the monster it was fighting doesn't follow you. - working
 
 == TANK STANCES ==
 [ ] Each tank's aura looks different: Voidknight streaks pulled inward, Lightsworn rising light, Blademaster sparks;
@@ -227,6 +225,17 @@ Everything below was built after test 26.   Outstanding: 224   Completed: 67
     sundered armour (ravager), blinded (Djhanid), grave miasma (restless corpse), withering touch (wraith).
 [ ] Two players: one zones, the other stays; both keep playing (chat across zones doesn't work yet).
 
+== ZONES ON DEMAND (2026-09-26; restart the world with run_world.sh after updating) ==
+[ ] Start the world as usual: only the Outskirts server starts (world_logs has no new Dustwind / Ashfall / Lumora log yet).
+[ ] Walk into Dustwind: "You set out for Dustwind Plateaus...", then you arrive (a few seconds; the login server's log
+    says "starting Dustwind Plateaus for a player"). Same into Lumora and Ashfall.
+[ ] Leave Dustwind empty for 10 minutes: its server stops by itself ("Nobody has been here..." in its log). Go back: it
+    starts again.
+[ ] Log out in Dustwind, wait until it has stopped, log back in: you arrive in Dustwind (via the login server).
+[ ] The character list shows the green online dot for a character in ANY zone; the Join screen's count is the whole
+    world's.
+[ ] Ctrl-C the world: every zone stops, the ones started on demand too.
+
 == SITTING AND TAILS (2026-09-26) ==
 [ ] Sit several times (x): each time one of three at random: cross-legged (back upright, head up), legs out leaning back
     on the hands, or lying back. Stand and sit again for another. A groupmate sees the same one you do.
@@ -426,7 +435,7 @@ Everything below was built after test 26.   Outstanding: 224   Completed: 67
 [ ] Restart the world while he's mid-visit: he comes back where he should be (on the road, or at his stop), not from the start.
 
 ################################################################################
-  COMPLETED — passed (67)
+  COMPLETED — passed (69)
 ################################################################################
 
 == TEST 35 FIXES (2026-09-25) ==
@@ -498,6 +507,7 @@ Everything below was built after test 26.   Outstanding: 224   Completed: 67
 [x] Blood Ritual lasts 30 seconds. - working
 [x] Appraising (I) raises Perception (abilities book shows "+N to appraisal checks"). -yes and it appears to show more than it did before.
 [x] Chat text: drag to select, right-click > Copy works in General, Combat and custom tabs; movement keys still work after. - appears to be working
+[x] Your client log no longer shows "Node 'CombatNode:current_hp' not found" when monsters appear. - working. i do not see this in the log.
 
 == APPEARANCE ==
 [x] EXISTING character: right-click the Silvered Mirror by the town gate (about X 66, Z 20). The full window opens;
@@ -514,6 +524,7 @@ Everything below was built after test 26.   Outstanding: 224   Completed: 67
 [x] Zone column shows "Lumora Outskirts" after a character has saved in the world.
 [x] Wrong password 5 times locks the account for a minute.
 [x] Log Out returns to the login form; camping out / a failed join returns straight to the character list.
+[x] The Join a Server screen's console no longer fills with "Node not found" / "not found in cache" errors. - i have not see these errors
 
 == TEST 28 CHANGES ==
 [x] Battle Shout lasts 15 minutes and shows the gold fist icon on the buff bar (other Blademaster buffs use it too).

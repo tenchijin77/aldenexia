@@ -103,6 +103,7 @@ var _login_failures: Dictionary = {}
 ## (Godot's headless server can't catch SIGTERM — tools/run_server.sh touches this file when it is signalled).
 var tls_dir := "user://server_tls"
 var stop_file := "user://server_stop"
+var _tried_login_server := false   # client: already fell back to the login server once for this join
 var maintenance_file := "user://server_maintenance"   # the update script writes the minutes to wait here (see server_notice.gd)
 var banned_ips_file := "user://banned_ips"             # one IP per line (# comments allowed): refused on connect; GMs manage it with /ban, /unban, /bans (gm_commands.gd)
 var gm_password_file := "user://gm_password"           # the game-master password (dedicated server): the first non-empty line; read at every attempt, so changing it needs no restart (see gm_commands.gd)
@@ -244,9 +245,9 @@ func _cmdline_value(name: String, fallback: String) -> String:
 
 
 func _start_dedicated_server() -> void:
-	if _cmdline_flag("list-zones"):   # tools/run_world.sh asks the build which zones it has ("ZONE <id> <port offset>")
+	if _cmdline_flag("list-zones"):   # tools/run_world.sh asks the build which zones it has ("ZONE <id> <port offset> always|ondemand")
 		for id in ZoneInfo.zones():
-			print("ZONE %s %d" % [id, int(ZoneInfo.zones()[id].get("port_offset", 0))])
+			print("ZONE %s %d %s" % [id, int(ZoneInfo.zones()[id].get("port_offset", 0)), "always" if ZoneInfo.always_on(id) else "ondemand"])
 		get_tree().quit(0)
 		return
 	is_dedicated_server = true
@@ -661,6 +662,7 @@ func _on_peer_disconnected(id: int) -> void:
 
 
 func _on_connected_to_server() -> void:
+	_tried_login_server = false
 	_relax_timeouts(1)
 	# We only count as connected once the host has approved our build.
 	_rpc_submit_version.rpc_id(1, GameVersion.version(), GameVersion.build_id())
@@ -680,7 +682,7 @@ func _rpc_submit_version(client_version: String, client_build: String) -> void:
 		return
 	if GameVersion.is_compatible(client_version, client_build):
 		_unverified_peers.erase(id)
-		_rpc_version_accepted.rpc_id(id, is_dedicated_server, server_name, _peer_character.size(), max_players, GameVersion.display())
+		_rpc_version_accepted.rpc_id(id, is_dedicated_server, server_name, world_player_count(), max_players, GameVersion.display())
 		Global.send_time_to(id)
 		if is_dedicated_server:
 			# A dedicated server has no character of its own to lean on: the joiner must now log one
@@ -914,6 +916,15 @@ func _on_connection_failed() -> void:
 	if not _menu_request.is_empty():
 		_finish_menu_request(false, "offline", "Could not connect. Check the address and make sure the server is running.")
 		return
+	# Straight to a zone's own server (the zone we were last in) and nobody answered: that zone is asleep (zones run on
+	# demand). Log in through the login server instead, which wakes it and sends us on.
+	if remote_character_mode and not _login_name.is_empty() and _pending_join_port != _client_base_port and not _tried_login_server:
+		_tried_login_server = true
+		print("%s [client] %s:%d didn't answer; logging in through the login server." % [Time.get_time_string_from_system(), _join_address, _pending_join_port])
+		multiplayer.multiplayer_peer = OfflineMultiplayerPeer.new()
+		begin_join_server(_join_address, _client_base_port, _login_name, _login_password, {}, ZoneInfo.DEFAULT_ID)   # (the zone scene finishes the join)
+		return
+	_tried_login_server = false
 	multiplayer.multiplayer_peer = OfflineMultiplayerPeer.new()   # back to Godot's startup state (null would make our own id 0)
 	is_multiplayer_game = false
 	omit_preplaced_player = false
@@ -1051,6 +1062,20 @@ func _character_path(key: String) -> String:
 func _redirect_to_zone(id: int, player: String, zone: String) -> void:
 	_awaiting_login.erase(id)
 	var port := ZoneInfo.port_for(zone, base_port)
+	var link := get_tree().get_first_node_in_group("world_link")
+	if link == null or not link.has_method("ensure_zone"):
+		_send_redirect(id, player, zone, port, true)
+		return
+	# zones run on demand: wake it first (a few seconds), then send them there
+	link.ensure_zone(zone, func(ok: bool) -> void: _send_redirect(id, player, zone, port, ok))
+
+
+func _send_redirect(id: int, player: String, zone: String, port: int, ok: bool) -> void:
+	if not multiplayer.get_peers().has(id):
+		return   # they gave up waiting
+	if not ok:
+		_login_fail(id, "zone_unavailable", "%s couldn't be started just now. Try again in a minute." % ZoneInfo.name_for(zone))
+		return
 	_slog("%s is in %s — sent to its server (port %d)." % [_display_name(player), ZoneInfo.name_for(zone), port])
 	_rpc_login_failed.rpc_id(id, "zone_redirect", "%s|%d" % [zone, port])
 	get_tree().create_timer(0.6).timeout.connect(_kick.bind(id))
@@ -1398,6 +1423,10 @@ func _rpc_login_failed(kind: String, reason: String) -> void:
 # saved with its new "zone" and where to arrive ("zone_in": a marker name, or "@bind"), then the game leaves this zone's
 # server and joins that zone's (same address, its own port — Data/zones.json), which puts us at the marker. In
 # single-player the zone scene simply changes. The server checks the move (net.gd _check_zone_change()).
+# On a server the target zone may be asleep (zones run on demand, world_link.gd): the server is asked to make sure it's up
+# first, and we only leave once it says so ("The way to ... opens" can take a few seconds while it starts).
+const ZONE_WAKE_TIMEOUT := 70.0
+
 func zone_travel(target: String, marker: String, to_bind: bool = false) -> void:
 	if _zoning or not ZoneInfo.exists(target):
 		return
@@ -1405,6 +1434,33 @@ func zone_travel(target: String, marker: String, to_bind: bool = false) -> void:
 		GameLog.log_general("[color=#ffaa66]Zone lines work on a server or in single-player, not in a LAN game (yet).[/color]")
 		return
 	_zoning = true
+	var link := get_tree().get_first_node_in_group("world_link")
+	if remote_character_mode and link != null and link.has_method("request_zone") and multiplayer.has_multiplayer_peer():
+		GameLog.log_general("[color=#aaddff]You set out for %s...[/color]" % ZoneInfo.name_for(target))
+		var answered := [false]
+		var on_ready := func(zone: String, ok: bool) -> void:
+			if zone != target or answered[0]:
+				return
+			answered[0] = true
+			if ok:
+				_travel_now(target, marker, to_bind)
+			else:
+				_zoning = false
+				GameLog.log_general("[color=#ff8866]The way to %s is closed right now. Try again in a moment.[/color]" % ZoneInfo.name_for(target))
+		link.zone_ready.connect(on_ready)
+		link.request_zone(target)
+		get_tree().create_timer(ZONE_WAKE_TIMEOUT).timeout.connect(func() -> void:
+			if is_instance_valid(link) and link.zone_ready.is_connected(on_ready):
+				link.zone_ready.disconnect(on_ready)
+			if not answered[0]:
+				answered[0] = true
+				_zoning = false
+				GameLog.log_general("[color=#ff8866]The way to %s is closed right now. Try again in a moment.[/color]" % ZoneInfo.name_for(target)))
+		return
+	_travel_now(target, marker, to_bind)
+
+
+func _travel_now(target: String, marker: String, to_bind: bool) -> void:
 	Global.player_data["zone"] = target
 	Global.player_data["zone_in"] = "@bind" if to_bind else marker
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
@@ -1685,6 +1741,14 @@ func _process(delta: float) -> void:
 			Global.save_world_state(server_name)
 		else:
 			Global.load_world_state(server_name, true)
+
+
+# Everyone online in the whole world (every zone, via the world link), for the Join screen's count.
+func world_player_count() -> int:
+	var link := get_tree().get_first_node_in_group("world_link")
+	if link != null and link.has_method("world_player_count"):
+		return maxi(link.world_player_count(), _peer_character.size())
+	return _peer_character.size()
 
 
 # How many players are logged in with a character right now (the dedicated server's view).
