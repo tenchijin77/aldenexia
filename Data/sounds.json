@@ -560,6 +560,10 @@
   }
  },
  "music": {
+  "res://Assets/music/Welcome to Lumora.ogg": {
+   "target": -20,
+   "volume_db": -5.4
+  },
   "res://Assets/music/The Lost Oasis.ogg": {
    "target": -20,
    "volume_db": -6.8

@@ -62,6 +62,15 @@ var appearance_json := "":
 		appearance_json = value
 		if is_inside_tree() and has_node("Character"):
 			_apply_appearance()
+# What this character holds (HeldGear.encode: "primary_item|offhand_item"), replicated so everyone sees the same weapon and
+# shield (test 39). The owner sets it from the equipment; every copy rebuilds the hands when it changes.
+var held_gear := "":
+	set(value):
+		if value == held_gear:
+			return
+		held_gear = value
+		if is_inside_tree() and has_node("Character"):
+			HeldGear.apply(get_node("Character"), held_gear)
 var known_spells: Array = []
 var known_skills: Array = []
 var known_recipes: Array = []  # tradeskill recipe ids learned from scrolls/quests (innate recipes are always known)
@@ -1361,6 +1370,7 @@ func _build_character_model() -> void:
 	character.set_meta("base_scale", character.scale)
 	_built_character_model_key = key
 	_apply_appearance()
+	HeldGear.apply(character, held_gear)   # a rebuilt model (race / sex change) gets its weapon back
 
 
 # Puts this character's look (appearance_json) on the built model.
@@ -2764,6 +2774,11 @@ func _find_player_by_name(query: String) -> Node:
 func invite_to_group_by_name(player_name_query: String) -> void:
 	var target := _find_player_by_name(player_name_query)
 	if target == null:
+		# not in this zone: the server finds them in any zone and sends the invite there (world_link.gd, test 39)
+		var link := get_tree().get_first_node_in_group("world_link")
+		if Net.remote_character_mode and link != null:
+			link.request_invite(player_name_query)
+			return
 		GameLog.log_general("No player named '%s' is currently online." % player_name_query)
 		return
 	invite_to_group(target)
@@ -4398,6 +4413,23 @@ func _on_equipment_changed() -> void:
 	Global.save_player_data_to_file()
 
 
+# A caster's Attune Spirit bound you (player_travel.gd). Runs on your own machine: it checks the caster really is a player
+# standing next to you, and binds you where you stand (test 39: casters bind anyone, like EverQuest's Bind Affinity).
+@rpc("any_peer", "call_remote", "reliable")
+func _rpc_bound_by() -> void:
+	if not is_multiplayer_authority():
+		return
+	var caster := TargetFrame.peer_id_to_player_node(multiplayer.get_remote_sender_id())
+	if not is_instance_valid(caster) or (caster as Node3D).global_position.distance_to(global_position) > PlayerTravel.BIND_OTHER_RANGE + 5.0:
+		return
+	PlayerTravel.bind_spirit(global_position, "[color=#ffdd44]%s attunes your spirit to this place. You will return here when you fall.[/color]" % TargetFrame.display_name(caster))
+
+
+func _equipped_id(slot: String) -> String:
+	var item: Variant = Inventory.equipped.get(slot, null)
+	return str(item.get("item_id", "")) if typeof(item) == TYPE_DICTIONARY else ""
+
+
 # A weapon poison (slot_button.gd's _apply_weapon_poison()) lasts WEAPON_POISON_DEFAULT_SECONDS of play, like a standard buff.
 # The time left is stored on the weapon item itself (poison_remaining, saved with it) and only runs down while the weapon is
 # equipped. A coating from before poisons expired has no timer: it gets a full one the first time it is seen.
@@ -4424,6 +4456,8 @@ var _complete_sets: Array = []   # armour sets fully worn at the last equipment 
 
 
 func _apply_equipment_from_inventory() -> void:
+	if is_multiplayer_authority():
+		held_gear = HeldGear.encode(_equipped_id("primary"), _equipped_id("offhand"))
 	var weapon_dmg := 0
 	var bonus_ac   := 0
 	var stat_totals: Dictionary = {}

@@ -2,11 +2,11 @@ ALDENEXIA: LIGHTFALL — TESTING CHECKLIST
 New features and fixes waiting for a real playtest, in two parts: OUTSTANDING (not passed yet) and COMPLETED (passed).
 When an item passes, change [ ] to [x] and move it to the same section under COMPLETED (or just add "- working" and it
 gets moved). A failure goes to outstanding_items.txt with what went wrong. Last updated 2026-09-25 (test 38).
-Everything below was built after test 26.   Outstanding: 217   Completed: 25
+Everything below was built after test 26.   Outstanding: 228   Completed: 25
 
 
 ################################################################################
-  OUTSTANDING — still to test (217)
+  OUTSTANDING — still to test (228)
 ################################################################################
 
 == ACCOUNTS AND JOINING ==
@@ -262,6 +262,28 @@ Everything below was built after test 26.   Outstanding: 217   Completed: 25
 [ ] New ailments show on the status window with a description and are removed by a cure: weakening venom (sandstinger),
     sundered armour (ravager), blinded (Djhanid), grave miasma (restless corpse), withering touch (wraith).
 [ ] Two players: one zones, the other stays; both keep playing (chat across zones doesn't work yet).
+
+== TEST 39 FIXES (2026-09-25) ==
+[ ] /tell someone in another zone (type it in the chat box): they get it; you see "You tell ...". A name that's offline
+    says so.
+[ ] /invite someone in another zone: they get Accept / Decline; accept: both group frames show each other with the
+    zone. /party works. Decline, full group, already grouped: the inviter is told.
+[ ] Stances show no timer (yours, and a tank's group stance on you).
+[ ] Group window: walk more than about 16 m from a member (or zone apart): their row fades; come back: it's solid.
+[ ] Equip a sword / dagger / axe / staff, and a shield: you hold them (sword forward in the fist, staff upright, shield
+    on the left forearm); another player sees them too. Unequip: gone. Try a big race (ogre) and a small one (gnome).
+    Note anything that clips badly in the attack and cast animations.
+[ ] Binding: a caster's Attune Spirit on a targeted friend binds the friend; a Blademaster can't cast it ("ask a caster,
+    or find a Soul Binder"); Soulbinder Maren at Lumora's temple binds for 1 silver; once an hour either way.
+
+== LUMORA, THE CITY: FIRST PASS (2026-09-25) ==
+[ ] Walk into Lumora: "Welcome to Lumora" plays, at the same loudness as the other zones' music.
+[ ] Two Oasis Wardens at the south gate, two at the Citadel, two at the Vault; two more walk their rounds (/follow one).
+[ ] Crafters' Row (west of the gate): every station works; Borgrim and Tobble trade and teach as before.
+[ ] Oswin's bank, Ilsabet's scrolls, Lira's shop (by the temple), Xalvyr in the Bazaar and the barber's mirror all work
+    in the city; their quests still start and finish (Rites of the Dead, Lira's Reagents, Tobble's Toy).
+[ ] The Outskirts: Aldric is still at the gate; no stations, bank or mirror left behind; the guards send you into the city
+    for Lira and Borgrim.
 
 == NEW ART (2026-09-25) ==
 [ ] Get each ailment (poison from a sandstinger, blinded by a Djhanid, a burn, a chill, ...): its new icon shows on the

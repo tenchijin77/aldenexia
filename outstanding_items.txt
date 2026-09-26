@@ -63,8 +63,11 @@ an item (delete it, note it in change_log.txt) when it's done. Last updated 2026
 - Cross-zone (world_link.gd, tests 37-38): /who, /tell, /party, groups, world and GM announcements and the GM flag now
   cross zones. Still zone-only: GM /kill, /give, /ban lookups and /follow of someone who zoned; a group member in another
   zone shows no health bars (only name and zone).
-- Lumora (2026-09-25, first pass): its own zone now, but flat placeholder ground with no city yet: needs the terrain,
-  buildings, NPCs and its own music (town_theme for now). The city wall is in (2026-09-25, lined up with the Outskirts).
+- Lumora (2026-09-25, first pass): its own zone; the wall, the music, the moved vendors / bank / Archive / stations /
+  mirror, district markers and guards are in. Still to do (Development page, Part 2): the buildings (the ground is flat),
+  the inn (The Sunlit Rest), Toren and the Citadel, the temple healer, guild halls and trainers (Data/lumora.json has
+  names), notice board, courthouse, the Cartographer, the Cisterns, the town crier and daily rhythm; a tavern at the
+  Outskirts gate. Guards' hail lines are still the Outskirts' (they mention Kenji "by the gate").
 - The Load/Join screens' character delete runs on the login server: it can't tell a character is online in another zone.
 - The character list's "online" dot comes from the login server only: a character online in Dustwind shows as offline.
 - The Join screen's player count ("Online — 3/12 players") is the login server's (the Outskirts) only.
@@ -252,8 +255,8 @@ Decisions:
 - The mirror's spot (66, 20 by the gate) is a first guess; its model is a stand-in frame.
 
 == HELD GEAR AND PROPS (for the animation pack) ==
-- Weapon models are in (models/Weapons, 2026-09-25: one per type, grip at the origin pointing +Y, shields facing +Z) but
-  simple and low-poly; next: attach them to each race's hand bone (per-race offset) and show the equipped item. Still
+- Weapons and shields are held (2026-09-25, Scripts/held_gear.gd, items.json "held_model"); simple low-poly models. Next:
+  bows (with ranged combat), weapons on monsters and guards, attack animations that suit a weapon (clipping). Still
   missing: blunt weapons (mace / hammer), hand-to-hand, quivers, fishing rod, pickaxe, woodcutting axe, smithing hammer;
   later armour pieces worn on the model. New props: run tools/blender/fix_props.py.
 
@@ -309,4 +312,12 @@ Decisions:
 == CHECKED AND FINE (2026-09-24) ==
 - Every item and every spell has an icon file; every sound the code plays is in Data/sounds.json with a real file;
   every playable race has male/female models and creation portraits.
+
+== FROM TEST 39 (2026-09-25) — decided or asked, not built ==
+- Cartography (the Game Systems notes, section 6): proposed in phases (a map window with fog of war first); waiting on
+  the user's go-ahead.
+- A more realistic sky (day and night): the sky is Godot's plain ProceduralSkyMaterial; proposed a custom sky shader
+  (scattering, stars, the moon with its phases, clouds); assets optional.
+- Troubadour trainer: Jorren Brightsong in town; Annadaeus Beidsdottir also trains when she's in town (how: later).
+- Non-combat buffs last 15 minutes as a rule (the oasis buff will). Shadowlight (a light spell) is 60 minutes: keep?
 

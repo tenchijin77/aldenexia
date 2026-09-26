@@ -2400,6 +2400,53 @@ GATE RAIDS (`Scripts/gate_raid_manager.gd`, `Data/gate_raids.json`, node "GateRa
   warmth of the campfire -> groupfire.
 - Tests: test_test37.gd. Suite: 3,808 checks pass.
 
+### Test 39: Zozuur (Voidknight), Maedianie (Wildspeaker), build adc0f32
+- Working (per the notes): party chat across zones; macros (a taunt macro). Macros already live on the server: shared
+  ones on the account, the rest in the character, so they follow a player to any PC.
+- /TELL ACROSS ZONES: the chat box refused a name that wasn't in your own zone before the world link ever saw it (the
+  bot test called the send directly, so it passed). It now lets the server find them, and only refuses in a LAN game.
+- INVITES ACROSS ZONES: /invite name reaches a player in any zone (world_link.gd: a message to one player by name,
+  routed like a tell); they get the Accept / Decline popup; accepting joins the leader's group on the hub (group_join),
+  which every zone then shows. Full group, already grouped, offline and declined are all reported to the inviter.
+  Checked with two headless clients (Outskirts and Dustwind): invite, accept, both group frames, tells both ways.
+- Stances (and a tank's group stance, renewed every few seconds, which read "0:00") show no timer; nor does anything
+  without an end (Starving, Thirsty).
+- The group window fades a member beyond a heal's reach (16 m: "15m" plus the 1 m slack) or in another zone.
+- WEAPONS IN HAND (Scripts/held_gear.gd): your equipped weapon and shield show in your hands, always, and everyone sees
+  them (a replicated held_gear string on the player). items.json "held_model" says which model an item shows: swords
+  -> shortsword; daggers -> dagger; cleaver and war axe -> one-handed axe; staves -> staff; tin shield -> buckler, bronze
+  shield -> kite shield, bone shield -> round shield. Spear and hand-to-hand wraps: nothing (no model). The fit is
+  worked out from each race's own skeleton (a sword points forward from the right fist, a staff stands up, a shield
+  straps to the left forearm), scaled by the forearm, so no race needs hand-tuning; the recolour and texture override
+  leave held gear alone. Checked on human, dwarf, ogre, gnome and elf: grip in the hand, blade and shield clear of the
+  body while idle. Not yet: bows, and weapons on monsters and guards.
+- BINDING (user: "anywhere for casters, just like in eq"): Attune Spirit is now the seven casters' (Lightmender,
+  Spiritweaver, Wildspeaker, Gravecaller, Runecaster, Arcanist, Chaosborn; it was every class): it binds the caster where
+  they stand, or a friendly player they target within 20 m (their own machine checks the caster is really there).
+  Others ask a caster, or pay Soulbinder Maren at Lumora's Dawnspire Altar a silver (Scripts/soul_binder_npc.gd,
+  Data/soul_binder.json). Once an hour however you're bound. A non-caster who learned the spell before can't cast it.
+- Tests: test_test39 (87 checks).
+
+### Lumora, the city: first pass (2026-09-25)
+- Decided with the user (Development page, Part 2): new characters still start at the Outskirts gate; the vendors move
+  into the city; Aldric (and a tavern, to come) stay at the gate.
+- MOVED from the Outskirts' town into Lumora (Scenes/zones/lumora.tscn), each group keeping its layout, turned the way
+  the zone line turns (the Outskirts' +X is Lumora's -Z): Crafters' Row (-200, 385) — all ten crafting stations,
+  Borgrim, Tobble and his stall; the Archive (-45, 165) — Ilsabet and her stall; Lira and her stall by the Dawnspire
+  Altar (-205, 150); Oswin at the Treasury Office (-70, 290); Xalvyr at the Sandveil Bazaar (190, 370); the Silvered
+  Mirror at the barber's inside the south gate (45, 405). The Outskirts keeps Aldric (and his stall), the gate guards,
+  Kenji, Oni and the harbour master. Its data stations list is now empty (data stations only appear in a zone whose
+  scene has none, so they'd have popped back up at the old spot).
+- District markers (Lumora "Markers"): South Gate, Citadel Plaza, Paladin's Vigil, Oasisheart Citadel, Solaris Vault,
+  The Oasis, Sandveil Bazaar, Crafters' Row, Dawnspire Altar, Lycaeum Annex, Hall of Arms, The Sunlit Rest, Treasury
+  Office, Courthouse, Barber, Old Town, Cisterns Entrance, Caravanserai, Wayfarers' Lodge, East Gate, and Dawnwhisper
+  Haven (reserved). Move them freely in the editor; the patrols follow.
+- Guards: Oasis Wardens, two each at the south gate, the Citadel and the Vault (facing south, toward whoever comes up
+  the road), and two patrols (market and citadel rounds through the markers).
+- MUSIC: the user's "Welcome to Lumora" plays in the city; added to Data/sounds.json and balanced (-14.6 LUFS -> -5.4 dB).
+- Guards' directions updated (Lira and Borgrim are in the city now); the Player's Manual says where everyone is.
+- Navmeshes rebaked (Lumora, the Outskirts). Tests: test_lumora (new, 73 checks); test_appearance's mirror check.
+
 ### Lumora's city wall lines up with the Outskirts; buildings solid in every zone (2026-09-25)
 - The user's City Wall (models/Lumora Gates/City Wall.glb) continues the Outskirts' gate walls: it was modelled in
   the same frame as Lumora Gates.glb (the gates end at local z 51.27, the wall starts at 51.25). It now stands exactly

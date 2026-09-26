@@ -595,7 +595,10 @@ func _tell_command(arg: String) -> void:
 			_set_channel(ChatChannels.TELL)
 		return
 	var target_name: String = tell_parts[0]
-	if Net.is_multiplayer_game and player._find_player_by_name(target_name) == null:
+	# Someone in another zone isn't in this scene: on a dedicated server the world link finds them (and says if they're
+	# offline), so only a LAN game, which has no link, refuses here (test 39: this check stopped cross-zone tells).
+	var has_link: bool = Net.remote_character_mode and get_tree().get_first_node_in_group("world_link") != null
+	if Net.is_multiplayer_game and not has_link and player._find_player_by_name(target_name) == null:
 		GameLog.log_general("[color=red]No player named '%s' is currently online.[/color]" % target_name)
 		return
 	_set_channel(ChatChannels.TELL, target_name)

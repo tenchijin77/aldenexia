@@ -7,6 +7,11 @@
 extends CanvasLayer
 class_name GroupFrame
 
+# A member farther than this fades on the frame: the reach of a heal (player_spells.json "15m", plus the 1 m slack
+# Player3D allows for the target's body). Members in another zone fade too.
+const IN_RANGE_M := 16.0
+const OUT_OF_RANGE_ALPHA := 0.45
+
 const POSITION_KEY := "group_frame"
 const MAX_ROWS := 6  # matches player3d.gd's MAX_GROUP_SIZE
 const RESIZE_MARGIN := 16.0
@@ -253,6 +258,7 @@ func _process(_delta: float) -> void:
 			row["pet"] = null
 			row["pet_wrapper"].visible = false
 			row["name_label"].text = "%s (%s)" % [str(r.get("name", "?")), str(r.get("zone", ""))]
+			row["wrapper"].modulate.a = OUT_OF_RANGE_ALPHA
 			for bar in ["hp_bar", "mp_bar"]:
 				row[bar].max_value = 1
 				row[bar].value = 0
@@ -275,6 +281,9 @@ func _process(_delta: float) -> void:
 
 		row["wrapper"].visible = true
 		row["member"] = member
+		# out of heal range fades (test 39): a group heal or a targeted heal won't reach them from here
+		var far: bool = member != _player and _player.global_position.distance_to((member as Node3D).global_position) > IN_RANGE_M
+		row["wrapper"].modulate.a = OUT_OF_RANGE_ALPHA if far else 1.0
 
 		row["name_label"].text = member.player_name if "player_name" in member else "Player"
 		# current_hp/max_hp/current_mana/max_mana now replicate for every

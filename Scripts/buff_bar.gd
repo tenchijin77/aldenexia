@@ -59,7 +59,7 @@ func _process(_delta: float) -> void:
 	for effect_name in effect_names:
 		var label: Label = _row_time_labels.get(effect_name)
 		if label:
-			label.text = _format_remaining(active_effects[effect_name].get("remaining", 0.0))
+			label.text = time_text(effect_name, active_effects[effect_name].get("remaining", 0.0))
 
 
 func _rebuild_rows(effect_names: Array, active_effects: Dictionary) -> void:
@@ -144,7 +144,7 @@ func _build_row(effect_name: String, display_name: String, description: String, 
 	name_row.add_child(name_label)
 
 	var time_label := Label.new()
-	time_label.text = _format_remaining(remaining)
+	time_label.text = time_text(effect_name, remaining)
 	time_label.add_theme_font_size_override("font_size", 10)
 	time_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.75))
 	name_row.add_child(time_label)
@@ -179,9 +179,17 @@ func _on_row_gui_input(event: InputEvent, effect_name: String) -> void:
 			GameLog.log_general("You cancel [b]%s[/b]." % Player3D.spell_display_name(effect_name))
 
 
-func _format_remaining(remaining: float) -> String:
+# The time shown on a row: nothing for what has no real duration (stances, and a tank's group stance, which is renewed every
+# few seconds and read "0:00" — test 39; Starving / Thirsty; anything without an end).
+static func time_text(effect_name: String, remaining: float) -> String:
+	if effect_name.begins_with("stance_") or effect_name.begins_with("group_stance_") or remaining == INF:
+		return ""
+	return _format_remaining(remaining)
+
+
+static func _format_remaining(remaining: float) -> String:
 	if remaining == INF:
-		return "∞"
+		return ""
 	var seconds := maxi(0, int(remaining))
 	return "%d:%02d" % [seconds / 60, seconds % 60]
 

@@ -123,6 +123,8 @@ static func apply(character: Node3D, scene_path: String, texture_path: String, a
 	character.scale = base_scale * (1.0 + float(a.get("height", 0.0)) * height_range(race))
 	for node in character.find_children("*", "MeshInstance3D", true, false):
 		var mi := node as MeshInstance3D
+		if mi.is_in_group(HeldGear.GROUP):
+			continue   # a weapon or shield in hand keeps its own materials
 		if mi.mesh == null:
 			continue
 		for i in mi.mesh.get_blend_shape_count():

@@ -1,0 +1,25 @@
+{
+ "_comment": "soul_binder.json - what the Soul Binder at Lumora's Dawnspire Altar says (Scripts/soul_binder_npc.gd on a talking_vendor.tscn). Same shape as banker.json: greeting (when you hail), ambient/secret (said nearby every few minutes; secret only at night), topics (keywords said near them). A topic whose 'then' has hail: true offers the binding.",
+ "ambient_minutes": [5, 9],
+ "ambient_secret_chance_at_night": 0.2,
+ "greeting": [
+  "Aurethiel's light finds everyone who asks. Shall I bind your spirit to this place?",
+  "Come to be bound? The Dawnspire will remember you.",
+  "Kneel if you like. It isn't required. The binding holds either way."
+ ],
+ "shop_intro": [],
+ "ambient": [
+  "Bind your spirit at the Dawnspire, traveller. The desert is long and the dark is longer.",
+  "Those who fall return to the place they are bound. Choose it well.",
+  "A silver for the candles. The light itself is free."
+ ],
+ "secret": [
+  "Some nights I feel the bound ones come back before they do. A draught at the altar, like a door left open.",
+  "The casters bind themselves wherever they please. The rest of you have me. I don't mind."
+ ],
+ "topics": [
+  {"id": "hail", "keywords": ["hail", "hello", "greetings", "hey"], "then": {"hail": true}},
+  {"id": "bind", "keywords": ["bind", "binding", "soul", "spirit", "bindpoint"],
+   "lines": ["Of course. Stand still a moment."], "then": {"hail": true}}
+ ]
+}

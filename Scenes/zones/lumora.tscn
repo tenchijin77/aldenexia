@@ -4,6 +4,14 @@
 [ext_resource type="NavigationMesh" path="res://Data/lumora_navmesh.tres" id="2_navmesh"]
 [ext_resource type="Script" uid="uid://clm5l4nhm5j6k" path="res://Scripts/zone_line.gd" id="3_zone_line"]
 [ext_resource type="PackedScene" uid="uid://btft0af2pxlqr" path="res://models/Lumora Gates/City Wall.glb" id="4_8h4ym"]
+[ext_resource type="PackedScene" path="res://Scenes/silvered_mirror.tscn" id="mirror_scn"]
+[ext_resource type="PackedScene" path="res://Scenes/talking_vendor.tscn" id="talking_vendor_scn"]
+[ext_resource type="PackedScene" path="res://Scenes/tobble_npc.tscn" id="tobble_npc_scn"]
+[ext_resource type="PackedScene" uid="uid://bqefds74sifgt" path="res://Scenes/guard_npc.tscn" id="5_guard1"]
+[ext_resource type="PackedScene" uid="uid://ganx16h2wx2b" path="res://models/vendor stall/vendor lean-to.glb" id="37_dkm3m"]
+[ext_resource type="Script" uid="uid://beryflf0x6wbj" path="res://Scripts/banker_npc.gd" id="banker_scr"]
+[ext_resource type="Script" uid="uid://c2p4g23o1f8j4" path="res://Scripts/crafting_station.gd" id="crafting_station_scr"]
+[ext_resource type="Script" path="res://Scripts/soul_binder_npc.gd" id="soul_binder_scr"]
 
 [node name="Zone" unique_id=1932174881 instance=ExtResource("1_template")]
 zone_id = "lumora"
@@ -28,3 +36,229 @@ size = Vector3(1040, 60, 8)
 
 [node name="City Wall2" parent="." index="23" unique_id=1399819986 instance=ExtResource("4_8h4ym")]
 transform = Transform3D(-0.99967986, 0, 0.0253026, 0, 1, 0, -0.0253026, 0, -0.99967986, 0.271349, 0, 558.051613)
+
+[node name="South Gate" type="Marker3D" parent="Markers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 425)
+
+[node name="Citadel Plaza" type="Marker3D" parent="Markers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 290)
+
+[node name="Paladin's Vigil" type="Marker3D" parent="Markers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 260)
+
+[node name="Oasisheart Citadel" type="Marker3D" parent="Markers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 170)
+
+[node name="Solaris Vault" type="Marker3D" parent="Markers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 80)
+
+[node name="The Oasis" type="Marker3D" parent="Markers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -220, 0, 250)
+
+[node name="Sandveil Bazaar" type="Marker3D" parent="Markers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 190, 0, 370)
+
+[node name="Crafters' Row" type="Marker3D" parent="Markers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -200, 0, 385)
+
+[node name="Dawnspire Altar" type="Marker3D" parent="Markers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -230, 0, 120)
+
+[node name="Lycaeum Annex" type="Marker3D" parent="Markers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -110, 0, 120)
+
+[node name="Hall of Arms" type="Marker3D" parent="Markers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 70, 0, 165)
+
+[node name="The Sunlit Rest" type="Marker3D" parent="Markers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 120, 0, 300)
+
+[node name="Treasury Office" type="Marker3D" parent="Markers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -70, 0, 290)
+
+[node name="Courthouse" type="Marker3D" parent="Markers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 60, 0, 215)
+
+[node name="Barber" type="Marker3D" parent="Markers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 45, 0, 405)
+
+[node name="Old Town" type="Marker3D" parent="Markers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 300, 0, 110)
+
+[node name="Cisterns Entrance" type="Marker3D" parent="Markers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 330, 0, 80)
+
+[node name="Caravanserai" type="Marker3D" parent="Markers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 610, 0, 180)
+
+[node name="Wayfarers' Lodge" type="Marker3D" parent="Markers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 560, 0, 250)
+
+[node name="East Gate" type="Marker3D" parent="Markers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 785, 0, 180)
+
+[node name="Dawnwhisper Haven (reserved)" type="Marker3D" parent="Markers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -340, 0, 360)
+
+[node name="CraftingStations" type="Node3D" parent="."]
+
+[node name="Vendor Stalls" type="Node3D" parent="."]
+
+[node name="Guards" type="Node3D" parent="."]
+
+[node name="Forge" type="Node3D" parent="CraftingStations" unique_id=1756544879]
+transform = Transform3D(0.390731, 0, -0.920505, 0, 1, 0, 0.920505, 0, 0.390731, -191.594, 0, 356.486)
+script = ExtResource("crafting_station_scr")
+station_id = "forge"
+display_name = "Forge"
+
+[node name="Oven" type="Node3D" parent="CraftingStations" unique_id=1230398041]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -209.95, 0, 387.419)
+script = ExtResource("crafting_station_scr")
+station_id = "oven"
+display_name = "Oven"
+
+[node name="AlchemyStation" type="Node3D" parent="CraftingStations" unique_id=1527952897]
+transform = Transform3D(-0.159881, 0, -0.987136, 0, 1, 0, 0.987136, 0, -0.159881, -209.473, 0, 393.776)
+script = ExtResource("crafting_station_scr")
+station_id = "alchemy_station"
+display_name = "Alchemy Station"
+
+[node name="BrewingVat" type="Node3D" parent="CraftingStations" unique_id=260767412]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -206.38, 0, 380.947)
+script = ExtResource("crafting_station_scr")
+station_id = "brewing_vat"
+display_name = "Brewing Vat"
+
+[node name="TinkeringBench" type="Node3D" parent="CraftingStations" unique_id=234956485]
+transform = Transform3D(-0.903335, 0, 0.428935, 0, 1, 0, -0.428935, 0, -0.903335, -204.866, 0, 394.408)
+script = ExtResource("crafting_station_scr")
+station_id = "tinkering_bench"
+display_name = "Tinkering Bench"
+
+[node name="WoodworkingStation" type="Node3D" parent="CraftingStations" unique_id=2033717223]
+transform = Transform3D(0.999391, 0, 0.034899, 0, 1, 0, -0.034899, 0, 0.999391, -195.061, 0, 395.229)
+script = ExtResource("crafting_station_scr")
+station_id = "woodworking_station"
+display_name = "Woodworking Station"
+
+[node name="FletchingStation" type="Node3D" parent="CraftingStations" unique_id=671162126]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -191.598, 0, 388.975)
+script = ExtResource("crafting_station_scr")
+station_id = "fletching_station"
+display_name = "Fletching Station"
+
+[node name="JewelcraftingStation" type="Node3D" parent="CraftingStations" unique_id=677552702]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -206.502, 0, 386.465)
+script = ExtResource("crafting_station_scr")
+station_id = "jewelcrafting_station"
+display_name = "Jewelcrafting Station"
+
+[node name="Tannery" type="Node3D" parent="CraftingStations" unique_id=616404787]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -192.456, 0, 382.344)
+script = ExtResource("crafting_station_scr")
+station_id = "tannery"
+display_name = "Tannery"
+
+[node name="TailorsBench" type="Node3D" parent="CraftingStations" unique_id=1158421181]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -191.747, 0, 375.32)
+script = ExtResource("crafting_station_scr")
+station_id = "tailors_bench"
+display_name = "Tailor's Bench"
+
+[node name="vendor lean-to2" parent="Vendor Stalls" unique_id=2071620704 instance=ExtResource("37_dkm3m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -206.29, 0, 150)
+
+[node name="vendor lean-to3" parent="Vendor Stalls" unique_id=2011083583 instance=ExtResource("37_dkm3m")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -46.0905, 0, 165)
+
+[node name="vendor lean-to4" parent="Vendor Stalls" unique_id=703886462 instance=ExtResource("37_dkm3m")]
+transform = Transform3D(-0.999559, 0, 0.029708, 0, 1, 0, -0.029708, 0, -0.999559, -199.895, 0, 395.074)
+
+[node name="Lira Solarpetal" parent="NPCs" unique_id=59779779 instance=ExtResource("talking_vendor_scn")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -203.793, 0, 150)
+config_path = "res://Data/lira.json"
+model_key = "human_female"
+title = "Apothecary"
+npc_name = "Lira Solarpetal"
+shop_id = "lumora_apothecary"
+vendor_model_key = "female"
+
+[node name="TobbleTinkerer" parent="NPCs" unique_id=15958158 instance=ExtResource("tobble_npc_scn")]
+transform = Transform3D(0.999559, 0, -0.029708, 0, 1, 0, 0.029708, 0, 0.999559, -199.84, 0, 392.943)
+
+[node name="ScribeIlsabet" parent="NPCs" unique_id=786175410 instance=ExtResource("talking_vendor_scn")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -44.043, 0, 165)
+config_path = "res://Data/scribe_ilsabet.json"
+model_key = "half_elf_female"
+title = "Archivist of the Oasis Wardens"
+npc_name = "Ilsabet Thornmere"
+shop_id = "lumora_scribe_light"
+
+[node name="BankerOswin" parent="NPCs" unique_id=2067820927 instance=ExtResource("talking_vendor_scn")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -70, 0, 290)
+script = ExtResource("banker_scr")
+config_path = "res://Data/banker.json"
+title = "Keeper of the Lumora Vault"
+npc_name = "Oswin Coinwright"
+
+[node name="ScribeXalvyr" parent="NPCs" unique_id=726775322 instance=ExtResource("talking_vendor_scn")]
+transform = Transform3D(0.215743, 0, -0.97645, 0, 1, 0, 0.97645, 0, 0.215743, 190, 0, 370)
+config_path = "res://Data/scribe_xalvyr.json"
+model_key = "dark_elf_male"
+title = "Copyist of the Bazaar"
+npc_name = "Xalvyr Tenn"
+shop_id = "lumora_scribe_dark"
+
+[node name="SmithBorgrim" parent="NPCs" unique_id=1840417733 instance=ExtResource("talking_vendor_scn")]
+transform = Transform3D(-0.390731, 0, 0.920505, 0, 1, 0, -0.920505, 0, -0.390731, -195.1, 0, 359.8)
+config_path = "res://Data/smith_borgrim.json"
+model_key = "dwarf_male"
+title = "Smith of Lumora"
+npc_name = "Borgrim Emberforge"
+shop_id = "lumora_smith"
+
+[node name="SilveredMirror" parent="." unique_id=1169137102 instance=ExtResource("mirror_scn")]
+transform = Transform3D(-0.050234, 0, -0.998737, 0, 1, 0, 0.998737, 0, -0.050234, 45, 0, 405)
+
+[node name="Gate Warden (west)" parent="Guards" instance=ExtResource("5_guard1")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -15, 0, 428)
+npc_name = "Oasis Warden"
+
+[node name="Gate Warden (east)" parent="Guards" instance=ExtResource("5_guard1")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 15, 0, 428)
+npc_name = "Oasis Warden"
+
+[node name="Citadel Warden (west)" parent="Guards" instance=ExtResource("5_guard1")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -12, 0, 190)
+npc_name = "Oasis Warden"
+
+[node name="Citadel Warden (east)" parent="Guards" instance=ExtResource("5_guard1")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 12, 0, 190)
+npc_name = "Oasis Warden"
+
+[node name="Vault Warden (west)" parent="Guards" instance=ExtResource("5_guard1")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -8, 0, 95)
+npc_name = "Oasis Warden"
+
+[node name="Vault Warden (east)" parent="Guards" instance=ExtResource("5_guard1")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 8, 0, 95)
+npc_name = "Oasis Warden"
+
+[node name="Patrol Warden (market)" parent="Guards" instance=ExtResource("5_guard1")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0, 410)
+npc_name = "Oasis Warden"
+patrol_waypoints = Array[NodePath]([NodePath("../../Markers/South Gate"), NodePath("../../Markers/Sandveil Bazaar"), NodePath("../../Markers/Citadel Plaza"), NodePath("../../Markers/The Oasis"), NodePath("../../Markers/Crafters' Row")])
+
+[node name="Patrol Warden (citadel)" parent="Guards" instance=ExtResource("5_guard1")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 20, 0, 290)
+npc_name = "Oasis Warden"
+patrol_waypoints = Array[NodePath]([NodePath("../../Markers/Citadel Plaza"), NodePath("../../Markers/Old Town"), NodePath("../../Markers/Solaris Vault"), NodePath("../../Markers/Dawnspire Altar"), NodePath("../../Markers/Lycaeum Annex")])
+
+[node name="SoulBinder" parent="NPCs" instance=ExtResource("talking_vendor_scn")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -224, 0, 124)
+script = ExtResource("soul_binder_scr")
+config_path = "res://Data/soul_binder.json"
+model_key = "human_female"
+title = "Soul Binder of the Dawnspire"
+npc_name = "Soulbinder Maren"

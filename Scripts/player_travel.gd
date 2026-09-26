@@ -62,9 +62,13 @@ func pre_cast(spell_name: String, spell: Dictionary) -> bool:
 		GameLog.log_general("[color=#ff8866]You can't cast [b]%s[/b] in the middle of a fight.[/color]" % display)
 		return false
 	if kind == "bind":
-		var since := Time.get_unix_time_from_system() - float(Global.player_data.get("bind_attuned_at", 0.0))
-		if since < BIND_CHANGE_SECONDS:
-			GameLog.log_general("[color=#ff8866]Your spirit is still settling from its last attunement. Try again in %d minutes.[/color]" % int(ceil((BIND_CHANGE_SECONDS - since) / 60.0)))
+		# Casters bind (EverQuest's Bind Affinity): themselves anywhere, or a friendly player they target; everyone else
+		# asks a caster or a Soul Binder in town (test 39). A character who learned it before then can't cast it.
+		if not spell.get("class_level_requirements", {}).has(str(player.player_class)):
+			GameLog.log_general("[color=#ff8866]Only spellcasters can attune a spirit. Ask a caster, or find a Soul Binder in town.[/color]")
+			return false
+		if bind_target() == null and bind_wait_minutes() > 0:
+			GameLog.log_general("[color=#ff8866]Your spirit is still settling from its last attunement. Try again in %d minutes.[/color]" % bind_wait_minutes())
 			return false
 	if kind == "ritual" and (_destination.is_empty() or _destination_for != spell_name):
 		var pc := str(player.player_class)
@@ -76,6 +80,38 @@ func pre_cast(spell_name: String, spell: Dictionary) -> bool:
 			return false
 		_open_chooser(spell_name, choices)
 		return false
+	return true
+
+
+# ── Binding ──
+const BIND_OTHER_RANGE := 20.0   # a caster binds a player standing this close (checked again on the target's machine)
+
+
+# The friendly player this caster's Attune Spirit binds instead of themselves: their target, if it's another player close by.
+func bind_target() -> Node:
+	var t = player.current_target
+	if is_instance_valid(t) and t != player and t.is_in_group("player") and t is Node3D \
+			and player.global_position.distance_to((t as Node3D).global_position) <= BIND_OTHER_RANGE:
+		return t
+	return null
+
+
+# Minutes until this character's spirit can be bound again (0 = now). Once an hour, however it's bound.
+static func bind_wait_minutes() -> int:
+	var since := Time.get_unix_time_from_system() - float(Global.player_data.get("bind_attuned_at", 0.0))
+	return 0 if since >= BIND_CHANGE_SECONDS else int(ceil((BIND_CHANGE_SECONDS - since) / 60.0))
+
+
+# Binds THIS machine's character where `at` is, in this zone: the spell, a caster binding you, a Soul Binder.
+static func bind_spirit(at: Vector3, message: String) -> bool:
+	if bind_wait_minutes() > 0:
+		GameLog.log_general("[color=#ff8866]Your spirit is still settling from its last attunement. Try again in %d minutes.[/color]" % bind_wait_minutes())
+		return false
+	Global.player_data["bind_point"] = [at.x, at.y, at.z]
+	Global.player_data["bind_zone"] = ZoneInfo.current_id()
+	Global.player_data["bind_attuned_at"] = Time.get_unix_time_from_system()
+	Global.save_player_data_to_file()
+	GameLog.log_general(message)
 	return true
 
 
@@ -110,11 +146,12 @@ func resolve(spell_name: String, spell: Dictionary) -> void:
 	var kind := str(spell.get("travel_kind", ""))
 	match str(spell.get("travel", "")):
 		"bind":
-			Global.player_data["bind_point"] = [player.global_position.x, player.global_position.y, player.global_position.z]
-			Global.player_data["bind_zone"] = ZoneInfo.current_id()
-			Global.player_data["bind_attuned_at"] = Time.get_unix_time_from_system()
-			Global.save_player_data_to_file()
-			GameLog.log_general("[color=#ffdd44]Your spirit settles into this place. You will return here when you fall, and your gate spell brings you here.[/color]")
+			var other := bind_target()
+			if other != null:
+				other._rpc_bound_by.rpc_id(other.get_multiplayer_authority())
+				GameLog.log_general("[color=#ffdd44]You attune %s's spirit to this place.[/color]" % TargetFrame.display_name(other))
+			else:
+				bind_spirit(player.global_position, "[color=#ffdd44]Your spirit settles into this place. You will return here when you fall, and your gate spell brings you here.[/color]")
 		"gate":
 			if player.bind_is_elsewhere():
 				Net.zone_travel(str(Global.player_data.get("bind_zone")), "", true)

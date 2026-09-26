@@ -116,8 +116,10 @@ func _hub_handle(from: Dictionary, msg: Dictionary) -> void:
 			for p in _peers:
 				if p != from:
 					_write(p["tcp"], msg)
-		"group_set", "group_leave":
+		"group_set", "group_leave", "group_join":
 			_hub_group(msg)
+		"to_player":
+			_send_to_player(msg)
 
 
 func _hub_send_world() -> void:
@@ -195,6 +197,8 @@ func _handle_local(msg: Dictionary) -> void:
 			_push_groups()
 		"tell":
 			_deliver_tell(msg)
+		"to_player":
+			_deliver_to_player(msg)
 		"tell_result":
 			var peer := int(msg.get("peer", 0))
 			if peer > 0 and multiplayer.get_peers().has(peer):
@@ -405,6 +409,22 @@ func _hub_group(msg: Dictionary) -> void:
 	var by := str(msg.get("by", ""))
 	if str(msg.get("t", "")) == "group_leave":
 		_remove_member(by)
+	elif str(msg.get("t", "")) == "group_join":   # an invite accepted across zones: the member joins the leader's group
+		var leader := str(msg.get("leader", ""))
+		var member := str(msg.get("member", ""))
+		var g := _group_of(leader)
+		var members: Array = groups[g]["members"].duplicate() if not g.is_empty() else [leader]
+		if members.size() < MAX_GROUP and not members.any(func(m): return str(m).to_lower() == member.to_lower()):
+			var old_g := _group_of(member)
+			if not old_g.is_empty():
+				_remove_member(member)
+			g = _group_of(leader)
+			members = groups[g]["members"].duplicate() if not g.is_empty() else [leader]
+			members.append(member)
+			var lead := str(groups[g]["leader"]) if not g.is_empty() else leader
+			if not g.is_empty():
+				groups.erase(g)
+			groups[lead.to_lower()] = {"leader": lead, "members": members}
 	else:
 		var members: Array = (msg.get("members", []) as Array).map(func(m): return str(m))
 		if members.size() <= 1:
@@ -478,6 +498,101 @@ func _push_groups() -> void:
 func player_left_world(player_name: String) -> void:
 	if _server_active():
 		_group_change({"t": "group_leave", "by": player_name})
+
+
+# ── Messages to one player, by name, in whatever zone they're in (cross-zone group invites, test 39) ──
+const MAX_GROUP := 6
+
+
+# Sends `msg` ({"t": "to_player", "to": name, "kind": ...}) toward the zone its player is in. False if they're offline.
+func _send_to_player(msg: Dictionary) -> bool:
+	var zone := zone_of(str(msg.get("to", "")))
+	if zone.is_empty():
+		return false
+	if zone == ZoneInfo.current_id():
+		_deliver_to_player(msg)
+	elif is_hub():
+		_route_to_zone(zone, msg)
+	else:
+		return _send_up(msg)
+	return true
+
+
+func _deliver_to_player(msg: Dictionary) -> void:
+	var want := str(msg.get("to", "")).to_lower()
+	for node in get_tree().get_nodes_in_group("player"):
+		if not (is_instance_valid(node) and str(node.get("player_name")).to_lower() == want):
+			continue
+		var peer: int = node.get_multiplayer_authority()
+		if not multiplayer.get_peers().has(peer):
+			return
+		match str(msg.get("kind", "")):
+			"invite":
+				_rpc_invite_offer.rpc_id(peer, str(msg.get("from", "")))
+			"note":
+				_rpc_note.rpc_id(peer, str(msg.get("text", "")))
+		return
+
+
+func _note_to(player_name: String, text: String) -> void:
+	_send_to_player({"t": "to_player", "to": player_name, "kind": "note", "text": text})
+
+
+# Client: /invite someone who isn't in this zone.
+func request_invite(target_name: String) -> void:
+	_rpc_invite.rpc_id(1, target_name)
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func _rpc_invite(target_name: String) -> void:
+	if not multiplayer.is_server():
+		return
+	var node := TargetFrame.peer_id_to_player_node(multiplayer.get_remote_sender_id())
+	if not is_instance_valid(node):
+		return
+	var leader := str(node.get("player_name"))
+	var target := target_name.strip_edges().substr(0, 32)
+	var g := _group_of(leader)
+	if not g.is_empty() and groups[g]["members"].size() >= MAX_GROUP:
+		_note_to(leader, "[color=#ffaa66]Your group is full (%d/%d).[/color]" % [MAX_GROUP, MAX_GROUP])
+	elif not _group_of(target).is_empty() and _group_of(target) == g:
+		_note_to(leader, "%s is already in your group." % target)
+	elif not _group_of(target).is_empty():
+		_note_to(leader, "[color=#ffaa66]%s is already in a group.[/color]" % target)
+	elif not _send_to_player({"t": "to_player", "to": target, "kind": "invite", "from": leader}):
+		_note_to(leader, "[color=red]No player named '%s' is currently online.[/color]" % target)
+	else:
+		_note_to(leader, "[color=#88ccff]You invite %s to your group.[/color]" % target)
+
+
+# Client: someone in another zone invites you; the answer goes back through the server.
+@rpc("authority", "call_remote", "reliable")
+func _rpc_invite_offer(leader: String) -> void:
+	var popup: Node = load("res://Scenes/group_invite_popup.tscn").instantiate()
+	get_tree().root.add_child(popup)
+	popup.ask("%s invites you to their group." % leader, "Accept", "Decline",
+			func(accepted: bool): _rpc_invite_answer.rpc_id(1, leader, accepted))
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func _rpc_invite_answer(leader: String, accepted: bool) -> void:
+	if not multiplayer.is_server():
+		return
+	var node := TargetFrame.peer_id_to_player_node(multiplayer.get_remote_sender_id())
+	if not is_instance_valid(node):
+		return
+	var member := str(node.get("player_name"))
+	if not accepted:
+		_note_to(leader, "[color=#ffaa66]%s declined your invite.[/color]" % member)
+		return
+	_group_change({"t": "group_join", "leader": leader.substr(0, 32), "member": member})
+	_note_to(leader, "[color=#88ccff]%s has joined your group.[/color]" % member)
+	_note_to(member, "[color=#88ccff]You join %s's group.[/color]" % leader)
+
+
+@rpc("authority", "call_remote", "reliable")
+func _rpc_note(text: String) -> void:
+	GameLog.log_general(text)
 
 
 func share_notice(text: String) -> void:

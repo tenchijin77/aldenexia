@@ -416,7 +416,8 @@
     "stat_modifiers": {
       "dexterity": 1
     },
-    "effect": null
+    "effect": null,
+    "held_model": "dagger"
   },
   "bat_wing": {
     "name": "Bat Wing",
@@ -524,7 +525,8 @@
     },
     "effect": null,
     "armor_type": "shield",
-    "shield_material": "bone"
+    "shield_material": "bone",
+    "held_model": "round_shield"
   },
   "bone_totem": {
     "name": "Bone Totem",
@@ -794,7 +796,8 @@
     "stat_modifiers": {
       "dexterity": 1
     },
-    "effect": null
+    "effect": null,
+    "held_model": "dagger"
   },
   "delusional_scrawl": {
     "name": "Delusional Scrawl",
@@ -1377,7 +1380,8 @@
     "stat_modifiers": {
       "strength": 2
     },
-    "effect": null
+    "effect": null,
+    "held_model": "one_handed_axe"
   },
   "rusty_sword": {
     "name": "Rusty Sword",
@@ -1405,7 +1409,8 @@
     "stat_modifiers": {
       "dexterity": 1
     },
-    "effect": null
+    "effect": null,
+    "held_model": "shortsword"
   },
   "scavenged_ring": {
     "name": "Scavenged Ring",
@@ -1937,7 +1942,8 @@
       "strength": 4,
       "dexterity": 2
     },
-    "effect": null
+    "effect": null,
+    "held_model": "shortsword"
   },
   "small_bag": {
     "name": "A Small Bag",
@@ -7613,7 +7619,8 @@
       "strength": 1,
       "dexterity": 2
     },
-    "effect": null
+    "effect": null,
+    "held_model": "shortsword"
   },
   "wardens_grave_blade": {
     "name": "Warden's Grave-Blade",
@@ -7643,7 +7650,8 @@
       "strength": 2,
       "constitution": 1
     },
-    "effect": null
+    "effect": null,
+    "held_model": "shortsword"
   },
   "venomfang_dagger": {
     "name": "Venomfang Dagger",
@@ -7671,7 +7679,8 @@
     "stat_modifiers": {
       "dexterity": 4
     },
-    "effect": null
+    "effect": null,
+    "held_model": "dagger"
   },
   "bandit_captains_vest": {
     "name": "Captain's Studded Vest",
@@ -8377,7 +8386,8 @@
     "stat_modifiers": {
       "dexterity": 1
     },
-    "effect": null
+    "effect": null,
+    "held_model": "dagger"
   },
   "heavy_leather": {
     "name": "Heavy Leather",
@@ -8457,7 +8467,8 @@
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
-    "effect": null
+    "effect": null,
+    "held_model": "shortsword"
   },
   "combat_wraps": {
     "name": "Combat Wraps",
@@ -14052,7 +14063,8 @@
     "stat_modifiers": {
       "dexterity": 1
     },
-    "effect": null
+    "effect": null,
+    "held_model": "dagger"
   },
   "tin_shortsword": {
     "name": "Tin Shortsword",
@@ -14080,7 +14092,8 @@
     "stat_modifiers": {
       "strength": 1
     },
-    "effect": null
+    "effect": null,
+    "held_model": "shortsword"
   },
   "recipe_smith_tin_shortsword": {
     "name": "Recipe: Tin Shortsword",
@@ -14163,7 +14176,8 @@
       "strength": 1,
       "dexterity": 1
     },
-    "effect": null
+    "effect": null,
+    "held_model": "shortsword"
   },
   "recipe_smith_copper_sword": {
     "name": "Recipe: Copper Sword",
@@ -14219,7 +14233,8 @@
       "strength": 2
     },
     "effect": null,
-    "two_handed": true
+    "two_handed": true,
+    "held_model": "one_handed_axe"
   },
   "recipe_smith_copper_axe": {
     "name": "Recipe: Copper War Axe",
@@ -14359,7 +14374,8 @@
     },
     "effect": null,
     "armor_type": "shield",
-    "shield_material": "metal"
+    "shield_material": "metal",
+    "held_model": "kite_shield"
   },
   "recipe_smith_bronze_shield": {
     "name": "Recipe: Bronze Shield",
@@ -14415,7 +14431,8 @@
       "strength": 2,
       "constitution": 1
     },
-    "effect": null
+    "effect": null,
+    "held_model": "shortsword"
   },
   "recipe_smith_bronze_longsword": {
     "name": "Recipe: Bronze Longsword",
@@ -14565,7 +14582,8 @@
       "intelligence": 1
     },
     "effect": null,
-    "two_handed": true
+    "two_handed": true,
+    "held_model": "staff"
   },
   "recipe_ww_fir_staff": {
     "name": "Recipe: Fir Staff",
@@ -14824,7 +14842,8 @@
       "wisdom": 1
     },
     "effect": null,
-    "two_handed": true
+    "two_handed": true,
+    "held_model": "staff"
   },
   "recipe_ww_ironwood_staff": {
     "name": "Recipe: Ironwood Staff",
@@ -15083,7 +15102,8 @@
       "wisdom": 2
     },
     "effect": null,
-    "two_handed": true
+    "two_handed": true,
+    "held_model": "staff"
   },
   "recipe_ww_masters_staff": {
     "name": "Recipe: Master's Staff",
@@ -16642,7 +16662,8 @@
     },
     "effect": null,
     "armor_type": "shield",
-    "shield_material": "metal"
+    "shield_material": "metal",
+    "held_model": "buckler"
   },
   "recipe_smith_tin_shield": {
     "name": "Recipe: Tin Shield",

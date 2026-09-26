@@ -108,7 +108,7 @@ func run() -> void:
 	w3.queue_free()
 
 	# Lumora's mirror
-	check(FileAccess.get_file_as_string("res://Scenes/lumora_outskirts3d.tscn").contains("res://Scenes/silvered_mirror.tscn"), "Lumora has the mirror (a scene you can move in the editor)")
+	check(FileAccess.get_file_as_string("res://Scenes/zones/lumora.tscn").contains("res://Scenes/silvered_mirror.tscn"), "Lumora has the mirror (a scene you can move in the editor; the barber's, in the city since test 38)")
 	var mirror: WorldNote = load("res://Scenes/silvered_mirror.tscn").instantiate()
 	eq(mirror.opens, "mirror", "the mirror scene opens the appearance window")
 	add_child(mirror)

@@ -331,68 +331,6 @@ script = ExtResource("server_notice_scr")
 [node name="CraftingWorld" type="Node3D" parent="." unique_id=1724644799]
 script = ExtResource("crafting_world_scr")
 
-[node name="CraftingStations" type="Node3D" parent="." unique_id=1566127812]
-
-[node name="Forge" type="Node3D" parent="CraftingStations" unique_id=1756544879]
-transform = Transform3D(-0.92050487, 0, -0.39073116, 0, 1, 0, 0.39073116, 0, -0.92050487, 100.51355, 1.1920929e-07, 54.40592)
-script = ExtResource("crafting_station_scr")
-station_id = "forge"
-display_name = "Forge"
-
-[node name="Oven" type="Node3D" parent="CraftingStations" unique_id=1230398041]
-transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 69.58141, 0, 36.05017)
-script = ExtResource("crafting_station_scr")
-station_id = "oven"
-display_name = "Oven"
-
-[node name="AlchemyStation" type="Node3D" parent="CraftingStations" unique_id=1527952897]
-transform = Transform3D(-0.98713624, 0, 0.15988113, 0, 1, 0, -0.15988113, 0, -0.98713624, 63.22425, 0, 36.527363)
-script = ExtResource("crafting_station_scr")
-station_id = "alchemy_station"
-display_name = "Alchemy Station"
-
-[node name="BrewingVat" type="Node3D" parent="CraftingStations" unique_id=260767412]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 76.0535, 0, 39.620026)
-script = ExtResource("crafting_station_scr")
-station_id = "brewing_vat"
-display_name = "Brewing Vat"
-
-[node name="TinkeringBench" type="Node3D" parent="CraftingStations" unique_id=234956485]
-transform = Transform3D(0.42893517, 0, 0.9033353, 0, 1, 0, -0.9033353, 0, 0.42893517, 62.591522, 0, 41.13431)
-script = ExtResource("crafting_station_scr")
-station_id = "tinkering_bench"
-display_name = "Tinkering Bench"
-
-[node name="WoodworkingStation" type="Node3D" parent="CraftingStations" unique_id=2033717223]
-transform = Transform3D(0.034899496, 0, -0.99939084, 0, 1, 0, 0.99939084, 0, 0.034899496, 61.770535, 0, 50.938965)
-script = ExtResource("crafting_station_scr")
-station_id = "woodworking_station"
-display_name = "Woodworking Station"
-
-[node name="FletchingStation" type="Node3D" parent="CraftingStations" unique_id=671162126]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.0251, 0, 54.40239)
-script = ExtResource("crafting_station_scr")
-station_id = "fletching_station"
-display_name = "Fletching Station"
-
-[node name="JewelcraftingStation" type="Node3D" parent="CraftingStations" unique_id=677552702]
-transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 70.535385, 0, 39.497868)
-script = ExtResource("crafting_station_scr")
-station_id = "jewelcrafting_station"
-display_name = "Jewelcrafting Station"
-
-[node name="Tannery" type="Node3D" parent="CraftingStations" unique_id=616404787]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 74.65614, 0, 53.543613)
-script = ExtResource("crafting_station_scr")
-station_id = "tannery"
-display_name = "Tannery"
-
-[node name="TailorsBench" type="Node3D" parent="CraftingStations" unique_id=1158421181]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 81.68025, 0, 54.253025)
-script = ExtResource("crafting_station_scr")
-station_id = "tailors_bench"
-display_name = "Tailor's Bench"
-
 [node name="NPCs" type="Node3D" parent="." unique_id=968523518]
 
 [node name="Aldric the Provisioner" parent="NPCs" unique_id=59779778 instance=ExtResource("talking_vendor_scn")]
@@ -401,49 +339,6 @@ config_path = "res://Data/aldric.json"
 title = "Provisioner"
 npc_name = "Aldric the Provisioner"
 vendor_model_key = "male"
-
-[node name="Lira Solarpetal" parent="NPCs" unique_id=59779779 instance=ExtResource("talking_vendor_scn")]
-transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 71.7245, 0, -20.793158)
-config_path = "res://Data/lira.json"
-model_key = "human_female"
-title = "Apothecary"
-npc_name = "Lira Solarpetal"
-shop_id = "lumora_apothecary"
-vendor_model_key = "female"
-
-[node name="TobbleTinkerer" parent="NPCs" unique_id=15958158 instance=ExtResource("tobble_npc_scn")]
-transform = Transform3D(-0.029708143, 0, -0.9995586, 0, 1, 0, 0.9995586, 0, -0.029708143, 64.05699, 0, 46.16)
-
-[node name="ScribeIlsabet" parent="NPCs" unique_id=786175410 instance=ExtResource("talking_vendor_scn")]
-transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 77.85952, 0, -21.243036)
-config_path = "res://Data/scribe_ilsabet.json"
-model_key = "half_elf_female"
-title = "Archivist of the Oasis Wardens"
-npc_name = "Ilsabet Thornmere"
-shop_id = "lumora_scribe_light"
-
-[node name="BankerOswin" parent="NPCs" unique_id=2067820927 instance=ExtResource("talking_vendor_scn")]
-transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 86.335, 0, -21.4)
-script = ExtResource("banker_scr")
-config_path = "res://Data/banker.json"
-title = "Keeper of the Lumora Vault"
-npc_name = "Oswin Coinwright"
-
-[node name="ScribeXalvyr" parent="NPCs" unique_id=726775322 instance=ExtResource("talking_vendor_scn")]
-transform = Transform3D(-0.9764502, 0, -0.21574292, 0, 1, 0, 0.21574292, 0, -0.9764502, 62.947853, 0, -10.635584)
-config_path = "res://Data/scribe_xalvyr.json"
-model_key = "dark_elf_male"
-title = "Copyist of the Bazaar"
-npc_name = "Xalvyr Tenn"
-shop_id = "lumora_scribe_dark"
-
-[node name="SmithBorgrim" parent="NPCs" unique_id=1840417733 instance=ExtResource("talking_vendor_scn")]
-transform = Transform3D(0.92050487, 0, 0.39073116, 0, 1, 0, -0.39073116, 0, 0.92050487, 97.2, 0, 50.9)
-config_path = "res://Data/smith_borgrim.json"
-model_key = "dwarf_male"
-title = "Smith of Lumora"
-npc_name = "Borgrim Emberforge"
-shop_id = "lumora_smith"
 
 [node name="Oni" parent="NPCs" unique_id=2146170527 instance=ExtResource("oni_npc_scn")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 64, 0, 13)
@@ -471,15 +366,6 @@ navigation_mesh = ExtResource("terrain_navmesh")
 
 [node name="vendor lean-to" parent="Vendor Stalls" unique_id=701629950 instance=ExtResource("37_dkm3m")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 65.143135, 0, -24.080137)
-
-[node name="vendor lean-to2" parent="Vendor Stalls" unique_id=2071620704 instance=ExtResource("37_dkm3m")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 71.7245, 0, -23.290462)
-
-[node name="vendor lean-to3" parent="Vendor Stalls" unique_id=2011083583 instance=ExtResource("37_dkm3m")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 77.85952, 0, -23.290462)
-
-[node name="vendor lean-to4" parent="Vendor Stalls" unique_id=703886462 instance=ExtResource("37_dkm3m")]
-transform = Transform3D(0.029708143, 0, 0.9995586, 0, 1, 0, -0.9995586, 0, 0.029708143, 61.925766, 0, 46.104633)
 
 [node name="Enemy Camps" type="Node3D" parent="." unique_id=593255028]
 
@@ -542,9 +428,6 @@ size = Vector3(250, 60, 8)
 [node name="ZoneBoundary" type="Node3D" parent="." unique_id=1646338612]
 script = ExtResource("zone_boundary_scr")
 limit_max_x = 118.0
-
-[node name="SilveredMirror" parent="." unique_id=1169137102 instance=ExtResource("mirror_scn")]
-transform = Transform3D(-0.99873745, 0, 0.050233997, 0, 1, 0, -0.050233997, 0, -0.99873745, 94.95395, 0, -24.850971)
 
 [node name="WorldLink" type="Node" parent="."]
 script = ExtResource("world_link_script")

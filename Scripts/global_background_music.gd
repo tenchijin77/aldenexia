@@ -22,7 +22,7 @@ const SCENE_MUSIC := {
 	"res://Scenes/lumora_outskirts3d.tscn": "res://Assets/music/sands_of_lumora.ogg",
 	"res://Scenes/zones/dustwind_plateaus.tscn": "res://Assets/music/Weight of the Plateau.ogg",
 	"res://Scenes/zones/ashfall_dunes.tscn": "res://Assets/music/The Lost Oasis.ogg",
-	"res://Scenes/zones/lumora.tscn": "res://Assets/music/town_theme.mp3",   # Lumora (the town), until it has its own
+	"res://Scenes/zones/lumora.tscn": "res://Assets/music/Welcome to Lumora.ogg",   # Lumora (the city): the user's own
 }
 
 var _menu_stream: AudioStream
