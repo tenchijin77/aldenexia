@@ -23,14 +23,12 @@
 [ext_resource type="PackedScene" uid="uid://ganx16h2wx2b" path="res://models/vendor stall/vendor lean-to.glb" id="37_dkm3m"]
 [ext_resource type="PackedScene" uid="uid://b7sf31uujrgmq" path="res://models/Camp/bandit tent.glb" id="38_77hfu"]
 [ext_resource type="PackedScene" uid="uid://dybbqslv008aw" path="res://models/large skull.glb" id="40_hucdx"]
-[ext_resource type="Script" uid="uid://beryflf0x6wbj" path="res://Scripts/banker_npc.gd" id="banker_scr"]
 [ext_resource type="Script" uid="uid://c2p4g23o1f8j4" path="res://Scripts/crafting_station.gd" id="crafting_station_scr"]
 [ext_resource type="Script" uid="uid://bo5m5prkrbmj3" path="res://Scripts/crafting_world_spawner.gd" id="crafting_world_scr"]
 [ext_resource type="Script" uid="uid://fwiciia4xgfe" path="res://Scripts/gate_raid_manager.gd" id="gate_raid_scr"]
 [ext_resource type="Script" uid="uid://bdfun3bs24dfy" path="res://Scripts/gm_relay.gd" id="gm_relay_scr"]
 [ext_resource type="PackedScene" path="res://Scenes/harbour_master.tscn" id="harbour_master_scn"]
 [ext_resource type="PackedScene" path="res://Scenes/kenji_npc.tscn" id="kenji_npc_scn"]
-[ext_resource type="PackedScene" path="res://Scenes/silvered_mirror.tscn" id="mirror_scn"]
 [ext_resource type="Script" uid="uid://b71mdxjt0jesx" path="res://Scripts/ambient_water_sound.gd" id="ocean_script"]
 [ext_resource type="AudioStream" uid="uid://cviqr1e8477s3" path="res://Assets/sounds/ambient/ocean_waves.mp3" id="ocean_stream"]
 [ext_resource type="PackedScene" path="res://Scenes/oni_npc.tscn" id="oni_npc_scn"]
@@ -39,13 +37,12 @@
 [ext_resource type="PackedScene" path="res://Scenes/talking_vendor.tscn" id="talking_vendor_scn"]
 [ext_resource type="NavigationMesh" uid="uid://dv73b7cv6i6" path="res://Data/lumora_outskirts_terrain_navmesh.tres" id="terrain_navmesh"]
 [ext_resource type="Script" uid="uid://o0ptow04njqn" path="res://Scripts/traveling_merchant_spawner.gd" id="tm_spawner_scr"]
-[ext_resource type="PackedScene" path="res://Scenes/tobble_npc.tscn" id="tobble_npc_scn"]
 [ext_resource type="Script" uid="uid://wqmn351jhvbo" path="res://Scripts/weather_manager.gd" id="weather_mgr_script"]
 [ext_resource type="Script" uid="uid://bgf2lkk12k3hx" path="res://Scripts/world_items.gd" id="world_items_scr"]
+[ext_resource type="Script" uid="uid://deuwjqpxsfyix" path="res://Scripts/world_link.gd" id="world_link_script"]
 [ext_resource type="Script" uid="uid://t6wjhuirmwsb" path="res://Scripts/world_note.gd" id="world_note_scr"]
 [ext_resource type="Script" uid="uid://c2olnatq3g6a5" path="res://Scripts/zone_boundary.gd" id="zone_boundary_scr"]
 [ext_resource type="Script" uid="uid://clm5l4nhm5j6k" path="res://Scripts/zone_line.gd" id="zone_line_scr"]
-[ext_resource type="Script" path="res://Scripts/world_link.gd" id="world_link_script"]
 
 [sub_resource type="Gradient" id="Gradient_6a7en"]
 offsets = PackedFloat32Array(0.2, 1)
@@ -314,6 +311,9 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -592.9677, 0, -570.0188)
 [node name="dustwind_plateaus_zone" type="Marker3D" parent="Markers" unique_id=984064061]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1235, 0, 116)
 
+[node name="lumora_zone" type="Marker3D" parent="Markers" unique_id=1510252506]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 104, 0, 14)
+
 [node name="NetworkWidget" parent="." unique_id=95073630 instance=ExtResource("14_netwidget")]
 
 [node name="GateRaidManager" type="Node" parent="." unique_id=1906862897]
@@ -334,7 +334,7 @@ script = ExtResource("crafting_world_scr")
 [node name="NPCs" type="Node3D" parent="." unique_id=968523518]
 
 [node name="Aldric the Provisioner" parent="NPCs" unique_id=59779778 instance=ExtResource("talking_vendor_scn")]
-transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 65.143135, 0, -20.666174)
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 71.8, 0, -18.601143)
 config_path = "res://Data/aldric.json"
 title = "Provisioner"
 npc_name = "Aldric the Provisioner"
@@ -365,7 +365,7 @@ navigation_mesh = ExtResource("terrain_navmesh")
 [node name="Vendor Stalls" type="Node3D" parent="." unique_id=1110356500]
 
 [node name="vendor lean-to" parent="Vendor Stalls" unique_id=701629950 instance=ExtResource("37_dkm3m")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 65.143135, 0, -24.080137)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 71.79918, 0, -21.774698)
 
 [node name="Enemy Camps" type="Node3D" parent="." unique_id=593255028]
 
@@ -425,25 +425,22 @@ target_zone = "dustwind_plateaus"
 target_marker = "lumora_outskirts_zone"
 size = Vector3(250, 60, 8)
 
-[node name="ZoneBoundary" type="Node3D" parent="." unique_id=1646338612]
-script = ExtResource("zone_boundary_scr")
-limit_max_x = 118.0
-
-[node name="WorldLink" type="Node" parent="."]
-script = ExtResource("world_link_script")
-
-[node name="lumora_zone" type="Marker3D" parent="Markers"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 104, 0, 14)
-
-[node name="To Lumora" type="Area3D" parent="ZoneLines"]
+[node name="To Lumora" type="Area3D" parent="ZoneLines" unique_id=165324396]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 113, -5, 14)
 script = ExtResource("zone_line_scr")
 target_zone = "lumora"
 target_marker = "lumora_outskirts_zone"
 size = Vector3(92, 60, 6)
 
-[node name="GateForge" type="Node3D" parent="."]
-transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 48, 0, 38)
+[node name="ZoneBoundary" type="Node3D" parent="." unique_id=1646338612]
+script = ExtResource("zone_boundary_scr")
+limit_max_x = 118.0
+
+[node name="WorldLink" type="Node" parent="." unique_id=1325856571]
+script = ExtResource("world_link_script")
+
+[node name="GateForge" type="Node3D" parent="." unique_id=101846850]
+transform = Transform3D(-0.42710876, 0, 0.90420026, 0, 1, 0, -0.90420026, 0, -0.42710876, 62.05995, 0, 28.601921)
 script = ExtResource("crafting_station_scr")
 station_id = "forge"
 display_name = "Forge"

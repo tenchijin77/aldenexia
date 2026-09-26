@@ -189,7 +189,7 @@
   <header>
     <div class="eyebrow">Aldenexia: Lightfall · Player's Manual</div>
     <h1>A traveller's guide to Aldenexia</h1>
-    <p class="lede">Everything you need to play: the world and its trouble, how the game works, every race and class with its full spell list, crafting from the first tin ingot up, and a field guide to Lumora Outskirts, where every adventure starts. This manual describes build 48d63e9-dirty; the game is in testing, so some things will change.</p>
+    <p class="lede">Everything you need to play: the world and its trouble, how the game works, every race and class with its full spell list, crafting from the first tin ingot up, and a field guide to Lumora Outskirts, where every adventure starts. This manual describes build 3b3d5ed; the game is in testing, so some things will change.</p>
   </header>
 
   <nav class="toc" aria-labelledby="toc-h">
@@ -289,7 +289,7 @@
       </div>
       <div>
         <h3>Groups</h3>
-        <p>Type <code>/invite name</code> to group up (up to six, and they can be in another zone), <code>/party</code> to talk to the group and <kbd>F1</kbd>–<kbd>F6</kbd> to target a member. A group holds together across zones: a member in another land shows on your group frame with the land's name, and still hears <code>/party</code>. Logging out leaves the group. Players walk through each other, so nobody can block a doorway. On the group window, a member beyond a heal's reach (16 m) or in another zone is faded. Group heals reach everyone nearby, and tank stances boost group members within 10 m.</p>
+        <p>Type <code>/invite name</code> to group up (up to six, and they can be in another zone), <code>/party</code> to talk to the group and <kbd>F1</kbd>–<kbd>F6</kbd> to target a member. Kills are shared: everyone in the group within 100 m of the kill gets experience, split evenly with a 10% bonus for each extra member, whether or not they struck a blow. A group holds together across zones: a member in another land shows on your group frame with the land's name, and still hears <code>/party</code>. Logging out leaves the group. Players walk through each other, so nobody can block a doorway. On the group window, a member beyond a heal's reach (16 m) or in another zone is faded. Group heals reach everyone nearby, and tank stances boost group members within 10 m.</p>
       </div>
       <div>
         <h3>Macros</h3>
@@ -322,6 +322,8 @@
       <div>
         <h3>Your bind point and gating home</h3>
         <p>You come back to your bind point when you die, with every spell on you gone (good and bad) and your pet sent away: summon it again, and its gear is still on it. At first it is where you entered the world. From level 4, casters (Lightmender, Spiritweaver, Wildspeaker, Gravecaller, Runecaster, Arcanist, Chaosborn) learn <b>Attune Spirit</b>: it binds the friendly player they target within 20 m, or themselves with no target, and they can cast it as often as they like (bind the whole group before a hard dungeon, one at a time). Everyone else asks a caster, or pays <b>Soulbinder Maren</b> at Lumora's Dawnspire Altar a silver. Each person's bind point can change once an hour. From level 6 every class has a gate spell (Recall to Sanctuary, Call of Nature, March Home, Death's Gate...) that takes you to your bind point. Neither works in the middle of a fight.</p>
+        <h3>Duels and PvP</h3>
+        <p>Players are allies until they choose otherwise. <code>/duel name</code> (or <code>/duel</code> with a player targeted) challenges them; if they accept, a three-second count, then you fight until one of you falls to 1 health (nobody dies), someone types <code>/yield</code>, you move more than 40 m apart, or five minutes pass. <code>/pvp name</code> declares a real fight: no consent needed, but they're warned and get five seconds, and only between level 5 and up, within 5 levels of each other. Then it's to the death, with the usual death rules, until ten minutes pass without a blow. Only the two of you are foes; to everyone else you're still allies.</p>
         <h3>Maps (Cartography)</h3>
         <p>You start with no map, just like in life. <b>Cartographer Ivo Quill</b>, by Lumora's south gate, sells the <b>Scroll of Cartography</b> (5 silver), <b>Blank Parchment</b> and a <b>Charcoal Stick</b>. Learn the scroll, carry the parchment and charcoal, and the land around you is drawn onto your map as you walk; press <kbd>M</kbd> to look at it. The map is a window you can move and resize; the mouse wheel zooms and dragging moves it. Right-click it to write a note; right-click a note to rub it out. Charting new ground raises the skill (to 100, fastest for Woodstalkers): place names and zone borders appear at 21, camps, people, resources and contour lines at 51, and patrol routes, rare creatures and hidden places at 76. Carry a compass and the map shows where you are and which way you face.</p>
       </div>
@@ -893,7 +895,7 @@
       </div>
       <div>
         <h3>Pets</h3>
-        <p>Gravecallers, Voidknights, Woodstalkers, Wildspeakers, Spiritweavers and Lightmenders can summon pets. A pet follows you, fights your target, has its own frame, and comes back after you log out and in (but not after you die: summon it again). <kbd>P</kbd> opens its gear.</p>
+        <p>Gravecallers, Voidknights, Woodstalkers, Wildspeakers, Spiritweavers and Lightmenders can summon pets. A pet follows you, fights your target, has its own frame, and comes back after you log out and in (but not after you die: summon it again). <kbd>P</kbd> opens its gear. A pet wears the weapon and shield you give it, for everyone to see. On <b>Assist</b> it joins what you fight; if you have a <code>/focus</code> set on your tank, it fights what the tank is fighting instead (a healer's pet can help without the healer swinging). Once it starts on something it stays on it until it dies (a wounded monster running away doesn't get away), unless you send it at a new target with its Attack button; then it moves on to your target by itself.</p>
       </div>
       <div>
         <h3>Pickpocketing</h3>
@@ -1117,6 +1119,9 @@
             <tr><td><code>/log</code></td><td>Toggle saving chat to a log file</td></tr>
             <tr><td><code>/invite [name]</code></td><td>Invite your target, or a named player (in any zone), to your group</td></tr>
             <tr><td><code>/trade [name]</code></td><td>Trade items and coin with your target or a named player (or right-click them)</td></tr>
+            <tr><td><code>/duel [name]</code></td><td>Challenge your target or a named player to a duel (/dual works too): first to 1 health loses, nobody dies</td></tr>
+            <tr><td><code>/pvp [name]</code></td><td>Declare PvP on your target or a named player (level 5+, within 5 levels): after 5 seconds, a fight to the death</td></tr>
+            <tr><td><code>/yield</code></td><td>Give up the duel you're in</td></tr>
             <tr><td><code>/disband [name]</code></td><td>Leave your group, or kick a named member</td></tr>
             <tr><td><code>/say [message]</code></td><td>Talk to players within 10 m (yellow) — also switches the chat channel</td></tr>
             <tr><td><code>/party [message]</code></td><td>Talk to your group (blue), in any zone — also switches the chat channel</td></tr>
@@ -1144,5 +1149,5 @@
       </div>
   </section>
 
-  <footer>Aldenexia: Lightfall Player's Manual · build 48d63e9-dirty · made 2026-09-25 from the game's own data. Spells, recipes, monsters and levels here are read straight from the game files, so they match the build named above.</footer>
+  <footer>Aldenexia: Lightfall Player's Manual · build 3b3d5ed · made 2026-09-25 from the game's own data. Spells, recipes, monsters and levels here are read straight from the game files, so they match the build named above.</footer>
 </div>

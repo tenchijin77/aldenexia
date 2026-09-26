@@ -2400,6 +2400,68 @@ GATE RAIDS (`Scripts/gate_raid_manager.gd`, `Data/gate_raids.json`, node "GateRa
   warmth of the campfire -> groupfire.
 - Tests: test_test37.gd. Suite: 3,808 checks pass.
 
+### The static critters move (2026-09-26; user: "can you animate the static enemies as well please?")
+- Every humanoid monster was already rigged; the seven critters (rat, snake, bat, slime, spider, spiderling, dune scarab)
+  were single meshes with no bones. Shaders/critter_motion.gdshader moves their vertices on the graphics card by body
+  type: the rat scurries (bob, sway, paddling feet, a swishing tail), spiders and the scarab step their legs in two
+  alternating sets and bob, the snake slithers in an S-wave with a steady head, the bat's wings beat, the slime squashes,
+  stretches and jiggles. Faster when they move, gentle idle motion when still, a lunge / strike / rear-up / swoop / surge
+  on each attack. Same textures as before (the shader does the PBR).
+- monster3d.gd: CRITTER_MOTION (body type, and which of the mesh's axes the body lies along, measured from each mesh),
+  _update_critter_motion() every frame on every screen (speed from the position, so copies on players' screens move too),
+  and a critter's attack now sets the replicated anim_state to "attack" for a moment so everyone sees the lunge.
+- Checked with renders of all seven (standing, two moments walking, attacking). Tests: test_critters (49 checks).
+- Not yet: summoned animal pets that use these meshes stay still (a follow-up).
+
+### Test 41: Zozuur (Voidknight), Maedianie (Wildspeaker), build 3b3d5ed
+- Working (per the notes): shields right on the troll; torches and campfires "much better".
+- GROUP XP: a kill's XP went only to whoever landed the killing blow, so a healer standing back got nothing. Now everyone
+  grouped with the killer, in the zone and within 100 m of the kill, shares it: split evenly with a 10% bonus per extra
+  member (two players: 55% each), whether or not they hit it; faction changes from the kill reach the whole group. On a
+  server the group comes from the world link (by name); on one machine from the killer's group (monster3d.gd
+  xp_recipients / group_xp_share).
+- PETS WIELD THEIR GEAR: the pet's primary and offhand from its gear window (P) show in its hands, for everyone (a
+  replicated held_gear on the pet, as on players); summoned humanoid pets too (user: "please do the same for all summoned
+  humanoid pets"). Animal pets have no hands, so nothing shows on them.
+- PETS AND THE TANK: on Assist, if you have a /focus set on another player, your pet fights what that player is fighting
+  (they have it targeted and stand within 8 m of it): a healer's pet helps without the healer swinging.
+- PETS STICK: a pet stays on the target it started on until that dies (it already did; the owner switching targets never
+  moves it), unless you send it at another with its Attack button; when it dies, it now goes straight on to your (or the
+  tank's) current target without waiting for you to attack.
+- STARTING WEAPONS: every class's starter weapon (Player3D.STARTER_WEAPONS; character_creation uses the same table) is
+  given once at login to a character made before theirs existed (Maedianie, a Wildspeaker from before test 34, had no
+  Fir Staff), unless it's already in their bags or hands.
+- Tests: test_test41 (17 checks). test_lumora: the gate forge only has to be near the gate (the user placed it).
+
+### Kenji and Oni move (2026-09-25; user: "Oni walking / running, her tail moving, and the same for Kenji")
+- ONI: the user's rig (~/NCT/Aldenexia-Lightfall/models/Oni/Oni Rigged.blend: 32 bones, the mesh fully weighted) gets three
+  animations from tools/blender/animate_cat.py: idle (breathing, a lazy tail sway, a look around), walk (a cat's
+  diagonal gait, paws lifting on the forward swing, a small bob, the tail waving in a travelling curve) and run (a
+  bound: front legs together, back legs together, the spine flexing, the tail streaming). She's turned 4 degrees
+  straight first. Exported to models/Oni/oni_animated.glb. In game she plays idle / walk / run by how far she really
+  moves each frame (so it works on every screen, not only on the server that moves her): her patrol is a walk, a chase a
+  run. The user's .blend is not changed.
+- KENJI is sculpted sitting (his tail curled round his paws), so he can't walk; tools/blender/animate_sitting_cat.py gives
+  him shape keys found from the mesh itself (the tail sweeping in and out, the head turning both ways, breathing) and a
+  6-second idle mixing them (models/Kenji/kenji_animated.glb). For Kenji to walk too he needs a standing model.
+- CatModel.build_animated() / animate_by_speed() (cat_model.gd). Checked with Blender renders of every key and frames, and
+  in Godot (textures, facing, clips). Tests: test_cats (16 checks).
+
+### Duels and PvP (2026-09-25; user: "both a pvp and a duel system, /pvp and /duel, targeted or name of player")
+- Scripts/player_versus.gd (a "Versus" node on every player), commands in the chat box:
+  /duel [name] (or /dual, or with a player targeted): they get Accept / Decline; a 3-second count, then "Fight!"; it
+  ends when one would fall to 0 (left at 1 health: nobody dies), with /yield, 40 m apart, or after 5 minutes.
+  /pvp [name]: a declared fight, no consent needed: they're warned and get 5 seconds, then it's to the death (normal
+  death rules) until 10 minutes pass without a blow; level 5 and up, within 5 levels of each other.
+- Only the two are hostile to each other (Player3D.hostile_to, replicated; TargetFrame.faction_status() needs it both
+  ways); to everyone else they stay allies. Melee and single-target spells work on a foe; the blow is rolled on the
+  attacker's machine and taken on the victim's, which checks the attacker is a foe and close by. A PvP death tells
+  everyone nearby who did it. Not yet: area spells and pets against players, ailments (stun, root...) on players, and
+  the crime system (attacking a player in town).
+- Checked with two headless clients on a local world: "/dual Zzopponent", the accept popup, the count on both machines,
+  the foe shown as an enemy, blows landing on the other machine.
+- Tests: test_versus (26 checks).
+
 ### Test 40: Zozuur (Voidknight), Maedianie (Wildspeaker), build 48d63e9
 - Working (per the notes): the sky and moon ("so much better"), cartography, weapons shown on Zozuur.
 - THE SHIELD went through the arm at rest, and the sword crossed the body: held gear was fitted to the arms-out bind pose,

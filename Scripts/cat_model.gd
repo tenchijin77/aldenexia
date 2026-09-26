@@ -22,6 +22,53 @@ static func build(host: Node3D, base_path: String, model_scale: float) -> Node3D
 	return character
 
 
+# The animated version (tools/blender/animate_cat.py: idle, walk, run): the rigged .glb, with the same Meshy maps from
+# texture_base (<base>.png ...), facing and scale as build(). Its AnimationPlayer's clips are set to loop.
+static func build_animated(host: Node3D, glb_path: String, texture_base: String, model_scale: float) -> Node3D:
+	var scene := load(glb_path) as PackedScene
+	if scene == null:
+		return build(host, texture_base, model_scale)
+	var character: Node3D = scene.instantiate()
+	character.name = "Character"
+	character.transform = Transform3D(Basis(Vector3.UP, PI).scaled(Vector3.ONE * model_scale), Vector3.ZERO)
+	host.add_child(character)
+	_apply_material(character, texture_base)
+	for ap in character.find_children("*", "AnimationPlayer", true, false):
+		for n in (ap as AnimationPlayer).get_animation_list():
+			(ap as AnimationPlayer).get_animation(n).loop_mode = Animation.LOOP_LINEAR
+	return character
+
+
+static func animation_player(model: Node) -> AnimationPlayer:
+	if model == null:
+		return null
+	for ap in model.find_children("*", "AnimationPlayer", true, false):
+		return ap
+	return null
+
+
+# Idle, walk or run by how fast the cat is really moving (worked out from its position, so it works on every screen,
+# not only where its AI runs); the clip plays faster or slower to match the ground it covers.
+const WALK_SPEED := 3.5    # m/s the walk clip plays at its own pace: Oni's patrol (cat_speed 35)
+const RUN_SPEED := 7.0     # ... and the run: her chase (twice that)
+const RUN_FROM := 5.0
+
+static func animate_by_speed(ap: AnimationPlayer, speed: float) -> void:
+	if ap == null:
+		return
+	var want := "idle"
+	var rate := 1.0
+	if speed > RUN_FROM:
+		want = "run"
+		rate = clampf(speed / RUN_SPEED, 0.7, 1.6)
+	elif speed > 0.25:
+		want = "walk"
+		rate = clampf(speed / WALK_SPEED, 0.6, 1.8)
+	if ap.has_animation(want) and ap.current_animation != want:
+		ap.play(want, 0.2)
+	ap.speed_scale = rate
+
+
 static func _apply_material(node: Node, base_path: String) -> void:
 	var mat := StandardMaterial3D.new()
 	mat.albedo_texture = load(base_path + ".png") as Texture2D

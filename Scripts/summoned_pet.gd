@@ -120,6 +120,8 @@ func _build_humanoid(model_info: Dictionary, model_scale: float, tint: Color) ->
 			mat.albedo_texture = tex
 			mat.albedo_color = model_info.get("tint", Color.WHITE) * tint
 			_apply_material_recursive(character, mat)
+	if not held_gear.is_empty():
+		HeldGear.apply(character, held_gear)   # a humanoid summon wields its pet gear too (test 41)
 
 
 func _build_critter(model_info: Dictionary, model: String, model_scale: float, tint: Color) -> void:

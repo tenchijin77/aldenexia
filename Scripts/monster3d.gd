@@ -544,11 +544,35 @@ func _setup_critter_visual(visual_key: String) -> void:
 # here — applied as a runtime material override using all of this asset
 # type's real PBR maps (normal/roughness/metallic), same as
 # phantasmal_echo_pet.gd's _apply_spirit_pet_material().
+# How each unrigged critter moves (Shaders/critter_motion.gdshader, test 41): the body type (mode), which of its mesh's
+# axes the body lies along (0 x, 1 y; Z is up in these meshes) and which end is the tail. Measured from the meshes.
+const CRITTER_MOTION := {
+	"rat": {"mode": 0, "axis": 1, "tail": 1.0},
+	"spider": {"mode": 1, "axis": 0, "tail": 1.0},
+	"spiderling": {"mode": 1, "axis": 0, "tail": 1.0},
+	"dune_scarab": {"mode": 1, "axis": 1, "tail": -1.0},
+	"snake": {"mode": 2, "axis": 0, "tail": 1.0},
+	"bat": {"mode": 3, "axis": 0, "tail": 1.0},
+	"slime": {"mode": 4, "axis": 0, "tail": 1.0},
+}
+const CRITTER_SHADER := "res://Shaders/critter_motion.gdshader"
+var _critter_meshes: Array = []
+var _critter_time := 0.0
+var _critter_attack := 0.0
+var _critter_speed := 0.0
+var _critter_last_pos := Vector3.INF
+var _critter_seen_state := ""
+
+
 func _apply_critter_material(node: Node, model_info: Dictionary) -> void:
 	var albedo_path: String = model_info.get("albedo", "")
 	var albedo := (load(albedo_path) as Texture2D) if not albedo_path.is_empty() else null
 	if not albedo:
 		push_warning("⚠️ Critter texture override not found for %s" % monster_name)
+		return
+	var motion: Dictionary = CRITTER_MOTION.get(visual_key_of(), {})
+	if not motion.is_empty() and ResourceLoader.exists(CRITTER_SHADER):
+		_apply_critter_motion(node, model_info, albedo, motion)
 		return
 	var mat := StandardMaterial3D.new()
 	mat.albedo_texture = albedo
@@ -577,6 +601,69 @@ func _apply_critter_material(node: Node, model_info: Dictionary) -> void:
 		mat.metallic = 1.0  # metallic_texture modulates this scalar — 1.0 lets the map through unscaled
 
 	_apply_material_recursive(node, mat)
+
+
+# The motion shader on every mesh of the critter, each told its own box (so the shader knows head, tail, legs, wings).
+func _apply_critter_motion(node: Node, model_info: Dictionary, albedo: Texture2D, motion: Dictionary) -> void:
+	_critter_meshes.clear()
+	for mi in node.find_children("*", "MeshInstance3D", true, false):
+		var m := mi as MeshInstance3D
+		if m.mesh == null:
+			continue
+		var box := m.get_aabb()
+		var mat := ShaderMaterial.new()
+		mat.shader = load(CRITTER_SHADER)
+		mat.set_shader_parameter("mode", int(motion["mode"]))
+		mat.set_shader_parameter("body_axis", int(motion["axis"]))
+		mat.set_shader_parameter("tail_sign", float(motion["tail"]))
+		mat.set_shader_parameter("box_center", box.get_center())
+		mat.set_shader_parameter("box_half", box.size * 0.5)
+		mat.set_shader_parameter("tint", model_tint)
+		mat.set_shader_parameter("albedo_tex", albedo)
+		for key in ["normal", "roughness", "metallic"]:
+			var path := str(model_info.get(key, ""))
+			var tex := load(path) as Texture2D if not path.is_empty() else null
+			if tex:
+				mat.set_shader_parameter(key + "_tex", tex)
+				if key != "roughness":
+					mat.set_shader_parameter("use_" + key, true)
+		for i in m.mesh.get_surface_count():
+			m.set_surface_override_material(i, mat)
+		# the shader moves vertices past the mesh's own box (a wing beat, a tail swish): don't cull it early
+		m.extra_cull_margin = maxf(box.size.x, maxf(box.size.y, box.size.z)) * 0.6
+		_critter_meshes.append(m)
+	_critter_time = randf() * 10.0   # no two rats in step
+
+
+func visual_key_of() -> String:
+	for key in CRITTER_MODELS:
+		if get_node_or_null("Character") != null and str(CRITTER_MODELS[key]["scene"]) == str(get_node("Character").scene_file_path):
+			return key
+	return ""
+
+
+# Every frame on every screen: how fast it's really moving (from its position, so a copy on a player's screen moves too),
+# its clock (running faster at speed), and the attack pulse (a critter's "attack" state, replicated, sets it off).
+func _update_critter_motion(delta: float) -> void:
+	var p := global_position
+	var step := 0.0 if _critter_last_pos == Vector3.INF else Vector2(p.x - _critter_last_pos.x, p.z - _critter_last_pos.z).length() / maxf(delta, 0.001)
+	_critter_last_pos = p
+	_critter_speed = lerpf(_critter_speed, minf(step, 12.0), 0.15)
+	var mv := clampf(_critter_speed / 3.0, 0.0, 1.5)
+	_critter_time += delta * (0.5 + 1.2 * mv)
+	if anim_state == "attack" and _critter_seen_state != "attack":
+		_critter_attack = 1.0
+	_critter_seen_state = anim_state
+	_critter_attack = maxf(0.0, _critter_attack - delta / 0.35)
+	if is_multiplayer_authority() and anim_state == "attack" and _critter_attack < 0.3:
+		anim_state = "idle"   # the lunge is over (replicated)
+	if Net.is_dedicated_server:
+		return
+	for m in _critter_meshes:
+		if is_instance_valid(m):
+			m.set_instance_shader_parameter("anim_time", _critter_time)
+			m.set_instance_shader_parameter("move", mv)
+			m.set_instance_shader_parameter("attack", sin(_critter_attack * PI) if _critter_attack > 0.0 else 0.0)
 
 
 func _apply_material_recursive(node: Node, mat: Material) -> void:
@@ -627,6 +714,11 @@ func _play_replicated_animation() -> void:
 
 
 func _play_attack_animation() -> void:
+	if not _critter_meshes.is_empty() and (not animation_player or animation_player.get_animation_list().is_empty()):
+		anim_state = "attack"   # a critter's lunge (critter_motion.gdshader), replicated
+		_critter_attack = 1.0
+		_critter_seen_state = "attack"
+		return
 	if not animation_player or animation_player.get_animation_list().is_empty():
 		return
 	var anim_name: String = ATTACK_ANIMS[randi() % ATTACK_ANIMS.size()]
@@ -711,6 +803,8 @@ func _set_nav_target(pos: Vector3) -> void:
 
 
 func _physics_process(delta: float) -> void:
+	if not _critter_meshes.is_empty():
+		_update_critter_motion(delta)
 	# Per-viewer, not networked — see TargetFrame.is_hidden_from_local_player().
 	# No monster data actually grants invisibility yet (nothing calls
 	# apply_effect("invisibility", ...) on a monster's own combat_node), so
@@ -1650,18 +1744,23 @@ func die(award_xp: bool = true, drop_loot: bool = true, credited_peer_id: int = 
 	if award_xp:
 		var p: Node = TargetFrame.peer_id_to_player_node(credited_peer_id) if credited_peer_id != -1 else TargetFrame.local_player()
 		if is_instance_valid(p):
-			# The server's own record of the XP it awarded (server trust checks saves against it; telemetry logs the kill).
-			Net.note_kill(p.get_multiplayer_authority(), xp_gain, str(monster_description if monster_description != "" else get_monster_name()), int(combat_node.level) if combat_node else 0)
-			if p.is_multiplayer_authority():
-				p.grant_xp(xp_gain)
-			elif p.has_method("receive_kill_credit"):
-				p.receive_kill_credit.rpc_id(p.get_multiplayer_authority(), xp_gain)
-			# Faction: killing a Djhanid costs standing with the clans; killing the Dustwalkers who ruin their name earns some.
-			if not kill_standing.is_empty() and p.has_method("receive_standing_changes"):
-				if p.is_multiplayer_authority():
-					p.receive_standing_changes(JSON.stringify(kill_standing))
-				else:
-					p.receive_standing_changes.rpc_id(p.get_multiplayer_authority(), JSON.stringify(kill_standing))
+			# The whole group shares the kill (test 41: a healer standing back got nothing unless she hit it herself):
+			# everyone grouped with the killer, in this zone and within XP_SHARE_RANGE, splits it, with a bonus per member.
+			var recipients := xp_recipients(p)
+			var share := group_xp_share(xp_gain, recipients.size())
+			for r in recipients:
+				# The server's own record of the XP it awarded (server trust checks saves against it; telemetry logs it).
+				Net.note_kill(r.get_multiplayer_authority(), share, str(monster_description if monster_description != "" else get_monster_name()), int(combat_node.level) if combat_node else 0)
+				if r.is_multiplayer_authority():
+					r.grant_xp(share)
+				elif r.has_method("receive_kill_credit"):
+					r.receive_kill_credit.rpc_id(r.get_multiplayer_authority(), share)
+				# Faction: killing a Djhanid costs standing with the clans; killing the Dustwalkers who ruin their name earns some.
+				if not kill_standing.is_empty() and r.has_method("receive_standing_changes"):
+					if r.is_multiplayer_authority():
+						r.receive_standing_changes(JSON.stringify(kill_standing))
+					else:
+						r.receive_standing_changes.rpc_id(r.get_multiplayer_authority(), JSON.stringify(kill_standing))
 
 	if animation_player and animation_player.has_animation("death"):
 		anim_state = "death"  # replicated — see _play_replicated_animation()
@@ -1719,6 +1818,41 @@ func _rpc_looted() -> void:
 func _exit_tree() -> void:
 	if is_instance_valid(loot_window):
 		loot_window.queue_free()
+
+
+
+const XP_SHARE_RANGE := 100.0        # metres from the kill a group member must be to share it
+const GROUP_XP_BONUS := 0.1          # the group earns 10% more per extra member, split evenly
+
+
+# Who shares this kill's XP: the killer and everyone grouped with them who's in this zone and near. Groups live on the
+# world link on a server (world_link.gd, by name); in a one-machine game, on the killer's own group_members.
+func xp_recipients(killer: Node) -> Array:
+	var out: Array = [killer]
+	var near := func(n: Node) -> bool:
+		return is_instance_valid(n) and n != killer and not out.has(n) and (n as Node3D).global_position.distance_to(global_position) <= XP_SHARE_RANGE
+	var link := get_tree().get_first_node_in_group("world_link")
+	var names: Array = []
+	if link != null and link.get("groups") is Dictionary and not (link.groups as Dictionary).is_empty():
+		var g: String = link._group_of(str(killer.get("player_name")))
+		if not g.is_empty():
+			names = link.groups[g]["members"]
+	if not names.is_empty():
+		for n in get_tree().get_nodes_in_group("player"):
+			if names.any(func(m): return str(m).to_lower() == str(n.get("player_name")).to_lower()) and near.call(n):
+				out.append(n)
+	elif killer.get("group_members") is Array:
+		for pid in killer.group_members:
+			var n: Node = TargetFrame.peer_id_to_player_node(int(pid))
+			if near.call(n):
+				out.append(n)
+	return out
+
+
+static func group_xp_share(xp: int, members: int) -> int:
+	if members <= 1:
+		return xp
+	return maxi(1, int(round(xp * (1.0 + GROUP_XP_BONUS * (members - 1)) / members)))
 
 
 # ── Networked damage (Phase 3 netcode) ──────────────────────────────────────

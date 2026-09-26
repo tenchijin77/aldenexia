@@ -384,6 +384,7 @@ func _on_confirm_pressed() -> void:
 		"resistances": racial_resistances.duplicate(),
 
 		"equipment": get_starting_equipment(p_class),
+		"starter_weapon_checked": true,   # a new character has theirs already (Player3D.STARTER_WEAPONS)
 
 		"character_creation": Global.create_character_creation_timestamp(),
 		"playtime_seconds": 0,
@@ -518,19 +519,10 @@ func build_starting_inventory(p_class: String) -> Dictionary:
 	# class — including casters — got a sword by default, and the melee cases
 	# below actually granted a *second*, duplicate one via push_front.)
 	var gear: Array[String] = ["ragged_hood", "ragged_tunic", "ragged_leggings", "torn_boots", "cloth_cape"]
-	match p_class:
-		"Blademaster", "Voidknight", "Lightsworn":
-			gear.push_front("rusty_sword")
-		"Shadowblade", "Woodstalker":
-			gear.push_front("dagger")
-		"Aetherfist":
-			gear.push_front("worn_hand_wraps")
-		# Casters carry something too (test 34): a dagger, or a staff for the nature and spirit callers (two-handed, so not
-		# for the Lightmender, who may want a shield).
-		"Arcanist", "Chaosborn", "Gravecaller", "Troubadour", "Lightmender":
-			gear.push_front("dagger")
-		"Wildspeaker", "Spiritweaver":
-			gear.push_front("fir_staff")
+	# every class starts with its weapon (Player3D.STARTER_WEAPONS: casters carry a dagger, or a staff for the nature and
+	# spirit callers; test 34), which old characters are given once at login too
+	if Player3D.STARTER_WEAPONS.has(p_class):
+		gear.push_front(str(Player3D.STARTER_WEAPONS[p_class]))
 
 	# No starting scroll case anymore — the class's first two spells are now
 	# granted directly via known_spells (get_starting_spells() above), and

@@ -329,6 +329,11 @@ Decisions:
   (the rest stays as bounty). No jail (unless a quest wants one). The courthouse pays off bounties and buys back only the
   standing crimes cost.
 - Missing foundations: guards can't fight players (they only ever target monsters); pickpocketing only works on
-  monsters; players can't attack guards, townsfolk or each other (no PvP anywhere). Asked the user whether the game has
-  PvP outside town.
+  monsters; players can't attack guards or townsfolk. PvP exists now (/pvp, /duel, 2026-09-25), so attacking a player in
+  town can become the first crime.
+- PvP / duels, not yet: area spells and pets against players, ailments (stun, root, slow) on players.
+- MISSING ASSETS (cats): a STANDING Kenji model (Meshy) so he can walk and run like Oni (the current one is sculpted
+  sitting; tools/blender/animate_cat.py would animate a rigged standing one). Oni's rig bones are unnamed (Bone.001...):
+  naming them would make the animation script easier to extend (a sit, a pounce, a stretch).
+- Summoned animal pets built on the critter meshes don't use critter_motion.gdshader yet (summoned_pet.gd _build_critter).
 

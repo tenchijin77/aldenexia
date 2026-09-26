@@ -14,6 +14,7 @@ extends VendorNPC
 class_name KenjiNPC
 
 const MODEL_BASE := "res://models/Kenji/Meshy_AI_kenji_3d_model_0919110711_image-to-3d-texture"
+const MODEL_ANIMATED := "res://models/Kenji/kenji_animated.glb"   # sitting: tail flicks, looks around, breathes (tools/blender/animate_sitting_cat.py)
 const REQUIRED_ITEM := "rat_tail"
 const PROGRESS_KEY := "kenji_rat_tails_given"  # int in Global.player_data (the character's save file)
 const BLESSING_ID := "kenjis_blessing"
@@ -76,13 +77,16 @@ func _setup_combat() -> void:
 	combat_node.current_hp = combat_node.max_hp
 
 
-# ── Visuals: static cat mesh, no animations ────────────────────────────────
+# ── Visuals: the sitting cat, with his idle (tail, head, breathing) ─────────
 func _build_character_model() -> void:
-	_model = CatModel.build(self, MODEL_BASE, model_scale)
+	_model = CatModel.build_animated(self, MODEL_ANIMATED, MODEL_BASE, model_scale)
+	var ap := CatModel.animation_player(_model)
+	if ap != null and ap.has_animation("idle"):
+		ap.play("idle")
 
 
 func _setup_animation() -> void:
-	pass  # unrigged mesh — nothing to animate
+	pass  # the idle loop starts in _build_character_model()
 
 
 func _load_shop_data() -> void:

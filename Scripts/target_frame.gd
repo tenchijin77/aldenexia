@@ -344,7 +344,16 @@ static func con_color(diff: int) -> Color:
 static func faction_status(target: Node) -> String:
 	# Ally/Neutral/Enemy — derived from what already exists (group membership,
 	# behavior_type), not a separate faction-standing system. See game_flow.txt.
-	if target.is_in_group("player") or target.is_in_group("npc_guard") or target.is_in_group("npc_vendor") or target.is_in_group("pets"):
+	if target.is_in_group("player"):
+		# a duel or PvP foe (player_versus.gd): only when each of you is on the other's list
+		var viewer := local_player()
+		if is_instance_valid(viewer) and viewer != target:
+			var mine: PackedStringArray = viewer.get("hostile_to") if viewer.get("hostile_to") != null else PackedStringArray()
+			var theirs: PackedStringArray = target.get("hostile_to") if target.get("hostile_to") != null else PackedStringArray()
+			if mine.has(str(target.get("player_name")).to_lower()) and theirs.has(str(viewer.get("player_name")).to_lower()):
+				return "Enemy"
+		return "Ally"
+	if target.is_in_group("npc_guard") or target.is_in_group("npc_vendor") or target.is_in_group("pets"):
 		return "Ally"
 	# A faction's attitude to YOU (your standing: player3d.gd kos_factions / ally_factions) wins over its usual temper.
 	var me := local_player()

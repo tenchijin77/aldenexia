@@ -12,6 +12,10 @@ extends GuardNPC
 class_name OniNPC
 
 const MODEL_BASE := "res://models/Oni/Meshy_AI_oni_3d_model_0919110654_image-to-3d-texture"
+const MODEL_ANIMATED := "res://models/Oni/oni_animated.glb"   # the user's rig, animated (tools/blender/animate_cat.py)
+var _anim: AnimationPlayer = null
+var _last_pos := Vector3.INF
+var _speed := 0.0
 const HUNT_LEASH_EXTRA := 15.0  # gave up if prey drags her this far past hunt_range from home
 
 @export_group("Model")
@@ -45,7 +49,10 @@ func _ready() -> void:
 	flavor_text_path = "res://Data/cat_flavor_text.json"
 	super._ready()
 	add_to_group("pettable")  # /pet finds anything in this group
-	_model = CatModel.build(self, MODEL_BASE, model_scale)
+	_model = CatModel.build_animated(self, MODEL_ANIMATED, MODEL_BASE, model_scale)   # walks, runs, swishes her tail
+	_anim = CatModel.animation_player(_model)
+	if _anim != null and _anim.has_animation("idle"):
+		_anim.play("idle")
 	call_deferred("_finish_model")
 
 
@@ -82,6 +89,15 @@ func _setup_animations() -> void:
 # tween on each attack (_play_attack_animation below).
 func _update_animation() -> void:
 	if _model == null or not is_inside_tree():
+		return
+	if _anim != null:
+		# idle / walk / run by how far she really moved this frame (her AI runs on the server; this runs everywhere)
+		var dt := maxf(get_physics_process_delta_time(), 0.001)
+		var p := global_position
+		var step := 0.0 if _last_pos == Vector3.INF else Vector2(p.x - _last_pos.x, p.z - _last_pos.z).length() / dt
+		_last_pos = p
+		_speed = lerpf(_speed, minf(step, 12.0), 0.2)
+		CatModel.animate_by_speed(_anim, _speed)
 		return
 	var moving := Vector2(velocity.x, velocity.z).length() > 0.1
 	if moving:

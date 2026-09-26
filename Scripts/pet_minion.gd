@@ -42,6 +42,16 @@ const GRAVITY := 20.0
 const ATTACK_ANIMS := ["attack_horizontal", "attack_downward"]
 
 var owner_player: Node = null
+# The pet's weapon and shield in its hands (test 41), HeldGear.encode(primary, offhand): set by the owner from its pet gear,
+# replicated, so everyone sees what it wields.
+var held_gear := "":
+	set(value):
+		if value == held_gear:
+			return
+		held_gear = value
+		var character := get_node_or_null("Character") as Node3D
+		if character != null:
+			HeldGear.apply(character, held_gear)
 var command: PetState = PetState.FOLLOW
 var attack_target: Node = null
 var guard_position: Vector3 = Vector3.ZERO
@@ -173,6 +183,8 @@ func _setup_visual() -> void:
 		animation_player.add_animation_library("", lib)
 
 	_apply_texture_override(character, "res://models/Skeleton Pet/Meshy_AI_voidknight_skeleton_h_biped_texture_0.png")
+	if not held_gear.is_empty():
+		HeldGear.apply(character, held_gear)   # set (replicated) before the model was built
 
 
 # Meshy-sourced FBX exports never carry their real texture through to Godot
@@ -649,8 +661,12 @@ func _recompute_nav_path(target_pos: Vector3) -> void:
 
 func _process_attack(delta: float) -> void:
 	if not is_instance_valid(attack_target) or not _target_alive(attack_target):
+		# It stays on its target until that dies (or you order another: cmd_attack); then it goes on to what you (or your
+		# focus tank) are fighting now, at once (test 41: a fleeing mob it had started on shouldn't be dropped for yours).
 		attack_target = null
 		command = _pre_attack_command
+		_chain_after_kill = true
+		_auto_engage_timer = AUTO_ENGAGE_SCAN_INTERVAL
 		return
 
 	var distance := global_position.distance_to(attack_target.global_position)
@@ -809,6 +825,10 @@ func _process_guard(delta: float) -> void:
 # reads player3d.gd's last_damage_time_ms + current_target (already kept in
 # sync by _register_attacker() whenever the player takes a hit), and assist
 # reads the player's own autoattack_enabled + current_target.
+const TANK_ENGAGED_RANGE := 8.0   # the focus tank is fighting its target when it's this close to it
+var _chain_after_kill := false   # its target just died: take the owner's next one without waiting
+
+
 func _process_auto_engage(delta: float, assist_mode: bool) -> void:
 	_auto_engage_timer += delta
 	if _auto_engage_timer < AUTO_ENGAGE_SCAN_INTERVAL:
@@ -833,11 +853,25 @@ func _process_auto_engage(delta: float, assist_mode: bool) -> void:
 	# every real attack action (autoattack swing, melee_attack key, damaging
 	# spell cast), so this now genuinely means "I just attacked," not "I
 	# have attacking toggled on and something is selected."
-	if assist_mode and "last_attack_time_ms" in owner_player \
-			and Time.get_ticks_msec() - owner_player.last_attack_time_ms < ASSIST_REACTION_WINDOW_MS:
-		var owner_target: Node = owner_player.get("current_target")
-		if is_instance_valid(owner_target) and _target_alive(owner_target) and owner_target.is_in_group("monsters"):
-			_engage(owner_target)
+	if not assist_mode:
+		_chain_after_kill = false
+		return
+	# The owner's /focus tank, if they have one: the pet fights what the tank is fighting (test 41: a healer standing back
+	# never attacks, so her pet never joined in). The tank is "fighting" its target when it's close to it.
+	var tank: Node = owner_player.get_focus() if owner_player.has_method("get_focus") else null
+	if is_instance_valid(tank) and tank != owner_player and tank.is_in_group("player"):
+		var tank_target: Node = TargetFrame.target_of(tank)
+		if is_instance_valid(tank_target) and _target_alive(tank_target) and tank_target.is_in_group("monsters") \
+				and (tank as Node3D).global_position.distance_to((tank_target as Node3D).global_position) <= TANK_ENGAGED_RANGE:
+			_engage(tank_target)
+			return
+	var owner_target: Node = owner_player.get("current_target")
+	var just_attacked: bool = "last_attack_time_ms" in owner_player \
+			and Time.get_ticks_msec() - owner_player.last_attack_time_ms < ASSIST_REACTION_WINDOW_MS
+	# right after a kill it goes straight on to the owner's target (test 41), without waiting for the owner to swing
+	if (just_attacked or _chain_after_kill) and is_instance_valid(owner_target) and _target_alive(owner_target) and owner_target.is_in_group("monsters"):
+		_engage(owner_target)
+	_chain_after_kill = false
 
 
 func _engage(target: Node) -> void:

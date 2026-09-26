@@ -71,6 +71,9 @@ var held_gear := "":
 		held_gear = value
 		if is_inside_tree() and has_node("Character"):
 			HeldGear.apply(get_node("Character"), held_gear)
+# The players this one is hostile with right now (lower-case names: a duel or PvP, player_versus.gd), replicated. Two
+# players can fight only when each is on the other's list.
+var hostile_to := PackedStringArray()
 var known_spells: Array = []
 var known_skills: Array = []
 var known_recipes: Array = []  # tradeskill recipe ids learned from scrolls/quests (innate recipes are always known)
@@ -1082,6 +1085,10 @@ func _ready() -> void:
 	var travel := PlayerTravel.new()
 	travel.name = "Travel"
 	add_child(travel)
+	# Duels and PvP (player_versus.gd). On every copy of the player: its RPCs arrive on the victim's own machine.
+	var versus := PlayerVersus.new()
+	versus.name = "Versus"
+	add_child(versus)
 	# Cartography (cartography.gd): charts the land as you walk, when you know the skill and carry the kit.
 	var cart := Cartography.new()
 	cart.name = "Cartography"
@@ -3069,6 +3076,10 @@ func attack_current_target() -> void:
 	if attack_cooldown > 0.0:
 		return
 
+	if current_target.is_in_group("player"):
+		_attack_player(current_target)   # a duel or PvP foe
+		return
+
 	var dist := global_position.distance_to(current_target.global_position)
 	if dist > 3.0:
 		print("⚔️ %s is out of range (%.1fm). Move closer!" % [TargetFrame.display_name(current_target), dist])
@@ -3101,7 +3112,7 @@ func attack_current_target() -> void:
 
 		if current_target.has_method("add_threat"):
 			current_target.add_threat(self, combat_node.generate_threat(result.get("damage", 0)))
-		var target_desc: String = current_target.get("monster_description") if current_target.get("monster_description") != "" else current_target.get_monster_name()
+		var target_desc: String = _desc_of(current_target)
 		var weapon := Inventory.get_equipped_weapon()
 		var weapon_name: String = weapon.get("name", "")
 		var dmg_type: String = CombatLogFormatter.damage_type_from_item(weapon)
@@ -3144,11 +3155,11 @@ func attack_current_target() -> void:
 		var total_damage := int(combat_node.calculate_melee_damage(null, combat_node.roll_crit()) * penalty)
 		if current_target.has_method("apply_damage"):
 			current_target.apply_damage(total_damage, "physical")
-			var target_desc: String = current_target.get("monster_description") if current_target.get("monster_description") != "" else current_target.get_monster_name()
+			var target_desc: String = _desc_of(current_target)
 			GameLog.log_combat("You hit %s for [b]%d[/b] damage." % [target_desc, total_damage])
 			_broadcast_combat("%s hits %s for [b]%d[/b] damage." % [player_name, target_desc, total_damage])
 		if not is_instance_valid(current_target) or current_target.current_health <= 0:
-			var target_desc: String = current_target.get("monster_description") if current_target.get("monster_description") != "" else current_target.get_monster_name()
+			var target_desc: String = _desc_of(current_target)
 			GameLog.log_combat("%s has been defeated!" % target_desc.capitalize())
 			_broadcast_combat("%s has been defeated!" % target_desc.capitalize())
 			_set_target_frame(null)
@@ -3267,8 +3278,77 @@ func take_damage(amount: int, attacker: Node = null) -> void:
 		die(attacker)
 
 
-func apply_damage(amount: int, attacker: Node = null) -> void:
-	take_damage(amount, attacker)
+func apply_damage(amount: int, attacker: Variant = null) -> void:
+	if not is_multiplayer_authority():
+		# someone else's player (a duel or PvP foe): the blow goes to their own machine (player_versus.gd)
+		var me := TargetFrame.local_player()
+		if is_instance_valid(me) and me != self and me.has_node("Versus"):
+			me.get_node("Versus").send_hit(self, amount)
+		return
+	take_damage(amount, attacker if attacker is Node else null)
+
+
+# A melee swing at another player (a duel or PvP foe, player_versus.gd): rolled here like any swing, landed on their
+# machine. Their local copy here isn't touched (their own machine owns their health).
+func _attack_player(target: Node) -> void:
+	var dist := global_position.distance_to((target as Node3D).global_position)
+	if dist > 3.0:
+		return
+	attacking = true
+	last_attack_time_ms = Time.get_ticks_msec()
+	_trigger_attack_animation()
+	attack_cooldown = attack_interval()
+	var tcn: CombatNode = target.combat_node
+	var hp_before := tcn.current_hp
+	var result: Dictionary = _resolve_melee_attack(tcn)
+	tcn.current_hp = hp_before
+	var weapon := Inventory.get_equipped_weapon()
+	var weapon_name: String = weapon.get("name", "")
+	var dmg_type: String = CombatLogFormatter.damage_type_from_item(weapon)
+	var desc := TargetFrame.display_name(target)
+	var msg: String = CombatLogFormatter.player_attack(result, desc, weapon_name, dmg_type)
+	if not msg.is_empty():
+		GameLog.log_combat(msg)
+		_broadcast_combat(CombatLogFormatter.player_attack_broadcast(player_name, result, desc, weapon_name, dmg_type))
+	play_swing_sound(str(result.get("result", "")), weapon, target)
+	if str(result.get("result", "")) == "HIT":
+		get_node("Versus").send_hit(target, int(result.get("damage", 0)))
+		_tick_skill(_weapon_skill_key(weapon))
+		_tick_skill("offense")
+
+
+# Each class's starting weapon (character_creation.gd gives it at creation). A character made before theirs was added
+# (test 41: Maedianie, a Wildspeaker from before test 34, had no staff) gets it once, if it isn't already in their bags
+# or hands.
+const STARTER_WEAPONS := {
+	"Blademaster": "rusty_sword", "Voidknight": "rusty_sword", "Lightsworn": "rusty_sword",
+	"Shadowblade": "dagger", "Woodstalker": "dagger", "Aetherfist": "worn_hand_wraps",
+	"Arcanist": "dagger", "Chaosborn": "dagger", "Gravecaller": "dagger", "Troubadour": "dagger", "Lightmender": "dagger",
+	"Wildspeaker": "fir_staff", "Spiritweaver": "fir_staff",
+}
+
+func _grant_missing_starter_weapon() -> void:
+	if not is_multiplayer_authority() or Global.player_data.get("starter_weapon_checked", false):
+		return
+	Global.player_data["starter_weapon_checked"] = true
+	var weapon := str(STARTER_WEAPONS.get(str(player_class), ""))
+	if weapon.is_empty() or ItemHelper.count(weapon) > 0 or Inventory.equipped.values().any(func(it): return typeof(it) == TYPE_DICTIONARY and str(it.get("item_id", "")) == weapon):
+		return
+	if Inventory.add_item(weapon):
+		GameLog.log_general("[color=#ffdd88]You find your %s in your pack.[/color]" % str(Inventory.get_item_definition(weapon).get("name", weapon)))
+		Global.save_player_data_to_file()
+
+
+# How a target is named in the combat log: a monster's description, or a player's name.
+func _desc_of(n: Node) -> String:
+	if n == null or not is_instance_valid(n):
+		return "something"
+	if n.is_in_group("player"):
+		return TargetFrame.display_name(n)
+	var d = n.get("monster_description")
+	if d != null and str(d) != "":
+		return str(d)
+	return n.get_monster_name() if n.has_method("get_monster_name") else TargetFrame.display_name(n)
 
 
 # Called instead of take_damage() by anything that already applied its own
@@ -3389,6 +3469,9 @@ func die(attacker: Node = null) -> void:
 
 	if attacker and is_instance_valid(attacker):
 		var desc: String = attacker.get("monster_description") if "monster_description" in attacker else ""
+		if attacker.is_in_group("player"):
+			desc = TargetFrame.display_name(attacker)   # a PvP foe
+			_broadcast_combat("[color=#ff5544]%s has been slain by %s![/color]" % [player_name, desc])
 		if desc == "" and attacker.has_method("get_monster_name"):
 			desc = attacker.get_monster_name()
 		if desc != "":
@@ -3897,6 +3980,7 @@ func load_player_data_from_global() -> void:
 		_apply_baseline_weapon_skill()  # still 0 (e.g. an old save keyed under a different skill name): keep the fallback
 		combat_node._stats_dirty = true
 		combat_node.recalculate_derived_stats()
+		_grant_missing_starter_weapon()
 
 
 # Starting weapon skill: combat classes begin with a baseline so they can hit. Only a FALLBACK for when the equipped
@@ -4588,6 +4672,13 @@ func _apply_pet_gear_bonus() -> void:
 			bonus_ac += item.get("armor_class", 0)
 	if active_pet.has_method("apply_gear_bonus"):
 		active_pet.apply_gear_bonus(weapon_dmg, bonus_ac)
+	# and it holds them, for everyone to see (test 41)
+	if is_multiplayer_authority() and "held_gear" in active_pet:
+		var ids := {}
+		for slot in ["primary", "offhand"]:
+			var it: Variant = pet_equipment.get(slot, null)
+			ids[slot] = str(it.get("item_id", "")) if typeof(it) == TYPE_DICTIONARY else ""
+		active_pet.held_gear = HeldGear.encode(ids["primary"], ids["offhand"])
 
 
 # ================================================================================
@@ -4937,8 +5028,7 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 			last_attack_time_ms = Time.get_ticks_msec()
 
 			var target_cn = target_node.get("combat_node")
-			var target_desc: String = target_node.get("monster_description") \
-				if target_node.get("monster_description") != "" else target_node.get_monster_name()
+			var target_desc: String = _desc_of(target_node)
 			_log_cast_flavor(spell_name, spell, target_desc)
 
 			# Multi-bolt spells (Magic Missile, Arcane Barrage, Unstable
@@ -5209,8 +5299,7 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 				if not hit_target.has_method("apply_damage"):
 					continue
 				var hit_cn = hit_target.get("combat_node")
-				var hit_desc: String = hit_target.get("monster_description") \
-					if hit_target.get("monster_description") != "" else hit_target.get_monster_name()
+				var hit_desc: String = _desc_of(hit_target)
 				# Magic cones used to be computed as physical blows (strength, armour, never halved like other spells).
 				var cone_dmg: int = _compute_spell_damage(base_damage, school, hit_cn) if base_damage > 0 else 0
 
@@ -5358,8 +5447,7 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 				if not hit_target.has_method("apply_damage"):
 					continue
 				var hit_cn = hit_target.get("combat_node")
-				var hit_desc: String = hit_target.get("monster_description") \
-					if hit_target.get("monster_description") != "" else hit_target.get_monster_name()
+				var hit_desc: String = _desc_of(hit_target)
 				var pbaoe_dmg: int = _compute_spell_damage(base_damage, school, hit_cn) if base_damage > 0 else 0
 				var hit_is_networked_monster: bool = hit_target is Monster and not hit_target.is_multiplayer_authority()
 				if pbaoe_dmg > 0:
@@ -5418,8 +5506,7 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 				if not hit_target.has_method("apply_damage"):
 					continue
 				var hit_cn = hit_target.get("combat_node")
-				var hit_desc: String = hit_target.get("monster_description") \
-					if hit_target.get("monster_description") != "" else hit_target.get_monster_name()
+				var hit_desc: String = _desc_of(hit_target)
 				var chain_dmg: int = max(1, int(_compute_spell_damage(base_damage, school, hit_cn) * falloff))
 				hit_target.apply_damage(chain_dmg, "physical" if school == "physical" else "magic")
 				var hit_is_networked_monster: bool = hit_target is Monster and not hit_target.is_multiplayer_authority()

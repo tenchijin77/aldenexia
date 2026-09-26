@@ -25,6 +25,9 @@ properties/4/replication_mode = 2
 properties/5/path = NodePath("CombatNode:max_hp")
 properties/5/spawn = true
 properties/5/replication_mode = 2
+properties/6/path = NodePath(".:held_gear")
+properties/6/spawn = true
+properties/6/replication_mode = 2
 
 [node name="PetMinion" type="CharacterBody3D" groups=["pets"]]
 top_level = true

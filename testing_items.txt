@@ -2,11 +2,11 @@ ALDENEXIA: LIGHTFALL — TESTING CHECKLIST
 New features and fixes waiting for a real playtest, in two parts: OUTSTANDING (not passed yet) and COMPLETED (passed).
 When an item passes, change [ ] to [x] and move it to the same section under COMPLETED (or just add "- working" and it
 gets moved). A failure goes to outstanding_items.txt with what went wrong. Last updated 2026-09-25 (test 38).
-Everything below was built after test 26.   Outstanding: 240   Completed: 25
+Everything below was built after test 26.   Outstanding: 245   Completed: 25
 
 
 ################################################################################
-  OUTSTANDING — still to test (240)
+  OUTSTANDING — still to test (245)
 ################################################################################
 
 == ACCOUNTS AND JOINING ==
@@ -16,27 +16,27 @@ Everything below was built after test 26.   Outstanding: 240   Completed: 25
 
 == TEST 28 CHANGES ==
 [ ] Run out of food / drink: Starving / Thirsty appear on the status window (red icons, yellow border); they go when you eat/drink.
-[ ] Every debuff on the status window has a yellow border.
+[ ] Every debuff on the status window has a yellow border. -appears to be working with poison, and disease so far.
 [ ] Snakes and spiders sometimes poison you (5 every 6 s for a minute); it shows on the status window; a cure removes it.
-    A second bite refreshes it (one Weak Poison, never two).
-[ ] Undead (skeletons, mummies, ghosts, mirage phantoms) sometimes infect you with Disease (5 every 6 s for 90 s); refreshes, shows, cures.
+    A second bite refreshes it (one Weak Poison, never two).-poison works, have not tried curing yet, as i don't have a toon with this spell yet.
+[ ] Undead (skeletons, mummies, ghosts, mirage phantoms) sometimes infect you with Disease (5 every 6 s for 90 s); refreshes, shows, cures. -disease appears to work. again , no toon with curing to test.
 
 == TEST 29 FIXES ==
 [ ] The rats by the west wall (Zozuur's spot) come to you and fight back; no monster freezes in combat just out of reach.
 [ ] Snakes/spiders/rats/bats "bite", stingers "sting", beetles "pinch" in the combat log.
-[ ] Blood Ritual lasts 30 seconds.
+[ ] Blood Ritual lasts 30 seconds. - working
 [ ] Die with a pet out (changed in test 34): the pet fades as you fall; summon it again after you wake. Its gear is still
     on it when you do, and the monster it was fighting doesn't follow you.
-[ ] Appraising (I) raises Perception (abilities book shows "+N to appraisal checks").
-[ ] Chat text: drag to select, right-click > Copy works in General, Combat and custom tabs; movement keys still work after.
+[ ] Appraising (I) raises Perception (abilities book shows "+N to appraisal checks"). -yes and it appears to show more than it did before.
+[ ] Chat text: drag to select, right-click > Copy works in General, Combat and custom tabs; movement keys still work after. - appears to be working
 [ ] Your client log no longer shows "Node 'CombatNode:current_hp' not found" when monsters appear.
 
 == TANK STANCES ==
 [ ] Each tank's aura looks different: Voidknight streaks pulled inward, Lightsworn rising light, Blademaster sparks;
     other players see them.
-[ ] Group bonuses reach group members within 10 m (check the status window): e.g. Hold the Line, Dawn's Wrath.
+[ ] Group bonuses reach group members within 10 m (check the status window): e.g. Hold the Line, Dawn's Wrath. - working with voidknight
 [ ] Aegis of Dawn: melee hits sometimes heal you ("The light of dawn mends you"); Necrotic Bastion: melee hits sometimes
-    lifetap ("Necrotic energy tears the life from...") — for the tank and for group members.
+    lifetap ("Necrotic energy tears the life from...") — for the tank and for group members. - working with voidknight
 
 == WHOLE-GAME COMBAT CHANGES ==
 [ ] Melee abilities cast instantly (Power Strike, Backstab, Holy Strike, the Aetherfist strikes, taunts).
@@ -47,12 +47,12 @@ Everything below was built after test 26.   Outstanding: 240   Completed: 25
     Mend Wounds) — test in a group.
 [ ] Area spells hit monsters near the target (Fireball, Hurricane, Plague Cloud); cones and point-blank spells hit the
     right radius.
-[ ] Drains heal YOU (Life Drain, Death Coil, Harmony Blade, Siphon Essence on a monster).
+[ ] Drains heal YOU (Life Drain, Death Coil, Harmony Blade, Siphon Essence on a monster).- working with siphon life
 [ ] Chance effects happen only sometimes (Smite's blind ~10%).
 [ ] Blink (10m) and Chaos Rift (8m, random direction) teleport.
 [ ] Attacking breaks Vanish / Shadow Cloak / Camouflage / Invisibility.
 [ ] Level-1 openers no longer one-shot a level-1 monster (Power Strike 35, Aimed Shot 40, Backstab 60); Shadow Bolt and
-    Chaos Bolt (45) feel useful.
+    Chaos Bolt (45) feel useful. - working
 
 == PER-CLASS SPOT CHECKS (levels 1-8) ==
 [ ] Blademaster: Tactical Stance / Battle Focus are self-buffs; Sunder Armor debuffs; Defensive Strike buffs you on hit;
@@ -92,7 +92,7 @@ Everything below was built after test 26.   Outstanding: 240   Completed: 25
     stand-in model, follows, fights, has a pet frame.
 [ ] All summons are permanent and come back after logging out and in.
 [ ] Beast Bond buffs the companion.
-[ ] Other players see your pet (multiplayer).
+[ ] Other players see your pet (multiplayer). - confirmed with voidknight, wildspeaker, and spiritweaver pets
 
 == LANGUAGES AND THE VOL'KYNE ==
 [ ] Log in with existing characters: /language lists their race's languages (e.g. Zozuur: Grommish 100, Common 15).
@@ -107,21 +107,21 @@ Everything below was built after test 26.   Outstanding: 240   Completed: 25
 [ ] Epheo: Vol'kyne stats DEX 12, INT 16, CHA 11; magic/psychic resist +10, fire -5.
 [ ] Buy a language scroll (Ilsabet / Xalvyr / Sahren for Djhanid), Learn it: 1 point, appears in the dropdown.
 [ ] Practising: hearing the language (another player, an NPC) and speaking it near someone who knows it slowly raises it
-    ("You've become better at Khuzdul! (2)").
-[ ] Goblin raiders shout in Goblish; undead death lines are Old Thallian... (skeletons/mummies/ghosts).
+    ("You've become better at Khuzdul! (2)"). - appears to be working
+[ ] Goblin raiders shout in Goblish; undead death lines are Old Thallian... (skeletons/mummies/ghosts). - goblins appear to be working
 [ ] Character creation lists "Vol'kyne (Dark Elf)"; a new Vol'kyne gets real racial stats (not all 10s); the character
     sheet and account list say Vol'kyne.
 
 == ITEMS AND KNOWN SCROLLS (2026-09-24) ==
-[ ] Aldric: Recipe: Tin Shortsword shows "✔ known" (grey name) for Zozuur; recipes you don't know don't.
+[ ] Aldric: Recipe: Tin Shortsword shows "✔ known" (grey name) for Zozuur; recipes you don't know don't. - working
 [ ] Ilsabet / Xalvyr / Sahren: a language primer for a language you already speak (Common, your race's) shows "✔ known".
 [ ] A known recipe or language scroll in your bags has the green tick badge; right-click inspect says "You already know this recipe/language."
-[ ] Buy Recipe: Tin Shield from Aldric (30 cp), learn it, forge a Tin Shield (2 Tin Ingot + 1 Fir Planks, Blacksmithing 3).
-[ ] Tin Shield equips in the offhand: AC 3, +1 Stamina, tin-coloured shield icon.
-[ ] Crafted items, kits and recipe scrolls still look and work as before (they moved into items.json).
+[ ] Buy Recipe: Tin Shield from Aldric (30 cp), learn it, forge a Tin Shield (2 Tin Ingot + 1 Fir Planks, Blacksmithing 3).- working
+[ ] Tin Shield equips in the offhand: AC 3, +1 Stamina, tin-coloured shield icon. - working
+[ ] Crafted items, kits and recipe scrolls still look and work as before (they moved into items.json). - working
 
 == TESTER GUIDE ==
-[ ] The tester page link shows the account login steps and the "Every control and chat command" list.
+[ ] The tester page link shows the account login steps and the "Every control and chat command" list. - working
 
 
 == QUEST DISCOVERY (2026-09-24, after test 30) ==
@@ -204,23 +204,23 @@ Everything below was built after test 26.   Outstanding: 240   Completed: 25
 
 == TEST 31 FIXES: STACKS AND RECIPE CHOICE ==
 [ ] Put 20 tin + 20 fir in the forge: a "Make:" picker offers Tin Dagger / Tin Shield (Shield chosen if you know it);
-    "How many" lets you make just 1; the rest goes back to your bags when you close the window.
-[ ] Put exactly 2 tin + 1 fir in: it's ready to make a Tin Shield (it used to always make a Tin Dagger).
+    "How many" lets you make just 1; the rest goes back to your bags when you close the window. - working
+[ ] Put exactly 2 tin + 1 fir in: it's ready to make a Tin Shield (it used to always make a Tin Dagger). - working
 
 == TEST 32 FIXES ==
 [ ] Crafting window with 20 tin + 20 fir: "Make:" and "How many" sit ABOVE the button; while working, the progress bar
-    is inside the window (it grows to fit); the picker is greyed out until the batch ends.
-[ ] Abilities book (K) > General Skills ends with a Languages list (e.g. Twilari 100, Common 75, Aevaryn 40).
-[ ] Switch language with the dropdown while the abilities book is open: "You are speaking this now" moves to it.
+    is inside the window (it grows to fit); the picker is greyed out until the batch ends. - working
+[ ] Abilities book (K) > General Skills ends with a Languages list (e.g. Twilari 100, Common 75, Aevaryn 40). - working
+[ ] Switch language with the dropdown while the abilities book is open: "You are speaking this now" moves to it. - working
 
 == TEST 33 FIXES ==
 [ ] (needs the Dustwind site) As a non-caster, a travel site's label reads "Old Standing Stone"; right-click: a faint
     description and "You feel like a person with magical knowledge could make use of this."; casters see its real name.
 
 == TEST 34 FIXES ==
-[ ] /stuck with a pet out: the pet comes with you.
+[ ] /stuck with a pet out: the pet comes with you. - working
 [ ] Get bitten (Weak Poison), walk into town: the combat music hands back to the zone music about 8 s after the fight,
-    not after the poison wears off.
+    not after the poison wears off. - working
 [ ] Journal: pick up a rat tail -> "Kenji's Rat Tails" appears; giving Kenji tails updates it; at 10 it completes and
     picking up more starts it again.
 [ ] Status window: a debuff (Weak Poison, Starving) has a yellow rectangle round the whole row, not round the icon.
@@ -262,6 +262,17 @@ Everything below was built after test 26.   Outstanding: 240   Completed: 25
 [ ] New ailments show on the status window with a description and are removed by a cure: weakening venom (sandstinger),
     sundered armour (ravager), blinded (Djhanid), grave miasma (restless corpse), withering touch (wraith).
 [ ] Two players: one zones, the other stays; both keep playing (chat across zones doesn't work yet).
+
+== KENJI AND ONI MOVE (2026-09-25) ==
+[ ] Oni: walks her patrol (legs stepping, tail waving), runs when she chases a rat, stands and looks around when still.
+[ ] Kenji at the gate: flicks his tail in and out round his paws, looks left and right, breathes. No torn fur at the tail.
+
+== DUELS AND PVP (2026-09-25) ==
+[ ] /duel Maedianie (or target her and /duel; /dual works too): she gets Accept / Decline; 3, 2, 1, Fight!; melee and
+    damage spells hit; the loser stops at 1 health (no death); /yield ends it; walking 40 m apart ends it.
+[ ] /pvp on someone level 5+ within 5 levels: they're warned; after 5 seconds you can both attack; it's to the death
+    (they respawn at their bind); nearby players see who killed them. Below level 5, or 6+ levels apart: refused.
+[ ] Anyone else still can't attack either of you (only the two are foes); nameplates / target frame show red.
 
 == TEST 40 FIXES (2026-09-25) ==
 [ ] Standing still with a sword and shield: the shield hangs on the outside of the left arm (no arm through it), the

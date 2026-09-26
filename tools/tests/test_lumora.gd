@@ -49,8 +49,7 @@ func run() -> void:
 	var forge: Node3D = outs.get_node_or_null("GateForge")
 	check(forge != null and str(forge.get("station_id")) == "forge", "a basic forge stays at the gate (a first ingot without the walk)")
 	if forge:
-		var fire: Node3D = outs.get_node("Campfires").get_child(0)
-		check(forge.position.distance_to(fire.global_position if fire.is_inside_tree() else outs.get_node("Campfires").position + fire.position) < 15.0, "beside the gate's campfire (cooking)")
+		check(Vector2(forge.position.x, forge.position.z).distance_to(Vector2(52, 13)) < 40.0, "by the town gate (placed by the user)")
 	outs.free()
 	var placements = JSON.parse_string(FileAccess.get_file_as_string("res://Data/crafting_placements.json"))
 	eq(placements["lumora_outskirts"]["stations"].size(), 0, "the data's stations don't reappear in the Outskirts")

@@ -619,7 +619,7 @@ func _on_chat_input_gui_input(event: InputEvent) -> void:
 # and "/location" both resolve to "/location" since no other command starts
 # with "loc"; "/f" would be ambiguous if two commands both started with "f".
 const GMCommandsScript := preload("res://Scripts/gm_commands.gd")
-const COMMANDS := ["/location", "/hail", "/appraise", "/time", "/follow", "/camp", "/exit", "/log", "/invite", "/disband", "/say", "/tell", "/party", "/zone", "/played", "/resetui", "/who", "/weather", "/pet", "/quests", "/compass", "/raid", "/gm", "/focus", "/assist", "/announce", "/maintenance", "/trade", "/ban", "/unban", "/bans", "/language", "/surname", "/stuck", "/cast", "/target", "/pause", "/macro", "/kill", "/give", "/teleport"]
+const COMMANDS := ["/location", "/hail", "/appraise", "/time", "/follow", "/camp", "/exit", "/log", "/invite", "/disband", "/say", "/tell", "/party", "/zone", "/played", "/resetui", "/who", "/weather", "/pet", "/quests", "/compass", "/raid", "/gm", "/focus", "/assist", "/announce", "/maintenance", "/trade", "/ban", "/unban", "/bans", "/language", "/surname", "/stuck", "/cast", "/target", "/pause", "/macro", "/kill", "/give", "/teleport", "/duel", "/pvp", "/yield"]
 
 
 # /surname            what yours is
@@ -722,6 +722,20 @@ func _handle_slash_command(text: String) -> bool:
 				player.invite_to_group(player.current_target)
 			else:
 				player.invite_to_group_by_name(arg)
+		"/duel", "/pvp":
+			# your target, or a player named here
+			var foe: Node = player.current_target if arg.is_empty() else player._find_player_by_name(arg)
+			if foe == null and not arg.is_empty():
+				GameLog.log_general("[color=red]No player named '%s' is here.[/color]" % arg)
+				return true
+			if cmd == "/duel":
+				player.get_node("Versus").challenge_duel(foe)
+			else:
+				player.get_node("Versus").declare_pvp(foe)
+			return true
+		"/yield":
+			player.get_node("Versus").yield_duel()
+			return true
 		"/trade":
 			if arg.is_empty():
 				player.request_trade(player.current_target)
@@ -962,7 +976,7 @@ func _save_and_quit() -> void:
 # Short forms that must keep working when a new command shares their first letters (/s was /say before /surname existed).
 # /g and /gsay are EverQuest's group chat (without them /g meant /gm); /pa and /ca kept their old meaning when /pause and
 # /cast arrived.
-const COMMAND_ALIASES := {"/s": "/say", "/g": "/party", "/gsay": "/party", "/pa": "/party", "/ca": "/camp", "/tel": "/tell"}
+const COMMAND_ALIASES := {"/dual": "/duel", "/s": "/say", "/g": "/party", "/gsay": "/party", "/pa": "/party", "/ca": "/camp", "/tel": "/tell"}
 
 
 func _resolve_command(typed: String) -> String:
