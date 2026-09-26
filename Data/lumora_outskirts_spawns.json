@@ -11,7 +11,7 @@
    "spawn_radius": 12.0,
    "spawn_chance": 0.7,
    "max_active": 2,
-   "respawn_time": 12,
+   "respawn_time": 72,
    "spawn_zone": "dunes_start"
   },
   {
@@ -24,7 +24,7 @@
    "spawn_radius": 10.0,
    "spawn_chance": 0.6,
    "max_active": 1,
-   "respawn_time": 12,
+   "respawn_time": 72,
    "spawn_zone": "dunes_start"
   },
   {
@@ -37,7 +37,7 @@
    "spawn_radius": 10.0,
    "spawn_chance": 0.7,
    "max_active": 2,
-   "respawn_time": 12,
+   "respawn_time": 72,
    "spawn_zone": "dunes_far"
   },
   {
@@ -50,7 +50,7 @@
    "spawn_radius": 10.0,
    "spawn_chance": 0.7,
    "max_active": 1,
-   "respawn_time": 12,
+   "respawn_time": 72,
    "spawn_zone": "dunes_far"
   },
   {
@@ -63,7 +63,7 @@
    "spawn_radius": 10.0,
    "spawn_chance": 0.7,
    "max_active": 2,
-   "respawn_time": 12,
+   "respawn_time": 72,
    "spawn_zone": "dunes_far"
   },
   {
@@ -76,7 +76,7 @@
    "spawn_radius": 10.0,
    "spawn_chance": 0.7,
    "max_active": 1,
-   "respawn_time": 12,
+   "respawn_time": 72,
    "spawn_zone": "dunes_far"
   },
   {
@@ -89,7 +89,7 @@
    "spawn_radius": 10.0,
    "spawn_chance": 0.5,
    "max_active": 1,
-   "respawn_time": 18,
+   "respawn_time": 108,
    "spawn_zone": "dunes_start"
   },
   {
@@ -102,7 +102,7 @@
    "spawn_radius": 8.0,
    "spawn_chance": 0.4,
    "max_active": 1,
-   "respawn_time": 18,
+   "respawn_time": 108,
    "spawn_zone": "dunes_start"
   },
   {
@@ -115,7 +115,7 @@
    "spawn_radius": 14.0,
    "spawn_chance": 0.7,
    "max_active": 2,
-   "respawn_time": 20,
+   "respawn_time": 120,
    "spawn_zone": "dunes_start"
   },
   {
@@ -128,7 +128,7 @@
    "spawn_radius": 16.0,
    "spawn_chance": 0.6,
    "max_active": 2,
-   "respawn_time": 15,
+   "respawn_time": 90,
    "spawn_zone": "dunes_start"
   },
   {
@@ -141,7 +141,7 @@
    "spawn_radius": 14.0,
    "spawn_chance": 0.5,
    "max_active": 1,
-   "respawn_time": 15,
+   "respawn_time": 90,
    "spawn_zone": "dunes_start"
   },
   {
@@ -154,7 +154,7 @@
    "spawn_radius": 15.0,
    "spawn_chance": 0.5,
    "max_active": 1,
-   "respawn_time": 14,
+   "respawn_time": 84,
    "spawn_zone": "dunes_start"
   },
   {
@@ -167,7 +167,7 @@
    "spawn_radius": 14.0,
    "spawn_chance": 0.4,
    "max_active": 1,
-   "respawn_time": 14,
+   "respawn_time": 84,
    "spawn_zone": "dunes_start"
   },
   {
@@ -180,7 +180,7 @@
    "spawn_radius": 28.0,
    "spawn_chance": 0.75,
    "max_active": 4,
-   "respawn_time": 20,
+   "respawn_time": 120,
    "spawn_zone": "mausoleum"
   },
   {
@@ -193,7 +193,7 @@
    "spawn_radius": 18.0,
    "spawn_chance": 0.7,
    "max_active": 3,
-   "respawn_time": 20,
+   "respawn_time": 120,
    "spawn_zone": "graveyard"
   },
   {
@@ -206,7 +206,7 @@
    "spawn_radius": 12.0,
    "spawn_chance": 0.65,
    "max_active": 2,
-   "respawn_time": 18,
+   "respawn_time": 108,
    "spawn_zone": "small_crypt_1"
   },
   {
@@ -219,7 +219,7 @@
    "spawn_radius": 12.0,
    "spawn_chance": 0.65,
    "max_active": 2,
-   "respawn_time": 18,
+   "respawn_time": 108,
    "spawn_zone": "small_crypt_2"
   },
   {
@@ -232,7 +232,7 @@
    "spawn_radius": 24.0,
    "spawn_chance": 0.3,
    "max_active": 2,
-   "respawn_time": 35,
+   "respawn_time": 210,
    "spawn_zone": "mausoleum"
   },
   {
@@ -245,7 +245,7 @@
    "spawn_radius": 20.0,
    "spawn_chance": 0.25,
    "max_active": 1,
-   "respawn_time": 32,
+   "respawn_time": 192,
    "spawn_zone": "graveyard"
   },
   {
@@ -258,7 +258,7 @@
    "spawn_radius": 30.0,
    "spawn_chance": 0.75,
    "max_active": 4,
-   "respawn_time": 18,
+   "respawn_time": 108,
    "spawn_zone": "goblin_camp_1"
   },
   {
@@ -271,7 +271,7 @@
    "spawn_radius": 30.0,
    "spawn_chance": 0.3,
    "max_active": 10,
-   "respawn_time": 30,
+   "respawn_time": 180,
    "spawn_zone": "goblin_camp_1"
   },
   {
@@ -284,7 +284,7 @@
    "spawn_radius": 30.0,
    "spawn_chance": 0.75,
    "max_active": 4,
-   "respawn_time": 18,
+   "respawn_time": 108,
    "spawn_zone": "goblin_camp_2"
   },
   {
@@ -297,7 +297,7 @@
    "spawn_radius": 30.0,
    "spawn_chance": 0.5,
    "max_active": 10,
-   "respawn_time": 16,
+   "respawn_time": 96,
    "spawn_zone": "goblin_camp_2"
   },
   {
@@ -310,7 +310,7 @@
    "spawn_radius": 28.0,
    "spawn_chance": 0.7,
    "max_active": 4,
-   "respawn_time": 18,
+   "respawn_time": 108,
    "spawn_zone": "goblin_camp_3"
   },
   {
@@ -323,7 +323,7 @@
    "spawn_radius": 22.0,
    "spawn_chance": 0.7,
    "max_active": 2,
-   "respawn_time": 20,
+   "respawn_time": 120,
    "spawn_zone": "bandit_camp_1"
   },
   {
@@ -336,7 +336,7 @@
    "spawn_radius": 18.0,
    "spawn_chance": 0.6,
    "max_active": 2,
-   "respawn_time": 20,
+   "respawn_time": 120,
    "spawn_zone": "bandit_camp_1"
   },
   {
@@ -349,7 +349,7 @@
    "spawn_radius": 22.0,
    "spawn_chance": 0.7,
    "max_active": 2,
-   "respawn_time": 20,
+   "respawn_time": 120,
    "spawn_zone": "bandit_camp_2"
   },
   {
@@ -362,7 +362,7 @@
    "spawn_radius": 18.0,
    "spawn_chance": 0.6,
    "max_active": 2,
-   "respawn_time": 20,
+   "respawn_time": 120,
    "spawn_zone": "bandit_camp_2"
   },
   {
@@ -375,7 +375,7 @@
    "spawn_radius": 26.0,
    "spawn_chance": 0.75,
    "max_active": 3,
-   "respawn_time": 16,
+   "respawn_time": 96,
    "spawn_zone": "spider_den"
   },
   {
@@ -388,7 +388,7 @@
    "spawn_radius": 24.0,
    "spawn_chance": 0.7,
    "max_active": 3,
-   "respawn_time": 16,
+   "respawn_time": 96,
    "spawn_zone": "spider_den"
   },
   {
@@ -401,7 +401,7 @@
    "spawn_radius": 24.0,
    "spawn_chance": 0.65,
    "max_active": 2,
-   "respawn_time": 16,
+   "respawn_time": 96,
    "spawn_zone": "spider_den"
   },
   {
@@ -414,7 +414,7 @@
    "spawn_radius": 24.0,
    "spawn_chance": 0.65,
    "max_active": 2,
-   "respawn_time": 16,
+   "respawn_time": 96,
    "spawn_zone": "spider_den"
   },
   {
@@ -427,7 +427,7 @@
    "spawn_radius": 32.0,
    "spawn_chance": 0.8,
    "max_active": 10,
-   "respawn_time": 10,
+   "respawn_time": 60,
    "spawn_zone": "spider_den"
   },
   {
@@ -440,7 +440,7 @@
    "spawn_radius": 12.0,
    "spawn_chance": 0.6,
    "max_active": 1,
-   "respawn_time": 20,
+   "respawn_time": 120,
    "spawn_zone": "road_south"
   },
   {
@@ -453,7 +453,7 @@
    "spawn_radius": 14.0,
    "spawn_chance": 0.6,
    "max_active": 2,
-   "respawn_time": 16,
+   "respawn_time": 96,
    "spawn_zone": "road_south"
   },
   {
@@ -466,7 +466,7 @@
    "spawn_radius": 12.0,
    "spawn_chance": 0.6,
    "max_active": 2,
-   "respawn_time": 14,
+   "respawn_time": 84,
    "spawn_zone": "road_south"
   },
   {
@@ -479,7 +479,7 @@
    "spawn_radius": 14.0,
    "spawn_chance": 0.6,
    "max_active": 1,
-   "respawn_time": 16,
+   "respawn_time": 96,
    "spawn_zone": "road_south"
   },
   {
@@ -492,7 +492,7 @@
    "spawn_radius": 14.0,
    "spawn_chance": 0.6,
    "max_active": 1,
-   "respawn_time": 22,
+   "respawn_time": 132,
    "spawn_zone": "road_south"
   },
   {
@@ -505,7 +505,7 @@
    "spawn_radius": 16.0,
    "spawn_chance": 0.6,
    "max_active": 2,
-   "respawn_time": 22,
+   "respawn_time": 132,
    "spawn_zone": "south_a"
   },
   {
@@ -518,7 +518,7 @@
    "spawn_radius": 16.0,
    "spawn_chance": 0.6,
    "max_active": 2,
-   "respawn_time": 16,
+   "respawn_time": 96,
    "spawn_zone": "south_a"
   },
   {
@@ -531,7 +531,7 @@
    "spawn_radius": 16.0,
    "spawn_chance": 0.6,
    "max_active": 2,
-   "respawn_time": 18,
+   "respawn_time": 108,
    "spawn_zone": "south_b"
   },
   {
@@ -544,7 +544,7 @@
    "spawn_radius": 14.0,
    "spawn_chance": 0.6,
    "max_active": 2,
-   "respawn_time": 18,
+   "respawn_time": 108,
    "spawn_zone": "south_b"
   },
   {
@@ -557,7 +557,7 @@
    "spawn_radius": 16.0,
    "spawn_chance": 0.4,
    "max_active": 1,
-   "respawn_time": 40,
+   "respawn_time": 240,
    "spawn_zone": "south_b"
   },
   {
@@ -570,7 +570,7 @@
    "spawn_radius": 16.0,
    "spawn_chance": 0.6,
    "max_active": 2,
-   "respawn_time": 18,
+   "respawn_time": 108,
    "spawn_zone": "south_c"
   },
   {
@@ -583,7 +583,7 @@
    "spawn_radius": 16.0,
    "spawn_chance": 0.6,
    "max_active": 2,
-   "respawn_time": 22,
+   "respawn_time": 132,
    "spawn_zone": "south_c"
   },
   {
@@ -596,7 +596,7 @@
    "spawn_radius": 14.0,
    "spawn_chance": 0.6,
    "max_active": 2,
-   "respawn_time": 14,
+   "respawn_time": 84,
    "spawn_zone": "road_west"
   },
   {
@@ -609,7 +609,7 @@
    "spawn_radius": 14.0,
    "spawn_chance": 0.6,
    "max_active": 2,
-   "respawn_time": 18,
+   "respawn_time": 108,
    "spawn_zone": "road_west"
   },
   {
@@ -622,7 +622,7 @@
    "spawn_radius": 16.0,
    "spawn_chance": 0.6,
    "max_active": 2,
-   "respawn_time": 16,
+   "respawn_time": 96,
    "spawn_zone": "road_west"
   },
   {
@@ -635,7 +635,7 @@
    "spawn_radius": 16.0,
    "spawn_chance": 0.6,
    "max_active": 2,
-   "respawn_time": 16,
+   "respawn_time": 96,
    "spawn_zone": "road_west"
   },
   {
@@ -648,7 +648,7 @@
    "spawn_radius": 16.0,
    "spawn_chance": 0.4,
    "max_active": 1,
-   "respawn_time": 40,
+   "respawn_time": 240,
    "spawn_zone": "road_west"
   },
   {
@@ -661,7 +661,7 @@
    "spawn_radius": 14.0,
    "spawn_chance": 0.6,
    "max_active": 2,
-   "respawn_time": 14,
+   "respawn_time": 84,
    "spawn_zone": "nw_approach"
   },
   {
@@ -674,7 +674,7 @@
    "spawn_radius": 14.0,
    "spawn_chance": 0.6,
    "max_active": 2,
-   "respawn_time": 18,
+   "respawn_time": 108,
    "spawn_zone": "nw_approach"
   },
   {
@@ -687,7 +687,7 @@
    "spawn_radius": 14.0,
    "spawn_chance": 0.6,
    "max_active": 2,
-   "respawn_time": 20,
+   "respawn_time": 120,
    "spawn_zone": "nw_approach"
   },
   {
@@ -700,7 +700,7 @@
    "spawn_radius": 16.0,
    "spawn_chance": 0.6,
    "max_active": 2,
-   "respawn_time": 16,
+   "respawn_time": 96,
    "spawn_zone": "nw_approach"
   },
   {
@@ -713,7 +713,7 @@
    "spawn_radius": 16.0,
    "spawn_chance": 0.6,
    "max_active": 2,
-   "respawn_time": 18,
+   "respawn_time": 108,
    "spawn_zone": "nw_approach"
   },
   {
@@ -726,7 +726,7 @@
    "spawn_radius": 16.0,
    "spawn_chance": 0.6,
    "max_active": 2,
-   "respawn_time": 18,
+   "respawn_time": 108,
    "spawn_zone": "southwest"
   },
   {
@@ -739,7 +739,7 @@
    "spawn_radius": 14.0,
    "spawn_chance": 0.6,
    "max_active": 2,
-   "respawn_time": 18,
+   "respawn_time": 108,
    "spawn_zone": "southwest"
   },
   {
@@ -752,7 +752,7 @@
    "spawn_radius": 16.0,
    "spawn_chance": 0.6,
    "max_active": 2,
-   "respawn_time": 16,
+   "respawn_time": 96,
    "spawn_zone": "southwest"
   },
   {
@@ -765,7 +765,7 @@
    "spawn_radius": 20.0,
    "spawn_chance": 0.6,
    "max_active": 2,
-   "respawn_time": 20,
+   "respawn_time": 120,
    "spawn_zone": "wagon_crash"
   },
   {
@@ -778,7 +778,7 @@
    "spawn_radius": 14.0,
    "spawn_chance": 0.6,
    "max_active": 2,
-   "respawn_time": 14,
+   "respawn_time": 84,
    "spawn_zone": "wagon_crash"
   },
   {
@@ -791,7 +791,7 @@
    "spawn_radius": 14.0,
    "spawn_chance": 0.6,
    "max_active": 2,
-   "respawn_time": 14,
+   "respawn_time": 84,
    "spawn_zone": "far_west"
   },
   {
@@ -804,7 +804,7 @@
    "spawn_radius": 14.0,
    "spawn_chance": 0.6,
    "max_active": 2,
-   "respawn_time": 18,
+   "respawn_time": 108,
    "spawn_zone": "far_west"
   },
   {
@@ -875,11 +875,11 @@
   {
    "mob_type": "sergeant_halvek",
    "position": [
-    -36.4,
+    58,
     2,
-    -236
+    -244
    ],
-   "spawn_radius": 6.0,
+   "spawn_radius": 2.0,
    "spawn_chance": 1.0,
    "max_active": 1,
    "respawn_time": 900,

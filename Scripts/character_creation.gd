@@ -483,7 +483,7 @@ const STARTING_SPELLS := {
 	"Lightsworn":   ["holy_strike", "blessing_of_light"],
 	"Voidknight":   ["life_siphon", "shadow_aura"],
 	"Spiritweaver": ["spirit_mend", "earth_totem", "phantasmal_echo"],
-	"Lightmender":  ["cure_wounds", "bless"],
+	"Lightmender":  ["cure_wounds", "bless", "spiritual_weapon"],   # test 42: its pet from level 1 ("they feel very weak in combat")
 	"Wildspeaker":  ["regrowth", "entangle", "summon_spirit_of_the_woods"],
 	"Woodstalker":  ["aimed_shot", "hunters_mark"],
 	"Shadowblade":  ["backstab", "shadowstep"],

@@ -24,7 +24,7 @@ extends Node
 
 const ACCOUNT_DIR := "user://server_accounts"
 const IMPORT_FILE := "user://server_accounts/import.json"
-const MAX_CHARACTERS := 8
+const MAX_CHARACTERS := 14   # one of each class (test 42; was 8)
 const DEFAULT_ZONE := "Lumora Outskirts"  # saves from before "last_zone" was recorded
 
 # Client: the account logged in on the Join a Server screen, kept until Log Out or quit, so coming back from character

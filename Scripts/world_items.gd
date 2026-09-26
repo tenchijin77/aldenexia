@@ -33,6 +33,9 @@ func _ready() -> void:
 	var relay := TRADE_RELAY.new()
 	relay.name = "TradeRelay"
 	add_child(relay)
+	var fires := CampfireRelay.new()   # player-lit campfires ride along the same way (campfire_relay.gd)
+	fires.name = "CampfireRelay"
+	add_child(fires)
 	multiplayer.server_disconnected.connect(func() -> void: _asked_for_snapshot = false)
 
 

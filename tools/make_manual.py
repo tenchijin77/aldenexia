@@ -149,7 +149,7 @@ def xp_table():
 # ── Races ──
 # Traits the game does not use yet (mirrors Player3D.RACIAL_TRAITS_NOT_YET_USED); every other trait is live.
 TRAITS_NOT_YET = {"research_skill_bonus", "intimidation_skill_bonus", "swamp_movement_speed_bonus", "swamp_survival_skill_bonus",
-                  "swamp_perception_skill_bonus", "fear_resistance_save_bonus", "immune_to_knockback"}
+                  "swamp_perception_skill_bonus", "immune_to_knockback"}
 SKILL_NAMES = {"mining_skill_bonus": "Prospecting", "engineering_skill_bonus": "Tinkering", "foraging_skill_bonus": "Forage",
                "hide_skill_bonus": "Stealth (hide)", "sneak_skill_bonus": "Stealth (sneak)", "pick_lock_skill_bonus": "Lockpicking"}
 STAT_ORDER = [("strength", "STR"), ("constitution", "CON"), ("dexterity", "DEX"), ("intelligence", "INT"),

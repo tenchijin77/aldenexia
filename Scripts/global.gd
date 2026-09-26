@@ -103,6 +103,7 @@ var settings: Dictionary = {
 	"sfx_volume": 1.0,     # linear 0..1, applied to the "SFX" audio bus
 	"invert_look_y": false,  # flips vertical mouse input for both mouselook and head-turn (camera_controller.gd)
 	"show_name_tags": true,  # floating Label3D above the player's and pet's heads (player3d.gd, pet_minion.gd)
+	"auto_loot": false,    # Options: loot everything nearby (the G key) when a monster in a fight near you dies (monster3d.gd)
 	"ui_bg_alpha": 0.92,   # 0..1, shared alpha for every HUD window's background — see window_bg_style()
 }
 

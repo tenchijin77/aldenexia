@@ -16,11 +16,9 @@ const STATION_ID := "campfire"
 
 const WARMTH_LINGER_SECONDS := 30.0
 const BUFF_DURATION_SECONDS := 900.0  # 15 minutes
-const BUFF_MODIFIERS := {
-	"hp_regen_bonus": 2,
-	"mana_regen_bonus": 2,
-	"stamina_regen_bonus": 2,
-}
+## +HP / Mana / Stamina regeneration from Warmth of the Campfire: 2 at the roadside fires; a player's fire sets its tier's
+## (campfire_relay.gd: fir 2, ironwood 4, palm 6).
+var regen_bonus := 2
 
 @onready var warmth_area: Area3D = $WarmthArea
 var _warmth_timer: Timer = Timer.new()
@@ -31,6 +29,7 @@ var _warming_player: Node3D = null
 
 func _ready() -> void:
 	add_to_group("cooking_station")
+	add_to_group("campfires")   # no player fire is lit within CampfireRelay.SPACING of one
 	warmth_area.body_entered.connect(_on_body_entered)
 	warmth_area.body_exited.connect(_on_body_exited)
 	_warmth_timer.one_shot = true
@@ -77,5 +76,6 @@ func _on_warmth_timer_timeout() -> void:
 	var combat_node = _warming_player.combat_node
 	if not (combat_node is CombatNode):
 		return
-	combat_node.apply_effect("campfire_warmth", BUFF_DURATION_SECONDS, BUFF_MODIFIERS)
+	combat_node.apply_effect("campfire_warmth", BUFF_DURATION_SECONDS,
+			{"hp_regen_bonus": regen_bonus, "mana_regen_bonus": regen_bonus, "stamina_regen_bonus": regen_bonus})
 	GameLog.log_general("[color=#ffaa55]You feel invigorated by the campfire's warmth.[/color]")

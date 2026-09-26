@@ -1,12 +1,12 @@
 ALDENEXIA: LIGHTFALL — TESTING CHECKLIST
 New features and fixes waiting for a real playtest, in two parts: OUTSTANDING (not passed yet) and COMPLETED (passed).
 When an item passes, change [ ] to [x] and move it to the same section under COMPLETED (or just add "- working" and it
-gets moved). A failure goes to outstanding_items.txt with what went wrong. Last updated 2026-09-25 (test 38).
-Everything below was built after test 26.   Outstanding: 245   Completed: 25
+gets moved). A failure goes to outstanding_items.txt with what went wrong. Last updated 2026-09-26 (after test 42).
+Everything below was built after test 26.   Outstanding: 237   Completed: 50
 
 
 ################################################################################
-  OUTSTANDING — still to test (245)
+  OUTSTANDING — still to test (237)
 ################################################################################
 
 == ACCOUNTS AND JOINING ==
@@ -24,19 +24,13 @@ Everything below was built after test 26.   Outstanding: 245   Completed: 25
 == TEST 29 FIXES ==
 [ ] The rats by the west wall (Zozuur's spot) come to you and fight back; no monster freezes in combat just out of reach.
 [ ] Snakes/spiders/rats/bats "bite", stingers "sting", beetles "pinch" in the combat log.
-[ ] Blood Ritual lasts 30 seconds. - working
 [ ] Die with a pet out (changed in test 34): the pet fades as you fall; summon it again after you wake. Its gear is still
     on it when you do, and the monster it was fighting doesn't follow you.
-[ ] Appraising (I) raises Perception (abilities book shows "+N to appraisal checks"). -yes and it appears to show more than it did before.
-[ ] Chat text: drag to select, right-click > Copy works in General, Combat and custom tabs; movement keys still work after. - appears to be working
 [ ] Your client log no longer shows "Node 'CombatNode:current_hp' not found" when monsters appear.
 
 == TANK STANCES ==
 [ ] Each tank's aura looks different: Voidknight streaks pulled inward, Lightsworn rising light, Blademaster sparks;
     other players see them.
-[ ] Group bonuses reach group members within 10 m (check the status window): e.g. Hold the Line, Dawn's Wrath. - working with voidknight
-[ ] Aegis of Dawn: melee hits sometimes heal you ("The light of dawn mends you"); Necrotic Bastion: melee hits sometimes
-    lifetap ("Necrotic energy tears the life from...") — for the tank and for group members. - working with voidknight
 
 == WHOLE-GAME COMBAT CHANGES ==
 [ ] Melee abilities cast instantly (Power Strike, Backstab, Holy Strike, the Aetherfist strikes, taunts).
@@ -47,12 +41,9 @@ Everything below was built after test 26.   Outstanding: 245   Completed: 25
     Mend Wounds) — test in a group.
 [ ] Area spells hit monsters near the target (Fireball, Hurricane, Plague Cloud); cones and point-blank spells hit the
     right radius.
-[ ] Drains heal YOU (Life Drain, Death Coil, Harmony Blade, Siphon Essence on a monster).- working with siphon life
 [ ] Chance effects happen only sometimes (Smite's blind ~10%).
 [ ] Blink (10m) and Chaos Rift (8m, random direction) teleport.
 [ ] Attacking breaks Vanish / Shadow Cloak / Camouflage / Invisibility.
-[ ] Level-1 openers no longer one-shot a level-1 monster (Power Strike 35, Aimed Shot 40, Backstab 60); Shadow Bolt and
-    Chaos Bolt (45) feel useful. - working
 
 == PER-CLASS SPOT CHECKS (levels 1-8) ==
 [ ] Blademaster: Tactical Stance / Battle Focus are self-buffs; Sunder Armor debuffs; Defensive Strike buffs you on hit;
@@ -92,7 +83,6 @@ Everything below was built after test 26.   Outstanding: 245   Completed: 25
     stand-in model, follows, fights, has a pet frame.
 [ ] All summons are permanent and come back after logging out and in.
 [ ] Beast Bond buffs the companion.
-[ ] Other players see your pet (multiplayer). - confirmed with voidknight, wildspeaker, and spiritweaver pets
 
 == LANGUAGES AND THE VOL'KYNE ==
 [ ] Log in with existing characters: /language lists their race's languages (e.g. Zozuur: Grommish 100, Common 15).
@@ -106,23 +96,13 @@ Everything below was built after test 26.   Outstanding: 245   Completed: 25
 [ ] Sahren: address him in Djhanid (after its scroll) and he answers in Djhanid; in Common, he answers in Common.
 [ ] Epheo: Vol'kyne stats DEX 12, INT 16, CHA 11; magic/psychic resist +10, fire -5.
 [ ] Buy a language scroll (Ilsabet / Xalvyr / Sahren for Djhanid), Learn it: 1 point, appears in the dropdown.
-[ ] Practising: hearing the language (another player, an NPC) and speaking it near someone who knows it slowly raises it
-    ("You've become better at Khuzdul! (2)"). - appears to be working
 [ ] Goblin raiders shout in Goblish; undead death lines are Old Thallian... (skeletons/mummies/ghosts). - goblins appear to be working
 [ ] Character creation lists "Vol'kyne (Dark Elf)"; a new Vol'kyne gets real racial stats (not all 10s); the character
     sheet and account list say Vol'kyne.
 
 == ITEMS AND KNOWN SCROLLS (2026-09-24) ==
-[ ] Aldric: Recipe: Tin Shortsword shows "✔ known" (grey name) for Zozuur; recipes you don't know don't. - working
 [ ] Ilsabet / Xalvyr / Sahren: a language primer for a language you already speak (Common, your race's) shows "✔ known".
 [ ] A known recipe or language scroll in your bags has the green tick badge; right-click inspect says "You already know this recipe/language."
-[ ] Buy Recipe: Tin Shield from Aldric (30 cp), learn it, forge a Tin Shield (2 Tin Ingot + 1 Fir Planks, Blacksmithing 3).- working
-[ ] Tin Shield equips in the offhand: AC 3, +1 Stamina, tin-coloured shield icon. - working
-[ ] Crafted items, kits and recipe scrolls still look and work as before (they moved into items.json). - working
-
-== TESTER GUIDE ==
-[ ] The tester page link shows the account login steps and the "Every control and chat command" list. - working
-
 
 == QUEST DISCOVERY (2026-09-24, after test 30) ==
 [ ] Carrying the Lumoran strongbox (or Halvek's medal), hailing Reyna asks you to hand it over; drag it onto her to finish.
@@ -176,8 +156,6 @@ Everything below was built after test 26.   Outstanding: 245   Completed: 25
 [ ] Attune Spirit (level 4): bind where you stand; again within an hour is refused; dying brings you back there.
 [ ] Every class's gate (level 6) takes you to your bind point; it can't be cast in combat; a Troubadour's isn't a song.
 
-== PERCEPTION (2026-09-24) ==
-
 == NAMES AND SURNAMES (2026-09-24) ==
 [ ] Character creation: spaces and digits can't be typed; a one-letter name is refused with an explanation.
 [ ] /surname Name below level 10 is refused; at 10 it works once (nameplate, target frame and /who show it; other
@@ -202,25 +180,11 @@ Everything below was built after test 26.   Outstanding: 245   Completed: 25
 [ ] Lira: hail -> {reagents}; Tobble: hail -> {toy}; Aldric: hail -> {furs}. Each hands in by dragging the items onto them.
 [ ] The Silent Den now also gives the Copperlink Hauberk pattern.
 
-== TEST 31 FIXES: STACKS AND RECIPE CHOICE ==
-[ ] Put 20 tin + 20 fir in the forge: a "Make:" picker offers Tin Dagger / Tin Shield (Shield chosen if you know it);
-    "How many" lets you make just 1; the rest goes back to your bags when you close the window. - working
-[ ] Put exactly 2 tin + 1 fir in: it's ready to make a Tin Shield (it used to always make a Tin Dagger). - working
-
-== TEST 32 FIXES ==
-[ ] Crafting window with 20 tin + 20 fir: "Make:" and "How many" sit ABOVE the button; while working, the progress bar
-    is inside the window (it grows to fit); the picker is greyed out until the batch ends. - working
-[ ] Abilities book (K) > General Skills ends with a Languages list (e.g. Twilari 100, Common 75, Aevaryn 40). - working
-[ ] Switch language with the dropdown while the abilities book is open: "You are speaking this now" moves to it. - working
-
 == TEST 33 FIXES ==
 [ ] (needs the Dustwind site) As a non-caster, a travel site's label reads "Old Standing Stone"; right-click: a faint
     description and "You feel like a person with magical knowledge could make use of this."; casters see its real name.
 
 == TEST 34 FIXES ==
-[ ] /stuck with a pet out: the pet comes with you. - working
-[ ] Get bitten (Weak Poison), walk into town: the combat music hands back to the zone music about 8 s after the fight,
-    not after the poison wears off. - working
 [ ] Journal: pick up a rat tail -> "Kenji's Rat Tails" appears; giving Kenji tails updates it; at 10 it completes and
     picking up more starts it again.
 [ ] Status window: a debuff (Weak Poison, Starving) has a yellow rectangle round the whole row, not round the icon.
@@ -263,9 +227,31 @@ Everything below was built after test 26.   Outstanding: 245   Completed: 25
     sundered armour (ravager), blinded (Djhanid), grave miasma (restless corpse), withering touch (wraith).
 [ ] Two players: one zones, the other stays; both keep playing (chat across zones doesn't work yet).
 
+== TEST 42 FIXES (2026-09-26) ==
+[ ] Group in the Outskirts; one zones to Lumora and back: both still see each other in the group (not "offline").
+[ ] Die fighting something with a groupmate: it doesn't follow you to your bind point; it turns on your groupmate.
+[ ] Heal someone: "You heal X for N with <spell>."; they read "<you> heals you for N with <spell>."; others see both names.
+[ ] Move the network widget, log out and in: it's where you left it (and every other window too).
+[ ] A groupmate's pet shows "<Name's pet>" (not Default Hero's).
+[ ] Fight a rat with your pet on it too: it stays facing one of you instead of turning back and forth.
+[ ] Options -> Auto-Loot on Kill On: kill something; its loot (and any other corpse within 10 m) comes to your bags.
+[ ] The troll running (from behind): no hump across the upper back; the arms still swing.
+[ ] New Lightmender: Spiritual Weapon is in the spell book at level 1; it fights in melee; give it a weapon in its gear
+    window: it gets stronger but holds nothing.
+[ ] An account can hold 14 characters (the count on the character screen says "/ 14").
+[ ] Craft a Fir Firewood Bundle (3 Fir Log + 1 Flint, Woodworking kit); right-click it in your bags -> Light, out in the
+    wilds: a campfire in front of you, "It will burn for 10 minutes"; a groupmate sees it; cook at it; linger 30 s for
+    Warmth of the Campfire; kills near it give a little more XP (+3%). Refused in town, in a fight, within 20 m of another
+    fire. It burns down after 10 minutes.
+[ ] Spawns: kill the rats by the west wall: nothing appears within 12 m of you, and a killed rat comes back after about
+    a minute and a half, not at once. Camping a spot should feel possible now (tell me if it's too slow).
+[ ] Halvek waits at the back of the mausoleum in the graveyard (the big stone building; door on the west side).
+[ ] Fear (Halvek's Grave Command, a Dread Mirage): sometimes "You resist"; sometimes Shaken (you keep control, the status
+    window shows it, weaker stats); sometimes Terrified: you run blindly, can't attack or cast, until it ends or a cure
+    removes it. Your groupmate sees you flee. A Lizardkin keeps their nerve more often.
+
 == KENJI AND ONI MOVE (2026-09-25) ==
-[ ] Oni: walks her patrol (legs stepping, tail waving), runs when she chases a rat, stands and looks around when still.
-[ ] Kenji at the gate: flicks his tail in and out round his paws, looks left and right, breathes. No torn fur at the tail.
+[ ] Kenji at the gate: the WHOLE tail sweeps, the tip curled round his paws too (test 42: the tip stayed put). No torn fur.
 
 == DUELS AND PVP (2026-09-25) ==
 [ ] /duel Maedianie (or target her and /duel; /dual works too): she gets Accept / Decline; 3, 2, 1, Fight!; melee and
@@ -414,7 +400,7 @@ Everything below was built after test 26.   Outstanding: 245   Completed: 25
     together; still three hits. Other arcane spells have the new arcane icons; Assassinate, Defensive Strike and the
     Aetherfist strikes have the crossed swords.
 [ ] Arcane Armor: "Your Arcane Armor absorbs N damage!" on each hit it soaks; after 100 in total, "...is spent and
-    fades" and the buff icon is gone.
+    fades" and the buff icon is gone. - working
 [ ] Die with buffs up: they're all gone when you wake (your stance and a lit torch stay). Your pet is gone too; summon it
     again and its gear is still on it.
 [ ] Buy 4 Small Bags: 4 bags arrive (one per slot). With room for only 2: you get 2, pay for 2, and are told.
@@ -438,9 +424,9 @@ Everything below was built after test 26.   Outstanding: 245   Completed: 25
 [ ] GM: /teleport dust from the Outskirts, /teleport lumora back: you arrive at each zone's arrival point.
 
 == TEST 35 FIXES (2026-09-25) ==
-[ ] Lira, Ilsabet and a half-elf female player: faces and clothes look smooth, not faceted. Guards look as before.
+[ ] Lira, Ilsabet and a half-elf female player: faces and clothes look smooth, not faceted. Guards look as before. - working
 [ ] Goblins, skeletons, mummies, brigands and the other race models look smooth too.
-[ ] Walk into the mausoleum through its door, all the way to the back, and back out; you can't walk through its walls.
+[ ] Walk into the mausoleum through its door, all the way to the back, and back out; you can't walk through its walls. - working
 [ ] The Outskirts' north: past the mountains the land is gone; an invisible wall stops you just behind them (also at the
     town gate gap and past both ends of the ridge).
 [ ] Dustwind's monsters are where the design puts them (Stone Circles west, Dustwalker camps in the middle, undead to the
@@ -457,8 +443,40 @@ Everything below was built after test 26.   Outstanding: 245   Completed: 25
 [ ] Restart the world while he's mid-visit: he comes back where he should be (on the road, or at his stop), not from the start.
 
 ################################################################################
-  COMPLETED — passed (25)
+  COMPLETED — passed (50)
 ################################################################################
+
+== TEST 42 CONFIRMED (2026-09-26) ==
+[x] Oni walks her patrol, runs, stands and looks around. Kenji breathes and turns his head.
+[x] Pets on Assist fight what the /focus tank fights; pets hold their weapons; group XP shared; Maedianie has her staff.
+[x] The static critters move (slime, rats, bats, snake).
+[x] "A Warden Not at Rest" sees the medal. Debuff borders on the status window.
+
+== TEST 34 FIXES ==
+[x] /stuck with a pet out: the pet comes with you. - working
+[x] Get bitten (Weak Poison), walk into town: the combat music hands back to the zone music about 8 s after the fight,
+    not after the poison wears off. - working
+
+== TESTER GUIDE ==
+[x] The tester page link shows the account login steps and the "Every control and chat command" list. - working
+
+== ITEMS AND KNOWN SCROLLS (2026-09-24) ==
+[x] Aldric: Recipe: Tin Shortsword shows "✔ known" (grey name) for Zozuur; recipes you don't know don't. - working
+[x] Buy Recipe: Tin Shield from Aldric (30 cp), learn it, forge a Tin Shield (2 Tin Ingot + 1 Fir Planks, Blacksmithing 3).- working
+[x] Tin Shield equips in the offhand: AC 3, +1 Stamina, tin-coloured shield icon. - working
+[x] Crafted items, kits and recipe scrolls still look and work as before (they moved into items.json). - working
+
+== LANGUAGES AND THE VOL'KYNE ==
+[x] Practising: hearing the language (another player, an NPC) and speaking it near someone who knows it slowly raises it
+    ("You've become better at Khuzdul! (2)"). - appears to be working
+
+== SUMMONS (temporary models) ==
+[x] Other players see your pet (multiplayer). - confirmed with voidknight, wildspeaker, and spiritweaver pets
+
+== TEST 29 FIXES ==
+[x] Blood Ritual lasts 30 seconds. - working
+[x] Appraising (I) raises Perception (abilities book shows "+N to appraisal checks"). -yes and it appears to show more than it did before.
+[x] Chat text: drag to select, right-click > Copy works in General, Combat and custom tabs; movement keys still work after. - appears to be working
 
 == APPEARANCE ==
 [x] EXISTING character: right-click the Silvered Mirror by the town gate (about X 66, Z 20). The full window opens;
@@ -487,10 +505,16 @@ Everything below was built after test 26.   Outstanding: 245   Completed: 25
 
 == WHOLE-GAME COMBAT CHANGES ==
 [x] Knockback: Power Strike / Earth Strike push the monster ~4m away; it walks back and fights. Works on the server too.
+[x] Drains heal YOU (Life Drain, Death Coil, Harmony Blade, Siphon Essence on a monster).- working with siphon life
+[x] Level-1 openers no longer one-shot a level-1 monster (Power Strike 35, Aimed Shot 40, Backstab 60); Shadow Bolt and
+    Chaos Bolt (45) feel useful. - working
 
 == TANK STANCES ==
 [x] Blademaster (Hold the Line / Warpath / Veteran's Stance) and Lightsworn (Aegis of Dawn / Dawn's Wrath / Oathkeeper)
     have a stance bar at level 1; Voidknight's three still work, with new icons.
+[x] Group bonuses reach group members within 10 m (check the status window): e.g. Hold the Line, Dawn's Wrath. - working with voidknight
+[x] Aegis of Dawn: melee hits sometimes heal you ("The light of dawn mends you"); Necrotic Bastion: melee hits sometimes
+    lifetap ("Necrotic energy tears the life from...") — for the tank and for group members. - working with voidknight
 
 == QUEST DISCOVERY (2026-09-24, after test 30) ==
 [x] Hail Guard Reyna on a character without the wreck quest: she offers the {wagon}; click it and The Wreck on the South
@@ -505,10 +529,17 @@ Everything below was built after test 26.   Outstanding: 245   Completed: 25
 
 == TEST 31 FIXES: STACKS AND RECIPE CHOICE ==
 [x] Right-click a stack in your bags > Split: pick how many; they appear as a new stack in a free slot (same bag first).
+[x] Put 20 tin + 20 fir in the forge: a "Make:" picker offers Tin Dagger / Tin Shield (Shield chosen if you know it);
+    "How many" lets you make just 1; the rest goes back to your bags when you close the window. - working
+[x] Put exactly 2 tin + 1 fir in: it's ready to make a Tin Shield (it used to always make a Tin Dagger). - working
 
 == TEST 32 FIXES ==
 [x] Two players grouped: a Troll hearing or speaking Common with a Half-Elf gains a point about every 4-5 lines (lines
     closer than 4 s apart don't all count); the book's Languages list updates while open.
+[x] Crafting window with 20 tin + 20 fir: "Make:" and "How many" sit ABOVE the button; while working, the progress bar
+    is inside the window (it grows to fit); the picker is greyed out until the batch ends. - working
+[x] Abilities book (K) > General Skills ends with a Languages list (e.g. Twilari 100, Common 75, Aevaryn 40). - working
+[x] Switch language with the dropdown while the abilities book is open: "You are speaking this now" moves to it. - working
 
 == TEST 33 FIXES ==
 [x] /stuck (e.g. inside the mausoleum doorway): you pop out 5 m away onto clear ground; not usable in a fight; once

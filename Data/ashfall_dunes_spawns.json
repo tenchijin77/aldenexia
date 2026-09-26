@@ -70,7 +70,7 @@
    "spawn_radius": 40.0,
    "spawn_chance": 0.6,
    "max_active": 3,
-   "respawn_time": 25,
+   "respawn_time": 150,
    "spawn_zone": "northern_dunes"
   },
   {
@@ -83,7 +83,7 @@
    "spawn_radius": 40.0,
    "spawn_chance": 0.6,
    "max_active": 3,
-   "respawn_time": 25,
+   "respawn_time": 150,
    "spawn_zone": "northern_dunes"
   },
   {
@@ -96,7 +96,7 @@
    "spawn_radius": 35.0,
    "spawn_chance": 0.5,
    "max_active": 2,
-   "respawn_time": 30,
+   "respawn_time": 180,
    "spawn_zone": "northern_dunes"
   },
   {
@@ -109,7 +109,7 @@
    "spawn_radius": 35.0,
    "spawn_chance": 0.5,
    "max_active": 2,
-   "respawn_time": 30,
+   "respawn_time": 180,
    "spawn_zone": "northern_dunes"
   },
   {
@@ -122,7 +122,7 @@
    "spawn_radius": 15.0,
    "spawn_chance": 0.7,
    "max_active": 3,
-   "respawn_time": 22,
+   "respawn_time": 132,
    "spawn_zone": "bonegnawer_camp_north"
   },
   {
@@ -135,7 +135,7 @@
    "spawn_radius": 15.0,
    "spawn_chance": 0.45,
    "max_active": 2,
-   "respawn_time": 25,
+   "respawn_time": 150,
    "spawn_zone": "bonegnawer_camp_north"
   },
   {
@@ -148,7 +148,7 @@
    "spawn_radius": 15.0,
    "spawn_chance": 0.7,
    "max_active": 3,
-   "respawn_time": 22,
+   "respawn_time": 132,
    "spawn_zone": "bonegnawer_camp_west"
   },
   {
@@ -161,7 +161,7 @@
    "spawn_radius": 10.0,
    "spawn_chance": 0.35,
    "max_active": 1,
-   "respawn_time": 35,
+   "respawn_time": 210,
    "spawn_zone": "bonegnawer_camp_west"
   },
   {
@@ -174,7 +174,7 @@
    "spawn_radius": 15.0,
    "spawn_chance": 0.7,
    "max_active": 3,
-   "respawn_time": 22,
+   "respawn_time": 132,
    "spawn_zone": "bonegnawer_camp_south"
   },
   {
@@ -187,7 +187,7 @@
    "spawn_radius": 15.0,
    "spawn_chance": 0.45,
    "max_active": 2,
-   "respawn_time": 25,
+   "respawn_time": 150,
    "spawn_zone": "bonegnawer_camp_south"
   },
   {
@@ -200,7 +200,7 @@
    "spawn_radius": 10.0,
    "spawn_chance": 0.35,
    "max_active": 1,
-   "respawn_time": 35,
+   "respawn_time": 210,
    "spawn_zone": "bonegnawer_camp_south"
   },
   {
@@ -213,7 +213,7 @@
    "spawn_radius": 15.0,
    "spawn_chance": 0.5,
    "max_active": 2,
-   "respawn_time": 30,
+   "respawn_time": 180,
    "spawn_zone": "corrupted_altar"
   },
   {
@@ -226,7 +226,7 @@
    "spawn_radius": 25.0,
    "spawn_chance": 0.5,
    "max_active": 2,
-   "respawn_time": 30,
+   "respawn_time": 180,
    "spawn_zone": "corrupted_altar"
   },
   {
@@ -252,7 +252,7 @@
    "spawn_radius": 45.0,
    "spawn_chance": 0.5,
    "max_active": 2,
-   "respawn_time": 30,
+   "respawn_time": 180,
    "spawn_zone": "mirage_dunes"
   },
   {
@@ -265,7 +265,7 @@
    "spawn_radius": 40.0,
    "spawn_chance": 0.5,
    "max_active": 2,
-   "respawn_time": 25,
+   "respawn_time": 150,
    "spawn_zone": "mirage_dunes"
   },
   {
@@ -304,7 +304,7 @@
    "spawn_radius": 35.0,
    "spawn_chance": 0.7,
    "max_active": 4,
-   "respawn_time": 22,
+   "respawn_time": 132,
    "spawn_zone": "mass_gravesite"
   },
   {
@@ -317,7 +317,7 @@
    "spawn_radius": 30.0,
    "spawn_chance": 0.4,
    "max_active": 2,
-   "respawn_time": 35,
+   "respawn_time": 210,
    "spawn_zone": "mass_gravesite"
   },
   {
@@ -330,7 +330,7 @@
    "spawn_radius": 30.0,
    "spawn_chance": 0.4,
    "max_active": 1,
-   "respawn_time": 35,
+   "respawn_time": 210,
    "spawn_zone": "mass_gravesite"
   },
   {
@@ -356,7 +356,7 @@
    "spawn_radius": 15.0,
    "spawn_chance": 0.6,
    "max_active": 2,
-   "respawn_time": 25,
+   "respawn_time": 150,
    "spawn_zone": "takmajir_camp"
   },
   {
@@ -369,7 +369,7 @@
    "spawn_radius": 15.0,
    "spawn_chance": 0.4,
    "max_active": 1,
-   "respawn_time": 30,
+   "respawn_time": 180,
    "spawn_zone": "takmajir_camp"
   },
   {
@@ -382,7 +382,7 @@
    "spawn_radius": 15.0,
    "spawn_chance": 0.6,
    "max_active": 2,
-   "respawn_time": 25,
+   "respawn_time": 150,
    "spawn_zone": "takmajir_camp"
   },
   {
@@ -395,7 +395,7 @@
    "spawn_radius": 10.0,
    "spawn_chance": 0.4,
    "max_active": 1,
-   "respawn_time": 35,
+   "respawn_time": 210,
    "spawn_zone": "takmajir_camp"
   },
   {
@@ -408,7 +408,7 @@
    "spawn_radius": 15.0,
    "spawn_chance": 0.5,
    "max_active": 2,
-   "respawn_time": 30,
+   "respawn_time": 180,
    "spawn_zone": "takmajir_camp"
   },
   {
@@ -421,7 +421,7 @@
    "spawn_radius": 10.0,
    "spawn_chance": 0.4,
    "max_active": 1,
-   "respawn_time": 35,
+   "respawn_time": 210,
    "spawn_zone": "takmajir_camp"
   },
   {
@@ -460,7 +460,7 @@
    "spawn_radius": 50.0,
    "spawn_chance": 0.5,
    "max_active": 2,
-   "respawn_time": 30,
+   "respawn_time": 180,
    "spawn_zone": "bleached_forest"
   },
   {
@@ -473,7 +473,7 @@
    "spawn_radius": 45.0,
    "spawn_chance": 0.5,
    "max_active": 2,
-   "respawn_time": 30,
+   "respawn_time": 180,
    "spawn_zone": "bleached_forest"
   },
   {
@@ -486,7 +486,7 @@
    "spawn_radius": 10.0,
    "spawn_chance": 0.4,
    "max_active": 1,
-   "respawn_time": 35,
+   "respawn_time": 210,
    "spawn_zone": "ritual_circles"
   },
   {
@@ -499,7 +499,7 @@
    "spawn_radius": 10.0,
    "spawn_chance": 0.4,
    "max_active": 1,
-   "respawn_time": 35,
+   "respawn_time": 210,
    "spawn_zone": "ritual_circles"
   },
   {
@@ -512,7 +512,7 @@
    "spawn_radius": 20.0,
    "spawn_chance": 0.8,
    "max_active": 3,
-   "respawn_time": 40,
+   "respawn_time": 240,
    "spawn_zone": "djhanid_encampment"
   },
   {
@@ -525,7 +525,7 @@
    "spawn_radius": 25.0,
    "spawn_chance": 0.6,
    "max_active": 2,
-   "respawn_time": 40,
+   "respawn_time": 240,
    "spawn_zone": "djhanid_encampment"
   },
   {
@@ -564,7 +564,7 @@
    "spawn_radius": 20.0,
    "spawn_chance": 0.5,
    "max_active": 2,
-   "respawn_time": 25,
+   "respawn_time": 150,
    "spawn_zone": "kragthar_approach"
   },
   {
@@ -577,7 +577,7 @@
    "spawn_radius": 20.0,
    "spawn_chance": 0.6,
    "max_active": 2,
-   "respawn_time": 22,
+   "respawn_time": 132,
    "spawn_zone": "kragthar_approach"
   }
  ]

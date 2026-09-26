@@ -144,7 +144,8 @@ static func resolve_spell(typed: String, player: Node, say: bool = true) -> Stri
 static func substitute(line: String, player: Node) -> String:
 	if not line.contains("%"):
 		return line
-	var target: Node = player.get("current_target") if is_instance_valid(player) and "current_target" in player else null
+	var target_raw = player.get("current_target") if is_instance_valid(player) and "current_target" in player else null
+	var target: Node = target_raw if is_instance_valid(target_raw) else null   # a freed target can't go in a typed variable
 	var t_name := "nothing"
 	var t_long := "nothing"
 	if is_instance_valid(target):

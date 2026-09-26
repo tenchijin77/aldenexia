@@ -62,6 +62,7 @@ func _process(delta: float) -> void:
 	if _roster_timer <= 0.0:
 		_roster_timer = ROSTER_EVERY
 		_share_roster()
+		_push_groups()   # only sends what changed for each player: catches anything a message missed
 
 
 # ── The hub ──
@@ -237,6 +238,7 @@ func _share_roster() -> void:
 		_last_roster = text
 		_world[ZoneInfo.current_id()] = rows
 		_hub_send_world()
+		_push_groups()   # someone arrived in (or left) the hub's own zone (test 42: back in the Outskirts, she'd lost her group)
 	elif _send_up({"t": "roster", "zone": ZoneInfo.current_id(), "players": rows}):
 		_last_roster = text
 

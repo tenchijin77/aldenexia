@@ -1609,7 +1609,7 @@
       "innate": true,
       "craft_time": 5.0,
       "craft_message": "You split the fir into kindling and lash it together with the flint tucked inside. Enough for a small fire and a short rest.",
-      "status": "Needs engine"
+      "status": "Live"
     },
     "ww_fir_shortbow": {
       "name": "Fir Shortbow",
@@ -1751,7 +1751,7 @@
       "innate": false,
       "craft_time": 5.0,
       "craft_message": "The ironwood splits reluctantly. It'll burn for hours once it's going.",
-      "status": "Needs engine",
+      "status": "Live",
       "scroll": "recipe_ww_ironwood_firewood_bundle"
     },
     "ww_ironwood_staff": {
@@ -1871,7 +1871,7 @@
       "innate": false,
       "craft_time": 5.0,
       "craft_message": "The palm wood smells of the oasis as it burns. Everyone near the fire seems to stand a little straighter.",
-      "status": "Needs engine",
+      "status": "Live",
       "scroll": "recipe_ww_palm_firewood_bundle"
     },
     "ww_masters_staff": {

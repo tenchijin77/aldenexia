@@ -43,6 +43,15 @@ var _density: float = 1.0
 var _activation_range: float = 0.0
 var _tick: float = 0.0
 var _next_mob_id: int = 0
+## Respawn timers start when a monster DIES, one per dead monster, EverQuest-style (test 42: "i can't kill enemies without them
+## spawning on top of me. there is no way to setup a camp"). They used to start when one spawned, so by the time you'd killed
+## it the timer had long run out and its replacement popped at once. idx -> [seconds left, ...]; a slot waiting here counts
+## toward the entry's max_active.
+var _respawns: Dictionary = {}
+## A monster never appears within this of a player: the spot is picked again, or the spawn waits a moment.
+const SPAWN_CLEAR_DISTANCE := 12.0
+## Between two spawns of the same entry while it first fills up (so a cluster doesn't appear all in one second).
+const FILL_STAGGER := 5.0
 
 func _ready() -> void:
 	spawner.spawn_function = _build_mob
@@ -81,6 +90,7 @@ func _load_data() -> void:
 	for i in range(_entries.size()):
 		_cooldowns[i] = 0.0
 		_active[i] = 0
+		_respawns[i] = []
 
 func _process(delta: float) -> void:
 	# Spawn decisions are server-only — in single-player Net.is_multiplayer_game
@@ -93,14 +103,20 @@ func _process(delta: float) -> void:
 	_tick = 0.0
 	for i in _cooldowns:
 		_cooldowns[i] = maxf(_cooldowns[i] - tick_interval, 0.0)
+	for i in _respawns:
+		var waiting: Array = _respawns[i]
+		for k in range(waiting.size() - 1, -1, -1):
+			waiting[k] = float(waiting[k]) - tick_interval
+			if waiting[k] <= 0.0:
+				waiting.remove_at(k)
 	_try_spawn()
 
 func _try_spawn() -> void:
 	var player_spots: Array = []
-	if _activation_range > 0.0:
-		for player in get_tree().get_nodes_in_group("player"):
-			if is_instance_valid(player) and player is Node3D:
-				player_spots.append(Vector2(player.global_position.x, player.global_position.z))
+	# where the players are: for the activation range, and to keep spawns off them (SPAWN_CLEAR_DISTANCE)
+	for player in get_tree().get_nodes_in_group("player"):
+		if is_instance_valid(player) and player is Node3D:
+			player_spots.append(Vector2(player.global_position.x, player.global_position.z))
 	for i in range(_entries.size()):
 		if _cooldowns[i] > 0.0:
 			continue
@@ -110,11 +126,11 @@ func _try_spawn() -> void:
 		var mob_type: String = entry.get("mob_type", "")
 		if mob_type.is_empty() or not _valid_mob_types.has(mob_type):
 			continue
-		if _active.get(i, 0) >= _entry_cap(entry):
+		if _active.get(i, 0) + (_respawns.get(i, []) as Array).size() >= _entry_cap(entry):
 			continue
 		if randf() > entry.get("spawn_chance", 0.5):
 			continue
-		_spawn(i, entry, mob_type)
+		_spawn(i, entry, mob_type, player_spots)
 
 func _player_within_range(entry: Dictionary, player_spots: Array) -> bool:
 	var pos: Array = entry.get("position", [0.0, 0.0, 0.0])
@@ -133,18 +149,28 @@ func _entry_cap(entry: Dictionary) -> int:
 	return maxi(1, roundi(cap * _density))
 
 
-func _spawn(idx: int, entry: Dictionary, mob_type: String) -> void:
+static func _near_a_player(pos: Vector3, player_spots: Array) -> bool:
+	for p in player_spots:
+		if Vector2(pos.x, pos.z).distance_to(p) < SPAWN_CLEAR_DISTANCE:
+			return true
+	return false
+
+
+func _spawn(idx: int, entry: Dictionary, mob_type: String, player_spots: Array = []) -> void:
 	var pos_arr: Array = entry.get("position", [0.0, 2.0, 0.0])
 	var base := Vector3(float(pos_arr[0]), float(pos_arr[1]), float(pos_arr[2]))
 	var radius: float = entry.get("spawn_radius", 5.0)
 	var target_pos := base
-	for attempt in 10:  # a spot outside the no-monster zones (the town): a spawn circle may reach over the wall
+	var ok := false
+	for attempt in 10:  # a spot outside the no-monster zones (the town; a circle may reach over the wall) and away from players
 		var angle: float = randf() * TAU
 		target_pos = base + Vector3(cos(angle) * randf() * radius, 0.0, sin(angle) * randf() * radius)
-		if not Monster.in_no_monster_zone(target_pos):
+		if not Monster.in_no_monster_zone(target_pos) and not _near_a_player(target_pos, player_spots):
+			ok = true
 			break
-	if Monster.in_no_monster_zone(target_pos):
-		_cooldowns[idx] = float(entry.get("respawn_time", 15))  # the whole circle is in town: try again later, never spawn there
+	if not ok:
+		# the whole circle is in town, or someone is standing on it: try again in a little while
+		_cooldowns[idx] = minf(float(entry.get("respawn_time", 15)), FILL_STAGGER * 2.0)
 		return
 
 	# Snap onto the navmesh surface. lumora_outskirts_spawns.json hardcodes a
@@ -167,11 +193,19 @@ func _spawn(idx: int, entry: Dictionary, mob_type: String) -> void:
 	var mob: Node = spawner.spawn(spawn_data)
 
 	_active[idx] = _active.get(idx, 0) + 1
-	_cooldowns[idx] = float(entry.get("respawn_time", 15))
+	_cooldowns[idx] = minf(float(entry.get("respawn_time", 15)), FILL_STAGGER)
 
-	mob.tree_exited.connect(func():
-		_active[idx] = maxi(_active.get(idx, 1) - 1, 0)
-	)
+	# its replacement comes respawn_time after it dies (not when the corpse goes: an unlooted body lies there 5 minutes)
+	var respawn_after := float(entry.get("respawn_time", 15))
+	var counted := [true]   # still counted in _active
+	var gone := func() -> void:
+		if counted[0]:
+			counted[0] = false
+			_active[idx] = maxi(_active.get(idx, 1) - 1, 0)
+			(_respawns[idx] as Array).append(respawn_after)
+	if mob.has_signal("died"):
+		mob.died.connect(gone)
+	mob.tree_exited.connect(gone)   # removed some other way (a GM, the zone shutting down)
 
 	print("🐾 Spawned %s at %.0f, %.0f, %.0f" % [mob_type, spawn_pos.x, spawn_pos.y, spawn_pos.z])
 

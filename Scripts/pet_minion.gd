@@ -217,6 +217,21 @@ func _pet_title() -> String:
 	return "risen minion"
 
 
+# "<Zozuur's risen minion>": on other players' screens the owner's name arrives a moment after the pet (test 42: group pets
+# read "Default Hero's pet"), so the title is checked twice a second until it's right.
+var _title_timer := 0.0
+
+func _refresh_title(delta: float) -> void:
+	_title_timer -= delta
+	if _title_timer > 0.0 or not has_node("TitleLabel"):
+		return
+	_title_timer = 0.5
+	var owner_name := str(owner_player.get("player_name")) if owner_player.get("player_name") != null else "Someone"
+	var want := "<%s's %s>" % [owner_name, _pet_title()]
+	if $TitleLabel.text != want:
+		$TitleLabel.text = want
+
+
 func _pick_random_name() -> String:
 	var file := FileAccess.open("res://Data/pet_names.json", FileAccess.READ)
 	if not file:
@@ -317,6 +332,7 @@ func _physics_process(delta: float) -> void:
 	if not is_instance_valid(owner_player):
 		queue_free()
 		return
+	_refresh_title(delta)
 
 	# Non-authoritative peers (every client but the pet's own owner, in
 	# multiplayer — always true in single-player, same authority-gating
@@ -840,7 +856,7 @@ func _process_auto_engage(delta: float, assist_mode: bool) -> void:
 	var recently_hit: bool = "last_damage_time_ms" in owner_player \
 		and Time.get_ticks_msec() - owner_player.last_damage_time_ms < DEFEND_REACTION_WINDOW_MS
 	if recently_hit:
-		var attacker: Node = owner_player.get("current_target")
+		var attacker = owner_player.get("current_target")   # untyped: it may already be freed (a despawned corpse)
 		if is_instance_valid(attacker) and _target_alive(attacker) and attacker.is_in_group("monsters"):
 			_engage(attacker)
 			return
@@ -865,7 +881,7 @@ func _process_auto_engage(delta: float, assist_mode: bool) -> void:
 				and (tank as Node3D).global_position.distance_to((tank_target as Node3D).global_position) <= TANK_ENGAGED_RANGE:
 			_engage(tank_target)
 			return
-	var owner_target: Node = owner_player.get("current_target")
+	var owner_target = owner_player.get("current_target")   # untyped: it may already be freed
 	var just_attacked: bool = "last_attack_time_ms" in owner_player \
 			and Time.get_ticks_msec() - owner_player.last_attack_time_ms < ASSIST_REACTION_WINDOW_MS
 	# right after a kill it goes straight on to the owner's target (test 41), without waiting for the owner to swing

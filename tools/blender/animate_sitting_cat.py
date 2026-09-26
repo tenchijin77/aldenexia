@@ -32,11 +32,19 @@ H = zmax - zmin
 mid = [p for p in V if zmin + 0.12 * H <= p.z <= zmin + 0.45 * H]
 cx = sum(p.x for p in mid) / len(mid)
 cy = sum(p.y for p in mid) / len(mid)
+# Where it curls round in front of his paws (y below TAIL_FRONT_Y) the boundary swings out to the right along a diagonal,
+# and only the flat bottom layer counts there, so the tip comes along (test 42: "the middle moves, but the end of the
+# tail is not attached and stays in place") without dragging his front legs.
 TAIL_X = -0.28
 TAIL_TOP = zmin + 0.36 * H
+TAIL_FRONT_Y = -0.1
+TAIL_FRONT_TOP = zmin + 0.16 * H
 def tail_w(p):
-    wx = max(0.0, min(1.0, (TAIL_X - p.x) / 0.08))
-    wz = max(0.0, min(1.0, (TAIL_TOP - p.z) / (0.06 * H)))
+    front = max(0.0, TAIL_FRONT_Y - p.y)
+    edge = min(TAIL_X + front * 1.5, 0.1)
+    wx = max(0.0, min(1.0, (edge - p.x) / 0.08))
+    top = TAIL_TOP if p.x < TAIL_X else TAIL_FRONT_TOP
+    wz = max(0.0, min(1.0, (top - p.z) / (0.06 * H)))
     return wx * wz
 tail = [i for i, p in enumerate(V) if tail_w(p) > 0.0]
 ys = [V[i].y for i in tail]

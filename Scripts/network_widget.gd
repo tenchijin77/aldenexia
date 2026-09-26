@@ -44,6 +44,9 @@ var _last_bits_per_sec := 0.0
 @onready var status_label: Label = $Panel/Margin/VBox/StatusLabel
 
 
+var _position_loaded := false   # the widget is part of the zone scene, built before the character's saved positions arrive
+
+
 func _ready() -> void:
 	panel.gui_input.connect(_on_panel_gui_input)
 	WindowPosition.load_full_into(POSITION_KEY, panel)
@@ -56,6 +59,10 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _process(delta: float) -> void:
+	# test 42: it reset at every login: it read the saved position before the character was loaded; read it again once it is
+	if not _position_loaded and not Global.player_data.is_empty() and Global.player_data.has("player_name"):
+		_position_loaded = true
+		WindowPosition.load_full_into(POSITION_KEY, panel)
 	if not panel.visible:
 		return
 

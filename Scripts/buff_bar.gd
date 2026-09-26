@@ -313,7 +313,8 @@ const ENVIRONMENTAL_EFFECT_DESCRIPTIONS := {
 	"cursed": "Cursed: your blows land softer and you miss more often until the curse lifts, or a cure removes it.",
 	"burning": "Burning: flames eat at you every few seconds until they go out.",
 	"chilled": "Chilled to the bone: you move and swing more slowly until you warm up.",
-	"terrified": "Terrified: your hands shake; you miss more often until your nerve returns.",
+	"terrified": "Terrified: you've broken and run, blindly, and can't fight or cast until your nerve returns.",
+	"shaken": "Shaken: you kept your nerve, barely. Weaker, clumsier and less focused (-2 Strength, Dexterity, Wisdom) and you miss more often.",
 	"lit_torch": "A burning torch lights the way. Rain will put it out, and it gives away a sneaking Shadowblade. Right-click to put it out.",
 }
 # Effect icons (effect name -> icon path). Most have their own art in Assets/icons/effects/<effect name>.png (the user's,
@@ -338,10 +339,11 @@ const ENVIRONMENTAL_EFFECT_SPELL_ICONS := {
 	"burning": "res://Assets/icons/effects/burning.png",
 	"chilled": "res://Assets/icons/effects/chilled.png",
 	"terrified": "res://Assets/icons/effects/terrified.png",
+	"shaken": "res://Assets/icons/effects/terrified.png",   # MISSING ASSET: its own icon
 }
 # Environmental effects that are harmful (red box, yellow border).
 const ENVIRONMENTAL_DEBUFFS := ["weak_poison", "disease", "strong_poison", "weakening_venom", "sundered_armor", "crippled", "blinded",
-		"dazed", "withering_touch", "bleeding", "grave_miasma", "ensnared", "silenced", "cursed", "burning", "chilled", "terrified"]
+		"dazed", "withering_touch", "bleeding", "grave_miasma", "ensnared", "silenced", "cursed", "burning", "chilled", "terrified", "shaken"]
 # Effects that show an item's icon on the buff bar (effect name -> items.json id).
 const ENVIRONMENTAL_EFFECT_ITEM_ICONS := {
 	"lit_torch": "torch",

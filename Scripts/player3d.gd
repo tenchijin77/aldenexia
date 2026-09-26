@@ -746,7 +746,7 @@ func open_shop_window(vendor: Node) -> void:
 # G: loot every corpse within LOOT_ALL_RANGE at once — for when a crafting station, an NPC or another corpse is in the way.
 const LOOT_ALL_RANGE := 10.0
 
-func loot_all_nearby() -> void:
+func loot_all_nearby(quiet: bool = false) -> void:
 	var corpses := 0
 	var taken := 0
 	for node in get_tree().get_nodes_in_group("monsters"):
@@ -754,6 +754,8 @@ func loot_all_nearby() -> void:
 				and global_position.distance_to((node as Node3D).global_position) <= LOOT_ALL_RANGE:
 			corpses += 1
 			taken += (node as Monster).loot_everything()
+	if quiet and taken == 0:
+		return   # auto-loot: says nothing when there's nothing
 	if corpses == 0:
 		GameLog.log_general("There is nothing to loot within %d m." % int(LOOT_ALL_RANGE))
 	elif taken == 0:
@@ -785,6 +787,23 @@ func _try_loot_corpse() -> void:
 	# rolled lazily per-peer, so there's no shared is_lootable flag to check
 	# beforehand — see monster3d.gd).
 	nearest.open_loot_window()
+
+
+# A Firewood Bundle's Light button (slot_button.gd): lights a campfire a step in front of you (campfire_relay.gd).
+# Returns whether it did (the caller then uses up the bundle).
+func light_campfire(item_id: String) -> bool:
+	var fires := CampfireRelay.relay(get_tree())
+	if fires == null:
+		GameLog.log_general("You can't make camp here.")
+		return false
+	var why := CampfireRelay.refusal(self)
+	if why != "":
+		GameLog.log_general("[color=#ff8866]%s[/color]" % why)
+		return false
+	var forward := -global_transform.basis.z
+	var at := global_position + Vector3(forward.x, 0.0, forward.z).normalized() * 1.5
+	fires.light(item_id, at, player_name)
+	return true
 
 
 const HAIL_RANGE := 5.0
@@ -2256,6 +2275,9 @@ func handle_jump() -> void:
 
 
 func handle_movement(delta: float) -> void:
+	if _fear_time > 0.0:
+		_handle_fear_movement(delta)
+		return
 	if is_sitting:
 		velocity.x = move_toward(velocity.x, 0, WALK_SPEED)
 		velocity.z = move_toward(velocity.z, 0, WALK_SPEED)
@@ -2316,6 +2338,82 @@ func handle_movement(delta: float) -> void:
 	velocity.x = world_move.x * target_speed
 	velocity.z = world_move.z * target_speed
 	current_speed = Vector2(velocity.x, velocity.z).length()
+
+
+# ── Fear, EverQuest-style (test 42, the user: "have it randomly either lower your stats or make you run randomly
+# depending on your save roll") ──
+# A monster's fear (an ability whose effect is "terrified": Halvek's Grave Command, the mirage's Dread Mirage, the
+# Mass Gravesite's Wail) first gets the usual full resist roll (monster3d.gd land_ability). If it lands, you roll a
+# fear save: make it and you're only Shaken (the ability's own penalty plus -2 Strength, Dexterity and Wisdom); fail and
+# you're Terrified: you lose control and run blindly, a new direction every FEAR_TURN_SECONDS, unable to fight or cast,
+# for the effect's duration. Runs on the player's own machine; the movement replicates like any other.
+const FEAR_TURN_SECONDS := 1.5
+const SHAKEN_STAT_PENALTY := 2
+var _fear_time := 0.0
+var _fear_dir := Vector3.ZERO
+var _fear_turn := 0.0
+
+
+# The chance to keep your nerve: an even chance at the caster's level, +/-5% a level of difference, +2% a point of Wisdom
+# over 10, +5% a point of racial fear save; always between 10% and 90%.
+static func fear_save_chance(my_level: int, caster_level: int, wisdom: int, racial_bonus: int) -> float:
+	return clampf(0.5 + 0.05 * float(my_level - caster_level) + 0.02 * float(wisdom - 10) + 0.05 * float(racial_bonus), 0.1, 0.9)
+
+
+func is_feared() -> bool:
+	return _fear_time > 0.0
+
+
+# Returns true when you break and run, false when you keep your nerve (Shaken). `roll` is for the tests (-1 = random).
+func receive_fear(duration: float, caster_level: int, caster_desc: String, mods: Dictionary, roll: float = -1.0) -> bool:
+	var chance := fear_save_chance(int(combat_node.level), caster_level, int(combat_node.wisdom), race_fear_save_bonus)
+	var r := randf() if roll < 0.0 else roll
+	if r < chance or combat_node.is_cc_immune("fear"):
+		var shaken := mods.duplicate()
+		for stat in ["stat_strength", "stat_dexterity", "stat_wisdom"]:
+			shaken[stat] = float(shaken.get(stat, 0.0)) - SHAKEN_STAT_PENALTY
+		combat_node.apply_effect("shaken", duration, shaken)
+		GameLog.log_combat("[color=#ffcc66]You steel yourself against %s's terror, but your hands shake.[/color]" % caster_desc)
+		return false
+	combat_node.apply_effect("terrified", duration, mods.duplicate())
+	_fear_time = maxf(_fear_time, duration)
+	_fear_turn = 0.0
+	autorun_enabled = false
+	is_sitting = false
+	stop_following()
+	if combat_node.is_casting:
+		_stop_all_casting_except_songs()
+		GameLog.log_combat("[color=#ff8866]Your spell is interrupted.[/color]")
+	GameLog.log_combat("[color=#ff5555]You flee in terror from %s![/color]" % caster_desc)
+	if Net.is_multiplayer_game and multiplayer.has_multiplayer_peer():
+		Net.broadcast_combat_message("[color=#ffcc66]%s flees in terror![/color]" % player_name, global_position)
+	return true
+
+
+func _handle_fear_movement(delta: float) -> void:
+	_fear_time -= delta
+	if _fear_time <= 0.0 or _player_down_for_fear() or not combat_node.active_effects.has("terrified"):   # a cure ends it
+		_fear_time = 0.0
+		velocity.x = 0.0
+		velocity.z = 0.0
+		current_speed = 0.0
+		if combat_node.is_alive():
+			GameLog.log_combat("[color=#aaddff]You regain control of yourself.[/color]")
+		return
+	_fear_turn -= delta
+	if _fear_turn <= 0.0 or is_on_wall():
+		_fear_turn = FEAR_TURN_SECONDS
+		var a := randf() * TAU
+		_fear_dir = Vector3(cos(a), 0.0, sin(a))
+	look_at(global_position + _fear_dir, Vector3.UP)
+	var speed := RUN_SPEED * maxf(0.2, 1.0 - combat_node.get_modifier("speed_slow"))
+	velocity.x = _fear_dir.x * speed
+	velocity.z = _fear_dir.z * speed
+	current_speed = speed
+
+
+func _player_down_for_fear() -> bool:
+	return dying or not combat_node.is_alive()
 
 
 # ── /follow ──────────────────────────────────────────────────────────────────
@@ -3059,6 +3157,8 @@ func _announce_target(target: Node) -> void:
 
 
 func attack_current_target() -> void:
+	if _fear_time > 0.0:
+		return   # running in terror (receive_fear())
 	if not current_target or not is_instance_valid(current_target):
 		current_target = null
 		print("⚔️ No target selected. Press Tab to target.")
@@ -3535,9 +3635,26 @@ func _die_for_real() -> void:
 		if line != "":
 			GameLog.log_general("[color=#999999]%s[/color]" % line)
 	_clear_on_death()
+	_wipe_aggro()
 	_show_death_screen()
 	await get_tree().create_timer(RESPAWN_DELAY).timeout
 	_respawn()
+
+
+# Death wipes you off every monster's hate list (test 42: Halvek chased Maedianie to her bind point after she died, and the
+# tank had to drag him back). Each forgets you on its own machine (the server's, over the network).
+const AGGRO_WIPE_RANGE := 300.0
+
+func _wipe_aggro() -> void:
+	for m in get_tree().get_nodes_in_group("monsters"):
+		if not (is_instance_valid(m) and m is Node3D and m.has_method("forget_attacker")):
+			continue
+		if (m as Node3D).global_position.distance_to(global_position) > AGGRO_WIPE_RANGE:
+			continue
+		if m.is_multiplayer_authority():
+			m.forget_attacker(get_path())
+		elif Net.is_multiplayer_game and multiplayer.has_multiplayer_peer():
+			m.forget_attacker.rpc_id(1, get_path())
 
 
 # Death strips every spell effect, good and bad, and sends your pet away (summon it again; its gear stays with you, it
@@ -3545,6 +3662,7 @@ func _die_for_real() -> void:
 const KEPT_THROUGH_DEATH := ["lit_torch", "well_fed", "starving", "thirsty"]
 
 func _clear_on_death() -> void:
+	_fear_time = 0.0   # no running off in terror after you wake
 	for effect_name in combat_node.active_effects.keys():
 		if str(effect_name).begins_with("stance_") or KEPT_THROUGH_DEATH.has(str(effect_name)):
 			continue
@@ -4190,7 +4308,7 @@ func apply_racial_modifiers(race_name: String) -> void:
 
 # The racial traits apply_racial_modifiers() above doesn't cover, read from Data/character_options.json "traits" (the
 # list the character creation screen shows). Nothing here is saved: it is worked out again at every login, so existing
-# characters get it too. Traits with no game system behind them yet (research, intimidation, swamps, fear saves,
+# characters get it too. Traits with no game system behind them yet (research, intimidation, swamps,
 # knockback — no monster knocks players back) are listed in RACIAL_TRAITS_NOT_YET_USED.
 const RACIAL_SKILL_TRAITS := {
 	"blacksmithing_skill_bonus": "blacksmithing", "mining_skill_bonus": "prospecting", "engineering_skill_bonus": "tinkering",
@@ -4199,7 +4317,7 @@ const RACIAL_SKILL_TRAITS := {
 	"pick_lock_skill_bonus": "lockpicking", "defense_skill_bonus": "defense",
 }
 const RACIAL_TRAITS_NOT_YET_USED := ["research_skill_bonus", "intimidation_skill_bonus", "swamp_movement_speed_bonus",
-	"swamp_survival_skill_bonus", "swamp_perception_skill_bonus", "fear_resistance_save_bonus", "immune_to_knockback"]
+	"swamp_survival_skill_bonus", "swamp_perception_skill_bonus", "immune_to_knockback"]
 var race_skill_gain_mult: float = 1.0          # Human +5% (experience_gain_all_skills), Half-Elf -5% (Identity Conflict)
 var race_combat_skill_gain_mult: float = 1.0   # Half-Orc +5% on combat (physical) skills
 var race_hp_regen_mult: float = 1.0            # Human +5%
@@ -4207,6 +4325,7 @@ var race_mana_regen_mult: float = 1.0          # Human, Half-Elf +5%
 var race_in_combat_regen_pct: float = 0.0      # Lizardkin: share of max health regained per tick while fighting
 var race_daylight_regen_mult: float = 1.0      # Vol'kyne (Sunlight Weakness): health/mana regen by day
 var race_night_attack_penalty: int = 0         # Lizardkin (Sunlight Dependency): accuracy lost at night
+var race_fear_save_bonus: int = 0              # Lizardkin: each point is +5% on the fear save (receive_fear())
 var race_faction_offset: int = 0               # added to every faction standing (Human +10, Half-Elf +5; shunned races less)
 var _regen_carry := {"hp": 0.0, "mana": 0.0}    # fractions of a point kept between ticks so +5% regen isn't lost to rounding
 static var _physical_skills: Dictionary = {}
@@ -4226,6 +4345,7 @@ func apply_racial_traits(race_name: String) -> void:
 	race_combat_skill_gain_mult = 1.0 + float(traits.get("combat_skill_experience_gain_bonus", 0.0))
 	race_hp_regen_mult = 1.0 + float(traits.get("health_regeneration_bonus", 0.0))
 	race_mana_regen_mult = 1.0 + float(traits.get("mana_regeneration_bonus", 0.0))
+	race_fear_save_bonus = int(traits.get("fear_resistance_save_bonus", 0))   # Lizardkin +2: see receive_fear()
 	race_faction_offset = int(traits.get("faction_bonus_all", 0)) + int(traits.get("faction_standing_bonus_all", 0))
 	race_faction_modifiers = race_standing_modifiers(race_key)
 	_refresh_faction_attitudes()   # the racial offset moves every standing
@@ -4678,7 +4798,9 @@ func _apply_pet_gear_bonus() -> void:
 		for slot in ["primary", "offhand"]:
 			var it: Variant = pet_equipment.get(slot, null)
 			ids[slot] = str(it.get("item_id", "")) if typeof(it) == TYPE_DICTIONARY else ""
-		active_pet.held_gear = HeldGear.encode(ids["primary"], ids["offhand"])
+		# a summon that isn't a living creature (the Lightmender's Spiritual Weapon) holds nothing: its gear still counts
+		var shows: bool = not (active_pet is SummonedPet and SummonedPet.HOLDS_NO_GEAR.has((active_pet as SummonedPet).kind))
+		active_pet.held_gear = HeldGear.encode(ids["primary"], ids["offhand"]) if shows else ""
 
 
 # ================================================================================
@@ -4727,6 +4849,10 @@ static func spell_display_name(spell_name: String) -> String:
 # loop can tell a real failure (dead target, out of mana) from "still on
 # cooldown" and stop trying rather than spam every frame.
 func cast_spell(spell_name: String, is_auto_recast: bool = false) -> bool:
+	if _fear_time > 0.0:
+		if not is_auto_recast:
+			GameLog.log_combat("You are too terrified to do anything but run!")
+		return false
 	var spell: Dictionary = _spell_by_name.get(spell_name, {})
 	if spell.is_empty():
 		GameLog.log_general("Unknown spell or ability: [b]%s[/b]." % spell_display_name(spell_name))
@@ -5841,13 +5967,17 @@ func _apply_generic_spell_effect(effect_type: String, spell: Dictionary, caster_
 
 	match effect_type:
 		"heal":
+			var heal_name := spell_display_name(str(spell.get("spell_name", "")))
+			_heal_spell_name = heal_name
 			var healed: int = _heal_target(target_node, target_cn, magnitude)
+			_heal_spell_name = ""
 			if healed <= 0:
 				return false
+			# "You heal Zozuur for 100 with Regrowth." here; "Maedianie heals you for 100 with Regrowth." on theirs (test 42)
 			var heal_msg: String = self_cast_message if not self_cast_message.is_empty() \
-				else "[color=#66ff99]%s healed for [b]%d[/b].[/color]" % [target_desc.capitalize(), healed]
+				else "[color=#66ff99]You heal %s for [b]%d[/b] with %s.[/color]" % [target_desc, healed, heal_name]
 			_log_effect(heal_msg)
-			_broadcast_combat("[color=#66ff99]%s healed for [b]%d[/b].[/color]" % [bcast_desc.capitalize(), healed])
+			_broadcast_combat("[color=#66ff99]%s heals %s for [b]%d[/b] with %s.[/color]" % [player_name, bcast_desc if target_desc != "yourself" else ("herself" if player_sex.to_lower() == "female" else "himself"), healed, heal_name])
 			return true
 		"hot":
 			if duration <= 0.0:
@@ -6028,6 +6158,8 @@ func _broadcast_combat(text: String) -> void:
 # Known limitation, same as the damage relay: no server-side re-verification,
 # and for a remote target the caster's own log line reports the requested
 # amount rather than the real post-clamp result (which arrives async).
+var _heal_spell_name := ""   # the heal being cast right now (its name reaches the target: "X heals you ... with Regrowth")
+
 func _heal_target(target_node: Node, target_cn, amount: int) -> int:
 	if not (target_cn is CombatNode):
 		return 0
@@ -6037,7 +6169,7 @@ func _heal_target(target_node: Node, target_cn, amount: int) -> int:
 		if target_node.has_method("_check_bleedout_revival"):
 			target_node._check_bleedout_revival()
 		return healed
-	target_node.apply_networked_heal.rpc_id(target_node.get_multiplayer_authority(), amount)
+	target_node.apply_networked_heal.rpc_id(target_node.get_multiplayer_authority(), amount, _heal_spell_name)
 	return amount
 
 
@@ -6126,12 +6258,17 @@ func apply_networked_shared_damage(amount: int, from_name: String) -> void:
 
 
 @rpc("any_peer", "call_remote", "reliable")
-func apply_networked_heal(amount: int) -> void:
+func apply_networked_heal(amount: int, spell_name: String = "") -> void:
 	if not is_multiplayer_authority():
 		return
 	var healed := combat_node.heal(amount)
 	if healed > 0:
-		GameLog.log_general("[color=#66ff99]You are healed for [b]%d[/b].[/color]" % healed)
+		var healer := TargetFrame.peer_id_to_player_node(multiplayer.get_remote_sender_id())
+		var who := TargetFrame.display_name(healer) if is_instance_valid(healer) else "Someone"
+		if spell_name.is_empty():
+			GameLog.log_combat("[color=#66ff99]%s heals you for [b]%d[/b].[/color]" % [who, healed])
+		else:
+			GameLog.log_combat("[color=#66ff99]%s heals you for [b]%d[/b] with %s.[/color]" % [who, healed, spell_name])
 	_check_bleedout_revival()
 
 
@@ -6174,7 +6311,7 @@ func _find_debuff_to_cure(target_cn) -> String:
 
 # Harmful effects monsters leave on players (monsters.json "on_hit_effect") that cure spells remove.
 const MONSTER_AILMENTS := ["weak_poison", "disease", "strong_poison", "weakening_venom", "sundered_armor", "crippled", "blinded",
-		"dazed", "withering_touch", "bleeding", "grave_miasma", "ensnared", "silenced", "cursed", "burning", "chilled", "terrified"]
+		"dazed", "withering_touch", "bleeding", "grave_miasma", "ensnared", "silenced", "cursed", "burning", "chilled", "terrified", "shaken"]
 
 
 func _remove_effect_from_target(target_node: Node, target_cn, effect_name: String) -> void:

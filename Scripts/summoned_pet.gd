@@ -21,6 +21,9 @@ const KINDS := {
 	"bear":             {"title": "bear",             "model": "rat",    "scale": 2.2,  "tint": Color(0.5, 0.36, 0.26)},
 	"panther":          {"title": "panther",          "model": "rat",    "scale": 1.7,  "tint": Color(0.24, 0.24, 0.27)},
 }
+# Summons that aren't living creatures: their pet gear's stats count, but nothing shows in their hands (test 42, the user:
+# the Spiritual Weapon "will not have equipped weapons showing, as it is not a living pet per se").
+const HOLDS_NO_GEAR := ["spiritual_weapon"]
 const ANIMAL_NAMES := ["Ash", "Briar", "Dusk", "Ember", "Flint", "Grey", "Juniper", "Kestrel", "Moss", "Rook", "Sable", "Thorn"]
 # Same per-model ground offsets monster3d.gd uses (their pivots sit above the lowest geometry).
 const CRITTER_GROUND_OFFSET := {"rat": 0.4, "bat": 0.9, "snake": 0.22, "spider": 0.38}

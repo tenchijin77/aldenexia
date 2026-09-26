@@ -509,6 +509,11 @@ func send_party_message(peer_ids: Array, sender_name: String, message: String) -
 # noise — no separate proximity system needed here.
 @rpc("any_peer", "call_remote", "reliable")
 func _rpc_receive_combat_message(text: String, position: Vector3) -> void:
+	# a heal on ME: my own screen already says "X heals you for ..." (player3d.gd apply_networked_heal), so skip the
+	# onlookers' "X heals <me> for ..." line
+	var me := TargetFrame.local_player()
+	if is_instance_valid(me) and text.contains(" heals %s for " % str(me.get("player_name"))):
+		return
 	GameLog.log_combat(text, position)
 
 

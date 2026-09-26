@@ -65,7 +65,7 @@
   "giver": "Guard Reyna",
   "auto_start": true,
   "short": "Bring Sergeant Halvek's medal to Guard Reyna.",
-  "summary": "Sergeant Halvek, a Warden, walks the graveyard road as an undead. Bring his medal to Guard Reyna so the Wardens can put his name back where it belongs.",
+  "summary": "Sergeant Halvek, a Warden, haunts the graveyard mausoleum as an undead. Bring his medal to Guard Reyna so the Wardens can put his name back where it belongs.",
   "objective": {
    "type": "hand_in",
    "item": "wardens_tarnished_medal",

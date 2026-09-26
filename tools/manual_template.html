@@ -244,7 +244,7 @@
       <li><div><h3>Check your pack</h3><p>Press <kbd>C</kbd>. You start with a small bag holding a faded note, 20 iron rations, 20 water flasks and 5 torches, plus ragged clothes and a cape to put on. Warriors also get a rusty sword, Shadowblades and Woodstalkers a dagger, Aetherfists hand wraps, and spellcasters a dagger (Wildspeakers and Spiritweavers a staff). Drag each piece onto its equipment slot.</p></div></li>
       <li><div><h3>Put your first spells on the bar</h3><p>Every class starts knowing two or three spells. Press <kbd>K</kbd> for the abilities book and drag them onto the action bar; <kbd>1</kbd>–<kbd>0</kbd> use them.</p></div></li>
       <li><div><h3>Talk to the guards</h3><p>Walk up to a guard at the gate and press <kbd>H</kbd> to hail them. Words in their replies can be clicked to ask about them. Guard Reyna and Private Corwin have work for you (see <a href="#lumora-quests">Quests</a>).</p></div></li>
-      <li><div><h3>Hunt near the gate</h3><p>Rats, sand vipers, bats and dune scarabs roam the dunes just outside. Press <kbd>Tab</kbd> to target the nearest, <kbd>`</kbd> to attack, and right-click the corpse (or press <kbd>G</kbd>) to loot it. Keep the rat tails: Kenji the cat wants them.</p></div></li>
+      <li><div><h3>Hunt near the gate</h3><p>Rats, sand vipers, bats and dune scarabs roam the dunes just outside. Press <kbd>Tab</kbd> to target the nearest, <kbd>`</kbd> to attack, and right-click the corpse (or press <kbd>G</kbd>) to loot it. Turn on <span class="ui">Auto-Loot on Kill</span> in <kbd>Esc</kbd> → Options to have it happen by itself. Keep the rat tails: Kenji the cat wants them.</p></div></li>
       <li><div><h3>Buy more spells</h3><p>Every other spell is sold on a scroll. Archivist Ilsabet copies the light and neutral classes' scrolls; Xalvyr Tenn sells the dark classes'. Right-click a scroll in your bags and choose <span class="ui">Learn</span>. Scrolls you already know are marked <span class="tag start">✔ known</span>.</p></div></li>
       <li><div><h3>Try a trade</h3><p>Chop a fir tree, mine a tin vein or pick a thistle, then craft something. Every crafting skill has a few recipes you know from the start. Press <kbd>L</kbd> for your recipe book.</p></div></li>
     </ol>
@@ -287,7 +287,13 @@
       </div>
       <div>
         <h3>Campfires</h3>
-        <p>Standing within 15 m of a lit campfire gives everyone there <b>Warmth of the Campfire</b>: faster regeneration and bonus experience. You can light your own from a Firewood Bundle (Woodworking), but not in town, in combat, or within 20 m of another fire.</p>
+        <p>Rest by a campfire for 30 seconds and you get <b>Warmth of the Campfire</b>: faster health, mana and stamina regeneration for 15 minutes. You can light your own from a Firewood Bundle (Woodworking): right-click it in your bags and press <span class="ui">Light</span>. Your fire is a cooking station; its warmth reaches 15 m, and everyone inside that earns bonus experience from kills. You can't light one in town, in a fight, or within 20 m of another fire.</p>
+        <div class="tablewrap"><table class="data"><thead><tr><th>Bundle</th><th class="num">Burns</th><th class="num">Regeneration</th><th class="num">Bonus XP</th></tr></thead><tbody>
+          <tr><td>Fir Firewood Bundle</td><td class="num">10 min</td><td class="num">+2</td><td class="num">+3%</td></tr>
+          <tr><td>Ironwood Firewood Bundle</td><td class="num">20 min</td><td class="num">+4</td><td class="num">+6%</td></tr>
+          <tr><td>Palm Firewood Bundle</td><td class="num">30 min</td><td class="num">+6</td><td class="num">+10%</td></tr>
+        </tbody></table></div>
+        <p>Fires don't stack: you get the best one you're standing by.</p>
       </div>
       <div>
         <h3>Groups</h3>
@@ -308,6 +314,7 @@
       <div>
         <h3>Monsters that cast</h3>
         <p>Named monsters, and the tougher creatures farther out, have tricks of their own: webs that hold you, curses, poisons, spells that hit everyone near them, calls for help, and a frenzy near death. When one begins a spell you'll read "…begins to cast…" and see <i>(casting …)</i> on the target window: a stun or bash breaks it. A silence stops monsters casting, and stops you too; skills still work.</p>
+        <p><b>Fear.</b> Some undead can terrify you. If the spell gets past your resistance you roll to keep your nerve: make it and you're only <b>Shaken</b> (weaker, clumsier, and you miss more); fail and you're <b>Terrified</b>: you run blindly, unable to fight or cast, until it wears off or someone cures it. Higher level and Wisdom help; so does a Lizardkin's cold blood.</p>
       </div>
       <div>
         <h3>Trading and the bank</h3>
@@ -507,7 +514,7 @@
     <p>Every 25 to 45 minutes, while players are near the gate, a band of bandits or goblins marches on it. They announce themselves. The guards go out to meet them and wear them down, but leave the killing blows to you. More raiders come when more players are around.</p>
 
     <h3 id="bestiary">Bestiary</h3>
-    <p>Most creatures attack when you come near. Scarabs keep to themselves unless you walk right up to them. <span class="tag named">named</span> foes are tougher, drop better loot and take a while to return once killed; fight them with friends.</p>
+    <p>Most creatures attack when you come near. Scarabs keep to themselves unless you walk right up to them. <span class="tag named">named</span> foes are tougher, drop better loot and take a while to return once killed; fight them with friends. A killed creature returns to its haunt a minute or more after it dies (never right next to you), so you can hold a spot and rest between fights.</p>
     {{BESTIARY}}
   </section>
 

@@ -2400,6 +2400,63 @@ GATE RAIDS (`Scripts/gate_raid_manager.gd`, `Data/gate_raids.json`, node "GateRa
   warmth of the campfire -> groupfire.
 - Tests: test_test37.gd. Suite: 3,808 checks pass.
 
+### Test 42: Zozuur (Voidknight), Maedianie (Wildspeaker) — and the Lightmender, campfires, spawn timers (2026-09-26)
+- Working (per the notes): Kenji breathing and looking round, Oni animated, the critters animated, pets on the /focus
+  tank's target, pets holding weapons, group XP, Maedianie's staff, quests ("A Warden Not at Rest" saw the medal), debuff
+  borders.
+- GROUP LOST ON ZONING: Maedianie zoned into Lumora and back; Zozuur still saw her in the group (offline), she saw no
+  group. The hub (the Outskirts' own zone) only re-sent the groups when another zone's roster changed, never its own:
+  it now pushes them whenever someone arrives in or leaves its own zone too (world_link.gd _share_roster / the roster tick).
+- AGGRO AFTER DEATH: Maedianie died fighting Halvek and he chased her to her bind point. Dying now wipes you off the hate
+  list of every monster within 300 m (player3d.gd _wipe_aggro(); a remote player's request goes to the server), and a
+  monster whose first target is down goes for whoever else is still fighting it.
+- HEAL MESSAGES: the healer reads "You heal Maedianie for 100 with Regrowth.", the healed "Zozuur heals you for 100 with
+  Regrowth.", everyone else "Zozuur heals Maedianie for 100 with Regrowth." (herself / himself on a self-heal).
+- NETWORK WIDGET: it forgot where you put it at every login (its position loaded before your character did); it now
+  loads it once your character is in.
+- PET TITLES: a groupmate's pet showed "<Default Hero's pet>"; the title is refreshed from its owner's name.
+- RATS TURNING ROUND AND ROUND: a player and an assisting pet traded the top of a rat's hate list blow by blow, and it
+  turned between them. A monster now keeps its target until someone has 10% more threat than it (a taunt still takes it
+  at once): monster3d.gd THREAT_SWITCH_MARGIN.
+- AUTO-LOOT ON KILL: a new Options toggle (Escape -> Options, off by default). When a monster that was in a fight, or
+  that you had targeted, dies within 10 m of you, you loot everything within 10 m, as the G key does (loot is personal:
+  only ever your own share). Quiet when there's nothing.
+- KENJI'S TAIL TIP stayed put while the middle of the tail swept: the part curled round in front of his paws was left
+  out of the tail. The tail now follows the curl round to the tip (animate_sitting_cat.py TAIL_FRONT_Y); checked with
+  renders.
+- TROLL SHOULDERS: running, the troll's upper back bunched into a hump: the run shrugs the clavicle bones 20-40 degrees
+  and a troll's heavy back comes with them. New tools/relax_shoulders.gd keeps 40% of the shoulders' movement away from
+  their idle pose in the run and walk (the arms still swing fully); applied to the troll male's library and pack
+  (it survives a pack rebuild). Before/after renders.
+- LIGHTMENDER: Spiritual Weapon is a level 1 spell (the user's player_spells.json change, and now the sheet too) and a
+  starting spell, like the Wildspeaker's and Gravecaller's pets. It has 40% of the caster's health like the other pets
+  (the spell had 0.3; description and sheet match). It holds no weapon (user: "it is not a living pet per se"): its pet gear still
+  counts, nothing shows in its hands (SummonedPet.HOLDS_NO_GEAR).
+- CHARACTERS: an account holds 14 characters, one of each class (was 8). Tester guide updated.
+- CAMPFIRES YOU LIGHT: right-click a Firewood Bundle in your bags -> Light. A campfire burns a step in front of you for
+  10 / 20 / 30 minutes (fir / ironwood / palm), then burns down. You can cook at it and lingering by it gives Warmth of
+  the Campfire as at the roadside fires; everyone within 15 m earns +3 / 6 / 10% experience from kills (the best fire
+  only; worked out on the server where the kill's XP is shared, so the save checks count it). Not in town (within 40 m
+  of a vendor, guard, townsperson, crafting station or the bank, or anywhere in the city), not in combat (or hit in the
+  last 10 s), not within 20 m of another fire. Everyone sees it, players who arrive later too
+  (Scripts/campfire_relay.gd, riding on WorldItems like trading).
+- SPAWNS: "i can't kill enemies without them spawning on top of me. there is no way to setup a camp". A spawn point's
+  timer started when its monster SPAWNED, so by the time you'd killed it, its replacement came at once (and 10-40 s
+  timers). Now each dead monster's own timer starts when it dies (EverQuest-style), the common monsters' timers are 6x
+  longer with a 1 minute floor (Outskirts, Dustwind, Ashfall: 12 s -> 72 s, 18 s -> 108 s, 40 s -> 4 minutes; named and
+  rare ones unchanged), and nothing ever appears within 12 m of a player. A new spawn point still fills up 5 s apart.
+- HALVEK now waits inside the graveyard mausoleum (at the back, x 58 z -244; the door faces west); the quest and guard
+  lines say so.
+- FEAR, EVERQUEST-STYLE (user: "randomly either lower your stats or make you run randomly depending on your save roll"):
+  a monster's fear (Halvek's Grave Command, Dread Mirage, Wail of the Grave) still gets the full resist roll first; if it
+  lands, a fear save (even at the caster's level, +/-5% a level, +2% a Wisdom point over 10, +5% a point of racial fear
+  save: the Lizardkin's +2 is live now; 10-90%). Made: SHAKEN (the spell's own penalty plus -2 Strength, Dexterity,
+  Wisdom). Failed: TERRIFIED, you run blindly (a new direction every 1.5 s, turning off walls), can't attack or cast (a
+  cast in progress is interrupted), until it wears off, a cure removes it, or you die (player3d.gd receive_fear()).
+- A pet with Assist, and macros, errored when the owner's target had just been freed ("Trying to assign invalid
+  previously freed instance", pet_minion.gd; it made test_test41 fail now and then): fixed.
+- Tests: test_test42 (51 checks). Full suite: 4327 checks, RPC list unchanged.
+
 ### The static critters move (2026-09-26; user: "can you animate the static enemies as well please?")
 - Every humanoid monster was already rigged; the seven critters (rat, snake, bat, slime, spider, spiderling, dune scarab)
   were single meshes with no bones. Shaders/critter_motion.gdshader moves their vertices on the graphics card by body

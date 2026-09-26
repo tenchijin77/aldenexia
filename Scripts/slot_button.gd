@@ -392,6 +392,18 @@ func _show_inspect_popup() -> void:
 		)
 		btn_row.add_child(use_btn)
 
+	# Light button (Firewood Bundles: a campfire where you stand — campfire_relay.gd)
+	if CampfireRelay.TIERS.has(str(item_data.get("item_id", ""))) and slot_type in ["basic", "bag"]:
+		var light_btn := Button.new()
+		light_btn.text = "Light"
+		light_btn.pressed.connect(func():
+			layer.queue_free()
+			var p := TargetFrame.local_player()
+			if is_instance_valid(p) and p.has_method("light_campfire") and p.light_campfire(str(item_data["item_id"])):
+				Inventory.consume_one(slot_type, slot_index, bag_slot, item_index)
+		)
+		btn_row.add_child(light_btn)
+
 	# Open button (tradeskill stations, e.g. Basic Alchemy Kit — see
 	# tradeskill_window.gd for the shared crafting window)
 	if item_data.has("tradeskill_station"):

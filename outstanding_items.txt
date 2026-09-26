@@ -337,3 +337,12 @@ Decisions:
   naming them would make the animation script easier to extend (a sit, a pounce, a stretch).
 - Summoned animal pets built on the critter meshes don't use critter_motion.gdshader yet (summoned_pet.gd _build_critter).
 
+
+== FROM TEST 42 (2026-09-26) ==
+- Fear on players is in (save: Shaken or run). Not yet: players' fear spells on players in PvP (they still only stop
+  the target swinging). MISSING ASSET: an icon for Shaken (borrows terrified.png).
+- Player-lit campfires live in the zone server's memory: a server restart puts them out (bundle not refunded).
+- The troll female (and the ogres) may bunch the same way when running: tools/relax_shoulders.gd on their libraries if
+  so. Only the troll male was changed.
+- Spawn timers are a first pass (common monsters 6x, 1 minute floor): tune per camp after playtests. The planned zones'
+  spawn files (Ashland Grove, Broken Barrow, Ebonbloom, Gloomfen, Kragthar, Solgrave) are drafts, not valid JSON yet.

@@ -133,6 +133,7 @@ func _build_options_panel() -> void:
 	vbox.add_child(_make_invert_y_row())
 	vbox.add_child(_make_toggle_row("Show Name Tags", "show_name_tags"))
 	vbox.add_child(_make_toggle_row("Attack Spells Follow My Friend's Target", "detrimental_to_tot", false))
+	vbox.add_child(_make_toggle_row("Auto-Loot on Kill", "auto_loot", false))   # loots every corpse nearby when one you were fighting dies
 	vbox.add_child(_make_ui_transparency_row())
 
 	vbox.add_child(HSeparator.new())

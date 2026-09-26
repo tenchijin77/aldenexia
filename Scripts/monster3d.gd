@@ -805,6 +805,8 @@ func _set_nav_target(pos: Vector3) -> void:
 func _physics_process(delta: float) -> void:
 	if not _critter_meshes.is_empty():
 		_update_critter_motion(delta)
+	if not Net.is_dedicated_server:
+		_watch_for_auto_loot()
 	# Per-viewer, not networked — see TargetFrame.is_hidden_from_local_player().
 	# No monster data actually grants invisibility yet (nothing calls
 	# apply_effect("invisibility", ...) on a monster's own combat_node), so
@@ -970,20 +972,36 @@ func taunt(attacker: Node, margin: float = 1.0) -> void:
 	for t in aggro_table.values():
 		highest = max(highest, t)
 	aggro_table[attacker] = max(aggro_table.get(attacker, 0.0), highest) + margin
+	_threat_target = attacker   # a taunt takes it outright (the switch margin below is for threat drifting past)
 	if current_state == State.IDLE or current_state == State.PATROL:
 		change_state(State.CHASE)
+
+# Who it's fighting sticks: another attacker has to get THREAT_SWITCH_MARGIN times its current target's threat to pull it
+# off (test 42, "rats seem to be moving back and forth facing away and towards the player in combat in an endless loop":
+# a player and an assisting pet trading the top spot blow by blow turned it round and round between them).
+const THREAT_SWITCH_MARGIN := 1.1
+var _threat_target: Node = null
 
 func get_current_target() -> Node:
 	if aggro_table.is_empty():
 		return player
 	var best: Node = player
 	var best_threat: float = aggro_table.get(player, 0.0)
+	if is_instance_valid(player) and player.is_in_group("player") and _player_is_down(player):
+		best_threat = -1.0   # its first target is down: anyone else still fighting it comes first
 	for attacker in aggro_table:
 		if not is_instance_valid(attacker) or (attacker.is_in_group("player") and _player_is_down(attacker)):
 			continue
 		if aggro_table[attacker] > best_threat:
 			best_threat = aggro_table[attacker]
 			best = attacker
+	if not is_instance_valid(_threat_target):
+		_threat_target = null   # gone (a pet dismissed, a player logged out): nothing to stick to
+	var cur: Node = _threat_target
+	if best != cur and cur != null and aggro_table.has(cur) and not (cur.is_in_group("player") and _player_is_down(cur)) \
+			and best_threat < aggro_table[cur] * THREAT_SWITCH_MARGIN:
+		best = cur
+	_threat_target = best
 	return best if is_instance_valid(best) else player
 
 # ===== STATE MACHINE =====
@@ -1690,6 +1708,32 @@ func get_damage_type() -> String:
 const DEATH_LINE_PATH := "res://Data/humanoid_death_lines.json"
 
 var _death_handled := false
+signal died
+
+# Auto-Loot on Kill (Options; test 42: "a check box that will automatically loot the area when a monster is killed"): on each
+# player's own machine, when a monster that was in a fight (it had a target) or that they had targeted dies within Loot
+# All's reach, their player loots everything in reach, as the G key does. Loot is personal, so it only ever takes theirs.
+var _seen_dead := false
+var _was_fighting := false
+
+func _watch_for_auto_loot() -> void:
+	if current_state != State.DEAD:
+		if target_key != "":
+			_was_fighting = true
+		return
+	if _seen_dead:
+		return
+	_seen_dead = true
+	if not Global.settings.get("auto_loot", false):
+		return
+	var me := TargetFrame.local_player()
+	if not is_instance_valid(me) or not me.has_method("loot_all_nearby") or Monster._player_is_down(me):
+		return
+	if not (_was_fighting or me.get("current_target") == self):
+		return
+	if me.global_position.distance_to(global_position) > me.LOOT_ALL_RANGE:
+		return
+	me.loot_all_nearby(true)
 
 func die(award_xp: bool = true, drop_loot: bool = true, credited_peer_id: int = -1) -> void:
 	# Once only. Every hit that lands on a body (a second attacker, a damage-over-time tick, a guard's or pet's swing a moment
@@ -1698,6 +1742,7 @@ func die(award_xp: bool = true, drop_loot: bool = true, credited_peer_id: int = 
 	if _death_handled:
 		return
 	_death_handled = true
+	died.emit()   # mob_spawner3d.gd starts this spawn point's respawn timer
 	_cancel_cast()
 	_dismiss_summons()
 	change_state(State.DEAD)
@@ -1749,12 +1794,17 @@ func die(award_xp: bool = true, drop_loot: bool = true, credited_peer_id: int = 
 			var recipients := xp_recipients(p)
 			var share := group_xp_share(xp_gain, recipients.size())
 			for r in recipients:
+				# Resting by a player's campfire (campfire_relay.gd) adds its tier's bonus: worked out here, where the server records the XP
+				var got := share
+				var fire_bonus := CampfireRelay.xp_bonus_at(get_tree(), (r as Node3D).global_position)
+				if fire_bonus > 0.0:
+					got = int(round(share * (1.0 + fire_bonus)))
 				# The server's own record of the XP it awarded (server trust checks saves against it; telemetry logs it).
-				Net.note_kill(r.get_multiplayer_authority(), share, str(monster_description if monster_description != "" else get_monster_name()), int(combat_node.level) if combat_node else 0)
+				Net.note_kill(r.get_multiplayer_authority(), got, str(monster_description if monster_description != "" else get_monster_name()), int(combat_node.level) if combat_node else 0)
 				if r.is_multiplayer_authority():
-					r.grant_xp(share)
+					r.grant_xp(got)
 				elif r.has_method("receive_kill_credit"):
-					r.receive_kill_credit.rpc_id(r.get_multiplayer_authority(), share)
+					r.receive_kill_credit.rpc_id(r.get_multiplayer_authority(), got)
 				# Faction: killing a Djhanid costs standing with the clans; killing the Dustwalkers who ruin their name earns some.
 				if not kill_standing.is_empty() and r.has_method("receive_standing_changes"):
 					if r.is_multiplayer_authority():
@@ -2618,6 +2668,14 @@ func land_ability(target: Node, i: int, amount: int) -> void:
 	var afflicted := false
 	if not effect.is_empty() and not cn.rolls_resist_negative_effect():
 		var mods: Dictionary = effect.get("modifiers", {}) if effect.get("modifiers") is Dictionary else {}
+		if str(effect.get("name", "")) == "terrified" and target.has_method("receive_fear"):
+			# fear on a player: a save decides whether they're Shaken or break and run (player3d.gd receive_fear())
+			target.receive_fear(float(effect.get("duration", 10.0)), level, who, mods.duplicate())
+			if target.has_method("on_attacked"):
+				target.on_attacked(self)
+			if taken > 0:
+				GameLog.log_combat("[color=#ff7766]%s's %s hurts you. (%d damage)[/color]" % [who, spell, taken])
+			return
 		cn.apply_effect(str(effect.get("name", "cursed")), float(effect.get("duration", 20.0)), mods.duplicate(),
 				int(effect.get("tick_damage", 0)), float(effect.get("tick_interval", 6.0)))
 		afflicted = true
