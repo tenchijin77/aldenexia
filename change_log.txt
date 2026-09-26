@@ -2400,6 +2400,32 @@ GATE RAIDS (`Scripts/gate_raid_manager.gd`, `Data/gate_raids.json`, node "GateRa
   warmth of the campfire -> groupfire.
 - Tests: test_test37.gd. Suite: 3,808 checks pass.
 
+### 2026-09-26 afternoon: the Warden Crypts, the Spiritual Weapon, [stealth] names, appraisal sight
+- THE WARDEN CRYPTS (the user: "a small zone... zone into via steps inside the mausoleum building... my first stab at a
+  smaller, indoor area dungeon, add halvek and some harder undead there"). A placeholder until the user's model:
+  Scenes/zones/warden_crypts.tscn (inherits the template), zones.json port_offset 13 (UDP 8923, on demand).
+  Rooms come from a text map, Data/warden_crypts_layout.txt (3 m cells: # rock, . floor, T torch, S stairs up,
+  C sarcophagus), built at load by Scripts/dungeon_builder.gd (@tool: shows in the editor; floors, walls, ceilings,
+  one collision body on the world layer; flickering wall torches). Entry hall -> the Ossuary Gallery -> the Wardens'
+  Rest (Halvek, west), the Chapel (east), the Deep Tomb (south), with a loop between the last two.
+- The way in: a stand-in stairwell at the east end of the mausoleum (Scenes/props/crypt_stairwell.tscn, the
+  Outskirts' StandIns) with the zone line "Down to the Warden Crypts"; back up by the stairs in the entry hall.
+- Monsters (Data/warden_crypts_spawns.json): Sergeant Halvek moved down (level 5, nearest the stairs: his quest stays
+  level-5 content), gallery 5-6, chapel 7-8 (risen priest, wraiths), Deep Tomb 8-10 (tomb skeletons, tomb guardians, a
+  wight). The navmesh bakes sarcophagi as solid to the ceiling (Engine meta "navmesh_baking") so nothing stands on a
+  tomb. The Zone Spawn Sheet has a WardenCrypts tab (check_monster_sheet.py knows it); Halvek's Outskirts row says moved.
+- UNDERGROUND: DayNightCycle "outdoors" off = no sun, sky or rain, a fixed dim ambient (indoor_ambient_energy);
+  the Elf's outdoor speed is off there (player3d.zone_is_outdoors()); the server's World check looks under the ceiling.
+  Music: cave_theme_b4.ogg (unused until now).
+- THE CAMERA stops at walls and ceilings (camera_controller.gd: a ray on the world layer from the head; snaps in, eases
+  back out). Everywhere, so buildings and hills too.
+- THE SPIRITUAL WEAPON is the user's model (models/Summoned Pets/spiritual_weapon.glb): a floating golden sword that
+  glows, bobs, turns and swings when it strikes (summoned_pet.gd _build_floating).
+- STEALTH shows as [Name] on the nameplate (the user: "just like gm uses greater/less than like <jaessa>").
+- APPRAISAL says whether you think it can see you (monster3d.sees_hidden(): only a monster that sees invisible, until the
+  level-based detection tonight).
+- Tests: test_warden_crypts (48), test_test42 +2, test_test44 +2, test_zones knows underground zones. RPC list unchanged.
+
 ### 2026-09-26 day: held models, guards armed, oasis, Lumora landmarks, bounty checks, clock sync
 - THE HELD MODELS (the user's art drop, models/new models/): tools/blender/fix_held_model.py (new; for single-mesh
   models: finds the head end from the widest cross-section, grip at a hand's width / lower on two-handers / the middle of

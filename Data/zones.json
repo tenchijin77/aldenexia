@@ -5,6 +5,7 @@
   "lumora_outskirts": {"name": "Lumora Outskirts", "scene": "res://Scenes/lumora_outskirts3d.tscn", "port_offset": 0, "always_on": true},
   "dustwind_plateaus": {"name": "Dustwind Plateaus", "scene": "res://Scenes/zones/dustwind_plateaus.tscn", "port_offset": 10},
   "ashfall_dunes": {"name": "Ashfall Dunes", "scene": "res://Scenes/zones/ashfall_dunes.tscn", "port_offset": 11},
-  "lumora": {"name": "Lumora", "scene": "res://Scenes/zones/lumora.tscn", "port_offset": 12}
+  "lumora": {"name": "Lumora", "scene": "res://Scenes/zones/lumora.tscn", "port_offset": 12},
+  "warden_crypts": {"name": "The Warden Crypts", "scene": "res://Scenes/zones/warden_crypts.tscn", "port_offset": 13}
  }
 }

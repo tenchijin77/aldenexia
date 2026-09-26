@@ -44,6 +44,7 @@
 [ext_resource type="Script" uid="uid://c2olnatq3g6a5" path="res://Scripts/zone_boundary.gd" id="zone_boundary_scr"]
 [ext_resource type="Script" uid="uid://clm5l4nhm5j6k" path="res://Scripts/zone_line.gd" id="zone_line_scr"]
 [ext_resource type="PackedScene" path="res://Scenes/props/lumora/ralphs_last_round.tscn" id="standin_ralphs_last_round"]
+[ext_resource type="PackedScene" path="res://Scenes/props/crypt_stairwell.tscn" id="standin_crypt_stairwell"]
 
 [sub_resource type="Gradient" id="Gradient_6a7en"]
 offsets = PackedFloat32Array(0.2, 1)
@@ -294,6 +295,9 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -33.49823, 0, 125.7903)
 [node name="Mausoleum" type="Marker3D" parent="Markers" unique_id=1573785626]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -36.372375, 0, -244.27975)
 
+[node name="warden_crypts_zone" type="Marker3D" parent="Markers"]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 58, 0.5, -244)
+
 [node name="Spider Den" type="Marker3D" parent="Markers" unique_id=487491048]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 35, 0, -815)
 
@@ -433,6 +437,13 @@ target_zone = "lumora"
 target_marker = "lumora_outskirts_zone"
 size = Vector3(92, 60, 6)
 
+[node name="Down to the Warden Crypts" type="Area3D" parent="ZoneLines"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 65.5, 1, -244)
+script = ExtResource("zone_line_scr")
+target_zone = "warden_crypts"
+target_marker = "lumora_outskirts_zone"
+size = Vector3(3, 3, 4)
+
 [node name="ZoneBoundary" type="Node3D" parent="." unique_id=1646338612]
 script = ExtResource("zone_boundary_scr")
 limit_max_x = 118.0
@@ -447,6 +458,9 @@ station_id = "forge"
 display_name = "Forge"
 
 [node name="StandIns" type="Node3D" parent="."]
+
+[node name="CryptStairwell" parent="StandIns" instance=ExtResource("standin_crypt_stairwell")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 65.5, 0, -244)
 
 [node name="RalphsLastRound" parent="StandIns" instance=ExtResource("standin_ralphs_last_round")]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 68, 0, 46.5)

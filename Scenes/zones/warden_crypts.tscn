@@ -1,0 +1,56 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://Scenes/zones/zone_template.tscn" id="1_template"]
+[ext_resource type="NavigationMesh" path="res://Data/warden_crypts_navmesh.tres" id="2_navmesh"]
+[ext_resource type="Script" path="res://Scripts/zone_line.gd" id="3_zone_line"]
+[ext_resource type="Script" path="res://Scripts/dungeon_builder.gd" id="4_dungeon"]
+
+[sub_resource type="Environment" id="Environment_crypt"]
+background_mode = 1
+background_color = Color(0.01, 0.01, 0.015, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.36, 0.4, 0.5, 1)
+ambient_light_energy = 0.45
+tonemap_mode = 2
+fog_enabled = true
+fog_light_color = Color(0.03, 0.03, 0.04, 1)
+fog_density = 0.025
+
+[node name="Zone" instance=ExtResource("1_template")]
+zone_id = "warden_crypts"
+zone_name = "The Warden Crypts"
+spawn_position = Vector3(40.5, 0.5, 10.5)
+
+[node name="Terrain3D" parent="." index="0"]
+visible = false
+collision_mode = 0
+
+[node name="DirectionalLight3D" parent="." index="3"]
+visible = false
+
+[node name="WorldEnvironment" parent="." index="4"]
+environment = SubResource("Environment_crypt")
+
+[node name="DayNightCycle" parent="." index="5"]
+outdoors = false
+indoor_ambient_energy = 0.45
+
+[node name="AmbientWind" parent="." index="7"]
+autoplay = false
+
+[node name="NavigationRegion3D" parent="." index="15"]
+navigation_mesh = ExtResource("2_navmesh")
+
+[node name="Dungeon" type="Node3D" parent="Structures"]
+script = ExtResource("4_dungeon")
+layout_path = "res://Data/warden_crypts_layout.txt"
+
+[node name="lumora_outskirts_zone" type="Marker3D" parent="Markers"]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 40.5, 0.5, 10.5)
+
+[node name="Up to the Mausoleum" type="Area3D" parent="ZoneLines"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40.5, 2, 3.4)
+script = ExtResource("3_zone_line")
+target_zone = "lumora_outskirts"
+target_marker = "warden_crypts_zone"
+size = Vector3(9, 4, 1.2)

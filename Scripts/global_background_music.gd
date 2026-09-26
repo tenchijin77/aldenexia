@@ -23,6 +23,7 @@ const SCENE_MUSIC := {
 	"res://Scenes/zones/dustwind_plateaus.tscn": "res://Assets/music/Weight of the Plateau.ogg",
 	"res://Scenes/zones/ashfall_dunes.tscn": "res://Assets/music/The Lost Oasis.ogg",
 	"res://Scenes/zones/lumora.tscn": "res://Assets/music/Welcome to Lumora.ogg",   # Lumora (the city): the user's own
+	"res://Scenes/zones/warden_crypts.tscn": "res://Assets/music/cave_theme_b4.ogg",   # the Warden Crypts (placeholder dungeon)
 }
 
 var _menu_stream: AudioStream

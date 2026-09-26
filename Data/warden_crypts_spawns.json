@@ -1,0 +1,176 @@
+{
+ "_comment": "warden_crypts_spawns.json - the Warden Crypts under the Outskirts mausoleum (2026-09-26 placeholder dungeon: Data/warden_crypts_layout.txt, Scripts/dungeon_builder.gd, 3 m cells, position = ((column + 0.5) * 3, 2, (row + 0.5) * 3)). Levels come from Data/monsters.json: the stairs and the Wardens' Rest (Sergeant Halvek, level 5, moved down from the mausoleum floor; his medal quest is level-5 content) are nearest the way out; the Ossuary Gallery 5-6; the Chapel (risen priest, wraiths) 7-8; the Deep Tomb (tomb skeletons, tomb guardians, a wight at the sarcophagus) 8-10.",
+ "density": 1.0,
+ "activation_range": 400,
+ "no_monster_zones": [
+  {
+   "name": "The stairs up and the entry hall",
+   "min": [
+    27,
+    0
+   ],
+   "max": [
+    54,
+    21
+   ]
+  }
+ ],
+ "spawns": [
+  {
+   "mob_type": "gravedigger_skeleton",
+   "position": [
+    40.5,
+    2,
+    28.5
+   ],
+   "spawn_radius": 1.0,
+   "spawn_chance": 1.0,
+   "max_active": 1,
+   "respawn_time": 300,
+   "spawn_zone": "stair_corridor"
+  },
+  {
+   "mob_type": "skeleton",
+   "position": [
+    13.5,
+    2,
+    25.5
+   ],
+   "spawn_radius": 4.0,
+   "spawn_chance": 1.0,
+   "max_active": 2,
+   "respawn_time": 300,
+   "spawn_zone": "wardens_rest"
+  },
+  {
+   "mob_type": "sergeant_halvek",
+   "position": [
+    13.5,
+    2,
+    19.5
+   ],
+   "spawn_radius": 1.5,
+   "spawn_chance": 1.0,
+   "max_active": 1,
+   "respawn_time": 900,
+   "spawn_zone": "wardens_rest_named"
+  },
+  {
+   "mob_type": "gravedigger_skeleton",
+   "position": [
+    25.5,
+    2,
+    37.5
+   ],
+   "spawn_radius": 6.0,
+   "spawn_chance": 1.0,
+   "max_active": 2,
+   "respawn_time": 300,
+   "spawn_zone": "ossuary_gallery"
+  },
+  {
+   "mob_type": "restless_corpse",
+   "position": [
+    64.5,
+    2,
+    37.5
+   ],
+   "spawn_radius": 6.0,
+   "spawn_chance": 1.0,
+   "max_active": 2,
+   "respawn_time": 300,
+   "spawn_zone": "ossuary_gallery"
+  },
+  {
+   "mob_type": "restless_corpse",
+   "position": [
+    25.5,
+    2,
+    52.5
+   ],
+   "spawn_radius": 2.0,
+   "spawn_chance": 1.0,
+   "max_active": 1,
+   "respawn_time": 300,
+   "spawn_zone": "south_stair"
+  },
+  {
+   "mob_type": "risen_priest",
+   "position": [
+    76.5,
+    2,
+    64.5
+   ],
+   "spawn_radius": 2.0,
+   "spawn_chance": 1.0,
+   "max_active": 1,
+   "respawn_time": 480,
+   "spawn_zone": "chapel"
+  },
+  {
+   "mob_type": "wraith",
+   "position": [
+    76.5,
+    2,
+    70.5
+   ],
+   "spawn_radius": 6.0,
+   "spawn_chance": 1.0,
+   "max_active": 2,
+   "respawn_time": 360,
+   "spawn_zone": "chapel"
+  },
+  {
+   "mob_type": "wraith",
+   "position": [
+    52.5,
+    2,
+    73.5
+   ],
+   "spawn_radius": 2.0,
+   "spawn_chance": 1.0,
+   "max_active": 1,
+   "respawn_time": 360,
+   "spawn_zone": "chapel_passage"
+  },
+  {
+   "mob_type": "tomb_skeleton",
+   "position": [
+    25.5,
+    2,
+    67.5
+   ],
+   "spawn_radius": 6.0,
+   "spawn_chance": 1.0,
+   "max_active": 2,
+   "respawn_time": 420,
+   "spawn_zone": "deep_tomb"
+  },
+  {
+   "mob_type": "tomb_guardian",
+   "position": [
+    25.5,
+    2,
+    76.5
+   ],
+   "spawn_radius": 6.0,
+   "spawn_chance": 1.0,
+   "max_active": 2,
+   "respawn_time": 480,
+   "spawn_zone": "deep_tomb"
+  },
+  {
+   "mob_type": "wight",
+   "position": [
+    25.5,
+    2,
+    79.5
+   ],
+   "spawn_radius": 1.5,
+   "spawn_chance": 1.0,
+   "max_active": 1,
+   "respawn_time": 1200,
+   "spawn_zone": "deep_tomb_named"
+  }
+ ]
+}

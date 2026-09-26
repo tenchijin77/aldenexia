@@ -1,6 +1,70 @@
 ALDENEXIA: LIGHTFALL — OUTSTANDING ITEMS
 Everything decided or noticed but not finished yet, so nothing gets lost. (New features waiting for a playtest are in testing_items.txt.) Add to it whenever something is left open; strike
-an item (delete it, note it in change_log.txt) when it's done. Last updated 2026-09-24 (after test 30).
+an item (delete it, note it in change_log.txt) when it's done. Last updated 2026-09-26.
+
+################################################################################
+  ART NEEDED — the go-to list of assets (kept current by Claude; delete a line when the asset is in)
+  ★ = most wanted. "Stand-in" = what the game uses meanwhile, so nothing is blocked.
+  Drop files anywhere (e.g. models/new models/, Assets/icons/) and say so: they get filed, fixed and wired in.
+################################################################################
+
+2D — ICONS (square PNG, same style as Assets/icons/items)
+  Items (weapons & gear)
+  ★ Copper Mace ........................ stand-in: sword
+  ★ Copper Warhammer ................... stand-in: sword
+  ★ Knotted Club ....................... stand-in: staff
+  ★ Great Club ......................... stand-in: staff
+  ★ Fir Quarterstaff ................... stand-in: staff
+  ★ Copper Greataxe .................... stand-in: war axe
+  ★ Copper Maul ........................ stand-in: war axe
+  ★ Copper Great Hammer ................ stand-in: war axe
+  ★ Apprentice's Wand .................. stand-in: fir staff
+  ★ Light Crossbow ..................... stand-in: quiver
+  ★ Fishing Pole ....................... stand-in: woodcutter's axe
+    Bronze Greatsword .................. stand-in: bronze longsword
+    Fir Buckler ........................ stand-in: tin shield
+    Warden's Tower Shield .............. stand-in: tin shield
+  Items (other)
+    Blank Parchment .................... stand-in: map fragment
+    Charcoal Stick ..................... stand-in: note
+    Venom Sac, Embalming Salve, Alchemy Reagent, Desert Essence ... all share "reagent"
+    (optional) Delusional Scrawl, Moribund Order Notes, Faded Note, Aelric's Letter ... share "note"
+  Status effects (Assets/icons/effects)
+    Shaken ............................. stand-in: terrified
+    Refreshed by the Oasis ............. stand-in: campfire warmth
+    Weak Poison, Disease ............... stand-in: spell icons
+  Spells (Assets/icons/spells)
+  ★ Arcane: target, area, group (96 spells use tinted stand-ins; the old arcane icons were crossed swords)
+    Blindside .......................... stand-in: Ambush's stun icon
+
+3D — MODELS (.glb; held items are fixed with tools/blender/fix_held_model.py, buildings keep their scene node)
+  Held items (models/Weapons)
+  ★ Spear .............................. the Standard-Issue Spear shows nothing in hand
+    (optional) Longsword, Scimitar/Cutlass ... stand-in: the shortsword
+  Lumora buildings (Scenes/props/lumora/<name>.tscn: replace the contents, keep the node)
+  ★ The Sunlit Rest (inn) · the Oasisheart Citadel · the Temple of the Dawn
+    The Hall of Arms · the Lycaeum Annex · the Courthouse · the Lantern Lodge (Old Town) · the Cisterns entrance
+    The Solaris Vault · the Caravanserai · the Wayfarers' Lodge · the Paladin's Vigil statue · the Oasis pool
+    Ralph's Last Round (the Outskirts gate tavern)
+  ★ The Warden Crypts (BUILT as a stand-in 2026-09-26: plain stone rooms from Data/warden_crypts_layout.txt)
+    Either one whole dungeon model, or a kit: wall / floor / ceiling pieces, an arch, stairs, a sarcophagus, an altar,
+    an ossuary wall of skulls, a wall sconce with a torch. And the stairwell inside the mausoleum (stand-in: a black
+    hole with a stone rim, Scenes/props/crypt_stairwell.tscn).
+    Monsters there with borrowed looks: risen priest, tomb guardian, restless corpse, gravedigger skeleton, wraith.
+  Creatures (rigged like the other creatures: Meshy + rig)
+  ★ Summoned pets: wolf, bear, panther, hawk, ghoul, abomination, wraith, shade (models/Summoned Pets ones are unusable:
+      no skeleton, one limb of each pair, lying sideways) ... stand-ins: rat, bat, mummy, bandit, ghost
+  ★ Kenji STANDING (the current one is sculpted sitting: he can't walk)
+    Gnolls (Bonegnawers: stand-in goblins) · drow (Tak'Majir: stand-in darkened human) · Dustwalkers & Djhanid
+    (stand-in: the bandit) · khepri beetle · sandshifter · wight · tomb skeleton · wild dog · thornback lizard
+    A Djhanid NPC look (Sahren and company)
+  World
+    The Old Foundation Stone (flat stand-in stone) · (optional) a better Chaosborn rift and travel sites
+  Also (not models): terrain textures for Dustwind and Ashfall; a desert wind / sandstorm ambient sound; (optional) a
+  crypt ambience loop (dripping water, distant moans) and its own music (it borrows cave_theme_b4 now).
+
+DONE recently (for reference, 2026-09-26): all axes, maces, hammers, clubs, wand, crossbow, hand torch, lantern, mining
+pick, fishing pole, woodcutter's axe, quiver, quarterstaff, treasure chest, spiritual weapon (the Lightmender's pet).
 
 
 == WAITING ON THE USER ==

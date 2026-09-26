@@ -151,6 +151,11 @@ func run() -> void:
 	mender._summon_from_spell(sw)
 	await frames(10)
 	if is_instance_valid(mender.active_pet):
+		# the Lightmender's pet IS the weapon (2026-09-26: "the spiritual weapon was meant to be the lightmender's pet"):
+		# models/Summoned Pets/spiritual_weapon.glb floating, glowing and lit, not a tinted ghost
+		var body: Node = mender.active_pet.get_node_or_null("Character")
+		check(body != null and body.find_children("*", "OmniLight3D", true, false).size() == 1, "the Spiritual Weapon is a glowing sword")
+		check(body != null and body.get_child(0).scene_file_path.ends_with("spiritual_weapon.glb"), "its own model (spiritual_weapon.glb)")
 		mender.pet_equipment["primary"] = Inventory.get_item_definition("copper_sword").duplicate()
 		mender.pet_equipment["primary"]["item_id"] = "copper_sword"
 		mender._apply_pet_gear_bonus()
@@ -206,8 +211,8 @@ func run() -> void:
 		if e["mob_type"] == "sergeant_halvek":
 			halvek = e
 	check(quickest >= 60, "no Outskirts monster respawns in under a minute (quickest %d s)" % quickest)
-	var hp: Array = halvek.get("position", [0, 0, 0])
-	check(float(hp[0]) > 35.0 and float(hp[0]) < 65.0 and absf(float(hp[2]) + 244.0) < 12.0, "Halvek waits inside the mausoleum")
+	# (2026-09-26: he moved down into the Warden Crypts under the mausoleum: test_warden_crypts.gd)
+	check(halvek.is_empty(), "Halvek waits below the mausoleum now, not on the Outskirts map")
 
 	p.queue_free()
 	pal.queue_free()

@@ -15,7 +15,8 @@ const KINDS := {
 	"abomination":      {"title": "abomination",      "model": "bandit", "scale": 1.35, "tint": Color(0.55, 0.68, 0.5)},
 	"wraith":           {"title": "wraith",           "model": "ghost",  "scale": 1.05, "tint": Color(0.6, 0.45, 0.85)},
 	"shade":            {"title": "shade",            "model": "ghost",  "scale": 1.0,  "tint": Color(0.28, 0.24, 0.34)},
-	"spiritual_weapon": {"title": "spiritual weapon", "model": "ghost",  "scale": 0.9,  "tint": Color(1.0, 0.88, 0.45)},
+	"spiritual_weapon": {"title": "spiritual weapon", "model": "ghost",  "scale": 0.7,  "tint": Color(1.0, 0.88, 0.45),
+			"scene": "res://models/Summoned Pets/spiritual_weapon.glb"},   # its own model: a floating golden sword
 	"wolf":             {"title": "wolf",             "model": "rat",    "scale": 1.5,  "tint": Color(0.78, 0.74, 0.68)},
 	"hawk":             {"title": "hawk",             "model": "bat",    "scale": 1.0,  "tint": Color(0.85, 0.62, 0.4)},
 	"bear":             {"title": "bear",             "model": "rat",    "scale": 2.2,  "tint": Color(0.5, 0.36, 0.26)},
@@ -86,6 +87,9 @@ func _recalculate_stats() -> void:
 
 func _setup_visual() -> void:
 	var info: Dictionary = KINDS.get(kind, KINDS["wolf"])
+	if info.has("scene") and ResourceLoader.exists(str(info["scene"])):
+		_build_floating(str(info["scene"]), float(info["scale"]), info["tint"])
+		return
 	var model := str(info["model"])
 	var model_scale := float(info["scale"])
 	var tint: Color = info["tint"]
@@ -148,6 +152,50 @@ func _build_critter(model_info: Dictionary, model: String, model_scale: float, t
 		_apply_material_recursive(character, mat)
 
 
+# A pet that is an object, not a creature (the Lightmender's Spiritual Weapon, 2026-09-26: "the spiritual weapon was
+# meant to be the lightmender's pet. it was the model for it"): it floats FLOAT_HEIGHT off the ground, glowing, bobbing
+# and slowly turning, and tips forward in a slash when it strikes.
+const FLOAT_HEIGHT := 0.5
+var _floating: Node3D = null
+var _float_time := 0.0
+var _swing := 0.0
+
+
+func _build_floating(path: String, model_scale: float, tint: Color) -> void:
+	var holder := Node3D.new()
+	holder.name = "Character"
+	add_child(holder)
+	var model: Node3D = (load(path) as PackedScene).instantiate()
+	model.scale = Vector3.ONE * model_scale
+	holder.add_child(model)
+	# stand its lowest point FLOAT_HEIGHT above the ground
+	var low := INF
+	for mi in model.find_children("*", "MeshInstance3D", true, false):
+		var m := mi as MeshInstance3D
+		var box: AABB = (model.transform * m.transform) * m.get_aabb()
+		low = minf(low, box.position.y)
+		for i in m.mesh.get_surface_count():
+			var mat := m.mesh.surface_get_material(i)
+			if mat is StandardMaterial3D:
+				var glow := (mat as StandardMaterial3D).duplicate() as StandardMaterial3D
+				glow.emission_enabled = true
+				glow.emission = tint
+				glow.emission_energy_multiplier = 0.6
+				m.set_surface_override_material(i, glow)
+	model.position.y = FLOAT_HEIGHT - (low if low != INF else 0.0)
+	var light := OmniLight3D.new()
+	light.light_color = tint
+	light.light_energy = 0.6
+	light.omni_range = 3.0
+	light.position.y = 1.0
+	holder.add_child(light)
+	_floating = holder
+	_float_time = randf() * 10.0
+	if has_node("NameLabel"):
+		$NameLabel.position.y = 2.3
+		$TitleLabel.position.y = 2.0
+
+
 # Animal pets built on the critter meshes move like the critters do (Shaders/critter_motion.gdshader, the same set-up as
 # monster3d.gd: test 42's outstanding "summoned animal pets don't use critter motion"): a wolf's legs paddle and its tail
 # swishes as it runs, a hawk beats its wings, and it lunges when it bites.
@@ -189,6 +237,12 @@ func _apply_critter_motion(node: Node, model_info: Dictionary, albedo: Texture2D
 
 
 func _process(delta: float) -> void:
+	if is_instance_valid(_floating) and not Net.is_dedicated_server:
+		_float_time += delta
+		_swing = maxf(0.0, _swing - delta / 0.4)
+		_floating.position.y = 0.12 * sin(_float_time * 1.6)
+		_floating.rotation.y += delta * 0.8
+		_floating.rotation.x = -1.1 * sin(_swing * PI)   # the slash: tips forward and back
 	if _critter_meshes.is_empty() or Net.is_dedicated_server:
 		return
 	var p := global_position
@@ -207,6 +261,8 @@ func _process(delta: float) -> void:
 
 # Critters have no animations, and a borrowed library may lack the swing clips: then the swing is just the hit.
 func _play_attack_animation() -> void:
+	if is_instance_valid(_floating):
+		_swing = 1.0
 	if not _critter_meshes.is_empty():
 		_critter_attack = 1.0   # the critter lunge (on the owner's screen; others see it run and paddle)
 	if not animation_player:

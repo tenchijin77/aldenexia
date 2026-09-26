@@ -80,7 +80,7 @@ var wanted: int = 0
 var resisting: bool = false
 # Hidden (Stealth stance, Shadowstep / Shadow Cloak / invisibility): set every frame on the player's own game, replicated,
 # so the server's monsters don't notice them (monster3d.gd can_see_player) and everyone sees them as a faint shape with
-# "[stealth]" on the nameplate (test 44: "we need some kind of indicator that the player is in stealth").
+# their name in square brackets on the nameplate, "[Jaessa]" (test 44: "we need some kind of indicator that the player is in stealth").
 var stealthed: bool = false
 var _shown_stealthed := false
 const STEALTH_TRANSPARENCY := 0.65
@@ -962,6 +962,19 @@ func _faction_reputation_text(target: Node) -> String:
 	return "%s (%d)" % [label, standing]
 
 
+func zone_is_outdoors() -> bool:
+	var cycle := get_tree().get_first_node_in_group("day_night_cycle") if is_inside_tree() else null
+	return cycle == null or cycle.get("outdoors") != false
+
+
+func sight_appraisal(monster: Node) -> String:
+	if not stealthed:
+		return "You think it can see you."
+	if monster.sees_hidden(self):
+		return "[color=#ff8866]You think it can see you, hidden or not.[/color]"
+	return "[color=#88cc88]You think it can't see you.[/color]"
+
+
 func try_appraise_target() -> void:
 	if not current_target or not is_instance_valid(current_target):
 		GameLog.log_general("You have no target to appraise.")
@@ -1013,6 +1026,9 @@ func try_appraise_target() -> void:
 	GameLog.log_general("%s%s" % [faction_text.get("prefix", ""), faction_text.get("suffix", "")])
 	GameLog.log_general("Estimated threat: %s" % tier["name"])
 	GameLog.log_general("Faction Reputation: %s" % _faction_reputation_text(current_target))
+	# Whether it can see you (a Shadowblade deciding whether to slip past): what you THINK, from how you're hidden.
+	if current_target.has_method("sees_hidden"):
+		GameLog.log_general(sight_appraisal(current_target))
 
 	if not success:
 		GameLog.log_general("[color=#aaaaaa]You can't make out more than that about %s.[/color]" % target_desc)
@@ -4427,8 +4443,8 @@ func apply_racial_traits(race_name: String) -> void:
 	race_faction_offset = int(traits.get("faction_bonus_all", 0)) + int(traits.get("faction_standing_bonus_all", 0))
 	race_faction_modifiers = race_standing_modifiers(race_key)
 	_refresh_faction_attitudes()   # the racial offset moves every standing
-	# Every zone is outdoors so far, so the Elf's outdoor speed always applies (indoor zones will have to switch it off).
-	if traits.has("movement_speed_outdoors_bonus"):
+	# The Elf's outdoor speed: everywhere but underground (a zone whose DayNightCycle has outdoors off: the Warden Crypts).
+	if traits.has("movement_speed_outdoors_bonus") and zone_is_outdoors():
 		combat_node.race_movement_speed_mult = float(traits["movement_speed_outdoors_bonus"])  # Elf: no other speed modifier
 	if traits.has("spell_critical_chance_bonus"):
 		combat_node.race_spell_crit_chance = float(traits["spell_critical_chance_bonus"])

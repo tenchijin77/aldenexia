@@ -23,6 +23,7 @@ func _initialize() -> void:
 	var args := OS.get_cmdline_user_args()
 	if not args.is_empty():
 		scene_path = FLAT_SCENE if args[0] == "flat" else args[0]
+	Engine.set_meta("navmesh_baking", true)   # dungeon_builder.gd: furniture baked as solid to the ceiling (no walkable tops)
 	var zone: Node = (load(scene_path) as PackedScene).instantiate()
 	root.add_child(zone)
 	await create_timer(1.0).timeout

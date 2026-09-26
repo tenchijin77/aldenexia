@@ -2,11 +2,11 @@ ALDENEXIA: LIGHTFALL — TESTING CHECKLIST
 New features and fixes waiting for a real playtest, in two parts: OUTSTANDING (not passed yet) and COMPLETED (passed).
 When an item passes, change [ ] to [x] and move it to the same section under COMPLETED (or just add "- working" and it
 gets moved). A failure goes to outstanding_items.txt with what went wrong. Last updated 2026-09-26 (after test 42).
-Everything below was built after test 26.   Outstanding: 252   Completed: 71
+Everything below was built after test 26.   Outstanding: 262   Completed: 71
 
 
 ################################################################################
-  OUTSTANDING — still to test (252)
+  OUTSTANDING — still to test (262)
 ################################################################################
 
 == ACCOUNTS AND JOINING ==
@@ -222,6 +222,21 @@ Everything below was built after test 26.   Outstanding: 252   Completed: 71
 [ ] New ailments show on the status window with a description and are removed by a cure: weakening venom (sandstinger),
     sundered armour (ravager), blinded (Djhanid), grave miasma (restless corpse), withering touch (wraith).
 [ ] Two players: one zones, the other stays; both keep playing (chat across zones doesn't work yet).
+
+== THE WARDEN CRYPTS, SPIRITUAL WEAPON, STEALTH NAMES (2026-09-26, afternoon) ==
+[ ] Inside the Outskirts mausoleum, at the east end: a dark stairwell with a stone rim. Walk into it: you load into
+    "The Warden Crypts" (its own zone, started on demand, UDP 8923) at the foot of the stairs.
+[ ] The crypt is dark stone with flickering wall torches, no sky, no rain, no wind; its own music (the cave theme).
+[ ] Walk up the stairs at the north end of the entry hall: you're back in the mausoleum, beside the stairwell.
+[ ] The camera stops at walls and ceilings instead of looking through them (crypt, the mausoleum, buildings outside too).
+[ ] Sergeant Halvek is in the Wardens' Rest (the room west, off the long gallery), no longer on the mausoleum floor;
+    his medal quest still works.
+[ ] Harder undead deeper in: gallery (level 5-6), chapel to the east (risen priest, wraiths 7-8), the Deep Tomb to the
+    south (tomb skeletons, tomb guardians, a wight at the sarcophagus, 8-10). Monsters stay on the floor (none on tombs).
+[ ] An Elf doesn't get the outdoor run speed in the crypt (and gets it back outside).
+[ ] A Lightmender's Spiritual Weapon is a floating golden sword that glows, bobs, turns slowly and swings when it hits.
+[ ] Stealthed players show as [Name] (square brackets) instead of "Name [stealth]".
+[ ] Appraise a monster: a line says whether you think it can see you ("You think it can't see you." while hidden).
 
 == HELD MODELS, GUARDS, OASIS (2026-09-26, day) ==
 [ ] Buy and wield the new weapons (Borgrim: mace, warhammer, greataxe, maul, great hammer, greatsword, crossbow; Aldric:

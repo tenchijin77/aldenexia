@@ -1,0 +1,81 @@
+[gd_scene format=3]
+
+[sub_resource type="StandardMaterial3D" id="Mat_stone"]
+albedo_color = Color(0.42, 0.39, 0.35, 1)
+roughness = 0.95
+
+[sub_resource type="StandardMaterial3D" id="Mat_dark"]
+shading_mode = 0
+albedo_color = Color(0, 0, 0, 1)
+
+[sub_resource type="StandardMaterial3D" id="Mat_step"]
+albedo_color = Color(0.2, 0.19, 0.17, 1)
+roughness = 0.95
+
+[sub_resource type="PlaneMesh" id="Mesh_opening"]
+material = SubResource("Mat_dark")
+size = Vector2(4, 4)
+
+[sub_resource type="BoxMesh" id="Mesh_rim_long"]
+material = SubResource("Mat_stone")
+size = Vector3(5, 0.7, 0.5)
+
+[sub_resource type="BoxMesh" id="Mesh_rim_short"]
+material = SubResource("Mat_stone")
+size = Vector3(0.5, 0.7, 4)
+
+[sub_resource type="BoxMesh" id="Mesh_step"]
+material = SubResource("Mat_step")
+size = Vector3(0.7, 0.06, 4)
+
+[sub_resource type="BoxShape3D" id="Shape_rim_long"]
+size = Vector3(5, 0.7, 0.5)
+
+[sub_resource type="BoxShape3D" id="Shape_rim_short"]
+size = Vector3(0.5, 0.7, 4)
+
+[node name="CryptStairwell" type="Node3D"]
+metadata/_standin = "The Warden Crypts stairwell (placeholder): the way down is from the open (-X) side; the zone line sits over it (lumora_outskirts3d.tscn ZoneLines/Down to the Warden Crypts)."
+
+[node name="Opening" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.03, 0)
+mesh = SubResource("Mesh_opening")
+
+[node name="Step1" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.6, 0.05, 0)
+mesh = SubResource("Mesh_step")
+
+[node name="Step2" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.8, 0, 0, 0, 1, 0, 0, 0, 1, -0.9, 0.045, 0)
+mesh = SubResource("Mesh_step")
+
+[node name="Step3" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.6, 0, 0, 0, 1, 0, 0, 0, 1, -0.3, 0.04, 0)
+mesh = SubResource("Mesh_step")
+
+[node name="RimNorth" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.25, 0.35, -2.25)
+mesh = SubResource("Mesh_rim_long")
+
+[node name="RimSouth" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.25, 0.35, 2.25)
+mesh = SubResource("Mesh_rim_long")
+
+[node name="RimEast" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.25, 0.35, 0)
+mesh = SubResource("Mesh_rim_short")
+
+[node name="Collision" type="StaticBody3D" parent="."]
+collision_layer = 65
+
+[node name="North" type="CollisionShape3D" parent="Collision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.25, 0.35, -2.25)
+shape = SubResource("Shape_rim_long")
+
+[node name="South" type="CollisionShape3D" parent="Collision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.25, 0.35, 2.25)
+shape = SubResource("Shape_rim_long")
+
+[node name="East" type="CollisionShape3D" parent="Collision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.25, 0.35, 0)
+shape = SubResource("Shape_rim_short")

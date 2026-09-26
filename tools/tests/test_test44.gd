@@ -71,7 +71,12 @@ func _shadowblade() -> void:
 		await get_tree().physics_frame
 	check(p.stealthed, "hidden: the flag is up (replicated)")
 	check(not rat.can_see_player(), "a stealthed player isn't noticed by sight")
-	check(TargetFrame.nameplate_name(p).contains("[stealth]"), "the nameplate says [stealth]")
+	check(p.sight_appraisal(rat).contains("can't see you"), "appraisal: you think it can't see you")
+	rat.combat_node.apply_effect("zt_see_invis", 60.0, {"see_invisible": 1.0})
+	check(rat.can_see_player() and p.sight_appraisal(rat).contains("can see you"), "one that sees invisible does, and appraisal says so")
+	rat.combat_node.remove_effect("zt_see_invis")
+	var plate := TargetFrame.nameplate_name(p)
+	check(plate.begins_with("[") and plate.ends_with("]") and not plate.contains("stealth"), "the nameplate shows the name in square brackets (%s)" % plate)
 	var mi := p.get_node("Character").find_children("*", "GeometryInstance3D", true, false)
 	check(not mi.is_empty() and (mi[0] as GeometryInstance3D).transparency > 0.5, "and the model is a faint shape")
 	p.combat_node.remove_effect("stance_stealth")

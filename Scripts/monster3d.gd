@@ -2312,6 +2312,12 @@ func _nearest_player() -> Node:
 	return best
 
 
+## Whether this monster notices a hidden (stealthed) player at all: only one that sees invisible, so far. Appraisal tells
+## the player what they think (player3d.gd try_appraise_target).
+func sees_hidden(_hidden: Node) -> bool:
+	return combat_node != null and combat_node.get_modifier("see_invisible") > 0.0
+
+
 func can_see_player() -> bool:
 	if not player:
 		return false
@@ -2335,7 +2341,7 @@ func can_see_player() -> bool:
 		return false   # wary folk (the Djhanid) watch you but never start it — unless you're hated (above)
 	# Hidden (Stealth, Shadowstep, invisibility: Player3D.stealthed, replicated): not noticed by sight (test 44: "stealth
 	# didn't seem to be working" — monsters never checked). A monster that sees invisible still does. Attacking reveals you.
-	if player.get("stealthed") == true and combat_node.get_modifier("see_invisible") <= 0.0:
+	if player.get("stealthed") == true and not sees_hidden(player):
 		return false
 
 	match behavior_type:

@@ -58,6 +58,8 @@ const SKY_SHADER := "res://Shaders/sky.gdshader"
 ## lightless interior/dungeon scene — with nothing to amplify it does nothing
 ## ("Deep Darkness"). Zones without a DayNightCycle at all get no boost either.
 @export var outdoors: bool = true
+## Underground (outdoors off: the Warden Crypts): no sun, moon, sky or rain, just this much ambient light; torches do the rest.
+@export var indoor_ambient_energy: float = 0.3
 ## These four are the FULL-strength (Improved Dark Sight) look; plain Dark Sight uses dark_sight_basic_strength of it.
 @export var dark_sight_night_ambient_energy: float = 0.8
 @export var dark_sight_moon_energy_multiplier: float = 3.0
@@ -149,6 +151,12 @@ func _recompute_phase_from_global_time() -> void:
 
 
 func _apply_lighting() -> void:
+	if not outdoors:
+		if _environment:
+			_environment.ambient_light_energy = indoor_ambient_energy
+		if _sun:
+			_sun.visible = false
+		return
 	var daylight: float = _daylight_factor()
 
 	var light_scale: float = lerpf(1.0, overcast_light_scale, weather_dim)

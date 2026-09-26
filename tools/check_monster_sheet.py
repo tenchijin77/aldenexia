@@ -21,7 +21,8 @@ import openpyxl
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SHEET = os.path.expanduser("~/NCT/Aldenexia-Lightfall/zones/Zone Spawn Sheet.xlsx")
-TABS = {"LumoraOutskirts": "lumora_outskirts", "DustwindPlateaus": "dustwind_plateaus", "AshfallDunes": "ashfall_dunes"}
+TABS = {"LumoraOutskirts": "lumora_outskirts", "DustwindPlateaus": "dustwind_plateaus", "AshfallDunes": "ashfall_dunes",
+        "WardenCrypts": "warden_crypts"}
 ID_HEADER = "Monster ID (monsters.json)"
 
 

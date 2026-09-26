@@ -47,7 +47,7 @@ SKILLS = load("player_skills.json")
 EFFECTS = load("skill_effects.json")["effects"]
 BALANCE = load("combat_balance.json")
 MONSTERS = load("monsters.json")
-SPAWNS = load("lumora_outskirts_spawns.json")["spawns"]
+SPAWNS = load("lumora_outskirts_spawns.json")["spawns"] + load("warden_crypts_spawns.json")["spawns"]   # the crypts: under the mausoleum
 
 
 def mlv(m):
@@ -447,7 +447,8 @@ AREAS = [
     ("The Wagon Crash", ["wagon_crash", "wagon_crash_named"], "A Lumoran trading wagon, wrecked on the south road. Brigands pick over it, led by Dessik Coinhand."),
     ("The bandit camps", ["bandit_camp_1", "bandit_camp_2", "bandit_camp_1_named"], "Two camps of sand brigands. Rask Ironjaw runs the larger one."),
     ("The goblin camps", ["goblin_camp_1", "goblin_camp_2", "goblin_camp_3", "goblin_camp_1_named"], "Three camps of desert goblins, with warriors and scouts. Grukka Bonechewer leads the biggest."),
-    ("The Mausoleum, graveyard and crypts", ["mausoleum", "graveyard", "small_crypt_1", "small_crypt_2", "mausoleum_named"], "An old burial ground where the dead don't rest: fallen scout skeletons, a sand mummy, a tormented spirit, and Sergeant Halvek, a Warden who never came home."),
+    ("The Mausoleum, graveyard and crypts", ["mausoleum", "graveyard", "small_crypt_1", "small_crypt_2", "mausoleum_named"], "An old burial ground where the dead don't rest: fallen scout skeletons, a sand mummy and a tormented spirit."),
+    ("The Warden Crypts (down the stairs inside the mausoleum)", ["stair_corridor", "wardens_rest", "wardens_rest_named", "ossuary_gallery", "south_stair", "chapel", "chapel_passage", "deep_tomb", "deep_tomb_named"], "Torchlit halls under the mausoleum, its own small zone. Sergeant Halvek, a Warden who never came home, keeps the Wardens' Rest near the stairs; deeper in, a chapel of risen priests and wraiths and the Deep Tomb, where tomb guardians and a wight wait. Bring a group for the far end."),
     ("The Spider Den", ["spider_den", "spider_den_named"], "A den far to the west, gone wrong. Blighted spiders and spiderling swarms guard Weavemother Vhessa. Take friends."),
     ("The deep dunes", ["deep_dunes_south"], "Far to the south, where the Hollowed wander: Djhanid exiles driven mad by the sun. They appear rarely."),
 ]

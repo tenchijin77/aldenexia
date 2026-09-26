@@ -181,5 +181,38 @@ func apply_camera_mode() -> void:
 			camera.position = Vector3(0, 1.6, 0)
 			camera.rotation_degrees = Vector3(0, 0, 0)
 
-func _process(_delta: float) -> void:
-	pass
+# Walls and ceilings (the world layer: terrain, buildings, the Warden Crypts' rooms) pull the camera in toward the player
+# instead of letting it look through them from outside; it eases back out when the way is clear.
+const WORLD_MASK := 64
+const CAMERA_CLEARANCE := 0.35
+var _pulled_in := -1.0   # the distance the camera is held at (-1 = not held)
+
+
+func _process(delta: float) -> void:
+	if current_mode == CameraMode.FIRST_PERSON or not camera.current or not is_inside_tree():
+		_pulled_in = -1.0
+		return
+	var wanted := _mode_position()
+	var head := (get_parent() as Node3D).global_position + Vector3(0, 1.5, 0)   # the player's head (the rig itself is tilted)
+	var goal := global_transform * wanted
+	var query := PhysicsRayQueryParameters3D.create(head, goal, WORLD_MASK)
+	query.hit_back_faces = false
+	var hit := get_world_3d().direct_space_state.intersect_ray(query)
+	var full := head.distance_to(goal)
+	var allowed := full
+	if not hit.is_empty():
+		allowed = maxf(head.distance_to(hit["position"]) - CAMERA_CLEARANCE, 0.3)
+	# snap in at once (never look through a wall), ease back out
+	_pulled_in = allowed if _pulled_in < 0.0 or allowed < _pulled_in else move_toward(_pulled_in, allowed, delta * 6.0)
+	var t := clampf(_pulled_in / maxf(full, 0.001), 0.0, 1.0)
+	var local_head := to_local(head)
+	camera.position = local_head.lerp(wanted, t)
+	if current_mode == CameraMode.THIRD_PERSON_ANGLED:
+		camera.look_at(global_transform * Vector3.ZERO, Vector3.UP)
+
+
+func _mode_position() -> Vector3:
+	if current_mode == CameraMode.THIRD_PERSON_ANGLED:
+		var zoom_factor: float = current_zoom / 6.0
+		return Vector3(0, 5 * zoom_factor, 8 * zoom_factor)
+	return Vector3(0, 2, current_zoom)

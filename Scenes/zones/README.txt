@@ -36,3 +36,11 @@ Drag an NPC scene (Scenes/talking_vendor.tscn for a talking shopkeeper, guard_np
 set it up in the Inspector (Npc Name, Title, Model Key such as "dwarf_male", Config Path, Shop Id). Every NPC shows its
 real model and name in the editor (npc_editor_preview.gd), so move it wherever you like. Height needn't be exact:
 vendors stand on the ground under them when the game starts (keep them within a few metres above it), guards fall to it.
+
+AN UNDERGROUND ZONE (a dungeon; the first is warden_crypts.tscn, 2026-09-26)
+Same template, but: DayNightCycle Outdoors off (no sun/sky/rain, fixed dim ambient, no Elf outdoor speed), Terrain3D
+hidden with collision off (its flat background plane would z-fight the floor), DirectionalLight3D hidden, AmbientWind
+autoplay off, a dark Environment. The rooms: a Node3D under Structures with Scripts/dungeon_builder.gd and a text map
+(Data/<zone_id>_layout.txt: # rock, . floor, T torch, S stairs up, C sarcophagus; 3 m cells, rows run south). Edit the
+text, reopen the scene, re-bake the navmesh (keep filter_baking_aabb below the ceiling). test_zones.gd checks it has no
+terrain and a Structures/Dungeon instead.

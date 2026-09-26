@@ -179,7 +179,7 @@ func _process(delta: float) -> void:
 		_thunder_in = randf_range(40.0, 120.0)
 		if intensity > 0.6:
 			Sfx.play("thunder")  # each player hears their own rolls of thunder in a heavy storm
-	if is_multiplayer_authority():
+	if is_multiplayer_authority() and (_day_night == null or _day_night.get("outdoors") != false):   # never rains underground
 		_time_to_next_change -= delta
 		if _time_to_next_change <= 0.0:
 			set_weather(not raining)

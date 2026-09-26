@@ -308,7 +308,9 @@ func _run_world_check() -> void:
 		return
 	var spawn: Vector3 = zone.get("spawn_position") if zone.get("spawn_position") != null else Vector3.ZERO
 	var world: World3D = get_tree().root.world_3d
-	var query := PhysicsRayQueryParameters3D.create(spawn + Vector3(0, 60, 0), spawn - Vector3(0, 80, 0))
+	var cycle := zone.get_node_or_null("DayNightCycle")
+	var above := 1.5 if cycle != null and cycle.get("outdoors") == false else 60.0   # underground: from under the ceiling
+	var query := PhysicsRayQueryParameters3D.create(spawn + Vector3(0, above, 0), spawn - Vector3(0, 80, 0))
 	var hit: Dictionary = Global.ground_ray(world.direct_space_state, query)
 	var nav_map: RID = world.navigation_map
 	var here: Vector3 = NavigationServer3D.map_get_closest_point(nav_map, spawn)

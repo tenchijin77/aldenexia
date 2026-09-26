@@ -23,15 +23,22 @@ func run() -> void:
 		eq(str(zone.zone_id), id, "%s: zone_id matches the file name" % file)
 		check(not str(zone.zone_name).is_empty(), "%s: has a display name" % id)
 		var terrain = zone.get_node("Terrain3D")
-		# its own terrain folder (Lumora the town is lumora_city_terrain: lumora_terrain is the Outskirts')
-		var own := str(terrain.data_directory)
-		check(own.begins_with("res://zones/") and own.ends_with("_terrain") and own != "res://zones/lumora_terrain", "%s: its own terrain folder (%s)" % [id, own])
+		# an underground zone (DayNightCycle outdoors off: the Warden Crypts) is built from a text layout, with no terrain
+		var indoor: bool = zone.get_node("DayNightCycle").outdoors == false
+		if indoor:
+			check(zone.has_node("Structures/Dungeon"), "%s: underground, built by Structures/Dungeon (dungeon_builder.gd)" % id)
+			eq(str(terrain.data_directory), "", "%s: underground, no terrain" % id)
+		else:
+			# its own terrain folder (Lumora the town is lumora_city_terrain: lumora_terrain is the Outskirts')
+			var own := str(terrain.data_directory)
+			check(own.begins_with("res://zones/") and own.ends_with("_terrain") and own != "res://zones/lumora_terrain", "%s: its own terrain folder (%s)" % [id, own])
 		var nav: NavigationMesh = zone.get_node("NavigationRegion3D").navigation_mesh
 		check(nav != null and nav.resource_path == "res://Data/%s_navmesh.tres" % id, "%s: its own navmesh file" % id)
 		check(nav != null and nav.get_polygon_count() > 0, "%s: navmesh is baked (tools/bake_lumora_navmesh.gd)" % id)
 		add_child(zone)
 		await frames(3)
-		check(terrain.data.get_region_count() > 0, "%s: terrain has regions" % id)
+		if not indoor:
+			check(terrain.data.get_region_count() > 0, "%s: terrain has regions" % id)
 		eq(ZoneInfo.id_for(zone.get_node("monster_spawner")), id, "%s: spawners know their zone" % id)
 		eq(zone.get_node("monster_spawner/SpawnedMobs").get_child_count(), 0, "%s: no Outskirts monsters" % id)
 		zone.queue_free()
