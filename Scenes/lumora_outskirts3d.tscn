@@ -43,6 +43,7 @@
 [ext_resource type="Script" uid="uid://t6wjhuirmwsb" path="res://Scripts/world_note.gd" id="world_note_scr"]
 [ext_resource type="Script" uid="uid://c2olnatq3g6a5" path="res://Scripts/zone_boundary.gd" id="zone_boundary_scr"]
 [ext_resource type="Script" uid="uid://clm5l4nhm5j6k" path="res://Scripts/zone_line.gd" id="zone_line_scr"]
+[ext_resource type="PackedScene" path="res://Scenes/props/lumora/ralphs_last_round.tscn" id="standin_ralphs_last_round"]
 
 [sub_resource type="Gradient" id="Gradient_6a7en"]
 offsets = PackedFloat32Array(0.2, 1)
@@ -444,3 +445,16 @@ transform = Transform3D(-0.42710876, 0, 0.90420026, 0, 1, 0, -0.90420026, 0, -0.
 script = ExtResource("crafting_station_scr")
 station_id = "forge"
 display_name = "Forge"
+
+[node name="StandIns" type="Node3D" parent="."]
+
+[node name="RalphsLastRound" parent="StandIns" instance=ExtResource("standin_ralphs_last_round")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 68, 0, 46.5)
+
+[node name="BarkeepWenna" parent="NPCs" instance=ExtResource("talking_vendor_scn")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 71, 0, 40)
+config_path = "res://Data/npcs/barkeepwenna.json"
+model_key = "human_female"
+title = "Ralph's Last Round"
+npc_name = "Wenna Tuller"
+shop_id = "outskirts_tavern"

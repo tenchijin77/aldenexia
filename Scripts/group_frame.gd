@@ -251,7 +251,8 @@ func _process(_delta: float) -> void:
 	for i in range(MAX_ROWS):
 		var row: Dictionary = _member_rows[i]
 		if i >= group_members.size() and i - group_members.size() < remote.size():
-			# a member in another zone (world_link.gd): name and where, no bars (test 38)
+			# a member in another zone (world_link.gd): name, where, and their health and mana as the world link last
+			# heard them (every few seconds; percent)
 			var r: Dictionary = remote[i - group_members.size()]
 			row["wrapper"].visible = true
 			row["member"] = null
@@ -259,9 +260,10 @@ func _process(_delta: float) -> void:
 			row["pet_wrapper"].visible = false
 			row["name_label"].text = "%s (%s)" % [str(r.get("name", "?")), str(r.get("zone", ""))]
 			row["wrapper"].modulate.a = OUT_OF_RANGE_ALPHA
-			for bar in ["hp_bar", "mp_bar"]:
-				row[bar].max_value = 1
-				row[bar].value = 0
+			row["hp_bar"].max_value = 100
+			row["hp_bar"].value = int(r.get("hp", 0))
+			row["mp_bar"].max_value = 100
+			row["mp_bar"].value = int(r.get("mp", 0))
 			continue
 		if i >= group_members.size():
 			row["wrapper"].visible = false

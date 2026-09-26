@@ -1,0 +1,52 @@
+{
+ "_comment": "What Magelord Arcturus Vael says (talking_vendor_npc.gd shape: greeting, shop_intro, ambient, secret (night), topics). Written by tools/place_lumora_standins.py once; edit freely.",
+ "ambient_minutes": [
+  5,
+  9
+ ],
+ "ambient_secret_chance_at_night": 0.2,
+ "greeting": [
+  "Magic is a discipline, not a gift.",
+  "Here to learn? I keep what a Arcanist needs, when you're ready for it."
+ ],
+ "shop_intro": [
+  "Here's what I can teach you."
+ ],
+ "ambient": [
+  "Magic is a discipline, not a gift.",
+  "Read first. Cast second. Apologise rarely."
+ ],
+ "secret": [],
+ "topics": [
+  {
+   "id": "hail",
+   "keywords": [
+    "hail",
+    "hello",
+    "greetings",
+    "hey"
+   ],
+   "then": {
+    "hail": true
+   }
+  },
+  {
+   "id": "train",
+   "keywords": [
+    "train",
+    "learn",
+    "scroll",
+    "scrolls",
+    "spell",
+    "spells",
+    "teach"
+   ],
+   "lines": [
+    "Let's see what you're ready for."
+   ],
+   "then": {
+    "hail": true
+   }
+  }
+ ]
+}

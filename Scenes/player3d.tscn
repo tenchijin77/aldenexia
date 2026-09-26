@@ -74,6 +74,15 @@ properties/20/replication_mode = 2
 properties/21/path = NodePath(".:hostile_to")
 properties/21/spawn = true
 properties/21/replication_mode = 2
+properties/22/path = NodePath(".:wanted")
+properties/22/spawn = true
+properties/22/replication_mode = 2
+properties/23/path = NodePath(".:resisting")
+properties/23/spawn = true
+properties/23/replication_mode = 2
+properties/24/path = NodePath(".:stealthed")
+properties/24/spawn = true
+properties/24/replication_mode = 2
 
 [node name="CharacterBody3D" type="CharacterBody3D" unique_id=992623004 groups=["player"]]
 script = ExtResource("1_w11xc")

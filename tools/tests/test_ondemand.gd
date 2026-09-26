@@ -55,6 +55,31 @@ func run() -> void:
 	eq(link.world_player_count(), 2, "the world's player count")
 	check(FileAccess.get_file_as_string("res://Scripts/account_relay.gd").contains("func _is_online("), "the character list and delete check use it")
 
+	# groupmates in other zones: health and mana ride along with the roster; the group frame shows them
+	var mae = await make_player({"player_name": "Maedianie", "player_class": "Wildspeaker"})
+	mae.combat_node.current_hp = int(mae.combat_node.max_hp / 2)
+	var mine: Array = link.local_players()
+	var row: Dictionary = {}
+	for r in mine:
+		if str(r["name"]) == "Maedianie":
+			row = r
+	check(row.has("hp") and absi(int(row["hp"]) - 50) <= 1, "the roster carries health (%s%%)" % str(row.get("hp")))
+	check(FileAccess.get_file_as_string("res://Scripts/group_frame.gd").contains('row["hp_bar"].value = int(r.get("hp", 0))'), "the group frame fills a remote member's bars")
+	# /ban a player who's in another zone: their zone's server bans them
+	link._world = {"lumora": [{"name": "Shonuff"}]}
+	eq(link.ban_player_elsewhere("Shonuff", "test"), "lumora", "a /ban by name reaches the zone they're in")
+	eq(link.ban_player_elsewhere("Nobody", "test"), "", "nobody by that name anywhere")
+	check(FileAccess.get_file_as_string("res://Scripts/gm_commands.gd").contains("link.share_kick_ip(ip, note)"), "a banned address is disconnected in every zone")
+	# following someone who zones: told by name
+	var lead := Node3D.new()
+	add_child(lead)
+	mae.start_following(lead)
+	check(not mae._follow_name.is_empty(), "follow remembers whom")
+	lead.free()
+	mae.handle_movement(0.1)
+	check(mae._follow_target == null, "they zoned: following stops (\"<name> has left the zone.\")")
+	mae.queue_free()
+
 	# the client: a zone line waits for the zone; a dead zone port falls back to the login server
 	var ns := FileAccess.get_file_as_string("res://Scripts/net.gd")
 	check(ns.contains("link.request_zone(target)") and ns.contains("func _travel_now("), "crossing a zone line waits for the zone to be up")

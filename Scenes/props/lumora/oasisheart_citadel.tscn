@@ -1,0 +1,125 @@
+[gd_scene format=3]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_3ixgv"]
+size = Vector3(30, 12, 0.6)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_5wkx0"]
+size = Vector3(0.6, 12, 22)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_yhove"]
+size = Vector3(0.6, 12, 22)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_qhcbj"]
+size = Vector3(13.4, 12, 0.6)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_pqya1"]
+size = Vector3(13.4, 12, 0.6)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_vb0bh"]
+size = Vector3(3.2, 8.4, 0.6)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_lcjf3"]
+size = Vector3(30.8, 0.5, 22.8)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_fg8f2"]
+albedo_color = Color(0.84, 0.74, 0.56, 1)
+roughness = 0.95
+
+[sub_resource type="BoxMesh" id="BoxMesh_ecfdr"]
+size = Vector3(30, 12, 0.6)
+
+[sub_resource type="BoxMesh" id="BoxMesh_6f5bf"]
+size = Vector3(0.6, 12, 22)
+
+[sub_resource type="BoxMesh" id="BoxMesh_46il6"]
+size = Vector3(0.6, 12, 22)
+
+[sub_resource type="BoxMesh" id="BoxMesh_6h0pa"]
+size = Vector3(13.4, 12, 0.6)
+
+[sub_resource type="BoxMesh" id="BoxMesh_sen4x"]
+size = Vector3(13.4, 12, 0.6)
+
+[sub_resource type="BoxMesh" id="BoxMesh_dwotx"]
+size = Vector3(3.2, 8.4, 0.6)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_swfcb"]
+albedo_color = Color(0.62, 0.45, 0.32, 1)
+roughness = 0.9
+
+[sub_resource type="BoxMesh" id="BoxMesh_07813"]
+size = Vector3(30.8, 0.5, 22.8)
+
+[node name="OasisheartCitadel" type="Node3D" unique_id=1820153758]
+metadata/stand_in = true
+
+[node name="Walls" type="StaticBody3D" parent="." unique_id=228177211]
+
+[node name="BackShape" type="CollisionShape3D" parent="Walls" unique_id=746087069]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6, -10.7)
+shape = SubResource("BoxShape3D_3ixgv")
+
+[node name="LeftShape" type="CollisionShape3D" parent="Walls" unique_id=845260907]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14.7, 6, 0)
+shape = SubResource("BoxShape3D_5wkx0")
+
+[node name="RightShape" type="CollisionShape3D" parent="Walls" unique_id=274295991]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14.7, 6, 0)
+shape = SubResource("BoxShape3D_yhove")
+
+[node name="FrontLeftShape" type="CollisionShape3D" parent="Walls" unique_id=1683675464]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.3, 6, 10.7)
+shape = SubResource("BoxShape3D_qhcbj")
+
+[node name="FrontRightShape" type="CollisionShape3D" parent="Walls" unique_id=781547973]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.3, 6, 10.7)
+shape = SubResource("BoxShape3D_pqya1")
+
+[node name="LintelShape" type="CollisionShape3D" parent="Walls" unique_id=1530489276]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 7.8, 10.7)
+shape = SubResource("BoxShape3D_vb0bh")
+
+[node name="RoofShape" type="CollisionShape3D" parent="Walls" unique_id=220891789]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 12.25, 0)
+shape = SubResource("BoxShape3D_lcjf3")
+
+[node name="Back" type="MeshInstance3D" parent="." unique_id=636717025]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6, -10.7)
+material_override = SubResource("StandardMaterial3D_fg8f2")
+mesh = SubResource("BoxMesh_ecfdr")
+
+[node name="Left" type="MeshInstance3D" parent="." unique_id=316946699]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14.7, 6, 0)
+material_override = SubResource("StandardMaterial3D_fg8f2")
+mesh = SubResource("BoxMesh_6f5bf")
+
+[node name="Right" type="MeshInstance3D" parent="." unique_id=72528368]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14.7, 6, 0)
+material_override = SubResource("StandardMaterial3D_fg8f2")
+mesh = SubResource("BoxMesh_46il6")
+
+[node name="FrontLeft" type="MeshInstance3D" parent="." unique_id=2017691683]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.3, 6, 10.7)
+material_override = SubResource("StandardMaterial3D_fg8f2")
+mesh = SubResource("BoxMesh_6h0pa")
+
+[node name="FrontRight" type="MeshInstance3D" parent="." unique_id=1761763981]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.3, 6, 10.7)
+material_override = SubResource("StandardMaterial3D_fg8f2")
+mesh = SubResource("BoxMesh_sen4x")
+
+[node name="Lintel" type="MeshInstance3D" parent="." unique_id=1578269580]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 7.8, 10.7)
+material_override = SubResource("StandardMaterial3D_fg8f2")
+mesh = SubResource("BoxMesh_dwotx")
+
+[node name="Roof" type="MeshInstance3D" parent="." unique_id=1366737429]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 12.25, 0)
+material_override = SubResource("StandardMaterial3D_swfcb")
+mesh = SubResource("BoxMesh_07813")
+
+[node name="Sign" type="Label3D" parent="." unique_id=1356637548]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.5, 11.05)
+modulate = Color(1, 0.93, 0.75, 1)
+text = "Oasisheart Citadel"
+font_size = 64

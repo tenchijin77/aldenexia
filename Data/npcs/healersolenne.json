@@ -1,0 +1,50 @@
+{
+ "_comment": "What High Priestess Solenne says (talking_vendor_npc.gd shape: greeting, shop_intro, ambient, secret (night), topics). Written by tools/place_lumora_standins.py once; edit freely.",
+ "ambient_minutes": [
+  5,
+  9
+ ],
+ "ambient_secret_chance_at_night": 0.2,
+ "greeting": [
+  "The Dawn's light for the sick and the hurt. Come, sit.",
+  "Wounded? Poisoned? The temple can help. The dead, it cannot."
+ ],
+ "shop_intro": [],
+ "ambient": [
+  "The temple mends what it can.",
+  "Aurethiel keeps no one waiting who asks in earnest."
+ ],
+ "secret": [],
+ "topics": [
+  {
+   "id": "hail",
+   "keywords": [
+    "hail",
+    "hello",
+    "greetings",
+    "hey"
+   ],
+   "then": {
+    "hail": true
+   }
+  },
+  {
+   "id": "heal",
+   "keywords": [
+    "heal",
+    "healing",
+    "cure",
+    "poison",
+    "disease",
+    "curse",
+    "sick"
+   ],
+   "lines": [
+    "Of course. Be still."
+   ],
+   "then": {
+    "hail": true
+   }
+  }
+ ]
+}

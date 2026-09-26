@@ -16,7 +16,7 @@ const LOW_HEALTH_FRACTION := 0.25      # the heartbeat plays below this much hea
 const TURN_SPEED: float = PI
 
 const BACKWARD_SPEED_MULT: float = 0.75
-const AIR_CONTROL_MULT: float = 0.3
+const AIR_STEER: float = 4.0   # m/s² of steering in the air: a jump keeps its take-off speed (handle_movement())
 const STUMBLE_DURATION: float = 0.2
 #endregion
 
@@ -74,6 +74,16 @@ var held_gear := "":
 # The players this one is hostile with right now (lower-case names: a duel or PvP, player_versus.gd), replicated. Two
 # players can fight only when each is on the other's list.
 var hostile_to := PackedStringArray()
+# Crime (crime.gd): the bounty in copper (0 = clean) and whether they've chosen to resist arrest. Replicated from the
+# player's own game so the server's guards know whom to ask for a fine and whom to attack.
+var wanted: int = 0
+var resisting: bool = false
+# Hidden (Stealth stance, Shadowstep / Shadow Cloak / invisibility): set every frame on the player's own game, replicated,
+# so the server's monsters don't notice them (monster3d.gd can_see_player) and everyone sees them as a faint shape with
+# "[stealth]" on the nameplate (test 44: "we need some kind of indicator that the player is in stealth").
+var stealthed: bool = false
+var _shown_stealthed := false
+const STEALTH_TRANSPARENCY := 0.65
 var known_spells: Array = []
 var known_skills: Array = []
 var known_recipes: Array = []  # tradeskill recipe ids learned from scrolls/quests (innate recipes are always known)
@@ -1407,6 +1417,7 @@ func _build_character_model() -> void:
 	_built_character_model_key = key
 	_apply_appearance()
 	HeldGear.apply(character, held_gear)   # a rebuilt model (race / sex change) gets its weapon back
+	_shown_stealthed = false   # the new model is solid: made faint again next frame if still hidden
 
 
 # Puts this character's look (appearance_json) on the built model.
@@ -1674,6 +1685,13 @@ func _load_spell_cache() -> void:
 
 #region Physics process (movement / stamina / combat)
 func _physics_process(delta: float) -> void:
+	if is_multiplayer_authority() and combat_node != null:
+		var hid: bool = combat_node.is_stealthed() or combat_node.is_currently_invisible()
+		if hid != stealthed:
+			stealthed = hid
+			_refresh_nameplate()
+	if stealthed != _shown_stealthed:
+		_show_stealth(stealthed)
 	if not is_multiplayer_authority():
 		_play_replicated_animation()
 		# Invisibility is evaluated fresh every tick against the LOCAL viewer's
@@ -2293,7 +2311,8 @@ func handle_movement(delta: float) -> void:
 
 	if _follow_target != null:
 		if not is_instance_valid(_follow_target):
-			stop_following("You are no longer following your target.")
+			# a player who zoned (or logged out) simply vanishes from here: say so, by name
+			stop_following("%s has left the zone. You stop following." % _follow_name if not _follow_name.is_empty() else "You are no longer following your target.")
 		elif Input.is_action_pressed("move_forward") or Input.is_action_pressed("move_backward") \
 				or Input.is_action_pressed("strafe_left") or Input.is_action_pressed("strafe_right") \
 				or Input.is_action_pressed("turn_left") or Input.is_action_pressed("turn_right") \
@@ -2333,8 +2352,6 @@ func handle_movement(delta: float) -> void:
 
 	if forward < 0.0:
 		target_speed *= BACKWARD_SPEED_MULT
-	if not is_on_floor():
-		target_speed *= AIR_CONTROL_MULT
 	if combat_node.race_movement_speed_mult != 0.0:
 		target_speed *= (1.0 + combat_node.race_movement_speed_mult)
 
@@ -2342,8 +2359,16 @@ func handle_movement(delta: float) -> void:
 	var right_dir: Vector3 = transform.basis.x.normalized()
 	var world_move: Vector3 = (right_dir * strafe + forward_dir * forward).normalized()
 
-	velocity.x = world_move.x * target_speed
-	velocity.z = world_move.z * target_speed
+	if is_on_floor():
+		velocity.x = world_move.x * target_speed
+		velocity.z = world_move.z * target_speed
+	else:
+		# In the air you keep the speed you jumped with (test 44: "when you jump, it seems to lose forward momentum ... keep
+		# the forward momentum based on your velocity, i.e. walking or sprinting"). It used to drop to 30% the moment you
+		# left the ground. The keys only nudge it (AIR_STEER m/s² toward where they point), so a running jump carries you on.
+		var h := Vector2(velocity.x, velocity.z).move_toward(Vector2(world_move.x, world_move.z) * target_speed, AIR_STEER * delta)
+		velocity.x = h.x
+		velocity.z = h.y
 	current_speed = Vector2(velocity.x, velocity.z).length()
 
 
@@ -2439,8 +2464,11 @@ func _follow_display_name(target: Node) -> String:
 	return TargetFrame.display_name(target)
 
 
+var _follow_name := ""   # whom we follow, kept for when they're gone (a zone change frees their node here)
+
 func start_following(target: Node3D) -> void:
 	_follow_target = target
+	_follow_name = _follow_display_name(target)
 	_follow_path.clear()
 	_follow_repath_timer = 0.0
 	GameLog.log_general("You begin following [b]%s[/b]." % _follow_display_name(target))
@@ -3446,6 +3474,26 @@ func _grant_missing_starter_weapon() -> void:
 		Global.save_player_data_to_file()
 
 
+# A class's starting spells (character_creation.gd STARTING_SPELLS) that a character made before one was added doesn't
+# have yet: learned at login (test 44: Blindside for the Shadowblades; Spiritual Weapon for the Lightmenders, test 42).
+func _grant_missing_starting_spells() -> void:
+	if not is_multiplayer_authority():
+		return
+	var start: Array = load("res://Scripts/character_creation.gd").STARTING_SPELLS.get(str(player_class), [])
+	var added := false
+	for sp in start:
+		if known_spells.has(sp) or not _spell_by_name.has(sp):
+			continue
+		if known_spells.any(func(k): return SpellInfo.counts_as(str(k)).has(sp)):
+			continue   # they know a stronger version
+		known_spells.append(sp)
+		added = true
+		GameLog.log_general("[color=#ffdd44]You have learned [b]%s[/b]![/color]" % spell_display_name(sp))
+	if added:
+		Global.player_data["known_spells"] = known_spells
+		Global.save_player_data_to_file()
+
+
 # How a target is named in the combat log: a monster's description, or a player's name.
 func _desc_of(n: Node) -> String:
 	if n == null or not is_instance_valid(n):
@@ -3581,6 +3629,10 @@ func die(attacker: Node = null) -> void:
 			_broadcast_combat("[color=#ff5544]%s has been slain by %s![/color]" % [player_name, desc])
 		if desc == "" and attacker.has_method("get_monster_name"):
 			desc = attacker.get_monster_name()
+		if desc == "" and attacker.is_in_group("npc_guard"):
+			desc = str(attacker.get("npc_name"))
+			if is_multiplayer_authority():
+				Crime.on_killed_by_guard(self)   # the fine comes out of the purse
 		if desc != "":
 			_last_attacker_desc = desc
 
@@ -4106,6 +4158,8 @@ func load_player_data_from_global() -> void:
 		combat_node._stats_dirty = true
 		combat_node.recalculate_derived_stats()
 		_grant_missing_starter_weapon()
+		_grant_missing_starting_spells()
+		wanted = Crime.bounty()   # a bounty is still owed after logging out (resisting isn't: that ends with the session)
 
 
 # Starting weapon skill: combat classes begin with a baseline so they can hit. Only a FALLBACK for when the equipped
@@ -4121,6 +4175,16 @@ func _apply_baseline_weapon_skill() -> void:
 		_:
 			if combat_node.weapon_skill == 0:
 				combat_node.weapon_skill = 4
+
+
+# A faint shape while hidden (on every screen, yours included), solid again when you come out.
+func _show_stealth(on: bool) -> void:
+	_shown_stealthed = on
+	var character := get_node_or_null("Character")
+	if character == null:
+		return
+	for mi in character.find_children("*", "GeometryInstance3D", true, false):
+		(mi as GeometryInstance3D).transparency = STEALTH_TRANSPARENCY if on else 0.0
 
 
 func _refresh_nameplate() -> void:
@@ -4965,15 +5029,21 @@ func cast_spell(spell_name: String, is_auto_recast: bool = false) -> bool:
 				_active_songs.erase(spell_name)   # a song that never started is not "playing"
 			return false
 
-	# Begin cast message
-	GameLog.log_combat(CombatLogFormatter.begin_cast("You"))
+	# A physical skill with no cast time (Backstab, Shadowstep, Power Strike...) is a move, not a spell: no "You begin
+	# casting" line, a weapon swing instead of the spellcasting animation, and it doesn't train spell casting (test 44:
+	# "shadowstep and backstab are physical skills and should be instant").
+	var is_skill: bool = str(spell.get("spell_school", "")) == "physical" and float(spell.get("casting_time", 0.0)) <= 0.0 \
+			and not spell.has("casting_time_max")
+	if not is_skill:
+		GameLog.log_combat(CombatLogFormatter.begin_cast("You"))
 
 	# Commit mana and cooldown
 	combat_node.current_mana -= cost
 	_spell_cooldowns[spell_name] = float(spell.get("recast_time", 10.0))
 
 	# Tick spell_casting skill
-	_tick_skill("spell_casting")
+	if not is_skill:
+		_tick_skill("spell_casting")
 	# Every Troubadour spell is a song, and playing one trains musicianship (nothing did before — it was a skill no
 	# action ever raised).
 	if player_class == "Troubadour":
@@ -4986,7 +5056,14 @@ func cast_spell(spell_name: String, is_auto_recast: bool = false) -> bool:
 	if not skill_category.is_empty():
 		_tick_skill(skill_category)
 
-	_trigger_cast_animation(spell)
+	if not is_skill:
+		_trigger_cast_animation(spell)
+	elif str(spell.get("target", "")) in ["enemy", "cone"] and animation_player != null:
+		# a weapon swing, played through the cast-animation slot (it shows while _cast_anim_timer runs)
+		var swings: Array = ATTACK_ANIMS.filter(func(a): return animation_player.has_animation(a))
+		if not swings.is_empty():
+			_current_cast_anim = swings[randi() % swings.size()]
+			_cast_anim_timer = minf(animation_player.get_animation(_current_cast_anim).length, 1.2)
 
 	var cast_time: float = float(spell.get("casting_time", 0.0))
 	if spell.has("casting_time_max"):  # Chaos Rift: a flickering 5-8 s

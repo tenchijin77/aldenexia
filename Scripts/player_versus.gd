@@ -7,7 +7,7 @@
 #   /pvp [name]   declare PvP on your target: no consent needed. They're warned and get PVP_GRACE seconds, then the two of
 #                 you can fight to the death (normal death rules). It lasts until PVP_MINUTES pass with no blows traded.
 #                 Only from level PVP_MIN_LEVEL, and only within PVP_LEVEL_RANGE levels of each other (no ganking new
-#                 players). Attacking another player in town will be a crime once the crime system exists.
+#                 players). Striking another player in town is a crime if a guard sees it (crime.gd); a duel isn't.
 # Only the two players are hostile to each other; to everyone else they're still allies. Player3D.hostile_to (replicated)
 # holds the names you're hostile with right now; TargetFrame.faction_status() reads it both ways (mutual only).
 # Hits go to the victim's own machine (_rpc_hit), which checks the attacker really is a foe, close by, before taking it.
@@ -189,6 +189,8 @@ func send_hit(target: Node, amount: int) -> void:
 	var n := _name(target)
 	if _foes.has(n):
 		_foes[n] = PVP_MINUTES * 60.0   # trading blows keeps it going
+	if not (duel_state == "fighting" and duel_with == n):
+		Crime.commit(player, "assault", n)   # PvP in town is a crime, if a guard sees it (a duel is consensual: not one)
 	_send(target, "_rpc_hit", [amount])
 
 

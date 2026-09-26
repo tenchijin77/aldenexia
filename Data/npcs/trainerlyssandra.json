@@ -1,0 +1,52 @@
+{
+ "_comment": "What Sorcerer Lyssandra Stormweave says (talking_vendor_npc.gd shape: greeting, shop_intro, ambient, secret (night), topics). Written by tools/place_lumora_standins.py once; edit freely.",
+ "ambient_minutes": [
+  5,
+  9
+ ],
+ "ambient_secret_chance_at_night": 0.2,
+ "greeting": [
+  "Order is a rumour. Power is not.",
+  "Here to learn? I keep what a Chaosborn needs, when you're ready for it."
+ ],
+ "shop_intro": [
+  "Here's what I can teach you."
+ ],
+ "ambient": [
+  "Order is a rumour. Power is not.",
+  "Wild magic answers to whoever asks loudest."
+ ],
+ "secret": [],
+ "topics": [
+  {
+   "id": "hail",
+   "keywords": [
+    "hail",
+    "hello",
+    "greetings",
+    "hey"
+   ],
+   "then": {
+    "hail": true
+   }
+  },
+  {
+   "id": "train",
+   "keywords": [
+    "train",
+    "learn",
+    "scroll",
+    "scrolls",
+    "spell",
+    "spells",
+    "teach"
+   ],
+   "lines": [
+    "Let's see what you're ready for."
+   ],
+   "then": {
+    "hail": true
+   }
+  }
+ ]
+}

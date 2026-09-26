@@ -291,15 +291,24 @@ static func _bans(command: String, arg: String, gm: Node) -> String:
 		return "Usage: /ban <ip address | player name>"
 	var ip := arg
 	var who := ""
+	var by := str(gm.get("player_name")) if is_instance_valid(gm) else "a game master"
+	var link: Node = gm.get_tree().get_first_node_in_group("world_link") if is_instance_valid(gm) and gm.is_inside_tree() else null
 	if not arg.is_valid_ip_address():
 		var peer := Net.peer_for_character(arg)
 		if peer == 0:
+			# online in another zone? their own zone's server bans them (it knows their address)
+			var zone: String = link.ban_player_elsewhere(arg, "banned by %s on %s (was playing %s)" % [by, Time.get_date_string_from_system(), arg.capitalize()]) if link != null else ""
+			if not zone.is_empty():
+				Net._slog("Ban: %s (in %s) — by %s." % [arg.capitalize(), ZoneInfo.name_for(zone), by])
+				Net._audit("BAN", "", arg.capitalize(), "by %s, in %s" % [by, ZoneInfo.name_for(zone)])
+				return "[color=#88ccff]Banned %s (in %s): their address is refused from now on and they're disconnected.[/color]" % [arg.capitalize(), ZoneInfo.name_for(zone)]
 			return "No player named '%s' is online (to ban an address, give the IP)." % arg
 		ip = Net.peer_ip(peer)
 		who = arg.capitalize()
-	var by := str(gm.get("player_name")) if is_instance_valid(gm) else "a game master"
 	var note := "banned by %s on %s%s" % [by, Time.get_date_string_from_system(), (" (was playing %s)" % who) if not who.is_empty() else ""]
 	var kicked := Net.ban_ip(ip, note)
+	if link != null:
+		link.share_kick_ip(ip, note)   # anyone on that address in another zone goes too
 	Net._slog("Ban: %s — %s." % [ip, note])
 	Net._audit("BAN", ip, who, note)
 	return "[color=#88ccff]Banned %s%s; %d disconnected.[/color]" % [ip, (" (%s)" % who) if not who.is_empty() else "", kicked]

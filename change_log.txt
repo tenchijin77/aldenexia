@@ -2400,6 +2400,72 @@ GATE RAIDS (`Scripts/gate_raid_manager.gd`, `Data/gate_raids.json`, node "GateRa
   warmth of the campfire -> groupfire.
 - Tests: test_test37.gd. Suite: 3,808 checks pass.
 
+### Overnight 2026-09-26 (after test 44): the Shadowblade, cross-zone gaps, pets, shoulders, cast_message
+- THE SHADOWBLADE (Jaessa's notes):
+  - Stealth did nothing to monsters: they never checked it (nor invisibility, so Shadowstep's vanish didn't either). A
+    hidden player (Stealth stance, Shadowstep, Shadow Cloak, any invisibility) now has Player3D.stealthed set, replicated
+    (player3d.tscn property 24): the server's monsters don't notice them by sight (monster3d.gd can_see_player; one that
+    sees invisible still does; a monster already fighting you keeps at it). Attacking still reveals you.
+  - An indicator: a hidden player is a faint shape (model transparency 0.65) on every screen, their own too, with
+    "[stealth]" on the nameplate.
+  - Stealth's icon: the hooded master_stealth.png (it borrowed the purple ward).
+  - Physical skills with no cast time (Backstab, Shadowstep, Power Strike...) no longer say "You begin casting a spell",
+    play a weapon swing instead of the spellcasting animation, and don't train Spell Casting.
+  - Shadowstep, Evasion, Crippling Poison, Ambush, Garrote, Shadow Cloak and Disabling Trap (the Shadowblade's physical
+    skills) are instant and cost no mana, as the Blademaster's were made (test 28). Toxic Blade (poison), Smoke Bomb
+    (psychic) and Call of Shadow (a gate) keep theirs.
+  - BLINDSIDE, a new level 1 Shadowblade skill (a starting spell): a blow to the head, 10 damage and a 3 s stun, 20 s
+    recast: step behind and Backstab. A stun now holds a monster still, not turning to face anyone (_stun_hold; it used
+    to keep turning to its target). Characters made before a class got a starting spell learn it at login
+    (_grant_missing_starting_spells: Blindside for Shadowblades, Spiritual Weapon for Lightmenders).
+- CROSS-ZONE: a groupmate in another zone shows health and mana bars (percent, from the world link's roster, every few
+  seconds); /ban <name> reaches a player in another zone (their zone's server bans their address and disconnects them);
+  a banned address is disconnected in every zone; following someone who zones says "<name> has left the zone.".
+- Summoned animal pets on the critter meshes (wolf, bear, panther on the rat; hawk on the bat) move like the critters
+  (critter_motion.gdshader: legs, tail, wings, the lunge when they bite).
+- The troll female and ogre female ran with the same hump as the troll male (shoulders lifting 28 and 39 degrees):
+  tools/relax_shoulders.gd on both. Before/after renders.
+- "cast_message" (user: "please add in the cast_message field to all spells in the json file"): every spell in
+  Data/player_spells.json has one now (blank where there was none, right after spell_type; the 9 written ones kept), and
+  Data/player_spells.xlsx has a cast_message column. Blank = no line.
+- Wildspeakers wood / bone shields only: already built (checked; test_armor).
+- Manual: new NPCs (Magistrate, healer, innkeeper, Commander, trainers, crier, Wenna), the law and stealth; republished.
+- Tests: test_test44 (26), test_ondemand (26). Suite 4812 checks, RPC list unchanged.
+
+### Test 44: Leeia (Woodstalker), build 31fb9ba — and crime, the courthouse, Lumora's stand-ins (2026-09-26, overnight)
+- Working (per the notes): the new sitting postures, the lizardkin tails, on-demand zones (only the Outskirts up at
+  login; /teleport into each zone started it).
+- JUMPING lost your speed: the moment you left the ground your speed was multiplied by 0.3 ("air control"). Now a jump
+  keeps its take-off speed (walking or running) and the keys only steer a little (AIR_STEER 4 m/s²).
+  And the jump clips didn't fit the jump: the game's jump is 1.22 s in the air, the clips ran 1.0-3.2 s with a crouching
+  wind-up first and their own 0.4-1 m hip rise, so through a real jump the model was still crouching to take off.
+  tools/fit_jump.gd keeps just the airborne part of each model's clip, fitted to the real airtime, without the clip's own
+  rise (the physics carries the body). Checked with renders.
+- The reclining sit (sit_3, from the lizardkin female) bent humans' necks back at a right angle ("the neck look broken"):
+  on every model that got it by retargeting, the neck and head now keep their standing angle to the body (they look
+  straight up). tools/relax_sit_neck.gd. Checked with renders of all 22.
+- CRIME AND THE COURTHOUSE (approved 2026-09-25; the user: "make it so"): Scripts/crime.gd. In town (Lumora, or inside
+  the Outskirts' walls), a PvP blow a guard sees (within 40 m) is a crime: 5 silver on your Lumora bounty and -15 with
+  the Wardens of the Sacred Flame (a duel isn't a crime; the same victim counts once a minute). A guard who sees someone
+  with a bounty within 12 m stops them: Pay, or Resist (can't afford it: "settle it at the courthouse"; asked again after
+  90 s). Resisting: every guard attacks on sight (their blows are rolled on your own game, like a monster's); killed by a
+  guard, the fine comes out of your purse and the rest stays as bounty. The Magistrate (Magistrate Corvane, at the
+  Lumora courthouse) takes a bounty and sells back the standing crimes cost (2 copper a point). Player3D.wanted /
+  resisting are replicated (player3d.tscn properties 22/23). Tests: test_crime (35 checks).
+- LUMORA STAND-INS (the user: "i'll make some models, but please put some stand-ins for now"): tools/
+  make_lumora_standins.gd builds a stand-in per district (Scenes/props/lumora/*.tscn: sandstone walls with a doorway, a
+  roof, collision, a name sign; each its own scene to move or replace): the Sunlit Rest, the Oasisheart Citadel, the Hall
+  of Arms, the Courthouse, the Lycaeum Annex, the Temple of the Dawn, the Lantern Lodge (Old Town), the Cisterns, and
+  Ralph's Last Round at the Outskirts gate; each behind its district marker, door facing it (patrols stay clear).
+  tools/place_lumora_standins.py puts them in the zones with their people (names from Data/lumora.json; lines in
+  Data/npcs/*.json, written once, edit freely): the 14 class trainers in their halls (fighters at the Hall of Arms, mages
+  at the Lycaeum, priests at the Temple, Voidknight and Gravecaller in Old Town, the Shadowblade at the Cisterns, the
+  Troubadour at the inn), each selling their class's scrolls (Data/vendor_shop.json trainer_<class>); Innkeeper Dalla
+  (lumora_inn), Commander Halvar and Instructor Jalen at the Citadel, High Priestess Solenne (heals and cures for 5
+  copper, temple_healer_npc.gd; no resurrection), Crier Pell by the Paladin's Vigil, a notice board in Citadel Plaza,
+  Wenna Tuller at Ralph's Last Round (outskirts_tavern). Both navmeshes re-baked. Tests: test_lumora_standins (31).
+- Tests: test_test44. Suite 4783 checks, RPC list unchanged.
+
 ### Zones on demand (2026-09-26; the user: "yes build on demand zones. this will help with server resources as well")
 - Only the always-on zones run all the time (Data/zones.json "always_on": the Outskirts, which is also the login server).
   Every other zone's server is started by the login server (the world link hub) when a player needs it: crossing a zone

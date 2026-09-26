@@ -69,7 +69,7 @@
    "stance_id": "stealth",
    "name": "Stealth",
    "description": "Move unseen. Satisfies Backstab's \"from stealth\" requirement regardless of facing. Toggle off (or the stance bar again) to come out of hiding.",
-   "icon": "res://Assets/icons/spells/selfward.png",
+   "icon": "res://Assets/icons/spells/master_stealth.png",
    "modifiers": {
     "stealthed": 1.0
    }

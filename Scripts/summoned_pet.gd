@@ -138,15 +138,77 @@ func _build_critter(model_info: Dictionary, model: String, model_scale: float, t
 	character.scale = Vector3.ONE * model_scale
 	add_child(character)
 	var albedo := load(str(model_info.get("albedo", ""))) as Texture2D if str(model_info.get("albedo", "")) != "" else null
-	if albedo:
+	var motion: Dictionary = Monster.CRITTER_MOTION.get(model, {})
+	if albedo and not motion.is_empty() and ResourceLoader.exists(Monster.CRITTER_SHADER):
+		_apply_critter_motion(character, model_info, albedo, motion, tint)
+	elif albedo:
 		var mat := StandardMaterial3D.new()
 		mat.albedo_texture = albedo
 		mat.albedo_color = tint
 		_apply_material_recursive(character, mat)
 
 
+# Animal pets built on the critter meshes move like the critters do (Shaders/critter_motion.gdshader, the same set-up as
+# monster3d.gd: test 42's outstanding "summoned animal pets don't use critter motion"): a wolf's legs paddle and its tail
+# swishes as it runs, a hawk beats its wings, and it lunges when it bites.
+var _critter_meshes: Array = []
+var _critter_time := 0.0
+var _critter_speed := 0.0
+var _critter_last := Vector3.INF
+var _critter_attack := 0.0
+
+
+func _apply_critter_motion(node: Node, model_info: Dictionary, albedo: Texture2D, motion: Dictionary, tint: Color) -> void:
+	_critter_meshes.clear()
+	for mi in node.find_children("*", "MeshInstance3D", true, false):
+		var m := mi as MeshInstance3D
+		if m.mesh == null:
+			continue
+		var box := m.get_aabb()
+		var mat := ShaderMaterial.new()
+		mat.shader = load(Monster.CRITTER_SHADER)
+		mat.set_shader_parameter("mode", int(motion["mode"]))
+		mat.set_shader_parameter("body_axis", int(motion["axis"]))
+		mat.set_shader_parameter("tail_sign", float(motion["tail"]))
+		mat.set_shader_parameter("box_center", box.get_center())
+		mat.set_shader_parameter("box_half", box.size * 0.5)
+		mat.set_shader_parameter("tint", tint)
+		mat.set_shader_parameter("albedo_tex", albedo)
+		for key in ["normal", "roughness", "metallic"]:
+			var path := str(model_info.get(key, ""))
+			var tex := load(path) as Texture2D if not path.is_empty() else null
+			if tex:
+				mat.set_shader_parameter(key + "_tex", tex)
+				if key != "roughness":
+					mat.set_shader_parameter("use_" + key, true)
+		for i in m.mesh.get_surface_count():
+			m.set_surface_override_material(i, mat)
+		m.extra_cull_margin = maxf(box.size.x, maxf(box.size.y, box.size.z)) * 0.6
+		_critter_meshes.append(m)
+	_critter_time = randf() * 10.0
+
+
+func _process(delta: float) -> void:
+	if _critter_meshes.is_empty() or Net.is_dedicated_server:
+		return
+	var p := global_position
+	var step := 0.0 if _critter_last == Vector3.INF else Vector2(p.x - _critter_last.x, p.z - _critter_last.z).length() / maxf(delta, 0.001)
+	_critter_last = p
+	_critter_speed = lerpf(_critter_speed, minf(step, 12.0), 0.15)
+	var mv := clampf(_critter_speed / 3.0, 0.0, 1.5)
+	_critter_time += delta * (0.5 + 1.2 * mv)
+	_critter_attack = maxf(0.0, _critter_attack - delta / 0.35)
+	for m in _critter_meshes:
+		if is_instance_valid(m):
+			m.set_instance_shader_parameter("anim_time", _critter_time)
+			m.set_instance_shader_parameter("move", mv)
+			m.set_instance_shader_parameter("attack", sin(_critter_attack * PI) if _critter_attack > 0.0 else 0.0)
+
+
 # Critters have no animations, and a borrowed library may lack the swing clips: then the swing is just the hit.
 func _play_attack_animation() -> void:
+	if not _critter_meshes.is_empty():
+		_critter_attack = 1.0   # the critter lunge (on the owner's screen; others see it run and paddle)
 	if not animation_player:
 		return
 	var clips: Array = ATTACK_ANIMS.filter(func(c): return animation_player.has_animation(c))

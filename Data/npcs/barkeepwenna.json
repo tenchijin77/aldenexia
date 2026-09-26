@@ -1,0 +1,61 @@
+{
+ "_comment": "What Wenna Tuller says (talking_vendor_npc.gd shape: greeting, shop_intro, ambient, secret (night), topics). Written by tools/place_lumora_standins.py once; edit freely.",
+ "ambient_minutes": [
+  5,
+  9
+ ],
+ "ambient_secret_chance_at_night": 0.2,
+ "greeting": [
+  "Welcome to Ralph's Last Round. Mind the tankard on the end of the bar: nobody touches Ralph's.",
+  "What'll it be? Water's cheap, the tea's better."
+ ],
+ "shop_intro": [
+  "Here's what we pour."
+ ],
+ "ambient": [
+  "Ralph always said the last round's on the house. Ralph's not paying anymore.",
+  "Bards play here when they pass through. Best sound in the Outskirts."
+ ],
+ "secret": [
+  "The tankard? Ralph Tuller poured it the night he rode out to the south road. We leave it where he left it."
+ ],
+ "topics": [
+  {
+   "id": "hail",
+   "keywords": [
+    "hail",
+    "hello",
+    "greetings",
+    "hey"
+   ],
+   "then": {
+    "hail": true
+   }
+  },
+  {
+   "id": "ralph",
+   "keywords": [
+    "ralph",
+    "tankard"
+   ],
+   "lines": [
+    "My husband. He rode out one night and didn't come back. The tankard waits for him."
+   ]
+  },
+  {
+   "id": "drink",
+   "keywords": [
+    "drink",
+    "food",
+    "tea",
+    "water"
+   ],
+   "lines": [
+    "Coming up."
+   ],
+   "then": {
+    "hail": true
+   }
+  }
+ ]
+}

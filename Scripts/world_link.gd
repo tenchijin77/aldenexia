@@ -132,7 +132,7 @@ func _hub_handle(from: Dictionary, msg: Dictionary) -> void:
 			_route_tell(msg)
 		"tell_result":
 			_route_to_zone(str(msg.get("origin", "")), msg)
-		"notice", "party":
+		"notice", "party", "kick_ip":
 			_handle_local(msg)                           # the hub's own players
 			for p in _peers:
 				if p != from:
@@ -214,6 +214,9 @@ func _handle_local(msg: Dictionary) -> void:
 					board.broadcast(str(msg.get("text", "")))
 		"party":
 			_deliver_party(msg)
+		"kick_ip":
+			if str(msg.get("from", "")) != ZoneInfo.current_id():
+				Net.ban_ip(str(msg.get("ip", "")), str(msg.get("note", "")))   # already in the shared file: this just disconnects them here
 		"groups":
 			groups = msg.get("groups", {})
 			_push_groups()
@@ -397,8 +400,14 @@ func local_players() -> Array:
 		var info := WorldAnnouncer.player_info(node)
 		if info["name"] == "Default Hero" or info["name"] == "Someone":
 			continue
-		rows.append({"name": info["name"], "surname": info["surname"], "level": info["level"], "class": info["class"],
-				"peer": node.get_multiplayer_authority()})
+		var row := {"name": info["name"], "surname": info["surname"], "level": info["level"], "class": info["class"],
+				"peer": node.get_multiplayer_authority()}
+		# health and mana (percent) for groupmates in other zones (their group frame's bars; updated with the roster)
+		var cn = node.get("combat_node")
+		if cn is CombatNode:
+			row["hp"] = int(round(100.0 * float(cn.current_hp) / float(maxi(cn.max_hp, 1))))
+			row["mp"] = int(round(100.0 * float(cn.current_mana) / float(maxi(cn.max_mana, 1)))) if cn.max_mana > 0 else 0
+		rows.append(row)
 	return rows
 
 
@@ -663,9 +672,11 @@ func _push_groups() -> void:
 	for row in local_players():
 		here[str(row["name"]).to_lower()] = int(row["peer"])
 	var where := {}
+	var rows_by := {}
 	for zone in _world:
 		for row in _world[zone]:
 			where[str(row.get("name", "")).to_lower()] = zone
+			rows_by[str(row.get("name", "")).to_lower()] = row
 	for name_lower in here:
 		var peer: int = here[name_lower]
 		var g := _group_of(name_lower)
@@ -677,7 +688,11 @@ func _push_groups() -> void:
 				if here.has(ml):
 					state["local"].append(here[ml])
 				else:
-					state["remote"].append({"name": str(m), "zone": ZoneInfo.name_for(str(where.get(ml, ""))) if where.has(ml) else "offline"})
+					var r := {"name": str(m), "zone": ZoneInfo.name_for(str(where.get(ml, ""))) if where.has(ml) else "offline"}
+					if rows_by.has(ml) and rows_by[ml].has("hp"):
+						r["hp"] = int(rows_by[ml]["hp"])
+						r["mp"] = int(rows_by[ml].get("mp", 0))
+					state["remote"].append(r)
 		var text := JSON.stringify(state)
 		if _pushed.get(peer, "") == text:
 			continue
@@ -723,6 +738,8 @@ func _deliver_to_player(msg: Dictionary) -> void:
 				_rpc_invite_offer.rpc_id(peer, str(msg.get("from", "")))
 			"note":
 				_rpc_note.rpc_id(peer, str(msg.get("text", "")))
+			"gm_ban":
+				Net.ban_ip(Net.peer_ip(peer), str(msg.get("note", "banned by a game master")))   # (bans their address, kicks)
 		return
 
 
@@ -785,6 +802,27 @@ func _rpc_invite_answer(leader: String, accepted: bool) -> void:
 @rpc("authority", "call_remote", "reliable")
 func _rpc_note(text: String) -> void:
 	GameLog.log_general(text)
+
+
+# GM /ban across zones (gm_commands.gd): a player in another zone is banned by their own zone's server (which knows their
+# address); a banned address is disconnected in every zone. The ban list itself is one shared file, read at every connect.
+func ban_player_elsewhere(player_name: String, note: String) -> String:
+	var zone := zone_of(player_name)
+	if zone.is_empty() or zone == ZoneInfo.current_id():
+		return ""
+	_send_to_player({"t": "to_player", "to": player_name, "kind": "gm_ban", "note": note})
+	return zone
+
+
+func share_kick_ip(ip: String, note: String) -> void:
+	if not _server_active():
+		return
+	var msg := {"t": "kick_ip", "ip": ip, "note": note, "from": ZoneInfo.current_id()}
+	if is_hub():
+		for p in _peers:
+			_write(p["tcp"], msg)
+	else:
+		_send_up(msg)
 
 
 func share_notice(text: String) -> void:

@@ -908,6 +908,15 @@ func _physics_process(delta: float) -> void:
 			and combat_node.current_hp > 0 and combat_node.current_hp <= int(combat_node.max_hp * LOW_HEALTH_FLEE_FRACTION):
 		_start_low_health_flee()
 
+	if _stun_hold > 0.0:
+		_stun_hold -= delta
+		velocity.x = 0.0
+		velocity.z = 0.0
+		if not is_on_floor():
+			velocity.y -= 20.0 * delta
+			move_and_slide()
+		_update_animation()
+		return
 	# A spell being cast: it stands still and doesn't swing until it's done (or broken)
 	if _tick_abilities(delta):
 		if not is_on_floor():
@@ -2324,6 +2333,10 @@ func can_see_player() -> bool:
 			return false
 	if wary:
 		return false   # wary folk (the Djhanid) watch you but never start it — unless you're hated (above)
+	# Hidden (Stealth, Shadowstep, invisibility: Player3D.stealthed, replicated): not noticed by sight (test 44: "stealth
+	# didn't seem to be working" — monsters never checked). A monster that sees invisible still does. Attacking reveals you.
+	if player.get("stealthed") == true and combat_node.get_modifier("see_invisible") <= 0.0:
+		return false
 
 	match behavior_type:
 		"passive":
@@ -2447,6 +2460,10 @@ var _cast_left := 0.0
 var _cast_index := -1
 var _cast_target: Node = null
 var _stunned_left := 0.0
+# A stun (mesmerize, confuse) holds a monster where it stands, not facing anyone (test 44: a Shadowblade "will need some
+# kind of skill to stun the mob so they can get behind it and backstab"; a stunned monster used to keep turning to face
+# its target). Only a stagger with a length does this.
+var _stun_hold := 0.0
 var _summons: Array = []              # adds this monster called (they go when it dies or gives up)
 
 
@@ -2481,6 +2498,7 @@ func _cancel_cast() -> void:
 # Called by the disable paths with the stun's length.
 func interrupt_cast(stun_seconds := 0.0) -> void:
 	_stunned_left = maxf(_stunned_left, stun_seconds)
+	_stun_hold = maxf(_stun_hold, stun_seconds)
 	if _cast_index < 0:
 		return
 	var a: Dictionary = abilities[_cast_index]

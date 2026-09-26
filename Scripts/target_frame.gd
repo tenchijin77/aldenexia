@@ -281,7 +281,7 @@ static func nameplate_name(entity: Node) -> String:
 		text += " " + str(entity.get("surname"))   # players show their surname on nameplates and the target frame
 	if "is_game_master" in entity and entity.is_game_master:
 		text = "<%s>" % text   # a game master's name is shown in angle brackets (and orange, see nameplate_color)
-	if cn is CombatNode and cn.is_stealthed():
+	if (cn is CombatNode and cn.is_stealthed()) or entity.get("stealthed") == true:   # (the flag: another player's, replicated)
 		text += " [stealth]"
 	return text
 

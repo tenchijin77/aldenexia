@@ -2,11 +2,11 @@ ALDENEXIA: LIGHTFALL — TESTING CHECKLIST
 New features and fixes waiting for a real playtest, in two parts: OUTSTANDING (not passed yet) and COMPLETED (passed).
 When an item passes, change [ ] to [x] and move it to the same section under COMPLETED (or just add "- working" and it
 gets moved). A failure goes to outstanding_items.txt with what went wrong. Last updated 2026-09-26 (after test 42).
-Everything below was built after test 26.   Outstanding: 228   Completed: 69
+Everything below was built after test 26.   Outstanding: 243   Completed: 71
 
 
 ################################################################################
-  OUTSTANDING — still to test (228)
+  OUTSTANDING — still to test (243)
 ################################################################################
 
 == ACCOUNTS AND JOINING ==
@@ -23,8 +23,6 @@ Everything below was built after test 26.   Outstanding: 228   Completed: 69
 == TEST 29 FIXES ==
 [ ] The rats by the west wall (Zozuur's spot) come to you and fight back; no monster freezes in combat just out of reach.
 [ ] Snakes/spiders/rats/bats "bite", stingers "sting", beetles "pinch" in the combat log.
-[ ] Die with a pet out (changed in test 34): the pet fades as you fall; summon it again after you wake. Its gear is still
-    on it when you do, and the monster it was fighting doesn't follow you. - working
 
 == TANK STANCES ==
 [ ] Each tank's aura looks different: Voidknight streaks pulled inward, Lightsworn rising light, Blademaster sparks;
@@ -224,6 +222,36 @@ Everything below was built after test 26.   Outstanding: 228   Completed: 69
 [ ] New ailments show on the status window with a description and are removed by a cure: weakening venom (sandstinger),
     sundered armour (ravager), blinded (Djhanid), grave miasma (restless corpse), withering touch (wraith).
 [ ] Two players: one zones, the other stays; both keep playing (chat across zones doesn't work yet).
+
+== THE SHADOWBLADE AND MORE (2026-09-26, overnight) ==
+[ ] Stealth (stance bar): the hooded icon; you turn into a faint shape and your nameplate says [stealth]; a groupmate
+    sees the same. Walk up to a rat or a goblin: it doesn't notice you. Backstab from stealth; then it fights.
+[ ] Shadowstep a monster that hasn't seen you: you appear behind it, hidden, and it doesn't turn on you. Backstab.
+[ ] Backstab, Shadowstep, Evasion, Ambush, Garrote: instant, no mana, no "You begin casting a spell", a weapon swing.
+[ ] Blindside (Jaessa learns it at login): the monster is stunned 3 s and stands still, not turning: step behind, Backstab.
+[ ] A groupmate in another zone: their health and mana bars fill on the group frame (update every few seconds).
+[ ] Summon a wolf / bear / hawk: it moves (legs, tail, wings) and lunges when it bites.
+[ ] A troll female or ogre female running, from behind: no hump across the shoulders.
+
+== TEST 44 FIXES AND THE NIGHT'S WORK (2026-09-26) ==
+[ ] Jump while running (and walking): you carry on forward through the jump at the same speed; the keys only steer a
+    little in the air. The jump pose is in the air the whole time (no crouch after leaving the ground). Try a few races.
+[ ] The reclining sit (sit until you get it) on an elf / human: the head lies in line with the body, looking up.
+[ ] Crime: two players /pvp in the Outskirts town or Lumora near a guard; the one who strikes gets "... saw that! Assault
+    in town: your bounty ... is now 5 silver" and loses Warden standing. Walk near a guard: "Halt!" and a Pay / Resist
+    box. Pay: the bounty's gone. Resist: guards attack you on sight; die to them: the fine comes out of your purse (what
+    you couldn't pay stays). Out of town, or with no guard near, nothing happens. A duel in town is fine.
+[ ] Magistrate Corvane (Lumora courthouse, east of the avenue): pays off a bounty; then "make amends" buys back the
+    Warden standing the crime cost.
+[ ] Lumora's stand-in buildings: the Sunlit Rest, the Citadel, the Hall of Arms, the Courthouse, the Lycaeum Annex, the
+    Temple of the Dawn (behind the Dawnspire Altar), the Lantern Lodge (Old Town), the Cisterns; walk in through the doors,
+    not through the walls. Guards still patrol without getting stuck on them.
+[ ] Every class trainer in their hall sells their class's scrolls (e.g. the Woodstalker trainer, Ranger Thalen, at the
+    Hall of Arms). The Troubadour trainer is at the Sunlit Rest.
+[ ] High Priestess Solenne (Temple): 5 copper heals you fully and cures poisons, disease, curses.
+[ ] Innkeeper Dalla sells food and drink; Crier Pell calls out news every few minutes; the notice board in Citadel Plaza
+    reads (right-click).
+[ ] Ralph's Last Round at the Outskirts gate (north side, inside the wall): Wenna Tuller sells drinks; ask about Ralph.
 
 == ZONES ON DEMAND (2026-09-26; restart the world with run_world.sh after updating) ==
 [ ] Start the world as usual: only the Outskirts server starts (world_logs has no new Dustwind / Ashfall / Lumora log yet).
@@ -435,7 +463,7 @@ Everything below was built after test 26.   Outstanding: 228   Completed: 69
 [ ] Restart the world while he's mid-visit: he comes back where he should be (on the road, or at his stop), not from the start.
 
 ################################################################################
-  COMPLETED — passed (69)
+  COMPLETED — passed (71)
 ################################################################################
 
 == TEST 35 FIXES (2026-09-25) ==
@@ -473,6 +501,9 @@ Everything below was built after test 26.   Outstanding: 228   Completed: 69
 [x] The women's new shapes (every race): fuller bust, narrower waist, rounder hips; clothes follow; nothing tears when
     they run, cast, sit or die. - looks great
 
+== TEST 44 CONFIRMED (2026-09-26) ==
+[x] The new sitting postures; the lizardkin tails; on-demand zones (only the Outskirts at login, each zone starts on entry).
+
 == TEST 43 CONFIRMED (2026-09-26) ==
 [x] Kenji's whole tail moves. Follow runs to keep up. Auto-Loot on Kill works.
 
@@ -508,6 +539,8 @@ Everything below was built after test 26.   Outstanding: 228   Completed: 69
 [x] Appraising (I) raises Perception (abilities book shows "+N to appraisal checks"). -yes and it appears to show more than it did before.
 [x] Chat text: drag to select, right-click > Copy works in General, Combat and custom tabs; movement keys still work after. - appears to be working
 [x] Your client log no longer shows "Node 'CombatNode:current_hp' not found" when monsters appear. - working. i do not see this in the log.
+[x] Die with a pet out (changed in test 34): the pet fades as you fall; summon it again after you wake. Its gear is still
+    on it when you do, and the monster it was fighting doesn't follow you. - working
 
 == APPEARANCE ==
 [x] EXISTING character: right-click the Silvered Mirror by the town gate (about X 66, Z 20). The full window opens;

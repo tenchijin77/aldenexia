@@ -486,7 +486,7 @@ const STARTING_SPELLS := {
 	"Lightmender":  ["cure_wounds", "bless", "spiritual_weapon"],   # test 42: its pet from level 1 ("they feel very weak in combat")
 	"Wildspeaker":  ["regrowth", "entangle", "summon_spirit_of_the_woods"],
 	"Woodstalker":  ["aimed_shot", "hunters_mark"],
-	"Shadowblade":  ["backstab", "shadowstep"],
+	"Shadowblade":  ["backstab", "shadowstep", "blindside"],   # test 44: a stun to get behind the target solo
 	"Troubadour":   ["song_of_courage", "dissonant_chord"],
 	"Gravecaller":  ["shadow_bolt", "raise_skeleton"],
 	"Runecaster":   ["charm", "illusionary_bolt"],

@@ -611,8 +611,103 @@ func _advance_patrol() -> void:
 	_current_path.clear()
 
 
+# ── The law (crime.gd) ──
+# Anyone resisting arrest is attacked on sight (before any monster); anyone with a bounty who comes close is stopped and
+# asked to pay (one guard at a time, then not again for DEMAND_COOLDOWN).
+const PLAYER_ENGAGE_RANGE := 25.0
+const PLAYER_LEASH := 45.0
+const DEMAND_RANGE := 12.0
+const DEMAND_COOLDOWN := 90.0
+static var _demanded := {}   # player name -> when a guard last asked (msec), shared by every guard on this server
+
+
+func _outlaw_near(origin: Vector3) -> Node:
+	var best: Node = null
+	var best_d := PLAYER_ENGAGE_RANGE
+	for p in get_tree().get_nodes_in_group("player"):
+		if not is_instance_valid(p) or not p.get("resisting") == true or Monster._player_is_down(p) or not Crime.in_town(p):
+			continue
+		var d := origin.distance_to((p as Node3D).global_position)
+		if d < best_d:
+			best_d = d
+			best = p
+	return best
+
+
+func _check_wanted() -> void:
+	var now := Time.get_ticks_msec()
+	for p in get_tree().get_nodes_in_group("player"):
+		if not is_instance_valid(p) or int(p.get("wanted")) <= 0 or p.get("resisting") == true or Monster._player_is_down(p):
+			continue
+		if global_position.distance_to((p as Node3D).global_position) > DEMAND_RANGE:
+			continue
+		var who := str(p.get("player_name")).to_lower()
+		if now - int(_demanded.get(who, -1000000)) < int(DEMAND_COOLDOWN * 1000.0):
+			continue
+		_demanded[who] = now
+		look_at(Vector3((p as Node3D).global_position.x, global_position.y, (p as Node3D).global_position.z), Vector3.UP)
+		_face_hold_until_msec = now + int(FACE_HOLD_SECONDS * 1000.0)
+		say_to_all("Halt! You've broken the law in this town, %s. Pay your fine or answer for it." % str(p.get("player_name")))
+		if p.is_multiplayer_authority():
+			_demand_local(p, int(p.get("wanted")))
+		else:
+			_rpc_demand.rpc_id(p.get_multiplayer_authority(), p.get_path(), int(p.get("wanted")))
+		return
+
+
+@rpc("authority", "call_remote", "reliable")
+func _rpc_demand(player_path: NodePath, amount: int) -> void:
+	var p := get_node_or_null(player_path)
+	if is_instance_valid(p) and p.is_multiplayer_authority():
+		_demand_local(p, amount)
+
+
+# On the wanted player's own game: pay or resist.
+func _demand_local(p: Node, amount: int) -> void:
+	var owed := maxi(Crime.bounty(), amount)
+	var popup: Node = load("res://Scenes/group_invite_popup.tscn").instantiate()
+	p.get_tree().root.add_child(popup)
+	var answer_paying := func(yes: bool) -> void:
+		if yes:
+			Crime.pay(p)
+		else:
+			Crime.resist(p)
+	var answer_broke := func(yes: bool) -> void:
+		if yes:
+			GameLog.log_general("[color=#ffdd88]\"See that you do,\" says %s. \"We'll be watching.\"[/color]" % npc_name)
+		else:
+			Crime.resist(p)
+	if Global.can_afford(owed):
+		popup.ask("%s stops you.\n\"You owe %s for your crimes in %s. Pay now, or answer for it.\"" % [npc_name, Crime.coins(owed), Crime.REGION],
+				"Pay %s" % Crime.coins(owed), "Resist", answer_paying)
+	else:
+		popup.ask("%s stops you.\n\"You owe %s, and you can't pay it. Settle it with the Magistrate at the courthouse, or answer for it now.\"" % [npc_name, Crime.coins(owed)],
+				"I'll go to the courthouse", "Resist", answer_broke)
+	p.get_tree().create_timer(30.0).timeout.connect(func() -> void:
+		if is_instance_valid(popup):
+			popup.expire())
+
+
+func _target_gone(t: Node) -> bool:
+	if not is_instance_valid(t):
+		return true
+	if t.is_in_group("player"):
+		return not t.get("resisting") == true or Monster._player_is_down(t) or not Crime.in_town(t)   # paid, fell, or fled town
+	return t.get("current_state") == t.State.DEAD
+
+
 func _scan_for_targets() -> void:
 	var is_patrolling := not _patrol_points.is_empty()
+	var outlaw := _outlaw_near(global_position)
+	if outlaw != null:
+		attack_target = outlaw
+		_engage_origin = global_position
+		_engage_best_dist = INF
+		_engage_stall_timer = 0.0
+		state = GuardState.ENGAGE
+		shout_to_all("You there, %s! Stop, in the name of the law!" % str(outlaw.get("player_name")))
+		return
+	_check_wanted()
 	var engage_range: float = PATROL_ENGAGE_RANGE if is_patrolling else ENGAGE_RANGE
 	var origin: Vector3 = global_position if is_patrolling else home_position
 
@@ -644,13 +739,15 @@ func _process_engage(delta: float) -> void:
 	var fighting_key := TargetFrame.target_key_of(attack_target)
 	if fighting_key != target_key:
 		target_key = fighting_key
-	if not is_instance_valid(attack_target) or attack_target.get("current_state") == attack_target.State.DEAD:
+	if _target_gone(attack_target):
 		attack_target = null
 		state = _default_state
 		_current_path.clear()  # combat may have moved us off the cached patrol path — force a fresh one
 		return
 
 	var leash := LEASH_RANGE
+	if attack_target.is_in_group("player"):
+		leash = PLAYER_LEASH
 	if raid_alert_range > 0.0 and attack_target.is_in_group("raiders"):
 		leash = raid_alert_range + 15.0   # a raider drawn to the gate is chased right out to where it stands
 	if _engage_origin.distance_to(attack_target.global_position) > leash:
@@ -860,6 +957,13 @@ func _perform_attack() -> void:
 	attack_seq += 1
 	_play_attack_animation()
 
+	if attack_target.is_in_group("player"):
+		# a player resisting arrest: the blow is rolled on their own game, which owns their health (as monsters do)
+		if attack_target.is_multiplayer_authority():
+			_strike_local(attack_target)
+		else:
+			_rpc_strike.rpc_id(attack_target.get_multiplayer_authority(), attack_target.get_path())
+		return
 	if not (attack_target.get("combat_node") is CombatNode):
 		return
 
@@ -896,3 +1000,28 @@ func _perform_attack() -> void:
 		attack_target = null
 		state = _default_state
 		_current_path.clear()  # combat may have moved us off the cached patrol path — force a fresh one
+
+
+@rpc("authority", "call_remote", "reliable")
+func _rpc_strike(player_path: NodePath) -> void:
+	var p := get_node_or_null(player_path)
+	if is_instance_valid(p) and p.is_multiplayer_authority():
+		_strike_local(p)
+
+
+# On the player's own game: a guard's blow against someone resisting arrest.
+func _strike_local(p: Node) -> void:
+	if not (p.get("combat_node") is CombatNode) or Monster._player_is_down(p) or combat_node == null:
+		return
+	var result: Dictionary = combat_node.resolve_attack(p.combat_node)
+	match result.get("result", ""):
+		"HIT":
+			GameLog.log_combat("[color=#ff7766]%s hits YOU for [b]%d[/b] damage![/color]" % [npc_name, int(result.get("damage", 0))])
+		"MISS":
+			GameLog.log_combat("%s tries to hit you, but misses!" % npc_name)
+		_:
+			GameLog.log_combat("%s's blow is turned aside." % npc_name)
+	if p.has_method("on_attacked"):
+		p.on_attacked(self)
+	if p.combat_node.current_hp <= 0 and p.has_method("die"):
+		p.die(self)

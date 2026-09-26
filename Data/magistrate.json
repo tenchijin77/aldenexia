@@ -1,0 +1,27 @@
+{
+ "_comment": "magistrate.json - what the Magistrate at the Lumora courthouse says (Scripts/magistrate_npc.gd on a talking_vendor.tscn; crime.gd). Same shape as soul_binder.json: greeting (when you hail and owe nothing), ambient/secret (said nearby every few minutes; secret only at night), topics (keywords said near them). A topic whose 'then' has hail: true opens the bounty / amends offer.",
+ "ambient_minutes": [6, 10],
+ "ambient_secret_chance_at_night": 0.2,
+ "greeting": [
+  "Nothing on your record. Keep it that way.",
+  "The law of Lumora is simple. Don't make it complicated.",
+  "Business? No? Then good day to you."
+ ],
+ "shop_intro": [],
+ "ambient": [
+  "Fines are paid here, not argued. Next.",
+  "A bounty doesn't go away because you leave town. The guards remember faces.",
+  "Strike a citizen in these streets and you'll answer to the Wardens. Or to me, if you're lucky."
+ ],
+ "secret": [
+  "Half the fines in this ledger were paid by people who swore they were innocent. A quarter of them were.",
+  "The Sandveil pay their fines in advance, some say. I couldn't possibly comment."
+ ],
+ "topics": [
+  {"id": "hail", "keywords": ["hail", "hello", "greetings", "hey"], "then": {"hail": true}},
+  {"id": "bounty", "keywords": ["bounty", "fine", "fines", "pay", "crime", "crimes", "record"],
+   "lines": ["Let me see the ledger."], "then": {"hail": true}},
+  {"id": "amends", "keywords": ["amends", "standing", "forgive", "pardon", "wardens"],
+   "lines": ["Amends, is it? Let me see what the city holds against you."], "then": {"hail": true}}
+ ]
+}

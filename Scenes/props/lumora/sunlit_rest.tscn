@@ -1,0 +1,125 @@
+[gd_scene format=3]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_6es2l"]
+size = Vector3(16, 7, 0.6)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_r2r3r"]
+size = Vector3(0.6, 7, 12)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_fptrj"]
+size = Vector3(0.6, 7, 12)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_e2e12"]
+size = Vector3(6.4, 7, 0.6)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_s5fmc"]
+size = Vector3(6.4, 7, 0.6)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_g6lyk"]
+size = Vector3(3.2, 3.4, 0.6)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_1b7lg"]
+size = Vector3(16.8, 0.5, 12.8)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_v1tf7"]
+albedo_color = Color(0.84, 0.74, 0.56, 1)
+roughness = 0.95
+
+[sub_resource type="BoxMesh" id="BoxMesh_udfam"]
+size = Vector3(16, 7, 0.6)
+
+[sub_resource type="BoxMesh" id="BoxMesh_yacr4"]
+size = Vector3(0.6, 7, 12)
+
+[sub_resource type="BoxMesh" id="BoxMesh_obcli"]
+size = Vector3(0.6, 7, 12)
+
+[sub_resource type="BoxMesh" id="BoxMesh_1s5yw"]
+size = Vector3(6.4, 7, 0.6)
+
+[sub_resource type="BoxMesh" id="BoxMesh_sfxxe"]
+size = Vector3(6.4, 7, 0.6)
+
+[sub_resource type="BoxMesh" id="BoxMesh_lr0ep"]
+size = Vector3(3.2, 3.4, 0.6)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_vvncu"]
+albedo_color = Color(0.62, 0.45, 0.32, 1)
+roughness = 0.9
+
+[sub_resource type="BoxMesh" id="BoxMesh_nhkla"]
+size = Vector3(16.8, 0.5, 12.8)
+
+[node name="SunlitRest" type="Node3D" unique_id=657210419]
+metadata/stand_in = true
+
+[node name="Walls" type="StaticBody3D" parent="." unique_id=1397994022]
+
+[node name="BackShape" type="CollisionShape3D" parent="Walls" unique_id=1074404424]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.5, -5.7)
+shape = SubResource("BoxShape3D_6es2l")
+
+[node name="LeftShape" type="CollisionShape3D" parent="Walls" unique_id=1177327387]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.7, 3.5, 0)
+shape = SubResource("BoxShape3D_r2r3r")
+
+[node name="RightShape" type="CollisionShape3D" parent="Walls" unique_id=115970192]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.7, 3.5, 0)
+shape = SubResource("BoxShape3D_fptrj")
+
+[node name="FrontLeftShape" type="CollisionShape3D" parent="Walls" unique_id=1488922932]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.8, 3.5, 5.7)
+shape = SubResource("BoxShape3D_e2e12")
+
+[node name="FrontRightShape" type="CollisionShape3D" parent="Walls" unique_id=1841728597]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.8, 3.5, 5.7)
+shape = SubResource("BoxShape3D_s5fmc")
+
+[node name="LintelShape" type="CollisionShape3D" parent="Walls" unique_id=106637151]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.3, 5.7)
+shape = SubResource("BoxShape3D_g6lyk")
+
+[node name="RoofShape" type="CollisionShape3D" parent="Walls" unique_id=753611888]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 7.25, 0)
+shape = SubResource("BoxShape3D_1b7lg")
+
+[node name="Back" type="MeshInstance3D" parent="." unique_id=926346783]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.5, -5.7)
+material_override = SubResource("StandardMaterial3D_v1tf7")
+mesh = SubResource("BoxMesh_udfam")
+
+[node name="Left" type="MeshInstance3D" parent="." unique_id=707074316]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.7, 3.5, 0)
+material_override = SubResource("StandardMaterial3D_v1tf7")
+mesh = SubResource("BoxMesh_yacr4")
+
+[node name="Right" type="MeshInstance3D" parent="." unique_id=1779683890]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.7, 3.5, 0)
+material_override = SubResource("StandardMaterial3D_v1tf7")
+mesh = SubResource("BoxMesh_obcli")
+
+[node name="FrontLeft" type="MeshInstance3D" parent="." unique_id=1300030472]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.8, 3.5, 5.7)
+material_override = SubResource("StandardMaterial3D_v1tf7")
+mesh = SubResource("BoxMesh_1s5yw")
+
+[node name="FrontRight" type="MeshInstance3D" parent="." unique_id=1793455302]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.8, 3.5, 5.7)
+material_override = SubResource("StandardMaterial3D_v1tf7")
+mesh = SubResource("BoxMesh_sfxxe")
+
+[node name="Lintel" type="MeshInstance3D" parent="." unique_id=581926360]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.3, 5.7)
+material_override = SubResource("StandardMaterial3D_v1tf7")
+mesh = SubResource("BoxMesh_lr0ep")
+
+[node name="Roof" type="MeshInstance3D" parent="." unique_id=1144321766]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 7.25, 0)
+material_override = SubResource("StandardMaterial3D_vvncu")
+mesh = SubResource("BoxMesh_nhkla")
+
+[node name="Sign" type="Label3D" parent="." unique_id=926511117]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.5, 6.05)
+modulate = Color(1, 0.93, 0.75, 1)
+text = "The Sunlit Rest"
+font_size = 64

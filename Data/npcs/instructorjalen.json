@@ -1,0 +1,32 @@
+{
+ "_comment": "What Instructor Jalen of the First Spear says (talking_vendor_npc.gd shape: greeting, shop_intro, ambient, secret (night), topics). Written by tools/place_lumora_standins.py once; edit freely.",
+ "ambient_minutes": [
+  5,
+  9
+ ],
+ "ambient_secret_chance_at_night": 0.2,
+ "greeting": [
+  "New to the sands? Learn to fight at the Hall of Arms, learn to live in the Outskirts.",
+  "Your trainer's in the guild hall for your calling. The Hall of Arms, the Lycaeum, the Temple, or Old Town, if that's your sort."
+ ],
+ "shop_intro": [],
+ "ambient": [
+  "Feet apart. Shield up. Again.",
+  "The desert doesn't grade on effort."
+ ],
+ "secret": [],
+ "topics": [
+  {
+   "id": "hail",
+   "keywords": [
+    "hail",
+    "hello",
+    "greetings",
+    "hey"
+   ],
+   "then": {
+    "hail": true
+   }
+  }
+ ]
+}

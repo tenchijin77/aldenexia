@@ -1,0 +1,52 @@
+{
+ "_comment": "What Innkeeper Dalla Brightwell says (talking_vendor_npc.gd shape: greeting, shop_intro, ambient, secret (night), topics). Written by tools/place_lumora_standins.py once; edit freely.",
+ "ambient_minutes": [
+  5,
+  9
+ ],
+ "ambient_secret_chance_at_night": 0.2,
+ "greeting": [
+  "Welcome to the Sunlit Rest! Hot food, cold water, soft beds.",
+  "Sit anywhere. The stew's fresh."
+ ],
+ "shop_intro": [
+  "Here's the board."
+ ],
+ "ambient": [
+  "Mind the step, the new boards squeak.",
+  "Jorren plays most nights, if you like a song with supper."
+ ],
+ "secret": [
+  "Some nights a woman in a traveller's cloak sits by the window and never orders. The coins on the table are always old."
+ ],
+ "topics": [
+  {
+   "id": "hail",
+   "keywords": [
+    "hail",
+    "hello",
+    "greetings",
+    "hey"
+   ],
+   "then": {
+    "hail": true
+   }
+  },
+  {
+   "id": "food",
+   "keywords": [
+    "food",
+    "drink",
+    "room",
+    "stew",
+    "eat"
+   ],
+   "lines": [
+    "Right away."
+   ],
+   "then": {
+    "hail": true
+   }
+  }
+ ]
+}

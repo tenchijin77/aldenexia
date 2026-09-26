@@ -1,0 +1,32 @@
+{
+ "_comment": "What Commander Halvar Sunshield says (talking_vendor_npc.gd shape: greeting, shop_intro, ambient, secret (night), topics). Written by tools/place_lumora_standins.py once; edit freely.",
+ "ambient_minutes": [
+  5,
+  9
+ ],
+ "ambient_secret_chance_at_night": 0.2,
+ "greeting": [
+  "The Wardens hold this city. Keep the peace inside the walls and you'll have no quarrel with us.",
+  "Dustwalkers on the roads again. If you've a blade and a spine, the Citadel could use both."
+ ],
+ "shop_intro": [],
+ "ambient": [
+  "Double the watch on the south gate tonight.",
+  "The oasis is the heart of Lumora. The Citadel is its fist."
+ ],
+ "secret": [],
+ "topics": [
+  {
+   "id": "hail",
+   "keywords": [
+    "hail",
+    "hello",
+    "greetings",
+    "hey"
+   ],
+   "then": {
+    "hail": true
+   }
+  }
+ ]
+}

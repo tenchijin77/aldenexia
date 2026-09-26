@@ -12,8 +12,9 @@ an item (delete it, note it in change_log.txt) when it's done. Last updated 2026
   Ley-stone positions are guesses; the Wildspeaker
   seed doesn't "grow for 24 hours"; "World-Tree health" doesn't exist, so Nature's Ward always applies. Bridge/rift
   entry and group pulls not yet tried with two players.
-- Shields (decided and built): tanks, Lightmender, Troubadour, Spiritweaver, Wildspeaker. APPROVED, not built yet
-  (user 2026-09-24: "wildspeakers shouldn't be able to use metal shields"): Wildspeakers use wooden / bone shields only.
+- Shields: tanks, Lightmender, Troubadour, Spiritweaver, Wildspeaker; Wildspeakers wood / bone only (built, checked
+  2026-09-26: armor_types.gd no_metal_shields, test_armor). Only one non-metal shield exists (the bone shield): a
+  wooden one (e.g. a Woodworking fir buckler, in Crafting.xlsx) would give Wildspeakers a choice. Suggestion.
 
 
 == ZONES AND DUSTWIND PLATEAUS (decided 2026-09-24, not built) ==
@@ -49,9 +50,9 @@ an item (delete it, note it in change_log.txt) when it's done. Last updated 2026
 - On-demand zones BUILT 2026-09-26 (world_link.gd). Lumora is on demand too: add "always_on": true to it in
   Data/zones.json if it should always run. Later: a zone per VM / host (the user may move the game to a bigger Proxmox
   host); a zone crashing is only noticed when its link drops (the next traveller starts it again).
-- Cross-zone (world_link.gd, tests 37-38): /who, /tell, /party, groups, world and GM announcements and the GM flag now
-  cross zones. Still zone-only: GM /kill, /give, /ban lookups and /follow of someone who zoned; a group member in another
-  zone shows no health bars (only name and zone).
+- Cross-zone (world_link.gd): /who, /tell, /party, groups (with health bars, 2026-09-26), announcements, the GM flag and
+  /ban by name cross zones. /kill works on your target (in your zone by nature); /follow stops with "<name> has left the
+  zone." (auto-following someone through a zone line: an idea, not built).
 - Lumora (2026-09-25, first pass): its own zone; the wall, the music, the moved vendors / bank / Archive / stations /
   mirror, district markers and guards are in. Still to do (Development page, Part 2): the buildings (the ground is flat),
   the inn (The Sunlit Rest), Toren and the Citadel, the temple healer, guild halls and trainers (Data/lumora.json has
@@ -306,27 +307,39 @@ Decisions:
 - MISSING ASSETS (cartography): icons for Blank Parchment (borrows map-fragment.png) and the Charcoal Stick (borrows
   note.png); a Cartographer NPC look (a human male stand-in).
 
-== CRIME AND THE COURTHOUSE (approved 2026-09-25, not built) ==
-- Design: a crime in town (caught pickpocketing, attacking a guard or townsperson, attacking another player) raises your
-  Lumora bounty and costs standing with the wronged faction (Wardens, Villagers, Sandveil); the nearest guard demands the
-  fine: pay (bounty cleared) or resist / run, and the guards attack; killed by them, the fine comes out of your purse
-  (the rest stays as bounty). No jail (unless a quest wants one). The courthouse pays off bounties and buys back only the
-  standing crimes cost.
-- Missing foundations: guards can't fight players (they only ever target monsters); pickpocketing only works on
-  monsters; players can't attack guards or townsfolk. PvP exists now (/pvp, /duel, 2026-09-25), so attacking a player in
-  town can become the first crime.
+== CRIME AND THE COURTHOUSE (built 2026-09-26: crime.gd, guard_npc.gd, magistrate_npc.gd) — still open ==
+- More crimes: pickpocketing townsfolk (pickpocket only works on monsters), attacking guards or townsfolk (players can't
+  target them yet). The Villagers of Lumora and the Sandveil are wronged by those; only the Wardens are so far.
+- The bounty lives in the character's save (client-side): the server doesn't check it yet (server_trust.gd could).
+- Numbers are a first pass: 5 silver and -15 Warden standing per assault, amends at 2 copper a point.
 - PvP / duels, not yet: area spells and pets against players, ailments (stun, root, slow) on players.
 - MISSING ASSETS (cats): a STANDING Kenji model (Meshy) so he can walk and run like Oni (the current one is sculpted
   sitting; tools/blender/animate_cat.py would animate a rigged standing one). Oni's rig bones are unnamed (Bone.001...):
   naming them would make the animation script easier to extend (a sit, a pounce, a stretch).
-- Summoned animal pets built on the critter meshes don't use critter_motion.gdshader yet (summoned_pet.gd _build_critter).
 
 
 == FROM TEST 42 (2026-09-26) ==
 - Fear on players is in (save: Shaken or run). Not yet: players' fear spells on players in PvP (they still only stop
   the target swinging). MISSING ASSET: an icon for Shaken (borrows terrified.png).
 - Player-lit campfires live in the zone server's memory: a server restart puts them out (bundle not refunded).
-- The troll female (and the ogres) may bunch the same way when running: tools/relax_shoulders.gd on their libraries if
-  so. Only the troll male was changed.
+- Running hump fixed for the troll male, troll female and ogre female (tools/relax_shoulders.gd); the others measured fine.
 - Spawn timers are a first pass (common monsters 6x, 1 minute floor): tune per camp after playtests. The planned zones'
   spawn files (Ashland Grove, Broken Barrow, Ebonbloom, Gloomfen, Kragthar, Solgrave) are drafts, not valid JSON yet.
+
+== LUMORA STAND-INS (2026-09-26) ==
+- Every building in Scenes/props/lumora/ is a stand-in box (MISSING ASSETS below): the user is making models.
+- Trainers sell their class's scrolls; real training (skills, abilities by level) isn't a thing yet. Quest givers
+  (Commander Halvar, Instructor Jalen) have lines but no quests. The town crier's news is fixed text, no daily rhythm.
+- Not placed yet: the Caravanserai, the Wayfarers' Lodge, the Solaris Vault, the Paladin's Vigil statue, the oasis buff.
+
+MISSING ASSETS (Lumora stand-ins, 2026-09-26): models for the Sunlit Rest (inn), the Oasisheart Citadel, the Hall of Arms,
+the Courthouse, the Lycaeum Annex, the Temple of the Dawn, the Lantern Lodge (Old Town), the Cisterns entrance, and
+Ralph's Last Round (the Outskirts gate tavern). Each is Scenes/props/lumora/<name>.tscn: replace its contents, keep the node.
+MISSING ASSET: a "Shaken" status icon (borrows terrified.png).
+
+== THE SHADOWBLADE (2026-09-26) — still open ==
+- Blindside is a starting spell with no scroll item (nobody else needs to buy it). Its icon borrows targetstun.png.
+- Stealth hides you from monsters' sight completely; EverQuest-style detection (a chance to be noticed up close, by
+  level) isn't built. Other players always see a stealthed player (faint): hiding from players is for PvP later.
+- MISSING ASSET: a Blindside icon (borrows targetstun.png, shared with Ambush).
+

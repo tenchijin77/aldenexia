@@ -1,0 +1,34 @@
+{
+ "_comment": "What TownCrier says (talking_vendor_npc.gd shape: greeting, shop_intro, ambient, secret (night), topics). Written by tools/place_lumora_standins.py once; edit freely.",
+ "ambient_minutes": [
+  1,
+  3
+ ],
+ "ambient_secret_chance_at_night": 0.2,
+ "greeting": [
+  "Hear ye! News from the gate, the bazaar and the Citadel!"
+ ],
+ "shop_intro": [],
+ "ambient": [
+  "Hear ye! The Sunlit Rest has rooms and a hot meal for weary travellers!",
+  "Hear ye! Dustwalker raids on the south road: travel in company!",
+  "Hear ye! Fines are paid at the courthouse, not argued in the street!",
+  "Hear ye! The Temple of the Dawn tends the sick and the wounded!",
+  "Hear ye! Caravans from Kordova expected at the Caravanserai before the dark moon!"
+ ],
+ "secret": [],
+ "topics": [
+  {
+   "id": "hail",
+   "keywords": [
+    "hail",
+    "hello",
+    "greetings",
+    "hey"
+   ],
+   "then": {
+    "hail": true
+   }
+  }
+ ]
+}

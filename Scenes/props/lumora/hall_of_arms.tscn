@@ -1,0 +1,125 @@
+[gd_scene format=3]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_cpudr"]
+size = Vector3(16, 8, 0.6)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_6rgk0"]
+size = Vector3(0.6, 8, 12)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_go0t4"]
+size = Vector3(0.6, 8, 12)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_g7x4a"]
+size = Vector3(6.4, 8, 0.6)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_k3mit"]
+size = Vector3(6.4, 8, 0.6)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_14cbt"]
+size = Vector3(3.2, 4.4, 0.6)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ggbfe"]
+size = Vector3(16.8, 0.5, 12.8)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_7tyih"]
+albedo_color = Color(0.84, 0.74, 0.56, 1)
+roughness = 0.95
+
+[sub_resource type="BoxMesh" id="BoxMesh_nvad6"]
+size = Vector3(16, 8, 0.6)
+
+[sub_resource type="BoxMesh" id="BoxMesh_j600k"]
+size = Vector3(0.6, 8, 12)
+
+[sub_resource type="BoxMesh" id="BoxMesh_a6geu"]
+size = Vector3(0.6, 8, 12)
+
+[sub_resource type="BoxMesh" id="BoxMesh_ak2gr"]
+size = Vector3(6.4, 8, 0.6)
+
+[sub_resource type="BoxMesh" id="BoxMesh_2pk8u"]
+size = Vector3(6.4, 8, 0.6)
+
+[sub_resource type="BoxMesh" id="BoxMesh_thdq4"]
+size = Vector3(3.2, 4.4, 0.6)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_q65op"]
+albedo_color = Color(0.62, 0.45, 0.32, 1)
+roughness = 0.9
+
+[sub_resource type="BoxMesh" id="BoxMesh_k0fp7"]
+size = Vector3(16.8, 0.5, 12.8)
+
+[node name="HallOfArms" type="Node3D" unique_id=45904620]
+metadata/stand_in = true
+
+[node name="Walls" type="StaticBody3D" parent="." unique_id=1028664901]
+
+[node name="BackShape" type="CollisionShape3D" parent="Walls" unique_id=1094279054]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, -5.7)
+shape = SubResource("BoxShape3D_cpudr")
+
+[node name="LeftShape" type="CollisionShape3D" parent="Walls" unique_id=835318184]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.7, 4, 0)
+shape = SubResource("BoxShape3D_6rgk0")
+
+[node name="RightShape" type="CollisionShape3D" parent="Walls" unique_id=611969433]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.7, 4, 0)
+shape = SubResource("BoxShape3D_go0t4")
+
+[node name="FrontLeftShape" type="CollisionShape3D" parent="Walls" unique_id=1557239062]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.8, 4, 5.7)
+shape = SubResource("BoxShape3D_g7x4a")
+
+[node name="FrontRightShape" type="CollisionShape3D" parent="Walls" unique_id=2053051359]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.8, 4, 5.7)
+shape = SubResource("BoxShape3D_k3mit")
+
+[node name="LintelShape" type="CollisionShape3D" parent="Walls" unique_id=304397942]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.8, 5.7)
+shape = SubResource("BoxShape3D_14cbt")
+
+[node name="RoofShape" type="CollisionShape3D" parent="Walls" unique_id=1923336881]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 8.25, 0)
+shape = SubResource("BoxShape3D_ggbfe")
+
+[node name="Back" type="MeshInstance3D" parent="." unique_id=876829896]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, -5.7)
+material_override = SubResource("StandardMaterial3D_7tyih")
+mesh = SubResource("BoxMesh_nvad6")
+
+[node name="Left" type="MeshInstance3D" parent="." unique_id=1970050302]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.7, 4, 0)
+material_override = SubResource("StandardMaterial3D_7tyih")
+mesh = SubResource("BoxMesh_j600k")
+
+[node name="Right" type="MeshInstance3D" parent="." unique_id=1366872654]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.7, 4, 0)
+material_override = SubResource("StandardMaterial3D_7tyih")
+mesh = SubResource("BoxMesh_a6geu")
+
+[node name="FrontLeft" type="MeshInstance3D" parent="." unique_id=141657319]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.8, 4, 5.7)
+material_override = SubResource("StandardMaterial3D_7tyih")
+mesh = SubResource("BoxMesh_ak2gr")
+
+[node name="FrontRight" type="MeshInstance3D" parent="." unique_id=990740640]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.8, 4, 5.7)
+material_override = SubResource("StandardMaterial3D_7tyih")
+mesh = SubResource("BoxMesh_2pk8u")
+
+[node name="Lintel" type="MeshInstance3D" parent="." unique_id=110726518]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.8, 5.7)
+material_override = SubResource("StandardMaterial3D_7tyih")
+mesh = SubResource("BoxMesh_thdq4")
+
+[node name="Roof" type="MeshInstance3D" parent="." unique_id=1527038071]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 8.25, 0)
+material_override = SubResource("StandardMaterial3D_q65op")
+mesh = SubResource("BoxMesh_k0fp7")
+
+[node name="Sign" type="Label3D" parent="." unique_id=1680322781]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.5, 6.05)
+modulate = Color(1, 0.93, 0.75, 1)
+text = "Hall of Arms"
+font_size = 64

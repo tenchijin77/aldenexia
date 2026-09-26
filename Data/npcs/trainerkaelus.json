@@ -1,0 +1,52 @@
+{
+ "_comment": "What Kaelus Darkbrand says (talking_vendor_npc.gd shape: greeting, shop_intro, ambient, secret (night), topics). Written by tools/place_lumora_standins.py once; edit freely.",
+ "ambient_minutes": [
+  5,
+  9
+ ],
+ "ambient_secret_chance_at_night": 0.2,
+ "greeting": [
+  "Fear is a tool. Learn to hold it by the handle.",
+  "Here to learn? I keep what a Voidknight needs, when you're ready for it."
+ ],
+ "shop_intro": [
+  "Here's what I can teach you."
+ ],
+ "ambient": [
+  "Fear is a tool. Learn to hold it by the handle.",
+  "The void takes. So do we."
+ ],
+ "secret": [],
+ "topics": [
+  {
+   "id": "hail",
+   "keywords": [
+    "hail",
+    "hello",
+    "greetings",
+    "hey"
+   ],
+   "then": {
+    "hail": true
+   }
+  },
+  {
+   "id": "train",
+   "keywords": [
+    "train",
+    "learn",
+    "scroll",
+    "scrolls",
+    "spell",
+    "spells",
+    "teach"
+   ],
+   "lines": [
+    "Let's see what you're ready for."
+   ],
+   "then": {
+    "hail": true
+   }
+  }
+ ]
+}

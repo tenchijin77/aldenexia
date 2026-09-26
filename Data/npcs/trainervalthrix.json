@@ -1,0 +1,52 @@
+{
+ "_comment": "What Necromancer Valthrix the Pale says (talking_vendor_npc.gd shape: greeting, shop_intro, ambient, secret (night), topics). Written by tools/place_lumora_standins.py once; edit freely.",
+ "ambient_minutes": [
+  5,
+  9
+ ],
+ "ambient_secret_chance_at_night": 0.2,
+ "greeting": [
+  "The dead are patient teachers.",
+  "Here to learn? I keep what a Gravecaller needs, when you're ready for it."
+ ],
+ "shop_intro": [
+  "Here's what I can teach you."
+ ],
+ "ambient": [
+  "The dead are patient teachers.",
+  "Bones remember what flesh forgets."
+ ],
+ "secret": [],
+ "topics": [
+  {
+   "id": "hail",
+   "keywords": [
+    "hail",
+    "hello",
+    "greetings",
+    "hey"
+   ],
+   "then": {
+    "hail": true
+   }
+  },
+  {
+   "id": "train",
+   "keywords": [
+    "train",
+    "learn",
+    "scroll",
+    "scrolls",
+    "spell",
+    "spells",
+    "teach"
+   ],
+   "lines": [
+    "Let's see what you're ready for."
+   ],
+   "then": {
+    "hail": true
+   }
+  }
+ ]
+}
