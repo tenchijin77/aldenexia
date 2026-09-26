@@ -60,14 +60,19 @@ static func apply(character: Node3D, encoded: String) -> void:
 		_attach(skeleton, offhand, "LeftForeArm", "LeftHand", true)
 
 
+static var _fit_cache := {}   # "<skeleton's model>|<model>|<bone>" -> the fitted transform (worked out once per race model)
+
+
 static func _attach(skeleton: Skeleton3D, model: String, bone: String, other: String, shield: bool) -> void:
 	var bi := skeleton.find_bone(bone)
 	var oi := skeleton.find_bone(other)
 	if bi < 0 or oi < 0:
 		return
-	var rest := skeleton.get_bone_global_rest(bi)
-	var forearm := rest.origin.distance_to(skeleton.get_bone_global_rest(oi).origin)   # hand<->forearm joint distance
-	var size := forearm / REFERENCE_FOREARM
+	var key := "%s|%s|%s" % [str(skeleton.owner.scene_file_path) if skeleton.owner != null else str(skeleton.get_path()), model, bone]
+	if not _fit_cache.has(key):
+		var poses := _idle_poses(skeleton, [bi, oi])
+		var forearm: float = (poses[bi] as Transform3D).origin.distance_to((poses[oi] as Transform3D).origin)
+		_fit_cache[key] = grip_transform(poses[bi], forearm, model, shield).scaled_local(Vector3.ONE * (forearm / REFERENCE_FOREARM))
 	var holder := BoneAttachment3D.new()
 	holder.name = "Held_" + model
 	holder.bone_name = bone
@@ -77,26 +82,56 @@ static func _attach(skeleton: Skeleton3D, model: String, bone: String, other: St
 	holder.add_child(gear)
 	for mi in gear.find_children("*", "MeshInstance3D", true, false):
 		mi.add_to_group(GROUP)
-	gear.transform = grip_transform(rest, forearm, model, shield).scaled_local(Vector3.ONE * size)
+	gear.transform = _fit_cache[key]
 
 
-# Where the model sits in the bone's own frame, from the bone's bind-pose (global rest) transform.
-static func grip_transform(rest: Transform3D, forearm: float, model: String, shield: bool) -> Transform3D:
-	var inv := rest.basis.orthonormalized().inverse()
-	var along := (rest.basis.y).normalized()        # the bone points down the arm, toward the fingers
-	var palm := (rest.basis.z).normalized()         # palms-down bind pose: the bone's z is the palm's normal
+# The bones' skeleton-space transforms in the character's standing idle, the pose you see most (test 40: fitting to the
+# arms-out bind pose left the sword across the body and the shield through the arm once the arms hung down). Plays the
+# idle's first moment, reads the bones, and puts whatever was playing back.
+static func _idle_poses(skeleton: Skeleton3D, bones: Array) -> Dictionary:
+	var out := {}
+	var ap: AnimationPlayer = null
+	var root := skeleton.owner if skeleton.owner != null else skeleton.get_parent()
+	for n in root.find_children("*", "AnimationPlayer", true, false):
+		ap = n
+		break
+	var was := ""
+	var at := 0.0
+	var posed := false
+	if ap != null and ap.has_animation("idle"):
+		was = ap.current_animation
+		at = ap.current_animation_position if not was.is_empty() else 0.0
+		ap.play("idle")
+		ap.seek(0.2, true)
+		skeleton.force_update_all_bone_transforms()
+		posed = true
+	for b in bones:
+		out[b] = skeleton.get_bone_global_pose(b) if posed else skeleton.get_bone_global_rest(b)
+	if posed and not was.is_empty() and was != "idle":
+		ap.play(was)
+		ap.seek(at, true)
+	return out
+
+
+# Where the model sits in the bone's own frame, from the bone's skeleton-space transform in the idle pose.
+#   weapon: tip forward and a little down from the fist (a staff stands upright), the edge up and down;
+#   shield: hanging on the outside of the left forearm, face out to the left, top up.
+const LEFT := Vector3(1, 0, 0)   # the Meshy skeletons' left
+
+static func grip_transform(pose: Transform3D, forearm: float, model: String, shield: bool) -> Transform3D:
+	var inv := pose.basis.orthonormalized().inverse()
+	var along := pose.basis.y.normalized()        # the bone points down the arm, toward the fingers
 	var want: Basis
 	var pos: Vector3
 	if shield:
-		# strapped to the forearm: face out of the back of the arm, top toward the hand, halfway down the forearm
-		var face := -palm
-		var top := along
+		var face := LEFT
+		var top := UP
 		want = Basis(top.cross(face), top, face)
-		pos = along * forearm * 0.5 + face * forearm * 0.2
+		pos = along * forearm * 0.5 + face * forearm * 0.45   # halfway down the forearm (the bone starts at the elbow), out from the arm
 	else:
-		var tip := UP if UPRIGHT.has(model) else FORWARD
-		var edge := UP if not UPRIGHT.has(model) else FORWARD
+		var tip: Vector3 = UP if UPRIGHT.has(model) else (FORWARD * 0.9 + UP * -0.35).normalized()
+		var edge: Vector3 = (UP - tip * UP.dot(tip)).normalized() if not UPRIGHT.has(model) else FORWARD
 		var flat := edge.cross(tip)
 		want = Basis(edge, tip, flat)
-		pos = along * forearm * 0.45 + palm * forearm * 0.15   # in the fist: past the wrist, a little into the palm
+		pos = along * forearm * 0.45   # in the fist, past the wrist
 	return Transform3D(inv * want.orthonormalized(), inv * pos)

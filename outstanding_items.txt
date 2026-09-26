@@ -321,3 +321,14 @@ Decisions:
 - Non-combat buffs last 15 minutes as a rule (Shadowlight changed to 15 minutes; the oasis buff will be).
 - MISSING ASSETS (cartography): icons for Blank Parchment (borrows map-fragment.png) and the Charcoal Stick (borrows
   note.png); a Cartographer NPC look (a human male stand-in).
+
+== CRIME AND THE COURTHOUSE (approved 2026-09-25, not built) ==
+- Design: a crime in town (caught pickpocketing, attacking a guard or townsperson, attacking another player) raises your
+  Lumora bounty and costs standing with the wronged faction (Wardens, Villagers, Sandveil); the nearest guard demands the
+  fine: pay (bounty cleared) or resist / run, and the guards attack; killed by them, the fine comes out of your purse
+  (the rest stays as bounty). No jail (unless a quest wants one). The courthouse pays off bounties and buys back only the
+  standing crimes cost.
+- Missing foundations: guards can't fight players (they only ever target monsters); pickpocketing only works on
+  monsters; players can't attack guards, townsfolk or each other (no PvP anywhere). Asked the user whether the game has
+  PvP outside town.
+

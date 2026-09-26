@@ -210,6 +210,9 @@ static func monster_attack(result: Dictionary, monster_desc: String, damage_type
 # ── Spell messages ────────────────────────────────────────────────────────────
 
 static func spell_damage(caster: String, spell_name: String, target_desc: String, damage: int) -> String:
+	if spell_name.to_lower().contains("taunt"):
+		# a taunt is a strike (test 40): "Zozuur hits a desert goblin with a mighty strike for 20 damage, drawing its ire!"
+		return "%s %s %s with a mighty strike for [b]%d[/b] damage, drawing its ire!" % [caster, "hit" if caster == "You" else "hits", target_desc, damage]
 	var verb := "cast" if caster == "You" else "casts"
 	return "%s %s [b]%s[/b] on %s for [b]%d[/b] damage!" % [
 		caster, verb, spell_name.replace("_", " ").capitalize(), target_desc, damage

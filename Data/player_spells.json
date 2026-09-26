@@ -16504,7 +16504,7 @@
         "spell_id": 559,
         "spell_name": "taunt",
         "icon": "res://Assets/icons/spells/taunt.png",
-        "description": "A furious challenge that forces an enemy's full attention onto you, guaranteeing your threat overtakes whoever else has been hitting it.",
+        "description": "A mighty strike with a furious challenge behind it: it hits the enemy and forces its full attention onto you, guaranteeing your threat overtakes whoever else has been hitting it.",
         "caster_proficiency": "none",
         "mana_cost": 0.0,
         "recast_time": 8.0,

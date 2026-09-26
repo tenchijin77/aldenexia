@@ -2,11 +2,11 @@ ALDENEXIA: LIGHTFALL — TESTING CHECKLIST
 New features and fixes waiting for a real playtest, in two parts: OUTSTANDING (not passed yet) and COMPLETED (passed).
 When an item passes, change [ ] to [x] and move it to the same section under COMPLETED (or just add "- working" and it
 gets moved). A failure goes to outstanding_items.txt with what went wrong. Last updated 2026-09-25 (test 38).
-Everything below was built after test 26.   Outstanding: 233   Completed: 25
+Everything below was built after test 26.   Outstanding: 240   Completed: 25
 
 
 ################################################################################
-  OUTSTANDING — still to test (233)
+  OUTSTANDING — still to test (240)
 ################################################################################
 
 == ACCOUNTS AND JOINING ==
@@ -263,6 +263,15 @@ Everything below was built after test 26.   Outstanding: 233   Completed: 25
     sundered armour (ravager), blinded (Djhanid), grave miasma (restless corpse), withering touch (wraith).
 [ ] Two players: one zones, the other stays; both keep playing (chat across zones doesn't work yet).
 
+== TEST 40 FIXES (2026-09-25) ==
+[ ] Standing still with a sword and shield: the shield hangs on the outside of the left arm (no arm through it), the
+    sword points forward from the fist; a staff stands upright. Try an ogre and a gnome too.
+[ ] Taunt: "You hit <target> with a mighty strike for N damage, drawing its ire!"
+[ ] Run far from your pet (or leave it stuck behind a camp): after about 5 seconds more than 50 m away it appears beside
+    you. It never jumps out of a fight.
+[ ] Campfires and torches: flickering tongues of flame, embers, smoke drifting; the light flickers. Frame rate near a lot
+    of torches (the town gate) should be better than before.
+
 == VERSION 0.4.6: SKY, CARTOGRAPHY (2026-09-25) ==
 [ ] The sky: sunrise and sunset glow warm; the sun's disc crosses the sky (shadows turn through the day); clouds drift;
     at night stars twinkle and the moon rises and sets, showing its phase; in rain the clouds thicken and go grey.
@@ -272,6 +281,9 @@ Everything below was built after test 26.   Outstanding: 233   Completed: 25
 [ ] The map window: drag it by the title, resize from the corner (remembered), wheel zooms, dragging moves it, right-click
     writes a note, right-click a note rubs it out; log out and in: map and notes kept. With a compass: a red arrow is you.
 [ ] At Cartography 21 place names appear; 51 camps / people / resources; 76 patrols and "?" hidden places.
+[ ] The Outskirts town wall and gate, and Lumora's city wall: the stone repeats evenly (no long stretched smears).
+[ ] Inside the Outskirts town walls: no strip of sand along the foot of the walls.
+[ ] The forge by the Outskirts gate (beside the campfire, just outside the town): smelt a tin ingot there.
 [ ] Attune Spirit: target a friend and cast: they're bound; cast again on the next friend straight away (5 s recast);
     your own bind point still only changes once an hour.
 

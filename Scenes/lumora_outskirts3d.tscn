@@ -441,3 +441,9 @@ script = ExtResource("zone_line_scr")
 target_zone = "lumora"
 target_marker = "lumora_outskirts_zone"
 size = Vector3(92, 60, 6)
+
+[node name="GateForge" type="Node3D" parent="."]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 48, 0, 38)
+script = ExtResource("crafting_station_scr")
+station_id = "forge"
+display_name = "Forge"

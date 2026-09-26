@@ -4,6 +4,7 @@
 [ext_resource type="Texture2D" uid="uid://br23vq18l8bh3" path="res://Assets/toppng.com-swirling-fire-effect-with-high-glow-530x600.png" id="2_atopq"]
 [ext_resource type="Texture2D" uid="uid://ol3fgehyr2gl" path="res://Assets/toppng.com-realistic-smoke-texture-with-soft-particle-edges-png-399x385.png" id="3_2hn5a"]
 [ext_resource type="AudioStream" uid="uid://ddoo8b2k3noxl" path="res://Assets/sounds/ambient/campfire_crackle.mp3" id="4_o73iv"]
+[ext_resource type="Script" path="res://Scripts/fire_fx.gd" id="fire_fx_scr"]
 
 [sub_resource type="Gradient" id="Gradient_qycku"]
 offsets = PackedFloat32Array(0, 0.83431953)
@@ -102,6 +103,11 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.97413, 0)
 amount = 16
 process_material = SubResource("ParticleProcessMaterial_fi5mc")
 draw_pass_1 = SubResource("QuadMesh_c7cxm")
+
+[node name="FireFX" type="Node3D" parent="torch"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.97413, 0)
+script = ExtResource("fire_fx_scr")
+size = 0.6
 
 [node name="smoke" type="GPUParticles3D" parent="torch" unique_id=2057205439]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.3073742, 0)

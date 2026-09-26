@@ -327,6 +327,8 @@ func _physics_process(delta: float) -> void:
 
 	_process_regen(delta)
 
+	_tick_catch_up(delta)
+
 	match command:
 		PetState.FOLLOW:
 			if not _maintain_min_owner_distance(delta):
@@ -942,6 +944,26 @@ func _persist_mode() -> void:
 
 # The owner died and woke at their bind point: the pet appears beside them at once (it used to walk the whole way back),
 # stops fighting, and every monster near where it was forgets it (so nothing chases it to town).
+# The last resort when following fails (test 40: the pet stayed 100 m back at the goblin camp and never found its way):
+# while following (not fighting), a pet that has been more than CATCH_UP_DISTANCE behind for CATCH_UP_SECONDS, or keeps
+# getting stuck while well behind, joins its owner (as EverQuest and WoW pets do).
+const CATCH_UP_DISTANCE := 50.0
+const CATCH_UP_SECONDS := 5.0
+const CATCH_UP_STUCK_DISTANCE := 20.0
+var _behind_for := 0.0
+
+func _tick_catch_up(delta: float) -> void:
+	if not (command in [PetState.FOLLOW, PetState.ASSIST]) or is_instance_valid(attack_target):
+		_behind_for = 0.0
+		return
+	var dist := global_position.distance_to((owner_player as Node3D).global_position)
+	_behind_for = _behind_for + delta if dist > CATCH_UP_DISTANCE else 0.0
+	if _behind_for >= CATCH_UP_SECONDS or (_consecutive_stuck_count >= 4 and dist > CATCH_UP_STUCK_DISTANCE):
+		_behind_for = 0.0
+		_consecutive_stuck_count = 0
+		recall_to_owner()
+
+
 func recall_to_owner() -> void:
 	if not is_instance_valid(owner_player):
 		return
