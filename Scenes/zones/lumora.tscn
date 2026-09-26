@@ -262,3 +262,11 @@ config_path = "res://Data/soul_binder.json"
 model_key = "human_female"
 title = "Soul Binder of the Dawnspire"
 npc_name = "Soulbinder Maren"
+
+[node name="Cartographer" parent="NPCs" instance=ExtResource("talking_vendor_scn")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -40, 0, 405)
+config_path = "res://Data/cartographer.json"
+model_key = "human_male"
+title = "Cartographer"
+npc_name = "Cartographer Ivo Quill"
+shop_id = "lumora_cartographer"

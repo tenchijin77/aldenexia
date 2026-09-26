@@ -2400,6 +2400,30 @@ GATE RAIDS (`Scripts/gate_raid_manager.gd`, `Data/gate_raids.json`, node "GateRa
   warmth of the campfire -> groupfire.
 - Tests: test_test37.gd. Suite: 3,808 checks pass.
 
+### Version 0.4.6: the sky, cartography, binding (2026-09-25)
+- VERSION 0.4.6 (project.godot): a new full client base is needed (tools/update.sh --new-base); the tester guide's
+  examples say v0.4.6.
+- THE SKY (Shaders/sky.gdshader, driven by day_night_cycle.gd): realistic colour with warm sunrises and sunsets, the sun's
+  disc and glow, procedural twinkling stars at night, the moon with its phases (a 14-day real-time cycle, the same for
+  everyone: the new moon is the dark moon), and drifting clouds that thicken and turn grey in rain and hide the stars.
+  No textures needed. The sun and the moon now cross the sky (rising on one side, setting on the other; shadows turn
+  through the day); a thin moon lights the land less. Checked with rendered shots (noon, sunset, rain, full and crescent
+  moon) and in the Outskirts itself.
+- CARTOGRAPHY (Scripts/cartography.gd, map_window.gd; the Game Systems notes, section 6): you start with no map. Buy the
+  Scroll of Cartography (5 silver), Blank Parchment (5c) and a Charcoal Stick (2c) from Cartographer Ivo Quill by
+  Lumora's south gate (with compasses); learn the scroll, carry the kit, and the land is charted as you walk (fog of war,
+  per character, per zone, saved on the server with the character). M opens the map: a window you can move and resize,
+  wheel to zoom, drag to pan, right-click (or "Add note") for your own notes. It's drawn from the zone itself: shaded
+  hills, and walls, buildings and camps in ink. The skill (to 100; Woodstalkers fastest, Shadowblades and Troubadours
+  next) rises as you chart new ground; place names and zone borders at 21, camps, people, resources and contour lines at
+  51, patrol routes, rare creatures and hidden places at 76. A compass adds "you are here". The server lets the skill
+  rise past the usual level cap (it's walked, not levelled). New: scrolls can teach a skill ("teaches_skill").
+- BINDING (user's clarification): Attune Spirit binds ONLY the target (or yourself with no target), and can be cast
+  again and again (recast 5 s): bind the whole group before a hard dungeon, one at a time. The hour is each person's:
+  their bind point changes at most once an hour.
+- Shadowlight lasts 15 minutes (was an hour), like every non-combat buff (spells JSON and sheet).
+- Tests: test_cartography (45 checks, with the sky's sun, moon and phases).
+
 ### Test 39: Zozuur (Voidknight), Maedianie (Wildspeaker), build adc0f32
 - Working (per the notes): party chat across zones; macros (a taunt macro). Macros already live on the server: shared
   ones on the account, the rest in the character, so they follow a player to any PC.

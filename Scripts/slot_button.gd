@@ -136,6 +136,19 @@ func _learn_from_scroll() -> void:
 			node.set_player(player)
 			break
 
+# Learns the skill a skill scroll teaches (Data/items.json "teaches_skill": the Scroll of Cartography) and uses the scroll up.
+func _learn_skill_from_scroll() -> void:
+	var skill_name := str(item_data.get("teaches_skill", ""))
+	var player := TargetFrame.local_player()
+	if skill_name.is_empty() or not is_instance_valid(player) or not player.learn_skill(skill_name):
+		return
+	if slot_type == "basic":
+		Inventory.remove_from_basic_inventory(slot_index)
+	elif slot_type == "bag":
+		Inventory.remove_from_bag(bag_slot, item_index)
+	Global.save_player_data_to_file()
+
+
 # Learns the tradeskill recipe a recipe scroll teaches (Data/items.json "teaches_recipe") and uses the scroll up.
 # Anyone can learn any recipe; the recipe's min skill is checked when you try to craft it.
 func _learn_recipe_from_scroll() -> void:
@@ -297,6 +310,14 @@ func _show_inspect_popup() -> void:
 			_learn_recipe_from_scroll()
 		)
 		btn_row.add_child(learn_recipe_btn)
+	if item_data.get("type") == "scroll" and item_data.has("teaches_skill"):
+		var learn_skill_btn := Button.new()
+		learn_skill_btn.text = "Learn"
+		learn_skill_btn.pressed.connect(func():
+			layer.queue_free()
+			_learn_skill_from_scroll()
+		)
+		btn_row.add_child(learn_skill_btn)
 	if item_data.get("type") == "scroll" and item_data.has("teaches_spell"):
 		var learn_btn := Button.new()
 		learn_btn.text = "Learn"

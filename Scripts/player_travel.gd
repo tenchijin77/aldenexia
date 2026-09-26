@@ -67,6 +67,8 @@ func pre_cast(spell_name: String, spell: Dictionary) -> bool:
 		if not spell.get("class_level_requirements", {}).has(str(player.player_class)):
 			GameLog.log_general("[color=#ff8866]Only spellcasters can attune a spirit. Ask a caster, or find a Soul Binder in town.[/color]")
 			return false
+		# The spell itself can be cast again and again (bind each of your group before a hard dungeon, one by one). The hour
+		# is each person's own: a bind point changes once an hour, checked on their machine when the binding reaches them.
 		if bind_target() == null and bind_wait_minutes() > 0:
 			GameLog.log_general("[color=#ff8866]Your spirit is still settling from its last attunement. Try again in %d minutes.[/color]" % bind_wait_minutes())
 			return false
@@ -146,6 +148,7 @@ func resolve(spell_name: String, spell: Dictionary) -> void:
 	var kind := str(spell.get("travel_kind", ""))
 	match str(spell.get("travel", "")):
 		"bind":
+			# the player you target (a friend next to you), or yourself with no one targeted
 			var other := bind_target()
 			if other != null:
 				other._rpc_bound_by.rpc_id(other.get_multiplayer_authority())

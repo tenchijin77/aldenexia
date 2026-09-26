@@ -1,0 +1,51 @@
+{
+ "_comment": "cartographer.json - Cartographer Ivo Quill, Lumora's mapmaker (Scripts/talking_vendor_npc.gd on a talking_vendor.tscn; sells Data/vendor_shop.json 'lumora_cartographer'). Placeholder name. ALL LINES ARE DRAFTS for the user to change.",
+ "ambient_minutes": [
+  4,
+  8
+ ],
+ "ambient_secret_chance_at_night": 0.2,
+ "greeting": [
+  "A traveller without a map is just lost with extra steps. Looking to learn?",
+  "Parchment, charcoal, a steady hand. The rest you earn with your feet.",
+  "Maps! Well. The makings of maps. Nobody sells a good map; you walk one."
+ ],
+ "shop_intro": [
+  "The scroll teaches you the craft. Parchment and charcoal carry the map. A compass tells you where you stand on it."
+ ],
+ "ambient": [
+  "Charcoal and parchment! Chart the dunes yourself, and never trust a map you didn't walk!",
+  "The Outskirts change every season. A map is only as good as the last pair of boots that crossed it.",
+  "Compasses! The needle never lies, even when the sand does."
+ ],
+ "secret": [
+  "There are places in the Plateaus that don't want to be drawn. The charcoal smudges there. Every time.",
+  "The Wardens' maps stop at the burial mounds. Mine don't. Mine just get quieter."
+ ],
+ "topics": [
+  {
+   "id": "hail",
+   "keywords": [
+    "hail",
+    "hello",
+    "greetings",
+    "hey"
+   ],
+   "lines": [
+    "Hail. Maps, or the making of them?"
+   ]
+  },
+  {
+   "id": "map",
+   "keywords": [
+    "map",
+    "maps",
+    "cartography",
+    "chart"
+   ],
+   "lines": [
+    "Learn the craft from my scroll, carry parchment and charcoal, and walk. The map draws itself behind you, as good as your skill. Press M to look at it."
+   ]
+  }
+ ]
+}

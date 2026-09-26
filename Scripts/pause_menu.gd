@@ -215,6 +215,7 @@ const KEYBIND_GROUPS := [
 		["J", "Quest Journal"],
 		["L", "Recipe Book"],
 		["N", "Show / hide the compass (needs a Compass)"],
+		["M", "Your map (needs Cartography: the scroll, Blank Parchment and a Charcoal Stick)"],
 		["F11", "Network diagnostics widget"],
 	]],
 	["Chat window", [

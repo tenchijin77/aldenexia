@@ -19246,5 +19246,85 @@
     "stat_modifiers": null,
     "effect": null,
     "teaches_recipe": "alch_night_eye_draught"
+  },
+  "scroll_of_cartography": {
+    "name": "Scroll of Cartography",
+    "icon": "res://Assets/icons/items/scroll.png",
+    "description": "Teaches Cartography: with Blank Parchment and a Charcoal Stick in your bags, you chart the land as you walk. Press M for your map. Right-click to learn.",
+    "stackable": false,
+    "currency_type": "silver",
+    "value": 5,
+    "type": "scroll",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "lore": "Every road in Solgrave was once a line on somebody's parchment. The good maps were never sold; they were earned, one dune at a time.",
+    "teaches_skill": "cartography"
+  },
+  "blank_parchment": {
+    "name": "Blank Parchment",
+    "icon": "res://Assets/icons/items/map-fragment.png",
+    "description": "Rough parchment for a cartographer. Kept in your bags, it holds every map you draw.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 5,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
+  },
+  "charcoal_stick": {
+    "name": "Charcoal Stick",
+    "icon": "res://Assets/icons/items/note.png",
+    "description": "A stick of willow charcoal for drawing maps. It never seems to wear down.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 2,
+    "type": "misc",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 0.1,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null
   }
 }

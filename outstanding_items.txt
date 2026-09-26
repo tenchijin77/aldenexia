@@ -314,10 +314,10 @@ Decisions:
   every playable race has male/female models and creation portraits.
 
 == FROM TEST 39 (2026-09-25) — decided or asked, not built ==
-- Cartography (the Game Systems notes, section 6): proposed in phases (a map window with fog of war first); waiting on
-  the user's go-ahead.
-- A more realistic sky (day and night): the sky is Godot's plain ProceduralSkyMaterial; proposed a custom sky shader
-  (scattering, stars, the moon with its phases, clouds); assets optional.
+- Cartography is in (0.4.6). Still from the notes: fine and masterwork inks / vellum (faster charting), better compasses
+  (coordinates; pointing to the nearest town), "outdated" marks after a patch, the map-reading animation, a vendor map.
+- The sky shader is in (0.4.6). Optional later: a real star panorama and a moon texture (free NASA / ESO images).
 - Troubadour trainer: Jorren Brightsong in town; Annadaeus Beidsdottir also trains when she's in town (how: later).
-- Non-combat buffs last 15 minutes as a rule (the oasis buff will). Shadowlight (a light spell) is 60 minutes: keep?
-
+- Non-combat buffs last 15 minutes as a rule (Shadowlight changed to 15 minutes; the oasis buff will be).
+- MISSING ASSETS (cartography): icons for Blank Parchment (borrows map-fragment.png) and the Charcoal Stick (borrows
+  note.png); a Cartographer NPC look (a human male stand-in).

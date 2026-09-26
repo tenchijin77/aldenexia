@@ -95,6 +95,11 @@ static func check(stored: Dictionary, incoming: Dictionary, kill_xp: int, elapse
 	# The game's own cap (Data/combat_balance.json skill_cap_per_level, as Player3D.skill_cap_for() uses; 0 = no cap).
 	var per_level := int(CombatBalance.num("skill_cap_per_level"))
 	for skill in skills:
+		if str(skill) == Cartography.SKILL:   # charted by walking, capped at 100 whatever your level (cartography.gd)
+			if int(skills[skill]) > Cartography.SKILL_CAP:
+				anomalies.append("skill %s above %d" % [skill, Cartography.SKILL_CAP])
+				skills[skill] = Cartography.SKILL_CAP
+			continue
 		if per_level <= 0:
 			break
 		var cap := maxi(level * per_level, int(old_skills.get(skill, 0)))

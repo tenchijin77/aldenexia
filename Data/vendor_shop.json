@@ -490,5 +490,17 @@
       "scroll_of_sithrak_basics",
       "scroll_of_goblish_basics"
     ]
+  },
+  "lumora_cartographer": {
+    "_comment": "Cartographer Ivo Quill's stall by Lumora's south gate (Data/cartographer.json): Cartography (the Game Systems notes, section 6) — the scroll, the kit, compasses.",
+    "vendor_name": "Cartographer Ivo Quill",
+    "buy_price_multiplier": 1.0,
+    "sell_price_multiplier": 0.5,
+    "stock": [
+      "scroll_of_cartography",
+      "blank_parchment",
+      "charcoal_stick",
+      "compass"
+    ]
   }
 }

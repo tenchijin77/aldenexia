@@ -306,6 +306,11 @@ func _unhandled_input(event: InputEvent) -> void:
 			assist_target()
 			return
 
+		# M opens / closes your map (Cartography; a raw key too).
+		if event.keycode == KEY_M and not event.ctrl_pressed and not event.echo and not (get_viewport().gui_get_focus_owner() is LineEdit):
+			MapWindow.open_for(self)
+			return
+
 		# N shows/hides the compass (a raw key, not an InputMap action, so it can ship in an update patch).
 		if event.keycode == KEY_N and not event.ctrl_pressed and not (get_viewport().gui_get_focus_owner() is LineEdit):
 			toggle_compass()
@@ -1077,6 +1082,10 @@ func _ready() -> void:
 	var travel := PlayerTravel.new()
 	travel.name = "Travel"
 	add_child(travel)
+	# Cartography (cartography.gd): charts the land as you walk, when you know the skill and carry the kit.
+	var cart := Cartography.new()
+	cart.name = "Cartography"
+	add_child(cart)
 	# Perception checks near interesting places (perception_watcher.gd): only acts for the local player.
 	var perception := PerceptionWatcher.new()
 	perception.name = "Perception"
@@ -4425,6 +4434,20 @@ func _rpc_bound_by() -> void:
 	PlayerTravel.bind_spirit(global_position, "[color=#ffdd44]%s attunes your spirit to this place. You will return here when you fall.[/color]" % TargetFrame.display_name(caster))
 
 
+# Learns a skill from a scroll (items.json "teaches_skill", e.g. Cartography). False if you already know it.
+func learn_skill(skill_name: String) -> bool:
+	if skill_levels.has(skill_name):
+		GameLog.log_general("You already know [b]%s[/b]." % skill_name.replace("_", " ").capitalize())
+		return false
+	skill_levels[skill_name] = 1
+	if not known_skills.has(skill_name):
+		known_skills.append(skill_name)
+	Global.player_data["skill_levels"] = skill_levels
+	Global.player_data["known_skills"] = known_skills
+	GameLog.log_general("[color=#ffdd44]You have learned [b]%s[/b]![/color]" % skill_name.replace("_", " ").capitalize())
+	return true
+
+
 func _equipped_id(slot: String) -> String:
 	var item: Variant = Inventory.equipped.get(slot, null)
 	return str(item.get("item_id", "")) if typeof(item) == TYPE_DICTIONARY else ""
@@ -5116,7 +5139,7 @@ func _resolve_spell_cast(spell_name: String, spell: Dictionary, target_node: Nod
 					combat_node.apply_effect("blood_ritual", float(spell.get("duration", 30)), {"damage_mult": 0.10})
 					GameLog.log_combat("[color=#ff4444]You sacrifice %d health, empowering your attacks![/color]" % cost_hp)
 				"shadowlight":
-					combat_node.apply_effect("shadowlight", 3600.0, {})
+					combat_node.apply_effect("shadowlight", 900.0, {})   # 15 minutes, like every non-combat buff (test 39)
 					_enable_shadowlight()
 					GameLog.log_combat("[color=#8855cc]A dim violet light kindles across your weapon.[/color]")
 				"spectral_minion":

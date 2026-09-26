@@ -2,11 +2,11 @@ ALDENEXIA: LIGHTFALL — TESTING CHECKLIST
 New features and fixes waiting for a real playtest, in two parts: OUTSTANDING (not passed yet) and COMPLETED (passed).
 When an item passes, change [ ] to [x] and move it to the same section under COMPLETED (or just add "- working" and it
 gets moved). A failure goes to outstanding_items.txt with what went wrong. Last updated 2026-09-25 (test 38).
-Everything below was built after test 26.   Outstanding: 228   Completed: 25
+Everything below was built after test 26.   Outstanding: 233   Completed: 25
 
 
 ################################################################################
-  OUTSTANDING — still to test (228)
+  OUTSTANDING — still to test (233)
 ################################################################################
 
 == ACCOUNTS AND JOINING ==
@@ -263,6 +263,18 @@ Everything below was built after test 26.   Outstanding: 228   Completed: 25
     sundered armour (ravager), blinded (Djhanid), grave miasma (restless corpse), withering touch (wraith).
 [ ] Two players: one zones, the other stays; both keep playing (chat across zones doesn't work yet).
 
+== VERSION 0.4.6: SKY, CARTOGRAPHY (2026-09-25) ==
+[ ] The sky: sunrise and sunset glow warm; the sun's disc crosses the sky (shadows turn through the day); clouds drift;
+    at night stars twinkle and the moon rises and sets, showing its phase; in rain the clouds thicken and go grey.
+    Note the frame rate before and after if you can (the clouds are drawn every frame).
+[ ] Cartography: M with nothing says you don't know how; buy the scroll (5 silver), parchment and charcoal from
+    Cartographer Ivo Quill (Lumora, by the south gate); learn it; walk: the map fills in behind you and the skill rises.
+[ ] The map window: drag it by the title, resize from the corner (remembered), wheel zooms, dragging moves it, right-click
+    writes a note, right-click a note rubs it out; log out and in: map and notes kept. With a compass: a red arrow is you.
+[ ] At Cartography 21 place names appear; 51 camps / people / resources; 76 patrols and "?" hidden places.
+[ ] Attune Spirit: target a friend and cast: they're bound; cast again on the next friend straight away (5 s recast);
+    your own bind point still only changes once an hour.
+
 == TEST 39 FIXES (2026-09-25) ==
 [ ] /tell someone in another zone (type it in the chat box): they get it; you see "You tell ...". A name that's offline
     says so.
@@ -273,7 +285,7 @@ Everything below was built after test 26.   Outstanding: 228   Completed: 25
 [ ] Equip a sword / dagger / axe / staff, and a shield: you hold them (sword forward in the fist, staff upright, shield
     on the left forearm); another player sees them too. Unequip: gone. Try a big race (ogre) and a small one (gnome).
     Note anything that clips badly in the attack and cast animations.
-[ ] Binding: a caster's Attune Spirit on a targeted friend binds the friend; a Blademaster can't cast it ("ask a caster,
+[ ] Binding: a caster's Attune Spirit on a targeted friend binds only that friend; a Blademaster can't cast it ("ask a caster,
     or find a Soul Binder"); Soulbinder Maren at Lumora's temple binds for 1 silver; once an hour either way.
 
 == LUMORA, THE CITY: FIRST PASS (2026-09-25) ==

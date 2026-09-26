@@ -34,7 +34,8 @@
     "perception": "Ability to notice hidden enemies, traps, secrets, and environmental details.",
     "lockpicking": "Ability to open locks and disarm simple mechanical traps.",
     "trapping": "Ability to both set and use, and detect and safely disable traps.",
-    "legerdermain": "Skillful trickery or deception, often involving quick, clever hands, such as in magic tricks or sleight of hand. Includes pickpocketing"
+    "legerdermain": "Skillful trickery or deception, often involving quick, clever hands, such as in magic tricks or sleight of hand. Includes pickpocketing",
+    "cartography": "Mapping the land as you travel (M opens your map). Learned from a Scroll of Cartography; needs Blank Parchment and a Charcoal Stick. Rises as you chart new ground, up to 100: place names at 21, camps and resources at 51, patrols and hidden places at 76."
   },
   "magic": {
     "abjuration": "Protective and warding magic. Barriers, shields, banishing, damage absorption, and defense against magical effects.",
