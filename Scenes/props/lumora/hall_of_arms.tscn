@@ -50,75 +50,75 @@ roughness = 0.9
 [sub_resource type="BoxMesh" id="BoxMesh_k0fp7"]
 size = Vector3(16.8, 0.5, 12.8)
 
-[node name="HallOfArms" type="Node3D" unique_id=45904620]
+[node name="HallOfArms" type="Node3D" unique_id=720032539]
 metadata/stand_in = true
 
-[node name="Walls" type="StaticBody3D" parent="." unique_id=1028664901]
+[node name="Walls" type="StaticBody3D" parent="." unique_id=110536790]
 
-[node name="BackShape" type="CollisionShape3D" parent="Walls" unique_id=1094279054]
+[node name="BackShape" type="CollisionShape3D" parent="Walls" unique_id=1613636913]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, -5.7)
 shape = SubResource("BoxShape3D_cpudr")
 
-[node name="LeftShape" type="CollisionShape3D" parent="Walls" unique_id=835318184]
+[node name="LeftShape" type="CollisionShape3D" parent="Walls" unique_id=1523258154]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.7, 4, 0)
 shape = SubResource("BoxShape3D_6rgk0")
 
-[node name="RightShape" type="CollisionShape3D" parent="Walls" unique_id=611969433]
+[node name="RightShape" type="CollisionShape3D" parent="Walls" unique_id=273739516]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.7, 4, 0)
 shape = SubResource("BoxShape3D_go0t4")
 
-[node name="FrontLeftShape" type="CollisionShape3D" parent="Walls" unique_id=1557239062]
+[node name="FrontLeftShape" type="CollisionShape3D" parent="Walls" unique_id=1244710778]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.8, 4, 5.7)
 shape = SubResource("BoxShape3D_g7x4a")
 
-[node name="FrontRightShape" type="CollisionShape3D" parent="Walls" unique_id=2053051359]
+[node name="FrontRightShape" type="CollisionShape3D" parent="Walls" unique_id=1017953715]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.8, 4, 5.7)
 shape = SubResource("BoxShape3D_k3mit")
 
-[node name="LintelShape" type="CollisionShape3D" parent="Walls" unique_id=304397942]
+[node name="LintelShape" type="CollisionShape3D" parent="Walls" unique_id=1358965296]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.8, 5.7)
 shape = SubResource("BoxShape3D_14cbt")
 
-[node name="RoofShape" type="CollisionShape3D" parent="Walls" unique_id=1923336881]
+[node name="RoofShape" type="CollisionShape3D" parent="Walls" unique_id=1392802852]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 8.25, 0)
 shape = SubResource("BoxShape3D_ggbfe")
 
-[node name="Back" type="MeshInstance3D" parent="." unique_id=876829896]
+[node name="Back" type="MeshInstance3D" parent="." unique_id=1698981314]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, -5.7)
 material_override = SubResource("StandardMaterial3D_7tyih")
 mesh = SubResource("BoxMesh_nvad6")
 
-[node name="Left" type="MeshInstance3D" parent="." unique_id=1970050302]
+[node name="Left" type="MeshInstance3D" parent="." unique_id=1025966195]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.7, 4, 0)
 material_override = SubResource("StandardMaterial3D_7tyih")
 mesh = SubResource("BoxMesh_j600k")
 
-[node name="Right" type="MeshInstance3D" parent="." unique_id=1366872654]
+[node name="Right" type="MeshInstance3D" parent="." unique_id=676444223]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.7, 4, 0)
 material_override = SubResource("StandardMaterial3D_7tyih")
 mesh = SubResource("BoxMesh_a6geu")
 
-[node name="FrontLeft" type="MeshInstance3D" parent="." unique_id=141657319]
+[node name="FrontLeft" type="MeshInstance3D" parent="." unique_id=2100703406]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.8, 4, 5.7)
 material_override = SubResource("StandardMaterial3D_7tyih")
 mesh = SubResource("BoxMesh_ak2gr")
 
-[node name="FrontRight" type="MeshInstance3D" parent="." unique_id=990740640]
+[node name="FrontRight" type="MeshInstance3D" parent="." unique_id=1354673721]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.8, 4, 5.7)
 material_override = SubResource("StandardMaterial3D_7tyih")
 mesh = SubResource("BoxMesh_2pk8u")
 
-[node name="Lintel" type="MeshInstance3D" parent="." unique_id=110726518]
+[node name="Lintel" type="MeshInstance3D" parent="." unique_id=535524287]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.8, 5.7)
 material_override = SubResource("StandardMaterial3D_7tyih")
 mesh = SubResource("BoxMesh_thdq4")
 
-[node name="Roof" type="MeshInstance3D" parent="." unique_id=1527038071]
+[node name="Roof" type="MeshInstance3D" parent="." unique_id=1372207355]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 8.25, 0)
 material_override = SubResource("StandardMaterial3D_q65op")
 mesh = SubResource("BoxMesh_k0fp7")
 
-[node name="Sign" type="Label3D" parent="." unique_id=1680322781]
+[node name="Sign" type="Label3D" parent="." unique_id=2133872718]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.5, 6.05)
 modulate = Color(1, 0.93, 0.75, 1)
 text = "Hall of Arms"

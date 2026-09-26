@@ -63,7 +63,11 @@
       "recipe_tl_oasis_linen_hood",
       "recipe_tl_oasis_linen_sleeves",
       "recipe_tl_oasis_linen_mantle",
-      "recipe_tl_oasis_linen_trousers"
+      "recipe_tl_oasis_linen_trousers",
+      "knotted_club",
+      "great_club",
+      "fir_quarterstaff",
+      "fishing_pole"
     ]
   },
   "lumora_smith": {
@@ -91,7 +95,14 @@
       "recipe_smith_bronzeguard_rerebraces",
       "recipe_smith_bronze_shield",
       "recipe_smith_bronzeguard_pauldrons",
-      "recipe_smith_bronzeguard_greaves"
+      "recipe_smith_bronzeguard_greaves",
+      "copper_mace",
+      "copper_warhammer",
+      "copper_greataxe",
+      "copper_maul",
+      "copper_great_hammer",
+      "bronze_greatsword",
+      "light_crossbow"
     ]
   },
   "lumora_apothecary": {
@@ -655,6 +666,7 @@
     "buy_price_multiplier": 1.0,
     "sell_price_multiplier": 0.5,
     "stock": [
+      "apprentice_wand",
       "scroll_of_detect_magic",
       "scroll_of_frost_bolt",
       "scroll_of_blink",
@@ -686,6 +698,7 @@
     "buy_price_multiplier": 1.0,
     "sell_price_multiplier": 0.5,
     "stock": [
+      "apprentice_wand",
       "scroll_of_mana_shield",
       "scroll_of_mesmerize",
       "scroll_of_invisibility",
@@ -714,6 +727,7 @@
     "buy_price_multiplier": 1.0,
     "sell_price_multiplier": 0.5,
     "stock": [
+      "apprentice_wand",
       "scroll_of_entropic_blast",
       "scroll_of_unstable_ward",
       "scroll_of_arcane_flux",

@@ -1,0 +1,32 @@
+{
+ "_comment": "guard_flavor_text_lumora.json - what the Oasis Wardens inside Lumora say (Scripts/guard_npc.gd flavor_text_path, set on Lumora's guards; the Outskirts guards keep guard_flavor_text.json). hail: when you hail them; banter: to each other; engage: when they fight. {word} = a clickable keyword (guard_topics.json). DRAFT lines, 2026-09-26: edit freely.",
+ "hail": [
+  "Welcome to Lumora, traveller. Keep the peace inside the walls and you'll have no trouble from us.",
+  "Rooms at the Sunlit Rest, healing at the Temple of the Dawn. Fines at the courthouse, if it comes to that.",
+  "The oasis is free to all. Drink, rest, and move along.",
+  "Looking for your guild? The Hall of Arms, the Lycaeum, the Temple... and Old Town, for the other sort.",
+  "Strike a citizen in these streets and you'll answer to the Wardens. We don't forget faces.",
+  "The Commander's at the Citadel, if you've business with the Wardens.",
+  "Mind your purse in the bazaar. The Sandveil smile with all their teeth.",
+  "Quiet day. The crier's the loudest thing in the city, and I'd like it to stay that way.",
+  "New to the city? The notice board in Citadel Plaza has what you need to know.",
+  "Stay out of the Cisterns unless you know someone down there. And if you do, I don't want to know."
+ ],
+ "banter": [
+  "Another fine is paid, another fool learns. The Magistrate's ledger never ends.",
+  "Crier's been shouting about Kordova caravans since dawn. My ears are ringing.",
+  "Old Town's quiet tonight. That's never a good sign.",
+  "The Sunlit Rest's stew is better than the barracks'. Don't tell the cook.",
+  "Saw a Sandveil broker counting coins in the shade again. Always counting.",
+  "The oasis looks like glass at dusk. Worth the watch, some nights.",
+  "If the dark moon comes and the vault's still lit, I'll call it a good year.",
+  "Heard the temple healed a whole caravan's worth of snakebite yesterday."
+ ],
+ "engage": [
+  "Not inside these walls!",
+  "By the Sacred Flame, stand down!",
+  "Wardens, to me!",
+  "You picked the wrong city to start trouble in.",
+  "Lumora is under the Wardens' protection!"
+ ]
+}

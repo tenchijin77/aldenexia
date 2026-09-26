@@ -13,7 +13,8 @@ extends RefCounted
 const MODEL_DIR := "res://models/Weapons/"
 const GROUP := "held_gear"              # every held-gear mesh: the appearance recolour and texture override leave them alone
 const REFERENCE_FOREARM := 0.195        # the human male's forearm (m): weapons are modelled for him
-const UPRIGHT := ["staff"]              # held pointing up, not forward
+const UPRIGHT := ["staff", "quarterstaff", "hand_torch", "lantern", "bow"]   # held pointing up, not forward (a lantern
+                                        # hangs from its handle, its origin: "up" hangs the body below the fist)
 const SHIELDS := ["buckler", "round_shield", "tower_shield", "kite_shield"]
 
 # skeleton-space directions in the bind pose
@@ -22,8 +23,13 @@ const UP := Vector3(0, 0, 1)
 
 
 # "primary_item|offhand_item" for the replicated Player3D.held_gear string.
-static func encode(primary_id: String, offhand_id: String) -> String:
-	return "%s|%s" % [primary_id, offhand_id]
+# "primary|offhand" or "primary|offhand|left": the third is shown in the LEFT HAND when nothing is in the off hand
+# (2026-09-26): a lit torch or lantern, else the ranged weapon (a bow, a crossbow).
+# A fourth, "back", is worn on the back: a quiver in the ammo slot.
+static func encode(primary_id: String, offhand_id: String, left_id: String = "", back_id: String = "") -> String:
+	if not back_id.is_empty():
+		return "%s|%s|%s|%s" % [primary_id, offhand_id, left_id, back_id]
+	return "%s|%s" % [primary_id, offhand_id] if left_id.is_empty() else "%s|%s|%s" % [primary_id, offhand_id, left_id]
 
 
 static func model_for(item_id: String) -> String:
@@ -58,6 +64,42 @@ static func apply(character: Node3D, encoded: String) -> void:
 		_attach(skeleton, primary, "RightHand", "RightForeArm", false)
 	if not offhand.is_empty() and SHIELDS.has(offhand):
 		_attach(skeleton, offhand, "LeftForeArm", "LeftHand", true)
+	var left := model_for(parts[2] if parts.size() > 2 else "")
+	if not left.is_empty() and (parts.size() < 2 or parts[1].is_empty()):
+		_attach(skeleton, left, "LeftHand", "LeftForeArm", false)
+	var back := model_for(parts[3] if parts.size() > 3 else "")
+	if not back.is_empty():
+		_attach_back(skeleton, back)
+
+
+# Worn on the back (a quiver): on the upper spine bone, upright, a hand's width behind the shoulder blades, tilted a
+# little so the fletchings sit over the right shoulder.
+const BACK := Vector3(0, 1, 0)   # the Meshy skeletons face -Y: +Y is behind them
+
+static func _attach_back(skeleton: Skeleton3D, model: String) -> void:
+	var bi := skeleton.find_bone("Spine")
+	if bi < 0:
+		return
+	var key := "%s|%s|back" % [str(skeleton.owner.scene_file_path) if skeleton.owner != null else str(skeleton.get_path()), model]
+	if not _fit_cache.has(key):
+		var poses := _idle_poses(skeleton, [bi])
+		var pose: Transform3D = poses[bi]
+		var inv := pose.basis.orthonormalized().inverse()
+		var up := (UP + LEFT * -0.35).normalized()   # leaning toward the right shoulder
+		var want := Basis(up.cross(BACK).normalized(), up, BACK)
+		var hips := skeleton.get_bone_global_rest(skeleton.find_bone("Hips")).origin if skeleton.find_bone("Hips") >= 0 else Vector3.ZERO
+		var size := maxf(pose.origin.distance_to(hips), 0.1) / 0.45   # the torso's length against a human male's
+		_fit_cache[key] = Transform3D(inv * want.orthonormalized(), inv * (BACK * 0.16 * size)).scaled_local(Vector3.ONE * size)
+	var holder := BoneAttachment3D.new()
+	holder.name = "Held_" + model
+	holder.bone_name = "Spine"
+	holder.add_to_group(GROUP)
+	skeleton.add_child(holder)
+	var gear: Node3D = (load(MODEL_DIR + model + ".glb") as PackedScene).instantiate()
+	holder.add_child(gear)
+	for mi in gear.find_children("*", "MeshInstance3D", true, false):
+		mi.add_to_group(GROUP)
+	gear.transform = _fit_cache[key]
 
 
 static var _fit_cache := {}   # "<skeleton's model>|<model>|<bone>" -> the fitted transform (worked out once per race model)
@@ -83,6 +125,12 @@ static func _attach(skeleton: Skeleton3D, model: String, bone: String, other: St
 	for mi in gear.find_children("*", "MeshInstance3D", true, false):
 		mi.add_to_group(GROUP)
 	gear.transform = _fit_cache[key]
+	if model == "hand_torch" and DisplayServer.get_name() != "headless":
+		var fire := FireFX.new()   # a torch in hand is only ever shown lit: it burns (fire_fx.gd, as the wall torches)
+		fire.size = 0.3
+		fire.smoke = false
+		fire.position = Vector3(0, 0.47, 0)   # the head of models/Weapons/hand_torch.glb (0.65 m, grip at the origin)
+		gear.add_child(fire)
 
 
 # The bones' skeleton-space transforms in the character's standing idle, the pose you see most (test 40: fitting to the

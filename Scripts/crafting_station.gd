@@ -41,6 +41,8 @@ func _ready() -> void:
 	if model_config.is_empty():
 		model_config = _model_config_for(station_id)
 	var height := CraftingStation.add_model(self, model_config)
+	if model_config.has("fire"):
+		_add_fire(model_config["fire"], height)
 	if height > 0.0:
 		_add_label(height + 0.5)
 		return
@@ -54,6 +56,25 @@ func _ready() -> void:
 	block.material_override = mat
 	add_child(block)
 	_add_label(1.6)
+
+
+# A burning hearth (Data/crafting_models.json "fire": [x, y, z] from the station's origin, y as a fraction of the model's
+# height): flames, embers, smoke and a flickering orange light, the same fire as the campfires and torches (fire_fx.gd).
+# The user's list, 2026-09-26: "Add fire and light animation to forge model".
+func _add_fire(where: Array, height: float) -> void:
+	if DisplayServer.get_name() == "headless":
+		return   # nothing is drawn on a server
+	var at := Vector3(float(where[0]), float(where[1]) * maxf(height, 1.0), float(where[2]))
+	var light := OmniLight3D.new()
+	light.light_color = Color(1.0, 0.55, 0.22)
+	light.light_energy = 1.6
+	light.omni_range = 7.0
+	light.position = at + Vector3(0, 0.3, 0)
+	add_child(light)
+	var fire := FireFX.new()
+	fire.size = float(model_config.get("fire_size", 0.45))
+	fire.position = at
+	add_child(fire)
 
 
 func _add_label(height: float) -> void:

@@ -1692,6 +1692,13 @@ func _physics_process(delta: float) -> void:
 			_refresh_nameplate()
 	if stealthed != _shown_stealthed:
 		_show_stealth(stealthed)
+	if is_multiplayer_authority():
+		_held_gear_timer -= delta
+		if _held_gear_timer <= 0.0:
+			_held_gear_timer = 0.5
+			var now := _held_gear_now()
+			if now != held_gear:
+				held_gear = now
 	if not is_multiplayer_authority():
 		_play_replicated_animation()
 		# Invisibility is evaluated fresh every tick against the LOCAL viewer's
@@ -4723,6 +4730,21 @@ func learn_skill(skill_name: String) -> bool:
 	return true
 
 
+# What this character holds right now: the weapon, the shield / off-hand, and in an empty left hand a lit torch or
+# lantern, else the ranged weapon (HeldGear.encode). Refreshed on a short timer too (lighting a torch isn't an
+# equipment change).
+func _held_gear_now() -> String:
+	var left := ""
+	var light: Variant = Inventory.equipped.get("light", null)
+	if light is Dictionary and bool(light.get("lit", false)):
+		left = str(light.get("item_id", ""))
+	elif _equipped_id("ranged") != "":
+		left = _equipped_id("ranged")
+	return HeldGear.encode(_equipped_id("primary"), _equipped_id("offhand"), left, _equipped_id("ammo"))
+
+
+var _held_gear_timer := 0.0
+
 func _equipped_id(slot: String) -> String:
 	var item: Variant = Inventory.equipped.get(slot, null)
 	return str(item.get("item_id", "")) if typeof(item) == TYPE_DICTIONARY else ""
@@ -4755,7 +4777,7 @@ var _complete_sets: Array = []   # armour sets fully worn at the last equipment 
 
 func _apply_equipment_from_inventory() -> void:
 	if is_multiplayer_authority():
-		held_gear = HeldGear.encode(_equipped_id("primary"), _equipped_id("offhand"))
+		held_gear = _held_gear_now()
 	var weapon_dmg := 0
 	var bonus_ac   := 0
 	var stat_totals: Dictionary = {}
@@ -4886,6 +4908,7 @@ const SPELL_DISPLAY_NAMES := {
 	"spectral_minion": "Morthan's Call",
 	"phantasmal_echo": "Phantasmal Echo",
 	"campfire_warmth": "Warmth of the Campfire",
+	"oasis_refreshed": "Refreshed by the Oasis",
 	"kenjis_blessing": "Kenji's Blessing",
 	"lit_torch": "Lit Torch",
 	"curse_of_weakness": "Curse of Weakness",
@@ -5795,6 +5818,7 @@ func _pickpocket(target: Node, spell: Dictionary) -> void:
 			GameLog.log_general("[color=#ffd966]You lift %d %s from %s.[/color]" % [qty, str(Monster.CURRENCY_MAP[item_id]).capitalize(), desc])
 		elif Inventory.add_item(item_id, qty):
 			var item_name := str(Inventory.get_item_definition(item_id).get("name", item_id.replace("_", " ").capitalize()))
+			Global.play_coin_sound()   # every successful lift has the clink (the user, 2026-09-26)
 			GameLog.log_general("[color=#ffd966]You lift %s from %s.[/color]" % [item_name, desc])
 		else:
 			GameLog.log_general("You find something on %s, but your bags are full." % desc)

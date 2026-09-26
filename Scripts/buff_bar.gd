@@ -295,6 +295,7 @@ func _weapon_poison_display(effect_name: String) -> Dictionary:
 # real description on the buff bar instead of just a titled name.
 const ENVIRONMENTAL_EFFECT_DESCRIPTIONS := {
 	"campfire_warmth": "Resting by a campfire's warmth. +2 HP/Mana/Stamina regeneration.",
+	"oasis_refreshed": "Refreshed by the Oasis: the cool water of Lumora's oasis. +3 Constitution.",
 	"well_fed": "Well fed and hydrated. +2 HP/Mana/Stamina regeneration.",
 	"kenjis_blessing": "Kenji's blessing. +2 HP/Mana/Stamina regeneration and +3 to hit.",
 	"weak_poison": "A weak poison from a snake or spider bite: 5 damage every 6 seconds. It wears off after a minute, or a cure removes it.",
@@ -323,6 +324,7 @@ const ENVIRONMENTAL_EFFECT_SPELL_ICONS := {
 	"weak_poison": "res://Assets/icons/spells/aoepoison.png",  # the green skull
 	"disease": "res://Assets/icons/spells/targetnecromancy.png",
 	"campfire_warmth": "res://Assets/icons/effects/campfire_warmth.png",
+	"oasis_refreshed": "res://Assets/icons/effects/campfire_warmth.png",   # MISSING ASSET: its own icon
 	"kenjis_blessing": "res://Assets/icons/effects/kenjis_blessing.png",
 	"strong_poison": "res://Assets/icons/effects/strong_poison.png",
 	"weakening_venom": "res://Assets/icons/effects/weakening_venom.png",

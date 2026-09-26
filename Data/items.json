@@ -1687,7 +1687,8 @@
       "breaks_stealth": true,
       "light_message": "You light a torch to keep the darkness at bay.",
       "rain_snuff_message": "The falling rain quickly snuffs the life out of your torch."
-    }
+    },
+    "held_model": "hand_torch"
   },
   "torn_boots": {
     "name": "Torn Boots",
@@ -13613,7 +13614,8 @@
     "gather_tool": "prospecting",
     "tool_tier": 2,
     "gather_speed_bonus": 0.25,
-    "gather_crit_bonus": 0.05
+    "gather_crit_bonus": 0.05,
+    "held_model": "mining_pick"
   },
   "recipe_tink_copper_pickaxe": {
     "name": "Recipe: Copper Pickaxe",
@@ -13790,7 +13792,8 @@
       "breaks_stealth": true,
       "light_message": "You light your copper lantern.",
       "rain_snuff_message": "The rain snuffs out your copper lantern."
-    }
+    },
+    "held_model": "lantern"
   },
   "recipe_tink_copper_lantern": {
     "name": "Recipe: Copper Lantern",
@@ -13847,7 +13850,8 @@
     "gather_tool": "woodworking",
     "tool_tier": 2,
     "gather_speed_bonus": 0.25,
-    "gather_crit_bonus": 0.05
+    "gather_crit_bonus": 0.05,
+    "held_model": "woodcutters_axe"
   },
   "recipe_tink_bronze_woodcutters_axe": {
     "name": "Recipe: Bronze Woodcutter's Axe",
@@ -14234,7 +14238,7 @@
     },
     "effect": null,
     "two_handed": true,
-    "held_model": "one_handed_axe"
+    "held_model": "two_handed_axe"
   },
   "recipe_smith_copper_axe": {
     "name": "Recipe: Copper War Axe",
@@ -14501,7 +14505,8 @@
       "breaks_stealth": true,
       "light_message": "You light your pitch torch.",
       "rain_snuff_message": "The rain snuffs out your pitch torch."
-    }
+    },
+    "held_model": "hand_torch"
   },
   "fir_firewood_bundle": {
     "name": "Fir Firewood Bundle",
@@ -14553,7 +14558,8 @@
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
-    "effect": null
+    "effect": null,
+    "held_model": "bow"
   },
   "fir_staff": {
     "name": "Fir Staff",
@@ -14663,7 +14669,8 @@
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
-    "effect": null
+    "effect": null,
+    "held_model": "bow"
   },
   "recipe_ww_ironwood_bow": {
     "name": "Recipe: Ironwood Bow",
@@ -14732,7 +14739,8 @@
       "breaks_stealth": true,
       "light_message": "You light your ironwood torch.",
       "rain_snuff_message": "The rain snuffs out your ironwood torch."
-    }
+    },
+    "held_model": "hand_torch"
   },
   "recipe_ww_ironwood_torch": {
     "name": "Recipe: Ironwood Torch",
@@ -14939,7 +14947,8 @@
       "breaks_stealth": true,
       "light_message": "You light your palm-resin torch.",
       "rain_snuff_message": "The rain snuffs out your palm-resin torch."
-    }
+    },
+    "held_model": "hand_torch"
   },
   "recipe_ww_palm_resin_torch": {
     "name": "Recipe: Palm-Resin Torch",
@@ -14992,7 +15001,8 @@
     "ratio": 0,
     "range": 0,
     "stat_modifiers": null,
-    "effect": null
+    "effect": null,
+    "held_model": "bow"
   },
   "recipe_ww_palm_longbow": {
     "name": "Recipe: Palm Longbow",
@@ -15157,7 +15167,8 @@
     "range": 0,
     "stat_modifiers": null,
     "effect": null,
-    "ranged_damage_bonus": 2
+    "ranged_damage_bonus": 2,
+    "held_model": "quiver"
   },
   "recipe_fle_quiver_fir_arrows": {
     "name": "Recipe: Quiver of Fir Arrows",
@@ -15238,7 +15249,8 @@
     "range": 0,
     "stat_modifiers": null,
     "effect": null,
-    "ranged_damage_bonus": 3
+    "ranged_damage_bonus": 3,
+    "held_model": "quiver"
   },
   "recipe_fle_quiver_ironwood_arrows": {
     "name": "Recipe: Quiver of Ironwood Arrows",
@@ -15319,7 +15331,8 @@
     "range": 0,
     "stat_modifiers": null,
     "effect": null,
-    "ranged_damage_bonus": 3
+    "ranged_damage_bonus": 3,
+    "held_model": "quiver"
   },
   "recipe_fle_quiver_broadhead_arrows": {
     "name": "Recipe: Quiver of Broadhead Arrows",
@@ -15373,7 +15386,8 @@
     "range": 0,
     "stat_modifiers": null,
     "effect": null,
-    "ranged_damage_bonus": 4
+    "ranged_damage_bonus": 4,
+    "held_model": "quiver"
   },
   "recipe_fle_quiver_palm_arrows": {
     "name": "Recipe: Quiver of Palm Arrows",
@@ -16361,7 +16375,8 @@
     "stat_modifiers": null,
     "effect": null,
     "gather_tool": "prospecting",
-    "tool_tier": 1
+    "tool_tier": 1,
+    "held_model": "mining_pick"
   },
   "woodcutters_axe": {
     "name": "Woodcutter's Axe",
@@ -16389,7 +16404,8 @@
     "stat_modifiers": null,
     "effect": null,
     "gather_tool": "woodworking",
-    "tool_tier": 1
+    "tool_tier": 1,
+    "held_model": "woodcutters_axe"
   },
   "quiver_of_rough_arrows": {
     "name": "Quiver of Rough Arrows",
@@ -16416,7 +16432,8 @@
     "range": 0,
     "stat_modifiers": null,
     "effect": null,
-    "ranged_damage_bonus": 1
+    "ranged_damage_bonus": 1,
+    "held_model": "quiver"
   },
   "case_of_rough_bolts": {
     "name": "Case of Rough Bolts",
@@ -16443,7 +16460,8 @@
     "range": 0,
     "stat_modifiers": null,
     "effect": null,
-    "ranged_damage_bonus": 1
+    "ranged_damage_bonus": 1,
+    "held_model": "quiver"
   },
   "basic_cooking_kit": {
     "name": "Basic Cooking Kit",
@@ -19326,5 +19344,402 @@
     "range": 0,
     "stat_modifiers": null,
     "effect": null
+  },
+  "fir_buckler": {
+    "name": "Fir Buckler",
+    "icon": "res://Assets/icons/items/tin_shield.png",
+    "description": "A round buckler of fir planks bound in soft leather. Light, and no metal in it at all.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 12,
+    "type": "armor",
+    "armor_class": 6,
+    "slot": "offhand",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 2.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": {
+      "wisdom": 1
+    },
+    "effect": null,
+    "armor_type": "shield",
+    "shield_material": "wood",
+    "held_model": "buckler"
+  },
+  "warden_tower_shield": {
+    "name": "Warden's Tower Shield",
+    "icon": "res://Assets/icons/items/tin_shield.png",
+    "description": "The tall shield of the Oasis Wardens, the sunburst of the Sacred Flame on its face. Not sold: the Wardens keep their own.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 60,
+    "type": "armor",
+    "armor_class": 12,
+    "slot": "offhand",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 8.0,
+    "size": "large",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": {
+      "constitution": 2
+    },
+    "effect": null,
+    "armor_type": "shield",
+    "shield_material": "metal",
+    "held_model": "tower_shield"
+  },
+  "copper_mace": {
+    "name": "Copper Mace",
+    "icon": "res://Assets/icons/items/sword.png",
+    "description": "A flanged copper head on an oak haft. It doesn't cut; it doesn't need to.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 16,
+    "type": "weapon",
+    "armor_class": 0,
+    "slot": "primary",
+    "skill": "blunt_weapons",
+    "damage": 10,
+    "delay": 28,
+    "weight": 3.5,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "held_model": "one_handed_mace"
+  },
+  "copper_warhammer": {
+    "name": "Copper Warhammer",
+    "icon": "res://Assets/icons/items/sword.png",
+    "description": "A square-faced copper hammer made for dents in armour, not nails.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 18,
+    "type": "weapon",
+    "armor_class": 0,
+    "slot": "primary",
+    "skill": "blunt_weapons",
+    "damage": 11,
+    "delay": 30,
+    "weight": 4.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "held_model": "one_handed_hammer"
+  },
+  "knotted_club": {
+    "name": "Knotted Club",
+    "icon": "res://Assets/icons/items/staff.png",
+    "description": "A length of knotted wood, thicker at one end. Honest and cheap.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 5,
+    "type": "weapon",
+    "armor_class": 0,
+    "slot": "primary",
+    "skill": "blunt_weapons",
+    "damage": 7,
+    "delay": 25,
+    "weight": 2.5,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "held_model": "one_handed_club"
+  },
+  "copper_greataxe": {
+    "name": "Copper Greataxe",
+    "icon": "res://Assets/icons/items/copper_war_axe.png",
+    "description": "A broad copper axe on a long haft. It takes both hands and most of your patience, then takes the fight.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 30,
+    "type": "weapon",
+    "armor_class": 0,
+    "slot": "primary",
+    "skill": "slashing_weapons",
+    "damage": 22,
+    "delay": 42,
+    "weight": 7.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "held_model": "two_handed_axe",
+    "two_handed": true
+  },
+  "copper_maul": {
+    "name": "Copper Maul",
+    "icon": "res://Assets/icons/items/copper_war_axe.png",
+    "description": "A heavy flanged maul. Swung with both hands, it ends arguments.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 30,
+    "type": "weapon",
+    "armor_class": 0,
+    "slot": "primary",
+    "skill": "blunt_weapons",
+    "damage": 21,
+    "delay": 40,
+    "weight": 7.5,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "held_model": "two_handed_mace",
+    "two_handed": true
+  },
+  "copper_great_hammer": {
+    "name": "Copper Great Hammer",
+    "icon": "res://Assets/icons/items/copper_war_axe.png",
+    "description": "A great two-handed hammer. Slow, loud and final.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 32,
+    "type": "weapon",
+    "armor_class": 0,
+    "slot": "primary",
+    "skill": "blunt_weapons",
+    "damage": 23,
+    "delay": 44,
+    "weight": 8.5,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "held_model": "two_handed_hammer",
+    "two_handed": true
+  },
+  "great_club": {
+    "name": "Great Club",
+    "icon": "res://Assets/icons/items/staff.png",
+    "description": "A tree limb with ideas above its station. Two hands, and swing.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 10,
+    "type": "weapon",
+    "armor_class": 0,
+    "slot": "primary",
+    "skill": "blunt_weapons",
+    "damage": 16,
+    "delay": 38,
+    "weight": 6.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "held_model": "two_handed_club",
+    "two_handed": true
+  },
+  "bronze_greatsword": {
+    "name": "Bronze Greatsword",
+    "icon": "res://Assets/icons/items/bronze_longsword.png",
+    "description": "A long two-handed bronze blade with a leather-wrapped grip as long as your forearm.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 40,
+    "type": "weapon",
+    "armor_class": 0,
+    "slot": "primary",
+    "skill": "slashing_weapons",
+    "damage": 24,
+    "delay": 42,
+    "weight": 7.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "held_model": "two_handed_sword",
+    "two_handed": true
+  },
+  "fir_quarterstaff": {
+    "name": "Fir Quarterstaff",
+    "icon": "res://Assets/icons/items/staff.png",
+    "description": "A straight fir staff, iron-shod at both ends: the monk's weapon as much as the traveller's.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 8,
+    "type": "weapon",
+    "armor_class": 0,
+    "slot": "primary",
+    "skill": "blunt_weapons",
+    "damage": 11,
+    "delay": 30,
+    "weight": 3.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "held_model": "quarterstaff",
+    "two_handed": true
+  },
+  "apprentice_wand": {
+    "name": "Apprentice's Wand",
+    "icon": "res://Assets/icons/items/fir_staff.png",
+    "description": "A slim wand with a gem set in its tip. It barely bruises, but it steadies a caster's focus.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 20,
+    "type": "weapon",
+    "armor_class": 0,
+    "slot": "primary",
+    "skill": "blunt_weapons",
+    "damage": 3,
+    "delay": 22,
+    "weight": 0.5,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": {
+      "intelligence": 2,
+      "wisdom": 1
+    },
+    "effect": null,
+    "held_model": "wand"
+  },
+  "light_crossbow": {
+    "name": "Light Crossbow",
+    "icon": "res://Assets/icons/items/quiver.png",
+    "description": "A small crossbow with a crank. Slower to load than a bow and harder hitting. Takes bolts in the ammo slot.",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 30,
+    "type": "weapon",
+    "armor_class": 0,
+    "slot": "ranged",
+    "skill": "archery",
+    "damage": 9,
+    "delay": 34,
+    "weight": 4.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "held_model": "crossbow"
+  },
+  "fishing_pole": {
+    "name": "Fishing Pole",
+    "icon": "res://Assets/icons/items/woodcutters_axe.png",
+    "description": "A fir rod, a line and a hook. For when the Outskirts has a pond worth fishing (not yet).",
+    "stackable": false,
+    "currency_type": "copper",
+    "value": 6,
+    "type": "tool",
+    "armor_class": 0,
+    "slot": "none",
+    "skill": "none",
+    "damage": 0,
+    "delay": 0,
+    "weight": 1.0,
+    "size": "small",
+    "class": [
+      "all"
+    ],
+    "race": [
+      "all"
+    ],
+    "ratio": 0,
+    "range": 0,
+    "stat_modifiers": null,
+    "effect": null,
+    "gather_tool": "prospecting",
+    "tool_tier": 1,
+    "held_model": "fishing_pole"
   }
 }

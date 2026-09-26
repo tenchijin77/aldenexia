@@ -138,6 +138,20 @@ func _ready() -> void:
 	_setup_patrol()
 	_setup_combat()
 	_setup_animations()
+	_arm()
+
+
+# Every guard carries a weapon and the Wardens' tower shield (the user, 2026-09-26: "make the guards have/hold a random
+# weapon and a tower shield"). Which weapon comes from the guard's name, so it's the same on every screen and every day.
+const GUARD_WEAPONS := ["copper_sword", "copper_mace", "bronze_longsword", "copper_warhammer"]   # one-handed (the shield)
+const GUARD_SHIELD := "warden_tower_shield"
+
+func _arm() -> void:
+	var character := get_node_or_null("Character") as Node3D
+	if character == null or not _can_talk():   # (not Oni)
+		return
+	var weapon: String = GUARD_WEAPONS[absi(hash(npc_name + String(name))) % GUARD_WEAPONS.size()]
+	HeldGear.apply(character, HeldGear.encode(weapon, GUARD_SHIELD))
 
 
 # Guards answer keywords (Data/guard_topics.json): their own topics first, then the shared ones. Not Oni: she's a cat (_can_talk()).

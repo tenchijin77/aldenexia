@@ -1,0 +1,77 @@
+[gd_scene format=3]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_moi0s"]
+size = Vector3(4, 1.2, 4)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_c5ybf"]
+size = Vector3(1.4, 4.8, 1.2)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_dthgn"]
+size = Vector3(0.88, 0.7, 0.88)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_47ele"]
+size = Vector3(0.2, 3.85, 0.1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_bc2if"]
+albedo_color = Color(0.86399996, 0.779, 0.626, 1)
+roughness = 0.8
+
+[sub_resource type="BoxMesh" id="BoxMesh_lcdes"]
+size = Vector3(4, 1.2, 4)
+
+[sub_resource type="BoxMesh" id="BoxMesh_dxq3m"]
+size = Vector3(1.4, 4.8, 1.2)
+
+[sub_resource type="BoxMesh" id="BoxMesh_wxhk0"]
+size = Vector3(0.88, 0.7, 0.88)
+
+[sub_resource type="BoxMesh" id="BoxMesh_cnr47"]
+size = Vector3(0.2, 3.85, 0.1)
+
+[node name="PaladinsVigil" type="Node3D" unique_id=167757161]
+metadata/stand_in = true
+
+[node name="Stone" type="StaticBody3D" parent="." unique_id=744248442]
+
+[node name="PlinthShape" type="CollisionShape3D" parent="Stone" unique_id=1245124774]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0)
+shape = SubResource("BoxShape3D_moi0s")
+
+[node name="FigureShape" type="CollisionShape3D" parent="Stone" unique_id=2102428410]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.6, 0)
+shape = SubResource("BoxShape3D_c5ybf")
+
+[node name="HeadShape" type="CollisionShape3D" parent="Stone" unique_id=99168774]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6.35, 0)
+shape = SubResource("BoxShape3D_dthgn")
+
+[node name="BladeShape" type="CollisionShape3D" parent="Stone" unique_id=961046377]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.12, 3.3, 0.2)
+shape = SubResource("BoxShape3D_47ele")
+
+[node name="Plinth" type="MeshInstance3D" parent="." unique_id=1930561440]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0)
+material_override = SubResource("StandardMaterial3D_bc2if")
+mesh = SubResource("BoxMesh_lcdes")
+
+[node name="Figure" type="MeshInstance3D" parent="." unique_id=1190112078]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.6, 0)
+material_override = SubResource("StandardMaterial3D_bc2if")
+mesh = SubResource("BoxMesh_dxq3m")
+
+[node name="Head" type="MeshInstance3D" parent="." unique_id=1493155059]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6.35, 0)
+material_override = SubResource("StandardMaterial3D_bc2if")
+mesh = SubResource("BoxMesh_wxhk0")
+
+[node name="Blade" type="MeshInstance3D" parent="." unique_id=2008049265]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.12, 3.3, 0.2)
+material_override = SubResource("StandardMaterial3D_bc2if")
+mesh = SubResource("BoxMesh_cnr47")
+
+[node name="Sign" type="Label3D" parent="." unique_id=210221403]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 8, 0)
+billboard = 1
+text = "The Paladin's Vigil"
+font_size = 56
+outline_size = 10

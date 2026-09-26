@@ -4,8 +4,6 @@ an item (delete it, note it in change_log.txt) when it's done. Last updated 2026
 
 
 == WAITING ON THE USER ==
-- Guardian Spirit: the user's design (2026-09-24) is a once-only cheat-death (the first killing blow leaves the ally at 20%),
-  as built. Open: how long the watch lasts once cast (15 s now, the in-combat buff rule).
 - TRAVEL (built 2026-09-24) — still open: gate names and levels approved 2026-09-24; Spatial Redoubt is the Arcanist
   evacuation (user confirmed 2026-09-26; the game has it so). Spirit Walk lost its old movement-immunity effect when it
   became the Spiritweaver gate.
@@ -342,4 +340,14 @@ MISSING ASSET: a "Shaken" status icon (borrows terrified.png).
 - Stealth hides you from monsters' sight completely; EverQuest-style detection (a chance to be noticed up close, by
   level) isn't built. Other players always see a stealthed player (faint): hiding from players is for PvP later.
 - MISSING ASSET: a Blindside icon (borrows targetstun.png, shared with Ambush).
+
+== HELD MODELS (2026-09-26) — still open ==
+- Fishing: the pole exists, fishing itself doesn't (no fishing spots). Tools (pick, woodcutter's axe, pole) aren't shown
+  while gathering yet. Locked chests: the model is in (models/Environmental/treasure_chest.glb); the feature is an
+  overnight candidate (lockpicking, Knock).
+- Two-handed weapons still swing with the one-handed animations (no two-handed clips).
+MISSING ASSETS (held models, 2026-09-26): item ICONS for the mace, warhammer, club, greataxe, maul, great hammer, great
+club, greatsword, quarterstaff, wand, crossbow, fishing pole, Fir Buckler, Warden's Tower Shield (they borrow sword /
+staff / war-axe / quiver / woodcutter's-axe / tin-shield icons). A SPEAR model (the Standard-Issue Spear shows nothing).
+Optional: longsword and scimitar models (they use the shortsword). An oasis model and a "Refreshed by the Oasis" icon.
 

@@ -1740,7 +1740,12 @@ func _process(delta: float) -> void:
 		if zone_id == ZoneInfo.DEFAULT_ID:
 			Global.save_world_state(server_name)
 		else:
+			var before := _game_minutes()
 			Global.load_world_state(server_name, true)
+			# caught up with the login server's clock: players already here get the new time too (they only got it at login)
+			if absi(_game_minutes() - before) > 1:
+				for peer in multiplayer.get_peers():
+					Global.send_time_to(peer)
 
 
 # Everyone online in the whole world (every zone, via the world link), for the Join screen's count.
@@ -1749,6 +1754,11 @@ func world_player_count() -> int:
 	if link != null and link.has_method("world_player_count"):
 		return maxi(link.world_player_count(), _peer_character.size())
 	return _peer_character.size()
+
+
+func _game_minutes() -> int:
+	var t: Dictionary = Global.game_time
+	return ((int(t.get("day", 0)) * 24) + int(t.get("hour", 0))) * 60 + int(t.get("minute", 0))
 
 
 # How many players are logged in with a character right now (the dedicated server's view).

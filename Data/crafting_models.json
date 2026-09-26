@@ -20,7 +20,7 @@
   "fletching_station": {"model": "res://models/fletching table.glb", "rotation": [0, 0, 0], "scale": 1.0},
   "jewelcrafting_station": {"model": "res://models/jewelcrafting table.glb", "rotation": [0, 0, 0], "scale": 1.0},
   "tailors_bench": {"model": "res://models/tailors table.glb", "rotation": [0, 0, 0], "scale": 1.0},
-  "forge": {"model": "res://models/forge.glb", "rotation": [0, 0, 0], "scale": 1.0},
+  "forge": {"model": "res://models/forge.glb", "rotation": [0, 0, 0], "scale": 1.0, "fire": [0, 0.36, 0], "fire_size": 0.45},
   "tinkering_bench": {"model": "res://models/tinkering bench.glb", "rotation": [0, 0, 0], "scale": 1.0},
   "tannery": {"model": "res://models/tanning station.glb", "rotation": [0, 0, 0], "scale": 1.0}
  }

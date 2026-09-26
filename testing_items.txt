@@ -2,11 +2,11 @@ ALDENEXIA: LIGHTFALL — TESTING CHECKLIST
 New features and fixes waiting for a real playtest, in two parts: OUTSTANDING (not passed yet) and COMPLETED (passed).
 When an item passes, change [ ] to [x] and move it to the same section under COMPLETED (or just add "- working" and it
 gets moved). A failure goes to outstanding_items.txt with what went wrong. Last updated 2026-09-26 (after test 42).
-Everything below was built after test 26.   Outstanding: 243   Completed: 71
+Everything below was built after test 26.   Outstanding: 252   Completed: 71
 
 
 ################################################################################
-  OUTSTANDING — still to test (243)
+  OUTSTANDING — still to test (252)
 ################################################################################
 
 == ACCOUNTS AND JOINING ==
@@ -222,6 +222,19 @@ Everything below was built after test 26.   Outstanding: 243   Completed: 71
 [ ] New ailments show on the status window with a description and are removed by a cure: weakening venom (sandstinger),
     sundered armour (ravager), blinded (Djhanid), grave miasma (restless corpse), withering touch (wraith).
 [ ] Two players: one zones, the other stays; both keep playing (chat across zones doesn't work yet).
+
+== HELD MODELS, GUARDS, OASIS (2026-09-26, day) ==
+[ ] Buy and wield the new weapons (Borgrim: mace, warhammer, greataxe, maul, great hammer, greatsword, crossbow; Aldric:
+    club, great club, quarterstaff, fishing pole; the mage trainers: the wand): each shows in hand, head forward.
+[ ] A two-handed weapon won't equip with a shield (and the other way round); the message says why.
+[ ] Light a torch with nothing in your off hand: you hold it up, burning. A lantern hangs from your hand. A bow shows in
+    the left hand; a quiver of arrows is on your back.
+[ ] Guards hold a weapon and a tall tower shield. Lumora's guards talk about the city (no Kenji).
+[ ] Craft a Fir Buckler (Woodworking 3): a Wildspeaker can wear it.
+[ ] Rest at Lumora's oasis (west side) for 10 seconds: "Refreshed by the Oasis", +3 Constitution for 15 minutes.
+[ ] The Solaris Vault, Caravanserai, Wayfarers' Lodge and the Paladin's Vigil statue stand in Lumora.
+[ ] The forges burn (flames and smoke on the coals, a flickering glow).
+[ ] Go into Stealth: a sneaky sound. Pickpocket an item: a clink.
 
 == THE SHADOWBLADE AND MORE (2026-09-26, overnight) ==
 [ ] Stealth (stance bar): the hooded icon; you turn into a faint shape and your nameplate says [stealth]; a groupmate

@@ -4,8 +4,9 @@
 # for the real model later without touching the zone. It also works out where each goes: behind its district marker with
 # the door facing the marker (so guard patrols, which walk to the markers, stay in the open), and where the NPCs stand, in
 # front of the door, and writes that to Data/lumora_standins_placement.json for tools/place_lumora_standins.py.
-#   godot --headless --path . --script res://tools/make_lumora_standins.gd
-# Afterwards re-bake the navmesh (tools/bake_lumora_navmesh.gd) so monsters and guards walk round the new walls.
+#   godot --headless --path . --script res://tools/make_lumora_standins.gd            (new stand-ins only)
+#   godot --headless --path . --script res://tools/make_lumora_standins.gd -- --force (rebuild every stand-in scene)
+# An existing scene is never overwritten without --force: once you've put the real model in it, it stays. Afterwards re-bake the navmesh (tools/bake_lumora_navmesh.gd) so monsters and guards walk round the new walls.
 extends SceneTree
 
 const OUT_DIR := "res://Scenes/props/lumora"
@@ -27,7 +28,12 @@ const BUILDINGS := [
 	["old_town_lodge", "The Lantern Lodge", Vector3(14, 7, 12), "lumora", [300, 110], [0, 110], DARK],
 	["cisterns_entrance", "The Cisterns", Vector3(7, 4, 6), "lumora", [330, 80], [0, 80], DARK],
 	["ralphs_last_round", "Ralph's Last Round", Vector3(12, 6, 10), "lumora_outskirts", [68, 40], [68, 14], SANDSTONE],
+	["solaris_vault", "Solaris Vault", Vector3(14, 9, 12), "lumora", [0, 80], [0, 290], DARK],
+	["caravanserai", "The Caravanserai", Vector3(26, 7, 20), "lumora", [610, 180], [785, 180], SANDSTONE],
+	["wayfarers_lodge", "Wayfarers' Lodge", Vector3(14, 7, 10), "lumora", [560, 250], [560, 180], SANDSTONE],
+	["paladins_vigil", "The Paladin's Vigil", Vector3(4, 7, 4), "lumora", [0, 260], [0, 290], SANDSTONE],
 ]
+const STATUES := ["paladins_vigil"]   # a statue on a plinth, not a building: stands on its marker
 const GAP := 1.5   # between the marker and the front wall
 
 
@@ -37,17 +43,19 @@ func _init() -> void:
 	for b in BUILDINGS:
 		var id: String = b[0]
 		var size: Vector3 = b[2]
-		var root := _build(id, b[1], size, b[6])
-		var packed := PackedScene.new()
-		packed.pack(root)
 		var path := "%s/%s.tscn" % [OUT_DIR, id]
-		ResourceSaver.save(packed, path)
-		root.free()
+		# never overwrite a scene that's already there (it may hold the real model by now) unless asked: -- --force
+		if not ResourceLoader.exists(path) or OS.get_cmdline_user_args().has("--force"):
+			var root := _build_statue(id, b[1], size, b[6]) if STATUES.has(id) else _build(id, b[1], size, b[6])
+			var packed := PackedScene.new()
+			packed.pack(root)
+			ResourceSaver.save(packed, path)
+			root.free()
 		var marker := Vector3(float(b[4][0]), 0.0, float(b[4][1]))
 		var face := Vector3(float(b[5][0]), 0.0, float(b[5][1])) - marker
 		face = face.normalized() if face.length() > 0.01 else Vector3(0, 0, 1)
 		var basis := Basis(Vector3.UP, atan2(face.x, face.z))      # the building's +Z (its door) turned to `face`
-		var center := marker - face * (size.z * 0.5 + GAP)
+		var center := marker if STATUES.has(id) else marker - face * (size.z * 0.5 + GAP)
 		var npc_basis := basis                                     # NPCs by the door look out the same way
 		placement[id] = {
 			"scene": path, "zone": b[3], "sign": b[1],
@@ -124,4 +132,52 @@ func _build(id: String, sign_text: String, size: Vector3, color: Color) -> Node3
 	root.add_child(label)
 	label.owner = root
 	root.set_meta("stand_in", true)   # replace with the real model when it exists (outstanding_items.txt, MISSING ASSETS)
+	return root
+
+
+# A plinth and a standing figure-shaped column (the Paladin's Vigil): solid, with its name above.
+func _build_statue(id: String, sign_text: String, size: Vector3, color: Color) -> Node3D:
+	var root := Node3D.new()
+	root.name = id.to_pascal_case()
+	var body := StaticBody3D.new()
+	body.name = "Stone"
+	root.add_child(body)
+	body.owner = root
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = color.lightened(0.15)
+	mat.roughness = 0.8
+	var parts := [
+		["Plinth", Vector3(size.x, 1.2, size.z), Vector3(0, 0.6, 0)],
+		["Figure", Vector3(size.x * 0.35, size.y - 2.2, size.x * 0.3), Vector3(0, 1.2 + (size.y - 2.2) * 0.5, 0)],
+		["Head", Vector3(size.x * 0.22, 0.7, size.x * 0.22), Vector3(0, size.y - 0.65, 0)],
+		["Blade", Vector3(0.2, size.y * 0.55, 0.1), Vector3(size.x * 0.28, 1.2 + size.y * 0.3, 0.2)],
+	]
+	for p in parts:
+		var mi := MeshInstance3D.new()
+		mi.name = p[0]
+		var box := BoxMesh.new()
+		box.size = p[1]
+		mi.mesh = box
+		mi.material_override = mat
+		mi.position = p[2]
+		root.add_child(mi)
+		mi.owner = root
+		var col := CollisionShape3D.new()
+		col.name = "%sShape" % p[0]
+		var shape := BoxShape3D.new()
+		shape.size = p[1]
+		col.shape = shape
+		col.position = p[2]
+		body.add_child(col)
+		col.owner = root
+	var label := Label3D.new()
+	label.name = "Sign"
+	label.text = sign_text
+	label.font_size = 56
+	label.outline_size = 10
+	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	label.position = Vector3(0, size.y + 1.0, 0)
+	root.add_child(label)
+	label.owner = root
+	root.set_meta("stand_in", true)
 	return root

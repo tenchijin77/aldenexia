@@ -88,6 +88,24 @@ static func check(stored: Dictionary, incoming: Dictionary, kill_xp: int, elapse
 		for field in COPPER:
 			data[field] = stored.get(field, 0)
 
+	# Crime (crime.gd): a bounty only goes down when coin goes down with it (paid to a guard or the Magistrate, or taken by
+	# the guards at death), and the standing crimes cost is only bought back with coin (the Magistrate's amends). A save that
+	# clears either for free keeps the stored one.
+	var spent := maxi(0, old_coin - coin_value(data))
+	var old_bounty := int(stored.get("bounty", 0))
+	var new_bounty := int(data.get("bounty", 0))
+	if new_bounty < old_bounty and old_bounty - new_bounty > spent:
+		anomalies.append("bounty %d -> %d with only %d copper spent (kept %d)" % [old_bounty, new_bounty, spent, old_bounty - spent])
+		data["bounty"] = old_bounty - spent
+	var paid_bounty := maxi(0, old_bounty - int(data.get("bounty", 0)))
+	var old_lost := _points(stored.get("crime_standing", {}))
+	var new_lost := _points(data.get("crime_standing", {}))
+	if new_lost < old_lost and (old_lost - new_lost) * Crime.AMENDS_COPPER_PER_POINT > spent - paid_bounty:
+		anomalies.append("crime standing bought back without paying (kept)")
+		data["crime_standing"] = stored.get("crime_standing", {})
+		if data.has("faction_standing") and stored.has("faction_standing"):
+			data["faction_standing"] = stored["faction_standing"]   # the standing it would have restored
+
 	# Skills
 	var level := int(data.get("player_level", 1))
 	var skills: Dictionary = data.get("skill_levels", {}) if typeof(data.get("skill_levels")) == TYPE_DICTIONARY else {}
@@ -230,3 +248,11 @@ static func delta(old: Dictionary, new: Dictionary) -> Dictionary:
 		"items_gained": gained,
 		"items_lost": lost,
 	}
+
+
+static func _points(d: Variant) -> int:
+	var total := 0
+	if typeof(d) == TYPE_DICTIONARY:
+		for k in d:
+			total += int(d[k])
+	return total

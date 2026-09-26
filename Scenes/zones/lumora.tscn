@@ -24,6 +24,11 @@
 [ext_resource type="Script" path="res://Scripts/town_talker_npc.gd" id="town_talker_scr"]
 [ext_resource type="Script" path="res://Scripts/temple_healer_npc.gd" id="temple_healer_scr"]
 [ext_resource type="Script" path="res://Scripts/world_note.gd" id="world_note_scr"]
+[ext_resource type="Script" path="res://Scripts/oasis_spring.gd" id="oasis_spring_scr"]
+[ext_resource type="PackedScene" path="res://Scenes/props/lumora/caravanserai.tscn" id="standin_caravanserai"]
+[ext_resource type="PackedScene" path="res://Scenes/props/lumora/paladins_vigil.tscn" id="standin_paladins_vigil"]
+[ext_resource type="PackedScene" path="res://Scenes/props/lumora/solaris_vault.tscn" id="standin_solaris_vault"]
+[ext_resource type="PackedScene" path="res://Scenes/props/lumora/wayfarers_lodge.tscn" id="standin_wayfarers_lodge"]
 
 [node name="Zone" unique_id=1932174881 instance=ExtResource("1_template")]
 zone_id = "lumora"
@@ -236,36 +241,44 @@ transform = Transform3D(-0.050234, 0, -0.998737, 0, 1, 0, 0.998737, 0, -0.050234
 [node name="Gate Warden (west)" parent="Guards" instance=ExtResource("5_guard1")]
 transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -15, 0, 428)
 npc_name = "Oasis Warden"
+flavor_text_path = "res://Data/guard_flavor_text_lumora.json"
 
 [node name="Gate Warden (east)" parent="Guards" instance=ExtResource("5_guard1")]
 transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 15, 0, 428)
 npc_name = "Oasis Warden"
+flavor_text_path = "res://Data/guard_flavor_text_lumora.json"
 
 [node name="Citadel Warden (west)" parent="Guards" instance=ExtResource("5_guard1")]
 transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -12, 0, 190)
 npc_name = "Oasis Warden"
+flavor_text_path = "res://Data/guard_flavor_text_lumora.json"
 
 [node name="Citadel Warden (east)" parent="Guards" instance=ExtResource("5_guard1")]
 transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 12, 0, 190)
 npc_name = "Oasis Warden"
+flavor_text_path = "res://Data/guard_flavor_text_lumora.json"
 
 [node name="Vault Warden (west)" parent="Guards" instance=ExtResource("5_guard1")]
 transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -8, 0, 95)
 npc_name = "Oasis Warden"
+flavor_text_path = "res://Data/guard_flavor_text_lumora.json"
 
 [node name="Vault Warden (east)" parent="Guards" instance=ExtResource("5_guard1")]
 transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 8, 0, 95)
 npc_name = "Oasis Warden"
+flavor_text_path = "res://Data/guard_flavor_text_lumora.json"
 
 [node name="Patrol Warden (market)" parent="Guards" instance=ExtResource("5_guard1")]
 transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0, 410)
 npc_name = "Oasis Warden"
 patrol_waypoints = Array[NodePath]([NodePath("../../Markers/South Gate"), NodePath("../../Markers/Sandveil Bazaar"), NodePath("../../Markers/Citadel Plaza"), NodePath("../../Markers/The Oasis"), NodePath("../../Markers/Crafters' Row")])
+flavor_text_path = "res://Data/guard_flavor_text_lumora.json"
 
 [node name="Patrol Warden (citadel)" parent="Guards" instance=ExtResource("5_guard1")]
 transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 20, 0, 290)
 npc_name = "Oasis Warden"
 patrol_waypoints = Array[NodePath]([NodePath("../../Markers/Citadel Plaza"), NodePath("../../Markers/Old Town"), NodePath("../../Markers/Solaris Vault"), NodePath("../../Markers/Dawnspire Altar"), NodePath("../../Markers/Lycaeum Annex")])
+flavor_text_path = "res://Data/guard_flavor_text_lumora.json"
 
 [node name="SoulBinder" parent="NPCs" instance=ExtResource("talking_vendor_scn")]
 transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -224, 0, 124)
@@ -476,3 +489,19 @@ title = "Notice Board"
 note_text = "NOTICES, by order of the Oasis Wardens:\n- Dustwalker raiders on the south road. Travel in company.\n- Fines for crimes within the walls are paid at the courthouse (Magistrate Corvane).\n- The Temple of the Dawn heals the sick and wounded. It does not raise the dead.\n- Guild halls: the Hall of Arms, the Lycaeum Annex, the Temple of the Dawn. Others know where to find theirs.\n- Rooms and meals at the Sunlit Rest."
 label_text = "Notice Board"
 label_height = 1.0
+
+[node name="OasisSpring" type="Node3D" parent="StandIns"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -220, 0, 250)
+script = ExtResource("oasis_spring_scr")
+
+[node name="Caravanserai" parent="StandIns" instance=ExtResource("standin_caravanserai")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 598.5, 0, 180)
+
+[node name="PaladinsVigil" parent="StandIns" instance=ExtResource("standin_paladins_vigil")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 260)
+
+[node name="SolarisVault" parent="StandIns" instance=ExtResource("standin_solaris_vault")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 72.5)
+
+[node name="WayfarersLodge" parent="StandIns" instance=ExtResource("standin_wayfarers_lodge")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 560, 0, 256.5)

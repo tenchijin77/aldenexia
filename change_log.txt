@@ -2400,6 +2400,38 @@ GATE RAIDS (`Scripts/gate_raid_manager.gd`, `Data/gate_raids.json`, node "GateRa
   warmth of the campfire -> groupfire.
 - Tests: test_test37.gd. Suite: 3,808 checks pass.
 
+### 2026-09-26 day: held models, guards armed, oasis, Lumora landmarks, bounty checks, clock sync
+- THE HELD MODELS (the user's art drop, models/new models/): tools/blender/fix_held_model.py (new; for single-mesh
+  models: finds the head end from the widest cross-section, grip at a hand's width / lower on two-handers / the middle of
+  a staff, the head's wide side along X, only grey materials metal; "drop" removes pieces floating off the handle's line
+  or past its ends, which the maces had). Into models/Weapons/: one_handed_axe (replaces the old one), two_handed_axe,
+  one/two_handed_mace, one/two_handed_hammer, one/two_handed_club, wand, crossbow, hand_torch, lantern (hangs from its
+  handle), mining_pick, fishing_pole, woodcutters_axe, quiver, quarterstaff; models/Environmental/treasure_chest.glb.
+  Originals: ~/Documents/aldenexia_model_originals/2026-09-26_held. Checked with renders on a human male.
+- Showing them: the woodcutter's axes, pickaxes, torches, the lantern and the bows have their models; a lit torch or
+  lantern, else the ranged weapon, shows in an empty LEFT hand (HeldGear.encode's third field; the torch burns,
+  fire_fx.gd); a quiver in the ammo slot is worn on the BACK (fourth field). Refreshed every half second (lighting a torch
+  isn't an equipment change).
+- New items (starter tier): Copper Mace, Copper Warhammer, Knotted Club, Copper Greataxe, Copper Maul, Copper Great
+  Hammer, Great Club, Bronze Greatsword (the two-handed sword model at last), Fir Quarterstaff, Apprentice's Wand, Light
+  Crossbow, Fishing Pole. Borgrim sells the metal ones and the crossbow, Aldric the wooden ones and the pole, the mage
+  trainers the wand. TWO-HANDED is real now ("two_handed": greataxe, maul, great hammer, great club, greatsword,
+  quarterstaff, the staves, the Copper War Axe as its description said): nothing in the off hand with one.
+- GUARDS carry a weapon (sword, mace, longsword or warhammer, by name) and the Warden's Tower Shield (a new item,
+  not sold). Lumora's guards have their own lines (Data/guard_flavor_text_lumora.json; no more Kenji "by the gate").
+- FIR BUCKLER: a wooden shield for Wildspeakers (Woodworking 3, innate: 3 Fir Planks + 1 Soft Leather; AC 6, +1 Wisdom),
+  added to Crafting.xlsx (backup Crafting.before_fir_buckler.xlsx) and exported.
+- THE OASIS: Lumora's central oasis (a stand-in pool) gives "Refreshed by the Oasis", +3 Constitution for 15 minutes,
+  after 10 s resting there (Scripts/oasis_spring.gd).
+- More Lumora stand-ins: the Solaris Vault, the Caravanserai, the Wayfarers' Lodge, the Paladin's Vigil statue.
+  make_lumora_standins.gd no longer overwrites an existing scene (-- --force to rebuild): the user's models are safe.
+- THE FORGE burns: flames, embers, smoke and a flickering light on its coals (crafting_models.json "fire", both forges).
+- SOUNDS: the Stealth stance plays spell_stealth; stealing an item clinks like stealing coin.
+- SERVER TRUST: a save can't clear a bounty or buy back crime standing without spending the coin (server_trust.gd).
+- CLOCK: a zone that catches up with the login server's clock sends the new time to the players already there.
+- Decisions: Guardian Spirit stays 15 s ("rewards good players"); Lumora stays on demand.
+- Tests: test_held_models (30). Suite 4892, RPC list unchanged.
+
 ### Overnight 2026-09-26 (after test 44): the Shadowblade, cross-zone gaps, pets, shoulders, cast_message
 - THE SHADOWBLADE (Jaessa's notes):
   - Stealth did nothing to monsters: they never checked it (nor invisibility, so Shadowstep's vanish didn't either). A

@@ -184,7 +184,7 @@ func _on_slot_clicked(stance_id: String, bg: StyleBoxFlat) -> void:
 		combat_node.apply_effect("stance_" + stance_id, INF, stance.get("modifiers", {}))
 		_player.current_stance = stance_id
 		GameLog.log_general("[color=#ffcc66]You assume %s.[/color]" % stance.get("name", ""))
-		Sfx.play("spell_buff")
+		Sfx.play("spell_stealth" if stance_id == "stealth" else "spell_buff")   # slipping into the shadows (the user's list, 2026-09-26)
 
 	_refresh_highlight()
 

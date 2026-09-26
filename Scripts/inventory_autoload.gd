@@ -1295,6 +1295,16 @@ func _equip_item(item: Dictionary, src_type: String, src_basic_idx: int = -1, sr
 	if not ArmorTypes.can_wear(item, wearer_class):
 		GameLog.log_general("[color=#ff8866]%s[/color]" % ArmorTypes.refusal(item, wearer_class))
 		return false
+	# Two-handed weapons ("two_handed": true: the greataxes, mauls, great hammers, great clubs, the two-handed sword, the
+	# quarterstaff and the staves) need both hands: nothing in the off hand at the same time.
+	var in_offhand: Variant = equipped.get("offhand", null)
+	var in_primary: Variant = equipped.get("primary", null)
+	if equip_slot == "primary" and bool(item.get("two_handed", false)) and in_offhand is Dictionary and src_type != "equipment":
+		GameLog.log_general("[color=#ff8866]The %s needs both hands: put away your %s first.[/color]" % [str(item.get("name", "weapon")), str(in_offhand.get("name", "off-hand item"))])
+		return false
+	if equip_slot == "offhand" and in_primary is Dictionary and bool(in_primary.get("two_handed", false)):
+		GameLog.log_general("[color=#ff8866]Your %s needs both hands.[/color]" % str(in_primary.get("name", "weapon")))
+		return false
 
 	# Only ONE light is carried: pull a single unit off a stack and leave the rest
 	# where it was. (Carried lights are non-stackable so a partly-burnt one can

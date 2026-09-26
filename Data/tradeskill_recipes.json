@@ -1898,6 +1898,29 @@
       "status": "Core",
       "scroll": "recipe_ww_masters_staff"
     },
+    "ww_fir_buckler": {
+      "name": "Fir Buckler",
+      "skill": "woodworking",
+      "output": "fir_buckler",
+      "yield": 1,
+      "crit_yield": 2,
+      "ingredients": {
+        "fir_planks": 3,
+        "soft_leather": 1
+      },
+      "min_skill": 3,
+      "max_level": 18,
+      "base_success": 0.94,
+      "crit_chance": 0.08,
+      "stations": [
+        "basic_woodworking_kit",
+        "woodworking_station"
+      ],
+      "innate": true,
+      "craft_time": 6.0,
+      "craft_message": "You bend the planks into a ring and lash the leather tight. It rings like a drum when you knock on it.",
+      "status": "Core"
+    },
     "fle_bowstring": {
       "name": "Bowstring",
       "skill": "fletching",
