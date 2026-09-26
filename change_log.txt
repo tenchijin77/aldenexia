@@ -2400,6 +2400,38 @@ GATE RAIDS (`Scripts/gate_raid_manager.gd`, `Data/gate_raids.json`, node "GateRa
   warmth of the campfire -> groupfire.
 - Tests: test_test37.gd. Suite: 3,808 checks pass.
 
+### Sitting up straight, cross-legged, and lizardkin tails (2026-09-26, during test 42)
+- SITTING, THREE WAYS (user: "i'd like all three of those sitting models in game, and randomly pick one when you sit").
+  The models had three kinds of sit between them: cross-legged (the human male's 10.9 s idle; the human, elf and dark elf
+  females' one-frame poses), legs out leaning back on the hands (the other one-frame poses), and reclining (the
+  lizardkin female's). tools/share_sit.gd gives every model all three: sit (cross-legged), sit_2 (legs out), sit_3
+  (reclining), keeping each model's own original in its slot and retargeting the rest from the human male, the half-orc
+  female and the lizardkin female. Each time you sit, one is picked at random (Player3D._sit_anim / pick_variant), kept
+  until you stand; other players see the same one. Only the cross-legged one was leaning back in game (user: "the upright
+  one, was the one that looked like the upper body was angled back"): tools/straighten_sit.gd sets its back segments,
+  neck and head to the model's standing angles (heads up, per "make sure their heads are upright"); the other two are
+  as made. Both run on each model's own library and its _pack.res. Originals: ~/Documents/aldenexia_model_originals/
+  2026-09-26_sit. Checked with renders. The dwarf male, gnome female, lizardkin male and ogre male keep their own
+  one-frame pose (knees up, hunched) as their sit_2.
+  Gotchas found: these rigs number the spine top-down (Hips -> Spine02 -> Spine01 -> Spine -> neck), and an
+  AnimationPlayer leaves bones a clip doesn't key where the last clip left them (reset the skeleton before measuring).
+- LIZARDKIN TAILS (user: "animate the lizardkins' tails in their animations"). Their rigs had no tail bones (the tail was
+  skinned to the hips: it stood rigid and went through the floor when they sat). tools/make_tail.gd fits five bones along
+  each tail (found from the smoothed mesh, strays dropped) and re-weights the tail onto them, blending into the hips at
+  the root: models/Lizardkin */lizardkin_*_breathing_idle_tail_mesh.res (mesh + skin + bones as metadata). At runtime
+  TailRig (Scripts/tail_rig.gd) adds the bones, swaps the mesh in, and swings the tail over every animation: a lazy sway
+  standing, a swing walking, a quicker wider one running (a wave down to the tip), lifting the root whenever the tip
+  would sink into the floor (sitting, dead). The FBX, smoothed mesh and animations are unchanged. Re-run make_tail.gd if
+  smooth_models.sh ever rebuilds a lizardkin. Checked with renders (idle, run, sit, both sexes).
+- PET FALLING AGAIN AND AGAIN (test 43, Zuikasoz's Echo of Shadewend: walking in place, "...falls back in beside you"
+  every few seconds): the fall safety net put the pet at its owner's height 1.5 m to the side, which on a slope is under
+  the ground, so it fell straight through again. It now drops it onto the ground found by a ray there
+  (PetMinion.rescue_spot()), and says the line once a minute at most.
+- TEST 43 DISCONNECTS: the Proxmox backup at 02:00 (a 4 KB write took ~30 s on the VM; server frames stalled up to 41 s).
+  Not a game bug. With the user's OK the VM's idle Project Zomboid LinuxGSM cron jobs were disabled and n8n stopped.
+- Tests: test_test42 (every model has all three sits, the cross-legged one upright; tail meshes, bones, weights; the pet
+  rescue). Suite 4384.
+
 ### Test 42: Zozuur (Voidknight), Maedianie (Wildspeaker) — and the Lightmender, campfires, spawn timers (2026-09-26)
 - Working (per the notes): Kenji breathing and looking round, Oni animated, the critters animated, pets on the /focus
   tank's target, pets holding weapons, group XP, Maedianie's staff, quests ("A Warden Not at Rest" saw the medal), debuff

@@ -2,17 +2,17 @@ ALDENEXIA: LIGHTFALL — TESTING CHECKLIST
 New features and fixes waiting for a real playtest, in two parts: OUTSTANDING (not passed yet) and COMPLETED (passed).
 When an item passes, change [ ] to [x] and move it to the same section under COMPLETED (or just add "- working" and it
 gets moved). A failure goes to outstanding_items.txt with what went wrong. Last updated 2026-09-26 (after test 42).
-Everything below was built after test 26.   Outstanding: 237   Completed: 50
+Everything below was built after test 26.   Outstanding: 224   Completed: 67
 
 
 ################################################################################
-  OUTSTANDING — still to test (237)
+  OUTSTANDING — still to test (224)
 ################################################################################
 
 == ACCOUNTS AND JOINING ==
 [ ] Epheo, Evangeline, Wanderer can each log in with their account (same name and old password).
 [ ] Add Existing Character with an old name + password (make a throwaway old-style character first, or skip).
-[ ] The Join a Server screen's console no longer fills with "Node not found" / "not found in cache" errors.
+[ ] The Join a Server screen's console no longer fills with "Node not found" / "not found in cache" errors. - i have not see these errors
 
 == TEST 28 CHANGES ==
 [ ] Run out of food / drink: Starving / Thirsty appear on the status window (red icons, yellow border); they go when you eat/drink.
@@ -227,6 +227,14 @@ Everything below was built after test 26.   Outstanding: 237   Completed: 50
     sundered armour (ravager), blinded (Djhanid), grave miasma (restless corpse), withering touch (wraith).
 [ ] Two players: one zones, the other stays; both keep playing (chat across zones doesn't work yet).
 
+== SITTING AND TAILS (2026-09-26) ==
+[ ] Sit several times (x): each time one of three at random: cross-legged (back upright, head up), legs out leaning back
+    on the hands, or lying back. Stand and sit again for another. A groupmate sees the same one you do.
+[ ] A Spiritweaver's Echo (or any pet) that falls somewhere lands beside you on the ground and stays; the "falls back in
+    beside you" line comes once, not over and over.
+[ ] A lizardkin: the tail sways gently standing still, swings walking, swings faster running; sitting it lies along the
+    ground (not through it); no tearing where it joins the body. A groupmate sees it move too.
+
 == TEST 42 FIXES (2026-09-26) ==
 [ ] Group in the Outskirts; one zones to Lumora and back: both still see each other in the group (not "offline").
 [ ] Die fighting something with a groupmate: it doesn't follow you to your bind point; it turns on your groupmate.
@@ -358,22 +366,16 @@ Everything below was built after test 26.   Outstanding: 237   Completed: 50
 
 == CHARACTER MODELS (2026-09-25 overnight) ==
 [ ] Zoom in on your character's face (and Lira, Aldric): smooth and rounded, no facets. Same for every race.
-[ ] Animations still look right on the new meshes (idle, walk, run, cast, sit, death) — no stretched or torn spots.
 [ ] Male elf running: feet land apart, knees don't knock. Walking unchanged.
-[ ] The women's new shapes (every race): fuller bust, narrower waist, rounder hips; clothes follow; nothing tears when
-    they run, cast, sit or die.
-[ ] Frame rate with a crowd (the meshes are ~62k triangles now, with distance LODs).
+[ ] Frame rate with a crowd (the meshes are ~62k triangles now, with distance LODs).- no issues so far
 
 == ASHFALL DUNES (2026-09-25 overnight; flat ground, borrowed models) ==
-[ ] Walk south out of Dustwind (the whole south edge is the line): "You have entered Ashfall Dunes." Walk north: back
-    in Dustwind near its south edge.
 [ ] Bonegnawer camps north-east; beetles and sandshifters on the northern dunes; phantoms in the middle; the Mass
     Gravesite's skeletons and wights; Tak'Majir camps west; the Djhanid Encampment south-east leaves you be.
 [ ] Levels feel right: 7-12 soloable-ish; the phantom lord, Dustwalker commander, Tak'Majir spymaster and Djhanid warden
     need a group.
 [ ] Sahren turns up in Ashfall (guards in the Outskirts say "out in the Ashfall Dunes"), at the Oasis, the vendor camp
     and the Djhanid Encampment.
-[ ] Start the world with tools/run_world.sh: the Ashfall server starts too (port +11).
 
 == MONSTER ABILITIES (2026-09-25 overnight; numbers are a first pass) ==
 [ ] Grukka Bonechewer: "begins to cast Bone Shard." shows in chat and "(casting Bone Shard)" on the target window; a stun
@@ -394,39 +396,20 @@ Everything below was built after test 26.   Outstanding: 237   Completed: 50
 [ ] The Outskirts spider den spawns inside the painted den in the northwest (about X 35, Z -815).
 
 == TEST 34 FIXES (2026-09-24) ==
-[ ] A new character reaches level 2 at 100 XP and KEEPS it (the server used to put it back to level 1 on every save), and
-    its skills keep rising past 4 at level 2 (up to 8).
-[ ] Magic Missile: the purple arcane icon (not crossed swords); three small orbs spinning in a ring as they fly, landing
-    together; still three hits. Other arcane spells have the new arcane icons; Assassinate, Defensive Strike and the
-    Aetherfist strikes have the crossed swords.
-[ ] Arcane Armor: "Your Arcane Armor absorbs N damage!" on each hit it soaks; after 100 in total, "...is spent and
-    fades" and the buff icon is gone. - working
-[ ] Die with buffs up: they're all gone when you wake (your stance and a lit torch stay). Your pet is gone too; summon it
-    again and its gear is still on it.
 [ ] Buy 4 Small Bags: 4 bags arrive (one per slot). With room for only 2: you get 2, pay for 2, and are told.
-[ ] A new Arcanist / Chaosborn / Gravecaller / Troubadour / Lightmender starts with a dagger; Wildspeaker / Spiritweaver with
-    a Fir Staff.
-[ ] Aldric and Lira look like their original models again (and in the editor).
 [ ] The steep hills east of (-376, 179): you don't fall through them any more (if you slip in, you pop back on top);
     slopes up to 50 degrees can be climbed, cliffs can't.
 [ ] Click in the chat log, then hold W to run: the chat doesn't scroll.
-[ ] "You have entered Dustwind Plateaus." (and "...Lumora Outskirts." going back, and on logging in) shows in the chat.
-[ ] Walk through the gap in the southern mountains (around X -1270, Z 0..230) anywhere across it: you zone into Dustwind.
-    South of the mountains the land is gone (trimmed). The world must be started with run_world.sh.
 
 == EDGES, FALLS, GM TOOLS (2026-09-25) ==
 [ ] Dustwind: walking north anywhere along its edge zones you to the Outskirts (not just the middle).
 [ ] Walk to any other edge of Dustwind (east, west, south): an invisible wall stops you.
-[ ] If you ever fall out of the world, a moment later you're back at the zone's arrival point with a message.
 [ ] GM: /kill on a monster (dies, no XP or loot), /kill me (you die and wake at your bind point).
 [ ] GM: /give tin shi (a Tin Shield in your bags), /give iron rations 5, /give tin sh (lists the two it could be).
 [ ] Join a Server while an update is needed or downloading: every field stays inside the window's border.
-[ ] GM: /teleport dust from the Outskirts, /teleport lumora back: you arrive at each zone's arrival point.
 
 == TEST 35 FIXES (2026-09-25) ==
-[ ] Lira, Ilsabet and a half-elf female player: faces and clothes look smooth, not faceted. Guards look as before. - working
 [ ] Goblins, skeletons, mummies, brigands and the other race models look smooth too.
-[ ] Walk into the mausoleum through its door, all the way to the back, and back out; you can't walk through its walls. - working
 [ ] The Outskirts' north: past the mountains the land is gone; an invisible wall stops you just behind them (also at the
     town gate gap and past both ends of the ridge).
 [ ] Dustwind's monsters are where the design puts them (Stone Circles west, Dustwalker camps in the middle, undead to the
@@ -443,8 +426,46 @@ Everything below was built after test 26.   Outstanding: 237   Completed: 50
 [ ] Restart the world while he's mid-visit: he comes back where he should be (on the road, or at his stop), not from the start.
 
 ################################################################################
-  COMPLETED — passed (50)
+  COMPLETED — passed (67)
 ################################################################################
+
+== TEST 35 FIXES (2026-09-25) ==
+[x] Lira, Ilsabet and a half-elf female player: faces and clothes look smooth, not faceted. Guards look as before. - working
+[x] Walk into the mausoleum through its door, all the way to the back, and back out; you can't walk through its walls. - working
+
+== EDGES, FALLS, GM TOOLS (2026-09-25) ==
+[x] If you ever fall out of the world, a moment later you're back at the zone's arrival point with a message. - working
+[x] GM: /teleport dust from the Outskirts, /teleport lumora back: you arrive at each zone's arrival point. - working
+
+== TEST 34 FIXES (2026-09-24) ==
+[x] A new character reaches level 2 at 100 XP and KEEPS it (the server used to put it back to level 1 on every save), and
+    its skills keep rising past 4 at level 2 (up to 8). - working
+[x] Magic Missile: the purple arcane icon (not crossed swords); three small orbs spinning in a ring as they fly, landing
+    together; still three hits. Other arcane spells have the new arcane icons; Assassinate, Defensive Strike and the
+    Aetherfist strikes have the crossed swords. - working
+[x] Arcane Armor: "Your Arcane Armor absorbs N damage!" on each hit it soaks; after 100 in total, "...is spent and
+    fades" and the buff icon is gone. - working
+[x] Die with buffs up: they're all gone when you wake (your stance and a lit torch stay). Your pet is gone too; summon it
+    again and its gear is still on it. - working
+[x] A new Arcanist / Chaosborn / Gravecaller / Troubadour / Lightmender starts with a dagger; Wildspeaker / Spiritweaver with
+    a Fir Staff. - working
+[x] Aldric and Lira look like their original models again (and in the editor). - working
+[x] "You have entered Dustwind Plateaus." (and "...Lumora Outskirts." going back, and on logging in) shows in the chat. - working
+[x] Walk through the gap in the southern mountains (around X -1270, Z 0..230) anywhere across it: you zone into Dustwind.
+    South of the mountains the land is gone (trimmed). The world must be started with run_world.sh. - working
+
+== ASHFALL DUNES (2026-09-25 overnight; flat ground, borrowed models) ==
+[x] Walk south out of Dustwind (the whole south edge is the line): "You have entered Ashfall Dunes." Walk north: back
+    in Dustwind near its south edge. - working
+[x] Start the world with tools/run_world.sh: the Ashfall server starts too (port +11).- working
+
+== CHARACTER MODELS (2026-09-25 overnight) ==
+[x] Animations still look right on the new meshes (idle, walk, run, cast, sit, death) — no stretched or torn spots. - animations look good.
+[x] The women's new shapes (every race): fuller bust, narrower waist, rounder hips; clothes follow; nothing tears when
+    they run, cast, sit or die. - looks great
+
+== TEST 43 CONFIRMED (2026-09-26) ==
+[x] Kenji's whole tail moves. Follow runs to keep up. Auto-Loot on Kill works.
 
 == TEST 42 CONFIRMED (2026-09-26) ==
 [x] Oni walks her patrol, runs, stands and looks around. Kenji breathes and turns his head.

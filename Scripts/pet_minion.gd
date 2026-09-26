@@ -441,10 +441,30 @@ func _tick_fall_recovery(delta: float) -> void:
 	_fall_timer = 0.0
 	if not is_instance_valid(owner_player):
 		return
-	global_position = owner_player.global_position + owner_player.global_transform.basis.x * 1.5
+	global_position = rescue_spot(owner_player)
 	velocity = Vector3.ZERO
 	_nav_path.clear()
-	_say("...falls back in beside you, having gone somewhere it shouldn't have.")
+	# once a minute at most (test 43: a pet put back under a slope fell again and again, and said so every few seconds)
+	if Time.get_ticks_msec() - _last_fall_line_ms > 60000:
+		_last_fall_line_ms = Time.get_ticks_msec()
+		_say("...falls back in beside you, having gone somewhere it shouldn't have.")
+
+
+var _last_fall_line_ms := -100000
+
+
+# Beside the owner, ON the ground: a ray down from above finds the surface there. It used to be the owner's own height
+# 1.5 m to the side, which on a slope (or at the edge of the town's floor) is inside the terrain: the pet dropped
+# straight through again, and was put back there every 4 seconds (test 43, Zuikasoz's Echo).
+func rescue_spot(owner_node: Node3D) -> Vector3:
+	var side := owner_node.global_position + owner_node.global_transform.basis.x * 1.5
+	if is_inside_tree():
+		var query := PhysicsRayQueryParameters3D.create(side + Vector3.UP * 4.0, side + Vector3.DOWN * 6.0)
+		query.exclude = [get_rid(), owner_node.get_rid()] if owner_node is CollisionObject3D else [get_rid()]
+		var hit := get_world_3d().direct_space_state.intersect_ray(query)
+		if not hit.is_empty():
+			return hit["position"] + Vector3.UP * 0.1
+	return owner_node.global_position + Vector3.UP * 0.5   # nothing found beside: on the owner's own spot, a little above
 
 
 # A point FOLLOW_DISTANCE behind wherever the player is currently facing,

@@ -80,7 +80,8 @@ func run() -> void:
 	check(ps.contains("You heal %s for [b]%d[/b] with %s.") and ps.contains("%s heals you for [b]%d[/b] with %s."), "heals name healer, target and spell")
 
 	# Auto-Loot on Kill
-	eq(Global.settings.get("auto_loot"), false, "auto-loot is off by default")
+	check(src.call("res://Scripts/global.gd").contains('"auto_loot": false,'), "auto-loot is off by default")   # (not the live settings: the tester's own file)
+	var auto_loot_was = Global.settings.get("auto_loot", false)
 	check(src.call("res://Scripts/pause_menu.gd").contains('"Auto-Loot on Kill", "auto_loot"'), "an Options toggle")
 	Global.settings["auto_loot"] = true
 	var goblin := await _monster("desert_goblin", Vector3(4, 1, 0))
@@ -90,7 +91,7 @@ func run() -> void:
 	goblin._watch_for_auto_loot()
 	check(goblin._seen_dead, "the corpse was noticed")
 	check(goblin._personal_loot.has(multiplayer.get_unique_id()), "and looted on its own (its loot was rolled and taken)")
-	Global.settings["auto_loot"] = false
+	Global.settings["auto_loot"] = auto_loot_was
 	goblin.queue_free()
 
 	# Kenji's tail tip and the troll's shoulders
@@ -98,6 +99,43 @@ func run() -> void:
 	check(src.call("res://tools/blender/animate_sitting_cat.py").contains("TAIL_FRONT_Y"), "his tail mask reaches the curled tip")
 	var troll: AnimationLibrary = load("res://models/Troll Male/troll_male_animations_pack.res")
 	check(troll.get_animation("run").has_meta("shoulders_relaxed") and troll.get_animation("walk").has_meta("shoulders_relaxed"), "the troll's run and walk shoulders relaxed")
+
+	# sitting: three ways for every model (share_sit.gd), picked at random; the cross-legged one upright (straighten_sit.gd)
+	var model_src: String = src.call("res://Scripts/player3d.gd")
+	var re := RegEx.new()
+	re.compile('"library":\\s*"(res://models/[^"]+_pack\\.res)"')
+	var libs := re.search_all(model_src)
+	var missing := []
+	var not_upright := []
+	for m in libs:
+		var lib: AnimationLibrary = load(m.get_string(1))
+		for slot in ["sit", "sit_2", "sit_3"]:
+			if not lib.has_animation(slot) or not lib.get_animation(slot).has_meta("sit_kind"):
+				missing.append("%s:%s" % [m.get_string(1).get_file(), slot])
+		if lib.has_animation("sit") and not lib.get_animation("sit").has_meta("sit_upright"):
+			not_upright.append(m.get_string(1).get_file())
+	check(libs.size() >= 22 and missing.is_empty(), "every model has all three sits (%s)" % str(missing))
+	check(not_upright.is_empty(), "the cross-legged one sits upright (%s)" % str(not_upright))
+	check(model_src.contains('_sit_anim = pick_variant(animation_player, "sit")'), "a random one each time you sit")
+	check(src.call("res://Scripts/pet_minion.gd").contains("func rescue_spot(") and src.call("res://Scripts/pet_minion.gd").contains("_last_fall_line_ms > 60000"), "a fallen pet is put back ON the ground, and says so once a minute at most")
+
+	# lizardkin tails: bones fitted to the tail, weights on them, a rig that swings them
+	for sex in ["Male", "Female"]:
+		var tail_path := "res://models/Lizardkin %s/lizardkin_%s_breathing_idle_tail_mesh.res" % [sex, sex.to_lower()]
+		check(ResourceLoader.exists(tail_path), "the lizardkin %s has a tail mesh" % sex.to_lower())
+		if ResourceLoader.exists(tail_path):
+			var tm: ArrayMesh = load(tail_path)
+			var rows: Array = tm.get_meta("tail_bones", [])
+			var tskin: Skin = tm.get_meta("tail_skin", null)
+			eq(rows.size(), 5, "five tail bones")
+			check(tskin != null and str(tskin.get_bind_name(tskin.get_bind_count() - 1)) == "Tail5", "its skin binds them")
+			var bw: PackedInt32Array = tm.surface_get_arrays(0)[Mesh.ARRAY_BONES]
+			var on_tail := 0
+			for b in bw:
+				if b >= tskin.get_bind_count() - 5:
+					on_tail += 1
+			check(on_tail > 2000, "thousands of vertices ride the tail bones (%d)" % on_tail)
+	check(model_src.contains("TailRig.attach(character)"), "player models get their tail rig")
 
 	# the Lightmender's Spiritual Weapon: level 1, a starting spell, holds nothing
 	var spells = JSON.parse_string(src.call("res://Data/player_spells.json"))

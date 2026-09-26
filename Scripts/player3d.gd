@@ -1380,6 +1380,7 @@ func _build_character_model() -> void:
 	var character: Node3D = character_scene.instantiate()
 	character.name = "Character"
 	MeshSmoothing.smooth_model(character)   # the Meshy exports' hard edges made faces look faceted (test 35)
+	TailRig.attach(character)   # a lizardkin's tail gets bones and swings (tail_rig.gd)
 	character.transform = CHARACTER_MODEL_TRANSFORM
 	# Per-model scale correction for a source mesh exported at the wrong unit
 	# scale (see elf_female's entry above) — most models don't need this and
@@ -1526,6 +1527,8 @@ func _trigger_cast_animation(spell: Dictionary) -> void:
 	_cast_anim_timer = animation_player.get_animation(anim_name).length
 
 
+var _sit_anim := ""   # this sit's variant (tools/share_sit.gd: sit, sit_2, sit_3)
+
 func _update_animation() -> void:
 	if not animation_player or animation_player.get_animation_list().is_empty():
 		return
@@ -1537,13 +1540,17 @@ func _update_animation() -> void:
 	elif not is_on_floor():
 		anim_name = "jump"
 	elif is_sitting:
-		anim_name = "sit"
+		if _sit_anim.is_empty() or not animation_player.has_animation(_sit_anim):
+			_sit_anim = pick_variant(animation_player, "sit")   # cross-legged, legs out or reclining, fresh each time you sit
+		anim_name = _sit_anim
 	elif current_speed > WALK_SPEED + 0.5:
 		anim_name = "run"
 	elif current_speed > 0.1:
 		anim_name = "walk"
 	else:
 		anim_name = "idle"
+	if not is_sitting:
+		_sit_anim = ""
 	anim_state = anim_name  # replicated to other peers via MultiplayerSynchronizer — see _play_replicated_animation()
 	if animation_player.current_animation != anim_name:
 		animation_player.play(anim_name, 0.15)
